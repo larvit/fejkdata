@@ -15,16 +15,19 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// maxFilterValues caps the values one where clause weighs at load.
-const maxFilterValues = 1 << 20
+// maxDrawValues caps the values one where or distinct clause weighs at load.
+const maxDrawValues = 1 << 20
 
-// whereFilter draws one of the values a path renders that pass a where clause, with the odds it
-// has in a draw of the path. The values are fixed at load; a length that reads a name reads it at
-// each draw.
-type whereFilter struct {
+// valueDraw draws among the values a path renders, fixed at load with the odds each has in a draw of
+// the path: one of those that pass a where clause, or count distinct ones where a distinct clause
+// asks. A length that reads a name reads it at each draw.
+type valueDraw struct {
 	lengthIndex
-	lo, hi lengthEnd
-	reads  []arm // the op's operands, which an end reading a name indexes
+	lo, hi  lengthEnd
+	reads   []arm  // the op's operands, which an end reading a name indexes
+	filters bool   // a where clause filters the values
+	count   int    // how many distinct values one draw takes
+	sep     string // what prints between them
 }
 
 // lengthIndex holds values by length, each with its odds.
@@ -70,23 +73,23 @@ func (t *template) compileLengths(w *grammar.Where, targets map[*nameBinding]nam
 	return arms, nil
 }
 
-// filterDraws builds the filter of each token in ts with a where clause, and returns those of the
-// names bound to a filtered draw.
-func filterDraws(ts []templateSite, targets map[*nameBinding]nameTarget) (map[*nameBinding]*whereFilter, error) {
-	binds := map[*nameBinding]*whereFilter{}
+// valueDraws builds the draw of each token in ts with a where or a distinct clause, and returns those
+// of the names bound to one.
+func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) (map[*nameBinding]*valueDraw, error) {
+	binds := map[*nameBinding]*valueDraw{}
 	for _, s := range ts {
 		for i := range s.t.compiled.ops {
 			o := &s.t.compiled.ops[i]
-			if o.Where == nil {
+			if o.Where == nil && o.Distinct == nil {
 				continue
 			}
-			f, err := s.t.filterOf(o, targets)
+			v, err := s.t.valueDrawOf(o, targets)
 			if err != nil {
 				return nil, fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
 			}
-			o.filter = f
+			o.values = v
 			if o.Kind == grammar.NameBind {
-				binds[s.t.nameScope.bindings[o.Bound]] = f
+				binds[s.t.nameScope.bindings[o.Bound]] = v
 			}
 		}
 	}
@@ -100,15 +103,19 @@ func filterDraws(ts []templateSite, targets map[*nameBinding]nameTarget) (map[*n
 	return binds, nil
 }
 
-// filterOf builds o's filter over the values the path it filters renders, and proves every draw
-// leaves one to draw.
-func (t *template) filterOf(o *op, targets map[*nameBinding]nameTarget) (*whereFilter, error) {
+// valueDrawOf builds o's draw over the values the path it reads renders, and proves every draw
+// leaves enough to draw.
+func (t *template) valueDrawOf(o *op, targets map[*nameBinding]nameTarget) (*valueDraw, error) {
+	clause := "a where clause filters"
+	if o.Where == nil {
+		clause = "a distinct clause draws"
+	}
 	var start node
 	var tail []string
 	if o.Kind == grammar.PathRead {
 		a := o.arms[0]
 		if a.kind == namedRead {
-			return nil, fmt.Errorf("%q is a name, drawn once; filter the draw it binds: {%s where … as %s}", a.head, a.named.ref, a.head)
+			return nil, fmt.Errorf("%q is a name, drawn once; write the clause on the draw it binds: {%s … as %s}", a.head, a.named.ref, a.head)
 		}
 		start, tail = t.startOf(a.head), a.tail
 	} else {
@@ -117,13 +124,13 @@ func (t *template) filterOf(o *op, targets map[*nameBinding]nameTarget) (*whereF
 	}
 	w := valueWalk{targets: targets, seen: map[node]bool{}}
 	if err := w.walk(start, tail, 1, "", ""); err != nil {
-		return nil, fmt.Errorf("a where clause filters values fixed at load, and %w", err)
+		return nil, fmt.Errorf("%s values fixed at load, and %w", clause, err)
 	}
-	f := newWhereFilter(w.out, o.Where, o.operands)
-	return f, f.proveEveryDrawPasses()
+	v := newValueDraw(w.out, o.Where, o.Distinct, o.operands)
+	return v, v.proveEveryDrawPasses()
 }
 
-type filterValue struct {
+type weightedText struct {
 	text   string
 	weight float64
 }
@@ -133,7 +140,7 @@ type filterValue struct {
 type valueWalk struct {
 	targets map[*nameBinding]nameTarget
 	seen    map[node]bool // the nodes the walk is inside
-	out     []filterValue
+	out     []weightedText
 }
 
 // walk lists the values of the path tail into n, each with weight times its odds, written
@@ -212,8 +219,8 @@ func oneRead(t *template) (before string, read *op, after string, err error) {
 			after += o.Lit
 		case o.Kind == grammar.BuiltinCall:
 			return "", nil, "", fmt.Errorf("%q renders {%s}, which draws anew each time", t.format, o.Body)
-		case o.Where != nil:
-			return "", nil, "", fmt.Errorf("%q renders {%s}, which filters a draw of its own", t.format, o.Body)
+		case o.Where != nil || o.Distinct != nil:
+			return "", nil, "", fmt.Errorf("%q renders {%s}, which draws through a clause of its own", t.format, o.Body)
 		case read != nil:
 			return "", nil, "", fmt.Errorf("%q reads both {%s} and {%s}", t.format, read.Body, o.Body)
 		default:
@@ -270,28 +277,36 @@ func (w *valueWalk) emit(text string, weight float64) error {
 	if weight == 0 {
 		return nil
 	}
-	if len(w.out) == maxFilterValues {
-		return fmt.Errorf("the path renders more than %d values", maxFilterValues)
+	if len(w.out) == maxDrawValues {
+		return fmt.Errorf("the path renders more than %d values", maxDrawValues)
 	}
-	w.out = append(w.out, filterValue{text, weight})
+	w.out = append(w.out, weightedText{text, weight})
 	return nil
 }
 
-// newWhereFilter keeps the values that pass where's fixed conditions, shortest first.
-func newWhereFilter(values []filterValue, where *grammar.Where, reads []arm) *whereFilter {
-	var kept []filterValue
-	for _, v := range values {
-		if !slices.Contains(where.Not, v.text) && !slices.ContainsFunc(where.NotContaining, func(s string) bool { return strings.Contains(v.text, s) }) {
-			kept = append(kept, v)
+// newValueDraw keeps the values that pass where's fixed conditions, shortest first, for draws of
+// distinct's count, or of one where distinct is nil.
+func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar.Distinct, reads []arm) *valueDraw {
+	v := &valueDraw{reads: reads, count: 1, lo: lengthEnd{n: 0, read: -1}, hi: lengthEnd{n: math.MaxInt, read: -1}}
+	if distinct != nil {
+		v.count, v.sep = distinct.N, distinct.Sep
+	}
+	if where == nil {
+		v.lengthIndex = newLengthIndex(values)
+		return v
+	}
+	var kept []weightedText
+	for _, value := range values {
+		if !slices.Contains(where.Not, value.text) && !slices.ContainsFunc(where.NotContaining, func(s string) bool { return strings.Contains(value.text, s) }) {
+			kept = append(kept, value)
 		}
 	}
-	f := &whereFilter{lengthIndex: newLengthIndex(kept), reads: reads}
-	f.lo, f.hi = lengthEnd{n: 0, read: -1}, lengthEnd{n: math.MaxInt, read: -1}
+	v.lengthIndex, v.filters = newLengthIndex(kept), true
 	if where.Length != nil {
 		names := lengthNames(where)
-		f.lo, f.hi = endOf(where.Length.Lo, names), endOf(where.Length.Hi, names)
+		v.lo, v.hi = endOf(where.Length.Lo, names), endOf(where.Length.Hi, names)
 	}
-	return f
+	return v
 }
 
 func endOf(l grammar.Length, names []string) lengthEnd {
@@ -301,9 +316,9 @@ func endOf(l grammar.Length, names []string) lengthEnd {
 	return lengthEnd{read: slices.Index(names, l.Name)}
 }
 
-func newLengthIndex(values []filterValue) lengthIndex {
+func newLengthIndex(values []weightedText) lengthIndex {
 	type sized struct {
-		filterValue
+		weightedText
 		length int
 	}
 	vs := make([]sized, len(values))
@@ -329,67 +344,134 @@ func (x *lengthIndex) span(lo, hi int) (from, to int) {
 
 // drawIn draws one of the texts from index from up to to, by their odds.
 func (x *lengthIndex) drawIn(s *drawstate.State, from, to int) string {
-	base := 0.0
-	if from > 0 {
-		base = x.cum[from-1]
-	}
-	v := base + s.Float64()*(x.cum[to-1]-base)
-	i := from + sort.Search(to-from, func(i int) bool { return x.cum[from+i] > v })
-	return x.texts[min(i, to-1)]
+	return x.texts[x.drawIndex(s, from, to, nil)]
 }
 
-// proveEveryDrawPasses refuses a filter some draw leaves with no value: one no value passes, or one
-// whose length reads a name that may print a length no value has.
-func (f *whereFilter) proveEveryDrawPasses() error {
-	bounds := make([][2]float64, len(f.reads))
-	for i, a := range f.reads {
-		v := (&valueProof{}).proveUnion(a.leaves)
+// drawDistinctIn draws n of the texts from index from up to to, each by its odds among those not
+// drawn yet.
+func (x *lengthIndex) drawDistinctIn(s *drawstate.State, from, to, n int) []string {
+	drawn := make([]int, 0, n) // ascending
+	out := make([]string, n)
+	for k := range out {
+		i := x.drawIndex(s, from, to, drawn)
+		at, _ := slices.BinarySearch(drawn, i)
+		drawn = slices.Insert(drawn, at, i)
+		out[k] = x.texts[i]
+	}
+	return out
+}
+
+// drawIndex draws the index of one of the texts from index from up to to by their odds, leaving out
+// the ascending indexes drawn. It costs what drawn's length costs, whatever the span's: it draws
+// among the odds left, and steps past each drawn text the draw lands at or beyond.
+func (x *lengthIndex) drawIndex(s *drawstate.State, from, to int, drawn []int) int {
+	base, left := x.before(from), x.cum[to-1]-x.before(from)
+	for _, d := range drawn {
+		left -= x.cum[d] - x.before(d)
+	}
+	v := base + s.Float64()*left
+	for _, d := range drawn {
+		if x.before(d) > v {
+			break
+		}
+		v += x.cum[d] - x.before(d)
+	}
+	i := min(from+sort.Search(to-from, func(i int) bool { return x.cum[from+i] > v }), to-1)
+	return undrawnNear(i, from, to, drawn)
+}
+
+// before is the running sum of the odds of the texts before index i.
+func (x *lengthIndex) before(i int) float64 {
+	if i == 0 {
+		return 0
+	}
+	return x.cum[i-1]
+}
+
+// undrawnNear is i, or where rounding landed i on a drawn index, the nearest index from up to to
+// not drawn.
+func undrawnNear(i, from, to int, drawn []int) int {
+	for j := i; j < to; j++ {
+		if _, taken := slices.BinarySearch(drawn, j); !taken {
+			return j
+		}
+	}
+	for j := i - 1; j >= from; j-- {
+		if _, taken := slices.BinarySearch(drawn, j); !taken {
+			return j
+		}
+	}
+	panic(invariant.Broken("a draw ran out of the values the load proved enough"))
+}
+
+// proveEveryDrawPasses refuses a draw some render leaves with too few values: one too few values
+// pass, or one whose length reads a name that may print a length too few values have.
+func (v *valueDraw) proveEveryDrawPasses() error {
+	bounds := make([][2]float64, len(v.reads))
+	for i, a := range v.reads {
+		p := (&valueProof{}).proveUnion(a.leaves)
 		switch {
-		case v.NotOperand != "":
-			return fmt.Errorf("length %s is not always a whole number: %s", a.spelling, v.NotOperand)
-		case !v.Integral:
+		case p.NotOperand != "":
+			return fmt.Errorf("length %s is not always a whole number: %s", a.spelling, p.NotOperand)
+		case !p.Integral:
 			return fmt.Errorf("length %s is not always a whole number: it may print a fraction", a.spelling)
 		}
-		bounds[i] = [2]float64{v.Lo, v.Hi}
+		bounds[i] = [2]float64{p.Lo, p.Hi}
 	}
-	if f.lo.read >= 0 && f.lo.read == f.hi.read {
-		for n := bounds[f.lo.read][0]; n <= bounds[f.lo.read][1]; n++ {
-			if !f.passes(n, n) {
-				return fmt.Errorf("where %s is %.0f, no value passes the where clause", f.reads[f.lo.read].spelling, n)
+	if v.lo.read >= 0 && v.lo.read == v.hi.read {
+		for n := bounds[v.lo.read][0]; n <= bounds[v.lo.read][1]; n++ {
+			if passing := v.passing(n, n); passing < v.count {
+				return fmt.Errorf("where %s is %.0f, %s", v.reads[v.lo.read].spelling, n, v.shortfall(passing))
 			}
 		}
 		return nil
 	}
-	lo, hi := float64(f.lo.n), float64(f.hi.n)
-	if f.lo.read >= 0 {
-		lo = bounds[f.lo.read][1]
+	lo, hi := float64(v.lo.n), float64(v.hi.n)
+	if v.lo.read >= 0 {
+		lo = bounds[v.lo.read][1]
 	}
-	if f.hi.read >= 0 {
-		hi = bounds[f.hi.read][0]
+	if v.hi.read >= 0 {
+		hi = bounds[v.hi.read][0]
 	}
-	if !f.passes(lo, hi) {
-		return errors.New("no value passes the where clause")
+	if passing := v.passing(lo, hi); passing < v.count {
+		return errors.New(v.shortfall(passing))
 	}
 	return nil
 }
 
-// passes reports whether some value is lo to hi long.
-func (f *whereFilter) passes(lo, hi float64) bool {
-	past := 1.0
-	if len(f.lengths) > 0 {
-		past += float64(f.lengths[len(f.lengths)-1])
+// shortfall says that passing values are fewer than a draw takes.
+func (v *valueDraw) shortfall(passing int) string {
+	n := v.count
+	switch {
+	case !v.filters:
+		return fmt.Sprintf("distinct %d draws %d values, and the path renders %d of weight above 0", n, n, passing)
+	case n == 1:
+		return "no value passes the where clause"
+	case passing == 0:
+		return fmt.Sprintf("distinct %d draws %d values, and none pass the where clause", n, n)
+	case passing == 1:
+		return fmt.Sprintf("distinct %d draws %d values, and only 1 passes the where clause", n, n)
 	}
-	from, to := f.span(int(min(max(lo, -1), past)), int(max(min(hi, past), -1)))
-	return from < to
+	return fmt.Sprintf("distinct %d draws %d values, and only %d pass the where clause", n, n, passing)
 }
 
-// draw draws one passing value, reading the length's names in env.
-func (f *whereFilter) draw(s *drawstate.State, env renderEnv) string {
-	from, to := f.span(f.lo.at(s, env, f.reads), f.hi.at(s, env, f.reads))
-	if from == to {
-		panic(invariant.Broken("a where clause the load proved leaves no value"))
+// passing is how many values are lo to hi long.
+func (v *valueDraw) passing(lo, hi float64) int {
+	past := 1.0
+	if len(v.lengths) > 0 {
+		past += float64(v.lengths[len(v.lengths)-1])
 	}
-	return f.drawIn(s, from, to)
+	from, to := v.span(int(min(max(lo, -1), past)), int(max(min(hi, past), -1)))
+	return max(to-from, 0)
+}
+
+// draw draws count distinct passing values, reading the length's names in env.
+func (v *valueDraw) draw(s *drawstate.State, env renderEnv) []string {
+	from, to := v.span(v.lo.at(s, env, v.reads), v.hi.at(s, env, v.reads))
+	if to-from < v.count {
+		panic(invariant.Broken("a clause the load proved leaves %d values leaves %d", v.count, to-from))
+	}
+	return v.drawDistinctIn(s, from, to, v.count)
 }
 
 func (e lengthEnd) at(s *drawstate.State, env renderEnv, reads []arm) int {

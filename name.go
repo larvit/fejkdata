@@ -21,20 +21,21 @@ type nameScope struct {
 
 type nameBinding struct {
 	// Filled by `bindNames`, from the compiled category:
-	name   string
-	ref    string // what it binds, as written: a reference, or a path into a field of binder
-	body   string
-	where  string // the fields reaching the binding template, as a compile error spells them
-	scope  *nameScope
-	index  int
-	binder *template
+	name     string
+	ref      string // what it binds, as written: a reference, or a path into a field of binder
+	body     string
+	distinct *grammar.Distinct // what a {ref distinct N as name} draws; nil for one pick
+	where    string            // the fields reaching the binding template, as a compile error spells them
+	scope    *nameScope
+	index    int
+	binder   *template
 
 	// Filled by `resolveTemplates`, once every check it runs passed:
 	target nameTarget
 	// addressed is every key a read of the name lands on or passes, the spelling of the
 	// first read reaching it beside it; a pick keeps the draws at these keys, and only these.
 	addressed map[pickKey]string
-	filter    *whereFilter // what a {ref where … as name} draws from; nil without a where clause
+	values    *valueDraw // what a {ref where … as name} or {ref distinct N as name} draws from; nil without either clause
 }
 
 // nameTarget is what a binding resolves to in the assembled tree: start, the node its head names, and
@@ -100,7 +101,7 @@ func (sc *nameScope) bindAll(t *template, where string) error {
 		if b, twice := sc.bindings[tok.Bound]; twice {
 			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.Body, tok.Bound, sc.spelled(), b.body)
 		}
-		b := &nameBinding{name: tok.Bound, ref: tok.BoundRef, body: tok.Body, where: where, scope: sc, index: len(sc.order), binder: t}
+		b := &nameBinding{name: tok.Bound, ref: tok.BoundRef, body: tok.Body, distinct: tok.Distinct, where: where, scope: sc, index: len(sc.order), binder: t}
 		if sc.bindings == nil {
 			sc.bindings = map[string]*nameBinding{}
 		}

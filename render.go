@@ -121,8 +121,8 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 		case grammar.LiteralRun:
 			b.WriteString(o.Lit)
 		case grammar.PathRead:
-			if o.filter != nil {
-				b.WriteString(o.filter.draw(s, env))
+			if o.values != nil {
+				b.WriteString(strings.Join(o.values.draw(s, env), o.values.sep))
 				continue
 			}
 			b.WriteString(readField(s, t, env, o.arms[s.IntN(len(o.arms))]).text)

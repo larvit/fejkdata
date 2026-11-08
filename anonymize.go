@@ -55,7 +55,7 @@ func (t *template) wordsOf(a arm, targets map[*nameBinding]nameTarget, built map
 	if err := w.walk(at.start, a.tail, 1, "", ""); err != nil {
 		return nil, fmt.Errorf("its words are read whole at load, and %w", err)
 	}
-	var letters []filterValue
+	var letters []weightedText
 	for _, v := range w.out {
 		if v.text != "" && !strings.ContainsFunc(v.text, func(r rune) bool { return !unicode.IsLetter(r) }) {
 			letters = append(letters, v)

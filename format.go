@@ -98,7 +98,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 // field, and names a valid name that is no option.
 func checkBind(t grammar.Token, fields map[string]node) error {
 	ref, name := t.BoundRef, t.Bound
-	if trimmed := strings.TrimSpace(ref) + grammar.AsWord + strings.TrimSpace(name); trimmed != t.Body && t.Where == nil {
+	if trimmed := strings.TrimSpace(ref) + grammar.AsWord + strings.TrimSpace(name); trimmed != t.Body && t.Where == nil && t.Distinct == nil {
 		return fmt.Errorf("token {%s}: write {%s}", t.Body, trimmed)
 	}
 	if err := checkBound(ref, fields); err != nil {
@@ -196,7 +196,7 @@ func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps,
 				o.operands, err = t.compileLengths(tok.Where, targets)
 			}
 		case grammar.NameBind:
-			if tok.Where == nil {
+			if tok.Where == nil && tok.Distinct == nil {
 				continue
 			}
 			o.operands, err = t.compileLengths(tok.Where, targets)
