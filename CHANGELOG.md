@@ -21,6 +21,10 @@ replacement, and each removed path, column or flag.
 
 - The option `let` holds fields that write no column: `{"format":"{a}","let":{"a":"{/x}"},"b":"{a}"}`
   has the one column `b`. A record holding every field in `let` fails with `ErrNoColumns`.
+- `misc.creditcard-test` and `misc.iban-test` draw only numbers that reach no real card or account:
+  Stripe's published test card for each of seven brands, and its test IBAN for each of BE, DE, ES,
+  FI, NO and SE, with Danske Bank's fictive example for DK. Both are tables, so `misc.creditcard-test[visa]`
+  and `misc.iban-test[SE]` select one row.
 - The README's [Load into a database](https://github.com/larvit/fejkdata#load-into-a-database)
   section pipes records into PostgreSQL, SQLite, MySQL and MongoDB.
 - `da_DK`, Danish, with `da_DK.person` and the tables it reads: `da_DK.first-name`, `da_DK.last-name`,
