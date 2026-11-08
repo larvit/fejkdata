@@ -8,7 +8,7 @@ import (
 // cprTail completes the first seven digits, a date and a seventh digit, so the ten digits,
 // weighted 4 3 2 7 6 5 4 3 2 1, add up to a multiple of 11. The sum depends on the seven only
 // through its residue modulo 11, so a prefix for each of the 11 residues, with every parity,
-// second digit and start, covers every prefix. cprTail panics where it finds no completion.
+// eighth digit and start, covers every prefix. cprTail panics where it finds no completion.
 func TestCprTailCompletesAPrefixOfEveryResidue(t *testing.T) {
 	weights := []int{4, 3, 2, 7, 6, 5, 4, 3, 2, 1}
 	seen := map[int]bool{}
@@ -26,15 +26,15 @@ func TestCprTailCompletesAPrefixOfEveryResidue(t *testing.T) {
 		}
 		seen[sum%11] = true
 		for last := byte('0'); last <= '9'; last++ {
-			for second := range 10 {
+			for eighth := range 10 {
 				for start := range 10 {
-					tail := cprTail(prefix, last, second, start)
+					tail := cprTail(prefix, last, eighth, start)
 					total := sum
 					for i, w := range weights[7:] {
 						total += w * int(tail[i]-'0')
 					}
-					if len(tail) != 3 || tail[0] != byte('0'+second) || (tail[2]-'0')%2 != (last-'0')%2 || total%11 != 0 {
-						t.Fatalf("cprTail(%s, %c, %d, %d) = %q, want the second digit, a third, and a check digit of the parity of %c that makes the sum a multiple of 11", prefix, last, second, start, tail, last)
+					if len(tail) != 3 || tail[0] != byte('0'+eighth) || (tail[2]-'0')%2 != (last-'0')%2 || total%11 != 0 {
+						t.Fatalf("cprTail(%s, %c, %d, %d) = %q, want the eighth digit, a ninth, and a check digit of the parity of %c that makes the sum a multiple of 11", prefix, last, eighth, start, tail, last)
 					}
 				}
 			}

@@ -76,8 +76,10 @@ func engineOn(seed uint64, day time.Time) *Generator {
 }
 
 func TestBuiltinCpr(t *testing.T) {
-	for last, odd := range map[string]bool{"1": true, "6": false} {
-		f := engine(1)
+	f := engine(1)
+	eighths, ninths := map[byte]bool{}, map[byte]bool{}
+	for _, last := range strings.Split("0123456789", "") {
+		odd := last[0]%2 == 1
 		seen := map[string]bool{}
 		for i := 0; i < 300; i++ {
 			got := mustRender(t, f, `{"format":"{pre}-{cpr(last)}","pre":"070761","last":"`+last+`"}`)
@@ -88,10 +90,15 @@ func TestBuiltinCpr(t *testing.T) {
 				t.Fatalf("cpr = %q, want a seventh digit of 1937 to 1999", got)
 			}
 			seen[got] = true
+			eighths[got[8]] = true
+			ninths[got[9]] = true
 		}
 		if len(seen) < 20 {
-			t.Errorf("cpr drew %d numbers in 300, want its digits to vary", len(seen))
+			t.Errorf("cpr drew %d numbers in 300 for %q, want its digits to vary", len(seen), last)
 		}
+	}
+	if len(eighths) != 10 || len(ninths) != 10 {
+		t.Errorf("cpr drew the eighth digits %v and ninth digits %v, want all ten of each", eighths, ninths)
 	}
 }
 
@@ -117,7 +124,7 @@ func TestBuiltinCprRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
 
 func TestBuiltinCprReadsTheLastSixDigitsEmitted(t *testing.T) {
 	f := engine(4)
-	for pre, six := range map[string]string{"x-070761": "070761", "99070761": "070761", "a0b7c0d7e6f1g": "070761"} {
+	for pre, six := range map[string]string{"x-070761": "070761", "99070761": "070761", "a0b7c0d7e6f1g": "070761", "061": "000061", "5": "000005", "x": "000000"} {
 		got := mustRender(t, f, `{"format":"{pre}{cpr(last)}","pre":"`+pre+`","last":"3"}`)
 		if tail := got[len(pre):]; !validCpr(six + tail) {
 			t.Errorf("cpr after %q = %q, want check digits valid for %s", pre, tail, six)
