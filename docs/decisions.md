@@ -32,9 +32,10 @@ teach the exported API belongs above the clause.
 
 2026-09-02, Lilleman auf Larv.
 
-`format`, `weight`, `repeat`, `separator` and `datatype` are reserved; every other key
+`format`, `weight`, `repeat`, `separator`, `datatype` and `let` are reserved; every other key
 is a field. Nesting fields under a key, or prefixing options, would tax every template to
-guard against a misspelt option.
+guard against a misspelt option. `let` is the one option that holds fields, the ones that write
+no column ("A record's `let` fields write no column").
 
 ## `{a|b}` stays beside nested choices
 
@@ -419,6 +420,10 @@ where `{int(100,199)}` states its range.
 bound to `/src` and `{p}` where `p` is bound to the column `place` of its own record, so it
 takes that column's datatype and null. A `datatype` of its own, `string` included, wins
 over the one it reads: the one way to type a column someone else wrote.
+
+It reads through a field as well: `{p.id}` where `p` binds a record whose `id` is an integer is
+an integer column, and where `p` binds a choice of templates each with an `id`, every item's `id`
+must agree on datatype and null, or the load fails as it does for a column's own items.
 
 ## A typed column's calc is refused unless proven
 
@@ -1474,3 +1479,28 @@ the most to the least common, with an estimated count of the twentieth name's co
 its rank; the rarer ones follow in no order and share the count of the last rank. A recalled name
 never outweighs the twentieth. The sex counts are Statistics Denmark's table FOLK1A.
 Valid while no good source of Danish name counts is found; a bulk file replaces the recall.
+
+## A record's `let` fields write no column
+
+2026-11-08, Lilleman auf Larv. Serves goal 4.7, read as: a template that means one thing loads,
+and goal 4.3, a name keeps one pick.
+
+A record wrote one column per field, so a field there only to be named by another, as
+`{"ride":…}` is by `{ride.fare}`, showed up as a column nobody asked for. `let` holds such
+fields: they bind and resolve as any field does and write no column. A writer panel seated as the
+README's audience chose `let` over `hidden`, `private` and `_`-prefixed names: it was the one
+spelling readers took for a local binding. It costs one reserved key, and a field can no longer
+be named `let`. A key in `let` and beside it fails to load, so a field has one place; a record
+whose fields are all in `let` has no columns and is `ErrNoColumns`.
+
+## No database or HTTP sink is built in
+
+2026-11-08, Lilleman auf Larv. Serves goal 6, one command line gets you a value, and goal 10,
+every runtime dependency is one the standard library can't replace.
+
+`fejkdata` writes JSON, CSV, TSV and SQL `INSERT`s to stdout, and the README shows each of the
+four databases a developer loads test data into, PostgreSQL, SQLite, MySQL and MongoDB, reading
+that output on stdin. A built-in sink would add a driver per database, or an HTTP client with its
+authentication and retry rules, each a dependency the standard library can't replace, for a step
+`psql`, `sqlite3`, `mysql`, `mongoimport` and `curl` already do. Valid while those tools read
+what `fejkdata` writes.
