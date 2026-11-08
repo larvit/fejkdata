@@ -28,6 +28,9 @@ func checkCalcNames(label string, t *template) error {
 		if o.Fn != builtinfunc.CalcName || !slices.ContainsFunc(o.operands, func(a arm) bool { return a.kind == namedRead }) {
 			continue
 		}
+		if i := slices.IndexFunc(o.operands, readsJoined); i >= 0 {
+			return fmt.Errorf("%s: token {%s}: operand %s joins several values as text, never a number", label, o.Body, o.operands[i].spelling)
+		}
 		if err := checkOperands(o.Args[0], builtinfunc.ParsedCalc(o.Args[0]), operandNodes(o)); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
 		}

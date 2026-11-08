@@ -74,7 +74,13 @@ func columnsAt(n node, tail []string) (columns []node) {
 
 func readsOneArm(t *template) bool {
 	ops := t.compiled.ops
-	return (t.datatype == nil || *t.datatype != DataTypeString) && t.repeat == 1 && len(ops) == 1 && ops[0].Kind == grammar.PathRead && len(ops[0].arms) == 1 && ops[0].Where == nil
+	return (t.datatype == nil || *t.datatype != DataTypeString) && t.repeat == 1 && len(ops) == 1 && ops[0].Kind == grammar.PathRead && len(ops[0].arms) == 1 && ops[0].Where == nil && ops[0].Distinct == nil && !readsJoined(ops[0].arms[0])
+}
+
+// readsJoined is whether a reads the members of a distinct draw joined, which is text whatever
+// they are.
+func readsJoined(a arm) bool {
+	return a.kind == namedRead && a.named.distinct != nil && a.member == 0
 }
 
 // columnSource is the node a's read starts from (nil where a reads no node), the category holding

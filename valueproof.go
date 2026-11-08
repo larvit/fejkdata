@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 	"reflect"
+	"slices"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -155,6 +156,8 @@ func (p *valueProof) proveTemplate(t *template) proven.Facts {
 	o := t.compiled.ops[0]
 	body, name, args := o.Body, o.Fn, o.Args
 	switch {
+	case o.Kind == grammar.PathRead && (o.Distinct != nil || slices.ContainsFunc(o.arms, readsJoined)):
+		return joinedText(body)
 	case o.Kind == grammar.PathRead:
 		var leaves []node
 		for _, a := range o.arms {
@@ -180,6 +183,19 @@ func (p *valueProof) proveCalc(o op) proven.Facts {
 		return proven.Unproven(fmt.Sprintf("{%s}: %s", body, doubt))
 	}
 	return proven.PrintedNumber(body, v, builtinfunc.CalcDecimals(args))
+}
+
+// proveArm proves what a prints: one of its leaves, or text where it reads a distinct draw's members
+// joined.
+func (p *valueProof) proveArm(a arm) proven.Facts {
+	if readsJoined(a) {
+		return joinedText(a.spelling)
+	}
+	return p.proveUnion(a.leaves)
+}
+
+func joinedText(token string) proven.Facts {
+	return proven.Printing(token, DataTypeString, proven.Facts{NotOperand: "{" + token + "} joins several values as text"})
 }
 
 var typedCalls, operandCalls = builtinfunc.TypedCalls(), builtinfunc.OperandCalls()
