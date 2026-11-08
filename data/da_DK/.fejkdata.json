@@ -1,5 +1,6 @@
 {
 	"index": {
+		"da_DK.address": {"paths":["","locality","postal-code","street","street-number"]},
 		"da_DK.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"da_DK.last-name": {"paths":["","count","name"]},
 		"da_DK.person": {"paths":["","first","last","prefix","sex"]},

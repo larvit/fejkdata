@@ -17,6 +17,13 @@ replacement, and each removed path, column or flag.
   found. Statistics Denmark's tables are free to reuse with a source credit, so a program showing
   them credits "Kilde: Danmarks Statistik". The Go package is
   `github.com/larvit/fejkdata/data/da_DK`, and the CLI carries it.
+- `geo.DK`, Denmark's places: its regions and kommuner from Statistics Denmark, and every postdistrikt
+  holding a street address in Danmarks Adresseregister, each with its postnumre and its streets. A
+  kommune's `code` is four digits as the address register writes it, `0101`, and a region's is
+  `1084`. `da_DK.address` prints `geo.DK.address`, a street, a house number, a postnummer and a
+  postdistrikt, such as `Vestergade 12\n8000 Aarhus C`. A program showing the addresses credits
+  Klimadatastyrelsen. The Go package is `github.com/larvit/fejkdata/data/geo/DK`, which
+  `data/da_DK`'s `Modules()` now also returns.
 
 ## [0.3.0] - 2026-11-05
 
