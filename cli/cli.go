@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime/debug"
 	"sort"
 	"strconv"
@@ -43,15 +44,19 @@ or layered with --data-path. A reference names a category or a dotted path into 
 table's row by key or name ({/table[KEY]}), and .. steps up from a row to the row it
 links to.
 
-Each {…} draws afresh, save a name: {/path as p} picks once and prints nothing, and every
-{p} and {p.field} after it reads that one pick, so values that belong together agree:
-https://github.com/larvit/fejkdata#names
+Each {…} draws afresh, unless it reads a name. {/path as p} draws once, binds the pick
+to p and prints nothing, and every {p} and {p.field} reads that one pick, so values that
+belong together agree:
+  DOCS#names
 
 {name(args)} calls a builtin, such as {lower(8)} for eight letters a-z. The builtins:
 BUILTINS
-What each takes and renders: https://github.com/larvit/fejkdata#functions
-The whole template language: https://github.com/larvit/fejkdata#data-format
-Writing a --data-path directory: https://github.com/larvit/fejkdata#your-own-data
+What each takes and renders:
+  DOCS#functions
+The whole template language:
+  DOCS#data-format
+Writing a --data-path directory:
+  DOCS#your-own-data
 
 Under --format text, the default, what you send is what renders, and COMMAND adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
@@ -664,7 +669,8 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 		return misuse(stderr, name, err)
 	}
 	if in.help {
-		io.WriteString(stdout, help(name))
+		info, _ := debug.ReadBuildInfo()
+		io.WriteString(stdout, help(name, docsURL(info)))
 		return 0
 	}
 	if in.version {
@@ -697,8 +703,7 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 	return 0
 }
 
-// help is the usage as name, with fejkdata's builtins listed in lines of up to 88 columns.
-func help(name string) string {
+func help(name, docs string) string {
 	var lines []string
 	line := " "
 	for _, b := range fejkdata.Builtins() {
@@ -709,7 +714,7 @@ func help(name string) string {
 		line += " " + b
 	}
 	lines = append(lines, line)
-	return strings.NewReplacer("COMMAND", name, "BUILTINS", strings.Join(lines, "\n")).Replace(usage)
+	return strings.NewReplacer("COMMAND", name, "DOCS", docs, "BUILTINS", strings.Join(lines, "\n")).Replace(usage)
 }
 
 func readStdin(stdin io.Reader, name string) (input, error) {
@@ -774,6 +779,22 @@ func versionLine(name string, info *debug.BuildInfo) string {
 		}
 	}
 	return name + " " + moduleVersion(info.Main) + ", fejkdata devel"
+}
+
+var release = regexp.MustCompile(`^v[0-9]+\.[0-9]+\.[0-9]+$`)
+
+// docsURL is the README of the fejkdata release the binary is built with, or the latest
+// README where it is built from anything other than a release.
+func docsURL(info *debug.BuildInfo) string {
+	if info != nil {
+		mods := append([]*debug.Module{&info.Main}, info.Deps...)
+		for _, m := range mods {
+			if m.Path == fejkdataModule && m.Replace == nil && release.MatchString(m.Version) {
+				return "https://github.com/larvit/fejkdata/blob/" + m.Version + "/README.md"
+			}
+		}
+	}
+	return "https://github.com/larvit/fejkdata"
 }
 
 // moduleVersion is the version m is built at: the replacement's where a replace directive
