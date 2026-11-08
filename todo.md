@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 223 | 0.4.0 |  |  | **Add `--format tsv`, so a later run draws a column from an earlier run's records, through a table over that file.** | 2 | 1 | 2 | 3 | 3 | 1 by 6, 4 by 3 | 5.3 |
 | 297 | 0.4.0 |  |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
 | 384 | 0.4.0 |  |  | **Let a record keep a field out of its columns, so a field only other fields read writes no column.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 3 | 3.4 |
@@ -227,14 +226,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 223. Add `--format tsv`, so a later run draws a column from an earlier run's records, through a table over that file.
-
-From the 2026-10-11 audience bench and a real-world use case, a scheduler's fixtures: `"user_id": "{/users.id}"` draws a fresh user for each order, so its `{seq()}` id names no user the run wrote, and the workaround types the user count twice, in `-n` and in `{int(1,N)}`. The scheduler's `exdates.series_id` drew `{int(1,1000000)}`, and its loader folded that modulo the series count.
-
-A run writes one record shape, as item 221 says, so the earlier record comes from an earlier run. Tables already do the rest: a `series.tsv` beside `{"format":"{id}","rows":"series.tsv"}`, read as `"series_id": "{/series as s}{s.id}"` beside `"customer": "{s.customer}"`, wrote ids that exist and the customer of the same row when tried on 0.3.0. Only the conversion from `csv` is missing, so this needs no reference syntax and no `--ref` flag (goal 4's counter-signal). Many rows to one parent are what repeated draws give, a `weight` column skews them, and item 385 draws without repeats.
-
-`internal/rows` splits on tabs with no escape, and a cell's braces are tokens, so `tsv` writes `{{` and `}}` for literal braces. Decide what a value holding a tab or a newline does, within goal 5.4. Measure a table of 120,000 rows against goal 12. Show the two runs in the README's Records section.
 
 ### 297. Add `da_DK`'s national personal id, the CPR number, with its check digits.
 
