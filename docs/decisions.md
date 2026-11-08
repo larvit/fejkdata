@@ -1400,3 +1400,15 @@ own pick says two, so by goal 4.6 the template fails to load, like `{n.w}` besid
 Landing the read on `r`'s pick would make two names share draws. Moving the data's choice a level
 down only moves the disagreement to the new level, and leaves users' categories with it.
 Valid while each name keeps its own pick.
+
+## No column is declared unique; `{seq()}` makes a column unique
+
+2026-11-08, the maintainer. Goals 5.4 and 12.1.
+
+A bulk fixture author asked for a column that redraws on a repeat, so a `UNIQUE` column loads.
+Its values can run out, and in the library no run length is known at load, so running out would
+be an error mid-render, which goal 5.4 rules out. Remembering every value drawn makes a render's
+cost grow with the run, not with the data it reaches, against goal 12.1. Printing a repeat would
+break the promise. Faker's `unique` raises after 1000 tries, which is the error mid-render ruled out
+here. A column carrying `{seq()}`, such as `T-{seq(c)}`, is unique by construction.
+Valid while goals 5.4 and 12.1 hold.
