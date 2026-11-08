@@ -1002,3 +1002,14 @@ Read most (opens and searches):
 - `docs/research/research-sources-se.md` 3
 - `fejkdata.go` 3
 - `data/sv_SE/.fejkdata.json` 2
+
+## Reading cost, chunk e300f4a7ce29, finished 2026-11-05T10:01:54Z
+
+42321 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 2
+- `CHANGELOG.md` 1
+- `README.md` 1
+- `docs/decisions.md` 1
