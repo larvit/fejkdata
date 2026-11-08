@@ -808,6 +808,8 @@ set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2)
 `en_US`'s `word` and `sentence` state no fact and stay hand-written. Where a category
 has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
+A drawn `misc.creditcard` number or `{iban(CC)}` passes the real check and may be a real card's or
+account's: they are valid values, not invented ones (goal 3).
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
@@ -1472,6 +1474,33 @@ token {p.postal-code}: not every variant of this 2-way choice carries "postal-co
 The sub-fields stay addressable — `Fake("address.place.locality")` renders, and
 `List` advertises it. A path may not read into a level carrying a `repeat`, and `List`
 advertises no such path; read that level whole.
+
+### Ratios and rules
+
+A ratio is a [weight](#weight). Eighty percent `active` and twenty percent `inactive`:
+
+```json
+[
+  { "format": "active", "weight": 80 },
+  { "format": "inactive", "weight": 20 }
+]
+```
+
+Weights are relative, not percentages: `4` and `1` give the same odds. There is no `if`: a
+rule such as "if the country is `SE`, the currency is `SEK`" is data. Write the country
+and its currency in one row, and bind the row to a [name](#names), as in
+[Correlated fields](#correlated-fields):
+
+```json
+{ "format": "{row as r}{r.country} pays in {r.currency}",
+  "row": [
+    { "format": "{country}", "country": "SE", "currency": "SEK", "weight": 3 },
+    { "format": "{country}", "country": "NO", "currency": "NOK", "weight": 2 },
+    { "format": "{country}", "country": "DK", "currency": "DKK" }
+  ] }
+```
+
+Renders `SE pays in SEK` three times in six, and never `SE pays in NOK`.
 
 ### Performance
 
