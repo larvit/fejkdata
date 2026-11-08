@@ -46,6 +46,10 @@ replacement, and each removed path, column or flag.
   sections. The links point at the README of the fejkdata release the binary was built with, such
   as `.../blob/v0.4.0/README.md#names`. A build from anything else, such as a development build, a
   pseudo-version or a replaced module, links the latest README.
+- The README's [Ratios and rules](https://github.com/larvit/fejkdata#ratios-and-rules) section shows
+  80% `active` as a weighted choice and a currency that follows its country as a named pick. The
+  README now also says a drawn `misc.creditcard` number or `{iban(CC)}` may be a real card's or
+  account's.
 
 ### Changed
 
