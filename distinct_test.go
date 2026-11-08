@@ -35,6 +35,16 @@ func TestDistinctBindsMembersCountedFromOne(t *testing.T) {
 	}
 }
 
+func TestDistinctMemberIsAnOperand(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string][]string{
+		`{"format":"{w distinct 2 as m}{calc(m[1]*2)},{m[1]}","w":["3","4"]}`:                           {"6,3", "8,4"},
+		`{"format":"{w distinct 2 as m}{m[2]}:{v where length m[2]}","w":["3","4"],"v":["cat","bird"]}`: {"3:cat", "4:bird"},
+	} {
+		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+	}
+}
+
 func TestDistinctFillsARecordsColumnsFromOnePick(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
 	rt, err := f.NewRecordTemplate(`{"format":"{crew distinct 4 as e}","let":{"crew":["ann","bo","cy","di","ed"]},"e1":"{e[1]}","e2":"{e[2]}","e3":"{e[3]}","e4":"{e[4]}"}`)
@@ -105,6 +115,8 @@ func TestDistinctRefusesAtLoad(t *testing.T) {
 		`{"format":"{w distinct 2 as e}{e.x}","w":["a","b"]}`:                                                                                  "read whole",
 		`{"format":"{w as e}{e[1]}","w":["a","b"]}`:                                                                                            "select a row",
 		`{"format":"{w distinct 2 joined ','}","w":["{lower(5)}","b","c"]}`:                                                                    "fixed at load",
+		`{"format":"{w distinct 1 joined ''}","w":[{"format":"{v distinct 1 joined ''}","v":["a","bb"]}]}`:                                     "a clause of its own",
+		`{"format":"{w distinct 2 as  e}{e[1]}","w":["a","b"]}`:                                                                                "write {w distinct 2 as e}",
 		`{"format":"{w as x}{x distinct 2 joined ','}","w":["a","b"]}`:                                                                         "drawn once",
 		`{"format":"{w distinct 2 joined ',' as e}{v where length e}","w":["3","4","5"],"v":["cat","bird","horse"]}`:                           "joins several values",
 		`{"format":"{w distinct 2 joined ',' as e}{calc(e*2)}","w":["3","4","5"]}`:                                                             "joins several values",
