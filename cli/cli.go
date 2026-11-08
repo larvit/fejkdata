@@ -51,20 +51,21 @@ object, array or string drops the whitespace around it, and null alone renders n
 format string like any other, and renders as sent. A quoted heredoc, <<'EOF', passes $,
 a backslash or a quote as written.
 
-With --format json, ndjson, csv or sql the template must be a record — a JSON
+With --format json, ndjson, csv, tsv or sql the template must be a record — a JSON
 template whose fields are its columns, or a lone reference such as {/path}:
 one reference and nothing else, with one newline after it allowed — and the rows are
-written as one JSON array, one JSON object per line, one CSV row (after a header), or
-INSERTs of up to 1000 rows, one per line.
+written as one JSON array, one JSON object per line, one CSV or tab-separated row (after a
+header), or INSERTs of up to 1000 rows, one per line. A tsv is a table's rows: braces
+are written doubled, and a tab or line break in a value as a space.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
-      --format F         output form: text (default), json, ndjson, csv or sql
+      --format F         output form: text (default), json, ndjson, csv, tsv or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, each written after {/ in a template, then exit;
                          --repeat, --separator, --format and --table do nothing here
       --no-shipped-data  load only the --data-path directories
   -n, --repeat N         render the template N times, 0..1048576 (default 1); 0 prints nothing,
-                         [] under --format json, or the header under --format csv
+                         [] under --format json, or the header under --format csv or tsv
   -s, --seed N           same seed, date, data and versions: identical output (default: a random seed)
       --separator S      string between repeated renders (default empty); refused with a record
                          --format, which has its own separators
@@ -273,6 +274,11 @@ var recordFormats = map[string]recordFormat{
 	"ndjson": {
 		writes: "writes one record per line",
 		write:  recordLines{line: (*fejkdata.Record).JSON, sep: "\n"}.write,
+	},
+	"tsv": {
+		writes: "always separates fields with a tab",
+		write:  recordLines{header: (*fejkdata.Record).TSVHeader, line: (*fejkdata.Record).TSVLine, sep: "\n"}.write,
+		empty:  func(r *fejkdata.Record) string { return r.TSVHeader() + "\n" },
 	},
 	"sql": {writes: "writes one INSERT per line", write: writeSQL},
 }

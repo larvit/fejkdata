@@ -88,6 +88,30 @@ func csvField(s string) string {
 	return s
 }
 
+// TSVHeader renders the column names as one tab-separated line, the header of a table.
+func (r *Record) TSVHeader() string {
+	names := make([]string, len(r.columns))
+	for i, c := range r.columns {
+		names[i] = c.Name
+	}
+	return strings.Join(names, "\t")
+}
+
+// TSVLine renders the column values as one table row: a null column an empty cell.
+func (r *Record) TSVLine() string {
+	cells := make([]string, len(r.columns))
+	for i, c := range r.columns {
+		cells[i] = literal(c, tsvCell, "")
+	}
+	return strings.Join(cells, "\t")
+}
+
+// tsvCell doubles the braces a table cell reads as tokens. A table has no escape for a tab or a
+// line break, and a render must not fail mid-run, so each becomes a space.
+func tsvCell(s string) string { return tsvCellEscapes.Replace(s) }
+
+var tsvCellEscapes = strings.NewReplacer("{", "{{", "}", "}}", "\t", " ", "\r", " ", "\n", " ")
+
 // SQLInsert renders the record as one INSERT statement into table, identifiers in ANSI
 // double quotes.
 func (r *Record) SQLInsert(table string) string {
