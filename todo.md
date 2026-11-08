@@ -12,13 +12,13 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 3 | 1 | 2 | 4 | 4 | 1 by 4, 4 by 3 | 2.7 |
 | 398 | 0.4.0 |  |  | **Offer a form of `misc.creditcard` and `{iban(CC)}` that draws only numbers reaching no real card or account, such as the card networks' published test card numbers.** | 2 | 1 | 2 | 3 | 3 | 3.3 by 5 | 2.6 |
 | 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 4 | 1 | 2 | 5 | 7 | 1 by 2, 3.1 by 4 | 1.4 |
 | 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
+| 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 4 | 1 | 2 | 5 | 6 | 1 by 4, 4 by 3 | 0.9 |
 | 385 | 0.4.0 | 379 |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
 | 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 380 | 0.4.0 |  |  | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
@@ -228,23 +228,6 @@
 
 ## Details
 
-### 379. Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.
-
-From two real-world use cases. [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer keeps a table's width by replacing each word with one about as long. `en_US.word` holds words of 3 to 8 letters and no function picks by length, so its `corpus-gathering/anonymize.mjs` draws 20,000 words, sorts them by length and takes the nearest. A scheduler's fixtures wanted values other than a few given ones.
-
-The filter applies only where every item's value is fixed text, such as a word list, a choice of literal strings or a table column whose cells hold no `{…}`. A generated value, such as `{uuid()}`, is refused at load; item 380 covers it. Where no item can pass, the template fails to load (goal 5.4), including for each length a name such as `k` can take. Weights hold among the items that pass. The filtered set, or an index by length, is built once on first reach, so a draw costs what it did (goal 12.1).
-
-A panel of four readers, seated as a bulk fixture author, a data author, a JavaScript test author and a hand fixture author, ranked an infix clause like `as` first, every one of them: `{/en_US.word where length 5}`. Each read a function form such as `{length(/en_US.word, 5)}` as measuring a length. Each read an excluded `'cat'` as that word alone, never `concatenate`, and asked for a word of its own, such as `containing`, before any substring match. The maintainer chose the spelling on 2026-11-08:
-
-- `{/en_US.word where length 5}` and `{/en_US.word where length 4 to 6}`, both ends included. Ranges take `to`, since `..` already steps up a level (goal 4.4).
-- `{/en_US.word where not 'cat', 'dog'}` excludes those values, compared whole.
-- `{/en_US.word where not containing 'cat'}` excludes every item holding `cat`, `concatenate` included.
-- `and` joins conditions: `{/en_US.word where length 5 and not 'cat'}`.
-- A length may read a name: `{n as k}{/en_US.word where length k}` beside `"n": "{int(3,8)}"`.
-- `as` binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A name can't be filtered, since its pick is already drawn.
-
-Length counts Unicode code points, with the shipped data held in NFC by a test, since counting what a reader sees takes a dependency goal 10 rules out. Each reader sketched item 385's distinct pick as a clause after this one.
-
 ### 398. Offer a form of `misc.creditcard` and `{iban(CC)}` that draws only numbers reaching no real card or account, such as the card networks' published test card numbers.
 
 The README's Data section says a drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real, and that a real card or account may hold it: a default value reaching a real system, goal 3.3's counter-signal. `misc.creditcard` (`data/misc/creditcard.json`) draws real issuer prefixes (4, 51–55, 34, 37) with a Luhn digit, and `iban` (`internal/builtinfunc/checksum.go`) draws a random BBAN with mod-97 check digits. The README also says `todo.md` plans the path for a category without one; this item makes that true for these two. Source the numbers from the networks' and banks' published test lists, cited in the decision recording the choice, never assembled from plausible ones (`~/.claude/CLAUDE.md` → Web research). The path's name is a spelling users write, so a syntax panel picks it.
@@ -274,6 +257,23 @@ The range `personnummer` draws, past 100 years with a `+`, must hold for `birthd
 From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, so every value must keep its shape while its text, names and URLs change. Nothing here does that, so its `corpus-gathering/anonymize.mjs` splits each string itself: a URL keeps its scheme and separators, and each word takes a draw of the nearest length, in the same case.
 
 One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling.
+
+### 379. Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.
+
+From two real-world use cases. [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer keeps a table's width by replacing each word with one about as long. `en_US.word` holds words of 3 to 8 letters and no function picks by length, so its `corpus-gathering/anonymize.mjs` draws 20,000 words, sorts them by length and takes the nearest. A scheduler's fixtures wanted values other than a few given ones.
+
+The filter applies only where every item's value is fixed text, such as a word list, a choice of literal strings or a table column whose cells hold no `{…}`. A generated value, such as `{uuid()}`, is refused at load; item 380 covers it. Where no item can pass, the template fails to load (goal 5.4), including for each length a name such as `k` can take. Weights hold among the items that pass. The filtered set, or an index by length, is built once on first reach, so a draw costs what it did (goal 12.1).
+
+A panel of four readers, seated as a bulk fixture author, a data author, a JavaScript test author and a hand fixture author, ranked an infix clause like `as` first, every one of them: `{/en_US.word where length 5}`. Each read a function form such as `{length(/en_US.word, 5)}` as measuring a length. Each read an excluded `'cat'` as that word alone, never `concatenate`, and asked for a word of its own, such as `containing`, before any substring match. The maintainer chose the spelling on 2026-11-08:
+
+- `{/en_US.word where length 5}` and `{/en_US.word where length 4 to 6}`, both ends included. Ranges take `to`, since `..` already steps up a level (goal 4.4).
+- `{/en_US.word where not 'cat', 'dog'}` excludes those values, compared whole.
+- `{/en_US.word where not containing 'cat'}` excludes every item holding `cat`, `concatenate` included.
+- `and` joins conditions: `{/en_US.word where length 5 and not 'cat'}`.
+- A length may read a name: `{n as k}{/en_US.word where length k}` beside `"n": "{int(3,8)}"`.
+- `as` binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A name can't be filtered, since its pick is already drawn.
+
+Length counts Unicode code points, with the shipped data held in NFC by a test, since counting what a reader sees takes a dependency goal 10 rules out. Each reader sketched item 385's distinct pick as a clause after this one.
 
 ### 385. Let a template draw several distinct items of a choice or rows of a table in one pick.
 
