@@ -12,11 +12,9 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 382 | 0.4.0 |  |  | **Say in the refusal of a token reading a field beside its own that a token reads only the fields of the template whose format holds it, name the fix, and state that rule under Format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 2, 4 by 3, 5 by 5 | 6.9 |
 | 223 | 0.4.0 |  |  | **Add `--format tsv`, so a later run draws a column from an earlier run's records, through a table over that file.** | 2 | 1 | 2 | 3 | 3 | 1 by 6, 4 by 3 | 5.3 |
 | 297 | 0.4.0 |  |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
-| 226 | 0.4.0 |  |  | **Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.** | 1 | 2 | 1 | 2 | 2 | 1 by 3, 4 by 2 | 3.9 |
 | 384 | 0.4.0 |  |  | **Let a record keep a field out of its columns, so a field only other fields read writes no column.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 3 | 3.4 |
 | 296 | 0.4.0 |  |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 383 | 0.4.0 |  |  | **Make a column that reads one field through a name keep that field's datatype and null, through a template or a choice's items, and show it in the README's Null section.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 2 | 2.9 |
@@ -230,14 +228,6 @@
 
 ## Details
 
-### 382. Say in the refusal of a token reading a field beside its own that a token reads only the fields of the template whose format holds it, name the fix, and state that rule under Format string.
-
-From a real-world use case, a scheduler's fixtures. `{"format":"{a}","a":"x{b}","b":"y"}` reports `no field "b"; a token names a sibling field, and this template has none`, though the template holds `b`. Through a name it reports `no field or name "d"; the names bound here are "p"`, which sent the author looking at the name's scope. The Format string table's "the sibling field" has the same gap.
-
-Where the enclosing template holds the field, the error says so and shows the fix: give the field its own, `{"format":"x{b}","b":"y"}`, or bind the sibling in the category's format and read the name. Inside a choice's item only the first works, since a path through a name refuses a field reading a name its item binds.
-
-The refusal stays. Were a bare string to read the fields beside it, `"email":"{first}@x"` beside a column `first` would draw afresh (goal 4.2) while reading as the same person, which goal 4.6 forbids. `checkTokens` and `bindNames` are places the comprehension seats found hard: make them easier where this touches them.
-
 ### 223. Add `--format tsv`, so a later run draws a column from an earlier run's records, through a table over that file.
 
 From the 2026-10-11 audience bench and a real-world use case, a scheduler's fixtures: `"user_id": "{/users.id}"` draws a fresh user for each order, so its `{seq()}` id names no user the run wrote, and the workaround types the user count twice, in `-n` and in `{int(1,N)}`. The scheduler's `exdates.series_id` drew `{int(1,1000000)}`, and its loader folded that modulo the series count.
@@ -281,10 +271,6 @@ Limits on the change:
 - A new flag or spelling goes to a writer panel.
 
 Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told. Every fact two of these documents state is generated, tested or listed as unchecked, and a test in the merge gate fails when a builtin or flag is added but missing from a document that lists it.
-
-### 226. Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.
-
-From a real-world use case, a scheduler's fixtures: `{upper(1)}-{digits(3)}` callsigns repeat within a few hundred rows, so a `UNIQUE` column fails its load. `"callsign": "T-{seq(c)}"` already works, and the Records section's line on `UNIQUE` columns names no way to get one. The decision "No column is declared unique; `{seq()}` makes a column unique" says why this is the one way.
 
 ### 384. Let a record keep a field out of its columns, so a field only other fields read writes no column.
 
