@@ -1480,6 +1480,25 @@ its rank; the rarer ones follow in no order and share the count of the last rank
 never outweighs the twentieth. The sex counts are Statistics Denmark's table FOLK1A.
 Valid while no good source of Danish name counts is found; a bulk file replaces the recall.
 
+## `da_DK.company` weighs its legal forms by Statistics Denmark's new enterprises and draws its names from a language model's recall
+
+2026-11-08, the maintainer. Goal 3.2.
+
+No open bulk file of Danish company names was found, nor a count of active units by legal form: the
+titles and variables of Statistics Denmark's statbank tables name none. Its table DEMO15 counts the new enterprises of a year by type of ownership, 14,812 sole
+proprietorships, 12,127 private limited companies, 373 public limited companies and 728 partnerships
+and limited partnerships in 2024, and the weights are those. It is a flow, not a stock, so a stock-weighted
+register replaces it. The table doesn't split the partnerships between `I/S` and `K/S`, so they draw evenly.
+`P/S` and `A.m.b.A.` are left out: the table's category names don't mention them.
+
+The name shapes and the words of `company-coined` and `company-word` are a language model's recall of
+how Danish companies are named, each shape and word weighing the same, as for a table whose register
+publishes no frequency. An open bulk file of Danish company names replaces them, as the Norwegian company's came from
+Enhetsregisteret.
+
+`da_DK.date` is `2.4.2019`, with dots and no leading zero, as Dansk Sprognævn's answer SV00000046 gives the
+traditional Danish date; the register's canonical spelling loses to the one its domain writes.
+
 ## A record's `let` fields write no column
 
 2026-11-08, Lilleman auf Larv. Serves goal 4.7, read as: a template that means one thing loads,

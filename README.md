@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers and phone numbers, and `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, and `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
@@ -648,13 +648,24 @@ segments below that. It needs no index. Each shipped module carries one, so
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
-`da_DK`, Danish, carries `address`, `cpr`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
+`da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
 1 January 2026. Every other name is a language model's recall of a name common in Denmark: the commoner ones come first,
 from the most to the least common, and the rarer ones share one weight. These weights are estimates. A program showing the
 top 20 counts or the sex counts credits "Kilde: Danmarks Statistik".
+
+`da_DK.date` is a date from 1970 to 2029 in the traditional Danish spelling, day, month and year with dots and no zero
+before a one-digit day or month, such as `2.4.2019`; Dansk Sprognævn advises against the zero. `da_DK.email` is built like
+`nb_NO.email`, from `da_DK`'s names with `æ`, `ø` and `å` folded to ASCII.
+
+`da_DK.company` draws a legal form as often as Statistics Denmark counted new enterprises of it in 2024 (its table
+DEMO15): sole proprietorship (ENK, whose name has no abbreviation), `ApS`, `A/S`, and `I/S` or `K/S`, which the table
+counts together as partnerships and limited partnerships, so they are drawn evenly. `da_DK.company.enk`, `.aps`,
+`.as`, `.is` and `.ks` each draw one form, and `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick.
+No open bulk file of Danish company names was found, so the name's shapes and the words of `company-coined` and
+`company-word` are a language model's recall, drawn evenly, from `da_DK`'s names and `geo.DK.locality`.
 
 `da_DK.cpr` is a Danish personal number as the CPR office defines it in "Personnummeret i
 CPR-systemet", `ddmmyy-ssss`. It passes the office's checks but is not synthetic: the office
