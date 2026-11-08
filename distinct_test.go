@@ -113,6 +113,37 @@ func TestDistinctRefusesAtLoad(t *testing.T) {
 	}
 }
 
+func TestDistinctRefusesInATable(t *testing.T) {
+	_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
+		"pet.json": `{"format":"{name distinct 2 joined ','}","rows":"pet.tsv"}`,
+		"pet.tsv":  "name\ncat\ndog\n",
+	})))
+	if err == nil || !strings.Contains(err.Error(), "in a template reading the table") {
+		t.Errorf("New = %v, want a table's format drawing distinct values refused, naming where to draw them", err)
+	}
+}
+
+// Joined members are text, whatever the column they come from; one member is a value of that column.
+func TestDistinctJoinedColumnIsTextAndAMemberTheColumnItReads(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{
+		"src": `{"format":"","n":[{"format":"10","datatype":"integer"},{"format":"20","datatype":"integer"},{"format":"30","datatype":"integer"}]}`,
+		"row": `{"format":"{/src.n distinct 2 joined ',' as e}","pair":"{/src.n distinct 2 joined ','}","both":"{e}","first":"{e[1]}"}`,
+	}))
+	r, err := f.FakeRecord("row")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range r.Columns() {
+		want := DataTypeString
+		if c.Name == "first" {
+			want = DataTypeInteger
+		}
+		if c.DataType != want {
+			t.Errorf("column %s = %q of %s, want %s", c.Name, c.Value, c.DataType, want)
+		}
+	}
+}
+
 func TestDistinctDrawsTheShippedWordsAndWeekdays(t *testing.T) {
 	t.Parallel()
 	f := shipped(t)
