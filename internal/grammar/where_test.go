@@ -66,11 +66,70 @@ func TestParseFormatRefusesAMalformedWhereClause(t *testing.T) {
 	}
 }
 
-func TestCheckIdentifierRefusesWhere(t *testing.T) {
-	if CheckIdentifier("a where b") == nil {
-		t.Error(`CheckIdentifier("a where b") = nil, want an error`)
+func TestParseFormatReadsADistinctClause(t *testing.T) {
+	five := &LengthRange{Lo: Length{N: 5}, Hi: Length{N: 5}}
+	for format, want := range map[string]Token{
+		"{/w distinct 2 joined ','}": {Kind: PathRead, Body: "/w distinct 2 joined ','", Arms: []string{"/w"},
+			Distinct: &Distinct{N: 2, Joins: true, Sep: ","}},
+		"{w distinct 3 as e}": {Kind: NameBind, Body: "w distinct 3 as e", BoundRef: "w", Bound: "e", Distinct: &Distinct{N: 3}},
+		"{/w where length 5 distinct 3 as v}": {Kind: NameBind, Body: "/w where length 5 distinct 3 as v", BoundRef: "/w", Bound: "v",
+			Where: &Where{Length: five}, Distinct: &Distinct{N: 3}},
+		"{w distinct 2 joined ' as ' as d}": {Kind: NameBind, Body: "w distinct 2 joined ' as ' as d", BoundRef: "w", Bound: "d",
+			Distinct: &Distinct{N: 2, Joins: true, Sep: " as "}},
+		"{w where not 'distinct' distinct 2 joined ''}": {Kind: PathRead, Body: "w where not 'distinct' distinct 2 joined ''", Arms: []string{"w"},
+			Where: &Where{Not: []string{"distinct"}}, Distinct: &Distinct{N: 2, Joins: true}},
+		"{w[a distinct b] distinct 2 joined ','}": {Kind: PathRead, Body: "w[a distinct b] distinct 2 joined ','", Arms: []string{"w[a distinct b]"},
+			Distinct: &Distinct{N: 2, Joins: true, Sep: ","}},
+	} {
+		toks, err := ParseFormat(format)
+		if err != nil {
+			t.Errorf("ParseFormat(%q): %v", format, err)
+			continue
+		}
+		if len(toks) != 1 || !reflect.DeepEqual(toks[0], want) {
+			t.Errorf("ParseFormat(%q) = %+v, want %+v", format, toks, want)
+		}
 	}
-	if err := CheckIdentifier("where"); err != nil {
-		t.Errorf(`CheckIdentifier("where") = %v, want nil`, err)
+}
+
+func TestParseFormatRefusesAMalformedDistinctClause(t *testing.T) {
+	for _, format := range []string{
+		"{w distinct}",
+		"{w distinct 0 joined ','}",
+		"{w distinct -1 joined ','}",
+		"{w distinct 2.5 as v}",
+		"{w distinct x joined ','}",
+		"{w distinct 2}",
+		"{w where length 5 distinct 2}",
+		"{w distinct 2 joined}",
+		"{w distinct 2 joined ,}",
+		"{w distinct 2 joined ',' ','}",
+		"{w distinct 2 and 3 joined ','}",
+		"{w distinct 2 as}",
+		"{w as v distinct 2}",
+		"{a|b distinct 2 joined ','}",
+		"{lower(5) distinct 2 joined ','}",
+		"{w distinct 2 where length 5 as v}",
+		"{w distinct 2 distinct 3 as v}",
+		"{w where length 5 distinct}",
+		"{w where length distinct 2 as v}",
+	} {
+		if toks, err := ParseFormat(format); err == nil {
+			t.Errorf("ParseFormat(%q) = %+v, want an error", format, toks)
+		}
+	}
+}
+
+func TestCheckIdentifierRefusesWhereAndDistinct(t *testing.T) {
+	for _, word := range []string{"where", "distinct"} {
+		if CheckIdentifier("a "+word+" b") == nil {
+			t.Errorf("CheckIdentifier(%q) = nil, want an error", "a "+word+" b")
+		}
+		if CheckIdentifier("a "+word) == nil {
+			t.Errorf("CheckIdentifier(%q) = nil, want an error", "a "+word)
+		}
+		if err := CheckIdentifier(word); err != nil {
+			t.Errorf("CheckIdentifier(%q) = %v, want nil", word, err)
+		}
 	}
 }

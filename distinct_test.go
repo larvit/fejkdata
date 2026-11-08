@@ -1,0 +1,147 @@
+package fejkdata
+
+import (
+	"runtime"
+	"slices"
+	"strings"
+	"testing"
+	"unicode/utf8"
+)
+
+func TestDistinctDrawsDistinctItems(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string][]string{
+		`{"format":"{w distinct 2 joined ','}","w":["a","b","c"]}`:                        {"a,b", "a,c", "b,a", "b,c", "c,a", "c,b"},
+		`{"format":"{w distinct 3 joined ''}","w":["a","b","c"]}`:                         {"abc", "acb", "bac", "bca", "cab", "cba"},
+		`{"format":"{w distinct 2 joined ','}","w":["a","a","b"]}`:                        {"a,a", "a,b", "b,a"},
+		`{"format":"{w distinct 2 joined ','}","w":[{"format":"{v}","v":["x","y"]},"z"]}`: {"x,y", "y,x", "x,z", "z,x", "y,z", "z,y"},
+		`{"format":"{w where length 3 distinct 2 joined ' '}","w":["cat","dog","horse"]}`: {"cat dog", "dog cat"},
+		`{"format":"{w distinct 2 joined ','}","w":["a","b",{"format":"c","weight":0}]}`:  {"a,b", "b,a"},
+	} {
+		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+	}
+}
+
+func TestDistinctBindsMembersCountedFromOne(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string][]string{
+		`{"format":"{w distinct 3 as e}{e[1]}{e[2]}{e[3]}","w":["a","b","c"]}`:           {"abc", "acb", "bac", "bca", "cab", "cba"},
+		`{"format":"{w distinct 2 as e}{e[1]}{e[2]}{e[1]}","w":["a","b"]}`:               {"aba", "bab"},
+		`{"format":"{w distinct 2 joined '-' as e}{e}/{e[2]}","w":["a","b"]}`:            {"a-b/b", "b-a/a"},
+		`{"format":"{w distinct 2 as e}{uppercase(e[1])}{e[1]}","w":["a","b","c"]}`:      {"Aa", "Bb", "Cc"},
+		`{"format":"{w where length 1 distinct 2 as e}{e[2]}{e[1]}","w":["a","b","cc"]}`: {"ab", "ba"},
+	} {
+		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+	}
+}
+
+func TestDistinctFillsARecordsColumnsFromOnePick(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
+	rt, err := f.NewRecordTemplate(`{"format":"{crew distinct 4 as e}","let":{"crew":["ann","bo","cy","di","ed"]},"e1":"{e[1]}","e2":"{e[2]}","e3":"{e[3]}","e4":"{e[4]}"}`)
+	if err != nil {
+		t.Fatalf("NewRecordTemplate: %v", err)
+	}
+	for i := 0; i < 200; i++ {
+		var got []string
+		for _, c := range rt.Fake().Columns() {
+			got = append(got, c.Value)
+		}
+		sorted := slices.Clone(got)
+		slices.Sort(sorted)
+		if len(got) != 4 || len(slices.Compact(sorted)) != 4 {
+			t.Fatalf("columns = %q, want four crew members, none twice", got)
+		}
+	}
+}
+
+func TestDistinctDrawsDistinctRowsWhateverTheyPrint(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, map[string]string{
+		"animal.json": `{"format":"{name}","rows":"animal.tsv","key":"code"}`,
+		"animal.tsv":  "code\tname\nC\tcat\nH\thorse\nX\tcat\n",
+	}))
+	for src, want := range map[string][]string{
+		`"{/animal.name distinct 2 joined ','}"`: {"cat,horse", "cat,cat", "horse,cat"},
+		`"{/animal.code distinct 3 joined ''}"`:  {"CHX", "CXH", "HCX", "HXC", "XCH", "XHC"},
+		`"{/animal distinct 3 as a}{a[3]}"`:      {"cat", "horse"},
+	} {
+		tp, err := f.NewTemplate(src)
+		if err != nil {
+			t.Fatalf("NewTemplate(%s): %v", src, err)
+		}
+		drawsExactly(t, src, tp.Fake, want...)
+	}
+}
+
+// The first draw takes a by its weight of 6 in 10; the second weighs b against c as 3 to 1, so a,b
+// is 0.6 × 3/4 = 0.45. A first b leaves a against c as 6 to 1, so b,a is 0.3 × 6/7 ≈ 0.257.
+func TestDistinctWeighsEachMemberAmongTheItemsLeft(t *testing.T) {
+	f := engine(3)
+	src := `{"format":"{w distinct 2 joined ','}","w":[{"format":"a","weight":6},{"format":"b","weight":3},{"format":"c","weight":1}]}`
+	seen := map[string]int{}
+	for i := 0; i < 6000; i++ {
+		seen[mustRender(t, f, src)]++
+	}
+	if n := seen["a,b"]; n < 2550 || n > 2850 {
+		t.Errorf("a,b drew %d of 6000, want about 2700: %v", n, seen)
+	}
+	if n := seen["b,a"]; n < 1410 || n > 1680 {
+		t.Errorf("b,a drew %d of 6000, want about 1543: %v", n, seen)
+	}
+}
+
+// Each case names the words its error must hold, which say what to write instead.
+func TestDistinctRefusesAtLoad(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
+	for src, want := range map[string]string{
+		`{"format":"{w distinct 4 joined ','}","w":["a","b","c"]}`:                                             "renders 3 of weight above 0",
+		`{"format":"{w distinct 3 joined ','}","w":["a","b",{"format":"c","weight":0}]}`:                       "renders 2 of weight above 0",
+		`{"format":"{w where length 3 distinct 3 joined ','}","w":["cat","dog","horse"]}`:                      "only 2 pass",
+		`{"format":"{n as k}{w where length k distinct 2 joined ','}","n":["3","4"],"w":["cat","dog","bird"]}`: "where k is 4",
+		`{"format":"{w distinct 2 as e}{e}","w":["a","b"]}`:                                                    "{e[1]}",
+		`{"format":"{w distinct 2 as e}{e[3]}","w":["a","b","c"]}`:                                             "{e[1]} to {e[2]}",
+		`{"format":"{w distinct 2 as e}{e[0]}","w":["a","b","c"]}`:                                             "{e[1]} to {e[2]}",
+		`{"format":"{w distinct 2 as e}{e[x]}","w":["a","b","c"]}`:                                             "{e[1]} to {e[2]}",
+		`{"format":"{w distinct 2 as e}{e[1].x}","w":["a","b"]}`:                                               "read whole",
+		`{"format":"{w distinct 2 as e}{e.x}","w":["a","b"]}`:                                                  "read whole",
+		`{"format":"{w as e}{e[1]}","w":["a","b"]}`:                                                            "select a row",
+		`{"format":"{w distinct 2 joined ','}","w":["{lower(5)}","b","c"]}`:                                    "fixed at load",
+		`{"format":"{w as x}{x distinct 2 joined ','}","w":["a","b"]}`:                                         "drawn once",
+	} {
+		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
+		}
+	}
+}
+
+func TestDistinctDrawsTheShippedWordsAndWeekdays(t *testing.T) {
+	t.Parallel()
+	f := shipped(t)
+	for i := 0; i < 50; i++ {
+		words := strings.Fields(tmpl(t, f, "{/en_US.word where length 5 distinct 3 as w}{w[1]} {w[2]} {w[3]}"))
+		if len(words) != 3 || slices.ContainsFunc(words, func(w string) bool { return utf8.RuneCountInString(w) != 5 }) {
+			t.Fatalf("words = %q, want three words of five letters", words)
+		}
+		days := strings.Split(tmpl(t, f, "{/sv_SE.weekday.code distinct 2 joined ','}"), ",")
+		if len(days) != 2 || days[0] == days[1] || slices.ContainsFunc(days, func(d string) bool { return len(d) != 1 || d < "1" || d > "7" }) {
+			t.Fatalf("days = %q, want two different weekday codes", days)
+		}
+	}
+}
+
+func TestDistinctDrawCostsItsCountNotTheTable(t *testing.T) {
+	f := shipped(t)
+	tp, err := f.NewTemplate(`"{/en_US.word distinct 3 joined ','}"`)
+	if err != nil {
+		t.Fatalf("NewTemplate: %v", err)
+	}
+	tp.Fake()
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	for i := 0; i < 100; i++ {
+		tp.Fake()
+	}
+	runtime.ReadMemStats(&after)
+	if per := (after.TotalAlloc - before.TotalAlloc) / 100; per > 4096 {
+		t.Errorf("a draw of 3 distinct words allocates %d bytes, want 4096 or fewer whatever the table's size", per)
+	}
+}
