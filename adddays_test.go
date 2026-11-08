@@ -68,6 +68,8 @@ func TestAddDaysRefusesWhatIsNoProvenDateOrDayCount(t *testing.T) {
 		`{"format":"{x as s}{adddays(s,1)}","x":"{date(2020-01-01,2020-12-31,'2006-01')}"}`:                                 "does not read back",
 		`{"format":"{x as s}{adddays(s,1)}","x":"{date(2020-01-01,2020-12-31,'200612')}"}`:                                  "does not read back",
 		`{"format":"{x as s}{adddays(s,1)}","x":"{date(2020-01-01,2020-12-31,'2006-1_2')}"}`:                                "does not read back",
+		`{"format":"{x as s}{adddays(s,1)}","x":"{date(2020-01-01,2020-12-31,'Jan3_2 2006')}"}`:                             "does not read back",
+		`{"format":"{x as s}{adddays(s,-)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`:                              "not an integer",
 		`{"format":"{x as s}{adddays(s,1000001)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`:                        "exceeds",
 		`{"format":"{x as s}{adddays(s,-1000001)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`:                       "exceeds",
 		`{"format":"{x as s}{adddays(s,n)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}","n":"{int(1,1000001)}"}`:       "1000001",
