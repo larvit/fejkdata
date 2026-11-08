@@ -209,7 +209,7 @@ func TestWhereFiltersTheShippedWords(t *testing.T) {
 }
 
 // Rounding in drawIndex may land on a drawn index or one past the span; undrawnNear then takes the
-// nearest undrawn index inside it, searching forward first.
+// first undrawn index after it, else the last one before it, inside the span.
 func TestUndrawnNearStaysInsideTheSpan(t *testing.T) {
 	for _, c := range []struct {
 		i, from, to, want int
@@ -219,6 +219,7 @@ func TestUndrawnNearStaysInsideTheSpan(t *testing.T) {
 		{i: 1, from: 0, to: 2, drawn: []int{1}, want: 0},
 		{i: 3, from: 0, to: 3, want: 2},
 		{i: 1, from: 0, to: 3, drawn: []int{1}, want: 2},
+		{i: 3, from: 0, to: 3, drawn: []int{2}, want: 1},
 	} {
 		if got := undrawnNear(c.i, c.from, c.to, c.drawn); got != c.want {
 			t.Errorf("undrawnNear(%d, %d, %d, %v) = %d, want %d", c.i, c.from, c.to, c.drawn, got, c.want)
