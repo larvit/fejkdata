@@ -25,6 +25,16 @@ replacement, and each removed path, column or flag.
   Stripe's test card for each of seven brands, and Stripe's test IBAN for each of BE, DE, ES,
   FI, NO and SE, with Danske Bank's fictive example for DK. Both are tables, so `misc.creditcard-test[visa]`
   and `misc.iban-test[SE]` select one row.
+- `da_DK.date`, a date from 1970 to 2029 such as `2.4.2019`, with no zero before a one-digit day or month.
+- `da_DK.email`, a lower-case ASCII address at `example.com`, `example.org` or `example.net`, or a
+  subdomain of one. Half of its local parts are a first and a last name drawn from `da_DK.first-name`
+  and `da_DK.last-name`.
+- `da_DK.company`, an invented name and a legal form, ENK (a sole proprietorship, whose name has no
+  abbreviation), ApS, A/S, I/S or K/S, such as `Nordholm Holding ApS`. Each form is drawn as often as
+  Statistics Denmark counted new enterprises of it in 2024, and `da_DK.company.enk`, `.aps`, `.as`, `.is`
+  and `.ks` each draw one form. `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick.
+  The name reads `da_DK.company-coined`, `da_DK.company-word`, `da_DK`'s names and `geo.DK.locality`.
+  Statistics Denmark's data is CC BY 4.0, so a program showing a company credits "Kilde: Danmarks Statistik".
 - The README's [Load into a database](https://github.com/larvit/fejkdata#load-into-a-database)
   section pipes records into PostgreSQL, SQLite, MySQL and MongoDB.
 - `da_DK`, Danish, with `da_DK.person` and the tables it reads: `da_DK.first-name`, `da_DK.last-name`,

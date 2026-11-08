@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 4 | 1 | 2 | 5 | 7 | 1 by 2, 3.1 by 4 | 1.4 |
