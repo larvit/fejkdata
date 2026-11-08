@@ -37,6 +37,9 @@ replacement, and each removed path, column or flag.
   `not 'cat', 'dog'` and `not containing 'cat'`. A length may read a name, `{n as k}{/en_US.word where length k}`,
   and `as` after the clause binds the filtered draw. A path whose values are not fixed text, or a clause no
   value can pass, fails to load.
+- `{anonymize(text, /en_US.word)}` replaces each word of `text` with a drawn word of its length, or the nearest
+  length the words hold, in the case of the word it replaces. Digits and punctuation stay, and a word reads as one
+  fake throughout a render.
 - `{adddays(d,n)}` prints the date `d` plus `n` days, keeping its time of day: `{start as s}{len as n}{s},{adddays(s,n)}`
   prints an end `n` days after the start it shows. A third argument, `{adddays(d,n,'layout')}`, prints it in another layout.
 - The option `let` holds fields that write no column: `{"format":"{a}","let":{"a":"{/x}"},"b":"{a}"}`
