@@ -1286,3 +1286,13 @@ Read most (opens and searches):
 - `compose.yaml` 3
 - `data/sv_SE/word-verb.tsv` 1
 - `docs/decisions.md` 1
+
+## Reading cost, chunk 49aab1804123, finished 2026-11-09T17:19:29Z
+
+45368 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 5
+- `docs/reading-cost.md` 2
+- `docs/decisions.md` 1
