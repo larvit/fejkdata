@@ -253,7 +253,7 @@ func TestWhereOnACallDrawsOnlyTheValuesThatPass(t *testing.T) {
 	}
 }
 
-func TestWhereOnACallDrawsEachValueOfItsKindHoldingNoneOfTheStrings(t *testing.T) {
+func TestWhereOnACallDrawsOnlyValuesOfItsKindHoldingNoneOfTheStrings(t *testing.T) {
 	f := engine(1)
 	for src, pattern := range map[string]string{
 		`"{digits(2) where not containing '10','11','12','13','14','15','16','17','18','19'}"`: `^[02-9][0-9]$`,
@@ -273,7 +273,7 @@ func TestWhereOnACallDrawsEachValueOfItsKindHoldingNoneOfTheStrings(t *testing.T
 	}
 }
 
-func TestWhereReadsTheStringsAName(t *testing.T) {
+func TestWhereReadsItsStringsFromAName(t *testing.T) {
 	f := engine(1)
 	for src, want := range map[string][]string{
 		`{"format":"{v as t}{t}:{w where not t}","v":["cat","dog"],"w":["cat","dog","cow"]}`:                                {"cat:dog", "cat:cow", "dog:cat", "dog:cow"},
@@ -336,7 +336,7 @@ func TestWherePrintsADefaultWhereNoValuePassesAndNoFallbackIsNamed(t *testing.T)
 	}
 }
 
-func TestWhereOnACallRefusesAtLoad(t *testing.T) {
+func TestWhereOnACallOrReadingANameRefusesAtLoad(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
 	for src, want := range map[string]string{
 		`"{int(1,9) where not '3'}"`: "{base64()}, {digits()}, {hex()}, {lower()}, {nanoid()}, {ulid()}, {upper()} or {uuid()}",

@@ -1636,8 +1636,8 @@ Refused at `New`, each error naming what to write instead:
 
 ### Filters
 
-A `where` clause after a path, or after a call that draws characters from an alphabet, draws only
-among the values that pass it:
+A `where` clause after a path, or after `{base64(n)}`, `{digits(n)}`, `{hex(n)}`, `{lower(n)}`,
+`{nanoid(n)}`, `{ulid()}`, `{upper(n)}` or `{uuid()}`, draws only among the values that pass it:
 
 ```json
 "{/en_US.word where length 5 and not containing 'x'}"
@@ -1662,32 +1662,28 @@ render:
 { "format": "{code as c}{c} → {hex(4) where not containing c}", "code": ["7958", "beef"] }
 ```
 
-Renders e.g. `7958 → 3fa0`, and never a value holding `7958`. A name bound by `distinct` is read
-member by member, as `not containing m[1], m[2]`. `not containing` skips an empty string, which
-every value holds.
+Renders e.g. `7958 → 3fa0`: the hex never holds the code printed before it. To leave out each
+member of a name bound by `distinct`, list the members: `not containing m[1], m[2]`. `not
+containing` skips an empty string, which every value holds.
 
-The calls a clause filters are `{digits(n)}`, `{lower(n)}`, `{upper(n)}`, `{hex(n)}`,
-`{base64(n)}`, `{nanoid(n)}`, `{uuid()}` and `{ulid()}`. A call's draw never retries: it draws each
-character among those that still lead to a value passing the clause.
-
-`New` refuses a quoted string no value avoids, so only a string read from a name can leave no value
-to draw. `else`, last in the clause, names what prints then: a quoted text, as in
-`{w where not t else 'none'}`, or a name. Without `else`, a path prints an empty string, and a
-call a value of its own shape:
+Quoted strings are known at load, so only a string read from a name can leave no value to draw.
+`else`, last in the clause, names the fallback that prints then: a quoted text, as in
+`{w where not t else 'none'}`, or a name. Without `else`, a path prints an empty string, and a call
+its default, a value of its own shape:
 
 | Call | Prints |
 | --- | --- |
-| `{uuid()}` | the Nil UUID, `00000000-0000-0000-0000-000000000000` |
-| `{ulid()}` | 26 zeros |
+| `{base64(n)}` | n zero bytes, encoded, as `AA==` for `{base64(1)}` |
 | `{digits(n)}`, `{hex(n)}` and `{nanoid(n)}` | n zeros |
 | `{lower(n)}` | n `a`s |
+| `{ulid()}` | 26 zeros |
 | `{upper(n)}` | n `A`s |
-| `{base64(n)}` | n zero bytes, encoded, as `AA==` for `{base64(1)}` |
+| `{uuid()}` | the Nil UUID, `00000000-0000-0000-0000-000000000000` |
 
-The fallback may itself hold one of the strings, as the Nil UUID holds `0000`: no render fails. In a
-distinct draw, it prints in place of each member left without a value. A fallback or a path's empty
-string is text, so a [typed](#datatype) column refuses a clause that may print one, read directly
-or through `calc`.
+The fallback and the default print unchecked, so a render never fails: the Nil UUID holds `0000`.
+In a distinct draw, the fallback prints in place of each member left without a value. A fallback,
+or a path's empty string, is text, so a [typed](#datatype) column refuses a clause that may print
+one, whether the column reads the clause directly or through `calc`.
 
 Refused at `New`:
 
@@ -1697,7 +1693,8 @@ Refused at `New`:
   columns, as `misc.car`'s does;
 - a path through a selector, a linked table or `..`;
 - a clause on any other call, on `{a|b}`, or in a table's format or cell;
-- `distinct` or `as` after a call's clause: put the call in a field, and read the field;
+- `distinct` on a call;
+- `as` after a call's clause: put the call and its clause in a field, and bind the field;
 - a clause on a name, which is drawn already: write it on the draw the name binds;
 - a path after the name a clause binds, such as `{w.x}`: read `{w}` whole;
 - a name bound by `distinct`, read whole in `not` or `not containing`: list its members, as
@@ -2026,7 +2023,7 @@ sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
 where.go        where and distinct clauses: the values a clause draws from, fixed at load with their weights, and the draw of those that pass, without repeats
-sampledraw.go   a where clause on a call: the draw of a value holding none of the clause's strings, and the fallback where none can
+sampledraw.go   a where clause on a call: the draw of a value holding none of the clause's strings, and the fallback where no value can
 reword.go       {reword()}: the words a call draws from, one fake per word in a render, and the case each fake takes
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
 columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
@@ -2035,7 +2032,7 @@ data.go         the load path: the categories internal/datafiles hands over, com
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
 internal/avoid/ the draw of a value of fixed runs of characters that holds none of a set of strings, planned over their Aho–Corasick automaton
-internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms, reword's arguments and calc arithmetic, and the characters each sample a where clause filters draws, with its default
+internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms, reword's arguments and calc arithmetic, and, for each sample a where clause filters, the characters it draws and its default
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through

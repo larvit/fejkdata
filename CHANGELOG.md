@@ -42,8 +42,8 @@ replacement, and each removed path, column or flag.
   `not 'cat', 'dog'` and `not containing 'cat'`. A length may read a name, `{n as k}{/en_US.word where length k}`,
   and `as` after the clause binds the filtered draw. A path whose values are not fixed text, or a clause no
   value can pass, fails to load.
-- A `where` clause also filters `{digits(n)}`, `{lower(n)}`, `{upper(n)}`, `{hex(n)}`, `{base64(n)}`, `{nanoid(n)}`,
-  `{uuid()}` and `{ulid()}`, drawing a value that holds none of its strings: `{hex(4) where not containing '7958'}`.
+- A `where` clause also filters `{base64(n)}`, `{digits(n)}`, `{hex(n)}`, `{lower(n)}`, `{nanoid(n)}`, `{ulid()}`,
+  `{upper(n)}` and `{uuid()}`, drawing a value that holds none of its strings: `{hex(4) where not containing '7958'}`.
   `not` and `not containing` may read a name, as in `{code as c}{hex(4) where not containing c}`. Where the strings a
   name holds leave no value, `else 'none'` names what prints; without `else`, a path prints an empty string and a
   call a value of its own shape, such as the Nil UUID for `{uuid()}`.
