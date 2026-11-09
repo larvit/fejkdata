@@ -1273,3 +1273,16 @@ Read most (opens and searches):
 - `docs/decisions.md` 1
 - `release-tooling/carried.py` 1
 - `release-tooling/fixtures.py` 1
+
+## Reading cost, chunk 49592c5688a7, finished 2026-11-09T14:23:44Z
+
+198546 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `todo.md` 5
+- `anonymize_test.go` 3
+- `compose.yaml` 3
+- `data/sv_SE/word-verb.tsv` 1
+- `docs/decisions.md` 1

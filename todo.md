@@ -350,6 +350,8 @@ The inherited architect of the 0.1.0 scoring run on 52e0304 named `isPath` (`cli
 
 `reading-cost` before the chunk of item 379, on 2026-11-08: "Rising: the last 5 chunks' median is 104363 new input tokens before their first commit, the 5 before them 72993". Read most over the last 5 (opens and searches): `README.md` 27, `todo.md` 24, `readme_test.go` 11, `builtins_test.go` 7, `cli/cli_test.go` 7, `record_test.go` 7, `compose.yaml` 6, `danish_test.go` 6, `norwegian_test.go` 5, `cli/cli.go` 4.
 
+`reading-cost` before the chunk of item 380, on 2026-11-09: "Rising: the last 5 chunks' median is 112711 new input tokens before their first commit, the 5 before them 85771". Read most over the last 5 (opens and searches): `todo.md` 36, `README.md` 25, `swedish_test.go` 11, `compose.yaml` 8, `valueproof.go` 7, `builtins_test.go` 6, `calc_test.go` 6, `internal/builtinfunc/builtinfunc.go` 6, `adddays.go` 5, `docs/decisions.md` 4.
+
 `reading-cost` on 2026-11-08: "Rising: the last 5 chunks' median is 112711 new input tokens before their first commit, the 5 before them 85771". Read most over the last 5 (opens and searches): `README.md` 38, `todo.md` 22, `swedish_test.go` 14, `docs/decisions.md` 11, `builtins_test.go` 7, `valueproof.go` 7, `CHANGELOG.md` 6, `DATA-LICENSES.md` 6, `calc_test.go` 6, `adddays.go` 5.
 
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
