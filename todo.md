@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 401 | 0.4.0 |  | owner | **Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.** | 2 | 1 | 1 | 2 | 3 | 1 by 2 | 1.3 |
 | 380 | 0.4.0 |  |  | **Let a template draw a value holding none of the strings it lists, and print the fallback it names, or else a default, where no value can avoid them.** | 3 | 1 | 2 | 4 | 5 | 1 by 2 | 0.5 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
@@ -219,14 +218,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 401. Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.
-
-The maintainer wants a GDPR term used only where it holds, and neither holds for the builtin's output:
-- Recital 26 calls information anonymous only where the person is no longer identifiable, by all the means reasonably likely to be used. The builtin keeps digits, punctuation, case, word lengths and which words repeat, so a personnummer in the text passes through whole.
-- Article 4(5) calls data pseudonymised where it can no longer be attributed to a person without additional information, kept separately. The digits the builtin keeps can identify the person with no additional information.
-
-So the name says what the call does to the text, as "Samples say what they emit, transforms what they do" asks. A writer panel, seated as the readers in the `anonymize` decision, picks it from the names they ranked below `anonymize`: `reword`, `fakewords`, `rewrite`, `scramble` and `mask`, and any they add. Every place that names the builtin follows: the README, the decision, the `CHANGELOG.md` entry, `AGENTS.md`, the code, the tests and the files named `anonymize.go` and `anonymize_test.go`. So do the README section's heading and its first sentence, which use "anonymize" as a verb. No release has shipped the builtin, so the rename is no major.
 
 ### 380. Let a template draw a value holding none of the strings it lists, and print the fallback it names, or else a default, where no value can avoid them.
 

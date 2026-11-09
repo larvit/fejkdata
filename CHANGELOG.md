@@ -47,7 +47,7 @@ replacement, and each removed path, column or flag.
   `{/en_US.word distinct 3 as w}` binds them, read as `{w[1]}` to `{w[3]}`, also inside `calc`, `adddays` and
   `where length`. It comes after a `where` clause and before `as`. Asking for more values than the path can draw
   fails to load.
-- `{anonymize(text, /en_US.word)}` replaces each word of `text` with a drawn word of its length, or the nearest
+- `{reword(text, /en_US.word)}` replaces each word of `text` with a drawn word of its length, or the nearest
   length the words hold, in the case of the word it replaces. Digits and punctuation stay, and a word reads as one
   fake throughout a render, in every call reading the same words.
 - `{adddays(d,n)}` prints the date `d` plus `n` days, keeping its time of day: `{start as s}{len as n}{s},{adddays(s,n)}`

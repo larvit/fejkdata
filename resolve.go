@@ -120,7 +120,7 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 	if err := valueDraws(ts, targets); err != nil {
 		return err
 	}
-	if err := anonymizeWords(ts, targets); err != nil {
+	if err := rewordWords(ts, targets); err != nil {
 		return err
 	}
 	reads := readsOfNames(ts)

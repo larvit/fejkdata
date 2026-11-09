@@ -68,11 +68,11 @@ type op struct {
 	arms []arm // grammar.PathRead: the '|' alternatives, split into head and tail once
 	call builtinfunc.Call
 	// operands are the fields the builtin reads, in the order its operands func fixed; expand reads
-	// them before the call, except an {anonymize()} call's second, which words replaces. For a token
+	// them before the call, except a {reword()} call's second, which words replaces. For a token
 	// with a where clause, they are the names its length reads. nil for a token that reads none.
 	operands []arm
 	values   *valueDraw // a token with a where or a distinct clause: what it draws from
-	words    *wordList  // an {anonymize()} call: the words its second operand's path holds, read at load
+	words    *wordList  // a {reword()} call: the words its second operand's path holds, read at load
 }
 
 func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarget) ([]arm, error) {
