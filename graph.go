@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/larvit/fejkdata/internal/invariant"
 )
@@ -106,7 +105,7 @@ func renderEdges(n node) []renderEdge {
 	case *template:
 		var es []renderEdge
 		for _, o := range n.compiled.ops {
-			for _, a := range slices.Concat(o.operands, o.arms) {
+			for _, a := range o.reads() {
 				for _, leaf := range a.leaves {
 					es = append(es, renderEdge{leaf, a.spelling})
 				}

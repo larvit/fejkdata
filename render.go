@@ -117,24 +117,15 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 	b.Grow(t.compiled.grow)
 	for i := range t.compiled.ops {
 		o := &t.compiled.ops[i]
-		switch o.Kind {
-		case grammar.LiteralRun:
+		switch {
+		case o.Kind == grammar.LiteralRun:
 			b.WriteString(o.Lit)
-		case grammar.PathRead:
-			if o.values != nil {
-				b.WriteString(strings.Join(o.values.draw(s, env), o.values.sep))
-				continue
-			}
+		case o.Kind == grammar.NameBind: // its draw prints where the name is read
+		case o.draw != nil:
+			b.WriteString(drawToken(s, t, env, o.draw, b.String()))
+		case o.Kind == grammar.PathRead:
 			b.WriteString(readField(s, t, env, o.arms[s.IntN(len(o.arms))]).text)
-		case grammar.BuiltinCall:
-			if o.sample != nil {
-				b.WriteString(o.sample.draw(s, env, b.String()))
-				continue
-			}
-			if o.words != nil {
-				b.WriteString(o.words.reword(s, env.frames, readField(s, t, env, o.operands[0]).text))
-				continue
-			}
+		case o.Kind == grammar.BuiltinCall:
 			var operands []string
 			if len(o.operands) > 0 {
 				operands = make([]string, len(o.operands))

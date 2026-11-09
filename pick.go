@@ -128,7 +128,10 @@ type namedPick struct {
 	named *nameBinding
 	memo  drawMemo
 	pins  pinSet
-	drawn []string // what a where or a distinct clause drew, nil before the first read
+	// drawn is what a where or a distinct clause drew, nil before the first read. It is kept apart
+	// from memo, which keys a draw by the levels a path steps through, since a clause draws one of
+	// the whole values fixed at load and steps through no level.
+	drawn []string
 }
 
 // drawMemo is what a named pick has drawn: the variant each level was drawn as, so every path
@@ -221,7 +224,7 @@ func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 	}
 	if v := a.named.values; v != nil {
 		if p.drawn == nil {
-			p.drawn = v.draw(s, env)
+			p.drawn = v.drawValues(s, env)
 		}
 		if a.member > 0 {
 			return readValue{text: p.drawn[a.member-1]}

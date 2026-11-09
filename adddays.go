@@ -10,13 +10,13 @@ import (
 
 // proveAddDays proves each adddays of t reads a date in one layout that reads back and a whole
 // number of days within the cap, then prepares the call with that layout.
-func proveAddDays(label string, t *template) error {
+func proveAddDays(label string, t *template, draws bindingDraws) error {
 	for i := range t.compiled.ops {
 		o := &t.compiled.ops[i]
 		if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName {
 			continue
 		}
-		layout, err := addDaysLayout(o)
+		layout, err := addDaysLayout(o, draws)
 		if err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
 		}
@@ -25,7 +25,7 @@ func proveAddDays(label string, t *template) error {
 	return nil
 }
 
-func addDaysLayout(o *op) (string, error) {
+func addDaysLayout(o *op, draws bindingDraws) (string, error) {
 	d := o.operands[0]
 	layout, why := dateLayout(d.leaves, map[node]bool{})
 	switch {
@@ -37,7 +37,7 @@ func addDaysLayout(o *op) (string, error) {
 		return layout, nil
 	}
 	n := o.operands[1]
-	v := (&valueProof{}).proveArm(n)
+	v := (&valueProof{draws: draws}).proveArm(n)
 	switch {
 	case v.NotOperand != "":
 		return "", fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.spelling, v.NotOperand)

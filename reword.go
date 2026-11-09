@@ -7,7 +7,6 @@ import (
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/drawstate"
-	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // fakeKey is a word a {reword()} call met, in lower case, and where it read the words it drew a
@@ -31,25 +30,28 @@ type wordList struct {
 	at wordsAt
 }
 
-// rewordWords builds the words each {reword()} call in ts draws from, once per path they
-// are read at.
-func rewordWords(ts []templateSite, targets map[*nameBinding]nameTarget) error {
-	built := map[wordsAt]*wordList{}
-	for _, s := range ts {
-		for i := range s.t.compiled.ops {
-			o := &s.t.compiled.ops[i]
-			if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.RewordName {
-				continue
-			}
-			words, err := s.t.wordsOf(o.operands[1], targets, built)
-			if err != nil {
-				return fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
-			}
-			o.words = words
-		}
-	}
-	return nil
+// rewordDraw is a {reword()} call: the text it rewrites, its first operand, and the words its
+// second operand's path holds, read at load.
+type rewordDraw struct {
+	text  *arm
+	words *wordList
 }
+
+// rewordDrawOf builds the draw of o, a {reword()} call; built holds the words of each path read
+// so far, so calls reading one path share its words.
+func (t *template) rewordDrawOf(o *op, targets map[*nameBinding]nameTarget, built map[wordsAt]*wordList) (*rewordDraw, error) {
+	words, err := t.wordsOf(o.operands[1], targets, built)
+	if err != nil {
+		return nil, err
+	}
+	return &rewordDraw{text: &o.operands[0], words: words}, nil
+}
+
+func (d *rewordDraw) draw(s *drawstate.State, t *template, env renderEnv, _ string) string {
+	return d.words.reword(s, env.frames, readField(s, t, env, *d.text).text)
+}
+
+func (d *rewordDraw) mayFallBack() bool { return false }
 
 // wordsOf is the values a's path renders that are made of letters alone, by length.
 func (t *template) wordsOf(a arm, targets map[*nameBinding]nameTarget, built map[wordsAt]*wordList) (*wordList, error) {
@@ -111,24 +113,6 @@ func (x *wordList) fake(s *drawstate.State, frames *frameStack, word []rune) str
 	fake := x.drawIn(s, from, to)
 	frames.fakes[key] = fake
 	return fake
-}
-
-// nearest is the span of the texts whose length is n or, where none is, nearest n, the shorter on
-// a tie.
-func (x *lengthIndex) nearest(n int) (from, to int) {
-	from, to = x.span(n, n)
-	if from < to {
-		return from, to
-	}
-	l := x.lengths[len(x.lengths)-1]
-	switch {
-	case from == len(x.lengths):
-	case from == 0 || x.lengths[from]-n < n-x.lengths[from-1]:
-		l = x.lengths[from]
-	default:
-		l = x.lengths[from-1]
-	}
-	return x.span(l, l)
 }
 
 // writeInCase writes fake in the case of word's letter at each place, and a letter past word's

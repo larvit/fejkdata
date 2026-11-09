@@ -284,14 +284,9 @@ func namedReads(t *template) []namedReadAt {
 	var out []namedReadAt
 	for i := range t.compiled.ops {
 		o := &t.compiled.ops[i]
-		for j := range o.arms {
-			if o.arms[j].kind == namedRead {
-				out = append(out, namedReadAt{o: o, a: &o.arms[j]})
-			}
-		}
-		for j := range o.operands {
-			if o.operands[j].kind == namedRead {
-				out = append(out, namedReadAt{o: o, a: &o.operands[j]})
+		for _, a := range o.reads() {
+			if a.kind == namedRead {
+				out = append(out, namedReadAt{o: o, a: a})
 			}
 		}
 	}

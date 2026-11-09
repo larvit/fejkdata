@@ -142,7 +142,7 @@ func walkRoutes(nodes []node, start pickKey, addressed map[pickKey]string, inPic
 			}
 		case *template:
 			for i, o := range n.compiled.ops {
-				for _, a := range armsOf(o) {
+				for _, a := range o.reads() {
 					r := route{a: a, in: n, op: i}
 					if inPick {
 						r = r.placedAt(at, addressed)
@@ -557,15 +557,4 @@ func rendersField(names resolvedNames, read *arm, reached refReach) bool {
 			return under
 		})
 	})
-}
-
-// armsOf is the arms of o, each the one in o's slices, so that an arm met twice is equal to itself.
-func armsOf(o op) []*arm {
-	found := make([]*arm, 0, len(o.arms)+len(o.operands))
-	for _, arms := range [][]arm{o.arms, o.operands} {
-		for i := range arms {
-			found = append(found, &arms[i])
-		}
-	}
-	return found
 }

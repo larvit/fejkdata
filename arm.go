@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
+	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
@@ -68,12 +69,47 @@ type op struct {
 	arms []arm // grammar.PathRead: the '|' alternatives, split into head and tail once
 	call builtinfunc.Call
 	// operands are the fields the builtin reads, in the order its operands func fixed; expand reads
-	// them before the call, except a {reword()} call's second, which words replaces. For a token
-	// with a where clause, they are the names the clause reads. nil for a token that reads none.
+	// them before a call that has no draw. nil for a token that reads none.
 	operands []arm
-	values   *valueDraw  // a read or a bind with a where or a distinct clause: what it draws from
-	sample   *sampleDraw // a call with a where clause: how it draws
-	words    *wordList   // a {reword()} call: the words its second operand's path holds, read at load
+	clause   []arm // the names the token's where clause reads, in clauseNames' order
+	// draw is what a token with a where or a distinct clause, or a {reword()} call, prints in
+	// place of a plain read or call; nil for any other token
+	draw tokenDraw
+}
+
+// reads is every arm a render of o reads: its arms, its builtin's operands and its clause's names.
+// Each points into o's slices, so an arm met twice is equal to itself.
+func (o *op) reads() []*arm {
+	found := make([]*arm, 0, len(o.arms)+len(o.operands)+len(o.clause))
+	for _, arms := range [][]arm{o.arms, o.operands, o.clause} {
+		for i := range arms {
+			found = append(found, &arms[i])
+		}
+	}
+	return found
+}
+
+// tokenDraw is how a token draws what it prints, built at load once its paths resolve.
+type tokenDraw interface {
+	// draw prints one draw of the token in t; emitted is the output so far.
+	draw(s *drawstate.State, t *template, env renderEnv, emitted string) string
+	// mayFallBack says whether a draw may print the where clause's fallback, or a path's empty
+	// default, where the strings it reads leave no value.
+	mayFallBack() bool
+}
+
+// drawToken prints one draw of d. It calls draw on d's concrete type, since a call through the
+// interface would move each render's frames to the heap.
+func drawToken(s *drawstate.State, t *template, env renderEnv, d tokenDraw, emitted string) string {
+	switch d := d.(type) {
+	case *valueDraw:
+		return d.draw(s, t, env, emitted)
+	case *alphabetDraw:
+		return d.draw(s, t, env, emitted)
+	case *rewordDraw:
+		return d.draw(s, t, env, emitted)
+	}
+	panic(invariant.Broken("no draw for %T", d))
 }
 
 func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarget) ([]arm, error) {
