@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -223,6 +224,128 @@ func TestUndrawnNearStaysInsideTheSpan(t *testing.T) {
 	} {
 		if got := undrawnNear(c.i, c.from, c.to, c.drawn); got != c.want {
 			t.Errorf("undrawnNear(%d, %d, %d, %v) = %d, want %d", c.i, c.from, c.to, c.drawn, got, c.want)
+		}
+	}
+}
+
+// quotedAllBut lists each character of alphabet but keep, quoted and joined by commas.
+func quotedAllBut(alphabet, keep string) string {
+	var quoted []string
+	for _, c := range alphabet {
+		if string(c) != keep {
+			quoted = append(quoted, "'"+string(c)+"'")
+		}
+	}
+	return strings.Join(quoted, ",")
+}
+
+func TestWhereOnACallDrawsOnlyTheValuesThatPass(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string][]string{
+		`"{digits(1) where not containing ` + quotedAllBut("0123456789", "9") + `}"`:                                                       {"9"},
+		`"{digits(1) where not '3', '33', '' and length 1}"`:                                                                               {"0", "1", "2", "4", "5", "6", "7", "8", "9"},
+		`"{hex(1) where not containing 'a','b','c','d','e','f'}"`:                                                                          {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"},
+		`"{lower(1) where not containing ` + quotedAllBut("abcdefghijklmnopqrstuvwxyz", "q") + `}"`:                                        {"q"},
+		`"{upper(1) where not containing ` + quotedAllBut("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "Q") + `}"`:                                        {"Q"},
+		`"{nanoid(1) where not containing ` + quotedAllBut("_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "_") + `}"`: {"_"},
+	} {
+		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+	}
+}
+
+func TestWhereOnACallDrawsEachValueOfItsKindHoldingNoneOfTheStrings(t *testing.T) {
+	f := engine(1)
+	for src, pattern := range map[string]string{
+		`"{digits(2) where not containing '10','11','12','13','14','15','16','17','18','19'}"`: `^[02-9][0-9]$`,
+		`"{uuid() where not containing '0', 'f'}"`:                                             `^[1-9a-e]{8}-[1-9a-e]{4}-7[1-9a-e]{3}-[89ab][1-9a-e]{3}-[1-9a-e]{12}$`,
+		`"{ulid() where not containing '0', 'Z'}"`:                                             `^[1-7][1-9A-HJKMNP-TV-Y]{25}$`,
+		`"{base64(2) where not containing 'A', '/'}"`:                                          `^[B-Za-z0-9+]{2}[EIMQUYcgkosw048]=$`,
+		`"{nanoid(4) where not containing '_', '-'}"`:                                          `^[0-9a-zA-Z]{4}$`,
+	} {
+		re := regexp.MustCompile(pattern)
+		for i := 0; i < 400; i++ {
+			if got := mustRender(t, f, src); !re.MatchString(got) {
+				t.Fatalf("render(%s) = %q, want it to match %s", src, got, pattern)
+			}
+		}
+	}
+}
+
+func TestWhereReadsTheStringsAName(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string][]string{
+		`{"format":"{v as t}{t}:{w where not t}","v":["cat","dog"],"w":["cat","dog","cow"]}`:                                {"cat:dog", "cat:cow", "dog:cat", "dog:cow"},
+		`{"format":"{v as t}{t}:{w where not containing t}","v":["a","o"],"w":["cat","dog","bee"]}`:                         {"a:dog", "a:bee", "o:cat", "o:bee"},
+		`{"format":"{v as t}{t}:{digits(1) where not t}","v":["3","7"]}`:                                                    {"3:0", "3:1", "3:2", "3:4", "3:5", "3:6", "3:7", "3:8", "3:9", "7:0", "7:1", "7:2", "7:3", "7:4", "7:5", "7:6", "7:8", "7:9"},
+		`{"format":"{v as t}{w where not containing t}","v":"","w":["a","b"]}`:                                              {"a", "b"},
+		`{"format":"{v as t}{digits(1) where not containing t and not containing '1','2','3','4','5','6','7','8'}","v":""}`: {"0", "9"},
+	} {
+		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+	}
+	var want []string
+	for _, m := range []string{"12", "21"} {
+		for _, d := range "03456789" {
+			want = append(want, m+":"+string(d))
+		}
+	}
+	src := `{"format":"{v distinct 2 as m}{m[1]}{m[2]}:{digits(1) where not containing m[1], m[2]}","v":["1","2"]}`
+	drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+}
+
+func TestWherePrintsTheFallbackWhereNoValuePasses(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string]string{
+		`{"format":"{v as t}{w where not t else 'none'}","v":"cat","w":["cat"]}`:                                "none",
+		`{"format":"{v as t}{u as f}{w where not containing t else f}","v":"a","u":"fb","w":["cat","bar"]}`:     "fb",
+		`{"format":"{v as t}{uuid() where not containing t else 'none'}","v":"-"}`:                              "none",
+		`{"format":"{v as t}{uuid() where not containing t else '-'}","v":"-"}`:                                 "-",
+		`{"format":"{v as t}{w where not t else '-' distinct 2 joined ','}","v":"cat","w":["cat","dog"]}`:       "dog,-",
+		`{"format":"{v as t}{w where not t else '-' distinct 2 as m}{m[2]}{m[1]}","v":"cat","w":["cat","dog"]}`: "-dog",
+	} {
+		for i := 0; i < 20; i++ {
+			if got := mustRender(t, f, src); got != want {
+				t.Fatalf("render(%s) = %q, want %q", src, got, want)
+			}
+		}
+	}
+}
+
+func TestWherePrintsADefaultWhereNoValuePassesAndNoFallbackIsNamed(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string]string{
+		`{"format":"<{v as t}{w where not t}>","v":"cat","w":["cat"]}`:                                                                                                  "<>",
+		`{"format":"{v as t}{w where not t distinct 2 joined ','}","v":"cat","w":["cat","dog"]}`:                                                                        "dog,",
+		`{"format":"{v as t}{uuid() where not containing t}","v":"-"}`:                                                                                                  "00000000-0000-0000-0000-000000000000",
+		`{"format":"{v as t}{ulid() where not containing t,` + quotedAllBut("01234567", "0") + `}","v":"0"}`:                                                            "00000000000000000000000000",
+		`{"format":"{v as t}{digits(3) where not containing t,` + quotedAllBut("0123456789", "0") + `}","v":"0"}`:                                                       "000",
+		`{"format":"{v as t}{hex(2) where not containing t,` + quotedAllBut("0123456789abcdef", "0") + `}","v":"0"}`:                                                    "00",
+		`{"format":"{v as t}{nanoid(2) where not containing t,` + quotedAllBut("_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "0") + `}","v":"0"}`: "00",
+		`{"format":"{v as t}{lower(2) where not containing t,` + quotedAllBut("abcdefghijklmnopqrstuvwxyz", "a") + `}","v":"a"}`:                                        "aa",
+		`{"format":"{v as t}{upper(2) where not containing t,` + quotedAllBut("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "A") + `}","v":"A"}`:                                        "AA",
+		`{"format":"{v as t}{base64(1) where not containing t}","v":"="}`:                                                                                               "AA==",
+		`{"format":"{v as t}{base64(2) where not containing t}","v":"="}`:                                                                                               "AAA=",
+	} {
+		if got := mustRender(t, f, src); got != want {
+			t.Errorf("render(%s) = %q, want %q", src, got, want)
+		}
+	}
+}
+
+func TestWhereOnACallRefusesAtLoad(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
+	for src, want := range map[string]string{
+		`"{int(1,9) where not '3'}"`: "digits, lower, upper, hex, base64, nanoid, uuid and ulid",
+		`"{digits(1) where not containing ` + quotedAllBut("0123456789", "") + `}"`: "no value passes the where clause",
+		`"{uuid() where not containing '-'}"`:                                       "no value passes the where clause",
+		`"{digits(2) where length 3}"`:                                              "no value passes the where clause",
+		`{"format":"{n as k}{digits(2) where length k}","n":"{int(2,3)}"}`:          "where k is 3, no value passes the where clause",
+		`{"format":"{digits(1) where not t}","t":"3"}`:                              "{t as n}",
+		`{"format":"{w where not containing t}","t":"3","w":["a"]}`:                 "{t as n}",
+		`{"format":"{w where not 'a' else f}","f":"x","w":["a","b"]}`:               "{f as n}",
+		`{"format":"{w where not t}","w":["a"]}`:                                    "{t as n}",
+	} {
+		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
 		}
 	}
 }
