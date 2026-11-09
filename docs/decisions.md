@@ -1621,16 +1621,18 @@ speech, never three different words.
 
 2026-11-08, Lilleman auf Larv; renamed 2026-11-09.
 
-Goal 4 asks that a template be easy to write and read. The builtin's output is neither anonymised
-(GDPR recital 26: the person is no longer identifiable) nor pseudonymised (Article 4(5)): its digits
-stay, so a personnummer in the text passes through whole. The name therefore says what the call does
-to the text, and the docs say that the fakes are no paraphrase and that what stays stays whole.
+Goal 4 asks that a template be easy to write and read, and a name that promises more than the call
+does misleads its reader. The builtin's output is not anonymised (GDPR recital 26: the person is no
+longer identifiable) and not pseudonymised (Article 4(5): the data can no longer be attributed to a
+person without additional information, kept separately). Its digits stay, so a personnummer in the
+text passes through whole. The name says what the call does to the text.
 
 A panel of four readers, seated as the hand fixture author, the bulk fixture author, the JavaScript
 test author and the Go test author, first ranked `anonymize` ahead of `reword`, `fakewords`,
-`rewrite`, `scramble` and `mask`. Asked again for a name that claims neither term, three put `reword`
-first and one `fakewords`. All four put `rewrite`, `scramble` and `mask` last: they read as
-rewriting the digits, shuffling letters or redacting. `reword` can read as a paraphrase, which the
-README's Transforms section rules out.
+`rewrite`, `scramble` and `mask`; all four read the text first and the word list second, hence
+`(text,words)`. Asked again for a name that claims neither term, three put `reword` first and one
+`fakewords`. All four put `rewrite`, `scramble` and `mask` last: those names read as rewriting the
+digits too, shuffling letters or redacting. `reword` can read as a paraphrase, so the README's
+Transforms section says the fakes are random words.
 
 `words` is a path, so the template picks the language of the fakes. Valid while goal 4 stands.

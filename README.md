@@ -1529,11 +1529,12 @@ so `PROJ-123` keeps its digits:
 { "format": "{reword(text, /en_US.word)}", "text": "Ping Anna: PROJ-123 is done, ANNA." }
 ```
 
-Renders e.g. `Wolf Dirt: KNOT-123 at lazy, DIRT.` The fakes are random words, not a paraphrase,
-and what stays stays whole: a phone number or personnummer in `text` prints as it is. A word reads
-as one fake, whatever its case, in every call of a render that reads the same list as `words`; a record renders each row anew. A URL's
-scheme and host are words too, so to keep them, pass only the rest as `text`. The field holding the
-original is a [format string](#format-string), so write each `{` and `}` in it as `{{` and `}}`.
+Renders e.g. `Wolf Dirt: KNOT-123 at lazy, DIRT.` The fakes are random words, not a paraphrase.
+Digits stay, so replace each phone number or personnummer in `text` yourself first, as
+[Replacing real data with fakes](#replacing-real-data-with-fakes) shows. A word reads as one fake,
+whatever its case, in every call of a render that reads the same list as `words`; a record renders
+each row anew. A URL's scheme and host are words too, so to keep them, pass only the rest as
+`text`. The field holding the original is a [format string](#format-string), so write each `{` and `}` in it as `{{` and `}}`.
 `words` is a path, never a name, and must render only fixed text, as a [filter](#filters)'s path
 must. It draws by weight among its values made of letters alone, and fails to load where it has
 none. Neither argument may be a call, and no transform takes one, so `reword` doesn't nest.
