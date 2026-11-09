@@ -14,42 +14,62 @@ services:
   test:
     <<: *go
     command: go test -race ./...
+    mem_limit: 8g
+    memswap_limit: 8g
 
   bench:
     <<: *go
     command: go test -run XXX -bench . -benchmem ./...
+    mem_limit: 8g
+    memswap_limit: 8g
 
   generate:
     <<: *go
     command: go generate ./...
+    mem_limit: 4g
+    memswap_limit: 4g
 
   vet:
     <<: *go
     command: go vet ./...
+    mem_limit: 4g
+    memswap_limit: 4g
 
   cyclo:
     <<: *go
     command: go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test .
+    mem_limit: 2g
+    memswap_limit: 2g
 
   vulncheck:
     <<: *go
     command: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 -scan module
+    mem_limit: 2g
+    memswap_limit: 2g
 
   build:
     <<: *go
     command: go build ./...
+    mem_limit: 4g
+    memswap_limit: 4g
 
   fmt:
     <<: *go
     command: gofmt -w .
+    mem_limit: 1g
+    memswap_limit: 1g
 
   tidy:
     <<: *go
     command: go mod tidy
+    mem_limit: 2g
+    memswap_limit: 2g
 
   dev:
     <<: *go
     command: sh
+    mem_limit: 8g
+    memswap_limit: 8g
 
   data-import:
     image: python:3.15.2-slim
@@ -57,6 +77,8 @@ services:
     volumes:
       - .:/app
     entrypoint: python3
+    mem_limit: 6g
+    memswap_limit: 6g
 
 volumes:
   gocache:
