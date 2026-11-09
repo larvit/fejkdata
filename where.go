@@ -232,7 +232,7 @@ func refuseSelfReads(ts []templateSite) error {
 				if a.named != b {
 					via = fmt.Sprintf(", and drawing %q reads %q", a.head, b.name)
 				}
-				return fmt.Errorf("%s: token {%s}: its where clause reads %q%s, the name it binds, so the draw would read itself; read the clause's strings from another name", s.label, o.Body, a.head, via)
+				return fmt.Errorf("%s: token {%s}: its where clause reads %q%s, the name it binds, so the draw would read itself; bind what the clause reads to another name", s.label, o.Body, a.head, via)
 			}
 		}
 	}
