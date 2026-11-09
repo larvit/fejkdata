@@ -38,9 +38,9 @@ func newSampleDraw(o *op) (*sampleDraw, error) {
 			return nil, errors.New("no value passes the where clause")
 		}
 	}
-	lengths := &valueDraw{lengthIndex: lengthIndex{lengths: []int{runs.Len()}, cum: []float64{1}}, reads: o.operands, count: 1, filters: true}
-	lengths.lo, lengths.hi = lengthEnds(w, names)
-	return d, lengths.proveEveryDrawPasses()
+	p := lengthProof{lengths: []int{runs.Len()}, reads: o.operands, count: 1, filters: true}
+	p.lo, p.hi = lengthEnds(w, names)
+	return d, p.proveEveryDrawPasses()
 }
 
 // patterns is what a value n bytes long must not hold: each of not that is n bytes long, which a

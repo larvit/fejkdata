@@ -1655,13 +1655,14 @@ name first. All four wanted the fallback to take a name or a path; a path is rea
 Valid while goal 4 stands.
 
 Without `else`, a path prints an empty string, so no category needs a default. A call prints a
-value of its own shape, so a column holding a uuid still holds one: the Nil UUID, which RFC 9562
-defines, and for every other call the first character of its alphabet, or for `{base64(n)}` n zero
-bytes, encoded. A fallback may hold one of the strings, as the Nil UUID holds `0000`; only a render
-error could rule that out.
+value of its own shape, such as the Nil UUID, which RFC 9562 defines, so a column holding a uuid
+still holds one. The fallback or the default may hold one of the strings, as the Nil UUID holds
+`0000`; only a render error could rule that out.
 
-A call's draw plans each position before it draws, over an Aho–Corasick automaton of the strings,
-so it never retries and never gets stuck, as skipping each character that would complete a string
-can: `{digits(2)}` avoiding `'00'` to `'09'` has no second digit after a first `0`. The plan costs
+Skipping each character that would complete a string can get stuck: `{digits(2)}` avoiding `'00'`
+to `'09'` has no second digit after a first `0`. So a call's draw first plans which characters each
+position may take, over an Aho–Corasick automaton of the strings, and never retries. The plan costs
 about the value's length times the strings' total length times the alphabet's size, which goal 12.1
-allows.
+allows. Each position draws evenly among the characters the plan leaves it, so the values that pass
+aren't equally likely. An even draw over them would weigh each character by the count of passing
+values it leads to, and a uuid's counts already exceed 2^64.
