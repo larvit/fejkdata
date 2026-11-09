@@ -1300,3 +1300,109 @@ Inherited architect, would restructure first:
 - `namefence.go:96` `route`: one name with `tableRoute`, the most misleading of several, with `format`, `arm` and three `calc.go` files
 - `record.go:271` `settleRecords`: a load stage in a file that is also serializer, public API and render
 - `cli/cli.go:559` `isPath`: copies the grammar because the CLI reads only the public API
+
+## 2026-11-09T17:09:39Z, PR #327 at 7d2b3a5
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7.5 | 5.5 | 6.5 | 6.5 | 6.5 |
+| Mid A | 7 | 5.5 | 6.5 | 7 | 6.5 |
+| Maintainability senior | 7.5 | 5.5 | 6.5 | 6.5 | 6 |
+| Inherited architect | 7.5 | 6 | 6 | 7.5 | 6.5 |
+| Mean | 7.38 | 5.63 | 6.38 | 6.88 | 6.38 |
+
+Junior A, hardest first:
+
+- `namefence.go:349` `sharedDraw`: five ordered rules over pick-key levels, route kinds and the `resolvedNames` cache at once; the comments say what each refuses, not why that order
+- `pick.go:87` `landsInPick`: fresh and named reads share one key space through `freshLevels` and `namedLevels`; clear only on a second read of its comment
+- `namefence.go:490` `refuseKeptAndFreshField`: an error built from seven spellings, whose slots take tracing both callers
+- `path.go:192` `drawSteps`: `climbed`, `memo.stepDownPins` and `table.route`'s six flags; resolved in part by the README's `..` sections
+- `render.go:156` `readField`: why `env.pick` is cleared takes knowing how `enter` and the base marks interact, and `renderEnv` mixes a value with shared state
+- `where.go:580` `drawIndex`: a weighted draw without replacement over sorted indexes, with a rounding correction, hard to check by eye
+- `columnread.go:93` `columnSource`: three cases concatenate paths from three sources; the inline examples save it
+- `format.go:80` `checkReads`: `own := len(names) - len(clause)` splits a list with no word on what lies on each side
+
+Mid A, hardest first:
+
+- `namefence.go:349` `sharedDraw`: pick-key levels, addressed keys and an ordered five-rule walk held at once, with the level reasoning defined in pick.go; also the unit least wanted to modify
+- `pick.go:87` `landsInPick`: rests on how `namedLevels` and `freshLevels` align; the `pickKey` comment resolves it after rereads
+- `where.go:580` `drawIndex`: a weighted draw without replacement over cumulative sums, with a rounding fallback, dense
+- `render.go:156` `readField`: the comment on clearing `env.pick` doesn't say what breaks without it
+- `path.go:145` `walkEvery`: a slice-capacity trick shares prefixes, commented but easy to break by tidying
+- `table.go:250` `route`: `pinnedBelow` and `fromRow` decide a fresh draw, followed only with the README's `..` semantics
+- `node.go:132` `position`: six values whose differences show only where they are used
+- `columnread.go:77` `readsOneArm`: one boolean of about eight clauses
+
+Maintainability senior, hardest first:
+
+- `namefence.go:406` `refuseFreshDraw`: a breadth-first walk across categories that takes the whole pick-key model; the list it implements, the README's "Refused at `New`", sits far away and neither links the other
+- `namefence.go:349` `sharedDraw`: an ordered walk of five cases where the order is the logic, and nothing shows why
+- `namefence.go:490` `refuseKeptAndFreshField`: three nested loops, level-index arithmetic and a nine-argument error; not safe to change
+- `pick.go:87` `landsInPick`: keys shift through `at.under(levels[0])`, and named and fresh levels start from different origins
+- `where.go:635` `proveEveryDrawPasses`: the low end takes a name's upper bound with no word that it is deliberate, and `lengthEnd`'s `read == -1` means no name while its zero value reads name 0
+- `path.go:192` `drawSteps`: `climbed` and `memo.stepDownPins` say what, never why
+- `table.go:250` `route`: six flags, with `draw` derived from `readsRow` and `pinnedBelow`
+- `format.go:80` `checkReads`: right only because `tokenReads` appends the clause's names last, an order no type enforces
+
+Inherited architect, would restructure first:
+
+- `render.go:53` `render`: a node kind's children are listed again in `renderEdges`, `paths`, `valueProof.prove`, `compileItem` and `drawSteps`, held in step by a comment and a render-time panic; rots first
+- `data-import/geo-se.py:239` `streets`: the 3am answer, a road segment's postort from the nearest code centroid and a tätort override, is found only after ruling out the engine
+- `internal/rows/rows.go:418` `Table.DrawIn`: `internal/rows` holds pinning, the parent-first draw and the link proof, not just a TSV, and its generic owner `O` breaks an import cycle nothing names
+- `namefence.go:96` `route`: shares its name with `tableRoute`, as `template` and three `calc.go` files each cover two or three concepts
+- `sampledraw.go:14` `sampleDraw`: "sample", the README's "alphabet calls" and "a builtin that draws each character from an alphabet" name one concept
+- `data-import/geo-se.py:254` `main`: SE overrides `geo.COLUMNS`, so a street's weight counts segments where the schema says addresses, and US `municipality` is a county
+- `env.go:33` `renderEnv`: a harmless-looking refactor moves every render's env to the heap, said only in comments and the allocation gate
+- `README.md:2000` "Layout": the root's 29 source files fall in seven clusters that exist only as this section's line order, with `where.go` and `cli/cli.go` near 800 lines
+
+## 2026-11-09T17:13:48Z, PR #327 rerun at 7d2b3a5
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5 | 5.5 | 6 | 5.5 |
+| Mid A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Maintainability senior | 7 | 5.5 | 6 | 6 | 6 |
+| Inherited architect | 7.5 | 6 | 6 | 7.5 | 6.5 |
+| Mean | 7.13 | 5.50 | 6.00 | 6.38 | 6.00 |
+
+Junior A, hardest first:
+
+- `namefence.go:349` `sharedDraw`: a five-way ordered rule list whose order carries meaning no comment states, with `readsFieldApart`'s index arithmetic beside it; resolved in part by doc.go's vocabulary
+- `pick.go:87` `landsInPick`: levels, keys moved under `at`, addressed keys and `namedLevels` against `freshLevels` held at once; the comment takes more than one read
+- `pick.go:213` `readName`: the memo's entered frames and `renderEnv.base` decide which frame a read sees, and popping by mark is order kept by hand
+- `render.go:156` `readField`: three branches, the fresh one split again on a reference head; why `env.pick` is cleared makes sense only after `landsInPick`
+- `path.go:192` `drawSteps`: `climbed` and `memo.stepDownPins` carry state across steps, and nil arguments at its callers choose a mode no name states
+- `table.go:250` `route`: four booleans combine into a routing decision whose combinations a reader enumerates alone
+- `where.go:580` `drawIndex`: a weighted draw skipping drawn indexes with a rounding correction, and `-1` meaning none in `lengthEnd` and `fallback`
+- `node.go:66` `template`: fields filled in stages by four functions, so which hold depends on how far loading has got; the stage comments mostly resolve it
+
+Mid A, hardest first:
+
+- `namefence.go:349` `sharedDraw`: a five-way switch whose cases depend on their order, under `checkNameRead`'s five refusals; why a template is refused takes the README's Names list; also the unit least wanted to modify
+- `where.go:580` `drawIndex`: skips drawn indexes through cumulative odds, and `undrawnNear`'s rounding correction never says what goes wrong without it
+- `pick.go:105` `readUnder`: whether a read reuses a pick spreads over `drawMemo`, `enteredFrame`, `stepDownPins` and the frame stack, with `renderEnv`'s `base` a hidden coupling
+- `path.go:192` `drawSteps`: `climbed` and `stepDownPins` are hard to follow, and `render.go:44` passes two bare nils
+- `table.go:250` `route`: `readsRow`, `pinnedBelow` and `fromRow` combine into routes worked out on paper
+- `format.go:84` `checkReads`: `own := len(names) - len(clause)` relies on the layout `tokenReads` builds in another function
+- `index.go:136` `load`: a queue that grows while consumed, rolled back by `putBack` on error; its comment resolves it on a second read
+
+Maintainability senior, hardest first:
+
+- `namefence.go:406` `refuseFreshDraw`: four helpers decide together whether a fresh read shares a draw, and no comment says how they combine; rebuilt from the README's Names section
+- `namefence.go:349` `sharedDraw`: a five-case switch whose order is the meaning, with nothing saying which order is required or why
+- `pick.go:87` `landsInPick`: a named read keys its levels from `""` and a fresh one from its head moved under `at`; the most expensive comment to absorb
+- `where.go:635` `proveEveryDrawPasses`: `lo` takes the name's upper bound and `hi` its lower with no word why, and `-1` is a sentinel in `lengthEnd` and `fallback`
+- `resolve.go:108` `resolveTemplates`: about twelve passes in a fixed order, with the facts on which needs which only in callee comments
+- `path.go:192` `drawSteps`: two modes chosen by nil pointers, and `stepColumn` and `stepChild` mean nothing until table.go explains them
+- `table.go:250` `route`: six fields and four flags combine, and the `pinnedBelow` rule takes two reads
+- `format.go:80` `checkReads`: aligns the clause's names after the token's own reads, right only while `tokenReads` appends them in that order
+
+Inherited architect, would restructure first:
+
+- `README.md:2000` "Layout": the root's 29 engine files and about 45 tests sit in one flat directory, grouped only by this section's lines; the worst level
+- `namefence.go:36` `checkNameRead`: five refusal routes over one walk, each new read kind adding one that must agree with `landsInPick`; rots first
+- `data-import/geo.py:157` `address_json`: generates DK's and NO's address templates while SE's and US's are hand-written copies, recorded nowhere and found only by grep
+- `data-import/geo-se.py:239` `streets`: the 3am bug's second suspect, in a second language, beside the engine's bound locality
+- `namefence.go:96` `route`: shares its name with `table.route`, as `key`, `name`, `table`, `column` and `paths` each cover two concepts
+- `sampledraw.go:14` `sampleDraw`: its name doesn't say it is the where clause's draw for alphabet builtins, beside `valueDraw` in where.go
+- `internal/builtinfunc/builtins.go:32` `builtins`: confusable with `builtinfunc.go`, and the root, grammar and builtinfunc share stems such as `calc` with no stated rule for the split
