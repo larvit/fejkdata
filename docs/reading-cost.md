@@ -1244,3 +1244,15 @@ Read most (opens and searches):
 - `data/sv_SE/person.json` 2
 - `internal/builtinfunc/builtinfunc.go` 2
 - `internal/proven/proven.go` 2
+
+## Reading cost, chunk e14a215027af, finished 2026-11-09T13:44:25Z
+
+101184 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 17
+- `README.md` 3
+- `docs/score-anchors.md` 2
+- `internal/builtinfunc/transform.go` 2
+- `internal/builtinfunc/builtinfunc.go` 1
