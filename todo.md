@@ -15,7 +15,7 @@
 | 399 | 0.4.0 |  |  | **Give every service in `compose.yaml` a memory and a swap limit.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
 | 400 | 0.4.0 |  |  | **Retitle the `da_DK.company` line in `AGENTS.md` to its decision's heading, which weighs by Statistics Denmark's enterprises, not new enterprises.** | 1 | 2 | 1 | 2 | 1 | code health by 1 | 4.2 |
 | 401 | 0.4.0 |  | owner | **Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.** | 2 | 1 | 1 | 2 | 3 | 1 by 2 | 1.3 |
-| 380 | 0.4.0 |  |  | **Let a template draw a value holding none of the strings it lists, and print a fallback it names where no value can avoid them.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
+| 380 | 0.4.0 |  |  | **Let a template draw a value holding none of the strings it lists, and print the fallback it names, or else the draw's default, where no value can avoid them.** | 3 | 1 | 2 | 4 | 5 | 1 by 2 | 0.5 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -238,15 +238,19 @@ The maintainer wants a GDPR term used only where it holds, and neither holds for
 
 So the name says what the call does to the text, as "Samples say what they emit, transforms what they do" asks. A writer panel, seated as the readers in the `anonymize` decision, picks it from the names they ranked below `anonymize`: `reword`, `fakewords`, `rewrite`, `scramble` and `mask`, and any they add. Every place that names the builtin follows: the README, the decision, the `CHANGELOG.md` entry, `AGENTS.md`, the code, the tests and the files named `anonymize.go` and `anonymize_test.go`. So do the README section's heading and its first sentence, which use "anonymize" as a verb. No release has shipped the builtin, so the rename is no major.
 
-### 380. Let a template draw a value holding none of the strings it lists, and print a fallback it names where no value can avoid them.
+### 380. Let a template draw a value holding none of the strings it lists, and print the fallback it names, or else the draw's default, where no value can avoid them.
 
 From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
 
 Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. Its condition is spelled as the `where` clause's is.
 
-The maintainer chose that a template excluding strings also names a fallback: the value a render prints where no value can avoid the strings. The strings adf-codec excludes are the document's own tokens, known only at render, so a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. Printing null instead would break a column that must hold a uuid, and taking only strings fixed at load would not serve adf-codec.
+The maintainer chose that a template may name a fallback: the value a render prints where no value can avoid the strings. The strings adf-codec excludes are the document's own tokens, known only at render, so a load-time check can't refuse the case where no value avoids them, such as a list holding every hex digit against `{uuid()}`. Where the template names no fallback, the draw prints its default:
+- a builtin, a value of its own shape: `{uuid()}` the Nil UUID, `00000000-0000-0000-0000-000000000000`, which RFC 9562 defines, `{digits(n)}` and `{hex(n)}` n zeros, and each other builtin one its docs name;
+- a path, the empty string, which holds none of the strings, whatever they are, and needs no default added to every category.
 
-The draw builds the value one character at a time from the builtin's alphabet, skipping a character that would complete one of the strings, so it needs no redraw loop and costs the value's length times the strings' total length.
+Strings quoted in the template are known at load, so `New` refuses a clause that no value can avoid, as the `where` clause does today, and such a clause never prints a fallback. A fallback may itself hold an excluded string, as the Nil UUID does in a document holding `0000`; only a render error would rule that out. Printing null instead would break a column that must hold a uuid, and taking only strings fixed at load would not serve adf-codec.
+
+A builtin's draw builds the value one character at a time from its alphabet, skipping a character that would complete one of the strings, so it needs no redraw loop and costs the value's length times the strings' total length. A path's draw keeps the values holding none of the strings, so it costs the path's values times the strings' total length.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
