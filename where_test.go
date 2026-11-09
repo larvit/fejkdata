@@ -334,7 +334,7 @@ func TestWherePrintsADefaultWhereNoValuePassesAndNoFallbackIsNamed(t *testing.T)
 func TestWhereOnACallRefusesAtLoad(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
 	for src, want := range map[string]string{
-		`"{int(1,9) where not '3'}"`: "digits, lower, upper, hex, base64, nanoid, uuid and ulid",
+		`"{int(1,9) where not '3'}"`: "{base64()}, {digits()}, {hex()}, {lower()}, {nanoid()}, {ulid()}, {upper()} or {uuid()}",
 		`"{digits(1) where not containing ` + quotedAllBut("0123456789", "") + `}"`: "no value passes the where clause",
 		`"{uuid() where not containing '-'}"`:                                       "no value passes the where clause",
 		`"{digits(2) where length 3}"`:                                              "no value passes the where clause",
@@ -342,7 +342,7 @@ func TestWhereOnACallRefusesAtLoad(t *testing.T) {
 		`{"format":"{digits(1) where not t}","t":"3"}`:                              "{t as n}",
 		`{"format":"{w where not containing t}","t":"3","w":["a"]}`:                 "{t as n}",
 		`{"format":"{w where not 'a' else f}","f":"x","w":["a","b"]}`:               "{f as n}",
-		`{"format":"{w where not t}","w":["a"]}`:                                    "{t as n}",
+		`{"format":"{w where not t}","w":["a"]}`:                                    "or quote the text, as 't'",
 	} {
 		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
