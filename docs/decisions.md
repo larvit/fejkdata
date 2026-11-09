@@ -1650,9 +1650,11 @@ A panel of four readers, seated as the Go test author, the JavaScript test autho
 author and the data author, picked the spelling. All four chose `else` over `otherwise`, `fallback`,
 `default`, `or` and `??`, last in the clause and before `as`. All four read an unquoted word in
 `not` as a name, and a name as its one pick. On a field holding a list, all four leaned to reading
-every string, but at only 55 to 65 percent sure, so goal 4.6 refuses a field there: bind it to a
-name first. All four wanted the fallback to take a name or a path; a path is read through a name.
-Valid while goal 4 stands.
+every string, but only 55 to 65 percent sure, so, as goal 4.6 asks, `New` refuses a field there,
+and its error shows both meanings: bind the field to a name for one of its values, or quote each
+string for every one. A joined distinct name read whole is refused for the same reason, and its
+error lists the members to read. All four wanted the fallback to take a name or a path; `else` takes
+a name, so a path is bound to one first. Valid while goal 4 stands.
 
 Without `else`, a path prints an empty string, so no category needs a default. A call prints a
 value of its own shape, such as the Nil UUID, which RFC 9562 defines, so a column holding a uuid

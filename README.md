@@ -172,8 +172,10 @@ fejkdata renders the fakes. Each part of the job:
   ([Format string](#format-string)).
 - A URL of a given form: `{/en_US.url}` draws a host and maybe a path, and the template
   adds the rest, such as `{/en_US.url}?{lower(4)}={digits(3)}`.
-- A fake that neither equals nor holds its original: a `where` clause on the call, as in
-  `{hex(4) where not containing '7958'}`, or reading the original from a name ([Filters](#filters)).
+- A fake that doesn't hold its original: a `where` clause on its draw, such as
+  `{hex(4) where not containing '7958'}`, which may read the original from a name. A clause
+  filters the alphabet calls, such as `{hex(n)}` and `{uuid()}`, and a path whose values are fixed
+  text ([Filters](#filters)).
 - A longer word list than a locale's `word`: a category of your own ([Your own data](#your-own-data)).
 
 ```json
@@ -183,7 +185,9 @@ fejkdata renders the fakes. Each part of the job:
 Renders e.g. `David Greer <tdsagk@example.com> signed as David Greer, id
 557058:3bcf0fc3-f7b0-4d58-bf7f-88c29c39f316, https://blog.example.com?ojat=642`.
 
-Your program keeps the rest of the job: giving one original the same fake across renders.
+Your program keeps the rest of the job: giving one original the same fake across renders, and
+keeping a fake from equalling or holding its original where no clause can filter it, as for
+`{/en_US.person}`, `{reword()}` and `{/misc.uuid}`.
 
 ## CLI
 
@@ -1688,14 +1692,20 @@ or through `calc`.
 Refused at `New`:
 
 - a clause no value passes, even at one length a name it reads may print;
-- a path whose values are not fixed text, such as `{uuid()}`, a null, a repeat, or a format
-  reading two fields, save a table's format reading only its own columns, as `misc.car`'s does;
+- a path whose values are not fixed text, such as `/misc.uuid`, whose format calls `{hex(n)}`, a
+  null, a repeat, or a format reading two fields, save a table's format reading only its own
+  columns, as `misc.car`'s does;
 - a path through a selector, a linked table or `..`;
 - a clause on any other call, on `{a|b}`, or in a table's format or cell;
 - `distinct` or `as` after a call's clause: put the call in a field, and read the field;
 - a clause on a name, which is drawn already: write it on the draw the name binds;
 - a path after the name a clause binds, such as `{w.x}`: read `{w}` whole;
-- a field read unquoted in a clause: bind it to a name first, as `{t as n}`, and read `n`.
+- a name bound by `distinct`, read whole in `not` or `not containing`: list its members, as
+  `not containing m[1], m[2]`;
+- a field read unquoted in a clause: for one of its values, bind it first, as `{t as n}`, and
+  read `n`; for every value, quote each, as `not containing '7958', 'beef'`;
+- a clause reading the name its own token binds, directly or through the clauses of the names it
+  reads, as `{w where not u as u}`: drawing the name would read itself.
 
 ### Distinct draws
 
