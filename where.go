@@ -24,7 +24,7 @@ const maxDrawValues = 1 << 20
 type valueDraw struct {
 	lengthIndex
 	lo, hi  lengthEnd
-	reads   []arm  // the op's operands, which an end, a string or the fallback reading a name indexes
+	reads   []arm  // the op's operands: the names the clause reads, which lo, hi, strings and fallback index
 	filters bool   // a where clause filters the values
 	count   int    // how many distinct values one draw takes
 	sep     string // what prints between them

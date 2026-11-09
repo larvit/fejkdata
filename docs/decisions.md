@@ -1637,7 +1637,7 @@ Transforms section says the fakes are random words.
 
 `words` is a path, so the template picks the language of the fakes. Valid while goal 4 stands.
 
-## A where clause also filters a call drawing from an alphabet, reads a name unquoted, and ends in `else`
+## A where clause also filters a call drawing from an alphabet, reads a name unquoted, and may end in `else` and a fallback
 
 2026-11-09, Lilleman auf Larv.
 

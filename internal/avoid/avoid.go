@@ -70,7 +70,8 @@ func (p *Plan) Draw(r Rand) string {
 }
 
 // automaton is the Aho–Corasick automaton of a set of patterns over the bytes a set of runs draws: a
-// state is the longest end of the text read that begins a pattern, and accepts once the text holds one.
+// state is the longest end of the text read that begins a pattern, and accepts where the text read ends
+// in a pattern.
 type automaton struct {
 	symbol  [256]int // the column of a byte in next, -1 for a byte no run draws
 	next    [][]int
@@ -184,8 +185,9 @@ func (a *automaton) before(after bitset, alphabet string) bitset {
 	return b
 }
 
-// sequence is the sets of states from which k more characters of a run can be drawn ending in the first
-// set: sets[k] up to the first set that repeats an earlier one, sets[loop], from where they cycle.
+// sequence holds in sets[k] the states from which k more characters of a run can be drawn to end in
+// sets[0]. It stops before the first set that repeats an earlier one, sets[loop]; from there the sets
+// cycle.
 type sequence struct {
 	sets []bitset
 	loop int

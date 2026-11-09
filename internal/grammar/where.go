@@ -18,10 +18,11 @@ const (
 // holds. A name's string is read at render, and Else is printed where no value passes.
 type Where struct {
 	Length             *LengthRange // nil where the clause names no length
-	Not, NotNames      []string     // values refused whole, and the names holding more
-	NotContaining      []string     // substrings: a value holding one is refused
-	NotContainingNames []string
-	Else               *Fallback // nil where the clause names no fallback
+	Not                []string     // quoted values refused whole
+	NotNames           []string     // names whose strings are refused whole
+	NotContaining      []string     // quoted substrings: a value holding one is refused
+	NotContainingNames []string     // names whose strings a value may not hold
+	Else               *Fallback    // nil where the clause names no fallback
 }
 
 // Fallback is the quoted Text a where clause prints where no value passes, or the name it reads where

@@ -141,8 +141,8 @@ var (
 
 const base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-// base64Runs is the runs of base64(n): a byte past a whole group of three leaves the bits of the last
-// character after it zero, so that character is one of a few, and padding follows.
+// base64Runs is the runs of base64(n). Where n is not a multiple of 3, the last character before the
+// padding encodes some zero bits, so it is one of 4 or 16 characters.
 func base64Runs(a []string) (avoid.Runs, string) {
 	n := atoi(a[0])
 	rs := avoid.Runs{{Alphabet: base64Alphabet, N: 4 * (n / 3)}}

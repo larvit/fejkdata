@@ -8,9 +8,9 @@ import (
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
-// sampleDraw draws a value of a builtin that draws each character from an alphabet, such as
-// {digits(n)}, holding none of its where clause's strings. A string the clause reads from a name is
-// read at each draw, and where no value avoids the strings then, the draw prints its fallback.
+// sampleDraw draws a value holding none of a where clause's strings, for a builtin that draws each
+// character from an alphabet, such as {digits(n)}. A string the clause reads from a name is read at
+// each draw, and where no value avoids the strings then, the draw prints its fallback.
 type sampleDraw struct {
 	runs    avoid.Runs
 	quoted  []string    // the strings quoted in the clause, as patterns a value must not hold
@@ -24,7 +24,7 @@ type sampleDraw struct {
 }
 
 // newSampleDraw builds the draw of o, a call with a where clause, and refuses a clause no value
-// passes: one whose quoted strings every value holds, or whose length no value has.
+// passes: one where every value holds a quoted string, or no value has its length.
 func newSampleDraw(o *op) (*sampleDraw, error) {
 	w := o.Where
 	runs, _ := builtinfunc.Runs(o.Fn, o.Args)
