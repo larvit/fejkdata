@@ -172,6 +172,8 @@ fejkdata renders the fakes. Each part of the job:
   ([Format string](#format-string)).
 - A URL of a given form: `{/en_US.url}` draws a host and maybe a path, and the template
   adds the rest, such as `{/en_US.url}?{lower(4)}={digits(3)}`.
+- A fake that neither equals nor holds its original: a `where` clause on the call, as in
+  `{hex(4) where not containing '7958'}`, or reading the original from a name ([Filters](#filters)).
 - A longer word list than a locale's `word`: a category of your own ([Your own data](#your-own-data)).
 
 ```json
@@ -181,8 +183,7 @@ fejkdata renders the fakes. Each part of the job:
 Renders e.g. `David Greer <tdsagk@example.com> signed as David Greer, id
 557058:3bcf0fc3-f7b0-4d58-bf7f-88c29c39f316, https://blog.example.com?ojat=642`.
 
-Your program keeps the rest of the job: giving one original the same fake across renders,
-and keeping a fake from equalling or containing its original.
+Your program keeps the rest of the job: giving one original the same fake across renders.
 
 ## CLI
 
@@ -1631,7 +1632,8 @@ Refused at `New`, each error naming what to write instead:
 
 ### Filters
 
-A `where` clause after a path draws only among the values that pass it:
+A `where` clause after a path, or after a call that draws characters from an alphabet, draws only
+among the values that pass it:
 
 ```json
 "{/en_US.word where length 5 and not containing 'x'}"
@@ -1644,8 +1646,43 @@ Renders e.g. `crane`. A clause holds one or more conditions, joined by `and`:
 - `not 'cat', 'dog'` drops those values, each compared whole.
 - `not containing 'cat'` drops every value holding `cat`, `concatenate` included.
 
-A quoted value can't hold an apostrophe. The values that pass keep their [weights](#weight). `as`
-after the clause binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`.
+Matching is case-sensitive. A quoted value can't hold an apostrophe. The values that pass keep their
+[weights](#weight). `as` after the clause binds the filtered draw:
+`{/en_US.word where length 5 as w}{w} {uppercase(w)}`.
+
+`not` and `not containing` may also read a name, unquoted, and take the string it holds in that
+render:
+
+```json
+{ "format": "{code as c}{c} → {hex(4) where not containing c}", "code": ["7958", "beef"] }
+```
+
+Renders e.g. `7958 → 3fa0`, and never a value holding `7958`. A name bound by `distinct` is read
+member by member, as `not containing m[1], m[2]`. `not containing` skips an empty string, which
+every value holds.
+
+The calls a clause filters are `{digits(n)}`, `{lower(n)}`, `{upper(n)}`, `{hex(n)}`,
+`{base64(n)}`, `{nanoid(n)}`, `{uuid()}` and `{ulid()}`. A call's draw never retries: it draws each
+character among those that still lead to a value passing the clause.
+
+`New` refuses a quoted string no value avoids, so only a string read from a name can leave no value
+to draw. `else`, last in the clause, names what prints then: a quoted text, as in
+`{w where not t else 'none'}`, or a name. Without `else`, a path prints an empty string, and a
+call a value of its own shape:
+
+| Call | Prints |
+| --- | --- |
+| `{uuid()}` | the Nil UUID, `00000000-0000-0000-0000-000000000000` |
+| `{ulid()}` | 26 zeros |
+| `{digits(n)}`, `{hex(n)}` and `{nanoid(n)}` | n zeros |
+| `{lower(n)}` | n `a`s |
+| `{upper(n)}` | n `A`s |
+| `{base64(n)}` | n zero bytes, encoded, as `AA==` for `{base64(1)}` |
+
+The fallback may itself hold one of the strings, as the Nil UUID holds `0000`: no render fails. In a
+distinct draw, it prints in place of each member left without a value. A fallback or a path's empty
+string is text, so a [typed](#datatype) column refuses a clause that may print one, read directly
+or through `calc`.
 
 Refused at `New`:
 
@@ -1653,9 +1690,11 @@ Refused at `New`:
 - a path whose values are not fixed text, such as `{uuid()}`, a null, a repeat, or a format
   reading two fields, save a table's format reading only its own columns, as `misc.car`'s does;
 - a path through a selector, a linked table or `..`;
-- a clause on a call, on `{a|b}`, or in a table's format or cell;
+- a clause on any other call, on `{a|b}`, or in a table's format or cell;
+- `distinct` or `as` after a call's clause: put the call in a field, and read the field;
 - a clause on a name, which is drawn already: write it on the draw the name binds;
-- a path after the name a clause binds, such as `{w.x}`: read `{w}` whole.
+- a path after the name a clause binds, such as `{w.x}`: read `{w}` whole;
+- a field read unquoted in a clause: bind it to a name first, as `{t as n}`, and read `n`.
 
 ### Distinct draws
 
@@ -1976,6 +2015,7 @@ sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
 where.go        where and distinct clauses: the values a clause draws from, fixed at load with their weights, and the draw of those that pass, without repeats
+sampledraw.go   a where clause on a call: the draw of a value holding none of the clause's strings, and the fallback where none can
 reword.go       {reword()}: the words a call draws from, one fake per word in a render, and the case each fake takes
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
 columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
@@ -1983,7 +2023,8 @@ valueproof.go   the value proof: what a typed column, calc operand or struct fie
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
-internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms, reword's arguments and calc arithmetic
+internal/avoid/ the draw of a value of fixed runs of characters that holds none of a set of strings, planned over their Aho–Corasick automaton
+internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms, reword's arguments and calc arithmetic, and the characters each sample a where clause filters draws, with its default
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through

@@ -69,10 +69,11 @@ type op struct {
 	call builtinfunc.Call
 	// operands are the fields the builtin reads, in the order its operands func fixed; expand reads
 	// them before the call, except a {reword()} call's second, which words replaces. For a token
-	// with a where clause, they are the names its length reads. nil for a token that reads none.
+	// with a where clause, they are the names the clause reads. nil for a token that reads none.
 	operands []arm
-	values   *valueDraw // a token with a where or a distinct clause: what it draws from
-	words    *wordList  // a {reword()} call: the words its second operand's path holds, read at load
+	values   *valueDraw  // a read or a bind with a where or a distinct clause: what it draws from
+	sample   *sampleDraw // a call with a where clause: how it draws
+	words    *wordList   // a {reword()} call: the words its second operand's path holds, read at load
 }
 
 func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarget) ([]arm, error) {

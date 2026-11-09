@@ -127,6 +127,10 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 			}
 			b.WriteString(readField(s, t, env, o.arms[s.IntN(len(o.arms))]).text)
 		case grammar.BuiltinCall:
+			if o.sample != nil {
+				b.WriteString(o.sample.draw(s, env, b.String()))
+				continue
+			}
 			if o.words != nil {
 				b.WriteString(o.words.reword(s, env.frames, readField(s, t, env, o.operands[0]).text))
 				continue

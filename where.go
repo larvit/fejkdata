@@ -20,14 +20,18 @@ const maxDrawValues = 1 << 20
 
 // valueDraw draws among the values a path renders, fixed at load with the odds each has in a draw of
 // the path: one of the values that pass its where clause, or count distinct ones where a distinct
-// clause asks. A length that reads a name reads it at each draw.
+// clause asks. A name the clause reads is read at each draw.
 type valueDraw struct {
 	lengthIndex
 	lo, hi  lengthEnd
-	reads   []arm  // the op's operands, which an end reading a name indexes
+	reads   []arm  // the op's operands, which an end, a string or the fallback reading a name indexes
 	filters bool   // a where clause filters the values
 	count   int    // how many distinct values one draw takes
 	sep     string // what prints between them
+	strings readStrings
+	// fallback prints in place of each value a draw can't take, once a string read at render left
+	// too few
+	fallback fallback
 }
 
 // lengthIndex holds values by length, each with its odds.
@@ -43,28 +47,96 @@ type lengthEnd struct {
 	read int
 }
 
-// lengthNames is every name w's length reads, each once.
-func lengthNames(w *grammar.Where) []string {
-	if w == nil || w.Length == nil {
+// readStrings are the reads, by index into a draw's reads, of the strings a value must not equal,
+// and of those it must not contain.
+type readStrings struct{ not, notContaining []int }
+
+// any says whether r reads a string, which alone can leave a draw too few values.
+func (r readStrings) any() bool { return len(r.not)+len(r.notContaining) > 0 }
+
+// fallback is what a draw prints where no value passes: text, or the name reads[read] where read is
+// 0 or more.
+type fallback struct {
+	text string
+	read int
+}
+
+func (f fallback) at(s *drawstate.State, env renderEnv, reads []arm) string {
+	if f.read < 0 {
+		return f.text
+	}
+	return readName(s, env, reads[f.read]).text
+}
+
+// clauseName is a name a where clause reads, and the word of the clause reading it.
+type clauseName struct{ word, name string }
+
+// clauseNames is every name w reads, each once: its length's first, then not's, not containing's and
+// else's.
+func clauseNames(w *grammar.Where) []clauseName {
+	if w == nil {
 		return nil
 	}
-	var names []string
-	for _, end := range []grammar.Length{w.Length.Lo, w.Length.Hi} {
-		if end.Name != "" && !slices.Contains(names, end.Name) {
-			names = append(names, end.Name)
+	var names []clauseName
+	add := func(word string, ns ...string) {
+		for _, n := range ns {
+			if n != "" && readOf(names, n) < 0 {
+				names = append(names, clauseName{word, n})
+			}
 		}
+	}
+	if w.Length != nil {
+		add("length", w.Length.Lo.Name, w.Length.Hi.Name)
+	}
+	add("not", w.NotNames...)
+	add("not containing", w.NotContainingNames...)
+	if w.Else != nil {
+		add("else", w.Else.Name)
 	}
 	return names
 }
 
-// compileLengths compiles the names w's length reads, each bound in a template enclosing t.
-func (t *template) compileLengths(w *grammar.Where, targets map[*nameBinding]nameTarget) ([]arm, error) {
+// readOf is the index of name among names, which is the index of its read among the op's operands.
+func readOf(names []clauseName, name string) int {
+	return slices.IndexFunc(names, func(c clauseName) bool { return c.name == name })
+}
+
+func clauseReads(names []clauseName, of []string) []int {
+	var reads []int
+	for _, n := range of {
+		reads = append(reads, readOf(names, n))
+	}
+	return reads
+}
+
+// fallbackOf is what a draw under w prints where no value passes, deflt where w names no fallback.
+func fallbackOf(w *grammar.Where, names []clauseName, deflt string) fallback {
+	switch {
+	case w == nil || w.Else == nil:
+		return fallback{text: deflt, read: -1}
+	case w.Else.Name != "":
+		return fallback{read: readOf(names, w.Else.Name)}
+	}
+	return fallback{text: w.Else.Text, read: -1}
+}
+
+// unbound is the refusal of c where no field and no name holds it.
+func (c clauseName) unbound() error {
+	head := splitArm(c.name, nil).head
+	if c.word == "length" {
+		return fmt.Errorf("length %s reads a name, and no name %q is bound; bind one first, as {… as %s}", c.name, head, head)
+	}
+	return fmt.Errorf("%s %s reads a name, and no name %q is bound; bind one first, as {… as %s}, or quote the text, as '%s'", c.word, c.name, head, head, c.name)
+}
+
+// compileClauseNames compiles the names w reads, each bound in a template enclosing t.
+func (t *template) compileClauseNames(w *grammar.Where, targets map[*nameBinding]nameTarget) ([]arm, error) {
 	var arms []arm
-	for _, name := range lengthNames(w) {
-		if !t.isName(splitArm(name, nil).head) {
-			return nil, fmt.Errorf("length %s reads a name, and %q is a field; bind it first, as {%s as n}, and write length n", name, name, name)
+	for _, c := range clauseNames(w) {
+		if !t.isName(splitArm(c.name, nil).head) {
+			return nil, fmt.Errorf("%s %s reads a name, and %q is a field; bind it first, as {%s as n}, and write %s n", c.word, c.name, c.name, c.name, c.word)
 		}
-		a, err := t.compileArm(name, targets)
+		a, err := t.compileArm(c.name, targets)
 		if err != nil {
 			return nil, err
 		}
@@ -80,6 +152,13 @@ func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) error {
 		for i := range s.t.compiled.ops {
 			o := &s.t.compiled.ops[i]
 			if o.Where == nil && o.Distinct == nil {
+				continue
+			}
+			if o.Kind == grammar.BuiltinCall {
+				var err error
+				if o.sample, err = newSampleDraw(o); err != nil {
+					return fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
+				}
 				continue
 			}
 			v, err := s.t.valueDrawOf(o, targets)
@@ -325,7 +404,9 @@ func (w *valueWalk) emit(text string, weight float64) error {
 // newValueDraw keeps the values that pass where's fixed conditions, shortest first, for draws of
 // distinct's count, or of one value where distinct is nil.
 func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar.Distinct, reads []arm) *valueDraw {
-	v := &valueDraw{reads: reads, count: 1, lo: lengthEnd{n: 0, read: -1}, hi: lengthEnd{n: math.MaxInt, read: -1}}
+	names := clauseNames(where)
+	v := &valueDraw{reads: reads, count: 1, fallback: fallbackOf(where, names, "")}
+	v.lo, v.hi = lengthEnds(where, names)
 	if distinct != nil {
 		v.count, v.sep = distinct.N, distinct.Sep
 	}
@@ -334,24 +415,30 @@ func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar
 		return v
 	}
 	var kept []weightedText
+	containing := nonEmpty(where.NotContaining)
 	for _, value := range values {
-		if !slices.Contains(where.Not, value.text) && !slices.ContainsFunc(where.NotContaining, func(s string) bool { return strings.Contains(value.text, s) }) {
+		if !slices.Contains(where.Not, value.text) && !holdsAny(value.text, containing) {
 			kept = append(kept, value)
 		}
 	}
 	v.lengthIndex, v.filters = newLengthIndex(kept), true
-	if where.Length != nil {
-		names := lengthNames(where)
-		v.lo, v.hi = endOf(where.Length.Lo, names), endOf(where.Length.Hi, names)
-	}
+	v.strings = readStrings{clauseReads(names, where.NotNames), clauseReads(names, where.NotContainingNames)}
 	return v
 }
 
-func endOf(l grammar.Length, names []string) lengthEnd {
+// lengthEnds are the ends of w's length, 0 to every length where w has none.
+func lengthEnds(w *grammar.Where, names []clauseName) (lo, hi lengthEnd) {
+	if w == nil || w.Length == nil {
+		return lengthEnd{n: 0, read: -1}, lengthEnd{n: math.MaxInt, read: -1}
+	}
+	return endOf(w.Length.Lo, names), endOf(w.Length.Hi, names)
+}
+
+func endOf(l grammar.Length, names []clauseName) lengthEnd {
 	if l.Name == "" {
 		return lengthEnd{n: l.N, read: -1}
 	}
-	return lengthEnd{read: slices.Index(names, l.Name)}
+	return lengthEnd{read: readOf(names, l.Name)}
 }
 
 func newLengthIndex(values []weightedText) lengthIndex {
@@ -383,20 +470,6 @@ func (x *lengthIndex) span(lo, hi int) (from, to int) {
 // drawIn draws one of the texts in x.texts[from:to], by their odds.
 func (x *lengthIndex) drawIn(s *drawstate.State, from, to int) string {
 	return x.texts[x.drawIndex(s, from, to, nil)]
-}
-
-// drawDistinctIn draws n of the texts in x.texts[from:to], each by its odds among those not drawn
-// yet.
-func (x *lengthIndex) drawDistinctIn(s *drawstate.State, from, to, n int) []string {
-	drawn := make([]int, 0, n) // ascending
-	out := make([]string, n)
-	for k := range out {
-		i := x.drawIndex(s, from, to, drawn)
-		at, _ := slices.BinarySearch(drawn, i)
-		drawn = slices.Insert(drawn, at, i)
-		out[k] = x.texts[i]
-	}
-	return out
 }
 
 // drawIndex draws the index of one of the texts in x.texts[from:to] by their odds, leaving out
@@ -445,7 +518,11 @@ func undrawnNear(i, from, to int, drawn []int) int {
 // values pass, or one whose length reads a name that may print a length too few values have.
 func (v *valueDraw) proveEveryDrawPasses() error {
 	bounds := make([][2]float64, len(v.reads))
-	for i, a := range v.reads {
+	for _, e := range []lengthEnd{v.lo, v.hi} {
+		if e.read < 0 {
+			continue
+		}
+		a := v.reads[e.read]
 		p := (&valueProof{}).proveArm(a)
 		switch {
 		case p.NotOperand != "":
@@ -453,7 +530,7 @@ func (v *valueDraw) proveEveryDrawPasses() error {
 		case !p.Integral:
 			return fmt.Errorf("length %s is not always a whole number: it may print a fraction", a.spelling)
 		}
-		bounds[i] = [2]float64{p.Lo, p.Hi}
+		bounds[e.read] = [2]float64{p.Lo, p.Hi}
 	}
 	if v.lo.read >= 0 && v.lo.read == v.hi.read {
 		for n := bounds[v.lo.read][0]; n <= bounds[v.lo.read][1]; n++ {
@@ -525,13 +602,65 @@ func (v *valueDraw) passing(lo, hi float64) int {
 	return max(to-from, 0)
 }
 
-// draw draws count distinct passing values, reading the length's names in env.
+// draw draws count distinct passing values, reading the clause's names in env. Where the strings it
+// reads leave fewer values than count, the fallback prints in place of each value missing.
 func (v *valueDraw) draw(s *drawstate.State, env renderEnv) []string {
 	from, to := v.span(v.lo.at(s, env, v.reads), v.hi.at(s, env, v.reads))
 	if to-from < v.count {
 		panic(invariant.Broken("a clause the load proved leaves %d values leaves %d", v.count, to-from))
 	}
-	return v.drawDistinctIn(s, from, to, v.count)
+	drawn := v.holding(s, env, from, to) // ascending
+	out := make([]string, v.count)
+	for k := range out {
+		if len(drawn) == to-from {
+			out[k] = v.fallback.at(s, env, v.reads)
+			continue
+		}
+		i := v.drawIndex(s, from, to, drawn)
+		at, _ := slices.BinarySearch(drawn, i)
+		drawn = slices.Insert(drawn, at, i)
+		out[k] = v.texts[i]
+	}
+	return out
+}
+
+// holding is the indexes, ascending, of the texts in v.texts[from:to] that equal a not string, or
+// hold a not containing string, that v reads in env.
+func (v *valueDraw) holding(s *drawstate.State, env renderEnv, from, to int) []int {
+	not, containing := v.strings.read(s, env, v.reads)
+	if len(not) == 0 && len(containing) == 0 {
+		return nil
+	}
+	var out []int
+	for i := from; i < to; i++ {
+		if slices.Contains(not, v.texts[i]) || holdsAny(v.texts[i], containing) {
+			out = append(out, i)
+		}
+	}
+	return out
+}
+
+// read reads the strings in env: those a value must not equal, and those a value must not hold,
+// leaving out an empty one, which every value holds.
+func (r readStrings) read(s *drawstate.State, env renderEnv, reads []arm) (not, containing []string) {
+	for _, i := range r.not {
+		not = append(not, readName(s, env, reads[i]).text)
+	}
+	for _, i := range r.notContaining {
+		if text := readName(s, env, reads[i]).text; text != "" {
+			containing = append(containing, text)
+		}
+	}
+	return not, containing
+}
+
+// nonEmpty is texts without the empty string, which every value holds.
+func nonEmpty(texts []string) []string {
+	return slices.DeleteFunc(slices.Clone(texts), func(t string) bool { return t == "" })
+}
+
+func holdsAny(text string, of []string) bool {
+	return slices.ContainsFunc(of, func(s string) bool { return strings.Contains(text, s) })
 }
 
 func (e lengthEnd) at(s *drawstate.State, env renderEnv, reads []arm) int {

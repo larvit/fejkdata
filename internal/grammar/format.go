@@ -69,7 +69,7 @@ type Token struct {
 	Arms []string // PathRead: the '|' alternatives
 	// NameBind: the reference it binds, and the name.
 	BoundRef, Bound string
-	Where           *Where    // PathRead or NameBind: the filter on its draw, nil for none
+	Where           *Where    // PathRead, NameBind or BuiltinCall: the filter on its draw, nil for none
 	Distinct        *Distinct // PathRead or NameBind: several distinct draws in one pick, nil for one draw
 }
 

@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/larvit/fejkdata/internal/avoid"
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/proven"
@@ -37,6 +38,9 @@ type builtin struct {
 	// reads as a number no column should type, as digits' leading zeros; unset where
 	// proveNumber is nil.
 	prints datatype.DataType
+	// avoids is the runs of every value a sample prints, and what it prints where no value passes
+	// its where clause; nil for a builtin a where clause can't filter.
+	avoids func(args []string) (avoid.Runs, string)
 }
 
 // CalcName is the builtin whose operands package fejkdata checks and proves, since only it
@@ -103,6 +107,35 @@ func ProveNumber(name, token string, args []string) (proven.Facts, bool) {
 		return proven.Facts{}, false
 	}
 	return b.proveNumber(token, b.prints, args), true
+}
+
+// Runs is every value name(args) can print; ok is false for a builtin a where clause can't filter.
+func Runs(name string, args []string) (rs avoid.Runs, ok bool) {
+	b := builtins[name]
+	if b.avoids == nil {
+		return nil, false
+	}
+	rs, _ = b.avoids(args)
+	return rs, true
+}
+
+// Default is what name(args) prints where no value passes its where clause, and the clause names no
+// fallback.
+func Default(name string, args []string) string {
+	_, d := builtins[name].avoids(args)
+	return d
+}
+
+// FilteredCalls lists the calls a where clause can filter, as an error names them.
+func FilteredCalls() string {
+	var calls []string
+	for name, b := range builtins {
+		if b.avoids != nil {
+			calls = append(calls, "{"+name+"()}")
+		}
+	}
+	slices.Sort(calls)
+	return strings.Join(calls[:len(calls)-1], ", ") + " or " + calls[len(calls)-1]
 }
 
 // TypedCalls lists the calls whose text a typed column may hold, as an error names them.

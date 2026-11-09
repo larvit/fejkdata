@@ -14,12 +14,19 @@ const (
 	distinctWord = "distinct"
 )
 
-// Where is a filter over the values a path can draw: a value passes when every condition holds.
+// Where is a filter over the values a path or a call can draw: a value passes when every condition
+// holds. A name's string is read at render, and Else is printed where no value passes.
 type Where struct {
-	Length        *LengthRange // nil where the clause names no length
-	Not           []string     // values refused whole
-	NotContaining []string     // substrings: a value holding one is refused
+	Length             *LengthRange // nil where the clause names no length
+	Not, NotNames      []string     // values refused whole, and the names holding more
+	NotContaining      []string     // substrings: a value holding one is refused
+	NotContainingNames []string
+	Else               *Fallback // nil where the clause names no fallback
 }
+
+// Fallback is the quoted Text a where clause prints where no value passes, or the name it reads where
+// Name is set.
+type Fallback struct{ Text, Name string }
 
 // LengthRange is the lengths a value may have, in code points, both ends included.
 type LengthRange struct{ Lo, Hi Length }
@@ -37,7 +44,7 @@ type Distinct struct {
 	Sep   string
 }
 
-var whereKeywords = []string{"and", "containing", "length", "not", "to"}
+var whereKeywords = []string{"and", "containing", "else", "length", "not", "to"}
 
 // containsWord reports whether s holds word after a space, where the word ends s or a space follows it.
 func containsWord(s, word string) bool {
@@ -121,14 +128,14 @@ func cutClauses(body string) (c clauses, found bool) {
 func clauseToken(body string, c clauses) (Token, error) {
 	_, _, bindsInHead := cutOutside(c.head, AsWord)
 	switch {
-	case indexOutside(c.head, '(') >= 0:
-		return Token{}, fmt.Errorf("token {%s}: a where or distinct clause draws from a path, not a call", body)
 	case indexOutside(c.head, '|') >= 0:
 		return Token{}, fmt.Errorf("token {%s}: a where or distinct clause draws from one path; write a token for each", body)
 	case bindsInHead:
 		return Token{}, fmt.Errorf("token {%s}: \"as\" comes after the clauses: {path where … distinct N as name}", body)
 	case c.filters && containsWord(c.head, distinctWord):
 		return Token{}, fmt.Errorf("token {%s}: the where clause comes before distinct: {path where … distinct N}", body)
+	case indexOutside(c.head, '(') >= 0:
+		return callClauseToken(body, c)
 	}
 	tok := Token{Kind: PathRead, Body: body, Arms: []string{c.head}}
 	if c.binds {
@@ -150,6 +157,25 @@ func clauseToken(body string, c clauses) (Token, error) {
 		}
 	}
 	return tok, nil
+}
+
+// callClauseToken parses a call carrying a where clause, which neither draws distinct values nor binds a
+// name.
+func callClauseToken(body string, c clauses) (Token, error) {
+	fn, args, ok := FuncCall(c.head)
+	switch {
+	case !ok:
+		return Token{}, fmt.Errorf("malformed function token {%s}", body)
+	case c.picks:
+		return Token{}, fmt.Errorf("token {%s}: a distinct clause draws from a path, not a call", body)
+	case c.binds:
+		return Token{}, fmt.Errorf("token {%s}: a call can't be bound; put the call and its clause in a field, and bind the field", body)
+	}
+	w, err := ParseWhere(c.where)
+	if err != nil {
+		return Token{}, fmt.Errorf("token {%s}: %w", body, err)
+	}
+	return Token{Kind: BuiltinCall, Body: body, Fn: fn, Args: args, Where: w}, nil
 }
 
 // parseDistinct parses a distinct clause: a whole number of 1 or more, then joined and a quoted
@@ -244,7 +270,8 @@ func (p *whereParser) word(w string) bool {
 }
 
 // ParseWhere parses a where clause: conditions joined by and, each `length N`, `length N to M`,
-// `not 'a', 'b'` or `not containing 'a', 'b'`, where a length is a whole number or a name.
+// `not 'a', n` or `not containing 'a', n`, where a length is a whole number or a name, and a list
+// holds quoted strings and names. `else 'text'` or `else n` may end it.
 func ParseWhere(clause string) (*Where, error) {
 	lx, err := lexWhere(clause)
 	if err != nil {
@@ -255,6 +282,9 @@ func ParseWhere(clause string) (*Where, error) {
 	for {
 		if err := p.condition(w); err != nil {
 			return nil, fmt.Errorf("where %s: %w", clause, err)
+		}
+		if p.word("else") {
+			return w, p.fallback(w, clause)
 		}
 		if p.done() {
 			return w, nil
@@ -275,13 +305,10 @@ func (p *whereParser) condition(w *Where) error {
 		w.Length = r
 		return err
 	case p.word("not"):
-		into := &w.Not
 		if p.word("containing") {
-			into = &w.NotContaining
+			return p.stringList(&w.NotContaining, &w.NotContainingNames)
 		}
-		values, err := p.quotedList()
-		*into = append(*into, values...)
-		return err
+		return p.stringList(&w.Not, &w.NotNames)
 	}
 	return fmt.Errorf("a condition starts with \"length\" or \"not\", not %s", p.peek())
 }
@@ -308,7 +335,7 @@ func (p *whereParser) length() (Length, error) {
 	if !ok || l.quoted || l.text == "," || slices.Contains(whereKeywords, l.text) {
 		return Length{}, fmt.Errorf("\"length\" takes a whole number or a name, such as {w where length 5} or {w where length k}")
 	}
-	if l.text[0] == '-' || l.text[0] >= '0' && l.text[0] <= '9' {
+	if startsNumber(l.text) {
 		n, err := strconv.Atoi(l.text)
 		if err != nil || n < 0 {
 			return Length{}, fmt.Errorf("length %s is no whole number of 0 or more", l.text)
@@ -330,17 +357,48 @@ func withoutMember(name string) string {
 	return name
 }
 
-func (p *whereParser) quotedList() ([]string, error) {
-	var values []string
+// stringList appends the quoted strings of a list to quoted, and the names to names.
+func (p *whereParser) stringList(quoted, names *[]string) error {
 	for {
 		l, ok := p.next()
-		if !ok || !l.quoted {
-			return nil, errors.New("\"not\" takes quoted values, such as {w where not 'cat', 'dog'}")
+		switch {
+		case ok && l.quoted:
+			*quoted = append(*quoted, l.text)
+		case !ok || l.text == "," || slices.Contains(whereKeywords, l.text):
+			return errors.New("\"not\" takes quoted strings or names, such as {w where not 'cat', n}")
+		case startsNumber(l.text):
+			return fmt.Errorf("not %s: quote a string, as '%s'; a bare word is a name", l.text, l.text)
+		default:
+			if err := CheckIdentifier(withoutMember(l.text)); err != nil {
+				return fmt.Errorf("not %s: %w", l.text, err)
+			}
+			*names = append(*names, l.text)
 		}
-		values = append(values, l.text)
 		if p.done() || p.lx[p.at].quoted || p.lx[p.at].text != "," {
-			return values, nil
+			return nil
 		}
 		p.at++
 	}
 }
+
+// fallback parses what follows else into w: a quoted text or a name, ending clause.
+func (p *whereParser) fallback(w *Where, clause string) error {
+	l, ok := p.next()
+	switch {
+	case !ok || !l.quoted && (l.text == "," || slices.Contains(whereKeywords, l.text) || startsNumber(l.text)):
+		return fmt.Errorf("where %s: \"else\" takes a quoted fallback or a name, such as {w where not 'cat' else 'none'}", clause)
+	case l.quoted:
+		w.Else = &Fallback{Text: l.text}
+	default:
+		if err := CheckIdentifier(withoutMember(l.text)); err != nil {
+			return fmt.Errorf("where %s: else %s: %w", clause, l.text, err)
+		}
+		w.Else = &Fallback{Name: l.text}
+	}
+	if !p.done() {
+		return fmt.Errorf("where %s: \"else\" and its fallback end the clause; %s follows them", clause, p.peek())
+	}
+	return nil
+}
+
+func startsNumber(word string) bool { return word[0] == '-' || word[0] >= '0' && word[0] <= '9' }
