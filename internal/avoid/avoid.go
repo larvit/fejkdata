@@ -32,7 +32,7 @@ type Plan struct {
 }
 
 // Compile plans the draws of the values of rs holding none of patterns; it returns nil where each value
-// holds one. A pattern that is empty, or holds a byte no run draws, is ignored.
+// holds one. A pattern holding a byte no run draws is ignored; an empty one is held by every value.
 func Compile(rs Runs, patterns []string) *Plan {
 	a := newAutomaton(rs, patterns)
 	p := &Plan{runs: rs, a: a, ahead: make([]sequence, len(rs))}
@@ -109,15 +109,12 @@ func (a *automaton) addState(symbols int) int {
 	return len(a.next) - 1
 }
 
-// insert adds p to the trie, unless no run draws one of its bytes or it is empty.
+// insert adds p to the trie, unless no run draws one of its bytes.
 func (a *automaton) insert(p string, symbols int) {
 	for i := 0; i < len(p); i++ {
 		if a.symbol[p[i]] < 0 {
 			return
 		}
-	}
-	if p == "" {
-		return
 	}
 	s := 0
 	for i := 0; i < len(p); i++ {

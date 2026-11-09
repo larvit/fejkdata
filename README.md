@@ -1646,9 +1646,10 @@ Renders e.g. `crane`. A clause holds one or more conditions, joined by `and`:
 - `not 'cat', 'dog'` drops those values, each compared whole.
 - `not containing 'cat'` drops every value holding `cat`, `concatenate` included.
 
-Matching is case-sensitive. A quoted value can't hold an apostrophe. The values that pass keep their
-[weights](#weight). `as` after the clause binds the filtered draw:
-`{/en_US.word where length 5 as w}{w} {uppercase(w)}`.
+Matching is case-sensitive. A quoted value can't hold an apostrophe. A path's values that pass keep
+their [weights](#weight). A call's draw never retries: it draws each character evenly among those
+that still lead to a value passing the clause, so the values that pass aren't equally likely. `as`
+after a path's clause binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`.
 
 `not` and `not containing` may also read a name, unquoted, and take the string it holds in that
 render:

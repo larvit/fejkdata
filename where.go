@@ -171,6 +171,9 @@ func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) error {
 			}
 		}
 	}
+	if err := refuseSelfReads(ts); err != nil {
+		return err
+	}
 	for _, s := range ts {
 		for _, r := range namedReads(s.t) {
 			if r.a.named.values != nil && len(r.a.tail) > 0 {
@@ -179,6 +182,73 @@ func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) error {
 		}
 	}
 	return nil
+}
+
+// refuseSelfReads refuses a token whose where clause reads the name the token binds, directly or
+// through what the names it reads draw: drawing the name would read itself.
+func refuseSelfReads(ts []templateSite) error {
+	for _, s := range ts {
+		for _, o := range s.t.compiled.ops {
+			if o.Kind != grammar.NameBind || o.values == nil {
+				continue
+			}
+			b := s.t.nameScope.bindings[o.Bound]
+			r := selfRead{b: b, names: map[*nameBinding]bool{}, nodes: map[node]bool{}}
+			for _, a := range o.values.reads {
+				if !r.reaches(a) {
+					continue
+				}
+				via := ""
+				if a.named != b {
+					via = fmt.Sprintf(", and drawing %q reads %q", a.head, b.name)
+				}
+				return fmt.Errorf("%s: token {%s}: its where clause reads %q%s, the name it binds, so the draw would read itself; read the clause's strings from another name", s.label, o.Body, a.head, via)
+			}
+		}
+	}
+	return nil
+}
+
+// selfRead walks what reading an arm draws, looking for a read of b.
+type selfRead struct {
+	b     *nameBinding
+	names map[*nameBinding]bool
+	nodes map[node]bool
+}
+
+// reaches says whether reading a reads b: a name holding a filtered draw reads only its clause's
+// names, since its values are fixed at load; any other read renders its leaves.
+func (r selfRead) reaches(a arm) bool {
+	if a.kind == namedRead {
+		if a.named == r.b {
+			return true
+		}
+		if r.names[a.named] {
+			return false
+		}
+		r.names[a.named] = true
+		if a.named.values != nil {
+			return slices.ContainsFunc(a.named.values.reads, r.reaches)
+		}
+	}
+	return slices.ContainsFunc(a.leaves, r.reachesNode)
+}
+
+func (r selfRead) reachesNode(n node) bool {
+	if r.nodes[n] {
+		return false
+	}
+	r.nodes[n] = true
+	t, ok := n.(*template)
+	if !ok {
+		return slices.ContainsFunc(renderEdges(n), func(e renderEdge) bool { return r.reachesNode(e.to) })
+	}
+	for _, o := range t.compiled.ops {
+		if slices.ContainsFunc(slices.Concat(o.operands, o.arms), r.reaches) {
+			return true
+		}
+	}
+	return false
 }
 
 // valueDrawOf builds o's draw over the values o's path renders, and proves every draw leaves
@@ -205,7 +275,7 @@ func (t *template) valueDrawOf(o *op, targets map[*nameBinding]nameTarget) (*val
 		return nil, fmt.Errorf("%s values fixed at load, and %w", clause, err)
 	}
 	v := newValueDraw(w.out, o.Where, o.Distinct, o.operands)
-	return v, v.proveEveryDrawPasses()
+	return v, v.lengthProof().proveEveryDrawPasses()
 }
 
 type weightedText struct {
@@ -461,9 +531,11 @@ func newLengthIndex(values []weightedText) lengthIndex {
 }
 
 // span bounds the texts in x.texts[from:to], those whose length is lo to hi.
-func (x *lengthIndex) span(lo, hi int) (from, to int) {
-	from = sort.Search(len(x.lengths), func(i int) bool { return x.lengths[i] >= lo })
-	to = sort.Search(len(x.lengths), func(i int) bool { return x.lengths[i] > hi })
+func (x *lengthIndex) span(lo, hi int) (from, to int) { return spanOf(x.lengths, lo, hi) }
+
+func spanOf(lengths []int, lo, hi int) (from, to int) {
+	from = sort.Search(len(lengths), func(i int) bool { return lengths[i] >= lo })
+	to = sort.Search(len(lengths), func(i int) bool { return lengths[i] > hi })
 	return from, to
 }
 
@@ -514,9 +586,23 @@ func undrawnNear(i, from, to int, drawn []int) int {
 	panic(invariant.Broken("a draw ran out of the values the load proved enough"))
 }
 
+// lengthProof is what proves a draw's length: the lengths of its values, shortest first, the
+// clause's ends, the reads the ends index, and how many values one draw takes.
+type lengthProof struct {
+	lengths []int
+	lo, hi  lengthEnd
+	reads   []arm
+	count   int
+	filters bool // a where clause filters the values
+}
+
+func (v *valueDraw) lengthProof() lengthProof {
+	return lengthProof{v.lengths, v.lo, v.hi, v.reads, v.count, v.filters}
+}
+
 // proveEveryDrawPasses refuses a draw that some render leaves with too few values: one where too few
 // values pass, or one whose length reads a name that may print a length too few values have.
-func (v *valueDraw) proveEveryDrawPasses() error {
+func (v lengthProof) proveEveryDrawPasses() error {
 	bounds := make([][2]float64, len(v.reads))
 	for _, e := range []lengthEnd{v.lo, v.hi} {
 		if e.read < 0 {
@@ -555,7 +641,7 @@ func (v *valueDraw) proveEveryDrawPasses() error {
 
 // rangeShortfall says that the length lo to hi leaves passing values, too few, naming the length's
 // names at the values that narrow it to lo to hi.
-func (v *valueDraw) rangeShortfall(lo, hi float64, passing int) error {
+func (v lengthProof) rangeShortfall(lo, hi float64, passing int) error {
 	var at []string
 	if v.lo.read >= 0 {
 		at = append(at, fmt.Sprintf("%s is %.0f", v.reads[v.lo.read].spelling, lo))
@@ -577,7 +663,7 @@ func (v *valueDraw) rangeShortfall(lo, hi float64, passing int) error {
 }
 
 // shortfall says that passing values are fewer than a draw takes.
-func (v *valueDraw) shortfall(passing int) string {
+func (v lengthProof) shortfall(passing int) string {
 	n := v.count
 	switch {
 	case !v.filters:
@@ -593,12 +679,12 @@ func (v *valueDraw) shortfall(passing int) string {
 }
 
 // passing is how many values are lo to hi long.
-func (v *valueDraw) passing(lo, hi float64) int {
+func (v lengthProof) passing(lo, hi float64) int {
 	past := 1.0
 	if len(v.lengths) > 0 {
 		past += float64(v.lengths[len(v.lengths)-1])
 	}
-	from, to := v.span(int(min(max(lo, -1), past)), int(max(min(hi, past), -1)))
+	from, to := spanOf(v.lengths, int(min(max(lo, -1), past)), int(max(min(hi, past), -1)))
 	return max(to-from, 0)
 }
 
