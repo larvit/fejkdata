@@ -382,6 +382,9 @@ func TestWhereRefusesAClauseReadingTheNameItsTokenBinds(t *testing.T) {
 		`{"format":"{x}","x":{"format":"{w where not u as u}{u}","w":["a","b"]}}`,
 		`{"format":"{w where length u as u}{u}","w":"1"}`,
 		`{"format":"{w where not t as u}{x as t}{u}","w":["a","b"],"x":"{u}"}`,
+		`{"format":"id {w where not u as u}{u}","w":["a","b"]}`,
+		`{"format":"{v}{w where not u as u}{u}","v":"x","w":["a","b"]}`,
+		`{"format":"{w where not a as c}{w where not b as a}{x where not a as b}{c}","w":["p","q"],"x":["p","q"]}`,
 	} {
 		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), "would read itself") {
 			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, "would read itself")
