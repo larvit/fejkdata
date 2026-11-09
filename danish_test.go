@@ -91,7 +91,7 @@ func TestDanishNameTablesHoldTwoHundredNamesOrMore(t *testing.T) {
 	}
 }
 
-func borneByAsManyAsTheTwentieth(t *testing.T, c danishNameSet) {
+func noOtherNameIsBorneByAsManyAsTheTwentieth(t *testing.T, c danishNameSet) {
 	t.Helper()
 	twentieth := 1 << 30
 	for _, n := range c.top {
@@ -106,11 +106,11 @@ func borneByAsManyAsTheTwentieth(t *testing.T, c danishNameSet) {
 
 func TestDanishOtherNamesAreRarerThanTheTwentieth(t *testing.T) {
 	for _, c := range danishNameSets(t) {
-		t.Run(c.what, func(t *testing.T) { borneByAsManyAsTheTwentieth(t, c) })
+		t.Run(c.what, func(t *testing.T) { noOtherNameIsBorneByAsManyAsTheTwentieth(t, c) })
 	}
 }
 
-func notALetteredName(t *testing.T, file string) {
+func eachRowIsALetteredName(t *testing.T, file string) {
 	t.Helper()
 	name := regexp.MustCompile(`^[\pL]{2,}([ '-][\pL]{2,})*$`)
 	for _, row := range tsvRows(t, "data/da_DK/"+file+".tsv") {
@@ -122,7 +122,7 @@ func notALetteredName(t *testing.T, file string) {
 
 func TestDanishNamesAreLetters(t *testing.T) {
 	for _, file := range []string{"first-name", "last-name"} {
-		t.Run(file, func(t *testing.T) { notALetteredName(t, file) })
+		t.Run(file, func(t *testing.T) { eachRowIsALetteredName(t, file) })
 	}
 }
 
@@ -251,7 +251,6 @@ func TestShippedDanishAddressIsAStreetANumberAPostnummerAndAPostdistrikt(t *test
 	})
 }
 
-// A postdistrikt is named as DAR writes it.
 func TestShippedDanishPlacesAreNamedAsDARWritesThem(t *testing.T) {
 	districts := map[string]bool{}
 	for _, r := range geoRows(t, "DK", "locality") {
@@ -326,7 +325,7 @@ func TestShippedDanishHouseNumbersHaveOneDigitAsOftenAsDAR(t *testing.T) {
 	assertShare(t, "house numbers of one digit", danishHouseNumbers(t).oneDigit, danishHouseNumberDraws, 0.293)
 }
 
-func TestShippedDanishHouseNumbersHaveNeverFourDigits(t *testing.T) {
+func TestShippedDanishHouseNumbersNeverHaveFourDigits(t *testing.T) {
 	if n := danishHouseNumbers(t).fourDigits; n > 0 {
 		t.Errorf("da_DK.address drew %d house numbers of four digits in %d, want none, as DAR holds none", n, danishHouseNumberDraws)
 	}
@@ -404,7 +403,7 @@ func TestDanishCprIsOfAPersonAged0To99(t *testing.T) {
 	})
 }
 
-func TestDanishCprIsBornInTheNineteenHundredsAndTheTwoThousands(t *testing.T) {
+func TestDanishCprDrawsBirthsInTheNineteenHundredsAndTheTwoThousands(t *testing.T) {
 	centuries := map[int]bool{}
 	eachDanishCpr(t, func(got string) { centuries[birthOfDanishCpr(got).year/100] = true })
 	if !centuries[19] || !centuries[20] {
@@ -703,7 +702,7 @@ func TestShippedDanishDateSpans1970To2029(t *testing.T) {
 	}
 }
 
-func TestShippedDanishDateHasADayOfOneDigit(t *testing.T) {
+func TestShippedDanishDatesIncludeADayOfOneDigit(t *testing.T) {
 	short := false
 	eachShippedDanishDate(t, func(got string) { short = short || got[1] == '.' })
 	if !short {

@@ -24,8 +24,8 @@ type Call func(s *drawstate.State, emitted string, operands []string) string
 type builtin struct {
 	arity int
 	calls []string
-	// prep parses validated args once, at compile time, into the closure a render calls; nil for
-	// adddays, whose Call AddDays builds once the load knows its date's layout.
+	// prep parses validated args once, at compile time, into the closure a render calls. It is nil
+	// for adddays: AddDays builds that call once the load knows the date's layout.
 	prep      func(args []string) Call
 	checkArgs func(args []string) error
 	// operands names the fields the call reads, which a render reads for it; nil

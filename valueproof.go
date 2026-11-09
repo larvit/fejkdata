@@ -12,7 +12,7 @@ import (
 )
 
 // valueProof proves what typed columns and their calc operands hold, each node once per proof.
-// draws is the draws of the names being resolved, which their bindings take only once resolving ends.
+// draws holds the draws of the names being resolved, which their bindings take only once resolving ends.
 type valueProof struct {
 	memo       map[node]proven.Facts
 	columnMemo map[node]proven.Facts

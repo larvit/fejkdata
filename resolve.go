@@ -119,8 +119,8 @@ func (d bindingDraws) of(b *nameBinding) *valueDraw {
 }
 
 // resolveTemplates resolves ts in three stages, each over every template before the next starts:
-// compile, fence and commit. Each stage takes what the one before found as arguments, so the
-// bindings take their targets, keys and draws only once every check has passed.
+// compile, fence and commit. Each stage passes what it found to the next as arguments, and only
+// the commit writes the bindings' targets, keys and draws.
 func resolveTemplates(ts []templateSite, root map[string]node) error {
 	names, err := compileTemplates(ts, root)
 	if err != nil {

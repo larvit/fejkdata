@@ -74,8 +74,8 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 	return nil, nil
 }
 
-// checkReads proves each name t reads, an arm, an operand or a name its clause reads, is a
-// reference or a path into a field, returning those whose head no field holds.
+// checkReads proves that each name t reads (its arms, its builtin's operands and its clause's
+// names) is a reference or a path into a field. It returns the reads whose head no field holds.
 func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unboundRead, error) {
 	own, clause := tokenReads(t)
 	wholeToken := !operands && len(own)+len(clause) == 1
@@ -98,7 +98,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 }
 
 // checkRead proves name, one read of t, is a reference or a path into a field. Where no field holds
-// its head, it returns the read as unbound, refused by unbound's error where that is not nil.
+// its head, it returns the read as unbound; its error is unbound() where the unbound func is not nil.
 func checkRead(t grammar.Token, name string, fields map[string]node, wholeToken bool, unbound func() error) ([]unboundRead, error) {
 	if grammar.IsRef(name) {
 		if _, _, err := grammar.RefShape(name); err != nil {

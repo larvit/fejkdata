@@ -78,7 +78,7 @@ type op struct {
 }
 
 // reads is every arm a render of o reads: its arms, its builtin's operands and its clause's names.
-// Each points into o's slices, so an arm met twice is equal to itself.
+// Each points into o's slices, so the same arm always yields the same pointer.
 func (o *op) reads() []*arm {
 	found := make([]*arm, 0, len(o.arms)+len(o.operands)+len(o.clause))
 	for _, arms := range [][]arm{o.arms, o.operands, o.clause} {

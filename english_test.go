@@ -95,7 +95,7 @@ func TestEnglishWordTablesDropProperNounsAndSlurs(t *testing.T) {
 	}
 }
 
-func TestEnglishWordTablesKeepTheCommonNouns(t *testing.T) {
+func TestEnglishNounTableKeepsTheCommonNouns(t *testing.T) {
 	t.Parallel()
 	nouns := englishWordForms(t, "word-noun")
 	for _, word := range []string{"table", "city", "teacher", "boy", "queen", "tool"} {
