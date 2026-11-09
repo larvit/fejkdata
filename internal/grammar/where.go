@@ -364,7 +364,9 @@ func (p *whereParser) stringList(quoted, names *[]string) error {
 		switch {
 		case ok && l.quoted:
 			*quoted = append(*quoted, l.text)
-		case !ok || l.text == "," || slices.Contains(whereKeywords, l.text):
+		case ok && slices.Contains(whereKeywords, l.text):
+			return fmt.Errorf("\"not\" takes quoted strings or names, such as {w where not 'cat', n}, and %q is a word of the clause, so a name read here needs another spelling", l.text)
+		case !ok || l.text == ",":
 			return errors.New("\"not\" takes quoted strings or names, such as {w where not 'cat', n}")
 		case startsNumber(l.text):
 			return fmt.Errorf("not %s: quote a string, as '%s'; a bare word is a name", l.text, l.text)
@@ -385,7 +387,9 @@ func (p *whereParser) stringList(quoted, names *[]string) error {
 func (p *whereParser) fallback(w *Where, clause string) error {
 	l, ok := p.next()
 	switch {
-	case !ok || !l.quoted && (l.text == "," || slices.Contains(whereKeywords, l.text) || startsNumber(l.text)):
+	case ok && !l.quoted && slices.Contains(whereKeywords, l.text):
+		return fmt.Errorf("where %s: \"else\" takes a quoted fallback or a name, such as {w where not 'cat' else 'none'}, and %q is a word of the clause, so a name read here needs another spelling", clause, l.text)
+	case !ok || !l.quoted && (l.text == "," || startsNumber(l.text)):
 		return fmt.Errorf("where %s: \"else\" takes a quoted fallback or a name, such as {w where not 'cat' else 'none'}", clause)
 	case l.quoted:
 		w.Else = &Fallback{Text: l.text}

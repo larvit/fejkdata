@@ -129,12 +129,42 @@ func (c clauseName) unbound() error {
 	return fmt.Errorf("%s %s reads a name, and no name %q is bound; bind one first, as {… as %s}, or quote the text, as '%s'", c.word, c.name, head, head, c.name)
 }
 
+func (c clauseName) listsStrings() bool { return c.word == "not" || c.word == "not containing" }
+
+// fieldRead is the refusal of c reading a field, which a clause reads only through a name.
+func (c clauseName) fieldRead() error {
+	bind := fmt.Sprintf("bind it first, as {%s as n}, and write %s n", c.name, c.word)
+	if c.listsStrings() {
+		return fmt.Errorf("%s %s reads a name, and %q is a field; for one of its values, %s; for every value, quote each, as %s '…', '…'", c.word, c.name, c.name, bind, c.word)
+	}
+	return fmt.Errorf("%s %s reads a name, and %q is a field; %s", c.word, c.name, c.name, bind)
+}
+
+// membersRead is the refusal of c reading whole a name holding n distinct members, which a list of
+// strings names one by one.
+func (c clauseName) membersRead(n int) error {
+	var members []string
+	for k := 1; k <= n; k++ {
+		switch {
+		case k <= 2 || k == n:
+			members = append(members, fmt.Sprintf("%s[%d]", c.name, k))
+		case k == 3:
+			members = append(members, "…")
+		}
+	}
+	return fmt.Errorf("%s %s reads name %q, which holds %d distinct members; list them, as %s %s", c.word, c.name, c.name, n, c.word, strings.Join(members, ", "))
+}
+
 // compileClauseNames compiles the names w reads, each bound in a template enclosing t.
 func (t *template) compileClauseNames(w *grammar.Where, targets map[*nameBinding]nameTarget) ([]arm, error) {
 	var arms []arm
 	for _, c := range clauseNames(w) {
-		if !t.isName(splitArm(c.name, nil).head) {
-			return nil, fmt.Errorf("%s %s reads a name, and %q is a field; bind it first, as {%s as n}, and write %s n", c.word, c.name, c.name, c.name, c.word)
+		read := splitArm(c.name, nil)
+		if !t.isName(read.head) {
+			return nil, c.fieldRead()
+		}
+		if b := t.nameScope.lookup(read.head); b.distinct != nil && len(read.tail) == 0 && c.listsStrings() {
+			return nil, c.membersRead(b.distinct.N)
 		}
 		a, err := t.compileArm(c.name, targets)
 		if err != nil {
