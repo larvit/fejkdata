@@ -74,7 +74,7 @@ var builtins = withTransforms(map[string]builtin{
 	}},
 	"date":      {calls: []string{"date(from,to,'layout')"}, arity: -1, checkArgs: dateArgs, prep: datePrep},
 	"born":      {calls: []string{"born(min,max,'layout')"}, arity: -1, checkArgs: bornArgs, prep: bornPrep},
-	AddDaysName: {calls: []string{AddDaysName + "(d,n)", AddDaysName + "(d,n,'layout')"}, arity: -1, checkArgs: addDaysArgs, prep: addDaysPrep, operands: addDaysOperands},
+	AddDaysName: {calls: []string{AddDaysName + "(d,n)", AddDaysName + "(d,n,'layout')"}, arity: -1, checkArgs: addDaysArgs, operands: addDaysOperands},
 	"time":      {calls: []string{"time('layout')"}, arity: -1, checkArgs: timeArg, prep: timePrep},
 	RewordName:  {calls: []string{RewordName + "(text,words)"}, arity: 2, checkArgs: pathArgs, prep: renderedByFejkdata, operands: func(a []string) []string { return a }},
 	CalcName:    {calls: []string{CalcName + "(expr)", CalcName + "(expr,dp)"}, arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},

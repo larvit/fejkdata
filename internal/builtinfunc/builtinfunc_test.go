@@ -14,11 +14,11 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// TestRegistryShapes pins the builtin contract Prep relies on: every entry supplies prep,
-// and args parsed at compile only behind a check.
+// TestRegistryShapes pins the builtin contract Prep relies on: every entry but adddays supplies
+// prep, and args parsed at compile only behind a check.
 func TestRegistryShapes(t *testing.T) {
 	for name, b := range builtins {
-		if b.prep == nil {
+		if b.prep == nil && name != AddDaysName {
 			t.Errorf("builtin %q has no prep: Prep would call a nil func", name)
 		}
 		if b.arity != 0 && b.checkArgs == nil {

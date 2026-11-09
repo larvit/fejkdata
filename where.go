@@ -266,7 +266,10 @@ func (t *template) valueDrawOf(o *op, targets map[*nameBinding]nameTarget, draws
 		return nil, fmt.Errorf("%s values fixed at load, and %w", clause, err)
 	}
 	v := newValueDraw(w.out, o.Where, o.Distinct, o.clause)
-	return v, v.lengthProof().proveEveryDrawPasses(draws)
+	if err := v.lengthProof().proveEveryDrawPasses(draws); err != nil {
+		return nil, err
+	}
+	return v, nil
 }
 
 // newValueDraw keeps the values that pass where's fixed conditions, shortest first, for draws of
@@ -487,6 +490,10 @@ func (e lengthEnd) at(s *drawstate.State, env renderEnv) int {
 	if e.read == nil {
 		return e.n
 	}
-	v, _ := strconv.ParseFloat(strings.TrimSpace(readName(s, env, *e.read).text), 64)
+	text := readName(s, env, *e.read).text
+	v, err := strconv.ParseFloat(strings.TrimSpace(text), 64)
+	if err != nil {
+		panic(invariant.Broken("a length bound read %q, which a load proved a number", text))
+	}
 	return int(v)
 }

@@ -135,8 +135,8 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 	return nil
 }
 
-// compileTemplates resolves each template's references and its names' targets, compiles its format
-// and each token's draw, and finds what each name's reads address.
+// compileTemplates resolves each template's references and its names' targets, compiles its format,
+// its adddays calls and each token's draw, and finds what each name's reads address.
 func compileTemplates(ts []templateSite, root map[string]node) (resolvedNames, error) {
 	for _, s := range ts {
 		refs, err := s.t.resolveRefs(s.folder, s.label, root)
@@ -147,6 +147,9 @@ func compileTemplates(ts []templateSite, root map[string]node) (resolvedNames, e
 	}
 	targets := nameTargets(ts)
 	if err := compileFormats(ts, targets); err != nil {
+		return resolvedNames{}, err
+	}
+	if err := prepareAddDays(ts); err != nil {
 		return resolvedNames{}, err
 	}
 	draws, err := buildDraws(ts, targets)

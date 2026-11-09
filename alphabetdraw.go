@@ -39,7 +39,10 @@ func newAlphabetDraw(o *op, draws bindingDraws) (*alphabetDraw, error) {
 	}
 	p := lengthProof{lengths: []int{runs.Len()}, count: 1, filters: true}
 	p.lo, p.hi = lengthEnds(w, o.clause)
-	return d, p.proveEveryDrawPasses(draws)
+	if err := p.proveEveryDrawPasses(draws); err != nil {
+		return nil, err
+	}
+	return d, nil
 }
 
 // patterns is what a value n bytes long must not hold: each of not that is n bytes long, which a

@@ -8,45 +8,61 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// proveAddDays proves each adddays of t reads a date in one layout that reads back and a whole
-// number of days within the cap, then prepares the call with that layout.
-func proveAddDays(label string, t *template, draws bindingDraws) error {
-	for i := range t.compiled.ops {
-		o := &t.compiled.ops[i]
-		if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName {
-			continue
+// prepareAddDays builds each adddays call of ts with the one layout its date prints in, once every
+// template is compiled, and refuses a date with no such layout or one that does not read back.
+func prepareAddDays(ts []templateSite) error {
+	for _, s := range ts {
+		for i := range s.t.compiled.ops {
+			o := &s.t.compiled.ops[i]
+			if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName {
+				continue
+			}
+			layout, err := addDaysLayout(o.operands[0])
+			if err != nil {
+				return fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
+			}
+			o.call = builtinfunc.AddDays(layout, o.Args)
 		}
-		layout, err := addDaysLayout(o, draws)
-		if err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
-		}
-		o.call = builtinfunc.AddDays(layout, o.Args)
 	}
 	return nil
 }
 
-func addDaysLayout(o *op, draws bindingDraws) (string, error) {
-	d := o.operands[0]
+func addDaysLayout(d arm) (string, error) {
 	layout, why := dateLayout(d.leaves, map[node]bool{})
 	switch {
 	case why != "":
 		return "", fmt.Errorf("%s is not proven a date: %s; read a field whose format is one date(from,to,'layout') or born(min,max,'layout')", d.spelling, why)
 	case !builtinfunc.ReadsBack(layout):
 		return "", fmt.Errorf("%s prints in '%s', which does not read back as the day it printed; give it a layout with a four-digit year, a month and a day, such as '2006-01-02'", d.spelling, layout)
-	case len(o.operands) == 1:
-		return layout, nil
 	}
-	n := o.operands[1]
+	return layout, nil
+}
+
+// proveAddDays proves the day count of each adddays of t that reads one is a whole number within
+// the cap.
+func proveAddDays(label string, t *template, draws bindingDraws) error {
+	for _, o := range t.compiled.ops {
+		if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName || len(o.operands) == 1 {
+			continue
+		}
+		if err := proveDayCount(o.operands[1], draws); err != nil {
+			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
+		}
+	}
+	return nil
+}
+
+func proveDayCount(n arm, draws bindingDraws) error {
 	v := (&valueProof{draws: draws}).proveArm(n)
 	switch {
 	case v.NotOperand != "":
-		return "", fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.spelling, v.NotOperand)
+		return fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.spelling, v.NotOperand)
 	case !v.Integral:
-		return "", fmt.Errorf("%s is not always a whole number of days: it may print a fraction; read an {int(min,max)}", n.spelling)
+		return fmt.Errorf("%s is not always a whole number of days: it may print a fraction; read an {int(min,max)}", n.spelling)
 	case math.Max(math.Abs(v.Lo), math.Abs(v.Hi)) > builtinfunc.MaxDays:
-		return "", fmt.Errorf("%s may reach %.0f, which exceeds the maximum of %d days either way; narrow it", n.spelling, math.Max(math.Abs(v.Lo), math.Abs(v.Hi)), builtinfunc.MaxDays)
+		return fmt.Errorf("%s may reach %.0f, which exceeds the maximum of %d days either way; narrow it", n.spelling, math.Max(math.Abs(v.Lo), math.Abs(v.Hi)), builtinfunc.MaxDays)
 	}
-	return layout, nil
+	return nil
 }
 
 // dateLayout is the one layout every render of nodes prints a date in, or why no proof holds.

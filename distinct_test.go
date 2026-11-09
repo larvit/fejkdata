@@ -18,7 +18,9 @@ func TestDistinctDrawsDistinctItems(t *testing.T) {
 		`{"format":"{w where length 3 distinct 2 joined ' '}","w":["cat","dog","horse"]}`: {"cat dog", "dog cat"},
 		`{"format":"{w distinct 2 joined ','}","w":["a","b",{"format":"c","weight":0}]}`:  {"a,b", "b,a"},
 	} {
-		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		t.Run(src, func(t *testing.T) {
+			drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		})
 	}
 }
 
@@ -31,7 +33,9 @@ func TestDistinctBindsMembersCountedFromOne(t *testing.T) {
 		`{"format":"{w distinct 2 as e}{uppercase(e[1])}{e[1]}","w":["a","b","c"]}`:      {"Aa", "Bb", "Cc"},
 		`{"format":"{w where length 1 distinct 2 as e}{e[2]}{e[1]}","w":["a","b","cc"]}`: {"ab", "ba"},
 	} {
-		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		t.Run(src, func(t *testing.T) {
+			drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		})
 	}
 }
 
@@ -41,7 +45,9 @@ func TestDistinctMemberIsAnOperand(t *testing.T) {
 		`{"format":"{w distinct 2 as m}{calc(m[1]*2)},{m[1]}","w":["3","4"]}`:                           {"6,3", "8,4"},
 		`{"format":"{w distinct 2 as m}{m[2]}:{v where length m[2]}","w":["3","4"],"v":["cat","bird"]}`: {"3:cat", "4:bird"},
 	} {
-		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		t.Run(src, func(t *testing.T) {
+			drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		})
 	}
 }
 
@@ -51,17 +57,22 @@ func TestDistinctFillsARecordsColumnsFromOnePick(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewRecordTemplate: %v", err)
 	}
-	for i := 0; i < 200; i++ {
-		var got []string
-		for _, c := range rt.Fake().Columns() {
-			got = append(got, c.Value)
-		}
+	eachDraw(200, func() string { return strings.Join(columnValues(rt.Fake()), "|") }, func(joined string) {
+		got := strings.Split(joined, "|")
 		sorted := slices.Clone(got)
 		slices.Sort(sorted)
 		if len(got) != 4 || len(slices.Compact(sorted)) != 4 {
 			t.Fatalf("columns = %q, want four crew members, none twice", got)
 		}
+	})
+}
+
+func columnValues(r *Record) []string {
+	var values []string
+	for _, c := range r.Columns() {
+		values = append(values, c.Value)
 	}
+	return values
 }
 
 func TestDistinctDrawsDistinctRowsWhateverTheyPrint(t *testing.T) {
@@ -74,11 +85,13 @@ func TestDistinctDrawsDistinctRowsWhateverTheyPrint(t *testing.T) {
 		`"{/animal.code distinct 3 joined ''}"`:  {"CHX", "CXH", "HCX", "HXC", "XCH", "XHC"},
 		`"{/animal distinct 3 as a}{a[3]}"`:      {"cat", "horse"},
 	} {
-		tp, err := f.NewTemplate(src)
-		if err != nil {
-			t.Fatalf("NewTemplate(%s): %v", src, err)
-		}
-		drawsExactly(t, src, tp.Fake, want...)
+		t.Run(src, func(t *testing.T) {
+			tp, err := f.NewTemplate(src)
+			if err != nil {
+				t.Fatalf("NewTemplate(%s): %v", src, err)
+			}
+			drawsExactly(t, src, tp.Fake, want...)
+		})
 	}
 }
 
@@ -87,10 +100,7 @@ func TestDistinctDrawsDistinctRowsWhateverTheyPrint(t *testing.T) {
 func TestDistinctWeighsEachMemberAmongTheItemsLeft(t *testing.T) {
 	f := engine(3)
 	src := `{"format":"{w distinct 2 joined ','}","w":[{"format":"a","weight":6},{"format":"b","weight":3},{"format":"c","weight":1}]}`
-	seen := map[string]int{}
-	for i := 0; i < 6000; i++ {
-		seen[mustRender(t, f, src)]++
-	}
+	seen := tallyDraws(6000, func() string { return mustRender(t, f, src) })
 	if n := seen["a,b"]; n < 2550 || n > 2850 {
 		t.Errorf("a,b drew %d of 6000, want about 2700: %v", n, seen)
 	}
@@ -121,9 +131,11 @@ func TestDistinctRefusesAtLoad(t *testing.T) {
 		`{"format":"{w distinct 2 joined ',' as e}{calc(e*2)}","w":["3","4","5"]}`:                                                             "joins several values",
 		`{"format":"{d as s}{w distinct 2 joined ',' as e}{adddays(s,e)}","d":"{date(2026-01-01,2026-12-31,'2006-01-02')}","w":["3","4","5"]}`: "joins several values",
 	} {
-		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
+			}
+		})
 	}
 }
 
@@ -147,14 +159,19 @@ func TestDistinctJoinedColumnIsTextAndAMemberTheColumnItReads(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, c := range r.Columns() {
-		want := DataTypeString
-		if c.Name == "first" || c.Name == "own" || c.Name == "kept" || c.Name == "lit" {
-			want = DataTypeInteger
-		}
-		if c.DataType != want {
-			t.Errorf("column %s = %q of %s, want %s", c.Name, c.Value, c.DataType, want)
-		}
+		t.Run(c.Name, func(t *testing.T) {
+			if want := distinctColumnType(c.Name); c.DataType != want {
+				t.Errorf("column %s = %q of %s, want %s", c.Name, c.Value, c.DataType, want)
+			}
+		})
 	}
+}
+
+func distinctColumnType(name string) DataType {
+	if name == "first" || name == "own" || name == "kept" || name == "lit" {
+		return DataTypeInteger
+	}
+	return DataTypeString
 }
 
 func TestDistinctJoinedIsNoTypedValue(t *testing.T) {
@@ -163,25 +180,38 @@ func TestDistinctJoinedIsNoTypedValue(t *testing.T) {
 		`{"format":"","c":{"format":"{/n distinct 2 joined ','}","datatype":"integer"}}`,
 		`{"format":"{w distinct 2 joined ',' as e}","c":{"format":"{e}","datatype":"integer"},"w":["1","2","3"]}`,
 	} {
-		if _, err := f.NewRecordTemplate(src); err == nil || !strings.Contains(err.Error(), "prints text, not an integer") {
-			t.Errorf("NewRecordTemplate(%s) = %v, want an integer column of joined values refused", src, err)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := f.NewRecordTemplate(src); err == nil || !strings.Contains(err.Error(), "prints text, not an integer") {
+				t.Errorf("NewRecordTemplate(%s) = %v, want an integer column of joined values refused", src, err)
+			}
+		})
 	}
 }
 
-func TestDistinctDrawsTheShippedWordsAndWeekdays(t *testing.T) {
+func TestDistinctDrawsTheShippedWords(t *testing.T) {
 	t.Parallel()
 	f := shipped(t)
-	for i := 0; i < 50; i++ {
-		words := strings.Fields(tmpl(t, f, "{/en_US.word where length 5 distinct 3 as w}{w[1]} {w[2]} {w[3]}"))
+	eachDraw(50, func() string {
+		return tmpl(t, f, "{/en_US.word where length 5 distinct 3 as w}{w[1]} {w[2]} {w[3]}")
+	}, func(got string) {
+		words := strings.Fields(got)
 		if len(words) != 3 || slices.ContainsFunc(words, func(w string) bool { return utf8.RuneCountInString(w) != 5 }) {
 			t.Fatalf("words = %q, want three words of five letters", words)
 		}
-		days := strings.Split(tmpl(t, f, "{/sv_SE.weekday.code distinct 2 joined ','}"), ",")
+	})
+}
+
+func TestDistinctDrawsTheShippedWeekdays(t *testing.T) {
+	t.Parallel()
+	f := shipped(t)
+	eachDraw(50, func() string {
+		return tmpl(t, f, "{/sv_SE.weekday.code distinct 2 joined ','}")
+	}, func(got string) {
+		days := strings.Split(got, ",")
 		if len(days) != 2 || days[0] == days[1] || slices.ContainsFunc(days, func(d string) bool { return len(d) != 1 || d < "1" || d > "7" }) {
 			t.Fatalf("days = %q, want two different weekday codes", days)
 		}
-	}
+	})
 }
 
 func TestDistinctDrawCostsItsCountNotTheTable(t *testing.T) {
@@ -193,9 +223,7 @@ func TestDistinctDrawCostsItsCountNotTheTable(t *testing.T) {
 	tp.Fake()
 	var before, after runtime.MemStats
 	runtime.ReadMemStats(&before)
-	for i := 0; i < 100; i++ {
-		tp.Fake()
-	}
+	eachDraw(100, tp.Fake, func(string) {})
 	runtime.ReadMemStats(&after)
 	if per := (after.TotalAlloc - before.TotalAlloc) / 100; per > 4096 {
 		t.Errorf("a draw of 3 distinct words allocates %d bytes, want 4096 or fewer whatever the table's size", per)
