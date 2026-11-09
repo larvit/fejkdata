@@ -43,6 +43,17 @@ class TheRepositorysComposeFile(unittest.TestCase):
 			(gated,) = re.findall(tool, dockerfile)
 			self.assertEqual(re.findall(tool, compose), [gated])
 
+	def test_gives_every_service_a_memory_limit_and_the_same_swap_limit(self):
+		services = re.search(r"^services:\n(.*?)^volumes:", repository_file("compose.yaml"), re.M | re.S)[1]
+		blocks = re.split(r"^  (?=[\w-]+:\n)", services, flags=re.M)[1:]
+		self.assertGreater(len(blocks), 0)
+		for block in blocks:
+			name = block.split(":")[0]
+			memory, swap = re.search(r"^    mem_limit: (\S+)$", block, re.M), re.search(r"^    memswap_limit: (\S+)$", block, re.M)
+			self.assertIsNotNone(memory, f"{name} sets no mem_limit")
+			self.assertIsNotNone(swap, f"{name} sets no memswap_limit")
+			self.assertEqual(memory[1], swap[1], f"{name} lets swap exceed its memory limit")
+
 
 class Of(unittest.TestCase):
 	def test_reads_go_goreleaser_and_the_modules_from_a_tree(self):
