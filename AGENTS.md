@@ -131,7 +131,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
 - `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall
-- `da_DK.company` weighs its legal forms by Statistics Denmark's new enterprises and draws its names from a language model's recall
+- `da_DK.company` weighs its legal forms by Statistics Denmark's enterprises and draws its names from a language model's recall
 - A record's `let` fields write no column
 - No database or HTTP sink is built in
 - A date offset is `adddays(d,n)`, and its `d` reads `date` or `born` calls in one layout that reads back

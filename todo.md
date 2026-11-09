@@ -12,8 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 399 | 0.4.0 |  |  | **Give every service in `compose.yaml` a memory and a swap limit.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
-| 400 | 0.4.0 |  |  | **Retitle the `da_DK.company` line in `AGENTS.md` to its decision's heading, which weighs by Statistics Denmark's enterprises, not new enterprises.** | 1 | 2 | 1 | 2 | 1 | code health by 1 | 4.2 |
 | 401 | 0.4.0 |  | owner | **Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.** | 2 | 1 | 1 | 2 | 3 | 1 by 2 | 1.3 |
 | 380 | 0.4.0 |  |  | **Let a template draw a value holding none of the strings it lists, and print the fallback it names, or else a default, where no value can avoid them.** | 3 | 1 | 2 | 4 | 5 | 1 by 2 | 0.5 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
@@ -221,14 +219,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 399. Give every service in `compose.yaml` a memory and a swap limit.
-
-No service sets `mem_limit` or `memswap_limit`, so `docker compose run --rm test` or a data import can take all of a contributor's memory. Set each service's limits to what its work needs.
-
-### 400. Retitle the `da_DK.company` line in `AGENTS.md` to its decision's heading, which weighs by Statistics Denmark's enterprises, not new enterprises.
-
-`AGENTS.md` lists the decision as weighing legal forms by "Statistics Denmark's new enterprises". The decision's heading and body in `docs/decisions.md` weigh them by every enterprise of 2024 in table GF15. Copy the heading into `AGENTS.md`.
 
 ### 401. Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.
 
