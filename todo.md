@@ -6,15 +6,16 @@
 
 `Bar = 0`
 
-`Next ID = 401`
+`Next ID = 402`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 380 | 0.4.0 |  | question | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 399 | 0.4.0 |  |  | **Give every service in `compose.yaml` a memory and a swap limit.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
 | 400 | 0.4.0 |  |  | **Retitle the `da_DK.company` line in `AGENTS.md` to its decision's heading, which weighs by Statistics Denmark's enterprises, not new enterprises.** | 1 | 2 | 1 | 2 | 1 | code health by 1 | 4.2 |
+| 401 | 0.4.0 |  | owner | **Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.** | 2 | 1 | 1 | 2 | 3 | 1 by 2 | 1.3 |
+| 380 | 0.4.0 |  |  | **Let a template exclude strings from a drawn value, and print a fallback it names where no value can avoid them.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -221,19 +222,6 @@
 
 ## Details
 
-### 380. Let a template redraw a value until it holds none of the strings it is given.
-
-From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
-
-Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. Its condition is spelled as the `where` clause's is.
-
-Question for the maintainer: what does a render print when no draw can pass? The strings that adf-codec excludes are known only at render: they are the document's own tokens. So a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. A redraw loop has no bound. The options are:
-- a fallback value that the clause must name;
-- null;
-- accepting only strings fixed at load, where a load-time check can refuse the impossible case. adf-codec's use isn't served then.
-
-Recommendation: the clause names its fallback. The draw builds the value one character at a time from the builtin's alphabet, skipping a character that would complete one of the strings, so it needs no redraw loop and costs the value's length times the strings' total length. The fallback prints only where no value can pass.
-
 ### 399. Give every service in `compose.yaml` a memory and a swap limit.
 
 No service sets `mem_limit` or `memswap_limit`, so `docker compose run --rm test` or a data import can take all of a contributor's memory. Set each service's limits to what its work needs.
@@ -241,6 +229,24 @@ No service sets `mem_limit` or `memswap_limit`, so `docker compose run --rm test
 ### 400. Retitle the `da_DK.company` line in `AGENTS.md` to its decision's heading, which weighs by Statistics Denmark's enterprises, not new enterprises.
 
 `AGENTS.md` lists the decision as weighing legal forms by "Statistics Denmark's new enterprises". The decision's heading and body in `docs/decisions.md` weigh them by every enterprise of 2024 in table GF15. Copy the heading into `AGENTS.md`.
+
+### 401. Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.
+
+The maintainer wants the correct term: nothing is called anonymised if it is pseudonymised, nor the reverse. GDPR's terms hold for neither:
+- Recital 26 calls information anonymous only where the person is no longer identifiable, by all the means reasonably likely to be used. The builtin keeps digits, punctuation, case, word lengths and which words repeat, so a personnummer in the text passes through whole.
+- Article 4(5) calls data pseudonymised where it can no longer be attributed to a person without additional information, kept separately. The kept digits attribute it without any, and the builtin keeps no such information: each fake is a fresh draw, not derived from its word.
+
+So the name says what the call does to the text, as "Samples say what they emit, transforms what they do" asks. A writer panel, seated as the readers in the `anonymize` decision, picks it from the names they ranked below `anonymize`: `reword`, `fakewords`, `rewrite`, `scramble` and `mask`, and any they add. The README section's heading and first line, the decision, the `CHANGELOG.md` entry, `AGENTS.md`, the code, the tests and `anonymize.go` follow. No release has shipped the builtin, so the rename is no major.
+
+### 380. Let a template exclude strings from a drawn value, and print a fallback it names where no value can avoid them.
+
+From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
+
+Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. Its condition is spelled as the `where` clause's is.
+
+The maintainer chose that the clause names its fallback: the value a render prints where no value can pass. The strings adf-codec excludes are the document's own tokens, known only at render, so a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. Null fails a column that must hold a uuid, and strings fixed at load don't serve adf-codec.
+
+The draw builds the value one character at a time from the builtin's alphabet, skipping a character that would complete one of the strings, so it needs no redraw loop and costs the value's length times the strings' total length. The fallback prints only where no value can pass.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
@@ -763,7 +769,7 @@ Items to file once the goal is in:
 4. Redraw on a collision in a column marked unique, deterministically from the key, within a memory bound the README states.
 5. Keep, on request, a personnummer's birth date or sex and a postal code's region, the docs naming what each kept field gives away.
 6. Read a PostgreSQL `COPY` or MySQL `INSERT` dump.
-7. Name the output pseudonymised in the README, never anonymised: under GDPR, data is personal while the key exists, and a rare mix of kept fields can still identify someone. The builtin `{anonymize(text,words)}` keeps its name, which a writer panel chose; once a release ships it, renaming it is a major.
+7. Name the output pseudonymised in the README, never anonymised: under GDPR, data is personal while the key exists, and a rare mix of kept fields can still identify someone.
 
 ### 357. Create the `@larvit` organisation on npm, and make this repository's Packages workflow the trusted publisher of `@larvit/fejkdata`.
 

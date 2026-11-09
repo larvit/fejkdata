@@ -1627,6 +1627,6 @@ fixture author, the bulk fixture author, the JavaScript test author and the Go t
 `mask`. All four read the text first and the word list second. Two asked the docs to say that digits
 stay, and one asked whether one fake per word holds for a row or a run.
 
-`words` is a path, so the template picks the language of the fakes. The name says what the call does
-to the text, not what the output is in law: item 190 asks whether the README calls such output
-pseudonymised, and renaming the builtin then is a major. Valid while goal 4 stands.
+`words` is a path, so the template picks the language of the fakes. The name `anonymize` claims
+what the output is in law, and GDPR's terms hold for neither anonymised nor pseudonymised output
+here, so item 401 renames it before a release ships it. Valid while goal 4 stands.
