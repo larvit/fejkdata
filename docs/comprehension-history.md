@@ -1406,3 +1406,33 @@ Inherited architect, would restructure first:
 - `namefence.go:96` `route`: shares its name with `table.route`, as `key`, `name`, `table`, `column` and `paths` each cover two concepts
 - `sampledraw.go:14` `sampleDraw`: its name doesn't say it is the where clause's draw for alphabet builtins, beside `valueDraw` in where.go
 - `internal/builtinfunc/builtins.go:32` `builtins`: confusable with `builtinfunc.go`, and the root, grammar and builtinfunc share stems such as `calc` with no stated rule for the split
+
+## 2026-11-09T18:36:41Z, PR #328 at 35cf848, against 4cd2f6d
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | same | better |
+| Inherited architect | better | better | better | better | better |
+
+Mid A, decided by:
+
+- Locality, Shape: `arm.go:67` `op`: the where clause's names have their own `clause` field instead of overwriting `operands`, and `reads()` lists every arm in one place
+- Locality: `where.go:32` `lengthEnd`: an `*arm` that is nil for none replaces an index into a separate `reads` slice with -1 for none
+- Locality, Shape: `resolve.go:124` `resolveTemplates`: draws pass between named stages as `bindingDraws`, and only the commit writes the bindings
+- Navigation, Shape: `arm.go:93` `tokenDraw`: one draw behind one interface replaces three nullable fields that `expand` checked in turn
+- Shape: `adddays.go:13` `prepareAddDays`: building the call and proving the day count are two functions, so `proveAddDays` no longer hides a write
+- Navigation, Shape: `pathvalues.go:32` `valueWalk`: the path walk and length index left a 790-line `where.go`, and `alphabetDraw` names what it draws from
+- Locality: `valueproof.go:16` `valueProof.draws`: a proof must be handed the draws still being resolved, a small cost the comment names
+
+Inherited architect, decided by:
+
+- Locality, Shape: `arm.go:67` `op`: `clause` is its own field, one `draw tokenDraw` replaces three per-kind fields, and `reads()` lists every arm a render reads
+- Locality, Self-sufficiency: `where.go:32` `lengthEnd`: each end holds an `*arm`, nil where nothing is read, so no `reads` slice is threaded through every call
+- Locality, Navigation: `resolve.go:124` `resolveTemplates`: three named stages pass draws explicitly, and only the commit writes the bindings; `bindingDraws.of` still falls back to `b.values`
+- Shape: `adddays.go:13` `prepareAddDays`: preparing the call and proving the day count are separate units, and the panic stub is gone
+- Navigation, Shape: `pathvalues.go:32` `valueWalk`: the walk and `lengthIndex` live in their own file, leaving the clause in `where.go`
+- Shape: `alphabetdraw.go:14` `alphabetDraw`: the name says it draws from an alphabet, and `mayFallBack` sits on the type
+- Self-sufficiency: `format.go:79` `checkReads`: `tokenReads` returns own and clause reads apart, so no index arithmetic splits one list
+- Locality: `arm.go:103` `drawToken`: a type switch mirrors the `tokenDraw` interface, so a new draw type is added in two places
