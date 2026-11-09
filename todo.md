@@ -12,7 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 380 | 0.4.0 |  |  | **Let a template draw a value holding none of the strings it lists, and print the fallback it names, or else a default, where no value can avoid them.** | 3 | 1 | 2 | 4 | 5 | 1 by 2 | 0.5 |
+| 380 | 0.4.0 |  |  | **Let a template draw a value holding none of the strings it lists, and print the fallback it names, or else a default, where no value can avoid them.** | 4 | 1 | 2 | 5 | 5 | 1 by 2 | 0.5 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
