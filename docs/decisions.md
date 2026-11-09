@@ -1617,16 +1617,20 @@ Members are different values, not different items: each value of a nested choice
 `/en_US.word` is a choice of four parts of speech, so counting items would draw different parts of
 speech, never three different words.
 
-## `{anonymize(text,words)}` replaces each word of `text` with one drawn from the path `words`
+## `{reword(text,words)}` replaces each word of `text` with one drawn from the path `words`
 
-2026-11-08, Lilleman auf Larv.
+2026-11-08, Lilleman auf Larv; renamed 2026-11-09.
 
-Goal 4 asks that a template be easy to write and read. A panel of four readers, seated as the hand
-fixture author, the bulk fixture author, the JavaScript test author and the Go test author, all ranked
-`{anonymize(text, /en_US.word)}` first, ahead of `reword`, `fakewords`, `rewrite`, `scramble` and
-`mask`. All four read the text first and the word list second. Two asked the docs to say that digits
-stay, and one asked whether one fake per word holds for a row or a run.
+Goal 4 asks that a template be easy to write and read. The builtin's output is neither anonymised
+(GDPR recital 26: the person is no longer identifiable) nor pseudonymised (Article 4(5)): its digits
+stay, so a personnummer in the text passes through whole. The name therefore says what the call does
+to the text, and the docs say that the fakes are no paraphrase and that what stays stays whole.
 
-`words` is a path, so the template picks the language of the fakes. The output is neither
-anonymised nor pseudonymised in GDPR's sense, so item 401 renames the builtin before a release ships
-it. Valid while goal 4 stands.
+A panel of four readers, seated as the hand fixture author, the bulk fixture author, the JavaScript
+test author and the Go test author, first ranked `anonymize` ahead of `reword`, `fakewords`,
+`rewrite`, `scramble` and `mask`. Asked again for a name that claims neither term, three put `reword`
+first and one `fakewords`. All four put `rewrite`, `scramble` and `mask` last: they read as
+rewriting the digits, shuffling letters or redacting. `reword` can read as a paraphrase, which the
+README's Transforms section rules out.
+
+`words` is a path, so the template picks the language of the fakes. Valid while goal 4 stands.

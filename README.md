@@ -154,15 +154,15 @@ func TestSignup(t *testing.T) {
 
 `WithSeed(1)` and `WithToday(day)` give the same person on every run of one version; another seed gives another.
 
-### Anonymizing real data
+### Replacing real data with fakes
 
-To anonymize or mask existing text, such as a document holding real names, ids and URLs,
+To replace the real values in existing text, such as a document holding real names, ids and URLs,
 your program finds each real value and puts a fake of the same shape in its place.
 fejkdata renders the fakes. Each part of the job:
 
 - The same fake wherever one original recurs in a render: bind a pick to a name,
   `{/en_US.person as p}`, and read `{p}` each time ([Names](#names)).
-- Free text, word by word: `{anonymize(text, /en_US.word)}` keeps its punctuation, digits,
+- Free text, word by word: `{reword(text, /en_US.word)}` keeps its punctuation, digits,
   case and word lengths, where the text writes each `{` and `}` as `{{` and `}}`
   ([Transforms](#transforms)).
 - A value of a given length: `{lower(n)}`, `{upper(n)}`, `{digits(n)}` or `{hex(n)}`
@@ -1417,7 +1417,7 @@ time-based id takes its timestamp from the rng, not the clock. `born` also reads
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
 | `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}`, `{slugify(x)}` | transform | a field's value rewritten ([Transforms](#transforms)) |
-| `{anonymize(text,words)}` | transform | each word of `text` replaced by one drawn from `words` ([Transforms](#transforms)) |
+| `{reword(text,words)}` | transform | each word of `text` replaced by one drawn from `words` ([Transforms](#transforms)) |
 
 A derivation reads what is to its left, so place it after its payload; the
 buffer is per expansion, so a nested template keeps fixed parts out of the sum. A
@@ -1519,23 +1519,24 @@ to one `-`, and trims `-` from both ends: `Anna Lena` → `anna-lena`, `Åsa Öb
 Renders `Åsa Öberg <asa.oberg@example.com>` or `Bo Ek <bo.ek@example.com>`, never
 a mix.
 
-A word is a run of letters. `{anonymize(text,words)}` replaces each word of `text` with one drawn
+A word is a run of letters. `{reword(text,words)}` replaces each word of `text` with one drawn
 from the path `words`, such as `/en_US.word`: a word of the same length, or else of the nearest
 length `words` holds, the shorter on a tie. The fake takes the case of the replaced word's letter at
 each position, or of its last letter beyond it. Digits, punctuation and every other character stay,
 so `PROJ-123` keeps its digits:
 
 ```json
-{ "format": "{anonymize(text, /en_US.word)}", "text": "Ping Anna: PROJ-123 is done, ANNA." }
+{ "format": "{reword(text, /en_US.word)}", "text": "Ping Anna: PROJ-123 is done, ANNA." }
 ```
 
-Renders e.g. `Wolf Dirt: KNOT-123 at lazy, DIRT.` A word reads as one fake, whatever its case, in
-every call of a render that reads the same list as `words`; a record renders each row anew. A URL's
+Renders e.g. `Wolf Dirt: KNOT-123 at lazy, DIRT.` The fakes are random words, not a paraphrase,
+and what stays stays whole: a phone number or personnummer in `text` prints as it is. A word reads
+as one fake, whatever its case, in every call of a render that reads the same list as `words`; a record renders each row anew. A URL's
 scheme and host are words too, so to keep them, pass only the rest as `text`. The field holding the
 original is a [format string](#format-string), so write each `{` and `}` in it as `{{` and `}}`.
 `words` is a path, never a name, and must render only fixed text, as a [filter](#filters)'s path
 must. It draws by weight among its values made of letters alone, and fails to load where it has
-none. Neither argument may be a call, and no transform takes one, so `anonymize` doesn't nest.
+none. Neither argument may be a call, and no transform takes one, so `reword` doesn't nest.
 
 ### References
 
@@ -1974,14 +1975,14 @@ sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
 where.go        where and distinct clauses: the values a clause draws from, fixed at load with their weights, and the draw of those that pass, without repeats
-anonymize.go    {anonymize()}: the words a call draws from, one fake per word in a render, and the case each fake takes
+reword.go       {reword()}: the words a call draws from, one fake per word in a render, and the case each fake takes
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
 columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
-internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms, anonymize's arguments and calc arithmetic
+internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms, reword's arguments and calc arithmetic
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
