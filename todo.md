@@ -15,7 +15,7 @@
 | 399 | 0.4.0 |  |  | **Give every service in `compose.yaml` a memory and a swap limit.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
 | 400 | 0.4.0 |  |  | **Retitle the `da_DK.company` line in `AGENTS.md` to its decision's heading, which weighs by Statistics Denmark's enterprises, not new enterprises.** | 1 | 2 | 1 | 2 | 1 | code health by 1 | 4.2 |
 | 401 | 0.4.0 |  | owner | **Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.** | 2 | 1 | 1 | 2 | 3 | 1 by 2 | 1.3 |
-| 380 | 0.4.0 |  |  | **Let a template exclude strings from a drawn value, and print a fallback it names where no value can avoid them.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
+| 380 | 0.4.0 |  |  | **Let a template draw a value holding none of the strings it lists, and print a fallback it names where no value can avoid them.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -232,21 +232,21 @@ No service sets `mem_limit` or `memswap_limit`, so `docker compose run --rm test
 
 ### 401. Rename `{anonymize(text,words)}` and the README's "Anonymizing real data" to names that claim neither anonymised nor pseudonymised output.
 
-The maintainer wants the correct term: nothing is called anonymised if it is pseudonymised, nor the reverse. GDPR's terms hold for neither:
+The maintainer wants a GDPR term used only where it holds, and neither holds for the builtin's output:
 - Recital 26 calls information anonymous only where the person is no longer identifiable, by all the means reasonably likely to be used. The builtin keeps digits, punctuation, case, word lengths and which words repeat, so a personnummer in the text passes through whole.
-- Article 4(5) calls data pseudonymised where it can no longer be attributed to a person without additional information, kept separately. The kept digits attribute it without any, and the builtin keeps no such information: each fake is a fresh draw, not derived from its word.
+- Article 4(5) calls data pseudonymised where it can no longer be attributed to a person without additional information, kept separately. The digits the builtin keeps can identify the person with no additional information.
 
-So the name says what the call does to the text, as "Samples say what they emit, transforms what they do" asks. A writer panel, seated as the readers in the `anonymize` decision, picks it from the names they ranked below `anonymize`: `reword`, `fakewords`, `rewrite`, `scramble` and `mask`, and any they add. The README section's heading and first line, the decision, the `CHANGELOG.md` entry, `AGENTS.md`, the code, the tests and `anonymize.go` follow. No release has shipped the builtin, so the rename is no major.
+So the name says what the call does to the text, as "Samples say what they emit, transforms what they do" asks. A writer panel, seated as the readers in the `anonymize` decision, picks it from the names they ranked below `anonymize`: `reword`, `fakewords`, `rewrite`, `scramble` and `mask`, and any they add. Every place that names the builtin follows: the README, the decision, the `CHANGELOG.md` entry, `AGENTS.md`, the code, the tests and the files named `anonymize.go` and `anonymize_test.go`. So do the README section's heading and its first sentence, which use "anonymize" as a verb. No release has shipped the builtin, so the rename is no major.
 
-### 380. Let a template exclude strings from a drawn value, and print a fallback it names where no value can avoid them.
+### 380. Let a template draw a value holding none of the strings it lists, and print a fallback it names where no value can avoid them.
 
 From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
 
 Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. Its condition is spelled as the `where` clause's is.
 
-The maintainer chose that the clause names its fallback: the value a render prints where no value can pass. The strings adf-codec excludes are the document's own tokens, known only at render, so a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. Null fails a column that must hold a uuid, and strings fixed at load don't serve adf-codec.
+The maintainer chose that a template excluding strings also names a fallback: the value a render prints where no value can avoid the strings. The strings adf-codec excludes are the document's own tokens, known only at render, so a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. Printing null instead would break a column that must hold a uuid, and taking only strings fixed at load would not serve adf-codec.
 
-The draw builds the value one character at a time from the builtin's alphabet, skipping a character that would complete one of the strings, so it needs no redraw loop and costs the value's length times the strings' total length. The fallback prints only where no value can pass.
+The draw builds the value one character at a time from the builtin's alphabet, skipping a character that would complete one of the strings, so it needs no redraw loop and costs the value's length times the strings' total length.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
