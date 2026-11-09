@@ -2,6 +2,9 @@ package fejkdata
 
 import (
 	"fmt"
+
+	"github.com/larvit/fejkdata/internal/builtinfunc"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 type templateSite struct {
@@ -41,11 +44,12 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
 }
 
 // resolvedNames is what resolveTemplates resolved about the names of a set of templates: each binding's
-// target, the reads of it, and the keys they address. places caches pathTo: for each node it was
-// called from, every node under it with the fields leading there. fresh is each binding's
+// target and draw, the reads of it, and the keys they address. places caches pathTo: for each node it
+// was called from, every node under it with the fields leading there. fresh is each binding's
 // freshFieldReads.
 type resolvedNames struct {
 	targets   map[*nameBinding]nameTarget
+	draws     bindingDraws
 	reads     map[*nameBinding][]*arm
 	addressed map[*nameBinding]map[pickKey]string
 	places    map[node]map[node][]string
@@ -102,34 +106,105 @@ func compileFormats(ts []templateSite, targets map[*nameBinding]nameTarget) erro
 	return nil
 }
 
-// resolveTemplates resolves ts in steps, each over every template before the next starts. The
-// names' targets, keys and reads pass to later steps as arguments, and the bindings take their
-// targets and keys only once every check has passed.
+// bindingDraws is the draw of each name bound to a token with a where or a distinct clause, among
+// the templates being resolved.
+type bindingDraws map[*nameBinding]*valueDraw
+
+// of is b's draw, whether b is among the templates being resolved or a category's, resolved earlier.
+func (d bindingDraws) of(b *nameBinding) *valueDraw {
+	if v, resolving := d[b]; resolving {
+		return v
+	}
+	return b.values
+}
+
+// resolveTemplates resolves ts in three stages, each over every template before the next starts:
+// compile, fence and commit. Each stage takes what the one before found as arguments, so the
+// bindings take their targets, keys and draws only once every check has passed.
 func resolveTemplates(ts []templateSite, root map[string]node) error {
+	names, err := compileTemplates(ts, root)
+	if err != nil {
+		return err
+	}
+	if err := fenceTemplates(ts, names); err != nil {
+		return err
+	}
+	for b, target := range names.targets {
+		b.target, b.addressed, b.values = target, names.addressed[b], names.draws[b]
+	}
+	return nil
+}
+
+// compileTemplates resolves each template's references and its names' targets, compiles its format
+// and each token's draw, and finds what each name's reads address.
+func compileTemplates(ts []templateSite, root map[string]node) (resolvedNames, error) {
 	for _, s := range ts {
 		refs, err := s.t.resolveRefs(s.folder, s.label, root)
 		if err != nil {
-			return err
+			return resolvedNames{}, err
 		}
 		s.t.refs = refs
 	}
 	targets := nameTargets(ts)
 	if err := compileFormats(ts, targets); err != nil {
-		return err
+		return resolvedNames{}, err
 	}
-	if err := valueDraws(ts, targets); err != nil {
-		return err
-	}
-	if err := rewordWords(ts, targets); err != nil {
-		return err
-	}
-	reads := readsOfNames(ts)
-	names := resolvedNames{targets: targets, reads: reads, addressed: addressedKeys(reads, targets), places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
-	for b, bound := range reads {
-		names.fresh[b] = freshFieldReads(bound, names.addressed[b])
+	draws, err := buildDraws(ts, targets)
+	if err != nil {
+		return resolvedNames{}, err
 	}
 	for _, s := range ts {
 		s.t.readsColumn = columnReadOf(s.t, targets)
+	}
+	reads := readsOfNames(ts)
+	names := resolvedNames{targets: targets, draws: draws, reads: reads, addressed: addressedKeys(reads, targets), places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
+	for b, bound := range reads {
+		names.fresh[b] = freshFieldReads(bound, names.addressed[b])
+	}
+	return names, nil
+}
+
+// buildDraws builds the draw of each token in ts with a where or a distinct clause, and of each
+// {reword()} call, and returns the draw of each name bound to such a token. A proof of a draw
+// reads the draws of the names built before it.
+func buildDraws(ts []templateSite, targets map[*nameBinding]nameTarget) (bindingDraws, error) {
+	draws, words := bindingDraws{}, map[wordsAt]*wordList{}
+	for _, s := range ts {
+		for i := range s.t.compiled.ops {
+			o := &s.t.compiled.ops[i]
+			var d tokenDraw
+			var err error
+			switch {
+			case o.Kind == grammar.BuiltinCall && o.Fn == builtinfunc.RewordName:
+				d, err = s.t.rewordDrawOf(o, targets, words)
+			case o.Where == nil && o.Distinct == nil:
+				continue
+			case o.Kind == grammar.BuiltinCall:
+				d, err = newAlphabetDraw(o, draws)
+			default:
+				var v *valueDraw
+				if v, err = s.t.valueDrawOf(o, targets, draws); err == nil && o.Kind == grammar.NameBind {
+					draws[s.t.nameScope.bindings[o.Bound]] = v
+				}
+				d = v
+			}
+			if err != nil {
+				return nil, fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
+			}
+			o.draw = d
+		}
+	}
+	return draws, nil
+}
+
+// fenceTemplates refuses a draw that would read itself or is read through a path, a read of a name
+// that could disagree with another read of it, and a calc or adddays whose proof fails.
+func fenceTemplates(ts []templateSite, names resolvedNames) error {
+	if err := refuseSelfReads(ts, names.draws); err != nil {
+		return err
+	}
+	if err := refuseFilteredTails(ts, names.draws); err != nil {
+		return err
 	}
 	for _, s := range ts {
 		if err := checkNameReads(s.label, s.t, names); err != nil {
@@ -140,12 +215,9 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		if err := checkCalcNames(s.label, s.t); err != nil {
 			return err
 		}
-		if err := proveAddDays(s.label, s.t); err != nil {
+		if err := proveAddDays(s.label, s.t, names.draws); err != nil {
 			return err
 		}
-	}
-	for b, target := range targets {
-		b.target, b.addressed = target, names.addressed[b]
 	}
 	return nil
 }

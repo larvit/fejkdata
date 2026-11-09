@@ -100,16 +100,22 @@ func folderAt(root *folder, segs []string) (*folder, int) {
 func refTokens(toks []grammar.Token) []string {
 	var refs []string
 	seen := map[string]bool{}
-	for _, tok := range toks {
-		names := tokenReads(tok)
-		if tok.Kind == grammar.NameBind {
-			names = []string{tok.BoundRef}
+	add := func(name string) {
+		if grammar.IsRef(name) && !seen[name] {
+			seen[name] = true
+			refs = append(refs, name)
 		}
-		for _, name := range names {
-			if grammar.IsRef(name) && !seen[name] {
-				seen[name] = true
-				refs = append(refs, name)
-			}
+	}
+	for _, tok := range toks {
+		own, clause := tokenReads(tok)
+		if tok.Kind == grammar.NameBind {
+			own, clause = []string{tok.BoundRef}, nil
+		}
+		for _, name := range own {
+			add(name)
+		}
+		for _, c := range clause {
+			add(c.name)
 		}
 	}
 	return refs

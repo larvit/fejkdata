@@ -2015,15 +2015,16 @@ record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their ent
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and resolve
 format.go       a format's tokens checked against their fields, and compiled into ops
-arm.go          the compiled read of one {a|b} alternative or operand: its head, the path to its leaf, and the op holding it
+arm.go          the compiled read of one {a|b} alternative or operand: its head, the path to its leaf, the op holding it, and the op's draw
 reference.go    one reference's resolution: its sigil, its category, its tail
-resolve.go      resolving templates against the assembled tree in steps, each over every template before the next
+resolve.go      resolving templates against the assembled tree in three stages, compile, fence and commit, each over every template before the next
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
-where.go        where and distinct clauses: the values a clause draws from, fixed at load with their weights, and the draw of those that pass, without repeats
-sampledraw.go   a where clause on a call: the draw of a value holding none of the clause's strings, and the fallback where no value can
+where.go        where and distinct clauses: the names a clause reads, the draw of the values that pass, without repeats, and the proof that every draw has enough
+pathvalues.go   the values a path holds fixed at load, with their weights and by length, and a draw among them that leaves out those already drawn
+alphabetdraw.go a where clause on an alphabet call: the draw of a value holding none of the clause's strings, and the fallback where no value can
 reword.go       {reword()}: the words a call draws from, one fake per word in a render, and the case each fake takes
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
 columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
