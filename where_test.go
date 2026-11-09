@@ -155,7 +155,6 @@ func TestWhereRefusesAtLoad(t *testing.T) {
 		`{"format":"{w where length 5}","w":["{lower(5)}","horse"]}`:                           "a generated value",
 		`{"format":"{w where length 1}","w":["a",null]}`:                                       "a null",
 		`{"format":"{w as x}{x where length 5}","w":["horse"]}`:                                "a name, already drawn",
-		`{"format":"{w where length 5 as x}{x.y}","w":["horse"]}`:                              "a field of a filtered draw",
 		`{"format":"{a|b where length 1}","a":"x","b":"y"}`:                                    "two arms",
 		`{"format":"{w where length k}","w":["cat"]}`:                                          "a length naming no name",
 		`{"format":"{w where length k}","k":"3","w":["cat"]}`:                                  "a length reading a field, not a name",
@@ -173,6 +172,13 @@ func TestWhereRefusesAtLoad(t *testing.T) {
 				t.Errorf("NewTemplate(%s) = nil error, want it refused for %s", src, why)
 			}
 		})
+	}
+}
+
+func TestWhereRefusesAFieldReadOfAFilteredDraw(t *testing.T) {
+	src := `{"format":"{w where length 5 as x}{x.y}","w":[{"format":"horse","y":"a"}]}`
+	if _, err := engine(1).NewTemplate(src); err == nil || !strings.Contains(err.Error(), "read whole") {
+		t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, "read whole")
 	}
 }
 
@@ -203,6 +209,7 @@ func TestWhereNamesTheLengthsThatLeaveNoValue(t *testing.T) {
 		`{"format":"{n as k}{m as j}{w where length k to j}","n":"{int(3,5)}","m":"{int(4,6)}","w":["cat","bird"]}`:      "where k is 5 and j is 4, length 5 to 4 holds no length; keep k at or below j",
 		`{"format":"{n as k}{w where length k to 9}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:                       "where k is 6, no value passes the where clause",
 		`{"format":"{n as k}{w where length k to 9 distinct 2 joined ','}","n":"{int(3,5)}","w":["cat","bird","horse"]}`: "where k is 5, distinct 2 draws 2 values, and only 1 passes",
+		`{"format":"{v as t}{w where not t as n}{x where length n}","v":"1","w":["1"],"x":["a","bb"]}`:                   "may print its fallback",
 	} {
 		t.Run(src, func(t *testing.T) {
 			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
@@ -432,6 +439,7 @@ func TestWhereRefusesAClauseReadingTheNameItsTokenBinds(t *testing.T) {
 		`{"format":"id {w where not u as u}{u}","w":["a","b"]}`,
 		`{"format":"{v}{w where not u as u}{u}","v":"x","w":["a","b"]}`,
 		`{"format":"{w where not a as c}{w where not b as a}{x where not a as b}{c}","w":["p","q"],"x":["p","q"]}`,
+		`{"format":"{y as b}{w where not b as a}{a}","w":["p","q"],"y":{"format":"{z where not a}","z":["p","q"]}}`,
 	} {
 		t.Run(src, func(t *testing.T) {
 			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), "would read itself") {

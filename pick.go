@@ -128,9 +128,7 @@ type namedPick struct {
 	named *nameBinding
 	memo  drawMemo
 	pins  pinSet
-	// drawn is what a where or a distinct clause drew, nil before the first read. It is kept apart
-	// from memo, which keys a draw by the levels a path steps through, since a clause draws one of
-	// the whole values fixed at load and steps through no level.
+	// drawn is what a where or a distinct clause drew, nil before the first read.
 	drawn []string
 }
 
@@ -209,7 +207,8 @@ func (m *drawMemo) enteredFrame(scope *nameScope) *pickFrame {
 
 // readName reads the arm a from the pick of its name, held in the frame of the name's scope.
 // When the pick renders another category, enter takes that category's frames from the pick's
-// memo, and renderFrame finds them and opens no new one.
+// memo, and renderFrame finds them and opens no new one. enter pushes those frames above mark,
+// and popping to mark after the render leaves the frames as the read found them.
 // So every read through one pick sees one pick of each name the other category binds:
 // {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l
 // that geo.SE.address binds.
