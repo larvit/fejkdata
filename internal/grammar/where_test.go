@@ -83,6 +83,8 @@ func TestParseFormatRefusesAMalformedWhereClause(t *testing.T) {
 		"{w where not -x}",
 		"{w where not a.b}",
 		"{w where not containing 'a', 9}",
+		"{w where not and}",
+		"{w where not 'a' else and}",
 		"{w where else 'x'}",
 		"{w where not 'a' else}",
 		"{w where not 'a' else 5}",

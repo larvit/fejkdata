@@ -40,6 +40,14 @@ func drawn(t *testing.T, rs Runs, patterns []string, draws int) map[string]bool 
 
 func TestDrawPrintsEveryValueHoldingNoPatternAndNoOther(t *testing.T) {
 	tens := []string{"10", "11", "12", "13", "14", "15", "16", "17", "18", "19"}
+	var bigrams []string
+	for _, a := range "abcdef" {
+		for _, b := range "abcdef" {
+			if s := string(a) + string(b); !slices.Contains([]string{"ab", "bc", "ca", "de", "ef", "fd", "da"}, s) {
+				bigrams = append(bigrams, s)
+			}
+		}
+	}
 	for _, c := range []struct {
 		rs       Runs
 		patterns []string
@@ -50,6 +58,7 @@ func TestDrawPrintsEveryValueHoldingNoPatternAndNoOther(t *testing.T) {
 		{Runs{{"ab", 7}, {"b", 1}}, []string{"aa", "bb"}},
 		{Runs{{"7", 1}, {"89ab", 1}}, []string{"79"}},
 		{Runs{{"0123456789", 2}}, tens},
+		{Runs{{"abcdef", 6}, {"b", 1}}, bigrams},
 	} {
 		var want []string
 		for _, v := range every(c.rs) {
@@ -80,6 +89,7 @@ func TestCompileFindsNoPlanWhereEveryValueHoldsAPattern(t *testing.T) {
 		{Runs{{"ab", 3}}, []string{"a", "bb"}},
 		{Runs{{"ab", 2}, {"-", 1}, {"ab", 2}}, []string{"a-", "b-"}},
 		{Runs{{"ab", 1 << 50}, {"a", 1}}, []string{"aa", "bb", "ba"}},
+		{Runs{{"ab", 2}}, []string{""}},
 	} {
 		if p := Compile(c.rs, c.patterns); p != nil {
 			t.Errorf("Compile(%v, %q) found a plan, want none", c.rs, c.patterns)
@@ -88,7 +98,7 @@ func TestCompileFindsNoPlanWhereEveryValueHoldsAPattern(t *testing.T) {
 }
 
 func TestCompileIgnoresAPatternNoValueCanHold(t *testing.T) {
-	seen := drawn(t, Runs{{"01", 2}}, []string{"", "x0", "011"}, 2000)
+	seen := drawn(t, Runs{{"01", 2}}, []string{"x0", "011"}, 2000)
 	for _, v := range every(Runs{{"01", 2}}) {
 		if !seen[v] {
 			t.Errorf("never drew %q", v)
