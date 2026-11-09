@@ -82,7 +82,9 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"an operand past the limit", `{"format":"{calc(a)}","a":"{digits(400)}","datatype":"number"}`, "is not proven within 1e300"},
 		{"a whole calc past int64", `{"format":"{calc(a * 2)}","a":"{seq()}","datatype":"integer"}`, "{calc(a * 2)} is not proven within int64"},
 		{"a whole float past int64", `{"format":"{float(0,1e19,0)}","datatype":"integer"}`, "{float(0,1e19,0)} is not proven within int64"},
-		{"a sample with a fallback", `{"format":"{calc(a + 1)}","a":"{digits(2) where not '11' else 'none'}","datatype":"integer"}`, "may print its fallback"},
+		{"a sample with a fallback", `{"format":"{calc(a + 1)}","a":{"format":"{v as t}{digits(2) where not t else 'none'}","v":"11"},"datatype":"integer"}`, "may print its fallback"},
+		{"a path's empty default", `{"format":"{calc(a + 1)}","a":{"format":"{v as t}{w where not t}","v":"1","w":["1","2"]},"datatype":"integer"}`, "may print its fallback"},
+		{"a name holding a path's draw", `{"format":"{v as t}{w where not t as d}{calc(d + 1)}","v":"1","w":["1","2"],"datatype":"integer"}`, "may print its fallback"},
 	} {
 		row := `{"format":"","col":` + c.column + `}`
 		files := map[string]string{"row": row}
@@ -143,6 +145,8 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 		`{"format":"{calc(x * x * x * x, 2)}","x":"{float(0,1,80)}","datatype":"number"}`,
 		`{"format":"{calc(a / (b + 1), 2)}","a":"{int(1,9)}","b":"{digits(2)}","datatype":"number"}`,
 		`{"format":"{calc(a + 1)}","a":"{digits(2) where not '11'}","datatype":"integer"}`,
+		`{"format":"{calc(a + 1)}","a":"{digits(2) where not '11' else 'none'}","datatype":"integer"}`,
+		`{"format":"{calc(a + 1)}","a":{"format":"{v as t}{digits(2) where not t}","v":"11"},"datatype":"integer"}`,
 		`{"format":"{calc(a / b, 0)}","a":"{int(1,9)}","b":"{int(1,9)}","datatype":"integer"}`,
 		`{"format":"{calc(sub * 1.25, 2)}","sub":{"format":"{calc(a * b)}","a":"{int(1,9)}","b":"{float(0,5,2)}"},"datatype":"number"}`,
 		`{"format":"{/src.code}","datatype":"integer"}`,
