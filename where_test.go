@@ -261,6 +261,8 @@ func TestWhereOnACallDrawsEachValueOfItsKindHoldingNoneOfTheStrings(t *testing.T
 		`"{ulid() where not containing '0', 'Z'}"`:                                             `^[1-7][1-9A-HJKMNP-TV-Y]{25}$`,
 		`"{base64(2) where not containing 'A', '/'}"`:                                          `^[B-Za-z0-9+]{2}[EIMQUYcgkosw048]=$`,
 		`"{nanoid(4) where not containing '_', '-'}"`:                                          `^[0-9a-zA-Z]{4}$`,
+		`"{uuid() where length 36}"`:                                                           `^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`,
+		`"{ulid() where length 26}"`:                                                           `^[0-7][0-9A-HJKMNP-TV-Z]{25}$`,
 	} {
 		re := regexp.MustCompile(pattern)
 		for i := 0; i < 400; i++ {
@@ -295,12 +297,15 @@ func TestWhereReadsTheStringsAName(t *testing.T) {
 func TestWherePrintsTheFallbackWhereNoValuePasses(t *testing.T) {
 	f := engine(1)
 	for src, want := range map[string]string{
-		`{"format":"{v as t}{w where not t else 'none'}","v":"cat","w":["cat"]}`:                                "none",
-		`{"format":"{v as t}{u as f}{w where not containing t else f}","v":"a","u":"fb","w":["cat","bar"]}`:     "fb",
-		`{"format":"{v as t}{uuid() where not containing t else 'none'}","v":"-"}`:                              "none",
-		`{"format":"{v as t}{uuid() where not containing t else '-'}","v":"-"}`:                                 "-",
-		`{"format":"{v as t}{w where not t else '-' distinct 2 joined ','}","v":"cat","w":["cat","dog"]}`:       "dog,-",
-		`{"format":"{v as t}{w where not t else '-' distinct 2 as m}{m[2]}{m[1]}","v":"cat","w":["cat","dog"]}`: "-dog",
+		`{"format":"{v as t}{w where not t else 'none'}","v":"cat","w":["cat"]}`:                                          "none",
+		`{"format":"{v as t}{u as f}{w where not containing t else f}","v":"a","u":"fb","w":["cat","bar"]}`:               "fb",
+		`{"format":"{v as t}{uuid() where not containing t else 'none'}","v":"-"}`:                                        "none",
+		`{"format":"{v as t}{uuid() where not containing t else '-'}","v":"-"}`:                                           "-",
+		`{"format":"{v as t}{w where not t else '-' distinct 2 joined ','}","v":"cat","w":["cat","dog"]}`:                 "dog,-",
+		`{"format":"{v as t}{w where not t else '-' distinct 2 as m}{m[2]}{m[1]}","v":"cat","w":["cat","dog"]}`:           "-dog",
+		`{"format":"{v as t}{w where not t else t}","v":"a","w":["a"]}`:                                                   "a",
+		`{"format":"{v as t}{w where length 2 and not t else 'none'}","v":"bb","w":["a","bb"]}`:                           "none",
+		`{"format":"{v as t}{u as r}{w where not t, r else 'none' distinct 2 joined ','}","v":"a","u":"b","w":["a","b"]}`: "none,none",
 	} {
 		for i := 0; i < 20; i++ {
 			if got := mustRender(t, f, src); got != want {
@@ -335,17 +340,51 @@ func TestWhereOnACallRefusesAtLoad(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
 	for src, want := range map[string]string{
 		`"{int(1,9) where not '3'}"`: "{base64()}, {digits()}, {hex()}, {lower()}, {nanoid()}, {ulid()}, {upper()} or {uuid()}",
-		`"{digits(1) where not containing ` + quotedAllBut("0123456789", "") + `}"`: "no value passes the where clause",
-		`"{uuid() where not containing '-'}"`:                                       "no value passes the where clause",
-		`"{digits(2) where length 3}"`:                                              "no value passes the where clause",
-		`{"format":"{n as k}{digits(2) where length k}","n":"{int(2,3)}"}`:          "where k is 3, no value passes the where clause",
-		`{"format":"{digits(1) where not t}","t":"3"}`:                              "{t as n}",
-		`{"format":"{w where not containing t}","t":"3","w":["a"]}`:                 "{t as n}",
-		`{"format":"{w where not 'a' else f}","f":"x","w":["a","b"]}`:               "{f as n}",
-		`{"format":"{w where not t}","w":["a"]}`:                                    "or quote the text, as 't'",
+		`"{digits(1) where not containing ` + quotedAllBut("0123456789", "") + `}"`:                      "no value passes the where clause",
+		`"{uuid() where not containing '-'}"`:                                                            "no value passes the where clause",
+		`"{digits(2) where length 3}"`:                                                                   "no value passes the where clause",
+		`{"format":"{n as k}{digits(2) where length k}","n":"{int(2,3)}"}`:                               "where k is 3, no value passes the where clause",
+		`{"format":"{digits(1) where not t}","t":"3"}`:                                                   "{t as n}",
+		`{"format":"{w where not containing t}","t":"3","w":["a"]}`:                                      "{t as n}",
+		`{"format":"{w where not 'a' else f}","f":"x","w":["a","b"]}`:                                    "{f as n}",
+		`{"format":"{w where not t}","w":["a"]}`:                                                         "or quote the text, as 't'",
+		`"{digits(0) where not ''}"`:                                                                     "no value passes the where clause",
+		`{"format":"{uuid() where not containing t}","t":["7958","beef"]}`:                               "for every value, quote each",
+		`{"format":"{v distinct 2 as m}{uuid() where not containing m}","v":["7958","beef"]}`:            "not containing m[1], m[2]",
+		`{"format":"{v distinct 2 joined ',' as m}{uuid() where not containing m}","v":["7958","beef"]}`: "not containing m[1], m[2]",
+		`{"format":"{v distinct 2 joined ',' as m}{w where not m}","v":["a","b"],"w":["a","c"]}`:         "not m[1], m[2]",
+		`{"format":"{x as and}{w where not and}","x":"a","w":["a","b"]}`:                                 `"and" is a word of the clause`,
 	} {
 		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
+		}
+	}
+}
+
+func TestWhereFiltersEveryClauseAfterAFilteredCall(t *testing.T) {
+	f := engine(1)
+	src := `{"format":"{hex(2) where not containing 'a'}:{w where not 'x'}","w":["x","y"]}`
+	for i := 0; i < 50; i++ {
+		if got := mustRender(t, f, src); !strings.HasSuffix(got, ":y") {
+			t.Fatalf("render(%s) = %q, want it to end in :y", src, got)
+		}
+	}
+}
+
+func TestWhereRefusesAClauseReadingTheNameItsTokenBinds(t *testing.T) {
+	f := engine(1)
+	for _, src := range []string{
+		`{"format":"{w where not u as u}{u}","w":["a","b"]}`,
+		`{"format":"{w where not containing u as u}{u}","w":["a","b"]}`,
+		`{"format":"{w where not u else u as u}{u}","w":["a"]}`,
+		`{"format":"{v as t}{w where not t else u as u}{u}","v":"a","w":["a"]}`,
+		`{"format":"{w where not b as a}{x where not a as b}{a}","w":["p","q"],"x":["p","q"]}`,
+		`{"format":"{x}","x":{"format":"{w where not u as u}{u}","w":["a","b"]}}`,
+		`{"format":"{w where length u as u}{u}","w":"1"}`,
+		`{"format":"{w where not t as u}{x as t}{u}","w":["a","b"],"x":"{u}"}`,
+	} {
+		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), "would read itself") {
+			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, "would read itself")
 		}
 	}
 }

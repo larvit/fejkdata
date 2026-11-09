@@ -84,6 +84,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a whole float past int64", `{"format":"{float(0,1e19,0)}","datatype":"integer"}`, "{float(0,1e19,0)} is not proven within int64"},
 		{"a sample with a fallback", `{"format":"{calc(a + 1)}","a":{"format":"{v as t}{digits(2) where not t else 'none'}","v":"11"},"datatype":"integer"}`, "may print its fallback"},
 		{"a path's empty default", `{"format":"{calc(a + 1)}","a":{"format":"{v as t}{w where not t}","v":"1","w":["1","2"]},"datatype":"integer"}`, "may print its fallback"},
+		{"a path's empty default, by a string it contains", `{"format":"{calc(a + 1)}","a":{"format":"{v as t}{w where not containing t}","v":"1","w":["1","2"]},"datatype":"integer"}`, "may print its fallback"},
 		{"a name holding a path's draw", `{"format":"{v as t}{w where not t as d}{calc(d + 1)}","v":"1","w":["1","2"],"datatype":"integer"}`, "may print its fallback"},
 	} {
 		row := `{"format":"","col":` + c.column + `}`
