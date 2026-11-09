@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/larvit/fejkdata/internal/avoid"
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/invariant"
@@ -35,19 +36,19 @@ var builtins = withTransforms(map[string]builtin{
 	"bgmod11": {calls: []string{"bgmod11(x)"}, arity: 1, checkArgs: bgmod11Arg, prep: bgmod11Prep},
 	"fnr":     {calls: []string{"fnr(x)"}, arity: 1, checkArgs: fnrArg, prep: fnrPrep, operands: func(a []string) []string { return a }},
 	"cpr":     {calls: []string{"cpr(x)"}, arity: 1, checkArgs: cprArg, prep: cprPrep, operands: func(a []string) []string { return a }},
-	"uuid":    {calls: []string{"uuid()"}, arity: 0, prep: sample(uuidV7)},
-	"ulid":    {calls: []string{"ulid()"}, arity: 0, prep: sample(ulid)},
-	"nanoid":  {calls: []string{"nanoid(n)"}, arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet)},
-	"hex":     {calls: []string{"hex(n)"}, arity: 1, checkArgs: countArg, prep: chars(hexDigits)},
-	"digits": {calls: []string{"digits(n)"}, arity: 1, checkArgs: countArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
+	"uuid":    {calls: []string{"uuid()"}, arity: 0, prep: sample(uuidV7), avoids: fixedRuns(uuidRuns, "00000000-0000-0000-0000-000000000000")},
+	"ulid":    {calls: []string{"ulid()"}, arity: 0, prep: sample(ulid), avoids: fixedRuns(ulidRuns, strings.Repeat("0", 26))},
+	"nanoid":  {calls: []string{"nanoid(n)"}, arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet), avoids: charRuns(nanoidAlphabet, '0')},
+	"hex":     {calls: []string{"hex(n)"}, arity: 1, checkArgs: countArg, prep: chars(hexDigits), avoids: charRuns(hexDigits, '0')},
+	"digits": {calls: []string{"digits(n)"}, arity: 1, checkArgs: countArg, prep: chars(decimalDigits), avoids: charRuns(decimalDigits, '0'), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
 		if atoi(a[0]) == 0 {
 			return proven.Unproven("{" + token + "} prints nothing, which is no number")
 		}
 		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
-	"upper": {calls: []string{"upper(n)"}, arity: 1, checkArgs: countArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
-	"lower": {calls: []string{"lower(n)"}, arity: 1, checkArgs: countArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
-	"base64": {calls: []string{"base64(n)"}, arity: 1, checkArgs: countArg, prep: func(a []string) Call {
+	"upper": {calls: []string{"upper(n)"}, arity: 1, checkArgs: countArg, prep: chars(upperLetters), avoids: charRuns(upperLetters, 'A')},
+	"lower": {calls: []string{"lower(n)"}, arity: 1, checkArgs: countArg, prep: chars(lowerLetters), avoids: charRuns(lowerLetters, 'a')},
+	"base64": {calls: []string{"base64(n)"}, arity: 1, checkArgs: countArg, avoids: base64Runs, prep: func(a []string) Call {
 		n := atoi(a[0])
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return base64.StdEncoding.EncodeToString(randBytes(s, n))
@@ -113,7 +114,46 @@ func chars(alphabet string) func([]string) Call {
 	}
 }
 
-const hexDigits = "0123456789abcdef"
+const (
+	hexDigits     = "0123456789abcdef"
+	decimalDigits = "0123456789"
+	upperLetters  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	lowerLetters  = "abcdefghijklmnopqrstuvwxyz"
+)
+
+func charRuns(alphabet string, blank byte) func([]string) (avoid.Runs, string) {
+	return func(a []string) (avoid.Runs, string) {
+		n := atoi(a[0])
+		return avoid.Runs{{Alphabet: alphabet, N: n}}, strings.Repeat(string(blank), n)
+	}
+}
+
+func fixedRuns(rs avoid.Runs, blank string) func([]string) (avoid.Runs, string) {
+	return func([]string) (avoid.Runs, string) { return rs, blank }
+}
+
+var (
+	uuidRuns = avoid.Runs{{Alphabet: hexDigits, N: 8}, {Alphabet: "-", N: 1}, {Alphabet: hexDigits, N: 4}, {Alphabet: "-", N: 1},
+		{Alphabet: "7", N: 1}, {Alphabet: hexDigits, N: 3}, {Alphabet: "-", N: 1}, {Alphabet: "89ab", N: 1}, {Alphabet: hexDigits, N: 3},
+		{Alphabet: "-", N: 1}, {Alphabet: hexDigits, N: 12}}
+	ulidRuns = avoid.Runs{{Alphabet: "01234567", N: 1}, {Alphabet: crockford, N: 25}}
+)
+
+const base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+// base64Runs is the runs of base64(n): a byte past a whole group of three leaves the bits of the last
+// character after it zero, so that character is one of a few, and padding follows.
+func base64Runs(a []string) (avoid.Runs, string) {
+	n := atoi(a[0])
+	rs := avoid.Runs{{Alphabet: base64Alphabet, N: 4 * (n / 3)}}
+	switch n % 3 {
+	case 1:
+		rs = append(rs, avoid.Run{Alphabet: base64Alphabet, N: 1}, avoid.Run{Alphabet: "AQgw", N: 1}, avoid.Run{Alphabet: "=", N: 2})
+	case 2:
+		rs = append(rs, avoid.Run{Alphabet: base64Alphabet, N: 2}, avoid.Run{Alphabet: "AEIMQUYcgkosw048", N: 1}, avoid.Run{Alphabet: "=", N: 1})
+	}
+	return rs, base64.StdEncoding.EncodeToString(make([]byte, n))
+}
 
 // formatFloat prints v to dp decimals, or proven.ShortestDecimals, and a zero unsigned.
 func formatFloat(v float64, dp int) string {

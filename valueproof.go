@@ -160,6 +160,8 @@ func (p *valueProof) proveTemplate(t *template) proven.Facts {
 		return proven.Literal(o.Lit)
 	case o.Kind == grammar.PathRead && (o.Distinct != nil || slices.ContainsFunc(o.arms, readsJoined)):
 		return joinedText(body)
+	case mayFallBack(o):
+		return fallsBack(body)
 	case o.Kind == grammar.PathRead:
 		var leaves []node
 		for _, a := range o.arms {
@@ -180,7 +182,12 @@ func (p *valueProof) proveTemplate(t *template) proven.Facts {
 func (p *valueProof) proveCalc(o op) proven.Facts {
 	body, args := o.Body, o.Args
 	nodes := operandNodes(o)
-	v, doubt := proven.OfCalc(builtinfunc.ParsedCalc(args[0]).Expr, func(name string) proven.Facts { return p.proveUnion(nodes(name)) })
+	v, doubt := proven.OfCalc(builtinfunc.ParsedCalc(args[0]).Expr, func(name string) proven.Facts {
+		if slices.ContainsFunc(o.operands, func(a arm) bool { return a.spelling == name && readsFallback(a) }) {
+			return fallsBack(name)
+		}
+		return p.proveUnion(nodes(name))
+	})
 	if doubt != "" {
 		return proven.Unproven(fmt.Sprintf("{%s}: %s", body, doubt))
 	}
@@ -190,10 +197,33 @@ func (p *valueProof) proveCalc(o op) proven.Facts {
 // proveArm proves what a prints: one of its leaves, or text where it reads a distinct draw's members
 // joined.
 func (p *valueProof) proveArm(a arm) proven.Facts {
-	if readsJoined(a) {
+	switch {
+	case readsJoined(a):
 		return joinedText(a.spelling)
+	case readsFallback(a):
+		return fallsBack(a.spelling)
 	}
 	return p.proveUnion(a.leaves)
+}
+
+// mayFallBack says whether o may print its where clause's fallback, or a path's empty default: a
+// call's default is a value of its own shape.
+func mayFallBack(o op) bool {
+	switch {
+	case o.sample != nil:
+		return o.sample.strings.any() && o.Where.Else != nil
+	case o.values != nil:
+		return o.values.strings.any()
+	}
+	return slices.ContainsFunc(o.arms, readsFallback)
+}
+
+func readsFallback(a arm) bool {
+	return a.kind == namedRead && a.named.values != nil && a.named.values.strings.any()
+}
+
+func fallsBack(token string) proven.Facts {
+	return proven.Unproven(fmt.Sprintf("{%s} may print its fallback or default, where the strings it reads leave no value", token))
 }
 
 func joinedText(token string) proven.Facts {

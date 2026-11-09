@@ -1636,3 +1636,32 @@ digits too, shuffling letters or redacting. `reword` can read as a paraphrase, s
 Transforms section says the fakes are random words.
 
 `words` is a path, so the template picks the language of the fakes. Valid while goal 4 stands.
+
+## A where clause also filters a call drawing from an alphabet, reads a name unquoted, and ends in `else`
+
+2026-11-09, Lilleman auf Larv.
+
+A program replacing real values needs a fake that holds no part of its original, such as a uuid
+holding none of a document's own tokens. The maintainer chose that a template may read those strings
+at render, from a name, and may name a fallback. Strings read at render can leave no value to draw,
+and goal 5.4 rules out a render error, so a draw then prints the fallback.
+
+A panel of four readers, seated as the Go test author, the JavaScript test author, the bulk fixture
+author and the data author, picked the spelling. All four chose `else` over `otherwise`, `fallback`,
+`default`, `or` and `??`, last in the clause and before `as`. All four read an unquoted word in
+`not` as a name, and a name as its one pick. On a field holding a list, all four leaned to reading
+every string, but at only 55 to 65 percent sure, so goal 4.6 refuses a field there: bind it to a
+name first. All four wanted the fallback to take a name or a path; a path is read through a name.
+Valid while goal 4 stands.
+
+Without `else`, a path prints an empty string, so no category needs a default. A call prints a
+value of its own shape, so a column holding a uuid still holds one: the Nil UUID, which RFC 9562
+defines, and for every other call the first character of its alphabet, or for `{base64(n)}` n zero
+bytes, encoded. A fallback may hold one of the strings, as the Nil UUID holds `0000`; only a render
+error could rule that out.
+
+A call's draw plans each position before it draws, over an Aho–Corasick automaton of the strings,
+so it never retries and never gets stuck, as skipping each character that would complete a string
+can: `{digits(2)}` avoiding `'00'` to `'09'` has no second digit after a first `0`. The plan costs
+about the value's length times the strings' total length times the alphabet's size, which goal 12.1
+allows.

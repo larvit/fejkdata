@@ -138,6 +138,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A where clause follows its path: `length 5`, `length 4 to 6`, `not 'cat'` and `not containing 'cat'`, joined by `and`
 - A distinct draw is `distinct N` after any `where` and before `as`; its members read `[1]` to `[N]`, and `joined 'sep'` prints them as one
 - `{reword(text,words)}` replaces each word of `text` with one drawn from the path `words`
+- A where clause also filters a call drawing from an alphabet, reads a name unquoted, and ends in `else`
 
 # Scoring run
 

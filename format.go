@@ -2,18 +2,24 @@ package fejkdata
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// checkFunc validates a call at compile time: a known builtin, its args, and, for calc, the
-// operands held in fields.
+// checkFunc validates a call at compile time: a known builtin, its args, for calc the operands held
+// in fields, and for a where clause a builtin it can filter.
 func checkFunc(tok grammar.Token, fields map[string]node) error {
 	err := builtinfunc.Check(tok.Fn, tok.Args)
 	if err == nil && tok.Fn == builtinfunc.CalcName {
 		err = checkCalcFields(tok.Args, fields)
+	}
+	if err == nil && tok.Where != nil {
+		if _, filters := builtinfunc.Runs(tok.Fn, tok.Args); !filters {
+			err = fmt.Errorf("a where clause filters only %s", builtinfunc.FilteredCalls())
+		}
 	}
 	if err != nil {
 		return fmt.Errorf("token {%s}: %w", tok.Body, err)
@@ -74,7 +80,9 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unboundRead, error) {
 	var unbound []unboundRead
 	names := tokenReads(t)
-	for _, name := range names {
+	clause := clauseNames(t.Where)
+	own := len(names) - len(clause) // the token's own reads; its clause's names follow them
+	for i, name := range names {
 		if grammar.IsRef(name) {
 			if _, _, err := grammar.RefShape(name); err != nil {
 				return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
@@ -84,6 +92,9 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 		missing, err := checkArm(name, fields, !operands && len(names) == 1)
 		if err == nil {
 			continue
+		}
+		if missing && i >= own {
+			err = clause[i-own].unbound()
 		}
 		err = fmt.Errorf("token {%s}: %w", t.Body, err)
 		if !missing {
@@ -162,13 +173,18 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 	return false, nil
 }
 
-// tokenReads lists the names t reads: a read's arms, or the operands a call's builtin reads, and
-// the names a where clause's length reads.
+// tokenReads lists the names t reads: a read's arms, or the operands a call's builtin reads, then
+// the names its where clause reads.
 func tokenReads(t grammar.Token) []string {
+	names := t.Arms
 	if t.Kind == grammar.BuiltinCall {
-		return builtinfunc.Operands(t.Fn, t.Args)
+		names = builtinfunc.Operands(t.Fn, t.Args)
 	}
-	return append(t.Arms[:len(t.Arms):len(t.Arms)], lengthNames(t.Where)...)
+	names = slices.Clip(names)
+	for _, c := range clauseNames(t.Where) {
+		names = append(names, c.name)
+	}
+	return names
 }
 
 // formatOps is a compiled format: its ops, and the size of its literal text.
@@ -179,7 +195,7 @@ type formatOps struct {
 
 // compileFormat compiles t's parsed format against its resolved references and its names'
 // targets; a {ref as n} token compiles to no op, and a bind with a where or distinct clause to an
-// op that expand skips, holding the names its length reads. checkTokens proved every token valid.
+// op that expand skips, holding the names its where clause reads. checkTokens proved every token valid.
 func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps, error) {
 	var c formatOps
 	for _, tok := range t.tokens {
@@ -191,16 +207,19 @@ func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps,
 		case grammar.BuiltinCall:
 			o.call = builtinfunc.Prep(tok.Fn, tok.Args)
 			o.operands, err = t.compileArms(builtinfunc.Operands(tok.Fn, tok.Args), targets)
+			if err == nil && tok.Where != nil {
+				o.operands, err = t.compileClauseNames(tok.Where, targets) // checkFunc proved the builtin reads no operand
+			}
 		case grammar.PathRead:
 			o.arms, err = t.compileArms(tok.Arms, targets)
 			if err == nil && tok.Where != nil {
-				o.operands, err = t.compileLengths(tok.Where, targets)
+				o.operands, err = t.compileClauseNames(tok.Where, targets)
 			}
 		case grammar.NameBind:
 			if tok.Where == nil && tok.Distinct == nil {
 				continue
 			}
-			o.operands, err = t.compileLengths(tok.Where, targets)
+			o.operands, err = t.compileClauseNames(tok.Where, targets)
 		}
 		if err != nil {
 			return c, fmt.Errorf("token {%s}: %w", tok.Body, err)
