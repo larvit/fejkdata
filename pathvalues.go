@@ -250,9 +250,7 @@ func (x *lengthIndex) drawIn(s *drawstate.State, from, to int) string {
 
 // drawIndex draws the index of one of the texts in x.texts[from:to] by their odds, leaving out
 // the ascending indexes drawn. It costs drawn's length plus a binary search over the span: it draws
-// among the odds left, and steps past each drawn text the draw lands at or beyond. A sum of
-// floating-point odds can land on a drawn index or on to, which without undrawnNear would draw a
-// value twice or step outside the span.
+// among the odds left, and steps past each drawn text the draw lands at or beyond.
 func (x *lengthIndex) drawIndex(s *drawstate.State, from, to int, drawn []int) int {
 	base, left := x.before(from), x.cum[to-1]-x.before(from)
 	for _, d := range drawn {

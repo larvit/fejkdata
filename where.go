@@ -29,7 +29,8 @@ type valueDraw struct {
 	fallback fallback
 }
 
-// lengthEnd is one end of a where clause's length: n, or what the name read prints where read is not nil.
+// lengthEnd is one end of a where clause's length: n, or, where read is not nil, what that read of
+// a name prints.
 type lengthEnd struct {
 	n    int
 	read *arm
@@ -41,8 +42,8 @@ type readStrings struct{ not, notContaining []*arm }
 // any says whether r reads a string, which alone can leave a draw too few values.
 func (r readStrings) any() bool { return len(r.not)+len(r.notContaining) > 0 }
 
-// fallback is what a draw prints where no value passes: text, or what the name read prints where
-// read is not nil.
+// fallback is what a draw prints where no value passes: text, or, where read is not nil, what that
+// read of a name prints.
 type fallback struct {
 	text string
 	read *arm
@@ -83,7 +84,8 @@ func clauseNames(w *grammar.Where) []clauseName {
 	return names
 }
 
-// clauseRead is the read in clause, an op's compiled clause, of name, one of the names it reads.
+// clauseRead returns the arm in clause, an op's compiled where clause, that reads name; name must be
+// one the clause reads.
 func clauseRead(clause []arm, name string) *arm {
 	return &clause[slices.IndexFunc(clause, func(a arm) bool { return a.spelling == name })]
 }

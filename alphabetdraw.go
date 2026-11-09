@@ -73,5 +73,5 @@ func (d *alphabetDraw) draw(s *drawstate.State, _ *template, env renderEnv, emit
 	return d.call(s, emitted, nil)
 }
 
-// mayFallBack leaves out a fallback no else names: the builtin's own default is a value of its shape.
+// mayFallBack counts only a fallback an else names, since the builtin's own default has its shape.
 func (d *alphabetDraw) mayFallBack() bool { return d.strings.any() && !d.ownShape }
