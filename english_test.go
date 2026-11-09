@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -22,6 +23,24 @@ func englishWordForms(t *testing.T, table string) map[string]string {
 		forms[word] = form
 	}
 	return forms
+}
+
+func englishWordSet(t *testing.T, table string) map[string]bool {
+	t.Helper()
+	held := map[string]bool{}
+	for word := range englishWordForms(t, table) {
+		held[word] = true
+	}
+	return held
+}
+
+func englishPresentForms(t *testing.T) map[string]bool {
+	t.Helper()
+	present := map[string]bool{}
+	for _, form := range englishWordForms(t, "word-verb") {
+		present[form] = true
+	}
+	return present
 }
 
 func TestEnglishWordHoldsWordNetWordsPerPartOfSpeech(t *testing.T) {
@@ -45,14 +64,22 @@ func TestEnglishWordHoldsWordNetWordsPerPartOfSpeech(t *testing.T) {
 		{"word-adj", "big", ""},
 		{"word-adv", "often", ""},
 	} {
-		if got, ok := englishWordForms(t, c.table)[c.word]; !ok || got != c.form {
-			t.Errorf("%s holds %q with form %q (held: %v), want %q", c.table, c.word, got, ok, c.form)
-		}
+		t.Run(c.table+" "+c.word, func(t *testing.T) {
+			if got, ok := englishWordForms(t, c.table)[c.word]; !ok || got != c.form {
+				t.Errorf("%s holds %q with form %q (held: %v), want %q", c.table, c.word, got, ok, c.form)
+			}
+		})
 	}
+}
+
+func TestEnglishWordTablesHoldAsManyWordsAsWordNet(t *testing.T) {
+	t.Parallel()
 	for table, least := range map[string]int{"word-noun": 40000, "word-verb": 5000, "word-adj": 10000, "word-adv": 2500} {
-		if n := len(englishWordForms(t, table)); n < least {
-			t.Errorf("%s holds %d words, want WordNet's, %d or more", table, n, least)
-		}
+		t.Run(table, func(t *testing.T) {
+			if n := len(englishWordForms(t, table)); n < least {
+				t.Errorf("%s holds %d words, want WordNet's, %d or more", table, n, least)
+			}
+		})
 	}
 }
 
@@ -60,58 +87,77 @@ func TestEnglishWordTablesDropProperNounsAndSlurs(t *testing.T) {
 	t.Parallel()
 	nouns := englishWordForms(t, "word-noun")
 	for _, word := range []string{"paris", "texas", "einstein", "monday", "london", "abc", "dago", "wop", "yid"} {
-		if _, ok := nouns[word]; ok {
-			t.Errorf("word-noun holds %q, a proper noun, an acronym or a slur", word)
-		}
+		t.Run(word, func(t *testing.T) {
+			if _, ok := nouns[word]; ok {
+				t.Errorf("word-noun holds %q, a proper noun, an acronym or a slur", word)
+			}
+		})
 	}
+}
+
+func TestEnglishWordTablesKeepTheCommonNouns(t *testing.T) {
+	t.Parallel()
+	nouns := englishWordForms(t, "word-noun")
 	for _, word := range []string{"table", "city", "teacher", "boy", "queen", "tool"} {
-		if _, ok := nouns[word]; !ok {
-			t.Errorf("word-noun lacks %q", word)
+		t.Run(word, func(t *testing.T) {
+			if _, ok := nouns[word]; !ok {
+				t.Errorf("word-noun lacks %q", word)
+			}
+		})
+	}
+}
+
+func holdsLowerCaseLettersAlone(t *testing.T, table string) {
+	t.Helper()
+	letters := regexp.MustCompile(`^[a-z]+$`)
+	for word, form := range englishWordForms(t, table) {
+		if !letters.MatchString(word) || (form != "" && !letters.MatchString(form)) {
+			t.Fatalf("%s holds %q with form %q, want lower-case letters alone", table, word, form)
 		}
 	}
 }
 
 func TestEnglishWordTablesHoldLowerCaseLettersAlone(t *testing.T) {
 	t.Parallel()
-	letters := regexp.MustCompile(`^[a-z]+$`)
 	for _, table := range []string{"word-noun", "word-verb", "word-adj", "word-adv"} {
-		for word, form := range englishWordForms(t, table) {
-			if !letters.MatchString(word) || (form != "" && !letters.MatchString(form)) {
-				t.Fatalf("%s holds %q with form %q, want lower-case letters alone", table, word, form)
-			}
-		}
+		t.Run(table, func(t *testing.T) { holdsLowerCaseLettersAlone(t, table) })
 	}
 }
 
 func TestEnglishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 	t.Parallel()
 	en := shipped(t, WithSeed(5))
-	nouns, verbs, adjs, advs := englishWordForms(t, "word-noun"), englishWordForms(t, "word-verb"), englishWordForms(t, "word-adj"), englishWordForms(t, "word-adv")
-	present := map[string]bool{}
-	for _, form := range verbs {
-		present[form] = true
+	nouns, verbs, adjs, advs, present := englishWordSet(t, "word-noun"), englishWordSet(t, "word-verb"), englishWordSet(t, "word-adj"), englishWordSet(t, "word-adv"), englishPresentForms(t)
+	for _, c := range []struct {
+		path string
+		held map[string]bool
+	}{
+		{"en_US.word.noun", nouns},
+		{"en_US.word.verb", verbs},
+		{"en_US.word.verb.present", present},
+		{"en_US.word.adj", adjs},
+		{"en_US.word.adv", advs},
+	} {
+		t.Run(c.path, func(t *testing.T) {
+			eachDraw(2000, func() string { return fake(t, en, c.path) }, func(got string) {
+				if !c.held[got] {
+					t.Fatalf("%s = %q, which its table does not hold", c.path, got)
+				}
+			})
+		})
 	}
-	seen := map[string]int{}
-	for i := 0; i < 2000; i++ {
-		for path, held := range map[string]func(string) bool{
-			"en_US.word.noun":         func(w string) bool { _, ok := nouns[w]; return ok },
-			"en_US.word.verb":         func(w string) bool { _, ok := verbs[w]; return ok },
-			"en_US.word.verb.present": func(w string) bool { return present[w] },
-			"en_US.word.adj":          func(w string) bool { _, ok := adjs[w]; return ok },
-			"en_US.word.adv":          func(w string) bool { _, ok := advs[w]; return ok },
-		} {
-			if got := fake(t, en, path); !held(got) {
-				t.Fatalf("%s = %q, which its table does not hold", path, got)
-			}
+}
+
+func TestEnglishWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
+	t.Parallel()
+	en := shipped(t, WithSeed(5))
+	nouns := englishWordSet(t, "word-noun")
+	seen := tallyDraws(2000, func() string {
+		if nouns[fake(t, en, "en_US.word")] {
+			return "noun"
 		}
-		w := fake(t, en, "en_US.word")
-		switch _, n := nouns[w]; {
-		case n:
-			seen["noun"]++
-		default:
-			seen["other"]++
-		}
-	}
+		return "other"
+	})
 	if seen["noun"] == 0 || seen["other"] == 0 {
 		t.Errorf("en_US.word drew %v, want nouns and other parts of speech", seen)
 	}
@@ -121,12 +167,12 @@ func TestEnglishBoundVerbReadsItsOwnPresent(t *testing.T) {
 	t.Parallel()
 	en := shipped(t, WithSeed(6))
 	forms := englishWordForms(t, "word-verb")
-	for i := 0; i < 200; i++ {
-		word, form, _ := strings.Cut(fakeTemplate(t, en, "{/en_US.word.verb as w}{w}|{w.present}"), "|")
+	eachDraw(200, func() string { return fakeTemplate(t, en, "{/en_US.word.verb as w}{w}|{w.present}") }, func(got string) {
+		word, form, _ := strings.Cut(got, "|")
 		if forms[word] != form {
 			t.Fatalf("en_US.word.verb %q printed present %q, want its own, %q", word, form, forms[word])
 		}
-	}
+	})
 }
 
 func TestEnglishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
@@ -149,19 +195,18 @@ func TestEnglishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 	}
 	for _, part := range word.Any {
 		table := strings.Trim(part.Format, "{.}")
-		if rows := len(englishWordForms(t, table)); part.Weight != rows {
-			t.Errorf("%s weighs %d, want its %d rows", table, part.Weight, rows)
-		}
+		t.Run(table, func(t *testing.T) {
+			if rows := len(englishWordForms(t, table)); part.Weight != rows {
+				t.Errorf("%s weighs %d, want its %d rows", table, part.Weight, rows)
+			}
+		})
 	}
 }
 
 func TestEnglishWordDrawsAWideSpreadOfWords(t *testing.T) {
 	t.Parallel()
 	en := shipped(t, WithSeed(8))
-	distinct := map[string]bool{}
-	for i := 0; i < 5000; i++ {
-		distinct[fake(t, en, "en_US.word")] = true
-	}
+	distinct := tallyDraws(5000, func() string { return fake(t, en, "en_US.word") })
 	if len(distinct) < 3000 {
 		t.Errorf("5000 draws of en_US.word gave %d distinct words, want a dictionary's spread", len(distinct))
 	}
@@ -170,20 +215,8 @@ func TestEnglishWordDrawsAWideSpreadOfWords(t *testing.T) {
 func TestEnglishSentenceDrawsTheWordsItsPatternNeeds(t *testing.T) {
 	t.Parallel()
 	en := shipped(t, WithSeed(7))
-	set := func(table string) map[string]bool {
-		held := map[string]bool{}
-		for word := range englishWordForms(t, table) {
-			held[word] = true
-		}
-		return held
-	}
-	adj, noun, adv, verb := set("word-adj"), set("word-noun"), set("word-adv"), set("word-verb")
-	present := map[string]bool{}
-	for _, form := range englishWordForms(t, "word-verb") {
-		present[form] = true
-	}
-	for i := 0; i < 300; i++ {
-		sentence := fake(t, en, "en_US.sentence")
+	adj, noun, adv, verb, present := englishWordSet(t, "word-adj"), englishWordSet(t, "word-noun"), englishWordSet(t, "word-adv"), englishWordSet(t, "word-verb"), englishPresentForms(t)
+	eachDraw(300, func() string { return fake(t, en, "en_US.sentence") }, func(sentence string) {
 		w := strings.Fields(strings.ToLower(strings.TrimRight(sentence, ".!?")))
 		last := len(w) - 1
 		ok := noun[w[last]] && adj[w[last-1]]
@@ -195,26 +228,33 @@ func TestEnglishSentenceDrawsTheWordsItsPatternNeeds(t *testing.T) {
 		if !ok {
 			t.Errorf("sentence %q holds a word its pattern doesn't read from the tables", sentence)
 		}
-	}
+	})
 }
 
 func TestEnglishParagraphIsThreeToSixSentences(t *testing.T) {
 	t.Parallel()
 	en := shipped(t, WithSeed(9))
 	paragraph := regexp.MustCompile(`^[A-Z][^.!?]*[.!?]( [A-Z][^.!?]*[.!?]){2,5}$`)
-	terminators := regexp.MustCompile(`[.!?]`)
-	counts := map[int]bool{}
-	for i := 0; i < 300; i++ {
-		p := fake(t, en, "en_US.paragraph")
+	eachDraw(300, func() string { return fake(t, en, "en_US.paragraph") }, func(p string) {
 		if !paragraph.MatchString(p) {
 			t.Fatalf("en_US.paragraph = %q, want three to six sentences", p)
 		}
-		counts[len(terminators.FindAllString(p, -1))] = true
-	}
-	for n := 3; n <= 6; n++ {
-		if !counts[n] {
-			t.Errorf("300 paragraphs never held %d sentences (held %v)", n, counts)
-		}
+	})
+}
+
+func TestEnglishParagraphDrawsEachSentenceCountFromThreeToSix(t *testing.T) {
+	t.Parallel()
+	en := shipped(t, WithSeed(9))
+	terminators := regexp.MustCompile(`[.!?]`)
+	counts := tallyDraws(300, func() string {
+		return strconv.Itoa(len(terminators.FindAllString(fake(t, en, "en_US.paragraph"), -1)))
+	})
+	for _, n := range []int{3, 4, 5, 6} {
+		t.Run(strconv.Itoa(n), func(t *testing.T) {
+			if counts[strconv.Itoa(n)] == 0 {
+				t.Errorf("300 paragraphs never held %d sentences (held %v)", n, counts)
+			}
+		})
 	}
 }
 
@@ -229,8 +269,10 @@ func TestEnglishWordCarriesWordNetsNotice(t *testing.T) {
 		"WordNet 3.0 Copyright 2006 by Princeton University. All rights reserved.",
 		`PROVIDED "AS IS"`,
 	} {
-		if !strings.Contains(string(notice), want) {
-			t.Errorf("WordNet's licence in the en_US module lacks %q", want)
-		}
+		t.Run(want, func(t *testing.T) {
+			if !strings.Contains(string(notice), want) {
+				t.Errorf("WordNet's licence in the en_US module lacks %q", want)
+			}
+		})
 	}
 }

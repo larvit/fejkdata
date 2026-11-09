@@ -49,14 +49,16 @@ func TestParseFormatReadsAWhereClause(t *testing.T) {
 		"{uuid() where not containing 'dead', t else id}": {Kind: BuiltinCall, Body: "uuid() where not containing 'dead', t else id", Fn: "uuid",
 			Where: &Where{NotContaining: []string{"dead"}, NotContainingNames: []string{"t"}, Else: &Fallback{Name: "id"}}},
 	} {
-		toks, err := ParseFormat(format)
-		if err != nil {
-			t.Errorf("ParseFormat(%q): %v", format, err)
-			continue
-		}
-		if len(toks) != 1 || !reflect.DeepEqual(toks[0], want) {
-			t.Errorf("ParseFormat(%q) = %+v, want %+v", format, toks, want)
-		}
+		t.Run(format, func(t *testing.T) {
+			toks, err := ParseFormat(format)
+			if err != nil {
+				t.Errorf("ParseFormat(%q): %v", format, err)
+				return
+			}
+			if len(toks) != 1 || !reflect.DeepEqual(toks[0], want) {
+				t.Errorf("ParseFormat(%q) = %+v, want %+v", format, toks, want)
+			}
+		})
 	}
 }
 
@@ -97,9 +99,11 @@ func TestParseFormatRefusesAMalformedWhereClause(t *testing.T) {
 		"{lower(5)|w where length 5}",
 		"{lower(5 where length 5}",
 	} {
-		if toks, err := ParseFormat(format); err == nil {
-			t.Errorf("ParseFormat(%q) = %+v, want an error", format, toks)
-		}
+		t.Run(format, func(t *testing.T) {
+			if toks, err := ParseFormat(format); err == nil {
+				t.Errorf("ParseFormat(%q) = %+v, want an error", format, toks)
+			}
+		})
 	}
 }
 
@@ -126,14 +130,16 @@ func TestParseFormatReadsADistinctClause(t *testing.T) {
 		"{w[a distinct b] distinct 2 joined ','}": {Kind: PathRead, Body: "w[a distinct b] distinct 2 joined ','", Arms: []string{"w[a distinct b]"},
 			Distinct: &Distinct{N: 2, Joins: true, Sep: ","}},
 	} {
-		toks, err := ParseFormat(format)
-		if err != nil {
-			t.Errorf("ParseFormat(%q): %v", format, err)
-			continue
-		}
-		if len(toks) != 1 || !reflect.DeepEqual(toks[0], want) {
-			t.Errorf("ParseFormat(%q) = %+v, want %+v", format, toks, want)
-		}
+		t.Run(format, func(t *testing.T) {
+			toks, err := ParseFormat(format)
+			if err != nil {
+				t.Errorf("ParseFormat(%q): %v", format, err)
+				return
+			}
+			if len(toks) != 1 || !reflect.DeepEqual(toks[0], want) {
+				t.Errorf("ParseFormat(%q) = %+v, want %+v", format, toks, want)
+			}
+		})
 	}
 }
 
@@ -159,23 +165,42 @@ func TestParseFormatRefusesAMalformedDistinctClause(t *testing.T) {
 		"{w where length 5 distinct}",
 		"{w where length distinct 2 as v}",
 	} {
-		if toks, err := ParseFormat(format); err == nil {
-			t.Errorf("ParseFormat(%q) = %+v, want an error", format, toks)
-		}
+		t.Run(format, func(t *testing.T) {
+			if toks, err := ParseFormat(format); err == nil {
+				t.Errorf("ParseFormat(%q) = %+v, want an error", format, toks)
+			}
+		})
 	}
 }
 
-func TestCheckIdentifierRefusesWhereAndDistinct(t *testing.T) {
+func TestCheckIdentifierRefusesAWordOfTheClausesInsideAName(t *testing.T) {
 	for _, word := range []string{"where", "distinct"} {
-		inside, end := strconv.Quote(" "+word+" "), strconv.Quote(" "+word)
-		if err := CheckIdentifier("a " + word + " b"); err == nil || !strings.Contains(err.Error(), "contains "+inside) {
-			t.Errorf("CheckIdentifier(%q) = %v, want an error naming %s", "a "+word+" b", err, inside)
-		}
-		if err := CheckIdentifier("a " + word); err == nil || !strings.Contains(err.Error(), "ends in "+end) {
-			t.Errorf("CheckIdentifier(%q) = %v, want an error naming %s at its end", "a "+word, err, end)
-		}
-		if err := CheckIdentifier(word); err != nil {
-			t.Errorf("CheckIdentifier(%q) = %v, want nil", word, err)
-		}
+		t.Run(word, func(t *testing.T) {
+			inside := strconv.Quote(" " + word + " ")
+			if err := CheckIdentifier("a " + word + " b"); err == nil || !strings.Contains(err.Error(), "contains "+inside) {
+				t.Errorf("CheckIdentifier(%q) = %v, want an error naming %s", "a "+word+" b", err, inside)
+			}
+		})
+	}
+}
+
+func TestCheckIdentifierRefusesAWordOfTheClausesEndingAName(t *testing.T) {
+	for _, word := range []string{"where", "distinct"} {
+		t.Run(word, func(t *testing.T) {
+			end := strconv.Quote(" " + word)
+			if err := CheckIdentifier("a " + word); err == nil || !strings.Contains(err.Error(), "ends in "+end) {
+				t.Errorf("CheckIdentifier(%q) = %v, want an error naming %s at its end", "a "+word, err, end)
+			}
+		})
+	}
+}
+
+func TestCheckIdentifierAcceptsAWordOfTheClausesAlone(t *testing.T) {
+	for _, word := range []string{"where", "distinct"} {
+		t.Run(word, func(t *testing.T) {
+			if err := CheckIdentifier(word); err != nil {
+				t.Errorf("CheckIdentifier(%q) = %v, want nil", word, err)
+			}
+		})
 	}
 }

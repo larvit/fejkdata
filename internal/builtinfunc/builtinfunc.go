@@ -24,7 +24,8 @@ type Call func(s *drawstate.State, emitted string, operands []string) string
 type builtin struct {
 	arity int
 	calls []string
-	// prep parses validated args once, at compile time, into the closure a render calls.
+	// prep parses validated args once, at compile time, into the closure a render calls; nil for
+	// adddays, whose Call AddDays builds once the load knows its date's layout.
 	prep      func(args []string) Call
 	checkArgs func(args []string) error
 	// operands names the fields the call reads, which a render reads for it; nil
@@ -69,8 +70,13 @@ func Check(name string, args []string) error {
 	return nil
 }
 
-// Prep parses a call's args, which Check accepted, into the Call a render makes.
-func Prep(name string, args []string) Call { return builtins[name].prep(args) }
+// Prep parses a call's args, which Check accepted, into the Call a render makes, or nil for adddays.
+func Prep(name string, args []string) Call {
+	if b := builtins[name]; b.prep != nil {
+		return b.prep(args)
+	}
+	return nil
+}
 
 // Operands lists the fields a call reads as operands, empty for a builtin that reads none
 // or is unknown.

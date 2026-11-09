@@ -123,9 +123,3 @@ func AddDays(from string, a []string) Call {
 		return d.AddDate(0, 0, n).UTC().Format(to)
 	}
 }
-
-func addDaysPrep(a []string) Call {
-	return func(*drawstate.State, string, []string) string {
-		panic(invariant.Broken("adddays(%s) rendered before its date's layout was proven", strings.Join(a, ",")))
-	}
-}

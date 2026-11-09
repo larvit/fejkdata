@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 402`
+`Next ID = 403`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 402 | 0.4.0 |  | question | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 3 | 2 | 1 | 4 | 7 | code health by 2 | 0.6 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -217,6 +218,12 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
+
+### 402. Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.
+
+The principles pass of the release review of 0.4.0 found that the test files hold 876 `for` lines in test bodies and 22 `t.Run` calls, against the technical principle "One behaviour per test, named for it … No loops or branches in a test body; parametrize the cases." A failing case can't be rerun alone with `go test -run`, and a `t.Fatalf` inside a loop hides every case after it. The release review reshaped the test files this release added; this item takes the rest, keeping every expected value, seed and draw count.
+
+Question: does this hold 0.4.0, or does it move to a later release? Its size outlasts the release review's rounds.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 

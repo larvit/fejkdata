@@ -1,6 +1,7 @@
 package avoid
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"slices"
 	"strings"
@@ -38,8 +39,7 @@ func drawn(t *testing.T, rs Runs, patterns []string, draws int) map[string]bool 
 	return seen
 }
 
-func TestDrawPrintsEveryValueHoldingNoPatternAndNoOther(t *testing.T) {
-	tens := []string{"10", "11", "12", "13", "14", "15", "16", "17", "18", "19"}
+func bigramsOutsideTheCycles() []string {
 	var bigrams []string
 	for _, a := range "abcdef" {
 		for _, b := range "abcdef" {
@@ -48,68 +48,105 @@ func TestDrawPrintsEveryValueHoldingNoPatternAndNoOther(t *testing.T) {
 			}
 		}
 	}
-	for _, c := range []struct {
-		rs       Runs
-		patterns []string
-	}{
-		{Runs{{"ab", 6}}, []string{"aa", "bab"}},
-		{Runs{{"abc", 5}}, []string{"bab", "abc", "cc", "aca"}},
-		{Runs{{"ab", 2}, {"-", 1}, {"ab", 2}}, []string{"a-a", "b-b"}},
-		{Runs{{"ab", 7}, {"b", 1}}, []string{"aa", "bb"}},
-		{Runs{{"7", 1}, {"89ab", 1}}, []string{"79"}},
-		{Runs{{"0123456789", 2}}, tens},
-		{Runs{{"abcdef", 6}, {"b", 1}}, bigrams},
-	} {
-		var want []string
-		for _, v := range every(c.rs) {
-			if !slices.ContainsFunc(c.patterns, func(p string) bool { return strings.Contains(v, p) }) {
-				want = append(want, v)
-			}
+	return bigrams
+}
+
+// valuesAvoiding lists each value of rs that holds none of the patterns.
+func valuesAvoiding(rs Runs, patterns []string) []string {
+	var want []string
+	for _, v := range every(rs) {
+		if !slices.ContainsFunc(patterns, func(p string) bool { return strings.Contains(v, p) }) {
+			want = append(want, v)
 		}
-		seen := drawn(t, c.rs, c.patterns, 20000)
-		for v := range seen {
-			if !slices.Contains(want, v) {
-				t.Errorf("%v avoiding %q drew %q", c.rs, c.patterns, v)
-			}
+	}
+	return want
+}
+
+func drewNoOther(t *testing.T, rs Runs, patterns []string, seen map[string]bool, want []string) {
+	t.Helper()
+	for v := range seen {
+		if !slices.Contains(want, v) {
+			t.Errorf("%v avoiding %q drew %q", rs, patterns, v)
 		}
-		for _, v := range want {
-			if !seen[v] {
-				t.Errorf("%v avoiding %q never drew %q", c.rs, c.patterns, v)
-			}
+	}
+}
+
+func drewEvery(t *testing.T, what string, seen map[string]bool, want []string) {
+	t.Helper()
+	for _, v := range want {
+		if !seen[v] {
+			t.Errorf("%s never drew %q", what, v)
 		}
+	}
+}
+
+var avoidingCases = []struct {
+	name     string
+	rs       Runs
+	patterns []string
+}{
+	{"two patterns in six of ab", Runs{{"ab", 6}}, []string{"aa", "bab"}},
+	{"four patterns in five of abc", Runs{{"abc", 5}}, []string{"bab", "abc", "cc", "aca"}},
+	{"a hyphen between two runs", Runs{{"ab", 2}, {"-", 1}, {"ab", 2}}, []string{"a-a", "b-b"}},
+	{"a long run then a single b", Runs{{"ab", 7}, {"b", 1}}, []string{"aa", "bb"}},
+	{"a pattern across two runs", Runs{{"7", 1}, {"89ab", 1}}, []string{"79"}},
+	{"the tens of two digits", Runs{{"0123456789", 2}}, []string{"10", "11", "12", "13", "14", "15", "16", "17", "18", "19"}},
+	{"bigrams outside the cycles", Runs{{"abcdef", 6}, {"b", 1}}, bigramsOutsideTheCycles()},
+}
+
+func TestDrawPrintsNoValueHoldingAPattern(t *testing.T) {
+	for _, c := range avoidingCases {
+		t.Run(c.name, func(t *testing.T) {
+			drewNoOther(t, c.rs, c.patterns, drawn(t, c.rs, c.patterns, 20000), valuesAvoiding(c.rs, c.patterns))
+		})
+	}
+}
+
+func TestDrawPrintsEveryValueHoldingNoPattern(t *testing.T) {
+	for _, c := range avoidingCases {
+		t.Run(c.name, func(t *testing.T) {
+			drewEvery(t, fmt.Sprintf("%v avoiding %q", c.rs, c.patterns), drawn(t, c.rs, c.patterns, 20000), valuesAvoiding(c.rs, c.patterns))
+		})
 	}
 }
 
 func TestCompileFindsNoPlanWhereEveryValueHoldsAPattern(t *testing.T) {
 	for _, c := range []struct {
+		name     string
 		rs       Runs
 		patterns []string
 	}{
-		{Runs{{"0123456789", 1}}, []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}},
-		{Runs{{"ab", 3}}, []string{"a", "bb"}},
-		{Runs{{"ab", 2}, {"-", 1}, {"ab", 2}}, []string{"a-", "b-"}},
-		{Runs{{"ab", 1 << 50}, {"a", 1}}, []string{"aa", "bb", "ba"}},
-		{Runs{{"ab", 2}}, []string{""}},
+		{"every digit", Runs{{"0123456789", 1}}, []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}},
+		{"a and bb in three of ab", Runs{{"ab", 3}}, []string{"a", "bb"}},
+		{"a hyphen after either letter", Runs{{"ab", 2}, {"-", 1}, {"ab", 2}}, []string{"a-", "b-"}},
+		{"a long run with every pair", Runs{{"ab", 1 << 50}, {"a", 1}}, []string{"aa", "bb", "ba"}},
+		{"the empty pattern", Runs{{"ab", 2}}, []string{""}},
 	} {
-		if p := Compile(c.rs, c.patterns); p != nil {
-			t.Errorf("Compile(%v, %q) found a plan, want none", c.rs, c.patterns)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			if p := Compile(c.rs, c.patterns); p != nil {
+				t.Errorf("Compile(%v, %q) found a plan, want none", c.rs, c.patterns)
+			}
+		})
 	}
 }
 
 func TestCompileIgnoresAPatternNoValueCanHold(t *testing.T) {
-	seen := drawn(t, Runs{{"01", 2}}, []string{"x0", "011"}, 2000)
-	for _, v := range every(Runs{{"01", 2}}) {
-		if !seen[v] {
-			t.Errorf("never drew %q", v)
-		}
-	}
+	rs, patterns := Runs{{"01", 2}}, []string{"x0", "011"}
+	drewEvery(t, fmt.Sprintf("%v avoiding %q", rs, patterns), drawn(t, rs, patterns, 2000), every(rs))
 }
 
 func TestCompilePlansALongRunWithoutAStepPerCharacter(t *testing.T) {
-	for _, rs := range []Runs{{{"ab", 1 << 50}}, {{"ab", 1 << 50}, {"b", 1}}} {
-		if Compile(rs, []string{"aa", "bb"}) == nil {
-			t.Errorf("Compile(%v) found no plan, want one", rs)
-		}
+	for _, c := range []struct {
+		name string
+		rs   Runs
+	}{
+		{"a long run", Runs{{"ab", 1 << 50}}},
+		{"a long run beside a short one", Runs{{"ab", 1 << 50}, {"b", 1}}},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			if Compile(c.rs, []string{"aa", "bb"}) == nil {
+				t.Errorf("Compile(%v) found no plan, want one", c.rs)
+			}
+		})
 	}
 }

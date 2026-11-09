@@ -25,6 +25,18 @@ func drawsExactly(t *testing.T, label string, render func() string, want ...stri
 	}
 }
 
+func eachDraw(n int, draw func() string, check func(got string)) {
+	for i := 0; i < n; i++ {
+		check(draw())
+	}
+}
+
+func tallyDraws(n int, draw func() string) map[string]int {
+	seen := map[string]int{}
+	eachDraw(n, draw, func(got string) { seen[got]++ })
+	return seen
+}
+
 func TestWhereDrawsOnlyTheItemsThatPass(t *testing.T) {
 	f := engine(1)
 	for src, want := range map[string][]string{
@@ -38,24 +50,20 @@ func TestWhereDrawsOnlyTheItemsThatPass(t *testing.T) {
 		`{"format":"{w where length 1}","w":[{"format":"{v as n}{n}","v":["a","bb"]},"cc"]}`:                {"a"},
 		`{"format":"{w.v where length 2}","w":[{"format":"{v}","v":["a","bb"]},{"format":"{v}","v":"cc"}]}`: {"bb", "cc"},
 	} {
-		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		t.Run(src, func(t *testing.T) {
+			drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		})
 	}
 }
 
 func TestWhereKeepsTheWeightsOfTheItemsThatPass(t *testing.T) {
 	f := engine(3)
 	src := `{"format":"{w where length 2}","w":[{"format":"a1","weight":3},{"format":"b1","weight":1},{"format":"ccc","weight":100}]}`
-	a := 0
-	for i := 0; i < 4000; i++ {
-		switch got := mustRender(t, f, src); got {
-		case "a1":
-			a++
-		case "b1":
-		default:
-			t.Fatalf("render = %q, want a1 or b1", got)
-		}
+	seen := tallyDraws(4000, func() string { return mustRender(t, f, src) })
+	if seen["a1"]+seen["b1"] != 4000 {
+		t.Fatalf("renders = %v, want a1 or b1 alone", seen)
 	}
-	if a < 2800 || a > 3200 {
+	if a := seen["a1"]; a < 2800 || a > 3200 {
 		t.Errorf("a1 drew %d of 4000, want about 3000: weight 3 against b1's 1", a)
 	}
 }
@@ -73,11 +81,13 @@ func TestWhereReadsALengthFromAName(t *testing.T) {
 		`{"format":"{n as k}{k}={w where length 3 to k}","n":["4","5"],"w":["cat","bird","horse","turtle"]}`: {"4=cat", "4=bird", "5=cat", "5=bird", "5=horse"},
 		`{"format":"{n as k}{w where length k as v}{k}={v}","n":"{int(3,4)}","w":["cat","bird"]}`:            {"3=cat", "4=bird"},
 	} {
-		tp, err := f.NewTemplate(src)
-		if err != nil {
-			t.Fatalf("NewTemplate(%s): %v", src, err)
-		}
-		drawsExactly(t, src, tp.Fake, want...)
+		t.Run(src, func(t *testing.T) {
+			tp, err := f.NewTemplate(src)
+			if err != nil {
+				t.Fatalf("NewTemplate(%s): %v", src, err)
+			}
+			drawsExactly(t, src, tp.Fake, want...)
+		})
 	}
 }
 
@@ -91,11 +101,13 @@ func TestWhereFiltersATable(t *testing.T) {
 		`"{/animal where length 3}"`:          {"cat"},
 		`"{/animal.code where not 'C', 'H'}"`: {"M"},
 	} {
-		tp, err := f.NewTemplate(src)
-		if err != nil {
-			t.Fatalf("NewTemplate(%s): %v", src, err)
-		}
-		drawsExactly(t, src, tp.Fake, want...)
+		t.Run(src, func(t *testing.T) {
+			tp, err := f.NewTemplate(src)
+			if err != nil {
+				t.Fatalf("NewTemplate(%s): %v", src, err)
+			}
+			drawsExactly(t, src, tp.Fake, want...)
+		})
 	}
 }
 
@@ -109,11 +121,22 @@ func TestAClauseDrawsWholeRowsOfATableReadingSeveralColumns(t *testing.T) {
 		`"{/car where not containing 'a'}"`:     {"Volvo V70"},
 		`"{/car distinct 2 as c}{c[1]}/{c[2]}"`: {"Volvo V70/Saab 900", "Volvo V70/Kia Rio", "Saab 900/Volvo V70", "Saab 900/Kia Rio", "Kia Rio/Volvo V70", "Kia Rio/Saab 900"},
 	} {
-		tp, err := f.NewTemplate(src)
-		if err != nil {
-			t.Fatalf("NewTemplate(%s): %v", src, err)
-		}
-		drawsExactly(t, src, tp.Fake, want...)
+		t.Run(src, func(t *testing.T) {
+			tp, err := f.NewTemplate(src)
+			if err != nil {
+				t.Fatalf("NewTemplate(%s): %v", src, err)
+			}
+			drawsExactly(t, src, tp.Fake, want...)
+		})
+	}
+}
+
+func TestWhereRefusesATableFormatFilteringItsOwnColumn(t *testing.T) {
+	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
+		"pet.json": `{"format":"{name where length 3}","rows":"pet.tsv"}`,
+		"pet.tsv":  "name\ncat\n",
+	}))); err == nil {
+		t.Error("a table's format filtering its own column loaded, want it refused: the row is drawn before the format renders")
 	}
 }
 
@@ -125,12 +148,6 @@ func TestWhereRefusesAtLoad(t *testing.T) {
 		"boat.json":   `{"format":"{make} {model}","rows":"boat.tsv"}`,
 		"boat.tsv":    "make\tmodel\nX\t{/other}\n",
 	}))
-	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
-		"pet.json": `{"format":"{name where length 3}","rows":"pet.tsv"}`,
-		"pet.tsv":  "name\ncat\n",
-	}))); err == nil {
-		t.Error("a table's format filtering its own column loaded, want it refused: the row is drawn before the format renders")
-	}
 	for src, why := range map[string]string{
 		`{"format":"{w where length 9}","w":["cat","horse"]}`:                                  "no item passes",
 		`{"format":"{n as k}{w where length k}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:  "no item of length 6",
@@ -151,9 +168,11 @@ func TestWhereRefusesAtLoad(t *testing.T) {
 		`"{/animal.name where length 3}"`:                                                      "a table cell carrying a token",
 		`"{/boat where length 7}"`:                                                             "a row reading a cell that carries a token",
 	} {
-		if _, err := f.NewTemplate(src); err == nil {
-			t.Errorf("NewTemplate(%s) = nil error, want it refused for %s", src, why)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := f.NewTemplate(src); err == nil {
+				t.Errorf("NewTemplate(%s) = nil error, want it refused for %s", src, why)
+			}
+		})
 	}
 }
 
@@ -166,9 +185,11 @@ func TestAClauseWordRightAfterAsIsTheNameItBinds(t *testing.T) {
 		`{"format":"{w distinct 1 as distinct}{distinct[1]}","w":["a"]}`:          "a",
 		`{"format":"{w where length 1 distinct 1 as where}{where[1]}","w":["a"]}`: "a",
 	} {
-		if got := mustRender(t, f, src); got != want {
-			t.Errorf("render(%s) = %q, want %q", src, got, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if got := mustRender(t, f, src); got != want {
+				t.Errorf("render(%s) = %q, want %q", src, got, want)
+			}
+		})
 	}
 }
 
@@ -183,9 +204,11 @@ func TestWhereNamesTheLengthsThatLeaveNoValue(t *testing.T) {
 		`{"format":"{n as k}{w where length k to 9}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:                       "where k is 6, no value passes the where clause",
 		`{"format":"{n as k}{w where length k to 9 distinct 2 joined ','}","n":"{int(3,5)}","w":["cat","bird","horse"]}`: "where k is 5, distinct 2 draws 2 values, and only 1 passes",
 	} {
-		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
+			}
+		})
 	}
 }
 
@@ -200,12 +223,13 @@ func TestWhereFiltersTheShippedWords(t *testing.T) {
 	t.Parallel()
 	f := shipped(t)
 	for _, src := range []string{"{/en_US.word where length 5}", "{/en_US.word.verb where length 5}", "{/en_US.word where length 5 as w}{uppercase(w)}"} {
-		for i := 0; i < 50; i++ {
-			got := tmpl(t, f, src)
-			if utf8.RuneCountInString(got) != 5 || strings.ToLower(got) != got && strings.ToUpper(got) != got {
-				t.Fatalf("FakeTemplate(%q) = %q, want a word of five letters", src, got)
-			}
-		}
+		t.Run(src, func(t *testing.T) {
+			eachDraw(50, func() string { return tmpl(t, f, src) }, func(got string) {
+				if utf8.RuneCountInString(got) != 5 || strings.ToLower(got) != got && strings.ToUpper(got) != got {
+					t.Fatalf("FakeTemplate(%q) = %q, want a word of five letters", src, got)
+				}
+			})
+		})
 	}
 }
 
@@ -213,18 +237,21 @@ func TestWhereFiltersTheShippedWords(t *testing.T) {
 // first undrawn index after it, else the last one before it, inside the span.
 func TestUndrawnNearStaysInsideTheSpan(t *testing.T) {
 	for _, c := range []struct {
+		name              string
 		i, from, to, want int
 		drawn             []int
 	}{
-		{i: 2, from: 0, to: 3, drawn: []int{2}, want: 1},
-		{i: 1, from: 0, to: 2, drawn: []int{1}, want: 0},
-		{i: 3, from: 0, to: 3, want: 2},
-		{i: 1, from: 0, to: 3, drawn: []int{1}, want: 2},
-		{i: 3, from: 0, to: 3, drawn: []int{2}, want: 1},
+		{name: "drawn last index steps back", i: 2, from: 0, to: 3, drawn: []int{2}, want: 1},
+		{name: "drawn last index of a short span", i: 1, from: 0, to: 2, drawn: []int{1}, want: 0},
+		{name: "one past the span", i: 3, from: 0, to: 3, want: 2},
+		{name: "drawn index takes the next", i: 1, from: 0, to: 3, drawn: []int{1}, want: 2},
+		{name: "one past the span beside a drawn last index", i: 3, from: 0, to: 3, drawn: []int{2}, want: 1},
 	} {
-		if got := undrawnNear(c.i, c.from, c.to, c.drawn); got != c.want {
-			t.Errorf("undrawnNear(%d, %d, %d, %v) = %d, want %d", c.i, c.from, c.to, c.drawn, got, c.want)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			if got := undrawnNear(c.i, c.from, c.to, c.drawn); got != c.want {
+				t.Errorf("undrawnNear(%d, %d, %d, %v) = %d, want %d", c.i, c.from, c.to, c.drawn, got, c.want)
+			}
+		})
 	}
 }
 
@@ -249,7 +276,9 @@ func TestWhereOnACallDrawsOnlyTheValuesThatPass(t *testing.T) {
 		`"{upper(1) where not containing ` + quotedAllBut("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "Q") + `}"`:                                        {"Q"},
 		`"{nanoid(1) where not containing ` + quotedAllBut("_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "_") + `}"`: {"_"},
 	} {
-		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		t.Run(src, func(t *testing.T) {
+			drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		})
 	}
 }
 
@@ -264,12 +293,14 @@ func TestWhereOnACallDrawsOnlyValuesOfItsKindHoldingNoneOfTheStrings(t *testing.
 		`"{uuid() where length 36}"`:                                                           `^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`,
 		`"{ulid() where length 26}"`:                                                           `^[0-7][0-9A-HJKMNP-TV-Z]{25}$`,
 	} {
-		re := regexp.MustCompile(pattern)
-		for i := 0; i < 400; i++ {
-			if got := mustRender(t, f, src); !re.MatchString(got) {
-				t.Fatalf("render(%s) = %q, want it to match %s", src, got, pattern)
-			}
-		}
+		t.Run(src, func(t *testing.T) {
+			re := regexp.MustCompile(pattern)
+			eachDraw(400, func() string { return mustRender(t, f, src) }, func(got string) {
+				if !re.MatchString(got) {
+					t.Fatalf("render(%s) = %q, want it to match %s", src, got, pattern)
+				}
+			})
+		})
 	}
 }
 
@@ -282,16 +313,26 @@ func TestWhereReadsItsStringsFromAName(t *testing.T) {
 		`{"format":"{v as t}{w where not containing t}","v":"","w":["a","b"]}`:                                              {"a", "b"},
 		`{"format":"{v as t}{digits(1) where not containing t and not containing '1','2','3','4','5','6','7','8'}","v":""}`: {"0", "9"},
 	} {
-		drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		t.Run(src, func(t *testing.T) {
+			drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+		})
 	}
-	var want []string
-	for _, m := range []string{"12", "21"} {
-		for _, d := range "03456789" {
-			want = append(want, m+":"+string(d))
+}
+
+func prefixedWithEach(prefixes []string, suffixes string) []string {
+	var out []string
+	for _, p := range prefixes {
+		for _, d := range suffixes {
+			out = append(out, p+":"+string(d))
 		}
 	}
+	return out
+}
+
+func TestWhereReadsItsStringsFromTheMembersOfADistinctDraw(t *testing.T) {
+	f := engine(1)
 	src := `{"format":"{v distinct 2 as m}{m[1]}{m[2]}:{digits(1) where not containing m[1], m[2]}","v":["1","2"]}`
-	drawsExactly(t, src, func() string { return mustRender(t, f, src) }, want...)
+	drawsExactly(t, src, func() string { return mustRender(t, f, src) }, prefixedWithEach([]string{"12", "21"}, "03456789")...)
 }
 
 func TestWherePrintsTheFallbackWhereNoValuePasses(t *testing.T) {
@@ -307,11 +348,13 @@ func TestWherePrintsTheFallbackWhereNoValuePasses(t *testing.T) {
 		`{"format":"{v as t}{w where length 2 and not t else 'none'}","v":"bb","w":["a","bb"]}`:                           "none",
 		`{"format":"{v as t}{u as r}{w where not t, r else 'none' distinct 2 joined ','}","v":"a","u":"b","w":["a","b"]}`: "none,none",
 	} {
-		for i := 0; i < 20; i++ {
-			if got := mustRender(t, f, src); got != want {
-				t.Fatalf("render(%s) = %q, want %q", src, got, want)
-			}
-		}
+		t.Run(src, func(t *testing.T) {
+			eachDraw(20, func() string { return mustRender(t, f, src) }, func(got string) {
+				if got != want {
+					t.Fatalf("render(%s) = %q, want %q", src, got, want)
+				}
+			})
+		})
 	}
 }
 
@@ -330,9 +373,11 @@ func TestWherePrintsADefaultWhereNoValuePassesAndNoFallbackIsNamed(t *testing.T)
 		`{"format":"{v as t}{base64(1) where not containing t}","v":"="}`:                                                                                               "AA==",
 		`{"format":"{v as t}{base64(2) where not containing t}","v":"="}`:                                                                                               "AAA=",
 	} {
-		if got := mustRender(t, f, src); got != want {
-			t.Errorf("render(%s) = %q, want %q", src, got, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if got := mustRender(t, f, src); got != want {
+				t.Errorf("render(%s) = %q, want %q", src, got, want)
+			}
+		})
 	}
 }
 
@@ -355,20 +400,22 @@ func TestWhereOnACallOrReadingANameRefusesAtLoad(t *testing.T) {
 		`{"format":"{v distinct 2 joined ',' as m}{w where not m}","v":["a","b"],"w":["a","c"]}`:         "not m[1], m[2]",
 		`{"format":"{x as and}{w where not and}","x":"a","w":["a","b"]}`:                                 `"and" is a word of the clause`,
 	} {
-		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
+			}
+		})
 	}
 }
 
 func TestWhereFiltersEveryClauseAfterAFilteredCall(t *testing.T) {
 	f := engine(1)
 	src := `{"format":"{hex(2) where not containing 'a'}:{w where not 'x'}","w":["x","y"]}`
-	for i := 0; i < 50; i++ {
-		if got := mustRender(t, f, src); !strings.HasSuffix(got, ":y") {
+	eachDraw(50, func() string { return mustRender(t, f, src) }, func(got string) {
+		if !strings.HasSuffix(got, ":y") {
 			t.Fatalf("render(%s) = %q, want it to end in :y", src, got)
 		}
-	}
+	})
 }
 
 func TestWhereRefusesAClauseReadingTheNameItsTokenBinds(t *testing.T) {
@@ -386,8 +433,10 @@ func TestWhereRefusesAClauseReadingTheNameItsTokenBinds(t *testing.T) {
 		`{"format":"{v}{w where not u as u}{u}","v":"x","w":["a","b"]}`,
 		`{"format":"{w where not a as c}{w where not b as a}{x where not a as b}{c}","w":["p","q"],"x":["p","q"]}`,
 	} {
-		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), "would read itself") {
-			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, "would read itself")
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), "would read itself") {
+				t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, "would read itself")
+			}
+		})
 	}
 }
