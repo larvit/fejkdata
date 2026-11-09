@@ -1256,3 +1256,20 @@ Read most (opens and searches):
 - `docs/score-anchors.md` 2
 - `internal/builtinfunc/transform.go` 2
 - `internal/builtinfunc/builtinfunc.go` 1
+
+## Reading cost, chunk 95e387a0388d, finished 2026-11-09T14:02:20Z
+
+55774 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 6
+- `README.md` 4
+- `release-tooling/carried_test.py` 3
+- `.dockerignore` 1
+- `.github/workflows/test.yml` 1
+- `AGENTS.md` 1
+- `compose.yaml` 1
+- `docs/decisions.md` 1
+- `release-tooling/carried.py` 1
+- `release-tooling/fixtures.py` 1
