@@ -1,6 +1,10 @@
 package fejkdata
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/larvit/fejkdata/internal/grammar"
+)
 
 type templateSite struct {
 	t      *template
@@ -159,9 +163,9 @@ func compileTemplates(ts []templateSite, root map[string]node) (resolvedNames, e
 	return names, nil
 }
 
-// buildOps completes each op of ts, once every template is compiled, and returns the draw of each
-// name bound to a token with a where or a distinct clause. A proof of a draw reads the draws of the
-// names built before it.
+// buildOps completes each op of ts, once every template's format is compiled, and returns the draw
+// of each name bound to a token with a where or a distinct clause. A proof of a draw reads the draws
+// of the names that earlier ops bind.
 func buildOps(ts []templateSite, targets map[*nameBinding]nameTarget) (bindingDraws, error) {
 	draws, words := bindingDraws{}, map[wordsAt]*wordList{}
 	for _, s := range ts {
@@ -171,6 +175,9 @@ func buildOps(ts []templateSite, targets map[*nameBinding]nameTarget) (bindingDr
 				return nil, fmt.Errorf("%s: token {%s}: %w", s.label, parts.Body, err)
 			}
 			s.t.compiled.ops[i] = o
+			if v, ok := o.draw.(*valueDraw); ok && o.Kind == grammar.NameBind {
+				draws[s.t.nameScope.bindings[o.Bound]] = v
+			}
 		}
 	}
 	return draws, nil
