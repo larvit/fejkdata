@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 404`
+`Next ID = 409`
 
 ## Items
 
@@ -16,9 +16,9 @@
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
-| 395 | 0.5.0 |  |  | **Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time.** | 2 | 1 | 1 | 2 | 3 | 1 by 4 | 2.6 |
 | 303 | 0.5.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.9 |
+| 395 | 0.5.0 |  |  | **Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time, and let `date()` take bounds relative to the caller's date.** | 2 | 1 | 1 | 2 | 4 | 1 by 4 | 1.7 |
 | 299 | 0.5.0 | 204 |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 | 392 | 0.5.0 |  |  | **Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.** | 1 | 1 | 2 | 2 | 3 | 1 by 2 | 1.3 |
@@ -66,6 +66,7 @@
 | 257 | 0.8.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 3.1 |
 | 389 | 0.8.0 |  |  | **Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2 by 1, 3 by 2 | 3.1 |
 | 113 | 0.8.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 3.0 |
+| 406 | 0.8.0 |  |  | **Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.** | 2 | 1 | 1 | 2 | 2 | 1 by 2, 4 by 2 | 3.0 |
 | 260 | 0.8.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.9 |
 | 261 | 0.8.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.9 |
 | 164 | 0.8.0 |  |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 4 by 3 | 2.9 |
@@ -94,6 +95,7 @@
 | 196 | 0.8.0 |  | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 6 | 2.4 |
 | 263 | 0.8.0 |  |  | **Add `misc.color` names with their hex, rgb, hsl and cmyk forms.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 1 | 2.3 |
 | 28 | 0.8.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 2.3 |
+| 405 | 0.8.0 |  |  | **Let `repeat` take a range, such as 5 to 15, drawing the count on each render.** | 2 | 1 | 1 | 2 | 3 | 1 by 2, 4 by 2 | 2.3 |
 | 13 | 0.8.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 3.2 by 2 | 2.3 |
 | 165 | 0.8.0 |  |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 2.2 |
 | 166 | 0.8.0 |  |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 2.2 |
@@ -119,8 +121,10 @@
 | 161 | 0.8.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.5 |
 | 18 | 0.8.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.4 |
 | 29 | 0.8.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.4 |
+| 408 | 0.8.0 |  |  | **List every shipped path in the README's Data section with an example value and whether it is real, plausible or valid, and where it comes from.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4 | 1.4 |
 | 56 | 0.8.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 1.0 |
 | 53 | 0.8.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 4 by 2 | 0.9 |
+| 404 | 0.8.0 |  |  | **Let a template in a `repeat` or a choice item bind a name to a path through an enclosing name, `{l.street as s}`, so each render draws a fresh row inside the enclosing pick.** | 3 | 2 | 2 | 5 | 6 | 1 by 3, 4 by 4 | 0.9 |
 | 75 | 0.8.0 |  |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 1 | 1 | 2 | 5 | 1 by 1, 4 by 3 | 0.9 |
 | 55 | 0.8.0 |  |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.9 |
 | 17 | 0.8.0 |  |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 3 | 1 | 3 | 5 | 6 | 1 by 1, 4 by 3, 2 by 2 | 0.7 |
@@ -128,6 +132,7 @@
 | 33 | 0.8.0 |  |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 3 | 1 | 3 | 5 | 5 | 1 by 1, 4 by 2 | 0.7 |
 | 193 | 0.8.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.5 |
 | 393 | 0.8.0 | 392 |  | **Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.** | 3 | 2 | 2 | 5 | 7 | 1 by 6 | 0.5 |
+| 407 | 0.8.0 |  |  | **Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.** | 3 | 2 | 2 | 5 | 6 | 1 by 3 | 0.4 |
 | 218 | 0.8.0 |  | decision | **Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
 | 129 | 0.8.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
 | 41 | 0.8.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 4 by 4 | 0.3 |
@@ -234,13 +239,15 @@ Find the issuer's rules, and a test series if it publishes one, first.
 
 Find the numbering plan and its licence first.
 
-### 395. Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time.
-
-From the same review, whose ask was timestamps that fit a dashboard: `{date()}` draws each row's time afresh, so rows arrive out of order and with random gaps. The function reads the row's `{seq(name)}`, adds the step times the count, and a bounded jitter smaller than the step, so rows never swap order. It draws only from the seed and the date (goal 9, the decision "A builtin reads the date the caller gives, never the clock"). Its date arithmetic should read like `{adddays(d,n)}`, which adds whole days to a date that a name holds. A writer panel picks the spelling, and whether a jitter of the step or more is refused at `New`.
-
 ### 394. Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.
 
 From the same review, which asked for fast seeding of a million-row database. `COPY ... FROM STDIN` takes tab-separated text with `\N` for null, and loads several times faster than INSERT. It needs no dependency (goal 10). A writer panel picks the spelling, `copy` or `pgcopy`, and whether the `COPY` line is written. Measure it against `--format sql` for 1,000,000 rows (goal 12) and show both in the Records section beside the README's database pipes. Escape a tab, a newline and a backslash in a value as COPY text asks; a null column writes `\N`.
+
+### 395. Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time, and let `date()` take bounds relative to the caller's date.
+
+From the same review, whose ask was timestamps that fit a dashboard: `{date()}` draws each row's time afresh, so rows arrive out of order and with random gaps. The function reads the row's `{seq(name)}`, adds the step times the count, and a bounded jitter smaller than the step, so rows never swap order. It draws only from the seed and the date (goal 9, the decision "A builtin reads the date the caller gives, never the clock"). Its date arithmetic should read like `{adddays(d,n)}`, which adds whole days to a date that a name holds. A writer panel picks the spelling, and whether a jitter of the step or more is refused at `New`.
+
+The same date arithmetic gives `date()` bounds relative to the caller's date, such as 30 days before it to 14 days after it. Today a due date or a sprint window around today is two fixed days in `date(from,to,'layout')`, re-pinned whenever the fixture should look current; `born` bounds only by whole years of age, and `adddays` shifts only a date already drawn. The same panel picks both spellings, and the README's Functions row for `date` names the relative form.
 
 ### 299. Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.
 
@@ -443,6 +450,10 @@ From a real-world use case, a scheduler's fixtures, whose author called it niche
 
 `iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 3 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
 
+### 406. Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.
+
+A record's columns are flat, so a parent with an array of children renders as a text template whose format spells JSON, such as `{{"summary":"{s}"}}`. A drawn value holding `"`, `\` or a newline breaks that JSON, as a company name or a sentence may. The transform writes the value with JSON's string escapes, beside `lowercase`, `uppercase`, `ascii` and `slugify`. A writer panel picks its name.
+
 ### 260. Add `misc.element`, `misc.unit` and `misc.planet`.
 
 Tables, from PubChem, BIPM and NASA, under public domain and CC BY 4.0 terms.
@@ -532,6 +543,10 @@ A table and its templates, from CSS Color 4 (W3C) and the XKCD colour survey (CC
 ### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
 
 Today `sv_SE.personnummer` draws its own sex, so a chosen sex and a number agree only through the README Data section's template, which reads both through one bound `sex`. `sv_SE.person` reads its own sex and birth date in its `personnummer` field in `data/sv_SE/person.json`, so this item may follow that shape.
+
+### 405. Let `repeat` take a range, such as 5 to 15, drawing the count on each render.
+
+An epic holds 5 to 15 stories, an order 1 to 8 lines. Today `repeat` is one integer, so a varied count takes a weighted choice of templates that differ only in their `repeat`. The repeat cap counts a range's upper bound. A writer panel picks the spelling, such as `"repeat": [5, 15]`; the README's Repeat section and the decision "The repeat cap bounds renders, not bytes" name it. Pairs with item 404, for a parent with a varying number of children.
 
 ### 13. Place xlsx cells by their `r` reference in `data-import/xlsx.py`.
 
@@ -625,6 +640,10 @@ Choices and a template.
 
 Require the path step to reach a sibling category.
 
+### 408. List every shipped path in the README's Data section with an example value and whether it is real, plausible or valid, and where it comes from.
+
+Goal 3 says the docs say which kind each value is, but today that sits in prose spread over the Data section, and a reader can't scan for whether a path exists or what it prints. With a Nordic locale added each release, a table is how a reader finds `fi_FI.phone` and what it looks like. Generate or test the table against what loads, so a new path can't ship without a row, and keep the example values seeded. Fits item 343, which splits the Data section by feature.
+
 ### 56. Build on a manual run of `test.yml` on `main`.
 
 A manual run diffs against `origin/main`, so on `main` itself it compares `HEAD` with itself and skips `docker build`.
@@ -632,6 +651,10 @@ A manual run diffs against `origin/main`, so on `main` itself it compares `HEAD`
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 
 Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text everywhere else. Typing a shipped column changes what `json` and `sql` write, so the capability is a minor and applying it to `misc.httpmethod` is a major.
+
+### 404. Let a template in a `repeat` or a choice item bind a name to a path through an enclosing name, `{l.street as s}`, so each render draws a fresh row inside the enclosing pick.
+
+A parent with its children, a locality and its streets or an epic and its stories, binds the parent once and wants each child to name a different row under it. With `{/geo.DK.locality as l}` in the format and `{l.street.name}` in a field repeating 3 times, the CLI prints `Vissenbjerg: Søndergade, Søndergade, Søndergade`, since a name keeps every level its reads pass; `{l.street.name as s}` in the field is refused with `no field "l"; … a binding names a field, or a reference`. Today the only way round is one run per parent. Revise the decision "Every `{…}` draws afresh, and only a name keeps a pick", whose list of bindings leaves out a path through a name, and state how the new pick sits beside the enclosing name's. A writer panel picks the spelling. `readName` is a place the comprehension seats found hard; leave it easier to read.
 
 ### 75. Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.
 
@@ -652,6 +675,10 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 ### 393. Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.
 
 Implements item 392's pick. `--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. The same seed gives the same files (goal 9). `{seq(name)}` counters stay per table. A child that outnumbers its parents repeats them, as repeated draws do, and a `weight` skews it. Ship the first chunk with two tables, then widen.
+
+### 407. Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.
+
+A fixture often needs a fixed mix: of 200 issues, 4 in progress, 30 done and the rest to do. A weighted choice gives about 4, and the count shifts with the seed, so a test asserting on it needs a loader to fix the counts. A dealt choice is a deck, drawn without replacement. Decide what a render past the last card does: refuse at `New` where the repeat is known to exceed the deck, start a fresh deck, or fall back to the weights; and which renders share one deck: the run, as `{seq()}` shares one counter, or each `repeat`. The deck is per-generator state beside `seq()`'s counters, so the same seed and date still give the same output (goal 9). A writer panel picks the spelling.
 
 ### 218. Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.
 
