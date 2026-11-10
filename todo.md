@@ -12,7 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 415 | 0.5.0 |  |  | **Move the node types into `internal/engine/tree`, so no other package writes a node's fields.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
+| 415 | 0.5.0 |  |  | **Move the node types into `internal/engine/tree`, so no other package writes a node's fields.** | 4 | 1 | 2 | 5 | 8 | code health by 5 | 0.7 |
 | 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 412 | 0.5.0 |  |  | **Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `loadFinds`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 414 | 0.5.0 | 412 |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
@@ -229,7 +229,7 @@
 
 ### 415. Move the node types into `internal/engine/tree`, so no other package writes a node's fields.
 
-Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `imports_test.go`; about 900 moved lines. `linkTables` sets a table's `siblings` through a `tree` method. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `loadfinds.go` and `imports_test.go`, about 2,000 moved lines; the types the nodes' fields hold, `formatOps`, `unboundRead`, `valueDraw`, `columnRead`, `recordColumn`, `pickKey`, `indexed`, `resolvedRef` and `wordList`, and `tokenDraw`'s `renderEnv` parameter, which move too or are broken out; and the 27 of the root's 31 files that read a node's fields, about 440 reads that become accessor calls. `linkTables` sets a table's `siblings` through a `tree` method. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 416. Move rendering into `internal/engine/render`.
 
