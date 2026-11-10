@@ -127,7 +127,7 @@ func oneRead(t *template, l *links) (before string, read *op, after string, err 
 // binds itself; that name's one read draws as a fresh read would.
 func (w *valueWalk) walkArm(t *template, a arm, weight float64, pre, suf string) error {
 	if a.kind != namedRead {
-		return w.walk(t.startOf(a.head, w.links), a.tail, weight, pre, suf)
+		return w.walk(t.startOf(a.head, w.links.of(t).refs), a.tail, weight, pre, suf)
 	}
 	if a.named.binder != t {
 		return fmt.Errorf("%q reads name %q, bound outside it, which keeps one draw for a whole render", t.format, a.head)

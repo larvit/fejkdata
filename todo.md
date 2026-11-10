@@ -41,10 +41,10 @@
 | 334 | 0.7.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
 | 169 | 0.8.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
+| 343 | 0.8.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 9.4 |
 | 354 | 0.8.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 7.3 |
-| 343 | 0.8.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 7.3 |
 | 40 | 0.8.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 6.5 |
 | 95 | 0.8.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 6.5 |
 | 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 1.1 |
@@ -239,6 +239,8 @@ Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go
 
 Files: `data.go`, `valueproof.go`, `columnread.go`, `datatype.go`, `namefence.go`; about 100 lines. It waits for no other item. It ships with a paired ruling no worse.
 
+It touches `refuseFreshDraw`, which the seats found hard, and makes it easier to read: the reader sees how `refsReached`, `pathTo`, `drawsAlong` and `readAddressing` decide together whether a fresh read shares a draw.
+
 ### 414. Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.
 
 Files: `calc.go`, `valueproof.go`, `format.go`; about 120 lines, net negative. It comes after 412, since `valueProof` must read the finished tree before calc can lean on it alone. It ships with a paired ruling no worse.
@@ -331,6 +333,10 @@ Its entry says "The import script drops or fills such rows". There are two geo i
 
 The decision says that where no Go version fixes a vulnerability yet, the maintainer drops the vulnerabilities job from the release job's `needs`. The release job's `if` in `.github/workflows/test.yml` also requires `needs.vulnerabilities.result == 'success'`, and a job missing from `needs` is no success, so the release job would be skipped, not run. A skipped job isn't red, so nothing would ship and nothing would say why. Rewording the decision is the maintainer's call. The principles review of item 336 found it.
 
+### 343. Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).
+
+`## Data` in `README.md`, from its heading to the next `## ` heading, holds the locale categories, the linked tables, the `sv_SE` personnummer recipe, the `nb_NO` fodselsnummer paragraphs and the `geo` namespace with no sub-heading, and every `[Data](#data)` link, and each `[index](#data)` link, points at the whole section. The prose reviewer of PR #249 found that the `nb_NO` fodselsnummer text uses "bound sex" and "as a personnummer does", which lines further down explain. The split keeps every README example `readme_test.go` runs passing, and every in-README link resolving, each to the sub-heading it means.
+
 ### 354. Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.
 
 `release-tooling/patch_release_test.py` `test_main_hands_the_cut_tag_to_the_workflow` reads the wall clock after `patch_release.main` read it at `patch_release.py:270`, and asserts the changelog's date equals its own. A gate run that crosses UTC midnight between the two reads fails. Applies the technical principles' test bullet: a test is deterministic. Found by the principles pass of PR #267.
@@ -366,10 +372,6 @@ The decision says that where no Go version fixes a vulnerability yet, the mainta
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
 Applies "Validate data and build DTOs as early as possible" in `~/.claude/principles/technical-principles.md`. Today `checkArgs` (`internal/builtinfunc/builtins.go`) checks an argument, then `prep` and `proveNumber` parse it again through `atoi`/`atof`, which panic on bad input; `layout.go`, `transform.go` and `calc.go` call them too; two parsers can drift, and a drift panics at compile instead of failing the load.
-
-### 343. Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).
-
-`## Data` in `README.md`, from its heading to the next `## ` heading, holds the locale categories, the linked tables, the `sv_SE` personnummer recipe, the `nb_NO` fodselsnummer paragraphs and the `geo` namespace with no sub-heading, and every `[Data](#data)` link, and each `[index](#data)` link, points at the whole section. The prose reviewer of PR #249 found that the `nb_NO` fodselsnummer text uses "bound sex" and "as a personnummer does", which lines further down explain. The split keeps every README example `readme_test.go` runs passing, and every in-README link resolving, each to the sub-heading it means.
 
 ### 40. Parse `defaultTable`'s path with the library's grammar.
 

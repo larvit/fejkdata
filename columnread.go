@@ -74,8 +74,11 @@ func columnsAt(n node, tail []string) (columns []node) {
 // readsOneArm is the one arm t prints, where t's format prints one plain read and t reads it as its
 // datatype.
 func readsOneArm(t *template, l *links) (arm, bool) {
+	if t.repeat != 1 || (t.datatype != nil && *t.datatype == DataTypeString) {
+		return arm{}, false
+	}
 	o, one := t.printedOp(l)
-	if !one || (t.datatype != nil && *t.datatype == DataTypeString) || t.repeat != 1 || o.Kind != grammar.PathRead || len(o.arms) != 1 || o.Where != nil || o.Distinct != nil || readsJoined(o.arms[0]) {
+	if !one || o.Kind != grammar.PathRead || len(o.arms) != 1 || o.Where != nil || o.Distinct != nil || readsJoined(o.arms[0]) {
 		return arm{}, false
 	}
 	return o.arms[0], true
@@ -90,17 +93,18 @@ func readsJoined(a arm) bool {
 // columnSource is the node a's read starts from (nil where a reads no node), the category holding
 // that node (empty where it is t's own), and the path below the node.
 func columnSource(t *template, a arm, l *links) (start node, category string, tail []string) {
-	switch b := a.named; {
-	case a.kind == namedRead && b.bindsField():
-		// {f as n}{n}: column f of the record binding n, in t's own category.
-		return b.binder, "", slices.Concat([]string{splitRead(b.ref, nil).head}, l.binding(b).target.tail, a.tail)
-	case a.kind == namedRead:
-		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
+	if b := a.named; a.kind == namedRead {
 		target := l.binding(b).target
+		if b.bindsField() {
+			// {f as n}{n}: column f of the record binding n, in t's own category.
+			return b.binder, "", slices.Concat([]string{splitRead(b.ref, nil).head}, target.tail, a.tail)
+		}
+		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
 		return target.start, categoryOf(l.of(b.binder).refs.bySpelling[b.ref].head), slices.Concat(target.tail, a.tail)
-	case grammar.IsRef(a.head):
+	}
+	if grammar.IsRef(a.head) {
 		// {/c.x}: column x of category c.
-		return t.startOf(a.head, l), categoryOf(a.head), a.tail
+		return t.startOf(a.head, l.of(t).refs), categoryOf(a.head), a.tail
 	}
 	return nil, "", nil
 }

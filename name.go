@@ -304,15 +304,17 @@ func readsOfNames(ts []templateSite, l *links) map[*nameBinding][]*arm {
 	return reads
 }
 
-// nameTargets resolves what each binding of ts binds, from its binder's references, into l.
-func nameTargets(ts []templateSite, l *links) {
+// nameTargets resolves what each binding of ts binds, from its binder's references.
+func nameTargets(ts []templateSite, l *links) map[*nameBinding]nameTarget {
+	targets := map[*nameBinding]nameTarget{}
 	for _, s := range ts {
 		tl := l.of(s.t)
 		for _, tok := range s.t.tokens {
 			if tok.Kind == grammar.NameBind {
 				a := splitRead(tok.BoundRef, tl.refs.bySpelling)
-				l.bindings[tl.nameScope.bindings[tok.Bound]] = &bindingLinks{target: nameTarget{start: s.t.startOf(a.head, l), tail: a.tail}}
+				targets[tl.nameScope.bindings[tok.Bound]] = nameTarget{start: s.t.startOf(a.head, tl.refs), tail: a.tail}
 			}
 		}
 	}
+	return targets
 }

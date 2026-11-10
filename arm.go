@@ -167,7 +167,7 @@ func (t *template) compileArm(spelling string, l *links) (arm, error) {
 	tl := l.of(t)
 	r := splitRead(spelling, tl.refs.bySpelling)
 	if !t.isName(r.head, l) {
-		start := t.startOf(r.head, l)
+		start := t.startOf(r.head, tl.refs)
 		if start == nil {
 			panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))
 		}

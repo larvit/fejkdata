@@ -153,11 +153,11 @@ func readField(s *drawstate.State, t *template, env renderEnv, a arm) readValue 
 	}
 	if !grammar.IsRef(a.head) {
 		env.pick = nil
-		leaf, _ := drawSteps(s, drawSibling, t.startOf(a.head, nil), a.steps, nil, nil, nil)
+		leaf, _ := drawSteps(s, drawSibling, t.startOf(a.head, t.refs), a.steps, nil, nil, nil)
 		return renderLeaf(s, leaf, env)
 	}
 	var pins pinSet
-	leaf, leafPins := drawSteps(s, drawFresh, t.startOf(a.head, nil), a.steps, &pins, nil, nil)
+	leaf, leafPins := drawSteps(s, drawFresh, t.startOf(a.head, t.refs), a.steps, &pins, nil, nil)
 	env, mark := env.at(leaf, leafPins).enter(leaf, nil)
 	r := renderLeaf(s, leaf, env)
 	env.frames.pop(mark)

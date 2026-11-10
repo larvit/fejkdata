@@ -300,7 +300,7 @@ type recordColumn struct {
 func settleRecords(nodes nodeSet, l *links) {
 	_ = nodes(func(_ string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {
-			l.of(t).columns = recordColumns(t, l)
+			l.templates[t].columns = recordColumns(t, l)
 		}
 		return nil
 	})

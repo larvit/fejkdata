@@ -132,8 +132,7 @@ type loaded struct {
 }
 
 // load loads each unloaded category in queue and what it needs. It stops at a table whose
-// parent column disagrees with its entry. Otherwise a table could load without its parent,
-// or an earlier table could link to one that putBack then removes.
+// parent column disagrees with its entry. Otherwise a table could load without its parent.
 func (b *batch) load(root *folder, queue []categoryAt, l *links) error {
 	for ; len(queue) > 0; queue = queue[1:] {
 		c := queue[0]

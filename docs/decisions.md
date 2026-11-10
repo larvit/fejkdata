@@ -191,7 +191,7 @@ depending on a replaced one: three rounds of the comprehension panel ruled that 
 harder to follow (code health), and it needed every entry to list what its templates read.
 
 A first reach checks only a table's `parent` against its entry, so a table loads with its
-parent and a failed load puts back whole. Proving the rest of an index is its author's,
+parent. Proving the rest of an index is its author's,
 with the tool `todo.md` item 194 plans.
 
 Valid while CI proves the shipped set whole and each category alone.
