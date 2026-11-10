@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 172 | 0.5.0 |  |  | **Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 410 | 0.5.0 |  |  | **Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.** | 2 | 1 | 2 | 3 | 3 | code health by 4 | 9.8 |
 | 411 | 0.5.0 | 410 |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 3 | 1 | 2 | 4 | 4 | code health by 6 | 9.8 |
 | 413 | 0.5.0 |  |  | **Link a child table without writing its parent, so a failed lazy load changes no finished table.** | 3 | 1 | 2 | 4 | 2 | code health by 3 | 9.8 |
@@ -230,10 +229,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 
 ## Details
-
-### 172. Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.
-
-Ten seats of the 2026-10-09 panel named `drawSteps` (`path.go`); three named the nil arguments as the mode they had to infer.
 
 ### 410. Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.
 
