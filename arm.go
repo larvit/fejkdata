@@ -32,34 +32,37 @@ const (
 	namedRead                // read through a name, kept in its pick
 )
 
-// splitArm splits one spelling into head and tail. refs maps a reference to what
-// resolveRefs resolved it to; before that, a reference is whole.
-func splitArm(spelling string, refs map[string]resolvedRef) arm {
+// readSpelling is one spelling split into the head, whose node `template.startOf` finds, and the
+// tail of a dotted path into it. refs maps a reference to what resolveRefs resolved it to; before
+// that, a reference is whole.
+type readSpelling struct {
+	text string
+	head string
+	tail []string
+}
+
+func splitRead(spelling string, refs map[string]resolvedRef) readSpelling {
 	if grammar.IsRef(spelling) {
 		if r, resolved := refs[spelling]; resolved {
-			return pathArm(spelling, r.head, r.tail)
+			return readSpelling{spelling, r.head, r.tail}
 		}
-		return pathArm(spelling, spelling, nil)
+		return readSpelling{spelling, spelling, nil}
 	}
 	segs, err := grammar.SplitPath(spelling)
 	if err != nil || len(segs) == 1 {
-		return pathArm(spelling, spelling, nil)
+		return readSpelling{spelling, spelling, nil}
 	}
-	return pathArm(spelling, segs[0], segs[1:])
-}
-
-func pathArm(spelling, head string, segs []string) arm {
-	return arm{spelling: spelling, head: head, tail: segs, levels: freshLevels(head, segs)}
+	return readSpelling{spelling, segs[0], segs[1:]}
 }
 
 // key is the key of the leaf a lands on, the one key every way of writing this read shares.
 func (a arm) key() pickKey { return a.levels[len(a.levels)-1] }
 
-func checkSegments(a arm) error {
-	if len(a.tail) == 0 {
+func checkSegments(r readSpelling) error {
+	if len(r.tail) == 0 {
 		return nil
 	}
-	return grammar.CheckSegments(append([]string{a.head}, a.tail...))
+	return grammar.CheckSegments(append([]string{r.head}, r.tail...))
 }
 
 // op is one compiled unit of a format string: a literal run, a read,
@@ -159,44 +162,43 @@ func (t *template) compileArms(spellings []string, targets map[*nameBinding]name
 }
 
 // compileArm compiles one read into a path: from the head it names, or, for a read through a
-// name, from what that name binds. The arm it returns is whole; an error returns none.
+// name, from what that name binds.
 func (t *template) compileArm(spelling string, targets map[*nameBinding]nameTarget) (arm, error) {
-	a := splitArm(spelling, t.refs.bySpelling)
-	if !t.isName(a.head) {
-		start := t.startOf(a.head)
+	r := splitRead(spelling, t.refs.bySpelling)
+	if !t.isName(r.head) {
+		start := t.startOf(r.head)
 		if start == nil {
-			panic(invariant.Broken("{%s} reads a head nothing resolved", a.spelling))
+			panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))
 		}
-		w := compilePath(start, a.tail)
-		a.steps, a.leaves = w.steps, w.leaves
-		return a, nil
+		w := compilePath(start, r.tail)
+		return arm{spelling: r.text, head: r.head, tail: r.tail, levels: freshLevels(r.head, r.tail), steps: w.steps, leaves: w.leaves}, nil
 	}
-	b := t.nameScope.lookup(a.head)
-	tail, member := a.tail, 0
+	b := t.nameScope.lookup(r.head)
+	tail, member := r.tail, 0
 	if b.distinct != nil {
 		var err error
-		if member, err = memberRead(b, a); err != nil {
+		if member, err = memberRead(b, r); err != nil {
 			return arm{}, err
 		}
 		tail = nil
 	} else if grammar.HasSelector(tail) {
 		if b.bindsField() {
-			return arm{}, fmt.Errorf("a path through name %q may not select a row; bind the row to a name of its own", a.head)
+			return arm{}, fmt.Errorf("a path through name %q may not select a row; bind the row to a name of its own", r.head)
 		}
-		return arm{}, fmt.Errorf("a path through name %q may not select a row; read the row without the name, {%s}, or bind it to a name of its own", a.head, grammar.JoinSegments(append([]string{b.ref}, tail...)))
+		return arm{}, fmt.Errorf("a path through name %q may not select a row; read the row without the name, {%s}, or bind it to a name of its own", r.head, grammar.JoinSegments(append([]string{b.ref}, tail...)))
 	}
 	target := targets[b]
 	full := append(target.tail[:len(target.tail):len(target.tail)], tail...)
-	if err := provePath(target.start, full, a.head, len(target.tail)); err != nil {
+	if err := provePath(target.start, full, r.head, len(target.tail)); err != nil {
 		return arm{}, err
 	}
 	w := compilePath(target.start, full)
-	return arm{spelling: a.spelling, head: a.head, tail: tail, levels: namedLevels(full), steps: w.steps, leaves: w.leaves, kind: namedRead, named: b, member: member}, nil
+	return arm{spelling: r.text, head: r.head, tail: tail, levels: namedLevels(full), steps: w.steps, leaves: w.leaves, kind: namedRead, named: b, member: member}, nil
 }
 
 // memberRead is the member of b's distinct draw that a reads, counted from 1, or 0 where a reads them
 // joined.
-func memberRead(b *nameBinding, a arm) (int, error) {
+func memberRead(b *nameBinding, a readSpelling) (int, error) {
 	n := b.distinct.N
 	switch {
 	case len(a.tail) == 0 && !b.distinct.Joins:

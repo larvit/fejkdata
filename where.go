@@ -111,7 +111,7 @@ func fallbackOf(w *grammar.Where, clause []arm, deflt string) fallback {
 
 // unbound is the refusal of c where no field and no name holds it.
 func (c clauseSpelling) unbound() error {
-	head := splitArm(c.spelling, nil).head
+	head := splitRead(c.spelling, nil).head
 	if c.word == "length" {
 		return fmt.Errorf("length %s reads a name, and no name %q is bound; bind one first, as {… as %s}", c.spelling, head, head)
 	}
@@ -148,7 +148,7 @@ func (c clauseSpelling) membersRead(n int) error {
 func (t *template) compileClauseNames(w *grammar.Where, targets map[*nameBinding]nameTarget) ([]arm, error) {
 	var arms []arm
 	for _, c := range clauseSpellings(w) {
-		read := splitArm(c.spelling, nil)
+		read := splitRead(c.spelling, nil)
 		if !t.isName(read.head) {
 			return nil, c.fieldRead()
 		}

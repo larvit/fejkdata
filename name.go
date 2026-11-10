@@ -310,7 +310,7 @@ func nameTargets(ts []templateSite) map[*nameBinding]nameTarget {
 	for _, s := range ts {
 		for _, tok := range s.t.tokens {
 			if tok.Kind == grammar.NameBind {
-				a := splitArm(tok.BoundRef, s.t.refs.bySpelling)
+				a := splitRead(tok.BoundRef, s.t.refs.bySpelling)
 				targets[s.t.nameScope.bindings[tok.Bound]] = nameTarget{start: s.t.startOf(a.head), tail: a.tail}
 			}
 		}

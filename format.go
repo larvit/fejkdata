@@ -114,7 +114,7 @@ func checkRead(t grammar.Token, spelling string, fields map[string]node, wholeTo
 	case unbound != nil:
 		err = unbound()
 	}
-	return []unboundRead{{head: splitArm(spelling, nil).head, body: t.Body, err: fmt.Errorf("token {%s}: %w", t.Body, err)}}, nil
+	return []unboundRead{{head: splitRead(spelling, nil).head, body: t.Body, err: fmt.Errorf("token {%s}: %w", t.Body, err)}}, nil
 }
 
 // checkBind proves a {x as name} token is spelled once, binds a reference or a path into a
@@ -158,7 +158,7 @@ func checkBound(ref string, fields map[string]node) error {
 // the same value and can be offered as the reference spelling. missing says no
 // field holds the head, which a name may yet answer.
 func checkArm(spelling string, fields map[string]node, wholeToken bool) (missing bool, err error) {
-	a := splitArm(spelling, nil)
+	a := splitRead(spelling, nil)
 	if err := checkSegments(a); err != nil {
 		return false, err
 	}
