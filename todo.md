@@ -237,7 +237,7 @@ Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go
 
 ### 412. Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `links`.
 
-Files: `data.go`, `valueproof.go`, `columnread.go`, `datatype.go`, `namefence.go`; about 100 lines. It waits for no other item. It ships with a paired ruling no worse.
+Files: `data.go`, `valueproof.go`, `columnread.go`, `datatype.go`, `namefence.go`; about 100 lines. It ships with a paired ruling no worse.
 
 It touches `refuseFreshDraw`, which the seats found hard, and makes it easier to read: the reader sees how `refsReached`, `pathTo`, `drawsAlong` and `readAddressing` decide together whether a fresh read shares a draw.
 

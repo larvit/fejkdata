@@ -152,7 +152,7 @@ func categoryPipeline(sites []categorySite, root map[string]node, l *links) pipe
 // refuses a name or reference that can't resolve. The cycle check comes before the walks of
 // settleRecords and the node fences, which recurse unguarded. settleRecords fixes each record's
 // columns, which checkColumns proves and the node fences read. Until finish, each stage reads
-// what the ones before it found in p.links; from finish on, the nodes hold it.
+// from p.links what the stages before it found; from finish on, it reads the nodes.
 func (p pipeline) run() error {
 	if err := p.resolve(); err != nil {
 		return err

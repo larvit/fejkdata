@@ -219,8 +219,8 @@ func linkTables(sites []categorySite) error {
 	return nil
 }
 
-// children is each table whose parent is t, in name order.
-func (t *table) children() []*table {
+// childTables is each table whose parent is t, in name order.
+func (t *table) childTables() []*table {
 	var out []*table
 	for _, name := range sortedNames(t.siblings) {
 		if c, isTable := t.siblings[name].(*table); isTable && c.rows.Parent() == t.rows {

@@ -21,15 +21,15 @@ type templateLinks struct {
 	nameScope   *nameScope // where its tokens look a name up
 	refs        templateRefs
 	compiled    formatOps
-	readsColumn *columnRead    // where the format is that one column; read only in columnread.go
+	readsColumn *columnRead    // the column its format only reads, nil where it reads more; read only in columnread.go
 	columns     []recordColumn // a record's, where it has fields, in name order
 }
 
 // bindingLinks is what a load resolved a name binding to.
 type bindingLinks struct {
 	target nameTarget
-	// addressed is every key a read of the name lands on or passes, the spelling of the
-	// first read reaching it beside it; a pick keeps the draws at these keys, and only these.
+	// addressed maps each key a read of the name lands on or passes to the spelling of the
+	// first read reaching that key. A pick keeps the draws at these keys only.
 	addressed map[pickKey]string
 	values    *valueDraw // what a {ref where … as name} or {ref distinct N as name} draws from; nil without either clause
 }

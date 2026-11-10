@@ -283,7 +283,7 @@ func (t *Table[O]) checkSelectorCells() error {
 
 // Link links t to p, the table its link column names, after proving p has a key, every
 // link cell is one, and every row of p is linked to. sibling returns the table beside t
-// named name, or nil. Link is the only writer of a table's parent, and writes nothing of p.
+// named name, or nil. Link is the only writer of a table's parent, and doesn't write p.
 // docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
 func (t *Table[O]) Link(p *Table[O], sibling func(name string) *Table[O]) error {
 	name := t.header[t.parentIndex]
