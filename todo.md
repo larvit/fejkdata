@@ -12,11 +12,9 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 413 | 0.5.0 |  |  | **Link a child table without writing its parent, so a failed lazy load changes no finished table.** | 3 | 1 | 2 | 4 | 2 | code health by 3 | 9.8 |
-| 411 | 0.5.0 |  |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 4 | 1 | 2 | 5 | 5 | code health by 6 | 5.9 |
-| 415 | 0.5.0 | 411, 413 |  | **Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
+| 415 | 0.5.0 |  |  | **Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
-| 412 | 0.5.0 | 411 |  | **Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying pending draws and targets.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
+| 412 | 0.5.0 |  |  | **Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `links`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 414 | 0.5.0 | 412 |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 417 | 0.5.0 | 414, 415 |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 418 | 0.5.0 | 415 |  | **Move compile, bind, link and resolve into `internal/engine/load`.** | 4 | 1 | 2 | 5 | 6 | code health by 5 | 2.7 |
@@ -229,25 +227,17 @@
 
 ## Details
 
-### 413. Link a child table without writing its parent, so a failed lazy load changes no finished table.
-
-Test first: a lazy load fails after `rows.Link`, then a render reads through the parent. The architect suspects `rows.Link` (`internal/rows/rows.go:311-315`) leaves a half-resolved child in a finished parent's `children`; say whether the test confirms or refutes that before the change. Files: `internal/rows/rows.go`, `table.go`, `path.go`, `resolve.go`, `index.go`; about 150 lines. It waits for no other item. It ships with a paired ruling no worse.
-
-### 411. Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.
-
-Files: `resolve.go`, `name.go`, `record.go`, `graph.go`, `node.go`, `data.go`, `index.go`, `inline.go`, `struct.go`, and the load-time readers of the fields `finish` writes, which read the pending links value instead: `arm.go`, `columnread.go`, `calc.go`, `adddays.go`, `pathvalues.go`, `namefence.go`, `where.go`; about 450 to 650 lines. It follows arms being built whole, since `finish` can be the one writer only once ops and arms are. It ships with a paired ruling no worse.
-
 ### 415. Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.
 
-Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `imports_test.go`; about 900 moved lines. It comes after 411 and 413, since a node written by more than one stage, or a parent a child's link writes, would spread the cycle across packages. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `imports_test.go`; about 900 moved lines. Besides a node's constructor and `finish`, only `linkTables` still writes one: a table's `siblings`, and its rows' link to its parent's. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 416. Move rendering into `internal/engine/render`.
 
 Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go`, `reword.go`, `record.go`, `imports_test.go`; about 900 moved lines. It comes after 415, since render reads the node types from `tree`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
-### 412. Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying pending draws and targets.
+### 412. Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `links`.
 
-Files: `data.go`, `valueproof.go`, `columnread.go`, `datatype.go`, `namefence.go`; about 100 lines. It comes after 411, since a finished tree exists only once `finish` writes it. It ships with a paired ruling no worse.
+Files: `data.go`, `valueproof.go`, `columnread.go`, `datatype.go`, `namefence.go`; about 100 lines. It waits for no other item. It ships with a paired ruling no worse.
 
 ### 414. Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.
 

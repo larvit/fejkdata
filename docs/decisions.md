@@ -1042,7 +1042,7 @@ Shipped under the floor before that by the maintainer's decisions of 2026-10-07,
 
 The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while the comprehension floor's target is 7.0.
 
-## The template engine stays the root package until item 107 cuts it into `internal/engine`'s `tree`, `load`, `fence` and `render`, after item 411 has each node's constructor set its syntax and one `finish` resolve its references; what reads no engine type, a table's rows included, sits in `internal/`
+## The template engine stays the root package until item 107 cuts it into `internal/engine`'s `tree`, `load`, `fence` and `render`, with each node's syntax set by its constructor and what its load found written by one `finish`; what reads no engine type, a table's rows included, sits in `internal/`
 
 2026-10-05, Lilleman auf Larv; revised 2026-11-10. Serves code health. On 2026-10-09 the
 maintainer chose to regroup the engine into packages, untangled first, over naming the root
@@ -1058,9 +1058,10 @@ the import list `imports_test.go` checks.
 
 How load finishes a value. The node graph is cyclic by design, since a category may
 reference itself, so a node must exist before its references resolve. Compile builds each
-node with its syntax only. Every later load stage returns values and doesn't write a node,
-and one `finish` writes them into the nodes of the category being loaded, once; a second
-call is an `invariant` panic. A node is one struct, not a load-time type beside a render-time
+node with its syntax only. Every later load stage collects what it finds in one `links`
+value, and one `finish` writes it into the nodes of the category being loaded, once; a
+second call is an `invariant` panic. Only `linkTables` still writes a node before `finish`: a
+table's `siblings`, and its rows' link to its parent's. A node is one struct, not a load-time type beside a render-time
 one: two types would double every node type for a guarantee that `tree` being the only
 package to write a node's fields already gives. A load reads the categories finished
 before it and doesn't write them. A child table is therefore linked without writing its
@@ -1084,8 +1085,8 @@ methods, never an interface, and `tokenDraw` becomes a closed sum in `tree` that
 switches on. `perf_test.go` stays in the root and uses only the public API; a cut that raises
 an allocation count is fixed, not re-pinned.
 
-The moves are `todo.md` items, each merging only where its paired ruling reads no worse: 411
-to 414 untangling in place, 415 to 418 cutting leaf-first, and 107 moving the pipeline last.
+The moves are `todo.md` items, each merging only where its paired ruling reads no worse: 412
+and 414 untangling in place, 415 to 418 cutting leaf-first, and 107 moving the pipeline last.
 Item 414 deletes the calc proof that duplicates `valueProof`.
 `internal/` will hold eleven directories, over the principle's about seven per level, since a
 reader finds the leaf libraries by name. Valid until `todo.md` item 107 lands.
