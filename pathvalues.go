@@ -30,9 +30,9 @@ type weightedText struct {
 // valueWalk lists every value a path renders with its odds, refusing a path whose values are not
 // fixed at load.
 type valueWalk struct {
-	targets map[*nameBinding]nameTarget
-	seen    map[node]bool // the nodes the walk is inside
-	out     []weightedText
+	links *links
+	seen  map[node]bool // the nodes the walk is inside
+	out   []weightedText
 }
 
 // walk lists the values of the path tail into n, each with weight times its odds, written
@@ -85,7 +85,7 @@ func (w *valueWalk) walkTemplate(t *template, weight float64, pre, suf string) e
 	if lit, fixed := t.fixedText(); fixed {
 		return w.emit(pre+lit+suf, weight)
 	}
-	before, read, after, err := oneRead(t)
+	before, read, after, err := oneRead(t, w.links)
 	if err != nil {
 		return err
 	}
@@ -101,9 +101,10 @@ func (w *valueWalk) walkTemplate(t *template, weight float64, pre, suf string) e
 }
 
 // oneRead splits t's format around its one read, refusing a format that draws anything else.
-func oneRead(t *template) (before string, read *op, after string, err error) {
-	for i := range t.compiled.ops {
-		o := &t.compiled.ops[i]
+func oneRead(t *template, l *links) (before string, read *op, after string, err error) {
+	ops := l.of(t).compiled.ops
+	for i := range ops {
+		o := &ops[i]
 		switch {
 		case o.Kind == grammar.LiteralRun && read == nil:
 			before += o.Lit
@@ -126,21 +127,18 @@ func oneRead(t *template) (before string, read *op, after string, err error) {
 // binds itself; that name's one read draws as a fresh read would.
 func (w *valueWalk) walkArm(t *template, a arm, weight float64, pre, suf string) error {
 	if a.kind != namedRead {
-		return w.walk(t.startOf(a.head), a.tail, weight, pre, suf)
+		return w.walk(t.startOf(a.head, w.links), a.tail, weight, pre, suf)
 	}
 	if a.named.binder != t {
 		return fmt.Errorf("%q reads name %q, bound outside it, which keeps one draw for a whole render", t.format, a.head)
 	}
-	target, resolved := w.targets[a.named]
-	if !resolved {
-		target = a.named.target
-	}
+	target := w.links.binding(a.named).target
 	return w.walk(target.start, slices.Concat(target.tail, a.tail), weight, pre, suf)
 }
 
 func (w *valueWalk) walkTable(t *table, tail []string, weight float64, pre, suf string) error {
 	if len(tail) == 0 {
-		if parts, own := ownColumnReads(t); own {
+		if parts, own := ownColumnReads(t, w.links); own {
 			return w.walkRows(t, parts, weight, pre, suf)
 		}
 		return w.walk(t.formatTemplate, nil, weight, pre, suf)
@@ -159,8 +157,8 @@ type rowPart struct {
 
 // ownColumnReads is t's format as fixed text and plain reads of t's own columns; own is false where
 // the format reads anything else.
-func ownColumnReads(t *table) (parts []rowPart, own bool) {
-	for _, o := range t.formatTemplate.compiled.ops {
+func ownColumnReads(t *table, l *links) (parts []rowPart, own bool) {
+	for _, o := range l.of(t.formatTemplate).compiled.ops {
 		if o.Kind == grammar.LiteralRun {
 			parts = append(parts, rowPart{lit: o.Lit})
 			continue

@@ -56,12 +56,12 @@ func freshLevels(head string, segs []string) []pickKey {
 
 // addressedKeys is every key the reads of each name land on or pass, from the name's own level,
 // with the spelling of the first read reaching it.
-func addressedKeys(reads map[*nameBinding][]*arm, targets map[*nameBinding]nameTarget) map[*nameBinding]map[pickKey]string {
+func addressedKeys(reads map[*nameBinding][]*arm, l *links) map[*nameBinding]map[pickKey]string {
 	keys := map[*nameBinding]map[pickKey]string{}
 	for b, rs := range reads {
 		keys[b] = map[pickKey]string{}
 		for _, r := range rs {
-			for _, key := range r.levels[len(targets[b].tail):] {
+			for _, key := range r.levels[len(l.binding(b).target.tail):] {
 				if _, seen := keys[b][key]; !seen {
 					keys[b][key] = r.spelling
 				}
@@ -112,7 +112,7 @@ func readUnder(s *drawstate.State, t *template, env renderEnv, a arm) readValue 
 		levels[i] = env.pickAt.under(l)
 	}
 	levels[len(levels)-1] = key // the leaf's level, already moved; moving it again allocates
-	leaf, pins := p.draw(s, t.startOf(a.head), a.steps, levels)
+	leaf, pins := p.draw(s, t.startOf(a.head, nil), a.steps, levels)
 	return p.renderAt(s, leaf, pins, key, env)
 }
 

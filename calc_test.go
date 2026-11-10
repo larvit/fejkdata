@@ -238,7 +238,7 @@ func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected naming %q", src, err, want)
 		}
 	}
-	if _, err := compile(parse(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`)); err != nil {
+	if _, err := compile(parse(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`), newLinks()); err != nil {
 		t.Errorf("compile(a/(b*c)) = %v, want a divisor that varies accepted", err)
 	}
 	f := engine(1)

@@ -30,13 +30,14 @@ func (t *Template) Fake() string {
 // compile and validation once. It shares [New]'s guarantees: a bad template errors
 // here, and rendering cannot fail.
 func (f *Generator) NewTemplate(input string) (*Template, error) {
-	n, err := compileInput(input)
+	l := newLinks()
+	n, err := compileInput(input, l)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	if err := loadInline(&f.root, n, "template", false); err != nil {
+	if err := loadInline(&f.root, n, l, "template", false); err != nil {
 		return nil, f.noDataNote(fmt.Errorf("fejkdata: %w", err))
 	}
 	return &Template{g: f, n: n}, nil
@@ -65,8 +66,8 @@ func IsTemplate(arg string) (bool, error) {
 	return inline, nil
 }
 
-func compileInput(input string) (node, error) {
-	return compile(inputValue(input))
+func compileInput(input string, l *links) (node, error) {
+	return compile(inputValue(input), l)
 }
 
 // inputValue reads an inline template as the value compile takes: the JSON object, array, string
@@ -84,18 +85,20 @@ func inputValue(input string) jsonvalue.Value {
 	return raw
 }
 
-// loadInline loads the unloaded categories n reads, then runs n through the pipeline against root.
-func loadInline(root *folder, n node, label string, typedByGo bool) error {
+// loadInline loads the unloaded categories n reads, then runs n, compiled into l, through the
+// pipeline against root.
+func loadInline(root *folder, n node, l *links, label string, typedByGo bool) error {
 	nodes := inlineNodes(n, label)
 	if err := refuseFolderRefs(nodes); err != nil {
 		return err
 	}
-	if err := loadReached(root, nil, referenced(root, nil, nodes)); err != nil {
+	if err := loadReached(root, nil, newLinks(), referenced(root, nil, nodes)); err != nil {
 		return loadError{err}
 	}
 	return pipeline{
 		nodes:     nodes,
-		resolve:   func() error { return resolveInlineTemplates(nodes, root.children) },
+		links:     l,
+		resolve:   func() error { return resolveInlineTemplates(nodes, root.children, l) },
 		typedByGo: typedByGo,
 	}.run()
 }

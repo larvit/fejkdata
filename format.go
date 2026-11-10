@@ -205,7 +205,7 @@ type formatOps struct {
 // targets; a {ref as n} token compiles to no op, and a bind with a where or distinct clause to an
 // op that expand skips, holding the arms its where clause reads. It leaves each op's call and draw to
 // newOp. checkTokens proved every token valid.
-func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps, error) {
+func compileFormat(t *template, l *links) (formatOps, error) {
 	var c formatOps
 	for _, tok := range t.tokens {
 		o := op{Token: tok}
@@ -214,20 +214,20 @@ func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps,
 		case grammar.LiteralRun:
 			c.grow += len(tok.Lit)
 		case grammar.BuiltinCall:
-			o.operands, err = t.compileArms(builtinfunc.Operands(tok.Fn, tok.Args), targets)
+			o.operands, err = t.compileArms(builtinfunc.Operands(tok.Fn, tok.Args), l)
 			if err == nil && tok.Where != nil {
-				o.clause, err = t.compileClauseNames(tok.Where, targets)
+				o.clause, err = t.compileClauseNames(tok.Where, l)
 			}
 		case grammar.PathRead:
-			o.arms, err = t.compileArms(tok.Arms, targets)
+			o.arms, err = t.compileArms(tok.Arms, l)
 			if err == nil && tok.Where != nil {
-				o.clause, err = t.compileClauseNames(tok.Where, targets)
+				o.clause, err = t.compileClauseNames(tok.Where, l)
 			}
 		case grammar.NameBind:
 			if tok.Where == nil && tok.Distinct == nil {
 				continue
 			}
-			o.clause, err = t.compileClauseNames(tok.Where, targets)
+			o.clause, err = t.compileClauseNames(tok.Where, l)
 		}
 		if err != nil {
 			return c, fmt.Errorf("token {%s}: %w", tok.Body, err)

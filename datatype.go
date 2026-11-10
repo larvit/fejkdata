@@ -60,9 +60,9 @@ func checkColumns(s nodeSet) error {
 		if len(items) == 0 {
 			return nil
 		}
-		first := columnDatatype(column)
+		first := columnDatatype(column, nil)
 		for _, it := range items[1:] {
-			if d := itemDatatype(it); d != first {
+			if d := itemDatatype(it, nil); d != first {
 				return fmt.Errorf("%s: field %q: %w", label, name, disagreement(items[0], first, it, d))
 			}
 		}
@@ -84,12 +84,12 @@ func checkColumns(s nodeSet) error {
 
 // columnDatatype is the datatype a column holds, which its first item decides: checkColumns refuses
 // a column whose items disagree. A table's column, like one only ever null, has no item and is a string.
-func columnDatatype(n node) DataType {
+func columnDatatype(n node, l *links) DataType {
 	items, _ := columnItems(n)
 	if len(items) == 0 {
 		return DataTypeString
 	}
-	return itemDatatype(items[0])
+	return itemDatatype(items[0], l)
 }
 
 // columnItems is a column's template items, its choices unwrapped, and whether one is null.
@@ -127,7 +127,7 @@ func kindOf(t *template) itemKind {
 	switch {
 	case t.datatype != nil:
 		return kindDeclares
-	case itemDatatype(t) != DataTypeString:
+	case itemDatatype(t, nil) != DataTypeString:
 		return kindReads
 	}
 	return kindText

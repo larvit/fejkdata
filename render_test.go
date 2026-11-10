@@ -104,7 +104,7 @@ func nodeSwitches(tbl *table) map[string]func(node) {
 			var frames frameStack
 			render(engine(1).drawState, n, renderEnv{frames: &frames, row: renderedRow{tbl, 0}})
 		},
-		"renderEdges":      func(n node) { renderEdges(n) },
+		"renderEdges":      func(n node) { renderEdges(n, nil) },
 		"routeSteps":       func(n node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{then: pathPos{n: n}}, 0) },
 		"valueProof.prove": func(n node) { (&valueProof{}).prove(n) },
 	}
@@ -141,7 +141,7 @@ func TestRenderEdgesListWhatRenderRecursesInto(t *testing.T) {
 	samples, _ := nodeSamples(t)
 	for kind, n := range samples {
 		recurses := kind != "nullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
-		if edges := renderEdges(n); recurses != (len(edges) > 0) {
+		if edges := renderEdges(n, nil); recurses != (len(edges) > 0) {
 			t.Errorf("%s: render recurses into it %v, renderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
 		}
 	}

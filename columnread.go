@@ -23,14 +23,13 @@ type columnRead struct {
 
 // columnReadOf is the record's column t's format reads, where the format only reads one reference
 // or name. It is nil where the format reads anything else, where t's repeat is not 1, or where t
-// declares a string, which reads the column as text. targets is an argument since the bindings
-// take theirs only once every check has passed.
-func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead {
-	a, one := readsOneArm(t)
+// declares a string, which reads the column as text.
+func columnReadOf(t *template, l *links) *columnRead {
+	a, one := readsOneArm(t, l)
 	if !one {
 		return nil
 	}
-	start, category, tail := columnSource(t, a, targets)
+	start, category, tail := columnSource(t, a, l)
 	target, isTemplate := start.(*template)
 	if !isTemplate || !target.isRecord || len(tail) == 0 {
 		return nil
@@ -74,8 +73,8 @@ func columnsAt(n node, tail []string) (columns []node) {
 
 // readsOneArm is the one arm t prints, where t's format prints one plain read and t reads it as its
 // datatype.
-func readsOneArm(t *template) (arm, bool) {
-	o, one := t.printedOp()
+func readsOneArm(t *template, l *links) (arm, bool) {
+	o, one := t.printedOp(l)
 	if !one || (t.datatype != nil && *t.datatype == DataTypeString) || t.repeat != 1 || o.Kind != grammar.PathRead || len(o.arms) != 1 || o.Where != nil || o.Distinct != nil || readsJoined(o.arms[0]) {
 		return arm{}, false
 	}
@@ -90,17 +89,18 @@ func readsJoined(a arm) bool {
 
 // columnSource is the node a's read starts from (nil where a reads no node), the category holding
 // that node (empty where it is t's own), and the path below the node.
-func columnSource(t *template, a arm, targets map[*nameBinding]nameTarget) (start node, category string, tail []string) {
+func columnSource(t *template, a arm, l *links) (start node, category string, tail []string) {
 	switch b := a.named; {
 	case a.kind == namedRead && b.bindsField():
 		// {f as n}{n}: column f of the record binding n, in t's own category.
-		return b.binder, "", slices.Concat([]string{splitRead(b.ref, nil).head}, targets[b].tail, a.tail)
+		return b.binder, "", slices.Concat([]string{splitRead(b.ref, nil).head}, l.binding(b).target.tail, a.tail)
 	case a.kind == namedRead:
 		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
-		return targets[b].start, categoryOf(b.binder.refs.bySpelling[b.ref].head), slices.Concat(targets[b].tail, a.tail)
+		target := l.binding(b).target
+		return target.start, categoryOf(l.of(b.binder).refs.bySpelling[b.ref].head), slices.Concat(target.tail, a.tail)
 	case grammar.IsRef(a.head):
 		// {/c.x}: column x of category c.
-		return t.startOf(a.head), categoryOf(a.head), a.tail
+		return t.startOf(a.head, l), categoryOf(a.head), a.tail
 	}
 	return nil, "", nil
 }
@@ -126,22 +126,24 @@ func checkReadColumns(label, name string, items []*template, check func(label, n
 }
 
 // itemDatatype is the datatype a column item declares, else that of the column it reads.
-func itemDatatype(t *template) DataType {
+func itemDatatype(t *template, l *links) DataType {
+	r := l.of(t).readsColumn
 	switch {
 	case t.datatype != nil:
 		return *t.datatype
-	case t.readsColumn != nil:
-		return columnDatatype(t.readsColumn.column)
+	case r != nil:
+		return columnDatatype(r.column, l)
 	}
 	return DataTypeString
 }
 
 // proveColumnItem proves what a column item renders or, where the item is a column read, the column it reads.
 func (p *valueProof) proveColumnItem(t *template) proven.Facts {
-	if t.readsColumn == nil {
+	r := p.links.of(t).readsColumn
+	if r == nil {
 		return p.prove(t)
 	}
-	return p.proveColumn(t.readsColumn.column)
+	return p.proveColumn(r.column)
 }
 
 // readColumnItem reads the column t reads, where t is a column read. Rendering t's format

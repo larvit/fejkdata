@@ -25,7 +25,7 @@ type alphabetDraw struct {
 
 // newAlphabetDraw builds the draw of o, a call with a where clause, and refuses a clause no value
 // passes: one where every value holds a quoted string, or no value has its length.
-func newAlphabetDraw(o *op, draws bindingDraws) (*alphabetDraw, error) {
+func newAlphabetDraw(o *op, l *links) (*alphabetDraw, error) {
 	w := o.Where
 	runs, _ := builtinfunc.Runs(o.Fn, o.Args)
 	d := &alphabetDraw{runs: runs, call: o.call,
@@ -39,7 +39,7 @@ func newAlphabetDraw(o *op, draws bindingDraws) (*alphabetDraw, error) {
 	}
 	p := lengthProof{lengths: []int{runs.Len()}, count: 1, filters: true}
 	p.lo, p.hi = lengthEnds(w, o.clause)
-	if err := p.proveEveryDrawPasses(draws); err != nil {
+	if err := p.proveEveryDrawPasses(l); err != nil {
 		return nil, err
 	}
 	return d, nil

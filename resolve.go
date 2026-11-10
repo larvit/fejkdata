@@ -14,7 +14,7 @@ type templateSite struct {
 
 // resolveCategoryTemplates resolves every template of the categories, once all data is merged, so a
 // reference sees the override-resolved tree.
-func resolveCategoryTemplates(sites []categorySite, root map[string]node) error {
+func resolveCategoryTemplates(sites []categorySite, root map[string]node, l *links) error {
 	var ts []templateSite
 	for _, s := range sites {
 		if err := eachNode(s.n, s.path, func(label string, n node) error {
@@ -26,10 +26,10 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]node) error 
 			return err
 		}
 	}
-	return resolveTemplates(ts, root)
+	return resolveTemplates(ts, root, l)
 }
 
-func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
+func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *links) error {
 	var ts []templateSite
 	if err := nodes(func(label string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {
@@ -39,20 +39,18 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
 	}); err != nil {
 		return err
 	}
-	return resolveTemplates(ts, root)
+	return resolveTemplates(ts, root, l)
 }
 
-// resolvedNames is what resolveTemplates resolved about the names of a set of templates: each binding's
-// target and draw, the reads of it, and the keys they address. places caches pathTo: for each node it
-// was called from, every node under it with the fields leading there. fresh is each binding's
-// freshFieldReads.
+// resolvedNames is what the fences of resolveTemplates read about the names of a set of templates:
+// links, holding each binding's target, draw and the keys its reads address, and the reads of each
+// binding. places caches pathTo: for each node it was called from, every node under it with the
+// fields leading there. fresh is each binding's freshFieldReads.
 type resolvedNames struct {
-	targets   map[*nameBinding]nameTarget
-	draws     bindingDraws
-	reads     map[*nameBinding][]*arm
-	addressed map[*nameBinding]map[pickKey]string
-	places    map[node]map[node][]string
-	fresh     map[*nameBinding]map[pickKey][]fieldRead
+	links  *links
+	reads  map[*nameBinding][]*arm
+	places map[node]map[node][]string
+	fresh  map[*nameBinding]map[pickKey][]fieldRead
 }
 
 // pathTo is the fields leading from from down to want, if want lies under from.
@@ -86,110 +84,86 @@ func indexPaths(n node, path []string, index map[node][]string) {
 	}
 }
 
-// targetOf is what b binds, whether it is among the templates being resolved or a category's, resolved earlier.
-func (names resolvedNames) targetOf(b *nameBinding) nameTarget {
-	if target, resolving := names.targets[b]; resolving {
-		return target
-	}
-	return b.target
-}
-
-func compileFormats(ts []templateSite, targets map[*nameBinding]nameTarget) error {
+func compileFormats(ts []templateSite, l *links) error {
 	for _, s := range ts {
-		compiled, err := compileFormat(s.t, targets)
+		compiled, err := compileFormat(s.t, l)
 		if err != nil {
 			return fmt.Errorf("%s: %w", s.label, err)
 		}
-		s.t.compiled = compiled
+		l.of(s.t).compiled = compiled
 	}
 	return nil
 }
 
-// bindingDraws is the draw of each name bound to a token with a where or a distinct clause, among
-// the templates being resolved.
-type bindingDraws map[*nameBinding]*valueDraw
-
-// of is b's draw, whether b is among the templates being resolved or a category's, resolved earlier.
-func (d bindingDraws) of(b *nameBinding) *valueDraw {
-	if v, resolving := d[b]; resolving {
-		return v
-	}
-	return b.values
-}
-
-// resolveTemplates resolves ts in three stages, each over every template before the next starts:
-// compile, fence and commit. Each stage passes what it found to the next as arguments, and only
-// the commit writes the bindings' targets, keys and draws.
-func resolveTemplates(ts []templateSite, root map[string]node) error {
-	names, err := compileTemplates(ts, root)
+// resolveTemplates resolves ts into l in two stages, each over every template before the next
+// starts: compile, then fence.
+func resolveTemplates(ts []templateSite, root map[string]node, l *links) error {
+	names, err := compileTemplates(ts, root, l)
 	if err != nil {
 		return err
 	}
-	if err := fenceTemplates(ts, names); err != nil {
-		return err
-	}
-	for b, target := range names.targets {
-		b.target, b.addressed, b.values = target, names.addressed[b], names.draws[b]
-	}
-	return nil
+	return fenceTemplates(ts, names)
 }
 
 // compileTemplates resolves each template's references and its names' targets, compiles its format
 // and each op's call and draw, and finds what each name's reads address.
-func compileTemplates(ts []templateSite, root map[string]node) (resolvedNames, error) {
+func compileTemplates(ts []templateSite, root map[string]node, l *links) (resolvedNames, error) {
 	for _, s := range ts {
 		refs, err := s.t.resolveRefs(s.folder, s.label, root)
 		if err != nil {
 			return resolvedNames{}, err
 		}
-		s.t.refs = refs
+		l.template(s.t).refs = refs
 	}
-	targets := nameTargets(ts)
-	if err := compileFormats(ts, targets); err != nil {
+	nameTargets(ts, l)
+	if err := compileFormats(ts, l); err != nil {
 		return resolvedNames{}, err
 	}
-	draws, err := buildOps(ts, targets)
-	if err != nil {
+	if err := buildOps(ts, l); err != nil {
 		return resolvedNames{}, err
 	}
 	for _, s := range ts {
-		s.t.readsColumn = columnReadOf(s.t, targets)
+		l.of(s.t).readsColumn = columnReadOf(s.t, l)
 	}
-	reads := readsOfNames(ts)
-	names := resolvedNames{targets: targets, draws: draws, reads: reads, addressed: addressedKeys(reads, targets), places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
+	reads := readsOfNames(ts, l)
+	for b, keys := range addressedKeys(reads, l) {
+		l.bindings[b].addressed = keys
+	}
+	names := resolvedNames{links: l, reads: reads, places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
 	for b, bound := range reads {
-		names.fresh[b] = freshFieldReads(bound, names.addressed[b])
+		names.fresh[b] = freshFieldReads(bound, l.bindings[b].addressed, l)
 	}
 	return names, nil
 }
 
-// buildOps completes each op of ts, once every template's format is compiled, and returns the draw
+// buildOps completes each op of ts, once every template's format is compiled, and gives l the draw
 // of each name bound to a token with a where or a distinct clause. A proof of a draw reads the draws
 // of the names that earlier ops bind.
-func buildOps(ts []templateSite, targets map[*nameBinding]nameTarget) (bindingDraws, error) {
-	draws, words := bindingDraws{}, map[wordsAt]*wordList{}
+func buildOps(ts []templateSite, l *links) error {
+	words := map[wordsAt]*wordList{}
 	for _, s := range ts {
-		for i, parts := range s.t.compiled.ops {
-			o, err := newOp(s.t, parts, targets, draws, words)
+		tl := l.of(s.t)
+		for i, parts := range tl.compiled.ops {
+			o, err := newOp(s.t, parts, l, words)
 			if err != nil {
-				return nil, fmt.Errorf("%s: token {%s}: %w", s.label, parts.Body, err)
+				return fmt.Errorf("%s: token {%s}: %w", s.label, parts.Body, err)
 			}
-			s.t.compiled.ops[i] = o
+			tl.compiled.ops[i] = o
 			if v, ok := o.draw.(*valueDraw); ok && o.Kind == grammar.NameBind {
-				draws[s.t.nameScope.bindings[o.Bound]] = v
+				l.bindings[tl.nameScope.bindings[o.Bound]].values = v
 			}
 		}
 	}
-	return draws, nil
+	return nil
 }
 
 // fenceTemplates refuses a draw that would read itself or is read through a path, a read of a name
 // that could disagree with another read of it, and a calc or adddays whose proof fails.
 func fenceTemplates(ts []templateSite, names resolvedNames) error {
-	if err := refuseSelfReads(ts, names.draws); err != nil {
+	if err := refuseSelfReads(ts, names.links); err != nil {
 		return err
 	}
-	if err := refuseFilteredTails(ts, names.draws); err != nil {
+	if err := refuseFilteredTails(ts, names.links); err != nil {
 		return err
 	}
 	for _, s := range ts {
@@ -198,10 +172,10 @@ func fenceTemplates(ts []templateSite, names resolvedNames) error {
 		}
 	}
 	for _, s := range ts {
-		if err := checkCalcNames(s.label, s.t); err != nil {
+		if err := checkCalcNames(s.label, s.t, names.links); err != nil {
 			return err
 		}
-		if err := proveAddDays(s.label, s.t, names.draws); err != nil {
+		if err := proveAddDays(s.label, s.t, names.links); err != nil {
 			return err
 		}
 	}

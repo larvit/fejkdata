@@ -8,8 +8,8 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-func addDaysLayout(d arm) (string, error) {
-	layout, why := dateLayout(d.leaves, map[node]bool{})
+func addDaysLayout(d arm, l *links) (string, error) {
+	layout, why := dateLayout(d.leaves, l, map[node]bool{})
 	switch {
 	case why != "":
 		return "", fmt.Errorf("%s is not proven a date: %s; read a field whose format is one date(from,to,'layout') or born(min,max,'layout')", d.spelling, why)
@@ -21,20 +21,20 @@ func addDaysLayout(d arm) (string, error) {
 
 // proveAddDays proves the day count of each adddays of t that reads one is a whole number within
 // the cap.
-func proveAddDays(label string, t *template, draws bindingDraws) error {
-	for _, o := range t.compiled.ops {
+func proveAddDays(label string, t *template, l *links) error {
+	for _, o := range l.of(t).compiled.ops {
 		if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName || len(o.operands) == 1 {
 			continue
 		}
-		if err := proveDayCount(o.operands[1], draws); err != nil {
+		if err := proveDayCount(o.operands[1], l); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
 		}
 	}
 	return nil
 }
 
-func proveDayCount(n arm, draws bindingDraws) error {
-	v := (&valueProof{draws: draws}).proveArm(n)
+func proveDayCount(n arm, l *links) error {
+	v := (&valueProof{links: l}).proveArm(n)
 	switch {
 	case v.NotOperand != "":
 		return fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.spelling, v.NotOperand)
@@ -47,21 +47,21 @@ func proveDayCount(n arm, draws bindingDraws) error {
 }
 
 // dateLayout is the one layout every render of nodes prints a date in, or why no proof holds.
-func dateLayout(nodes []node, seen map[node]bool) (layout, why string) {
+func dateLayout(nodes []node, l *links, seen map[node]bool) (layout, why string) {
 	for _, n := range nodes {
-		l, w := nodeDateLayout(n, seen)
+		got, w := nodeDateLayout(n, l, seen)
 		switch {
 		case w != "":
 			return "", w
-		case layout != "" && l != layout:
-			return "", fmt.Sprintf("it prints in two layouts, '%s' and '%s'; give both one layout", layout, l)
+		case layout != "" && got != layout:
+			return "", fmt.Sprintf("it prints in two layouts, '%s' and '%s'; give both one layout", layout, got)
 		}
-		layout = l
+		layout = got
 	}
 	return layout, ""
 }
 
-func nodeDateLayout(n node, seen map[node]bool) (string, string) {
+func nodeDateLayout(n node, l *links, seen map[node]bool) (string, string) {
 	if seen[n] {
 		return "", "it reads itself"
 	}
@@ -69,12 +69,13 @@ func nodeDateLayout(n node, seen map[node]bool) (string, string) {
 	defer delete(seen, n)
 	switch n := n.(type) {
 	case *choice:
-		return dateLayout(n.items, seen)
+		return dateLayout(n.items, l, seen)
 	case *template:
-		if n.repeat != 1 || len(n.tokens) != 1 || len(n.compiled.ops) != 1 {
+		ops := l.of(n).compiled.ops
+		if n.repeat != 1 || len(n.tokens) != 1 || len(ops) != 1 {
 			return "", fmt.Sprintf("it renders %q", n.format)
 		}
-		o := n.compiled.ops[0]
+		o := ops[0]
 		if layout, isDate := builtinfunc.DateLayout(o.Fn, o.Args); isDate {
 			return layout, ""
 		}
@@ -86,7 +87,7 @@ func nodeDateLayout(n node, seen map[node]bool) (string, string) {
 			for _, a := range o.arms {
 				leaves = append(leaves, a.leaves...)
 			}
-			return dateLayout(leaves, seen)
+			return dateLayout(leaves, l, seen)
 		}
 		return "", fmt.Sprintf("it renders %q", n.format)
 	}

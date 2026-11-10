@@ -49,7 +49,7 @@ type choice struct {
 	items     []node
 	cum       []float64
 	shared    map[string]bool
-	nameScope *nameScope // where its items look a name up, set by bindNames
+	nameScope *nameScope // where its items look a name up, written by finish
 }
 
 func (*choice) isNode() {}
@@ -76,16 +76,8 @@ type template struct {
 	isRecord   bool          // compiled at the top or as a column without a repeat, so its fields are columns
 	unbound    []unboundRead // the heads its tokens read that no field holds
 
-	// Filled by `bindNames`, from the compiled category:
-	nameScope *nameScope // where its tokens look a name up
-
-	// Filled by `resolveTemplates`, from the assembled tree:
-	refs        templateRefs
-	compiled    formatOps
-	readsColumn *columnRead // where the format is that one column; read only in columnread.go
-
-	// Filled by `settleRecords`, once the load refused every cycle:
-	columns []recordColumn // a record's, where it has fields, in name order
+	// Written by finish, from what its load found:
+	*templateLinks
 }
 
 // templateRefs is what a template resolves to in the assembled tree.
@@ -97,34 +89,34 @@ type templateRefs struct {
 func (*template) isNode() {}
 
 // startOf is the node an arm's head names: a sibling field, or a reference's category.
-func (t *template) startOf(name string) node {
+func (t *template) startOf(name string, l *links) node {
 	if grammar.IsRef(name) {
-		return t.refs.categories[name]
+		return l.of(t).refs.categories[name]
 	}
 	return t.fields[name]
 }
 
 // compile converts parsed JSON — a category or an inline template — into a node tree,
-// validating structure up front.
-func compile(v jsonvalue.Value) (node, error) { return compileFrom(v, atTop) }
+// validating structure up front, and gives its names their scopes in l.
+func compile(v jsonvalue.Value, l *links) (node, error) { return compileFrom(v, atTop, l) }
 
-func compileFrom(v jsonvalue.Value, pos position) (node, error) {
+func compileFrom(v jsonvalue.Value, pos position, l *links) (node, error) {
 	n, err := compileItem(v.Any(), pos)
 	if err != nil {
 		return nil, err
 	}
-	return n, bindNames(n)
+	return n, bindNames(n, l)
 }
 
 // compileCategory compiles a data file's value, which may be a table over a rows
 // file beside it.
-func compileCategory(c datafiles.Category) (node, error) {
+func compileCategory(c datafiles.Category, l *links) (node, error) {
 	if m, ok := c.JSON.Any().(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
 			return compileTable(m, c.Folders, c.Name, c.ReadRows)
 		}
 	}
-	return compile(c.JSON)
+	return compile(c.JSON, l)
 }
 
 // position is where a JSON value sits, which decides whether it may carry a datatype or
@@ -211,9 +203,9 @@ func (t *template) fixedText() (string, bool) {
 
 // printedOp is the one op of t that prints, past the binds a where or distinct clause compiles to,
 // which print nothing; ok is false where t prints through more ops or none.
-func (t *template) printedOp() (printed op, ok bool) {
+func (t *template) printedOp(l *links) (printed op, ok bool) {
 	n := 0
-	for _, o := range t.compiled.ops {
+	for _, o := range l.of(t).compiled.ops {
 		if o.Kind != grammar.NameBind {
 			printed, n = o, n+1
 		}

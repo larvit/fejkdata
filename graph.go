@@ -94,7 +94,7 @@ type renderEdge struct {
 }
 
 // renderEdges lists the children rendering n recurses into, mirroring render.
-func renderEdges(n node) []renderEdge {
+func renderEdges(n node, l *links) []renderEdge {
 	switch n := n.(type) {
 	case *choice:
 		es := make([]renderEdge, len(n.items))
@@ -104,7 +104,7 @@ func renderEdges(n node) []renderEdge {
 		return es
 	case *template:
 		var es []renderEdge
-		for _, o := range n.compiled.ops {
+		for _, o := range l.of(n).compiled.ops {
 			for _, a := range o.reads() {
 				for _, leaf := range a.leaves {
 					es = append(es, renderEdge{leaf, a.spelling})
@@ -136,7 +136,7 @@ func (m renderCounts) renderCount(n node) int {
 		return r
 	}
 	r := 1
-	for _, e := range renderEdges(n) {
+	for _, e := range renderEdges(n, nil) {
 		if c := m.renderCount(e.to); c > r {
 			r = c
 		}
@@ -164,7 +164,7 @@ func repeatCheck(label string, n node, mem renderCounts) error {
 // graph (renderEdges). Every node is a root: a field its parent's format never
 // renders is still reachable by dot path, so a cycle in one would otherwise reach
 // render and be fatal there.
-func checkNoCycles(s nodeSet) error {
+func checkNoCycles(s nodeSet, l *links) error {
 	const (
 		grey  = 1
 		black = 2
@@ -190,7 +190,7 @@ func checkNoCycles(s nodeSet) error {
 			return nil
 		}
 		color[n] = grey
-		for _, e := range renderEdges(n) {
+		for _, e := range renderEdges(n, l) {
 			if err := visit(e.to, label+" -> "+e.label); err != nil {
 				return err
 			}
