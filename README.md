@@ -1990,12 +1990,28 @@ against each other in the order listed.
       byte.
 10. **Maintain:** **Every runtime dependency is one the standard library can't replace,
     and the JavaScript package doesn't depend on any other npm package.**
-11. **Maintain:** **The docs are a map of the template language.**
+11. **Achieve:** **The docs take a reader from their first value to the feature their job needs.**
+    - Signal: readers seated as each persona in Audience find, from the README alone, the
+      path and the feature a task of theirs needs.
+    - Counter-signal: the README grows faster than what ships, or a rule is stated twice.
+    - Why: docs bought by adding text make every answer harder to find.
     1. **Maintain:** Every feature has its own heading.
     2. **Maintain:** Every example runs as a test and shows its output.
     3. **Maintain:** Each rule is stated in one place.
 12. **Maintain:** **It is fast enough that you never notice it with the shipped data.**
     1. **Maintain:** A render's cost grows only with the data it reaches.
+
+### Documentation
+
+How the README serves goal 11:
+
+- The top shows the CLI and the library side by side, each a short quick start that
+  renders the same value.
+- A table of the shipped data follows: every path, an example value, its kind and its
+  source.
+- Recipes show common tasks end to end, such as filling a database or a Go struct.
+- Edge cases and a category's caveats sit in the reference sections, below what a first
+  reader needs.
 
 ## Layout
 
