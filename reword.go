@@ -58,7 +58,7 @@ func (t *template) wordsOf(a arm, l *links, built map[wordsAt]*wordList) (*wordL
 	if a.kind == namedRead {
 		return nil, fmt.Errorf("%q is a name, which holds one pick; pass the path it binds, as in {%s(t,/en_US.word)}", a.head, builtinfunc.RewordName)
 	}
-	at := wordsAt{t.startOf(a.head, l), strings.Join(a.tail, ".")}
+	at := wordsAt{t.startOf(a.head, l.of(t).refs), strings.Join(a.tail, ".")}
 	if words, done := built[at]; done {
 		return words, nil
 	}

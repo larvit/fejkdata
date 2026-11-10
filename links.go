@@ -67,7 +67,8 @@ func (l *links) binding(b *nameBinding) *bindingLinks {
 }
 
 // finish writes what l holds into its templates, choices and bindings. Each is written
-// once, by the load that found it, so finish panics on one written before.
+// once, by the load that found it, so finish panics on a template written before; every
+// choice and binding a load finds sits in a template of that load.
 func (l *links) finish() {
 	for t, tl := range l.templates {
 		if t.templateLinks != nil {
@@ -76,15 +77,9 @@ func (l *links) finish() {
 		t.templateLinks = tl
 	}
 	for c, sc := range l.choices {
-		if c.nameScope != nil {
-			panic(invariant.Broken("a choice of %d items is finished twice", len(c.items)))
-		}
 		c.nameScope = sc
 	}
 	for b, bl := range l.bindings {
-		if b.bindingLinks != nil {
-			panic(invariant.Broken("binding %q is finished twice", b.name))
-		}
 		b.bindingLinks = bl
 	}
 }

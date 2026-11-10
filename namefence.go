@@ -25,7 +25,7 @@ func checkNameReads(label string, t *template, names resolvedNames) error {
 // two ways to break it.
 //
 // The read has no pick to read:
-//   - the name is read inside the field bound to it, checked here
+//   - the name is read inside the field bound to it: refuseReadInsideField
 //   - the read steps into a choice's item without opening the item's frame: refuseSkippedItem
 //
 // The read and another read of the name reach one level by routes that can draw apart:
@@ -34,11 +34,10 @@ func checkNameReads(label string, t *template, names resolvedNames) error {
 //   - a reference draws afresh: refuseFreshDraw
 //   - a field read the pick doesn't keep draws afresh: refuseKeptAndFreshField
 func checkNameRead(t *template, read *arm, names resolvedNames) error {
-	b := read.named
-	if target := names.links.binding(b).target; b.bindsField() && rendersInside(compilePath(target.start, target.tail).leaves, t) {
-		return fmt.Errorf("name %q is read inside %q, the field bound to it; read the name outside that field", b.name, b.ref)
+	if err := refuseReadInsideField(t, read.named, names.links); err != nil {
+		return err
 	}
-	pick := names.pick(b)
+	pick := names.pick(read.named)
 	routes := routesUnder(read.leaves, read.key(), pick.addressed, names.links)
 	if err := refuseTwiceDrawn(pick, read.spelling, routes, names.links); err != nil {
 		return err
@@ -53,6 +52,17 @@ func checkNameRead(t *template, read *arm, names resolvedNames) error {
 		return err
 	}
 	return refuseKeptAndFreshField(read, routes, names)
+}
+
+func refuseReadInsideField(t *template, b *nameBinding, l *links) error {
+	if !b.bindsField() {
+		return nil
+	}
+	target := l.binding(b).target
+	if rendersInside(compilePath(target.start, target.tail).leaves, t) {
+		return fmt.Errorf("name %q is read inside %q, the field bound to it; read the name outside that field", b.name, b.ref)
+	}
+	return nil
 }
 
 func rendersInside(nodes []node, t *template) bool {
@@ -275,7 +285,7 @@ func readTwiceApart(pick pickReads, x, y route, l *links) bool {
 	}
 	_, landed := pick.landingOn(x.levels[common])
 	endsOnShared := x.a.key() == y.a.key() || landed
-	return drawsAlong(x.in.startOf(x.a.head, l), x.a.tail[:common], endsOnShared)
+	return drawsAlong(x.in.startOf(x.a.head, l.of(x.in).refs), x.a.tail[:common], endsOnShared)
 }
 
 // drawsAlong reports whether the walk of path from start meets a choice or a table at one of its
@@ -498,8 +508,10 @@ func refuseKeptAndFreshField(read *arm, routes []route, names resolvedNames) err
 		for _, level := range x.levels {
 			for _, u := range byLevel[level] {
 				if shared, apart := readsFieldApart(x, u, names.links); apart {
+					keep := spellingThrough(b, names.links.binding(b).target, shared)
+					second := secondDraw(b, u.of.spelling)
 					return fmt.Errorf("{%s} reads {%s} from the pick, but {%s} renders {%s}, the same field, afresh, so {%s} and {%s} could differ; read {%s} in place of {%s} to keep one draw, or write {%s} for a second draw",
-						read.spelling, x.a.spelling, u.of.spelling, u.a.spelling, read.spelling, u.of.spelling, spellingThrough(b, names.links.binding(b).target, shared), u.of.spelling, secondDraw(b, u.of.spelling))
+						read.spelling, x.a.spelling, u.of.spelling, u.a.spelling, read.spelling, u.of.spelling, keep, u.of.spelling, second)
 				}
 			}
 		}
@@ -515,7 +527,7 @@ func readsFieldApart(x route, u fieldRead, l *links) (shared pickKey, apart bool
 	for j := len(u.levels) - 1; j >= 0; j-- {
 		if slices.Contains(x.levels, u.levels[j]) {
 			oneEndsHere := x.levels[len(x.levels)-1] == u.levels[j] || j == len(u.levels)-1
-			return u.levels[j], drawsAlong(u.in.startOf(u.a.head, l), u.a.tail[:j], oneEndsHere)
+			return u.levels[j], drawsAlong(u.in.startOf(u.a.head, l.of(u.in).refs), u.a.tail[:j], oneEndsHere)
 		}
 	}
 	return "", false

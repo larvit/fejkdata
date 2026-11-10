@@ -90,7 +90,7 @@ func compileFormats(ts []templateSite, l *links) error {
 		if err != nil {
 			return fmt.Errorf("%s: %w", s.label, err)
 		}
-		l.of(s.t).compiled = compiled
+		l.templates[s.t].compiled = compiled
 	}
 	return nil
 }
@@ -115,7 +115,9 @@ func compileTemplates(ts []templateSite, root map[string]node, l *links) (resolv
 		}
 		l.template(s.t).refs = refs
 	}
-	nameTargets(ts, l)
+	for b, target := range nameTargets(ts, l) {
+		l.bindings[b] = &bindingLinks{target: target}
+	}
 	if err := compileFormats(ts, l); err != nil {
 		return resolvedNames{}, err
 	}
@@ -123,7 +125,7 @@ func compileTemplates(ts []templateSite, root map[string]node, l *links) (resolv
 		return resolvedNames{}, err
 	}
 	for _, s := range ts {
-		l.of(s.t).readsColumn = columnReadOf(s.t, l)
+		l.templates[s.t].readsColumn = columnReadOf(s.t, l)
 	}
 	reads := readsOfNames(ts, l)
 	for b, keys := range addressedKeys(reads, l) {
@@ -142,7 +144,7 @@ func compileTemplates(ts []templateSite, root map[string]node, l *links) (resolv
 func buildOps(ts []templateSite, l *links) error {
 	words := map[wordsAt]*wordList{}
 	for _, s := range ts {
-		tl := l.of(s.t)
+		tl := l.templates[s.t]
 		for i, parts := range tl.compiled.ops {
 			o, err := newOp(s.t, parts, l, words)
 			if err != nil {

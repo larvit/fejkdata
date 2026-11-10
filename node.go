@@ -89,9 +89,9 @@ type templateRefs struct {
 func (*template) isNode() {}
 
 // startOf is the node an arm's head names: a sibling field, or a reference's category.
-func (t *template) startOf(name string, l *links) node {
+func (t *template) startOf(name string, refs templateRefs) node {
 	if grammar.IsRef(name) {
-		return l.of(t).refs.categories[name]
+		return refs.categories[name]
 	}
 	return t.fields[name]
 }

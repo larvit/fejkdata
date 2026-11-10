@@ -259,7 +259,7 @@ func (t *template) valueDrawOf(o *op, l *links) (*valueDraw, error) {
 		if a.kind == namedRead {
 			return nil, fmt.Errorf("%q is a name, drawn once; write the clause on the draw it binds: {%s … as %s}", a.head, a.named.ref, a.head)
 		}
-		start, tail = t.startOf(a.head, l), a.tail
+		start, tail = t.startOf(a.head, l.of(t).refs), a.tail
 	} else {
 		target := l.binding(l.of(t).nameScope.bindings[o.Bound]).target
 		start, tail = target.start, target.tail
