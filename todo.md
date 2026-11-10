@@ -248,7 +248,9 @@ It touches `refuseFreshDraw`, which the seats found hard, and makes it easier to
 
 ### 414. Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.
 
-Files: `calc.go`, `valueproof.go`, `format.go`; about 120 lines, net negative. It comes after 412, since `valueProof` must read the finished tree before calc can lean on it alone. It ships with a paired ruling no worse.
+Files: `calc.go`, `valueproof.go`, `format.go`, `internal/proven`; about 120 lines, net negative. It comes after 412, since `valueProof` must read the finished tree before calc can lean on it alone. It ships with a paired ruling no worse.
+
+It widens two fences. Today a calc refuses an operand that is never a number, and a constant zero divisor, only by a field's own fixed text, a null, a repeat of 0 or a choice of these. `valueProof` proves an operand through every path, table cell and choice it reads, so the same calc also refuses an operand that reads, say, a field whose fixed text isn't a number, or `"NaN"`, and a divisor whose every render reads 0. Each of those prints `NaN` or `Inf` on every draw, which goal 5.1 calls no valid value. A load then rejects templates it accepted, so the item adds a Breaking entry to `CHANGELOG.md`, revises the decision "A constant zero divisor is a load error", and the product-owner pass reviews it; that is why it ships in a chunk of its own, apart from 412 and 419. Its fold of a constant divisor still stops where an operand varies, so `a/(b*c)` with `b` fixed at 0 and `c` varying still loads.
 
 ### 417. Move the proofs and fences into `internal/engine/fence`.
 
