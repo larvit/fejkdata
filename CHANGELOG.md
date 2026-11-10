@@ -140,6 +140,142 @@ replacement, and each removed path, column or flag.
   `{"format":"{a}","a":"x{b}","b":"y"}`, still fails to load, and the error now states the rule and
   names the fix.
 
+## [0.4.0] - 2026-11-10
+
+### Breaking
+
+- `let` is an option, so a field can no longer be named `let`; give it another name.
+- A `null` or a `datatype` in the fields of a template inside a column, as in
+  `"ride": {"format":"{n}","n":null}`, now counts: `null` was text and `datatype` did nothing there.
+  A bare number or boolean there stays text.
+- A column that reads one field through a name, as `"len":"{p.len}"` does, now has that field's
+  datatype and null, so an integer `len` is written `3` where it was written `"3"`. Write
+  the column as `{"format":"{p.len}","datatype":"string"}` to keep the text, with a null written `""`. A choice whose
+  items hold different datatypes of that field fails to load; give them one datatype.
+- `en_US.word` and `en_US.sentence` draw from WordNet 3.0, about 70,000 words where 271 were hand-written, so what a
+  seed draws changes and a word may be long or rare. `en_US.word`'s format is now `{any}`, a pick between the four
+  parts of speech, and both categories read the new tables `en_US.word-noun`, `word-verb`, `word-adj` and `word-adv`.
+  A program embedding the `en_US` module carries WordNet's licence, `WORDNET-LICENSE.txt`, as the release archives and
+  packages do.
+- `sv_SE.person` gains the columns `personnummer` and `samordningsnummer`, which spell the person's `birthdate` and
+  sex: `{/sv_SE.person as p}{p.birthdate} {p.personnummer}` prints e.g. `1932-04-16 320416-2394`. They sort by name
+  among the other columns, so `--format csv` and `--format sql` write them: add them to the table, or read by header.
+  `birthdate` draws `sv_SE.personnummer`'s four age bands, counted from `WithToday` or `--today`, where it drew 1930 to
+  2025 evenly, so what a seed draws changes, and changes again with the date. The format binds the date, `{birth as b}`,
+  and the new paths are `sv_SE.person.birth`, `birth.date`, `birth.sign`, `personnummer`, `samordningsnummer` and
+  `samordningsnummer.birthday`, the birth date's day of the month.
+- A field, column, category, folder or bound name can no longer contain ` where ` or ` distinct `, or end in
+  ` where` or ` distinct`, since ` where ` now opens a filter and ` distinct ` a draw of distinct values; rename it.
+- `geo.SE.locality` places four postorter in the kommun of the SCB småort holding their centre, where their postal
+  codes named another: Lönneberga in 0860 Hultsfred, not 0884 Vimmerby; Axmar in 2180 Gävle, not 2182 Söderhamn; Rökå
+  in 2418 Malå, not 2481 Lycksele; and Torsö in 1083 Sölvesborg, not 1493 Mariestad. Each weighs that småort's people,
+  57 to 129, where it weighed 200, so `sv_SE.address` draws them less often, and what a seed draws changes.
+
+### Added
+
+- A `where` clause draws only among the values that pass it, keeping their weights:
+  `{/en_US.word where length 5 and not containing 'x'}`. The conditions are `length 5`, `length 4 to 6`,
+  `not 'cat', 'dog'` and `not containing 'cat'`. A length may read a name, `{n as k}{/en_US.word where length k}`,
+  and `as` after the clause binds the filtered draw. A path whose values are not fixed text, or a clause no
+  value can pass, fails to load.
+- A `where` clause also filters `{base64(n)}`, `{digits(n)}`, `{hex(n)}`, `{lower(n)}`, `{nanoid(n)}`, `{ulid()}`,
+  `{upper(n)}` and `{uuid()}`, drawing a value that holds none of its strings: `{hex(4) where not containing '7958'}`.
+  `not` and `not containing` may read a name, as in `{code as c}{hex(4) where not containing c}`. Where the strings a
+  name holds leave no value, `else 'none'` names what prints; without `else`, a path prints an empty string and a
+  call a value of its own shape, such as the Nil UUID for `{uuid()}`.
+- `distinct N` draws N different values in one pick, each by its weight among those not drawn yet, and each value
+  of a nested choice counts on its own. `{day distinct 2 joined ','}` prints them joined, as `TU,MO`, and
+  `{/en_US.word distinct 3 as w}` binds them, read as `{w[1]}` to `{w[3]}`, also inside `calc`, `adddays` and
+  `where length`. It comes after a `where` clause and before `as`. Asking for more values than the path can draw
+  fails to load.
+- `{reword(text, /en_US.word)}` replaces each word of `text` with a drawn word of its length, or the nearest
+  length the words hold, in the case of the word it replaces. Digits and punctuation stay, and a word reads as one
+  fake throughout a render, in every call reading the same words.
+- `{adddays(d,n)}` prints the date `d` plus `n` days, keeping its time of day: `{start as s}{len as n}{s},{adddays(s,n)}`
+  prints an end `n` days after the start it shows. A third argument, `{adddays(d,n,'layout')}`, prints it in another layout.
+- The option `let` holds fields that write no column: `{"format":"{a}","let":{"a":"{/x}"},"b":"{a}"}`
+  has the one column `b`. A record holding every field in `let` fails with `ErrNoColumns`.
+- `misc.creditcard-test` and `misc.iban-test` draw only numbers published for testing:
+  Stripe's test card for each of seven brands, and Stripe's test IBAN for each of BE, DE, ES,
+  FI, NO and SE, with Danske Bank's fictive example for DK. Both are tables, so `misc.creditcard-test[visa]`
+  and `misc.iban-test[SE]` select one row.
+- `en_US.word.noun`, `.verb`, `.adj` and `.adv` draw one part of speech, and `en_US.word.verb.present` draws a verb and
+  prints its third person, such as `carries`. `en_US.word.any` prints what `en_US.word` prints. They read the tables
+  `en_US.word-noun`, `word-verb`, `word-adj` and `word-adv`.
+- `en_US.paragraph`, three to six sentences of `en_US.sentence`.
+- `da_DK.date`, a date from 1970 to 2029 such as `2.4.2019`, with no zero before a one-digit day or month.
+- `da_DK.email`, a lower-case ASCII address at `example.com`, `example.org` or `example.net`, or a
+  subdomain of one. Half of its local parts are a first and a last name drawn from `da_DK.first-name`
+  and `da_DK.last-name`.
+- `da_DK.company`, an invented name and a legal form, ENK (a sole proprietorship, whose name has no
+  abbreviation), ApS, A/S, I/S or K/S, such as `Nordholm Holding ApS`. Each form is drawn as often as
+  Statistics Denmark counted enterprises of it in 2024, except that I/S and K/S, which it counts together,
+  are drawn evenly. `da_DK.company.enk`, `.aps`, `.as`, `.is` and `.ks` each draw one form, and
+  `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick. The name reads
+  `da_DK.company-coined`, `da_DK.company-word`, `da_DK`'s names and `geo.DK.locality`. Statistics Denmark's
+  counts are CC BY 4.0, so a program showing them credits "Kilde: Danmarks Statistik".
+- The README's [Load into a database](https://github.com/larvit/fejkdata#load-into-a-database)
+  section pipes records into PostgreSQL, SQLite, MySQL and MongoDB.
+- `da_DK`, Danish, with `da_DK.person` and the tables it reads: `da_DK.first-name`, `da_DK.last-name`,
+  `da_DK.sex` (`kvinde` and `mand`) and `da_DK.title` (`dr.` and `professor`). A first name that girls
+  and boys both bear has a row under each sex, and a person's first name and sex agree. The top 20
+  girls' names, boys' names and last names carry Statistics Denmark's counts of 1 January 2026, and
+  `sex` carries its population on that day. Every other name is a language model's recall of a name
+  common in Denmark, with an estimated count, as no good online source of Danish name counts was
+  found. Statistics Denmark's tables are free to reuse with a source credit, so a program showing
+  them credits "Kilde: Danmarks Statistik". The Go package is
+  `github.com/larvit/fejkdata/data/da_DK`, and the CLI carries it.
+- `geo.DK`, Denmark's places: its regions and kommuner from Statistics Denmark, and every postdistrikt
+  holding a street address in Danmarks Adresseregister, each with its postnumre and its streets. A
+  kommune's `code` is four digits as the address register writes it, `0101`, and a region's is
+  `1084`, as DAGI, the register of Denmark's divisions, writes it. `da_DK.address` prints `geo.DK.address`, a street, a house number, a postnummer and a
+  postdistrikt, such as `Vestergade 12\n8000 Aarhus C`. A program showing the addresses credits
+  Klimadatastyrelsen. The Go package is `github.com/larvit/fejkdata/data/geo/DK`, which
+  `data/da_DK`'s `Modules()` also returns.
+- `--format tsv`, and `Record.TSVHeader` and `Record.TSVLine` in the library, write records as the
+  TSV file of a table, so a later run draws from an earlier run's records. A brace in a value is
+  written doubled, a tab or a line break as a space, and a null column as an empty cell.
+- `da_DK.cpr`, a Danish CPR number such as `070761-4285`: a birth date of someone under 100, drawn
+  by Statistics Denmark's shares of under 18, 18 to 64 and 65 and over, a seventh digit that the
+  CPR office's table of century digits allows for the year, and a last digit that is even for a
+  woman and odd for a man, such that the ten digits pass the office's modulus 11 check. The office
+  publishes no test series and no unassigned range, so a number may be a living person's. Its
+  `birth` field is the date, and `da_DK.individ` holds a digit of each `da_DK.sex`'s parity.
+- The builtin `{cpr(x)}` completes a CPR number. It reads the last six digits emitted, the date,
+  and adds a seventh digit that the year of that date allows, an eighth and a ninth it picks, and a
+  check digit with the parity of the digit `x` reads. The year is the latest one not after the date
+  of `WithToday` or `--today` that bears the year digits. It adds nothing where `x` is not one digit
+  or that year lies outside 1858 to 2057, the years the office's table writes.
+  `{/da_DK.cpr.birth}-{cpr(s.individ.digit)}` agrees with a bound sex `s`.
+- `da_DK.phone`, a Danish phone number such as `41 23 45 67`, mobile ten times as often as fixed,
+  grouped in pairs as the Danish Language Council (Dansk Sprognævn) writes it. Its `national` and
+  `international` (`+45 41 23 45 67`) fields are the two spellings of one number. It reads
+  `da_DK.phone-mobile` and `da_DK.phone-fixed`, tables of the three-digit prefixes that Annex 1 of
+  Executive Order No. 1883 of 7 December 2020 on the Overall Danish Numbering Plan allocates to
+  mainly mobile or mainly fixed numbers, each keyed by its prefix as written, `phone-mobile[34 2]`.
+  A number's `block` is that prefix and its `subscriber` the last five digits. Neither the order nor
+  the authority's guide to it lists the numbers assigned to providers, so a number may be a real
+  subscriber's.
+- `fejkdata.Builtins()` returns each way a template calls a builtin function, sorted, with its
+  arguments named, such as `hex(n)`, `iban(CC)`, `seq()` and `seq(name)`. `--help` lists them and
+  explains names: `{/path as p}` draws once and prints nothing, and every `{p}` and `{p.field}`
+  reads that one pick. It also links the README's Names, Functions, Data format and Your own data
+  sections. The links point at the README of the fejkdata release the binary was built with, such
+  as `.../blob/v0.4.0/README.md#names`. A build from anything else, such as a development build, a
+  pseudo-version or a replaced module, links the latest README.
+- The README's [Ratios and rules](https://github.com/larvit/fejkdata#ratios-and-rules) section shows
+  80% `active` as a weighted choice and a currency that follows its country as a named pick. The
+  README now also says a drawn `misc.creditcard` number or `{iban(CC)}` may be a real card's or
+  account's.
+
+### Changed
+
+- `geo.US`'s Utqiaġvik is written in NFC, as every other shipped value is, so its `ġ` is one code
+  point and the name is nine code points long.
+- A token reading a field beside the field that holds it, as `{b}` does in
+  `{"format":"{a}","a":"x{b}","b":"y"}`, still fails to load, and the error now states the rule and
+  names the fix.
+
 ## [0.3.0] - 2026-11-05
 
 ### Breaking
