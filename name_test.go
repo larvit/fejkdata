@@ -393,9 +393,10 @@ func TestOneRenderReadsOneNameAcrossNestedTemplates(t *testing.T) {
 }
 
 func TestAFieldBindingReadInsideItsFieldIsRefused(t *testing.T) {
-	f := engine(1)
+	f := newGenerator(t, writeData(t, map[string]string{"r": `"R"`}))
 	for src, want := range map[string]string{
 		`{"format":"{x as n}{n}{n}","x":"{n}"}`:                          `name "n" is read inside "x", the field bound to it`,
+		`{"format":"{/r as k}{k}{x as n}{n}{n}","x":"{n}"}`:              `name "n" is read inside "x", the field bound to it`,
 		`{"format":"{x as n}{n.a}{n.a}","x":{"format":"{a}","a":"{n}"}}`: `name "n" is read inside "x", the field bound to it`,
 		`{"format":"{x as n}{y as m}{n}{n}{m}{m}","x":"{m}","y":"{n}"}`:  "cycle",
 	} {

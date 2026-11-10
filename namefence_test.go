@@ -345,6 +345,10 @@ func TestAReadOfANameLoadsBesideAReferenceThatReachesNoDrawOfItsPath(t *testing.
 			"co":   `{"format":"{/co.ab.name}","ab":{"format":"{name}","name":"k"}}`,
 			"card": `"{/co as c}{c} {c.ab.name}"`,
 		}, "k k"},
+		"a reference back to a level above the name's start": {map[string]string{
+			"cat":  `{"format":"{x}","x":{"format":"{z}","y":"{/cat.x}","z":["a","b"]}}`,
+			"card": `"{/cat.x.y as n}{n}{n}"`,
+		}, ""},
 	} {
 		t.Run(label, func(t *testing.T) {
 			f, err := loadFence(t, c.files)

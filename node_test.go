@@ -131,16 +131,33 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 }
 
 func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
-	l := newLoadFinds()
-	n, err := compile(parse(t, `{"format":"{w as e}{reword(e,e)}","w":["ab","cd"]}`), l)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := loadInline(&folder{children: map[string]node{}}, n, l, "t", false); err == nil {
-		t.Fatal("loadInline() = nil, want a name as reword's words refused")
-	}
-	if root := n.(*template); root.templateFinds != nil || root.fields["w"].(*choice).nameScope != nil {
-		t.Error("a load that failed before finish wrote its template or its choice")
+	for src, want := range map[string]string{
+		`{"format":"{w as e}{reword(e,e)}","w":["ab","cd"]}`:            "is a name, which holds one pick",
+		`{"format":"{x as n}{y as m}{n}{n}{m}{m}","x":"{m}","y":"{n}"}`: "reference cycle",
+	} {
+		t.Run(src, func(t *testing.T) {
+			l := newLoadFinds()
+			n, err := compile(parse(t, src), l)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := loadInline(&folder{children: map[string]node{}}, n, l, "t", false); err == nil || !strings.Contains(err.Error(), want) {
+				t.Fatalf("loadInline() = %v, want an error holding %q", err, want)
+			}
+			root := n.(*template)
+			written := root.templateFinds != nil
+			for _, field := range root.fields {
+				switch field := field.(type) {
+				case *template:
+					written = written || field.templateFinds != nil
+				case *choice:
+					written = written || field.nameScope != nil
+				}
+			}
+			if written {
+				t.Error("a load that failed before finish wrote its template or a field")
+			}
+		})
 	}
 }
 

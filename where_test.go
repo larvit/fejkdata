@@ -204,12 +204,14 @@ func TestAClauseWordRightAfterAsIsTheNameItBinds(t *testing.T) {
 func TestWhereNamesTheLengthsThatLeaveNoValue(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
 	for src, want := range map[string]string{
-		`{"format":"{n as k}{w where length k to 6}","n":"{int(3,8)}","w":["cat","bird","horse"]}`:                       "where k is 8, length 8 to 6 holds no length; keep k at or below 6",
-		`{"format":"{n as k}{w where length 3 to k}","n":"{int(1,5)}","w":["cat","bird","horse"]}`:                       "where k is 1, length 3 to 1 holds no length; keep k at 3 or above",
-		`{"format":"{n as k}{m as j}{w where length k to j}","n":"{int(3,5)}","m":"{int(4,6)}","w":["cat","bird"]}`:      "where k is 5 and j is 4, length 5 to 4 holds no length; keep k at or below j",
-		`{"format":"{n as k}{w where length k to 9}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:                       "where k is 6, no value passes the where clause",
-		`{"format":"{n as k}{w where length k to 9 distinct 2 joined ','}","n":"{int(3,5)}","w":["cat","bird","horse"]}`: "where k is 5, distinct 2 draws 2 values, and only 1 passes",
-		`{"format":"{v as t}{w where not t as n}{x where length n}","v":"1","w":["1"],"x":["a","bb"]}`:                   "may print its fallback",
+		`{"format":"{n as k}{w where length k to 6}","n":"{int(3,8)}","w":["cat","bird","horse"]}`:                          "where k is 8, length 8 to 6 holds no length; keep k at or below 6",
+		`{"format":"{n as k}{w where length 3 to k}","n":"{int(1,5)}","w":["cat","bird","horse"]}`:                          "where k is 1, length 3 to 1 holds no length; keep k at 3 or above",
+		`{"format":"{n as k}{m as j}{w where length k to j}","n":"{int(3,5)}","m":"{int(4,6)}","w":["cat","bird"]}`:         "where k is 5 and j is 4, length 5 to 4 holds no length; keep k at or below j",
+		`{"format":"{n as k}{w where length k to 9}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:                          "where k is 6, no value passes the where clause",
+		`{"format":"{n as k}{w where length k to 9 distinct 2 joined ','}","n":"{int(3,5)}","w":["cat","bird","horse"]}`:    "where k is 5, distinct 2 draws 2 values, and only 1 passes",
+		`{"format":"{v as t}{w where not t as n}{x where length n}","v":"1","w":["1"],"x":["a","bb"]}`:                      "may print its fallback",
+		`{"format":"{x where length n}{v as t}{w where not t as n}","v":"1","w":["1","2"],"x":["a","bb"]}`:                  "may print its fallback",
+		`{"format":"{n as k}{x where length k}","n":{"format":"{v as t}{w where not t}","v":"1","w":["1"]},"x":["a","bb"]}`: "may print its fallback",
 	} {
 		t.Run(src, func(t *testing.T) {
 			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
