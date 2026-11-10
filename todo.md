@@ -6,16 +6,25 @@
 
 `Bar = 0`
 
-`Next ID = 409`
+`Next ID = 419`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 178 | 0.5.0 |  |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 2 | 1 | 2 | 3 | code health by 6 | 14.7 |
-| 172 | 0.5.0 |  |  | **Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 173 | 0.5.0 |  |  | **Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.** | 1 | 1 | 1 | 1 | 3 | code health by 4 | 9.8 |
-| 107 | 0.5.0 | 178 | decision | **Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.** | 4 | 1 | 3 | 6 | 9 | code health by 9 | 0.7 |
+| 409 | 0.5.0 | 173 |  | **Build each op whole in one constructor at resolve, so `prepareAddDays` and `buildDraws` stop rewriting an op.** | 2 | 1 | 2 | 3 | 2 | code health by 4 | 13.1 |
+| 172 | 0.5.0 |  |  | **Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
+| 410 | 0.5.0 | 409 |  | **Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.** | 2 | 1 | 2 | 3 | 3 | code health by 4 | 9.8 |
+| 411 | 0.5.0 | 409, 410 |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 3 | 1 | 2 | 4 | 4 | code health by 6 | 9.8 |
+| 413 | 0.5.0 |  |  | **Link a child table without writing its parent, so a failed lazy load changes no finished table.** | 3 | 1 | 2 | 4 | 2 | code health by 3 | 9.8 |
+| 415 | 0.5.0 | 411, 413 |  | **Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
+| 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
+| 412 | 0.5.0 | 411 |  | **Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying pending draws and targets.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
+| 414 | 0.5.0 | 412 |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
+| 417 | 0.5.0 | 414, 415 |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
+| 418 | 0.5.0 | 415 |  | **Move compile, bind, link and resolve into `internal/engine/load`.** | 4 | 1 | 2 | 5 | 6 | code health by 5 | 2.7 |
+| 107 | 0.5.0 | 416, 417, 418 | decision | **Move the pipeline, folder and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
 | 177 | 0.5.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
 | 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
@@ -38,7 +47,6 @@
 | 334 | 0.7.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
 | 169 | 0.8.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
-| 174 | 0.8.0 |  |  | **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
 | 354 | 0.8.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 7.3 |
@@ -225,28 +233,57 @@
 
 ## Details
 
-### 178. Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.
+### 173. Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.
 
-The maintainer chose on 2026-10-09 to regroup the engine into packages, untangled first, over naming the root files by area. What the panels of 2026-10-09 on b9d1af6 found:
+`checkReads` "proves each name t reads", `splitArm` "splits one name into head and tail" and asks `t.isName` of the result in `compileArm`, and `refTokens` returns "reference names". Both architect seats of the 2026-10-09 panel and the scoring run's architect named the word as one name over several concepts, against the decision "One name, one meaning". Item 136 did this for `internal/grammar`.
 
-- The 25 flat root files are the worst level of the tree; both architect seats grouped them by hand into public API, load, names, render, paths and proofs.
-- The named-pick machinery spans `name.go`, `namefence.go`, `pick.go`, `env.go`, `render.go`, `path.go` and `record.go`, and every seat found it hardest.
-- `template` is filled in four phases by four functions, and `renderEnv` shares one `frameStack` by pointer behind a by-value env.
-- Calc lives in five places, and paths are walked by `compiledPath`, `callerPathSteps` and `drawSteps` over one `compileStep`.
+### 409. Build each op whole in one constructor at resolve, so `prepareAddDays` and `buildDraws` stop rewriting an op.
 
-The decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`" says why the engine stayed whole: `template`, `table`, `arm`, `op` and `nameBinding` sit in one cycle, since several load stages each write part of the same structs. The plan answers four questions. How does load finish each value before render reads it? Which packages does that give, and what is each one's fan-out? How does the allocation gate hold? Which of items 172 to 175 does it answer or close? It lands as a `docs/decisions.md` entry replacing that decision, and as items under item 107, each shipping with a paired ruling no worse.
+Files: `format.go`, `adddays.go`, `resolve.go`, `arm.go`; about 150 lines. It comes after 173, which renames the spelling a token reads in the same files, so neither rewrites the other's lines. It ships with a paired ruling no worse.
 
 ### 172. Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.
 
 Ten seats of the 2026-10-09 panel named `drawSteps` (`path.go`); three named the nil arguments as the mode they had to infer.
 
-### 173. Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.
+### 410. Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.
 
-`checkReads` "proves each name t reads", `splitArm` "splits one name into head and tail" and asks `t.isName` of the result in `compileArm`, and `refTokens` returns "reference names". Both architect seats of the 2026-10-09 panel and the scoring run's architect named the word as one name over several concepts, against the decision "One name, one meaning". Item 136 did this for `internal/grammar`.
+Files: `arm.go`, `format.go`, `table.go`, `path.go`; about 200 lines. It comes after 409, since an arm holds the ops 409 builds whole. It folds in item 174, **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.**: `compileStep` copies one into the other (`path.go`), and two seats of the 2026-10-09 panel named it. It ships with a paired ruling no worse.
 
-### 107. Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.
+### 411. Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.
 
-Item 178 splits it into items before any code moves. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+Files: `resolve.go`, `name.go`, `record.go`, `graph.go`, `node.go`, `data.go`; about 300 lines. It comes after 409 and 410, since `finish` can be the one writer only once ops and arms are built whole. It ships with a paired ruling no worse.
+
+### 413. Link a child table without writing its parent, so a failed lazy load changes no finished table.
+
+Test first: a lazy load fails after `rows.Link`, then a render reads through the parent. The architect suspects `rows.Link` (`internal/rows/rows.go:311-315`) leaves a half-resolved child in a finished parent's `children`; say whether the test confirms or refutes that before the change. Files: `internal/rows/rows.go`, `table.go`, `path.go`, `resolve.go`, `index.go`; about 150 lines. It waits for no other item. It ships with a paired ruling no worse.
+
+### 415. Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.
+
+Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `imports_test.go`; about 900 moved lines. It comes after 411 and 413, since a node written by more than one stage, or a parent a child's link writes, would spread the cycle across packages. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+
+### 416. Move rendering into `internal/engine/render`.
+
+Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go`, `reword.go`, `record.go`, `imports_test.go`; about 900 moved lines. It comes after 415, since render reads the node types from `tree`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+
+### 412. Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying pending draws and targets.
+
+Files: `data.go`, `valueproof.go`, `columnread.go`, `datatype.go`, `namefence.go`; about 100 lines. It comes after 411, since a finished tree exists only once `finish` writes it. It ships with a paired ruling no worse.
+
+### 414. Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.
+
+Files: `calc.go`, `valueproof.go`, `format.go`; about 120 lines, net negative. It comes after 412, since `valueProof` must read the finished tree before calc can lean on it alone. It ships with a paired ruling no worse.
+
+### 417. Move the proofs and fences into `internal/engine/fence`.
+
+Files: `valueproof.go`, `datatype.go`, `namefence.go`, `columnread.go`, `pathvalues.go`, `struct.go`, `imports_test.go`; about 700 moved lines. It comes after 415, since the fences read the node types from `tree`, and after 414, so the calc proof moves once, as `valueProof`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+
+### 418. Move compile, bind, link and resolve into `internal/engine/load`.
+
+Files: `node.go`, `format.go`, `arm.go`, `name.go`, `resolve.go`, `reference.go`, `table.go`, `adddays.go`, `calc.go`, `graph.go`, `record.go`, `inline.go`, `struct.go`, `imports_test.go`; about 1200 moved lines. It comes after 415, since load builds the node types `tree` holds. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+
+### 107. Move the pipeline, folder and lazy loading into `internal/engine`, leaving the root the public API and its options.
+
+The engine returns column values and the root builds `Record`. Files: `data.go`, `index.go`, `fejkdata.go`, `record.go`, `struct.go`, `sorted.go`, `doc.go`, `imports_test.go`, `docs/decisions.md`; about 600 lines. It comes last, after 416, 417 and 418, since the pipeline imports the three stages. It decides where the vocabulary lives, and revises the decision "The vocabulary sits below `doc.go`'s package clause, not in the package doc" if it moves. It replaces the decision "The template engine stays the root package until item 107 cuts it into …" with one stating what holds after the cuts. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 177. Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.
 
@@ -323,10 +360,6 @@ Its entry says "The import script drops or fills such rows". There are two geo i
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 
 The decision says that where no Go version fixes a vulnerability yet, the maintainer drops the vulnerabilities job from the release job's `needs`. The release job's `if` in `.github/workflows/test.yml` also requires `needs.vulnerabilities.result == 'success'`, and a job missing from `needs` is no success, so the release job would be skipped, not run. A skipped job isn't red, so nothing would ship and nothing would say why. Rewording the decision is the maintainer's call. The principles review of item 336 found it.
-
-### 174. Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.
-
-`compileStep` copies one into the other (`path.go`). Two seats of the 2026-10-09 panel named it.
 
 ### 354. Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.
 
