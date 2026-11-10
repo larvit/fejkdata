@@ -1086,8 +1086,8 @@ methods, never an interface, and `tokenDraw` becomes a closed sum in `tree` that
 switches on. `perf_test.go` stays in the root and uses only the public API; a cut that raises
 an allocation count is fixed, not re-pinned.
 
-The moves are `todo.md` items, each merging only where its paired ruling reads no worse: 412,
-414 and 419 untangling in place, 415 to 418 cutting leaf-first, and 107 moving the pipeline last.
+The moves are `todo.md` items, each merging only where its paired ruling reads no worse: 414
+untangling in place, 415 to 418 cutting leaf-first, and 107 moving the pipeline last.
 Item 414 deletes the calc proof that duplicates `valueProof`.
 `internal/` will hold eleven directories, over the principle's about seven per level, since a
 reader finds the leaf libraries by name. Valid until `todo.md` item 107 lands.

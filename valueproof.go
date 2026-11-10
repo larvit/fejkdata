@@ -11,8 +11,7 @@ import (
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// valueProof proves what the finished tree's typed columns and their calc operands hold, each
-// node once per proof.
+// valueProof proves what the nodes of a finished tree render, each node once per proof.
 type valueProof struct {
 	memo       map[node]proven.Facts
 	columnMemo map[node]proven.Facts

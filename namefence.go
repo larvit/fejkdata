@@ -25,8 +25,8 @@ func checkNameReads(label string, t *template, names resolvedNames) error {
 // two ways to break it.
 //
 // The read has no pick to read:
-//   - the name is read inside the field bound to it: refuseReadsInsideFields, which runs before the
-//     cycle check, since such a read is a reference cycle
+//   - the name is read inside the field bound to it: refuseReadsInsideFields, which `run` calls
+//     before the cycle check, so such a read never reaches checkNameRead
 //   - the read steps into a choice's item without opening the item's frame: refuseSkippedItem
 //
 // The read and another read of the name reach one level by routes that can draw apart:
@@ -337,7 +337,7 @@ func refuseDrawnApart(pick pickReads, read *arm, routes []route, names resolvedN
 	outer := read.named
 	for _, r := range routes {
 		inner := r.a.named
-		if r.a.kind != namedRead || !inner.bindsField() || inner == outer { // a name's own read inside its field is refused where it sits
+		if r.a.kind != namedRead || !inner.bindsField() || inner == outer { // refuseReadsInsideFields refused a name's own read inside its field
 			continue
 		}
 		target := inner.target
@@ -414,15 +414,15 @@ func refuseSkippedItem(t *template, read *arm, routes []route, names resolvedNam
 }
 
 // refuseFreshDraw refuses read, a read of a name, where what it renders holds a reference that draws
-// afresh a level another read of the name reads from the pick. A reference draws afresh, so {n} and
-// {n.ab.name} could differ where n's format reads {/cat.ab.name}, and so could {n} and {n.ab} where
-// ab's format reads {name}. It takes each node the references reach, through other references too
-// (refsReached), and refuses one that passes all three of these, in this order:
+// afresh a level another read of the name reads from the pick. For example, {n} and {n.ab.name}
+// could differ where n's format reads {/cat.ab.name}, and so could {n} and {n.ab} where ab's format
+// reads {name}. It takes each node the references reach, through other references too
+// (refsReached), and refuses read where a node meets all three of these, checked in this order:
 //   - the node lies below the name's start, at a path from it (pathTo)
 //   - the walk of that path meets a choice or a table, or ends on a level that isn't a constant,
 //     since a reference to a constant can't differ (drawsAlong)
 //   - another read of the name lands on or passes that level, or renders the node through a field
-//     read (readAddressing)
+//     read without rendering the reference (readAddressing)
 func refuseFreshDraw(pick pickReads, read *arm, routes []route, names resolvedNames) error {
 	b := read.named
 	target := b.target

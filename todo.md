@@ -49,7 +49,7 @@
 | 40 | 0.8.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 6.5 |
 | 95 | 0.8.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 6.5 |
 | 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 1.1 |
-| 112 | 0.8.0 | 36 |  | **Check a calc's field operands where its template resolves, beside its name operands.** | 2 | 1 | 1 | 2 | 2 | code health by 2 | 6.5 |
+| 112 | 0.8.0 | 36 |  | **Check a calc's field operands in `fenceTemplates`, beside its name operands.** | 2 | 1 | 1 | 2 | 2 | code health by 2 | 6.5 |
 | 116 | 0.8.0 |  |  | **Turn a row index into its rows file's line in one function.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 6.5 |
 | 350 | 0.8.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.9 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.8 |
@@ -234,7 +234,7 @@ Go keeps a type's methods in the type's package, so `tree` can take a type only 
 
 ### 415. Move the node types into `internal/engine/tree`, so no other package writes a node's fields.
 
-The node types move with the types their fields hold, among them `formatOps`, `unboundRead`, `valueDraw`, `alphabetDraw`, `rewordDraw`, `wordList`, `lengthIndex`, `columnRead`, `recordColumn`, `pickKey`, `indexed` and `resolvedRef`, each carrying only the methods item 419 left on it; the functions that compile them stay in the root until item 418. Outside `tree`, about 700 reads of a node's fields, in 28 of the root's 31 files, become accessor calls. A type-aware rewrite makes them, so that no read is missed by hand. `linkTables` sets a table's `siblings` through a `tree` method. Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `loadfinds.go`, the files defining the field types, and `imports_test.go`; about 1,500 moved lines. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+The node types move with the types their fields hold, among them `alphabetDraw`, `columnRead`, `formatOps`, `indexed`, `lengthIndex`, `pickKey`, `recordColumn`, `resolvedRef`, `rewordDraw`, `unboundRead`, `valueDraw` and `wordList`, each carrying only methods that read or write its own data; each stage's functions over them stay in the root until items 416, 417 and 418 move them. Outside `tree`, about 700 reads of a node's fields, in 28 of the root's 31 files, become accessor calls. A type-aware rewrite makes them, so none is missed. `linkTables` sets a table's `siblings` through a `tree` method. Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `loadfinds.go`, the files defining the field types, and `imports_test.go`; about 1,500 moved lines. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 416. Move rendering into `internal/engine/render`.
 
@@ -248,9 +248,9 @@ It touches `refuseFreshDraw`, which the seats found hard, and makes it easier to
 
 ### 414. Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.
 
-Files: `calc.go`, `valueproof.go`, `format.go`, `internal/proven`; about 120 lines, net negative. It comes after 412, since `valueProof` must read the finished tree before calc can lean on it alone. It ships with a paired ruling no worse.
+Files: `calc.go`, `valueproof.go`, `format.go`, `internal/proven`; about 120 lines, net negative. It ships with a paired ruling no worse.
 
-It widens two fences. Today a calc refuses an operand that is never a number, and a constant zero divisor, only by a field's own fixed text, a null, a repeat of 0 or a choice of these. `valueProof` proves an operand through every path, table cell and choice it reads, so the same calc also refuses an operand that reads, say, a field whose fixed text isn't a number, or `"NaN"`, and a divisor whose every render reads 0. Each of those prints `NaN` or `Inf` on every draw, which goal 5.1 calls no valid value. A load then rejects templates it accepted, so the item adds a Breaking entry to `CHANGELOG.md`, revises the decision "A constant zero divisor is a load error", and the product-owner pass reviews it; that is why it ships in a chunk of its own, apart from 412 and 419. Its fold of a constant divisor still stops where an operand varies, so `a/(b*c)` with `b` fixed at 0 and `c` varying still loads.
+It widens two fences. Today a calc refuses an operand that is never a number only where it renders a field's own fixed text that doesn't parse, a null, a repeat of 0 or a choice of these, and a zero divisor only where number literals and fixed text fold to 0. `valueProof` proves an operand through every path, table cell and choice it reads, and refuses the text `"NaN"`. So a calc also refuses an operand that is `"NaN"`, or whose format reads, say, another field whose fixed text isn't a number, and a divisor whose operands prove to fixed values that fold to 0. Each of those prints `NaN` or `Inf` on every draw, which goal 5.1 calls no valid value. A load then rejects templates it accepted, so the item adds a Breaking entry to `CHANGELOG.md`, revises the decision "A constant zero divisor is a load error", and the product-owner pass reviews it. As the decision says today, the divisor's fold still stops where an operand varies, so `a/(b*c)` with `b` fixed at 0 and `c` varying still loads, though `valueProof` bounds `b*c` to 0.
 
 ### 417. Move the proofs and fences into `internal/engine/fence`.
 
@@ -392,13 +392,13 @@ The CLI counts brackets of its own, so a change to the selector grammar desyncs 
 
 `New` and `NewTemplate` stop at the first, so data holding two mistakes takes two runs to fix. Split it into items before starting, one of them the shape a Go caller iterates and the CLI prints, and the order of an inline template's mistakes, which name no path; reword the README's "`New` refuses a mistake in the data" to every mistake.
 
-### 112. Check a calc's field operands where its template resolves, beside its name operands.
+### 112. Check a calc's field operands in `fenceTemplates`, beside its name operands.
 
-`checkCalcFields` runs at compile and `checkCalcNames` in `resolveTemplates`, two passes over one rule. Moving the field check there before item 36 would change which of two mistakes in two category files a load reports, since every category compiles before any resolves.
+`checkCalcFields` runs at compile and `checkCalcNames` in `fenceTemplates`, after finish, two passes over one rule. Moving the field check there before item 36 would change which of two mistakes in two category files a load reports, since every category compiles before any resolves.
 
 ### 116. Turn a row index into its rows file's line in one function.
 
-Today `containedNode`'s cell line in `graph.go`, `compileCells` and each site in `internal/rows` add the header line and the one-based count.
+Today `containedNode`'s cell line in `graph.go`, `compileCells` in `table.go` and each site in `internal/rows` add the header line and the one-based count.
 
 ### 350. Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.
 

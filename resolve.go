@@ -49,7 +49,7 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *loadFinds) (
 }
 
 // resolvedNames is what the name fences read about the names of a set of finished templates.
-// reads holds each binding's reads. places caches pathTo: for each node it was called from,
+// places caches pathTo: for each node it was called from,
 // every node under it with the fields leading there. fresh is each binding's freshFieldReads.
 type resolvedNames struct {
 	reads  map[*nameBinding][]*arm
@@ -147,9 +147,7 @@ func buildOps(ts []templateSite, l *loadFinds) error {
 	return nil
 }
 
-// fenceTemplates refuses, in the finished templates of ts, a draw that some render leaves with too
-// few values, a draw that would read itself or is read through a path, a read of a name that could
-// disagree with another read of it, and a calc or adddays whose proof fails.
+// fenceTemplates runs the template fences over the finished templates of ts.
 func fenceTemplates(ts []templateSite) error {
 	if err := proveDrawLengths(ts); err != nil {
 		return err
@@ -177,7 +175,6 @@ func fenceTemplates(ts []templateSite) error {
 	return nil
 }
 
-// namesOf is what the name fences read about the names of ts.
 func namesOf(ts []templateSite) resolvedNames {
 	reads := readsOfNames(ts, nil)
 	names := resolvedNames{reads: reads, places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}

@@ -19,8 +19,8 @@ func addDaysLayout(d arm, l *loadFinds) (string, error) {
 	return layout, nil
 }
 
-// proveAddDays proves the day count of each adddays of t that reads one is a whole number within
-// the cap.
+// proveAddDays proves, for each adddays of t whose day count is a read, that the count is a whole
+// number within the cap.
 func proveAddDays(label string, t *template) error {
 	for _, o := range t.compiled.ops {
 		if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName || len(o.operands) == 1 {

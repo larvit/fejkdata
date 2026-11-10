@@ -40,7 +40,7 @@ package fejkdata
 //   - family — a table and every table reaching it through a chain of parent
 //     links.
 //   - resolve — tying a reference or a name to what it names in the assembled tree:
-//     `resolveTemplates`, `resolveRefs`.
+//     `compileTemplates`, `resolveRefs`.
 //   - head — the string a read starts from: a field or a name as written, or a
 //     reference's category path with its sigil, /sv_SE.address: `arm.head`. The node it names is
 //     the read's start: `template.startOf`, `nameTarget.start`.
