@@ -132,12 +132,12 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 
 func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 	l := newLoadFinds()
-	n, err := compile(parse(t, `{"format":"{w distinct 2 joined ',' as e}{calc(e*2)}","w":["3","4","5"]}`), l)
+	n, err := compile(parse(t, `{"format":"{w as e}{reword(e,e)}","w":["ab","cd"]}`), l)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err := loadInline(&folder{children: map[string]node{}}, n, l, "t", false); err == nil {
-		t.Fatal("loadInline() = nil, want the calc of a joined name refused")
+		t.Fatal("loadInline() = nil, want a name as reword's words refused")
 	}
 	if root := n.(*template); root.templateFinds != nil || root.fields["w"].(*choice).nameScope != nil {
 		t.Error("a load that failed before finish wrote its template or its choice")
