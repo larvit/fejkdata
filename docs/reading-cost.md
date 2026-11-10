@@ -1317,3 +1317,19 @@ Read most (opens and searches):
 - `env.go` 2
 - `imports_test.go` 2
 - `index.go` 2
+
+## Reading cost, chunk 719f9c2d21fc, finished 2026-11-10T19:31:13Z
+
+72509 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 9
+- `format.go` 7
+- `reference.go` 5
+- `README.md` 4
+- `arm.go` 4
+- `inline.go` 4
+- `index.go` 3
+- `docs/decisions.md` 2
+- `AGENTS.md` 1
