@@ -8,25 +8,6 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// prepareAddDays builds each adddays call of ts with the one layout its date prints in, once every
-// template is compiled, and refuses a date with no such layout or one that does not read back.
-func prepareAddDays(ts []templateSite) error {
-	for _, s := range ts {
-		for i := range s.t.compiled.ops {
-			o := &s.t.compiled.ops[i]
-			if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName {
-				continue
-			}
-			layout, err := addDaysLayout(o.operands[0])
-			if err != nil {
-				return fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
-			}
-			o.call = builtinfunc.AddDays(layout, o.Args)
-		}
-	}
-	return nil
-}
-
 func addDaysLayout(d arm) (string, error) {
 	layout, why := dateLayout(d.leaves, map[node]bool{})
 	switch {
