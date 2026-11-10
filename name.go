@@ -31,7 +31,7 @@ type nameBinding struct {
 	binder   *template
 
 	// Written by finish, from what its load found:
-	*bindingLinks
+	*bindingFinds
 }
 
 // nameTarget is what a binding resolves to in the assembled tree: start, the node its head names, and
@@ -56,7 +56,7 @@ func (sc *nameScope) lookup(name string) *nameBinding {
 // bindNames records in l, for every template and choice of a compiled category or inline
 // template, the scope its names live in. It refuses a name bound twice along one chain of
 // scopes, a name a field spells too, and a read no field or name answers.
-func bindNames(root node, l *links) error {
+func bindNames(root node, l *loadFinds) error {
 	var scopes []*nameScope
 	var gather func(n node, scope *nameScope, item bool, where string) error
 	gather = func(n node, scope *nameScope, item bool, where string) error {
@@ -174,7 +174,7 @@ func eachContained(n node, where string, fn func(c containedNode, where string) 
 // answerReads proves each unbound read under root is answered by a name its template sees. It answers a template's fields before its format, the
 // order compile reports in, and refuses a field spelling a name. A refusal searches scopes, every
 // scope of the category, for a name bound where the read cannot see it.
-func answerReads(root node, scopes []*nameScope, l *links) error {
+func answerReads(root node, scopes []*nameScope, l *loadFinds) error {
 	var answer func(n node, where string, up besideField) error
 	answer = func(n node, where string, up besideField) error {
 		t, isTemplate := n.(*template)
@@ -268,7 +268,7 @@ func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 	return fmt.Errorf("%s%w", where, u.err)
 }
 
-func (t *template) isName(head string, l *links) bool {
+func (t *template) isName(head string, l *loadFinds) bool {
 	return !grammar.IsRef(head) && t.fields[head] == nil && l.of(t).nameScope.lookup(head) != nil
 }
 
@@ -279,7 +279,7 @@ type namedReadAt struct {
 }
 
 // namedReads is every read of a name t's format makes, in format order.
-func namedReads(t *template, l *links) []namedReadAt {
+func namedReads(t *template, l *loadFinds) []namedReadAt {
 	ops := l.of(t).compiled.ops
 	var out []namedReadAt
 	for i := range ops {
@@ -294,7 +294,7 @@ func namedReads(t *template, l *links) []namedReadAt {
 }
 
 // readsOfNames is every read of each name in ts, in the order ts lists them.
-func readsOfNames(ts []templateSite, l *links) map[*nameBinding][]*arm {
+func readsOfNames(ts []templateSite, l *loadFinds) map[*nameBinding][]*arm {
 	reads := map[*nameBinding][]*arm{}
 	for _, s := range ts {
 		for _, r := range namedReads(s.t, l) {
@@ -305,7 +305,7 @@ func readsOfNames(ts []templateSite, l *links) map[*nameBinding][]*arm {
 }
 
 // nameTargets resolves what each binding of ts binds, from its binder's references.
-func nameTargets(ts []templateSite, l *links) map[*nameBinding]nameTarget {
+func nameTargets(ts []templateSite, l *loadFinds) map[*nameBinding]nameTarget {
 	targets := map[*nameBinding]nameTarget{}
 	for _, s := range ts {
 		tl := l.of(s.t)

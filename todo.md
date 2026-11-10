@@ -12,9 +12,9 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 415 | 0.5.0 |  |  | **Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
+| 415 | 0.5.0 |  |  | **Move the node types into `internal/engine/tree`, so no other package writes a node's fields.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
-| 412 | 0.5.0 |  |  | **Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `links`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
+| 412 | 0.5.0 |  |  | **Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `loadFinds`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 414 | 0.5.0 | 412 |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 417 | 0.5.0 | 414, 415 |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 418 | 0.5.0 | 415 |  | **Move compile, bind, link and resolve into `internal/engine/load`.** | 4 | 1 | 2 | 5 | 6 | code health by 5 | 2.7 |
@@ -227,15 +227,15 @@
 
 ## Details
 
-### 415. Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.
+### 415. Move the node types into `internal/engine/tree`, so no other package writes a node's fields.
 
-Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `imports_test.go`; about 900 moved lines. Besides a node's constructor and `finish`, only `linkTables` still writes one: a table's `siblings`, and its rows' link to its parent's. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `imports_test.go`; about 900 moved lines. `linkTables` sets a table's `siblings` through a `tree` method. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 416. Move rendering into `internal/engine/render`.
 
 Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go`, `reword.go`, `record.go`, `imports_test.go`; about 900 moved lines. It comes after 415, since render reads the node types from `tree`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
-### 412. Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `links`.
+### 412. Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `loadFinds`.
 
 Files: `data.go`, `valueproof.go`, `columnread.go`, `datatype.go`, `namefence.go`; about 100 lines. It ships with a paired ruling no worse.
 

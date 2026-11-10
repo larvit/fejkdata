@@ -12,11 +12,11 @@ import (
 )
 
 // valueProof proves what typed columns and their calc operands hold, each node once per proof.
-// links is the load's links when the proof runs before finish, and nil when it runs after.
+// finds is the load's finds when the proof runs before finish, and nil when it runs after.
 type valueProof struct {
 	memo       map[node]proven.Facts
 	columnMemo map[node]proven.Facts
-	links      *links
+	finds      *loadFinds
 }
 
 // checkDatatype rejects a typed column item some render of which is not text of its datatype.
@@ -145,7 +145,7 @@ func (p *valueProof) proveUnion(nodes []node) proven.Facts {
 // that prints stands alone.
 func (p *valueProof) proveTemplate(t *template) proven.Facts {
 	lit, fixed := t.fixedText()
-	o, one := t.printedOp(p.links)
+	o, one := t.printedOp(p.finds)
 	switch {
 	case t.repeat != 1:
 		return proven.Unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.format))
@@ -220,7 +220,7 @@ func (p *valueProof) readsFallback(a arm) bool {
 	if a.kind != namedRead {
 		return false
 	}
-	v := p.links.binding(a.named).values
+	v := p.finds.binding(a.named).values
 	return v != nil && v.mayFallBack()
 }
 

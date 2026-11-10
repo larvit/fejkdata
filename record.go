@@ -276,7 +276,7 @@ func recordOf(n node) (*template, error) {
 	if !t.isRecord {
 		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	if t.templateLinks == nil {
+	if t.templateFinds == nil {
 		panic(invariant.Broken("record %q was reached before its load finished", t.format))
 	}
 	if len(t.columns) == 0 {
@@ -297,7 +297,7 @@ type recordColumn struct {
 
 // settleRecords fixes the columns of every record in nodes. The pipeline runs it after checkNoCycles: a
 // column's datatype walks the column, and a cycle would walk forever.
-func settleRecords(nodes nodeSet, l *links) {
+func settleRecords(nodes nodeSet, l *loadFinds) {
 	_ = nodes(func(_ string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {
 			l.templates[t].columns = recordColumns(t, l)
@@ -307,7 +307,7 @@ func settleRecords(nodes nodeSet, l *links) {
 }
 
 // recordColumns is t's columns in name order where t is a record with fields, else nil.
-func recordColumns(t *template, l *links) []recordColumn {
+func recordColumns(t *template, l *loadFinds) []recordColumn {
 	if !t.isRecord || len(t.fields) == 0 {
 		return nil
 	}

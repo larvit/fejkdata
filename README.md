@@ -2034,7 +2034,7 @@ format.go       a format's tokens checked against their fields, and compiled int
 arm.go          the compiled read of one {a|b} alternative or operand: its head, the path to its leaf, the op holding it, and the op's draw
 reference.go    one reference's resolution: its sigil, its category, its tail
 resolve.go      resolving templates against the assembled tree in two stages, compile and fence, each over every template before the next
-links.go        what a load finds for its templates, choices and names, held apart until finish writes it into them
+loadfinds.go    what a load finds for its templates, choices and name bindings, kept out of the nodes until finish writes it into them
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor

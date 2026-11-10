@@ -24,7 +24,7 @@ type columnRead struct {
 // columnReadOf is the record's column t's format reads, where the format only reads one reference
 // or name. It is nil where the format reads anything else, where t's repeat is not 1, or where t
 // declares a string, which reads the column as text.
-func columnReadOf(t *template, l *links) *columnRead {
+func columnReadOf(t *template, l *loadFinds) *columnRead {
 	a, one := readsOneArm(t, l)
 	if !one {
 		return nil
@@ -73,7 +73,7 @@ func columnsAt(n node, tail []string) (columns []node) {
 
 // readsOneArm is the one arm t prints, where t's format prints one plain read and t reads it as its
 // datatype.
-func readsOneArm(t *template, l *links) (arm, bool) {
+func readsOneArm(t *template, l *loadFinds) (arm, bool) {
 	if t.repeat != 1 || (t.datatype != nil && *t.datatype == DataTypeString) {
 		return arm{}, false
 	}
@@ -92,7 +92,7 @@ func readsJoined(a arm) bool {
 
 // columnSource is the node a's read starts from (nil where a reads no node), the category holding
 // that node (empty where it is t's own), and the path below the node.
-func columnSource(t *template, a arm, l *links) (start node, category string, tail []string) {
+func columnSource(t *template, a arm, l *loadFinds) (start node, category string, tail []string) {
 	if b := a.named; a.kind == namedRead {
 		target := l.binding(b).target
 		if b.bindsField() {
@@ -130,7 +130,7 @@ func checkReadColumns(label, name string, items []*template, check func(label, n
 }
 
 // itemDatatype is the datatype a column item declares, else that of the column it reads.
-func itemDatatype(t *template, l *links) DataType {
+func itemDatatype(t *template, l *loadFinds) DataType {
 	r := l.of(t).readsColumn
 	switch {
 	case t.datatype != nil:
@@ -143,7 +143,7 @@ func itemDatatype(t *template, l *links) DataType {
 
 // proveColumnItem proves what a column item renders or, where the item is a column read, the column it reads.
 func (p *valueProof) proveColumnItem(t *template) proven.Facts {
-	r := p.links.of(t).readsColumn
+	r := p.finds.of(t).readsColumn
 	if r == nil {
 		return p.prove(t)
 	}

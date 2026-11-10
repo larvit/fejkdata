@@ -58,7 +58,7 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 		return "", nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
-		if err := loadReached(&f.root, nil, newLinks(), []categoryAt{c}); err != nil {
+		if err := loadReached(&f.root, nil, newLoadFinds(), []categoryAt{c}); err != nil {
 			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
 		}
 	}
@@ -104,10 +104,10 @@ func needs(root *folder, s categorySite) []categoryAt {
 }
 
 // loadReached loads the unloaded categories among wanted, and every unloaded category they
-// or sites need, compiling each into l, the links sites were compiled into. It then runs
+// or sites need, compiling each into l, the loadFinds sites were compiled into. It then runs
 // sites and all it loaded through a whole load's pipeline. On an error it puts back what it
 // loaded, so the next call fails the same way.
-func loadReached(root *folder, sites []categorySite, l *links, wanted []categoryAt) error {
+func loadReached(root *folder, sites []categorySite, l *loadFinds, wanted []categoryAt) error {
 	queue := wanted
 	for _, s := range sites {
 		queue = append(queue, needs(root, s)...)
@@ -133,7 +133,7 @@ type loaded struct {
 
 // load loads each unloaded category in queue and what it needs. It stops at a table whose
 // parent column disagrees with its entry. Otherwise a table could load without its parent.
-func (b *batch) load(root *folder, queue []categoryAt, l *links) error {
+func (b *batch) load(root *folder, queue []categoryAt, l *loadFinds) error {
 	for ; len(queue) > 0; queue = queue[1:] {
 		c := queue[0]
 		x := c.in.unloaded[c.name]
@@ -156,7 +156,7 @@ func (b *batch) load(root *folder, queue []categoryAt, l *links) error {
 	return nil
 }
 
-func (b batch) run(root *folder, sites []categorySite, l *links) error {
+func (b batch) run(root *folder, sites []categorySite, l *loadFinds) error {
 	sites = slices.Clip(sites)
 	for _, x := range b {
 		sites = append(sites, x.site)

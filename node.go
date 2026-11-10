@@ -77,7 +77,7 @@ type template struct {
 	unbound    []unboundRead // the heads its tokens read that no field holds
 
 	// Written by finish, from what its load found:
-	*templateLinks
+	*templateFinds
 }
 
 // templateRefs is what a template resolves to in the assembled tree.
@@ -98,9 +98,9 @@ func (t *template) startOf(name string, refs templateRefs) node {
 
 // compile converts parsed JSON — a category or an inline template — into a node tree,
 // validating structure up front, and gives its names their scopes in l.
-func compile(v jsonvalue.Value, l *links) (node, error) { return compileFrom(v, atTop, l) }
+func compile(v jsonvalue.Value, l *loadFinds) (node, error) { return compileFrom(v, atTop, l) }
 
-func compileFrom(v jsonvalue.Value, pos position, l *links) (node, error) {
+func compileFrom(v jsonvalue.Value, pos position, l *loadFinds) (node, error) {
 	n, err := compileItem(v.Any(), pos)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func compileFrom(v jsonvalue.Value, pos position, l *links) (node, error) {
 
 // compileCategory compiles a data file's value, which may be a table over a rows
 // file beside it.
-func compileCategory(c datafiles.Category, l *links) (node, error) {
+func compileCategory(c datafiles.Category, l *loadFinds) (node, error) {
 	if m, ok := c.JSON.Any().(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
 			return compileTable(m, c.Folders, c.Name, c.ReadRows)
@@ -203,7 +203,7 @@ func (t *template) fixedText() (string, bool) {
 
 // printedOp is the one op of t that prints, past the binds a where or distinct clause compiles to,
 // which print nothing; ok is false where t prints through more ops or none.
-func (t *template) printedOp(l *links) (printed op, ok bool) {
+func (t *template) printedOp(l *loadFinds) (printed op, ok bool) {
 	n := 0
 	for _, o := range l.of(t).compiled.ops {
 		if o.Kind != grammar.NameBind {

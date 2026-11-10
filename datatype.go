@@ -84,7 +84,7 @@ func checkColumns(s nodeSet) error {
 
 // columnDatatype is the datatype a column holds, which its first item decides: checkColumns refuses
 // a column whose items disagree. A table's column, like one only ever null, has no item and is a string.
-func columnDatatype(n node, l *links) DataType {
+func columnDatatype(n node, l *loadFinds) DataType {
 	items, _ := columnItems(n)
 	if len(items) == 0 {
 		return DataTypeString

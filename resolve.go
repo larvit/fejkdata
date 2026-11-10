@@ -14,7 +14,7 @@ type templateSite struct {
 
 // resolveCategoryTemplates resolves every template of the categories, once all data is merged, so a
 // reference sees the override-resolved tree.
-func resolveCategoryTemplates(sites []categorySite, root map[string]node, l *links) error {
+func resolveCategoryTemplates(sites []categorySite, root map[string]node, l *loadFinds) error {
 	var ts []templateSite
 	for _, s := range sites {
 		if err := eachNode(s.n, s.path, func(label string, n node) error {
@@ -29,7 +29,7 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]node, l *lin
 	return resolveTemplates(ts, root, l)
 }
 
-func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *links) error {
+func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *loadFinds) error {
 	var ts []templateSite
 	if err := nodes(func(label string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {
@@ -43,11 +43,11 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *links) error
 }
 
 // resolvedNames is what the fences of resolveTemplates read about the names of a set of
-// templates. links holds each binding's target, draw and addressed keys, and reads each
+// templates. finds holds each binding's target, draw and addressed keys, and reads each
 // binding's reads. places caches pathTo: for each node it was called from, every node under
 // it with the fields leading there. fresh is each binding's freshFieldReads.
 type resolvedNames struct {
-	links  *links
+	finds  *loadFinds
 	reads  map[*nameBinding][]*arm
 	places map[node]map[node][]string
 	fresh  map[*nameBinding]map[pickKey][]fieldRead
@@ -84,7 +84,7 @@ func indexPaths(n node, path []string, index map[node][]string) {
 	}
 }
 
-func compileFormats(ts []templateSite, l *links) error {
+func compileFormats(ts []templateSite, l *loadFinds) error {
 	for _, s := range ts {
 		compiled, err := compileFormat(s.t, l)
 		if err != nil {
@@ -97,7 +97,7 @@ func compileFormats(ts []templateSite, l *links) error {
 
 // resolveTemplates resolves ts into l in two stages, each over every template before the next
 // starts: compile, then fence.
-func resolveTemplates(ts []templateSite, root map[string]node, l *links) error {
+func resolveTemplates(ts []templateSite, root map[string]node, l *loadFinds) error {
 	names, err := compileTemplates(ts, root, l)
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func resolveTemplates(ts []templateSite, root map[string]node, l *links) error {
 
 // compileTemplates resolves each template's references and its names' targets, compiles its format
 // and each op's call and draw, and finds what each name's reads address.
-func compileTemplates(ts []templateSite, root map[string]node, l *links) (resolvedNames, error) {
+func compileTemplates(ts []templateSite, root map[string]node, l *loadFinds) (resolvedNames, error) {
 	for _, s := range ts {
 		refs, err := s.t.resolveRefs(s.folder, s.label, root)
 		if err != nil {
@@ -116,7 +116,7 @@ func compileTemplates(ts []templateSite, root map[string]node, l *links) (resolv
 		l.template(s.t).refs = refs
 	}
 	for b, target := range nameTargets(ts, l) {
-		l.bindings[b] = &bindingLinks{target: target}
+		l.bindings[b] = &bindingFinds{target: target}
 	}
 	if err := compileFormats(ts, l); err != nil {
 		return resolvedNames{}, err
@@ -131,7 +131,7 @@ func compileTemplates(ts []templateSite, root map[string]node, l *links) (resolv
 	for b, keys := range addressedKeys(reads, l) {
 		l.bindings[b].addressed = keys
 	}
-	names := resolvedNames{links: l, reads: reads, places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
+	names := resolvedNames{finds: l, reads: reads, places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
 	for b, bound := range reads {
 		names.fresh[b] = freshFieldReads(bound, l.bindings[b].addressed, l)
 	}
@@ -141,7 +141,7 @@ func compileTemplates(ts []templateSite, root map[string]node, l *links) (resolv
 // buildOps completes each op of ts, once every template's format is compiled, and gives l the draw
 // of each name bound to a token with a where or a distinct clause. A proof of a draw reads the draws
 // of the names that earlier ops bind.
-func buildOps(ts []templateSite, l *links) error {
+func buildOps(ts []templateSite, l *loadFinds) error {
 	words := map[wordsAt]*wordList{}
 	for _, s := range ts {
 		tl := l.templates[s.t]
@@ -162,10 +162,10 @@ func buildOps(ts []templateSite, l *links) error {
 // fenceTemplates refuses a draw that would read itself or is read through a path, a read of a name
 // that could disagree with another read of it, and a calc or adddays whose proof fails.
 func fenceTemplates(ts []templateSite, names resolvedNames) error {
-	if err := refuseSelfReads(ts, names.links); err != nil {
+	if err := refuseSelfReads(ts, names.finds); err != nil {
 		return err
 	}
-	if err := refuseFilteredTails(ts, names.links); err != nil {
+	if err := refuseFilteredTails(ts, names.finds); err != nil {
 		return err
 	}
 	for _, s := range ts {
@@ -174,10 +174,10 @@ func fenceTemplates(ts []templateSite, names resolvedNames) error {
 		}
 	}
 	for _, s := range ts {
-		if err := checkCalcNames(s.label, s.t, names.links); err != nil {
+		if err := checkCalcNames(s.label, s.t, names.finds); err != nil {
 			return err
 		}
-		if err := proveAddDays(s.label, s.t, names.links); err != nil {
+		if err := proveAddDays(s.label, s.t, names.finds); err != nil {
 			return err
 		}
 	}

@@ -205,7 +205,7 @@ type formatOps struct {
 // targets; a {ref as n} token compiles to no op, and a bind with a where or distinct clause to an
 // op that expand skips, holding the arms its where clause reads. It leaves each op's call and draw to
 // newOp. checkTokens proved every token valid.
-func compileFormat(t *template, l *links) (formatOps, error) {
+func compileFormat(t *template, l *loadFinds) (formatOps, error) {
 	var c formatOps
 	for _, tok := range t.tokens {
 		o := op{Token: tok}
