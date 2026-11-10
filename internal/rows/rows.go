@@ -5,7 +5,6 @@ package rows
 import (
 	"fmt"
 	"math"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -32,7 +31,6 @@ type Table[O any] struct {
 	cum         []float64 // cumulative weights, nil when uniform
 	byKey       map[string]int
 	parent      *Table[O]
-	children    map[string]*Table[O]
 	once        sync.Once
 	lookup      rowLookup
 }
@@ -285,7 +283,7 @@ func (t *Table[O]) checkSelectorCells() error {
 
 // Link links t to p, the table its link column names, after proving p has a key, every
 // link cell is one, and every row of p is linked to. sibling returns the table beside t
-// named name, or nil. Link is the only writer of a table's parent and children.
+// named name, or nil. Link is the only writer of a table's parent, and writes nothing of p.
 // docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
 func (t *Table[O]) Link(p *Table[O], sibling func(name string) *Table[O]) error {
 	name := t.header[t.parentIndex]
@@ -309,10 +307,6 @@ func (t *Table[O]) Link(p *Table[O], sibling func(name string) *Table[O]) error 
 		}
 	}
 	t.parent = p
-	if p.children == nil {
-		p.children = map[string]*Table[O]{}
-	}
-	p.children[t.segment] = t
 	return nil
 }
 
@@ -333,28 +327,6 @@ func (t *Table[O]) checkAncestors(p *Table[O], sibling func(name string) *Table[
 	for _, q := range ancestors {
 		if _, clash := q.col[t.segment]; clash {
 			return fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.segment, q.segment, q.segment, t.segment)
-		}
-	}
-	return nil
-}
-
-func (t *Table[O]) Children() []*Table[O] {
-	out := make([]*Table[O], 0, len(t.children))
-	for _, c := range t.children {
-		out = append(out, c)
-	}
-	sort.Slice(out, func(i, j int) bool { return out[i].segment < out[j].segment })
-	return out
-}
-
-// Descendant is the table named name among those linked to t, at any depth.
-func (t *Table[O]) Descendant(name string) *Table[O] {
-	if c, ok := t.children[name]; ok {
-		return c
-	}
-	for _, c := range t.children {
-		if d := c.Descendant(name); d != nil {
-			return d
 		}
 	}
 	return nil
