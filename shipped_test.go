@@ -590,6 +590,29 @@ func TestATableWhoseEntryOmitsItsParentFailsAtFirstReach(t *testing.T) {
 	}
 }
 
+func TestAChildTableThatFailsItsLazyLoadIsNotLinkedToItsLoadedParent(t *testing.T) {
+	f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{
+		"country.json": {Data: []byte(`{"format":"{name}","rows":"country.tsv","key":"code"}`)},
+		"country.tsv":  {Data: []byte("code\tname\nSE\tSweden\n")},
+	}))
+	if err != nil {
+		t.Fatalf("New() = %v", err)
+	}
+	placeIndex(&f.root, datafiles.FS(fstest.MapFS{
+		"city.json": {Data: []byte(`{"format":"{name}{/nope}","rows":"city.tsv","key":"name","parent":"country"}`)},
+		"city.tsv":  {Data: []byte("name\tcountry\nStockholm\tSE\n")},
+	}), map[string]datafiles.IndexEntry{"city": {Parent: "country", Paths: []string{"", "country", "name"}}})
+	if _, err := f.Fake("city"); err == nil || !strings.Contains(err.Error(), "{/nope}") {
+		t.Fatalf(`Fake("city") = %v, want an error naming {/nope}`, err)
+	}
+	if got, err := f.Fake("country.city.name"); err == nil {
+		t.Fatalf(`Fake("country.city.name") = %q, want an error: city failed to load`, got)
+	}
+	if got := f.List(); slices.Contains(got, "country.city.name") {
+		t.Fatalf("List() = %v, want no country.city.name", got)
+	}
+}
+
 func TestADataPathTableUnderAShippedTableLoads(t *testing.T) {
 	f, err := New(withShipped(), WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
 		"sv_SE/nickname.json": `{"format":"{name}","rows":"nickname.tsv","key":"name","parent":"sex"}`,
