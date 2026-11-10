@@ -18,8 +18,8 @@ type resolvedRef struct {
 func categoryOf(head string) string { return strings.TrimPrefix(head, "/") }
 
 // refSegments resolves a reference written in folder to a path from the root.
-func refSegments(name string, folder []string) ([]string, error) {
-	sigil, rest, err := grammar.RefShape(name)
+func refSegments(spelling string, folder []string) ([]string, error) {
+	sigil, rest, err := grammar.RefShape(spelling)
 	if err != nil {
 		return nil, err
 	}
@@ -40,27 +40,27 @@ func refSegments(name string, folder []string) ([]string, error) {
 // resolveRefs resolves every reference t reads.
 func (t *template) resolveRefs(folder []string, label string, root map[string]node) (templateRefs, error) {
 	var refs templateRefs
-	names := refTokens(t.tokens)
-	if len(names) == 0 {
+	spellings := refSpellings(t.tokens)
+	if len(spellings) == 0 {
 		return refs, nil
 	}
-	refs.byName = make(map[string]resolvedRef, len(names))
-	refs.categories = make(map[string]node, len(names))
-	for _, name := range names {
-		segments, err := refSegments(name, folder)
+	refs.byName = make(map[string]resolvedRef, len(spellings))
+	refs.categories = make(map[string]node, len(spellings))
+	for _, spelling := range spellings {
+		segments, err := refSegments(spelling, folder)
 		if err != nil {
-			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
+			return refs, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
 		}
 		categorySegs, target, tail, err := resolveCategory(root, segments)
 		if err != nil {
-			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
+			return refs, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
 		}
 		head := "/" + strings.Join(categorySegs, ".")
 		if err := provePath(target, tail, head, 0); err != nil {
-			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
+			return refs, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
 		}
 		refs.categories[head] = target
-		refs.byName[name] = resolvedRef{head, tail}
+		refs.byName[spelling] = resolvedRef{head, tail}
 	}
 	return refs, nil
 }
@@ -96,14 +96,14 @@ func folderAt(root *folder, segs []string) (*folder, int) {
 	return g, len(segs)
 }
 
-// refTokens returns the reference names a format reads, as tokens or as operands, or binds.
-func refTokens(toks []grammar.Token) []string {
+// refSpellings returns the reference spellings a format reads, as tokens or as operands, or binds.
+func refSpellings(toks []grammar.Token) []string {
 	var refs []string
 	seen := map[string]bool{}
-	add := func(name string) {
-		if grammar.IsRef(name) && !seen[name] {
-			seen[name] = true
-			refs = append(refs, name)
+	add := func(spelling string) {
+		if grammar.IsRef(spelling) && !seen[spelling] {
+			seen[spelling] = true
+			refs = append(refs, spelling)
 		}
 	}
 	for _, tok := range toks {
@@ -111,8 +111,8 @@ func refTokens(toks []grammar.Token) []string {
 		if tok.Kind == grammar.NameBind {
 			own, clause = []string{tok.BoundRef}, nil
 		}
-		for _, name := range own {
-			add(name)
+		for _, spelling := range own {
+			add(spelling)
 		}
 		for _, c := range clause {
 			add(c.name)

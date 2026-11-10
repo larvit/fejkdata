@@ -32,24 +32,24 @@ const (
 	namedRead                // read through a name, kept in its pick
 )
 
-// splitArm splits one name into head and tail. refs maps a reference to what
+// splitArm splits one spelling into head and tail. refs maps a reference to what
 // resolveRefs resolved it to; before that, a reference is whole.
-func splitArm(name string, refs map[string]resolvedRef) arm {
-	if grammar.IsRef(name) {
-		if r, resolved := refs[name]; resolved {
-			return pathArm(name, r.head, r.tail)
+func splitArm(spelling string, refs map[string]resolvedRef) arm {
+	if grammar.IsRef(spelling) {
+		if r, resolved := refs[spelling]; resolved {
+			return pathArm(spelling, r.head, r.tail)
 		}
-		return pathArm(name, name, nil)
+		return pathArm(spelling, spelling, nil)
 	}
-	segs, err := grammar.SplitPath(name)
+	segs, err := grammar.SplitPath(spelling)
 	if err != nil || len(segs) == 1 {
-		return pathArm(name, name, nil)
+		return pathArm(spelling, spelling, nil)
 	}
-	return pathArm(name, segs[0], segs[1:])
+	return pathArm(spelling, segs[0], segs[1:])
 }
 
-func pathArm(name, head string, segs []string) arm {
-	return arm{spelling: name, head: head, tail: segs, levels: freshLevels(head, segs)}
+func pathArm(spelling, head string, segs []string) arm {
+	return arm{spelling: spelling, head: head, tail: segs, levels: freshLevels(head, segs)}
 }
 
 // key is the key of the leaf a lands on, the one key every way of writing this read shares.
@@ -71,13 +71,13 @@ type op struct {
 	// operands are the fields the builtin reads, in the order its operands func fixed; expand reads
 	// them before a call that has no draw. nil for a token that reads none.
 	operands []arm
-	clause   []arm // the names the token's where clause reads, in clauseNames' order
+	clause   []arm // the spellings the token's where clause reads, in clauseNames' order
 	// draw is what a token with a where or a distinct clause, or a {reword()} call, prints in
 	// place of a plain read or call; nil for any other token
 	draw tokenDraw
 }
 
-// reads is every arm a render of o reads: its arms, its builtin's operands and its clause's names.
+// reads is every arm a render of o reads: its arms, its builtin's operands and its clause's spellings.
 // Each points into o's slices, so the same arm always yields the same pointer.
 func (o *op) reads() []*arm {
 	found := make([]*arm, 0, len(o.arms)+len(o.operands)+len(o.clause))
@@ -112,13 +112,13 @@ func drawToken(s *drawstate.State, t *template, env renderEnv, d tokenDraw, emit
 	panic(invariant.Broken("no draw for %T", d))
 }
 
-func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarget) ([]arm, error) {
-	if len(names) == 0 {
+func (t *template) compileArms(spellings []string, targets map[*nameBinding]nameTarget) ([]arm, error) {
+	if len(spellings) == 0 {
 		return nil, nil
 	}
-	arms := make([]arm, len(names))
-	for i, name := range names {
-		a, err := t.compileArm(name, targets)
+	arms := make([]arm, len(spellings))
+	for i, spelling := range spellings {
+		a, err := t.compileArm(spelling, targets)
 		if err != nil {
 			return nil, err
 		}
@@ -129,8 +129,8 @@ func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarg
 
 // compileArm compiles one read into a path: from the head it names, or, for a read through a
 // name, from what that name binds.
-func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) (arm, error) {
-	a := splitArm(name, t.refs.byName)
+func (t *template) compileArm(spelling string, targets map[*nameBinding]nameTarget) (arm, error) {
+	a := splitArm(spelling, t.refs.byName)
 	if !t.isName(a.head) {
 		start := t.startOf(a.head)
 		if start == nil {

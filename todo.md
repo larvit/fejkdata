@@ -12,8 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 173 | 0.5.0 |  |  | **Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.** | 1 | 1 | 1 | 1 | 3 | code health by 4 | 9.8 |
-| 409 | 0.5.0 | 173 |  | **Build each op whole in one constructor at resolve, so `prepareAddDays` and `buildDraws` stop rewriting an op.** | 2 | 1 | 2 | 3 | 2 | code health by 4 | 13.1 |
+| 409 | 0.5.0 |  |  | **Build each op whole in one constructor at resolve, so `prepareAddDays` and `buildDraws` stop rewriting an op.** | 2 | 1 | 2 | 3 | 2 | code health by 4 | 13.1 |
 | 172 | 0.5.0 |  |  | **Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 410 | 0.5.0 | 409 |  | **Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.** | 2 | 1 | 2 | 3 | 3 | code health by 4 | 9.8 |
 | 411 | 0.5.0 | 409, 410 |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 3 | 1 | 2 | 4 | 4 | code health by 6 | 9.8 |
@@ -233,13 +232,9 @@
 
 ## Details
 
-### 173. Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.
-
-`checkReads` "proves each name t reads", `splitArm` "splits one name into head and tail" and asks `t.isName` of the result in `compileArm`, and `refTokens` returns "reference names". Both architect seats of the 2026-10-09 panel and the scoring run's architect named the word as one name over several concepts, against the decision "One name, one meaning". Item 136 did this for `internal/grammar`.
-
 ### 409. Build each op whole in one constructor at resolve, so `prepareAddDays` and `buildDraws` stop rewriting an op.
 
-Files: `format.go`, `adddays.go`, `resolve.go`, `arm.go`; about 150 lines. It comes after 173, which renames the spelling a token reads in the same files, so neither rewrites the other's lines. It ships with a paired ruling no worse.
+Files: `format.go`, `adddays.go`, `resolve.go`, `arm.go`; about 150 lines. It ships with a paired ruling no worse.
 
 ### 172. Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.
 
