@@ -12,8 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 410 | 0.5.0 |  |  | **Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.** | 2 | 1 | 2 | 3 | 3 | code health by 4 | 9.8 |
-| 411 | 0.5.0 | 410 |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 3 | 1 | 2 | 4 | 4 | code health by 6 | 9.8 |
+| 411 | 0.5.0 |  |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 3 | 1 | 2 | 4 | 4 | code health by 6 | 9.8 |
 | 413 | 0.5.0 |  |  | **Link a child table without writing its parent, so a failed lazy load changes no finished table.** | 3 | 1 | 2 | 4 | 2 | code health by 3 | 9.8 |
 | 415 | 0.5.0 | 411, 413 |  | **Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
@@ -230,13 +229,9 @@
 
 ## Details
 
-### 410. Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.
-
-Files: `arm.go`, `format.go`, `table.go`, `path.go`; about 200 lines. It folds in item 174, **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.**: `compileStep` copies one into the other (`path.go`), and two seats of the 2026-10-09 panel named it. It ships with a paired ruling no worse.
-
 ### 411. Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.
 
-Files: `resolve.go`, `name.go`, `record.go`, `graph.go`, `node.go`, `data.go`; about 300 lines. It comes after 410, since `finish` can be the one writer only once ops and arms are built whole. It ships with a paired ruling no worse.
+Files: `resolve.go`, `name.go`, `record.go`, `graph.go`, `node.go`, `data.go`; about 300 lines. It follows arms being built whole, since `finish` can be the one writer only once ops and arms are. It ships with a paired ruling no worse.
 
 ### 413. Link a child table without writing its parent, so a failed lazy load changes no finished table.
 
