@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 403`
+`Next ID = 404`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.9 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -218,6 +219,12 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
+
+### 403. Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.
+
+`release-tooling/publish_release.py` finds a section only by `## [name]`, and `changelog.py` writes `## [Unreleased]`. A commit wrote `## Unreleased`, which the tooling skipped: it took `## [0.3.0]` as the newest section and failed every push to `main` from 2026-11-09 with "the version is burnt", and no pull request's check caught it. The brackets come from Keep a Changelog, where they link each heading to a comparison URL at the bottom of the file; fejkdata's changelog has no such URLs. The human chose to drop them, over keeping them and refusing a bare heading in the changelog check.
+
+The tooling then reads and writes the bare spelling. It still reads the bracketed headings of the releases cut so far, since packaging an old release again reads its tag's changelog. The changelog check refuses a `## ` heading it can't read, so a pull request catches the next one. `fixtures.py`, the README's release steps and the module doc of `publish_release.py` follow, and the decision "The changelog heading is the one spelling of a release; CI cuts the tag" names the spelling. Until this ships, a new section is spelled `## [Unreleased]`.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
