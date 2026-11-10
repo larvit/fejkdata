@@ -12,8 +12,8 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 411 | 0.5.0 |  |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 3 | 1 | 2 | 4 | 4 | code health by 6 | 9.8 |
 | 413 | 0.5.0 |  |  | **Link a child table without writing its parent, so a failed lazy load changes no finished table.** | 3 | 1 | 2 | 4 | 2 | code health by 3 | 9.8 |
+| 411 | 0.5.0 |  |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 4 | 1 | 2 | 5 | 5 | code health by 6 | 5.9 |
 | 415 | 0.5.0 | 411, 413 |  | **Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 412 | 0.5.0 | 411 |  | **Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying pending draws and targets.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
@@ -229,13 +229,13 @@
 
 ## Details
 
-### 411. Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.
-
-Files: `resolve.go`, `name.go`, `record.go`, `graph.go`, `node.go`, `data.go`; about 300 lines. It follows arms being built whole, since `finish` can be the one writer only once ops and arms are. It ships with a paired ruling no worse.
-
 ### 413. Link a child table without writing its parent, so a failed lazy load changes no finished table.
 
 Test first: a lazy load fails after `rows.Link`, then a render reads through the parent. The architect suspects `rows.Link` (`internal/rows/rows.go:311-315`) leaves a half-resolved child in a finished parent's `children`; say whether the test confirms or refutes that before the change. Files: `internal/rows/rows.go`, `table.go`, `path.go`, `resolve.go`, `index.go`; about 150 lines. It waits for no other item. It ships with a paired ruling no worse.
+
+### 411. Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.
+
+Files: `resolve.go`, `name.go`, `record.go`, `graph.go`, `node.go`, `data.go`, `index.go`, `inline.go`, `struct.go`, and the load-time readers of the fields `finish` writes, which read the pending links value instead: `arm.go`, `columnread.go`, `calc.go`, `adddays.go`, `pathvalues.go`, `namefence.go`, `where.go`; about 450 to 650 lines. It follows arms being built whole, since `finish` can be the one writer only once ops and arms are. It ships with a paired ruling no worse.
 
 ### 415. Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.
 
@@ -370,6 +370,8 @@ The decision says that where no Go version fixes a vulnerability yet, the mainta
 `reading-cost` on 2026-11-08: "Rising: the last 5 chunks' median is 112711 new input tokens before their first commit, the 5 before them 85771". Read most over the last 5 (opens and searches): `README.md` 38, `todo.md` 22, `swedish_test.go` 14, `docs/decisions.md` 11, `builtins_test.go` 7, `valueproof.go` 7, `CHANGELOG.md` 6, `DATA-LICENSES.md` 6, `calc_test.go` 6, `adddays.go` 5.
 
 `reading-cost` before the chunk of item 380, on 2026-11-09: "Rising: the last 5 chunks' median is 112711 new input tokens before their first commit, the 5 before them 85771". Read most over the last 5 (opens and searches): `todo.md` 36, `README.md` 25, `swedish_test.go` 11, `compose.yaml` 8, `valueproof.go` 7, `builtins_test.go` 6, `calc_test.go` 6, `internal/builtinfunc/builtinfunc.go` 6, `adddays.go` 5, `docs/decisions.md` 4.
+
+`reading-cost` before the chunk of items 413 and 411, on 2026-11-10: "Rising: the last 5 chunks' median is 71284 new input tokens before their first commit, the 5 before them 55774". Read most over the last 5 (opens and searches): `todo.md` 45, `format.go` 12, `docs/decisions.md` 10, `README.md` 9, `resolve.go` 8, `arm.go` 7, `index.go` 5, `reference.go` 5, `table_test.go` 5, `inline.go` 4.
 
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
