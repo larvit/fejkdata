@@ -1350,3 +1350,17 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `reword.go` 1
 - `where.go` 1
+
+## Reading cost, chunk 5b56bde802b1, finished 2026-11-10T20:25:33Z
+
+52237 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 3
+- `path.go` 2
+- `pick.go` 2
+- `render.go` 2
+- `path_test.go` 1
+- `render_test.go` 1
+- `table.go` 1
