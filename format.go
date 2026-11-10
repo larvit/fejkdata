@@ -74,8 +74,7 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 	return nil, nil
 }
 
-// checkReads proves that each spelling t reads (its arms, its builtin's operands and its clause's
-// spellings) is a reference or a path into a field. It returns the reads whose head no field holds.
+// checkReads proves that each spelling t reads (its arms, its builtin's operands and its clause's) is a reference or a path into a field. It returns the reads whose head no field holds.
 func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unboundRead, error) {
 	own, clause := tokenReads(t)
 	wholeToken := !operands && len(own)+len(clause) == 1
@@ -88,7 +87,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 		unbound = append(unbound, u...)
 	}
 	for _, c := range clause {
-		u, err := checkRead(t, c.name, fields, wholeToken, c.unbound)
+		u, err := checkRead(t, c.spelling, fields, wholeToken, c.unbound)
 		if err != nil {
 			return nil, err
 		}
@@ -154,7 +153,7 @@ func checkBound(ref string, fields map[string]node) error {
 	return err
 }
 
-// checkArm validates one sibling spelling against a template's fields.
+// checkArm validates one read of a sibling field against a template's fields.
 // wholeToken says the spelling is the token's entire body, so {/name} would render
 // the same value and can be offered as the reference spelling. missing says no
 // field holds the head, which a name may yet answer.
@@ -188,12 +187,12 @@ func checkArm(spelling string, fields map[string]node, wholeToken bool) (missing
 
 // tokenReads lists the spellings t reads: own, a read's arms or the operands a call's builtin reads,
 // and clause, the spellings its where clause reads.
-func tokenReads(t grammar.Token) (own []string, clause []clauseName) {
+func tokenReads(t grammar.Token) (own []string, clause []clauseSpelling) {
 	own = t.Arms
 	if t.Kind == grammar.BuiltinCall {
 		own = builtinfunc.Operands(t.Fn, t.Args)
 	}
-	return own, clauseNames(t.Where)
+	return own, clauseSpellings(t.Where)
 }
 
 // formatOps is a compiled format: its ops, and the size of its literal text.
@@ -204,7 +203,7 @@ type formatOps struct {
 
 // compileFormat compiles t's parsed format against its resolved references and its names'
 // targets; a {ref as n} token compiles to no op, and a bind with a where or distinct clause to an
-// op that expand skips, holding the spellings its where clause reads. checkTokens proved every token valid.
+// op that expand skips, holding the arms its where clause reads. checkTokens proved every token valid.
 func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps, error) {
 	var c formatOps
 	for _, tok := range t.tokens {

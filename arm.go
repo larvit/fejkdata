@@ -62,7 +62,7 @@ func checkSegments(a arm) error {
 	return grammar.CheckSegments(append([]string{a.head}, a.tail...))
 }
 
-// op is one compiled unit of a format string: a literal run, a name read,
+// op is one compiled unit of a format string: a literal run, a read,
 // or a builtin already prepared with its args.
 type op struct {
 	grammar.Token
@@ -71,13 +71,13 @@ type op struct {
 	// operands are the fields the builtin reads, in the order its operands func fixed; expand reads
 	// them before a call that has no draw. nil for a token that reads none.
 	operands []arm
-	clause   []arm // the spellings the token's where clause reads, in clauseNames' order
+	clause   []arm // the token's where clause's reads, in clauseSpellings' order
 	// draw is what a token with a where or a distinct clause, or a {reword()} call, prints in
 	// place of a plain read or call; nil for any other token
 	draw tokenDraw
 }
 
-// reads is every arm a render of o reads: its arms, its builtin's operands and its clause's spellings.
+// reads is every arm a render of o reads: its arms, its builtin's operands and its clause's reads.
 // Each points into o's slices, so the same arm always yields the same pointer.
 func (o *op) reads() []*arm {
 	found := make([]*arm, 0, len(o.arms)+len(o.operands)+len(o.clause))
@@ -130,7 +130,7 @@ func (t *template) compileArms(spellings []string, targets map[*nameBinding]name
 // compileArm compiles one read into a path: from the head it names, or, for a read through a
 // name, from what that name binds.
 func (t *template) compileArm(spelling string, targets map[*nameBinding]nameTarget) (arm, error) {
-	a := splitArm(spelling, t.refs.byName)
+	a := splitArm(spelling, t.refs.bySpelling)
 	if !t.isName(a.head) {
 		start := t.startOf(a.head)
 		if start == nil {

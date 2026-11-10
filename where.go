@@ -56,20 +56,20 @@ func (f fallback) at(s *drawstate.State, env renderEnv) string {
 	return readName(s, env, *f.read).text
 }
 
-// clauseName is a name a where clause reads, and the word of the clause reading it.
-type clauseName struct{ word, name string }
+// clauseSpelling is a spelling a where clause reads, and the word of the clause reading it.
+type clauseSpelling struct{ word, spelling string }
 
-// clauseNames is every name w reads, each once: its length's first, then not's, not containing's and
+// clauseSpellings is every spelling w reads, each once: its length's first, then not's, not containing's and
 // else's.
-func clauseNames(w *grammar.Where) []clauseName {
+func clauseSpellings(w *grammar.Where) []clauseSpelling {
 	if w == nil {
 		return nil
 	}
-	var names []clauseName
+	var names []clauseSpelling
 	add := func(word string, ns ...string) {
 		for _, n := range ns {
-			if n != "" && !slices.ContainsFunc(names, func(c clauseName) bool { return c.name == n }) {
-				names = append(names, clauseName{word, n})
+			if n != "" && !slices.ContainsFunc(names, func(c clauseSpelling) bool { return c.spelling == n }) {
+				names = append(names, clauseSpelling{word, n})
 			}
 		}
 	}
@@ -84,10 +84,10 @@ func clauseNames(w *grammar.Where) []clauseName {
 	return names
 }
 
-// clauseRead returns the arm in clause, an op's compiled where clause, that reads name; name must be
-// one the clause reads.
-func clauseRead(clause []arm, name string) *arm {
-	return &clause[slices.IndexFunc(clause, func(a arm) bool { return a.spelling == name })]
+// clauseRead returns the arm in clause, an op's compiled where clause, that reads spelling; spelling
+// must be one the clause reads.
+func clauseRead(clause []arm, spelling string) *arm {
+	return &clause[slices.IndexFunc(clause, func(a arm) bool { return a.spelling == spelling })]
 }
 
 func clauseReads(clause []arm, of []string) []*arm {
@@ -110,52 +110,52 @@ func fallbackOf(w *grammar.Where, clause []arm, deflt string) fallback {
 }
 
 // unbound is the refusal of c where no field and no name holds it.
-func (c clauseName) unbound() error {
-	head := splitArm(c.name, nil).head
+func (c clauseSpelling) unbound() error {
+	head := splitArm(c.spelling, nil).head
 	if c.word == "length" {
-		return fmt.Errorf("length %s reads a name, and no name %q is bound; bind one first, as {… as %s}", c.name, head, head)
+		return fmt.Errorf("length %s reads a name, and no name %q is bound; bind one first, as {… as %s}", c.spelling, head, head)
 	}
-	return fmt.Errorf("%s %s reads a name, and no name %q is bound; bind one first, as {… as %s}, or quote the text, as '%s'", c.word, c.name, head, head, c.name)
+	return fmt.Errorf("%s %s reads a name, and no name %q is bound; bind one first, as {… as %s}, or quote the text, as '%s'", c.word, c.spelling, head, head, c.spelling)
 }
 
-func (c clauseName) listsStrings() bool { return c.word == "not" || c.word == "not containing" }
+func (c clauseSpelling) listsStrings() bool { return c.word == "not" || c.word == "not containing" }
 
 // fieldRead is the refusal of c reading a field, which a clause reads only through a name.
-func (c clauseName) fieldRead() error {
-	bind := fmt.Sprintf("bind it first, as {%s as n}, and write %s n", c.name, c.word)
+func (c clauseSpelling) fieldRead() error {
+	bind := fmt.Sprintf("bind it first, as {%s as n}, and write %s n", c.spelling, c.word)
 	if c.listsStrings() {
-		return fmt.Errorf("%s %s reads a name, and %q is a field; for one of its values, %s; for every value, quote each, as %s '…', '…'", c.word, c.name, c.name, bind, c.word)
+		return fmt.Errorf("%s %s reads a name, and %q is a field; for one of its values, %s; for every value, quote each, as %s '…', '…'", c.word, c.spelling, c.spelling, bind, c.word)
 	}
-	return fmt.Errorf("%s %s reads a name, and %q is a field; %s", c.word, c.name, c.name, bind)
+	return fmt.Errorf("%s %s reads a name, and %q is a field; %s", c.word, c.spelling, c.spelling, bind)
 }
 
 // membersRead is the refusal of c reading whole a name holding n distinct members, which a list of
 // strings names one by one.
-func (c clauseName) membersRead(n int) error {
+func (c clauseSpelling) membersRead(n int) error {
 	var members []string
 	for k := 1; k <= n; k++ {
 		switch {
 		case k <= 2 || k == n:
-			members = append(members, fmt.Sprintf("%s[%d]", c.name, k))
+			members = append(members, fmt.Sprintf("%s[%d]", c.spelling, k))
 		case k == 3:
 			members = append(members, "…")
 		}
 	}
-	return fmt.Errorf("%s %s reads name %q, which holds %d distinct members; list them, as %s %s", c.word, c.name, c.name, n, c.word, strings.Join(members, ", "))
+	return fmt.Errorf("%s %s reads name %q, which holds %d distinct members; list them, as %s %s", c.word, c.spelling, c.spelling, n, c.word, strings.Join(members, ", "))
 }
 
 // compileClauseNames compiles the names w reads, each bound in a template enclosing t.
 func (t *template) compileClauseNames(w *grammar.Where, targets map[*nameBinding]nameTarget) ([]arm, error) {
 	var arms []arm
-	for _, c := range clauseNames(w) {
-		read := splitArm(c.name, nil)
+	for _, c := range clauseSpellings(w) {
+		read := splitArm(c.spelling, nil)
 		if !t.isName(read.head) {
 			return nil, c.fieldRead()
 		}
 		if b := t.nameScope.lookup(read.head); b.distinct != nil && len(read.tail) == 0 && c.listsStrings() {
 			return nil, c.membersRead(b.distinct.N)
 		}
-		a, err := t.compileArm(c.name, targets)
+		a, err := t.compileArm(c.spelling, targets)
 		if err != nil {
 			return nil, err
 		}
