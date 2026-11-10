@@ -232,8 +232,8 @@ func (t *table) linkParent(siblings map[string]node) error {
 	})
 }
 
-// tableRoute is how a path passes one table: the row it reads, by selector or
-// drawn, and where the walk stands after it.
+// tableRoute is how a path passes one table: the row the path reads there, by selector or
+// drawn, and where the walk stands past the table.
 type tableRoute struct {
 	sel  string
 	draw bool
