@@ -1042,48 +1042,53 @@ Shipped under the floor before that by the maintainer's decisions of 2026-10-07,
 
 The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while the comprehension floor's target is 7.0.
 
-## The template engine stays the root package until item 107 cuts it into `internal/engine`'s `tree`, `load`, `fence` and `render`, each node's syntax set by its constructor and its links by one `finish`; what reads no engine type, a table's rows included, sits in `internal/`
+## The template engine stays the root package until item 107 cuts it into `internal/engine`'s `tree`, `load`, `fence` and `render`, after items 409 to 411 have each node's constructor set its syntax and one `finish` resolve its references; what reads no engine type, a table's rows included, sits in `internal/`
 
-2026-10-05, Lilleman auf Larv; revised 2026-11-10 into the plan below, which carries out their
-choice of 2026-10-09 to regroup the engine into packages, untangled first, over naming the
-root files by area. Serves code health. Two architect reviews found the engine's types,
-`template`, `table`, `arm`, `op` and `nameBinding`, bound in one cycle because several load
-stages each write part of the same structs. Moving the engine while they do would spread that
-knot across packages, so the untangling comes first. The draw state, the grammar, `DataType`,
-what a proof knows of a value, the builtins, the reading of data files and a table's rows read
-no engine type, so each sits in a package under `internal/`, behind the import list
-`imports_test.go` checks.
+2026-10-05, Lilleman auf Larv; revised 2026-11-10. Serves code health. On 2026-10-09 the
+maintainer chose to regroup the engine into packages, untangled first, over naming the root
+files by area; this is the plan for that choice, made with the systems architect.
 
-How load finishes a value. The node graph is cyclic by design, since a category may reference
-itself, so a node's identity exists before its references resolve. Compile builds each node
-with its syntax only. Every later load stage returns values and writes no node, and one
-`finish` writes them into the batch's nodes once; a second call is an `invariant` panic. A
-node is one struct, not a load-time type beside a render-time one, which would double each
-type for what the package line already guarantees. A load reads the categories finished
-before it and never writes them: a child table is linked without writing its parent, whose
-children come from its folder, so a lazy load that fails changes no finished table.
+Why the engine stayed whole. Two architect reviews found its types, `template`, `table`,
+`arm`, `op` and `nameBinding`, bound in one cycle, because several load stages each write
+part of the same structs. Moving them while that holds would spread the knot across
+packages, so the untangling comes first. The draw state, the grammar, `DataType`, what a
+proof knows of a value, the builtins, the reading of data files and a table's rows read no
+engine type, so each sits in its own package under `internal/`, the leaf libraries, behind
+the import list `imports_test.go` checks.
+
+How load finishes a value. The node graph is cyclic by design, since a category may
+reference itself, so a node must exist before its references resolve. Compile builds each
+node with its syntax only. Every later load stage returns values and doesn't write a node,
+and one `finish` writes them into the nodes of the category being loaded, once; a second
+call is an `invariant` panic. A node is one struct, not a load-time type beside a render-time
+one: two types would double every node type for a guarantee that `tree` being the only
+package to write a node's fields already gives. A load reads the categories finished
+before it and doesn't write them. A child table is therefore linked without writing its
+parent: the parent's children come from its folder, so a lazy load that fails leaves every
+finished table as it was.
 
 Packages, by the stage that writes or reads a type. The root keeps the public API and its
 options. `internal/engine` holds the pipeline, the folder and lazy loading. `tree` holds the
-node types, their constructors, `finish` and read-only accessors, the whole cycle in one
-package. `load` compiles, binds, links and resolves; `fence` proves and fences the finished
-tree; `render` draws. `engine` imports `load`, `fence`, `render` and the leaf libraries; each
-of the three imports `tree` and no other of them; `tree` imports four leaf libraries. Names and
-paths get no package of their own: each stage keeps its part of them, and `tree` holds the
-step type all stages walk. The three walkers of a path stay in their stages.
+node types, their constructors, `finish` and read-only accessors, so the whole cycle sits in
+one package. `load` compiles, binds, links and resolves; `fence` proves and fences the
+finished tree; `render` draws. `engine` imports `load`, `fence`, `render` and the leaf
+libraries; each of the three imports `tree`, and none imports another of the three; `tree`
+imports four leaf libraries. Names and paths get no package of their own: each stage keeps
+its part of them, and `tree` holds the step type every stage walks. The three functions
+walking a path, one to load every branch, one to draw one and one to find the caller's
+folders, stay in their stages.
 
 The allocation gate holds because the hot path stays inside `render`, where `renderEnv`'s
-by-value rules apply unchanged. It reaches `tree` through concrete pointer methods, never an
-interface, and `tokenDraw` becomes a closed sum in `tree` that `render` switches on.
-`perf_test.go` stays in the root and uses only the public API; a cut that raises a count is
-fixed, not re-pinned.
+rule of passing by value applies unchanged. `render` reads `tree` through concrete pointer
+methods, never an interface, and `tokenDraw` becomes a closed sum in `tree` that `render`
+switches on. `perf_test.go` stays in the root and uses only the public API; a cut that raises
+an allocation count is fixed, not re-pinned.
 
-The moves are `todo.md` items, each shipping alone with a paired ruling no worse: 172 and 173
-as filed, 409 to 414 untangling in place, 415 to 418 cutting leaf-first, and 107 moving the
-pipeline last. Item 174 is folded into 410, and 414 deletes the calc proof that duplicates
-`valueProof`. `internal/` holds eleven packages, over about seven, since a reader finds the
-leaf libraries by name. The vocabulary stays below `doc.go`'s package clause until item 107
-decides where it lives. Valid until `todo.md` item 107 lands.
+The moves are `todo.md` items, each with a paired ruling no worse: 172 and 173 as filed, 409
+to 414 untangling in place, 415 to 418 cutting leaf-first, and 107 moving the pipeline last.
+Item 174 is folded into 410, and 414 deletes the calc proof that duplicates `valueProof`.
+`internal/` will hold eleven directories, over the principle's about seven per level, since a
+reader finds the leaf libraries by name. Valid until `todo.md` item 107 lands.
 
 ## Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 
