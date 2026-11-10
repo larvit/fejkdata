@@ -141,11 +141,12 @@ func resolved(t *testing.T, s string) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := resolveInlineTemplates(inlineNodes(n, "template"), nil, l); err != nil {
+	ts, err := resolveInlineTemplates(inlineNodes(n, "template"), nil, l)
+	if err != nil {
 		return n, err
 	}
 	l.finish()
-	return n, nil
+	return n, fenceTemplates(ts)
 }
 
 // compiled parses, compiles and resolves a JSON fragment into a node.

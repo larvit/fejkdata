@@ -98,7 +98,7 @@ func loadInline(root *folder, n node, l *loadFinds, label string, typedByGo bool
 	return pipeline{
 		nodes:     nodes,
 		finds:     l,
-		resolve:   func() error { return resolveInlineTemplates(nodes, root.children, l) },
+		resolve:   func() ([]templateSite, error) { return resolveInlineTemplates(nodes, root.children, l) },
 		typedByGo: typedByGo,
 	}.run()
 }

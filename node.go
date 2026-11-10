@@ -201,11 +201,11 @@ func (t *template) fixedText() (string, bool) {
 	return "", false
 }
 
-// printedOp is the one op of t that prints, past the binds a where or distinct clause compiles to,
-// which print nothing; ok is false where t prints through more ops or none.
-func (t *template) printedOp(l *loadFinds) (printed op, ok bool) {
+// printedOp is the one op of ops that prints, past the binds a where or distinct clause compiles to,
+// which print nothing; ok is false where ops print through more ops or none.
+func printedOp(ops []op) (printed op, ok bool) {
 	n := 0
-	for _, o := range l.of(t).compiled.ops {
+	for _, o := range ops {
 		if o.Kind != grammar.NameBind {
 			printed, n = o, n+1
 		}

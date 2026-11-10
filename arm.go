@@ -101,7 +101,7 @@ func newOp(t *template, parts op, l *loadFinds, words map[wordsAt]*wordList) (op
 		o.draw, err = t.rewordDrawOf(&o, l, words)
 	case o.Where == nil && o.Distinct == nil:
 	case o.Kind == grammar.BuiltinCall:
-		o.draw, err = newAlphabetDraw(&o, l)
+		o.draw, err = newAlphabetDraw(&o)
 	default:
 		o.draw, err = t.valueDrawOf(&o, l)
 	}
