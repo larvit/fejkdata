@@ -24,6 +24,8 @@ package fejkdata
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
 //     start one each, and `FakeStruct` one per record.
 //   - env — what a render reads names and rows through: `renderEnv`.
+//   - spelling — what a token reads, as written: a name, a path into a field or a reference;
+//     its `arm` holds it split into head and tail.
 //   - scope — where a name is bound: a category, or one repeat iteration: `nameScope`.
 //   - named pick — the draw a token such as {/person as p} binds to a name, drawn
 //     on its first read and kept while its scope renders: `nameBinding`,
