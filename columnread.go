@@ -94,7 +94,7 @@ func columnSource(t *template, a arm, targets map[*nameBinding]nameTarget) (star
 	switch b := a.named; {
 	case a.kind == namedRead && b.bindsField():
 		// {f as n}{n}: column f of the record binding n, in t's own category.
-		return b.binder, "", slices.Concat([]string{splitArm(b.ref, nil).head}, targets[b].tail, a.tail)
+		return b.binder, "", slices.Concat([]string{splitRead(b.ref, nil).head}, targets[b].tail, a.tail)
 	case a.kind == namedRead:
 		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
 		return targets[b].start, categoryOf(b.binder.refs.bySpelling[b.ref].head), slices.Concat(targets[b].tail, a.tail)
