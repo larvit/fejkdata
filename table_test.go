@@ -236,10 +236,11 @@ func TestTableDescendsToALinkedTable(t *testing.T) {
 
 func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 	files := with(geo(), map[string]string{
-		"named.json":       `"{/locality as l}{l.code}|{l..municipality.code}|{l..municipality..region.code}"`,
-		"named-down.json":  `"{/locality as l}{l.code}|{l..municipality.locality.code}"`,
-		"named-twice.json": `"{/locality as l}{l..municipality.locality.code}|{l..municipality.locality.name}"`,
-		"record.json":      `{"format":"","l":"{/locality as x}{x.code}","m":"{x..municipality.code}"}`,
+		"named.json":          `"{/locality as l}{l.code}|{l..municipality.code}|{l..municipality..region.code}"`,
+		"named-down.json":     `"{/locality as l}{l.code}|{l..municipality.locality.code}"`,
+		"named-twice.json":    `"{/locality as l}{l..municipality.locality.code}|{l..municipality.locality.name}"`,
+		"record.json":         `{"format":"","l":"{/locality as x}{x.code}","m":"{x..municipality.code}"}`,
+		"named-two-down.json": `"{/locality[L4] as l}{l..municipality..region.municipality.code}|{l..municipality..region.municipality.locality.code}"`,
 	})
 	f := newGenerator(t, writeFiles(t, files), WithSeed(4))
 	for path, want := range map[string]string{
@@ -273,6 +274,9 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 		}
 		if parts := strings.Split(fake(t, f, "named-down"), "|"); municipalityOf[parts[0]] != municipalityOf[parts[1]] {
 			t.Fatalf("named-down = %v, want a locality of the first one's municipality", parts)
+		}
+		if parts := strings.Split(fake(t, f, "named-two-down"), "|"); municipalityOf[parts[1]] != parts[0] {
+			t.Fatalf("named-two-down = %v, want a locality inside the municipality the first read drew", parts)
 		}
 		if parts := strings.Split(fake(t, f, "named-twice"), "|"); names[parts[0]] != parts[1] {
 			t.Fatalf("named-twice = %v, want both reads of one step down under a name to read one locality", parts)
