@@ -4,6 +4,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). A release's
 `Breaking` section comes first and names each rejected spelling with its
 replacement, and each removed path, column or flag.
 
+## [Unreleased]
+
+### Breaking
+
+- A where clause's `length` that reads a name, as `{x where length n}` does,
+  fails to load wherever `n` may print a fallback or default: where `n` binds a
+  draw whose where clause leaves out a value it reads, as `{w where not t as n}`
+  does, or binds a field holding such a draw. 0.4.0 refused only some of these,
+  by where `n` was bound, and loaded the rest, some to panic at render. Bind `n`
+  to a draw that leaves out only quoted values, or none.
+
 ## [0.4.0] - 2026-11-10
 
 ### Breaking
