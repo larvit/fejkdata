@@ -185,18 +185,35 @@ func callerPathSteps(n node, tail []string, steps []pathStep) ([]pathStep, error
 	return steps, nil
 }
 
-// drawSteps draws the rows and variants a path's steps read from n, pinning the rows in pins;
-// pins is nil for a sibling path, which never crosses a table, since a table is only a category.
-// For a read through a name, memo keeps the variant drawn at each of levels, so paths sharing a
-// prefix share it. It returns the leaf and the pins its row is in.
-func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []pickKey) (node, *pinSet) {
+// drawMode is the kind of read drawSteps draws, which says what its pins and memo arguments hold.
+type drawMode uint8
+
+const (
+	// drawSibling reads a path that never crosses a table, since a table is only a category, so it
+	// takes neither pins nor a memo, and every choice draws afresh.
+	drawSibling drawMode = iota
+	// drawFresh reads into pins of its own, and every choice draws afresh.
+	drawFresh
+	// drawInPick reads into the pins of a name's pick, and memo keeps the variant drawn at each of
+	// levels, so paths sharing a prefix share it.
+	drawInPick
+)
+
+// drawSteps draws the rows and variants a path's steps read from n, pinning the rows in pins,
+// and returns the leaf and the pins its row is in. Which of pins, memo and levels it reads
+// depends on mode.
+func drawSteps(s *drawstate.State, mode drawMode, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []pickKey) (node, *pinSet) {
 	// climbed is the table a ".." stepped up to. The next step down from it draws the child's row
 	// afresh, into pins holding only the rows from climbed up, which memo shares with every path
 	// of the pick stepping down there.
 	var climbed *rowsTable
 	for _, st := range steps {
 		if c, ok := n.(*choice); ok {
-			n = drawVariant(s, c, memo, levels, st.at)
+			if mode == drawInPick {
+				n = memo.variantOf(s, c, levels[st.at])
+			} else {
+				n = drawThroughChoices(s, c)
+			}
 		}
 		if st.kind == stepField {
 			var err error
@@ -204,6 +221,9 @@ func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo 
 				panic(invariant.Broken("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.at, err))
 			}
 			continue
+		}
+		if mode == drawSibling {
+			panic(invariant.Broken("step %d: a table's step of kind %d on a sibling read, which never crosses a table", st.at, st.kind))
 		}
 		t, ok := n.(*table)
 		if !ok {
@@ -213,18 +233,16 @@ func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo 
 		case st.kind == stepParent:
 			climbed = t.rows.Parent()
 		case st.kind == stepChild && climbed != nil:
-			pins, climbed = memo.stepDownPins(pins, climbed, levels, st.at), nil
+			if mode == drawInPick {
+				pins = memo.stepDownPins(pins, climbed, levels, st.at)
+			} else {
+				pins = pins.Above(climbed)
+			}
+			climbed = nil
 		}
 		n = t.followStep(s, st, pins)
 	}
 	return n, pins
-}
-
-func drawVariant(s *drawstate.State, c *choice, memo *drawMemo, levels []pickKey, at int) node {
-	if memo == nil {
-		return drawThroughChoices(s, c)
-	}
-	return memo.variantOf(s, c, levels[at])
 }
 
 // paths lists the dot paths addressable from n, relative to it, where "" is n

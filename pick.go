@@ -143,12 +143,9 @@ type drawMemo struct {
 	steppedDown   map[pickKey]*pinSet
 }
 
-// stepDownPins is the pins a path steps down into after stepping up to t: kept in m where there
-// is one, so every path stepping down there reads one draw.
+// stepDownPins is the pins a path steps down into after stepping up to t: kept in m, so every
+// path stepping down there reads one draw.
 func (m *drawMemo) stepDownPins(pins *pinSet, t *rowsTable, levels []pickKey, at int) *pinSet {
-	if m == nil {
-		return pins.Above(t)
-	}
 	p, ok := m.steppedDown[levels[at]]
 	if !ok {
 		p = pins.Above(t)
@@ -243,7 +240,7 @@ func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 // draw draws the path from start under p, keeping the variant drawn at each of levels, whose last
 // is the leaf's key, and returns the leaf and the pins its row is in.
 func (p *namedPick) draw(s *drawstate.State, start node, steps []pathStep, levels []pickKey) (node, *pinSet) {
-	leaf, pins := drawSteps(s, start, steps, &p.pins, &p.memo, levels)
+	leaf, pins := drawSteps(s, drawInPick, start, steps, &p.pins, &p.memo, levels)
 	if c, isChoice := leaf.(*choice); isChoice {
 		leaf = p.memo.variantOf(s, c, levels[len(levels)-1])
 	}
