@@ -398,7 +398,7 @@ The CLI counts brackets of its own, so a change to the selector grammar desyncs 
 
 ### 116. Turn a row index into its rows file's line in one function.
 
-Today `containedNode`'s cell line in `graph.go`, `table.compileCells` and each site in `internal/rows` add the header line and the one-based count.
+Today `containedNode`'s cell line in `graph.go`, `compileCells` and each site in `internal/rows` add the header line and the one-based count.
 
 ### 350. Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.
 

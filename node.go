@@ -64,7 +64,7 @@ func (*nullItem) isNode() {}
 // that many times and joins the results with separator (default ""), each render
 // an independent draw. Every format compiles in `resolveTemplates`.
 type template struct {
-	// Filled by `compileString`, `compileTemplate` and `table.compileRowFormat`:
+	// Filled by `compileString`, `compileTemplate` and `compileRowFormat`:
 	format     string
 	tokens     []grammar.Token
 	fields     map[string]node

@@ -98,12 +98,12 @@ func newOp(t *template, parts op, l *loadFinds, words map[wordsAt]*wordList) (op
 	var err error
 	switch {
 	case o.Kind == grammar.BuiltinCall && o.Fn == builtinfunc.RewordName:
-		o.draw, err = t.rewordDrawOf(&o, l, words)
+		o.draw, err = rewordDrawOf(t, &o, l, words)
 	case o.Where == nil && o.Distinct == nil:
 	case o.Kind == grammar.BuiltinCall:
 		o.draw, err = newAlphabetDraw(&o)
 	default:
-		o.draw, err = t.valueDrawOf(&o, l)
+		o.draw, err = valueDrawOf(t, &o, l)
 	}
 	if err != nil {
 		return op{}, err
@@ -125,34 +125,31 @@ func (o *op) reads() []*arm {
 
 // tokenDraw is how a token draws what it prints, built at load once its paths resolve.
 type tokenDraw interface {
-	// draw prints one draw of the token in t; emitted is the output so far.
-	draw(s *drawstate.State, t *template, env renderEnv, emitted string) string
 	// mayFallBack says whether a draw may print the where clause's fallback, or a path's empty
 	// default, where the strings it reads leave no value.
 	mayFallBack() bool
 }
 
-// drawToken prints one draw of d. It calls draw on d's concrete type, since a call through the
-// interface would move each render's frames to the heap.
+// drawToken prints one draw of d in t; emitted is the output so far.
 func drawToken(s *drawstate.State, t *template, env renderEnv, d tokenDraw, emitted string) string {
 	switch d := d.(type) {
 	case *valueDraw:
-		return d.draw(s, t, env, emitted)
+		return drawValue(d, s, env)
 	case *alphabetDraw:
-		return d.draw(s, t, env, emitted)
+		return drawAlphabet(d, s, env, emitted)
 	case *rewordDraw:
-		return d.draw(s, t, env, emitted)
+		return drawReword(d, s, t, env)
 	}
 	panic(invariant.Broken("no draw for %T", d))
 }
 
-func (t *template) compileArms(spellings []string, l *loadFinds) ([]arm, error) {
+func compileArms(t *template, spellings []string, l *loadFinds) ([]arm, error) {
 	if len(spellings) == 0 {
 		return nil, nil
 	}
 	arms := make([]arm, len(spellings))
 	for i, spelling := range spellings {
-		a, err := t.compileArm(spelling, l)
+		a, err := compileArm(t, spelling, l)
 		if err != nil {
 			return nil, err
 		}
@@ -163,10 +160,10 @@ func (t *template) compileArms(spellings []string, l *loadFinds) ([]arm, error) 
 
 // compileArm compiles one read into a path: from the head it names, or, for a read through a
 // name, from what that name binds.
-func (t *template) compileArm(spelling string, l *loadFinds) (arm, error) {
+func compileArm(t *template, spelling string, l *loadFinds) (arm, error) {
 	tl := l.of(t)
 	r := splitRead(spelling, tl.refs.bySpelling)
-	if !t.isName(r.head, l) {
+	if !isName(t, r.head, l) {
 		start := t.startOf(r.head, tl.refs)
 		if start == nil {
 			panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))

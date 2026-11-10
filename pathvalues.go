@@ -242,14 +242,14 @@ func spanOf(lengths []int, lo, hi int) (from, to int) {
 }
 
 // drawIn draws one of the texts in x.texts[from:to], by their odds.
-func (x *lengthIndex) drawIn(s *drawstate.State, from, to int) string {
-	return x.texts[x.drawIndex(s, from, to, nil)]
+func drawIn(x *lengthIndex, s *drawstate.State, from, to int) string {
+	return x.texts[drawIndex(x, s, from, to, nil)]
 }
 
 // drawIndex draws the index of one of the texts in x.texts[from:to] by their odds, leaving out
 // the ascending indexes drawn. It costs drawn's length plus a binary search over the span: it draws
 // among the odds left, and steps past each drawn text the draw lands at or beyond.
-func (x *lengthIndex) drawIndex(s *drawstate.State, from, to int, drawn []int) int {
+func drawIndex(x *lengthIndex, s *drawstate.State, from, to int, drawn []int) int {
 	base, left := x.before(from), x.cum[to-1]-x.before(from)
 	for _, d := range drawn {
 		left -= x.cum[d] - x.before(d)

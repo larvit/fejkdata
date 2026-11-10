@@ -214,20 +214,20 @@ func compileFormat(t *template, l *loadFinds) (formatOps, error) {
 		case grammar.LiteralRun:
 			c.grow += len(tok.Lit)
 		case grammar.BuiltinCall:
-			o.operands, err = t.compileArms(builtinfunc.Operands(tok.Fn, tok.Args), l)
+			o.operands, err = compileArms(t, builtinfunc.Operands(tok.Fn, tok.Args), l)
 			if err == nil && tok.Where != nil {
-				o.clause, err = t.compileClauseNames(tok.Where, l)
+				o.clause, err = compileClauseNames(t, tok.Where, l)
 			}
 		case grammar.PathRead:
-			o.arms, err = t.compileArms(tok.Arms, l)
+			o.arms, err = compileArms(t, tok.Arms, l)
 			if err == nil && tok.Where != nil {
-				o.clause, err = t.compileClauseNames(tok.Where, l)
+				o.clause, err = compileClauseNames(t, tok.Where, l)
 			}
 		case grammar.NameBind:
 			if tok.Where == nil && tok.Distinct == nil {
 				continue
 			}
-			o.clause, err = t.compileClauseNames(tok.Where, l)
+			o.clause, err = compileClauseNames(t, tok.Where, l)
 		}
 		if err != nil {
 			return c, fmt.Errorf("token {%s}: %w", tok.Body, err)
