@@ -103,7 +103,7 @@ func compileFormats(ts []templateSite, l *loadFinds) error {
 // and each op's call and draw, and finds what each name's reads address.
 func compileTemplates(ts []templateSite, root map[string]node, l *loadFinds) error {
 	for _, s := range ts {
-		refs, err := s.t.resolveRefs(s.folder, s.label, root)
+		refs, err := resolveRefs(s.t, s.folder, s.label, root)
 		if err != nil {
 			return err
 		}

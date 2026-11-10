@@ -39,22 +39,22 @@ type rewordDraw struct {
 
 // rewordDrawOf builds the draw of o, a {reword()} call; built holds the words of each path read
 // so far, so calls reading one path share its words.
-func (t *template) rewordDrawOf(o *op, l *loadFinds, built map[wordsAt]*wordList) (*rewordDraw, error) {
-	words, err := t.wordsOf(o.operands[1], l, built)
+func rewordDrawOf(t *template, o *op, l *loadFinds, built map[wordsAt]*wordList) (*rewordDraw, error) {
+	words, err := wordsOf(t, o.operands[1], l, built)
 	if err != nil {
 		return nil, err
 	}
 	return &rewordDraw{text: &o.operands[0], words: words}, nil
 }
 
-func (d *rewordDraw) draw(s *drawstate.State, t *template, env renderEnv, _ string) string {
-	return d.words.reword(s, env.frames, readField(s, t, env, *d.text).text)
+func drawReword(d *rewordDraw, s *drawstate.State, t *template, env renderEnv) string {
+	return reword(d.words, s, env.frames, readField(s, t, env, *d.text).text)
 }
 
 func (d *rewordDraw) mayFallBack() bool { return false }
 
 // wordsOf is the values a's path renders that are made of letters alone, by length.
-func (t *template) wordsOf(a arm, l *loadFinds, built map[wordsAt]*wordList) (*wordList, error) {
+func wordsOf(t *template, a arm, l *loadFinds, built map[wordsAt]*wordList) (*wordList, error) {
 	if a.kind == namedRead {
 		return nil, fmt.Errorf("%q is a name, which holds one pick; pass the path it binds, as in {%s(t,/en_US.word)}", a.head, builtinfunc.RewordName)
 	}
@@ -82,7 +82,7 @@ func (t *template) wordsOf(a arm, l *loadFinds, built map[wordsAt]*wordList) (*w
 
 // reword rewrites each run of letters in text as a word of its length, or of the nearest length
 // x holds, one fake per word in the render; every other rune stays.
-func (x *wordList) reword(s *drawstate.State, frames *frameStack, text string) string {
+func reword(x *wordList, s *drawstate.State, frames *frameStack, text string) string {
 	var b strings.Builder
 	rs := []rune(text)
 	for i := 0; i < len(rs); {
@@ -95,13 +95,13 @@ func (x *wordList) reword(s *drawstate.State, frames *frameStack, text string) s
 			i++
 			continue
 		}
-		writeInCase(&b, x.fake(s, frames, rs[i:j]), rs[i:j])
+		writeInCase(&b, fakeWord(x, s, frames, rs[i:j]), rs[i:j])
 		i = j
 	}
 	return b.String()
 }
 
-func (x *wordList) fake(s *drawstate.State, frames *frameStack, word []rune) string {
+func fakeWord(x *wordList, s *drawstate.State, frames *frameStack, word []rune) string {
 	key := fakeKey{x.at, strings.ToLower(string(word))}
 	if fake, drawn := frames.fakes[key]; drawn {
 		return fake
@@ -110,7 +110,7 @@ func (x *wordList) fake(s *drawstate.State, frames *frameStack, word []rune) str
 		frames.fakes = map[fakeKey]string{}
 	}
 	from, to := x.nearest(len(word))
-	fake := x.drawIn(s, from, to)
+	fake := drawIn(&x.lengthIndex, s, from, to)
 	frames.fakes[key] = fake
 	return fake
 }

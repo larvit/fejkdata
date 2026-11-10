@@ -67,7 +67,7 @@ func bindNames(root node, l *loadFinds) error {
 		switch t := n.(type) {
 		case *template:
 			l.template(t).nameScope = scope
-			if err := scope.bindAll(t, where); err != nil {
+			if err := bindAll(scope, t, where); err != nil {
 				return err
 			}
 		case *choice:
@@ -89,7 +89,7 @@ func bindNames(root node, l *loadFinds) error {
 	return answerReads(root, scopes, l)
 }
 
-func (sc *nameScope) bindAll(t *template, where string) error {
+func bindAll(sc *nameScope, t *template, where string) error {
 	for _, tok := range t.tokens {
 		if tok.Kind != grammar.NameBind {
 			continue
@@ -268,7 +268,7 @@ func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 	return fmt.Errorf("%s%w", where, u.err)
 }
 
-func (t *template) isName(head string, l *loadFinds) bool {
+func isName(t *template, head string, l *loadFinds) bool {
 	return !grammar.IsRef(head) && t.fields[head] == nil && l.of(t).nameScope.lookup(head) != nil
 }
 

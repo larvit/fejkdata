@@ -68,10 +68,10 @@ func compileTable(m map[string]any, dir []string, name string, readRows func(fil
 	if t.rows, err = rows.Parse(t, name, categoryPath(dir, name), o.rows, data, o.options); err != nil {
 		return nil, err
 	}
-	if err := t.compileCells(); err != nil {
+	if err := compileCells(t); err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
-	if err := t.compileRowFormat(o.format); err != nil {
+	if err := compileRowFormat(t, o.format); err != nil {
 		return nil, err
 	}
 	return t, nil
@@ -112,7 +112,7 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 	return o, nil
 }
 
-func (t *table) compileCells() error {
+func compileCells(t *table) error {
 	header := t.rows.Header()
 	for row := 0; row < t.rows.Len(); row++ {
 		for col := range header {
@@ -151,7 +151,7 @@ func compileCell(cell string) (*template, error) {
 
 // compileRowFormat compiles the format a row renders through, over the columns as its
 // fields.
-func (t *table) compileRowFormat(format string) error {
+func compileRowFormat(t *table, format string) error {
 	toks, err := grammar.ParseFormat(format)
 	if err != nil {
 		return err
@@ -212,7 +212,7 @@ func linkTables(sites []categorySite) error {
 		if t.rows.Options().Parent == "" {
 			continue
 		}
-		if err := t.linkParent(s.in.children); err != nil {
+		if err := linkParent(t, s.in.children); err != nil {
 			return fmt.Errorf("%s: %w", s.path, err)
 		}
 	}
@@ -245,7 +245,7 @@ func (t *table) descendant(name string) *table {
 }
 
 // linkParent links t to the table among siblings that its link column names.
-func (t *table) linkParent(siblings map[string]node) error {
+func linkParent(t *table, siblings map[string]node) error {
 	name := t.rows.Options().Parent
 	p, ok := siblings[name].(*table)
 	switch {
@@ -271,12 +271,12 @@ type tableRoute struct {
 	up   bool
 }
 
-// route is how tail passes t. fromRow means the previous route stepped into t
+// routeThrough is how tail passes t. fromRow means the previous route stepped into t
 // from a row of a table linked to it, so t reads a row even where tail is empty; a
 // table reached otherwise, with no selector and an empty tail, is left to a render's
 // own draw.
-func (t *table) route(tail []string, fromRow bool) (tableRoute, error) {
-	sel, tail, err := t.selector(tail)
+func routeThrough(t *table, tail []string, fromRow bool) (tableRoute, error) {
+	sel, tail, err := splitSelector(t, tail)
 	if err != nil {
 		return tableRoute{}, err
 	}
@@ -286,7 +286,7 @@ func (t *table) route(tail []string, fromRow bool) (tableRoute, error) {
 		}
 		return tableRoute{sel: sel, draw: sel == "", then: pathPos{n: t.rows.Parent().Owner(), tail: tail[2:], fromRow: true}, up: true}, nil
 	}
-	column, child, err := t.columnOrLinked(tail)
+	column, child, err := columnOrLinked(t, tail)
 	if err != nil {
 		return tableRoute{}, err
 	}
@@ -341,7 +341,7 @@ func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) 
 	return steps, nil
 }
 
-func (t *table) followStep(s *drawstate.State, st pathStep, pins *pinSet) node {
+func followStep(t *table, s *drawstate.State, st pathStep, pins *pinSet) node {
 	switch st.kind {
 	case stepSelect:
 		if err := pins.PinRow(t.rows, st.row); err != nil {
@@ -363,7 +363,7 @@ func (t *table) followStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 	panic(invariant.Broken("followStep has no case for step kind %d", st.kind))
 }
 
-func (t *table) selector(tail []string) (sel string, rest []string, err error) {
+func splitSelector(t *table, tail []string) (sel string, rest []string, err error) {
 	if len(tail) == 0 || !grammar.IsSelector(tail[0]) {
 		return "", tail, nil
 	}
@@ -374,7 +374,7 @@ func (t *table) selector(tail []string) (sel string, rest []string, err error) {
 	return sel, rest, nil
 }
 
-func (t *table) columnOrLinked(tail []string) (column node, child *table, err error) {
+func columnOrLinked(t *table, tail []string) (column node, child *table, err error) {
 	if len(tail) == 0 {
 		return nil, nil, nil
 	}

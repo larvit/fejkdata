@@ -120,7 +120,7 @@ func compileStep(at *pathPos, whole []string, head string, headSpans int, steps 
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
 	case *table:
-		r, err := x.route(at.tail, at.fromRow)
+		r, err := routeThrough(x, at.tail, at.fromRow)
 		if err != nil {
 			return steps, err
 		}
@@ -240,7 +240,7 @@ func drawSteps(s *drawstate.State, mode drawMode, n node, steps []pathStep, pins
 			}
 			climbed = nil
 		}
-		n = t.followStep(s, st, pins)
+		n = followStep(t, s, st, pins)
 	}
 	return n, pins
 }

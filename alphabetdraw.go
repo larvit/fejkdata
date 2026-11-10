@@ -52,14 +52,14 @@ func patterns(n int, not, containing []string) []string {
 	return append(out, containing...)
 }
 
-func (d *alphabetDraw) draw(s *drawstate.State, _ *template, env renderEnv, emitted string) string {
-	not, containing := d.strings.read(s, env)
+func drawAlphabet(d *alphabetDraw, s *drawstate.State, env renderEnv, emitted string) string {
+	not, containing := readClauseStrings(d.strings, s, env)
 	read := patterns(d.runs.Len(), not, containing)
 	switch {
 	case len(read) > 0:
 		plan := avoid.Compile(d.runs, append(read, d.quoted...))
 		if plan == nil {
-			return d.fallback.at(s, env)
+			return fallbackAt(d.fallback, s, env)
 		}
 		return plan.Draw(s)
 	case d.plan != nil:

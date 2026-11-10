@@ -49,7 +49,7 @@ type fallback struct {
 	read *arm
 }
 
-func (f fallback) at(s *drawstate.State, env renderEnv) string {
+func fallbackAt(f fallback, s *drawstate.State, env renderEnv) string {
 	if f.read == nil {
 		return f.text
 	}
@@ -145,17 +145,17 @@ func (c clauseSpelling) membersRead(n int) error {
 }
 
 // compileClauseNames compiles the names w reads, each bound in a template enclosing t.
-func (t *template) compileClauseNames(w *grammar.Where, l *loadFinds) ([]arm, error) {
+func compileClauseNames(t *template, w *grammar.Where, l *loadFinds) ([]arm, error) {
 	var arms []arm
 	for _, c := range clauseSpellings(w) {
 		read := splitRead(c.spelling, nil)
-		if !t.isName(read.head, l) {
+		if !isName(t, read.head, l) {
 			return nil, c.fieldRead()
 		}
 		if b := l.of(t).nameScope.lookup(read.head); b.distinct != nil && len(read.tail) == 0 && c.listsStrings() {
 			return nil, c.membersRead(b.distinct.N)
 		}
-		a, err := t.compileArm(c.spelling, l)
+		a, err := compileArm(t, c.spelling, l)
 		if err != nil {
 			return nil, err
 		}
@@ -244,7 +244,7 @@ func (r selfRead) reachesNode(n node) bool {
 }
 
 // valueDrawOf builds o's draw over the values o's path renders.
-func (t *template) valueDrawOf(o *op, l *loadFinds) (*valueDraw, error) {
+func valueDrawOf(t *template, o *op, l *loadFinds) (*valueDraw, error) {
 	clause := "a where clause filters"
 	if o.Where == nil {
 		clause = "a distinct clause draws"
@@ -441,27 +441,27 @@ func (v lengthProof) passing(lo, hi float64) int {
 	return max(to-from, 0)
 }
 
-func (v *valueDraw) draw(s *drawstate.State, _ *template, env renderEnv, _ string) string {
-	return strings.Join(v.drawValues(s, env), v.sep)
+func drawValue(v *valueDraw, s *drawstate.State, env renderEnv) string {
+	return strings.Join(drawValues(v, s, env), v.sep)
 }
 
 func (v *valueDraw) mayFallBack() bool { return v.strings.any() }
 
 // drawValues draws count distinct passing values, reading the clause's names in env. Where the
 // strings it reads leave fewer values than count, the fallback prints in place of each value missing.
-func (v *valueDraw) drawValues(s *drawstate.State, env renderEnv) []string {
-	from, to := v.span(v.lo.at(s, env), v.hi.at(s, env))
+func drawValues(v *valueDraw, s *drawstate.State, env renderEnv) []string {
+	from, to := v.span(lengthEndAt(v.lo, s, env), lengthEndAt(v.hi, s, env))
 	if to-from < v.count {
 		panic(invariant.Broken("a clause the load proved leaves %d values leaves %d", v.count, to-from))
 	}
-	drawn := v.holding(s, env, from, to) // ascending
+	drawn := holding(v, s, env, from, to) // ascending
 	out := make([]string, v.count)
 	for k := range out {
 		if len(drawn) == to-from {
-			out[k] = v.fallback.at(s, env)
+			out[k] = fallbackAt(v.fallback, s, env)
 			continue
 		}
-		i := v.drawIndex(s, from, to, drawn)
+		i := drawIndex(&v.lengthIndex, s, from, to, drawn)
 		at, _ := slices.BinarySearch(drawn, i)
 		drawn = slices.Insert(drawn, at, i)
 		out[k] = v.texts[i]
@@ -471,8 +471,8 @@ func (v *valueDraw) drawValues(s *drawstate.State, env renderEnv) []string {
 
 // holding is the indexes, ascending, of the texts in v.texts[from:to] that equal a not string, or
 // hold a not containing string, that v reads in env.
-func (v *valueDraw) holding(s *drawstate.State, env renderEnv, from, to int) []int {
-	not, containing := v.strings.read(s, env)
+func holding(v *valueDraw, s *drawstate.State, env renderEnv, from, to int) []int {
+	not, containing := readClauseStrings(v.strings, s, env)
 	if len(not) == 0 && len(containing) == 0 {
 		return nil
 	}
@@ -485,9 +485,9 @@ func (v *valueDraw) holding(s *drawstate.State, env renderEnv, from, to int) []i
 	return out
 }
 
-// read reads the strings in env: those a value must not equal, and those a value must not hold,
-// leaving out an empty one, which every value holds.
-func (r readStrings) read(s *drawstate.State, env renderEnv) (not, containing []string) {
+// readClauseStrings reads r's strings in env: those a value must not equal, and those a value
+// must not hold, leaving out an empty one, which every value holds.
+func readClauseStrings(r readStrings, s *drawstate.State, env renderEnv) (not, containing []string) {
 	for _, a := range r.not {
 		not = append(not, readName(s, env, *a).text)
 	}
@@ -508,7 +508,7 @@ func holdsAny(text string, of []string) bool {
 	return slices.ContainsFunc(of, func(s string) bool { return strings.Contains(text, s) })
 }
 
-func (e lengthEnd) at(s *drawstate.State, env renderEnv) int {
+func lengthEndAt(e lengthEnd, s *drawstate.State, env renderEnv) int {
 	if e.read == nil {
 		return e.n
 	}

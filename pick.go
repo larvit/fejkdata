@@ -220,7 +220,7 @@ func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 	}
 	if v := a.named.values; v != nil {
 		if p.drawn == nil {
-			p.drawn = v.drawValues(s, env)
+			p.drawn = drawValues(v, s, env)
 		}
 		if a.member > 0 {
 			return readValue{text: p.drawn[a.member-1]}

@@ -38,7 +38,7 @@ func refSegments(spelling string, folder []string) ([]string, error) {
 }
 
 // resolveRefs resolves every reference t reads.
-func (t *template) resolveRefs(folder []string, label string, root map[string]node) (templateRefs, error) {
+func resolveRefs(t *template, folder []string, label string, root map[string]node) (templateRefs, error) {
 	var refs templateRefs
 	spellings := refSpellings(t.tokens)
 	if len(spellings) == 0 {
