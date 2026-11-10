@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 402 | 0.4.0 |  | question | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 3 | 2 | 1 | 4 | 7 | code health by 2 | 0.6 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -22,6 +21,7 @@
 | 299 | 0.5.0 | 204 |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 | 392 | 0.5.0 |  |  | **Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.** | 1 | 1 | 2 | 2 | 3 | 1 by 2 | 1.3 |
+| 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 3 | 2 | 1 | 4 | 7 | code health by 2 | 0.6 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -219,12 +219,6 @@
 
 ## Details
 
-### 402. Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.
-
-The principles pass of the release review of 0.4.0 found that the test files hold 876 `for` lines in test bodies and 22 `t.Run` calls, against the technical principle "One behaviour per test, named for it … No loops or branches in a test body; parametrize the cases." A failing case can't be rerun alone with `go test -run`, and a `t.Fatalf` inside a loop hides every case after it. The release review reshaped the test files this release added; this item takes the rest, keeping every expected value, seed and draw count.
-
-Question: does this hold 0.4.0, or does it move to a later release? Its size outlasts the release review's rounds.
-
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
@@ -252,6 +246,10 @@ Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus 
 ### 392. Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.
 
 From the same review, whose first ask was relational integrity: an invoice's `customer_id` naming a customer the run wrote. Today one run writes one record shape (item 221), and `--format tsv` links two runs through a table over that file. The panel picks between a manifest file naming each template and its count, a repeated flag, and a folder of templates, and what a parent with no rows, a cycle and a child outnumbering its parents do. Seat the readers from the README's `## Audience`, and bench the spelling before any code (`CLAUDE.md` → "Bench a syntax"). A new flag reserves its name against goal 6.1. Output ordering must keep a SQL load valid: parents first.
+
+### 402. Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.
+
+The principles pass of the release review of 0.4.0 found that the test files hold 876 `for` lines in test bodies and 22 `t.Run` calls, against the technical principle "One behaviour per test, named for it … No loops or branches in a test body; parametrize the cases." A failing case can't be rerun alone with `go test -run`, and a `t.Fatalf` inside a loop hides every case after it. The release review reshaped the test files this release added; this item takes the rest, keeping every expected value, seed and draw count.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
