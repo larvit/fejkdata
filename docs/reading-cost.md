@@ -1380,3 +1380,20 @@ Read most (opens and searches):
 - `path.go` 1
 - `table.go` 1
 - `where.go` 1
+
+## Reading cost, chunk b0a9ed4645ea, finished 2026-11-10T22:23:16Z
+
+116088 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 13
+- `data.go` 3
+- `node.go` 3
+- `record.go` 3
+- `resolve.go` 3
+- `graph.go` 2
+- `name.go` 2
+- `AGENTS.md` 1
+- `arm.go` 1
+- `docs/decisions.md` 1
