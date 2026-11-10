@@ -185,27 +185,27 @@ func callerPathSteps(n node, tail []string, steps []pathStep) ([]pathStep, error
 	return steps, nil
 }
 
-// drawMode is the kind of read drawSteps draws, which says what its pins and memo arguments hold.
+// drawMode is the kind of read drawSteps makes.
 type drawMode uint8
 
 const (
-	// drawSibling reads a path that never crosses a table, since a table is only a category, so it
-	// takes neither pins nor a memo, and every choice draws afresh.
+	// drawSibling reads a path with no reference sigil. Only a reference reaches a table, so this
+	// path never crosses one, and it takes no pins and no memo.
 	drawSibling drawMode = iota
-	// drawFresh reads into pins of its own, and every choice draws afresh.
+	// drawFresh reads a reference with pins of its own, drawing every choice and row afresh.
 	drawFresh
-	// drawInPick reads into the pins of a name's pick, and memo keeps the variant drawn at each of
-	// levels, so paths sharing a prefix share it.
+	// drawInPick reads for a name's pick, into the pick's pins. memo keeps the variant drawn at each
+	// of levels and the rows drawn by each step down after a "..", so every read of the pick sees them.
 	drawInPick
 )
 
-// drawSteps draws the rows and variants a path's steps read from n, pinning the rows in pins,
-// and returns the leaf and the pins its row is in. Which of pins, memo and levels it reads
-// depends on mode.
+// drawSteps draws the rows and variants a path's steps read from n, and returns the leaf and the
+// pins its row is in. mode says which of pins, memo and levels it reads: drawSibling none,
+// drawFresh pins, drawInPick all three.
 func drawSteps(s *drawstate.State, mode drawMode, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []pickKey) (node, *pinSet) {
 	// climbed is the table a ".." stepped up to. The next step down from it draws the child's row
-	// afresh, into pins holding only the rows from climbed up, which memo shares with every path
-	// of the pick stepping down there.
+	// afresh inside the row stepped up to, so it takes pins holding only the rows from climbed up,
+	// not the row the path came from.
 	var climbed *rowsTable
 	for _, st := range steps {
 		if c, ok := n.(*choice); ok {

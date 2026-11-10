@@ -1084,7 +1084,7 @@ methods, never an interface, and `tokenDraw` becomes a closed sum in `tree` that
 switches on. `perf_test.go` stays in the root and uses only the public API; a cut that raises
 an allocation count is fixed, not re-pinned.
 
-The moves are `todo.md` items, each with a paired ruling no worse: 410
+The moves are `todo.md` items, each merging only where its paired ruling reads no worse: 410
 to 414 untangling in place, 415 to 418 cutting leaf-first, and 107 moving the pipeline last.
 Item 174 is folded into 410, and 414 deletes the calc proof that duplicates `valueProof`.
 `internal/` will hold eleven directories, over the principle's about seven per level, since a
