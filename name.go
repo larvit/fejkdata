@@ -53,9 +53,9 @@ func (sc *nameScope) lookup(name string) *nameBinding {
 	return nil
 }
 
-// bindNames gives every template and choice of a compiled category or inline template, in l, the
-// scope its names live in, and refuses a name bound twice along one chain of scopes, a name a
-// field spells too, and a read no field or name answers.
+// bindNames records in l, for every template and choice of a compiled category or inline
+// template, the scope its names live in. It refuses a name bound twice along one chain of
+// scopes, a name a field spells too, and a read no field or name answers.
 func bindNames(root node, l *links) error {
 	var scopes []*nameScope
 	var gather func(n node, scope *nameScope, item bool, where string) error

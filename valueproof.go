@@ -12,7 +12,7 @@ import (
 )
 
 // valueProof proves what typed columns and their calc operands hold, each node once per proof.
-// links is the load's, where the proof runs before finish, and nil after it.
+// links is the load's links when the proof runs before finish, and nil when it runs after.
 type valueProof struct {
 	memo       map[node]proven.Facts
 	columnMemo map[node]proven.Facts

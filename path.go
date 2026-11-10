@@ -296,7 +296,7 @@ func appendUnder(out []string, name string, ps []string) []string {
 func tablePaths(t *table, intoRepeats bool) []string {
 	out := append([]string{""}, t.rows.Header()...)
 	sort.Strings(out[1:])
-	for _, c := range t.children() {
+	for _, c := range t.childTables() {
 		out = appendUnder(out, c.rows.Segment(), paths(c, intoRepeats))
 	}
 	return out

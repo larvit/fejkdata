@@ -42,10 +42,10 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *links) error
 	return resolveTemplates(ts, root, l)
 }
 
-// resolvedNames is what the fences of resolveTemplates read about the names of a set of templates:
-// links, holding each binding's target, draw and the keys its reads address, and the reads of each
-// binding. places caches pathTo: for each node it was called from, every node under it with the
-// fields leading there. fresh is each binding's freshFieldReads.
+// resolvedNames is what the fences of resolveTemplates read about the names of a set of
+// templates. links holds each binding's target, draw and addressed keys, and reads each
+// binding's reads. places caches pathTo: for each node it was called from, every node under
+// it with the fields leading there. fresh is each binding's freshFieldReads.
 type resolvedNames struct {
 	links  *links
 	reads  map[*nameBinding][]*arm
@@ -78,7 +78,7 @@ func indexPaths(n node, path []string, index map[node][]string) {
 		indexPaths(c.node, below, index)
 	}
 	if t, isTable := n.(*table); isTable {
-		for _, linked := range t.children() {
+		for _, linked := range t.childTables() {
 			indexPaths(linked, append(path[:len(path):len(path)], linked.rows.Segment()), index)
 		}
 	}

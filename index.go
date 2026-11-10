@@ -103,10 +103,10 @@ func needs(root *folder, s categorySite) []categoryAt {
 	return out
 }
 
-// loadReached loads the unloaded categories among wanted and every unloaded category they
-// or sites need, compiling them into l, which sites were compiled into, then runs sites and
-// all it loaded through a whole load's pipeline. On an error it puts back what it loaded, so
-// the next call fails the same way.
+// loadReached loads the unloaded categories among wanted, and every unloaded category they
+// or sites need, compiling each into l, the links sites were compiled into. It then runs
+// sites and all it loaded through a whole load's pipeline. On an error it puts back what it
+// loaded, so the next call fails the same way.
 func loadReached(root *folder, sites []categorySite, l *links, wanted []categoryAt) error {
 	queue := wanted
 	for _, s := range sites {
