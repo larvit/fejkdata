@@ -90,7 +90,7 @@ type template struct {
 
 // templateRefs is what a template resolves to in the assembled tree.
 type templateRefs struct {
-	byName     map[string]resolvedRef // each reference the format reads -> what it resolves to
+	bySpelling map[string]resolvedRef // each reference the format reads -> what it resolves to
 	categories map[string]node        // each resolvedRef.head -> the category it names
 }
 

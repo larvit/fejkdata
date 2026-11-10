@@ -44,7 +44,7 @@ func (t *template) resolveRefs(folder []string, label string, root map[string]no
 	if len(spellings) == 0 {
 		return refs, nil
 	}
-	refs.byName = make(map[string]resolvedRef, len(spellings))
+	refs.bySpelling = make(map[string]resolvedRef, len(spellings))
 	refs.categories = make(map[string]node, len(spellings))
 	for _, spelling := range spellings {
 		segments, err := refSegments(spelling, folder)
@@ -60,7 +60,7 @@ func (t *template) resolveRefs(folder []string, label string, root map[string]no
 			return refs, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
 		}
 		refs.categories[head] = target
-		refs.byName[spelling] = resolvedRef{head, tail}
+		refs.bySpelling[spelling] = resolvedRef{head, tail}
 	}
 	return refs, nil
 }
@@ -115,7 +115,7 @@ func refSpellings(toks []grammar.Token) []string {
 			add(spelling)
 		}
 		for _, c := range clause {
-			add(c.name)
+			add(c.spelling)
 		}
 	}
 	return refs

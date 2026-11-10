@@ -97,7 +97,7 @@ func columnSource(t *template, a arm, targets map[*nameBinding]nameTarget) (star
 		return b.binder, "", slices.Concat([]string{splitArm(b.ref, nil).head}, targets[b].tail, a.tail)
 	case a.kind == namedRead:
 		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
-		return targets[b].start, categoryOf(b.binder.refs.byName[b.ref].head), slices.Concat(targets[b].tail, a.tail)
+		return targets[b].start, categoryOf(b.binder.refs.bySpelling[b.ref].head), slices.Concat(targets[b].tail, a.tail)
 	case grammar.IsRef(a.head):
 		// {/c.x}: column x of category c.
 		return t.startOf(a.head), categoryOf(a.head), a.tail
