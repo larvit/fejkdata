@@ -6,13 +6,14 @@
 
 `Bar = 0`
 
-`Next ID = 419`
+`Next ID = 420`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 415 | 0.5.0 |  |  | **Move the node types into `internal/engine/tree`, so no other package writes a node's fields.** | 4 | 1 | 2 | 5 | 8 | code health by 5 | 0.7 |
+| 419 | 0.5.0 |  |  | **Turn each method on a node type, or on a type a node's fields hold, that compiles, proves or draws into a function of its stage, so every type `tree` takes carries only methods that read or write its own data.** | 2 | 1 | 2 | 3 | 5 | code health by 3 | 2.9 |
+| 415 | 0.5.0 | 419 |  | **Move the node types into `internal/engine/tree`, so no other package writes a node's fields.** | 4 | 1 | 2 | 5 | 7 | code health by 5 | 1.4 |
 | 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 412 | 0.5.0 |  |  | **Run the fences that follow resolve over the finished tree, so `valueProof` and `columnReadOf` stop carrying the load's `loadFinds`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 414 | 0.5.0 | 412 |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
@@ -227,9 +228,13 @@
 
 ## Details
 
+### 419. Turn each method on a node type, or on a type a node's fields hold, that compiles, proves or draws into a function of its stage, so every type `tree` takes carries only methods that read or write its own data.
+
+Go keeps a type's methods in the type's package, so `tree` can take a type only with methods that belong there. About 28 methods fail that today. Load's methods are `table.compileCells`, `compileRowFormat`, `linkParent`, `route`, `selector` and `columnOrLinked`; `template.compileArms`, `compileArm`, `printedOp`, `isName`, `resolveRefs`, `compileClauseNames`, `valueDrawOf`, `rewordDrawOf` and `wordsOf`; and `nameScope.bindAll`. The fences' method is `valueDraw.lengthProof`. Render's methods are `table.followStep`; the `draw` of `valueDraw`, `alphabetDraw` and `rewordDraw`; `valueDraw.drawValues` and `holding`; `wordList.reword` and `fake`; `readStrings.read`, `lengthEnd.at` and `fallback.at`; and `lengthIndex`'s draws. Each becomes a function in the file that calls it. `drawToken` already switches on the draw's concrete type, and now calls those functions, so `tokenDraw` keeps only `mayFallBack` and names no `renderEnv`. The methods that stay are accessors, the writes `finish`, `put`, `putUnloaded` and `linkTables` make, and queries over the type's own data, such as `cellIndex`, `arm.key`, `op.reads` and `nameScope.lookup`. Files: `table.go`, `where.go`, `name.go`, `reword.go`, `pathvalues.go`, `alphabetdraw.go`, `node.go`, `arm.go`, `reference.go` and their callers; about 300 changed lines, all in the root. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+
 ### 415. Move the node types into `internal/engine/tree`, so no other package writes a node's fields.
 
-Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `loadfinds.go` and `imports_test.go`, about 2,000 moved lines; the types the nodes' fields hold, `formatOps`, `unboundRead`, `valueDraw`, `columnRead`, `recordColumn`, `pickKey`, `indexed`, `resolvedRef` and `wordList`, and `tokenDraw`'s `renderEnv` parameter, which move too or are broken out; and the 27 of the root's 31 files that read a node's fields, about 440 reads that become accessor calls. `linkTables` sets a table's `siblings` through a `tree` method. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+The node types move with the types their fields hold, among them `formatOps`, `unboundRead`, `valueDraw`, `alphabetDraw`, `rewordDraw`, `wordList`, `lengthIndex`, `columnRead`, `recordColumn`, `pickKey`, `indexed` and `resolvedRef`, each carrying only the methods item 419 left on it; the functions that compile them stay in the root until item 418. Outside `tree`, about 700 reads of a node's fields, in 28 of the root's 31 files, become accessor calls. A type-aware rewrite makes them, so that no read is missed by hand. `linkTables` sets a table's `siblings` through a `tree` method. Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `loadfinds.go`, the files defining the field types, and `imports_test.go`; about 1,500 moved lines. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 416. Move rendering into `internal/engine/render`.
 
