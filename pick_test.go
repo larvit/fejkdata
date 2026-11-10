@@ -387,12 +387,12 @@ func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T
 		a      arm
 		wantBy string
 	}{
-		"a field addressed":               {"", splitArm("first", nil), "n.first"},
-		"a field addressed under at":      {"x", splitArm("first", nil), "n.x.first"},
-		"a path whose first level is":     {"", splitArm("w.deeper", nil), "n.w"},
-		"a field no read addresses":       {"", splitArm("last", nil), ""},
-		"a field addressed elsewhere":     {"x", splitArm("w", nil), ""},
-		"a reference a read's key spells": {"k", splitArm(".x", nil), ""},
+		"a field addressed":               {"", freshArm("first"), "n.first"},
+		"a field addressed under at":      {"x", freshArm("first"), "n.x.first"},
+		"a path whose first level is":     {"", freshArm("w.deeper"), "n.w"},
+		"a field no read addresses":       {"", freshArm("last"), ""},
+		"a field addressed elsewhere":     {"x", freshArm("w"), ""},
+		"a reference a read's key spells": {"k", freshArm(".x"), ""},
 		"a read through a name":           {"", arm{kind: namedRead, head: "n", levels: namedLevels([]string{"first"})}, ""},
 		"a read through a name at a key":  {"", arm{kind: namedRead, head: "first", levels: freshLevels("first", nil)}, ""},
 	} {
@@ -401,4 +401,9 @@ func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T
 			t.Errorf("%s: landsInPick = %q, %v, want %q", name, by, lands, c.wantBy)
 		}
 	}
+}
+
+func freshArm(spelling string) arm {
+	r := splitRead(spelling, nil)
+	return arm{spelling: spelling, head: r.head, tail: r.tail, levels: freshLevels(r.head, r.tail)}
 }

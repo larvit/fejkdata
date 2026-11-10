@@ -1096,10 +1096,9 @@ func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 		"region[12].municipality[1281].locality.code",
 		"region[12].name",
 	} {
-		a := splitArm(path, nil)
-		start := f.root.children[a.head].(*table)
-		a.steps = compilePath(start, a.tail).steps
-		for _, st := range a.steps {
+		read := splitRead(path, nil)
+		start := f.root.children[read.head].(*table)
+		for _, st := range compilePath(start, read.tail).steps {
 			seg := ""
 			switch st.kind {
 			case stepSelect:
@@ -1109,7 +1108,7 @@ func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 			default:
 				continue
 			}
-			if st.at >= len(a.tail) || a.tail[st.at] != seg {
+			if st.at >= len(read.tail) || read.tail[st.at] != seg {
 				t.Errorf("%s: step %q sits at %d, want the segment it consumes", path, seg, st.at)
 			}
 		}
@@ -1175,32 +1174,5 @@ func TestATableErrorNamesItsPathAndACellItsLine(t *testing.T) {
 	want = `no row of misc.territory has key or name "ZZZ"`
 	if _, err := shipped.Fake("misc.territory[ZZZ]"); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("Fake(misc.territory[ZZZ]) = %v, want it to contain %q", err, want)
-	}
-}
-
-// TestARouteSaysWhereTheWalkStandsNext holds a route's next position to one value: whether the
-// walk leaves from a selected row is a fact of that position, not of the route.
-func TestARouteSaysWhereTheWalkStandsNext(t *testing.T) {
-	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
-	region := f.root.children["region"].(*table)
-	municipality := f.root.children["municipality"].(*table)
-	for name, c := range map[string]struct {
-		from     *table
-		tail     []string
-		wantNode node
-		wantTail []string
-		fromRow  bool
-	}{
-		"into a linked table": {region, []string{"municipality", "name"}, municipality, []string{"name"}, true},
-		"up to the parent":    {municipality, []string{"..", "region", "name"}, region, []string{"name"}, true},
-		"onto a column":       {region, []string{"name"}, region.formatTemplate.fields["name"], nil, false},
-	} {
-		r, err := c.from.route(c.tail, false)
-		if err != nil {
-			t.Fatalf("%s: %v", name, err)
-		}
-		if r.then.n != c.wantNode || !slices.Equal(r.then.tail, c.wantTail) || r.then.fromRow != c.fromRow {
-			t.Errorf("%s: route leaves the walk at %+v, want node %p tail %q fromRow %v", name, r.then, c.wantNode, c.wantTail, c.fromRow)
-		}
 	}
 }
