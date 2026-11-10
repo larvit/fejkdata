@@ -56,7 +56,7 @@ func freshLevels(head string, segs []string) []pickKey {
 
 // addressedKeys is every key the reads of each name land on or pass, from the name's own level,
 // with the spelling of the first read reaching it.
-func addressedKeys(reads map[*nameBinding][]*arm, l *links) map[*nameBinding]map[pickKey]string {
+func addressedKeys(reads map[*nameBinding][]*arm, l *loadFinds) map[*nameBinding]map[pickKey]string {
 	keys := map[*nameBinding]map[pickKey]string{}
 	for b, rs := range reads {
 		keys[b] = map[pickKey]string{}

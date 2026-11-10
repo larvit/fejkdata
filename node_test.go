@@ -96,7 +96,7 @@ func TestNodeCompileErrors(t *testing.T) {
 }
 
 func TestEveryFormatCompilesAtResolve(t *testing.T) {
-	l := newLinks()
+	l := newLoadFinds()
 	n, err := compile(parse(t, `{"format":"{a} {b}","a":{"format":"x{c}","c":["1","2"]},"b":"{/w}"}`), l)
 	if err != nil {
 		t.Fatal(err)
@@ -131,7 +131,7 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 }
 
 func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
-	l := newLinks()
+	l := newLoadFinds()
 	n, err := compile(parse(t, `{"format":"{w distinct 2 joined ',' as e}{calc(e*2)}","w":["3","4","5"]}`), l)
 	if err != nil {
 		t.Fatal(err)
@@ -139,13 +139,13 @@ func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 	if err := loadInline(&folder{children: map[string]node{}}, n, l, "t", false); err == nil {
 		t.Fatal("loadInline() = nil, want the calc of a joined name refused")
 	}
-	if root := n.(*template); root.templateLinks != nil || root.fields["w"].(*choice).nameScope != nil {
+	if root := n.(*template); root.templateFinds != nil || root.fields["w"].(*choice).nameScope != nil {
 		t.Error("a load that failed before finish wrote its template or its choice")
 	}
 }
 
 func TestFinishWritesEachNodeOnce(t *testing.T) {
-	l := newLinks()
+	l := newLoadFinds()
 	n, err := compile(parse(t, `{"format":"{/w as n}{n} {c}","c":["x","y"]}`), l)
 	if err != nil {
 		t.Fatal(err)
@@ -155,10 +155,10 @@ func TestFinishWritesEachNodeOnce(t *testing.T) {
 		t.Fatal(err)
 	}
 	root := n.(*template)
-	if root.templateLinks == nil || len(root.compiled.ops) == 0 || root.fields["c"].(*choice).nameScope == nil {
+	if root.templateFinds == nil || len(root.compiled.ops) == 0 || root.fields["c"].(*choice).nameScope == nil {
 		t.Fatal("a load that passed left its template, its ops or its choice unwritten")
 	}
-	if b := root.nameScope.bindings["n"]; b.bindingLinks == nil || b.target.start != w {
+	if b := root.nameScope.bindings["n"]; b.bindingFinds == nil || b.target.start != w {
 		t.Fatal("a load that passed left its binding unwritten")
 	}
 	defer func() {

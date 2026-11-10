@@ -8,7 +8,7 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-func addDaysLayout(d arm, l *links) (string, error) {
+func addDaysLayout(d arm, l *loadFinds) (string, error) {
 	layout, why := dateLayout(d.leaves, l, map[node]bool{})
 	switch {
 	case why != "":
@@ -21,7 +21,7 @@ func addDaysLayout(d arm, l *links) (string, error) {
 
 // proveAddDays proves the day count of each adddays of t that reads one is a whole number within
 // the cap.
-func proveAddDays(label string, t *template, l *links) error {
+func proveAddDays(label string, t *template, l *loadFinds) error {
 	for _, o := range l.of(t).compiled.ops {
 		if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName || len(o.operands) == 1 {
 			continue
@@ -33,8 +33,8 @@ func proveAddDays(label string, t *template, l *links) error {
 	return nil
 }
 
-func proveDayCount(n arm, l *links) error {
-	v := (&valueProof{links: l}).proveArm(n)
+func proveDayCount(n arm, l *loadFinds) error {
+	v := (&valueProof{finds: l}).proveArm(n)
 	switch {
 	case v.NotOperand != "":
 		return fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.spelling, v.NotOperand)
@@ -47,7 +47,7 @@ func proveDayCount(n arm, l *links) error {
 }
 
 // dateLayout is the one layout every render of nodes prints a date in, or why no proof holds.
-func dateLayout(nodes []node, l *links, seen map[node]bool) (layout, why string) {
+func dateLayout(nodes []node, l *loadFinds, seen map[node]bool) (layout, why string) {
 	for _, n := range nodes {
 		got, w := nodeDateLayout(n, l, seen)
 		switch {
@@ -61,7 +61,7 @@ func dateLayout(nodes []node, l *links, seen map[node]bool) (layout, why string)
 	return layout, ""
 }
 
-func nodeDateLayout(n node, l *links, seen map[node]bool) (string, string) {
+func nodeDateLayout(n node, l *loadFinds, seen map[node]bool) (string, string) {
 	if seen[n] {
 		return "", "it reads itself"
 	}

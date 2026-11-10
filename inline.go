@@ -30,7 +30,7 @@ func (t *Template) Fake() string {
 // compile and validation once. It shares [New]'s guarantees: a bad template errors
 // here, and rendering cannot fail.
 func (f *Generator) NewTemplate(input string) (*Template, error) {
-	l := newLinks()
+	l := newLoadFinds()
 	n, err := compileInput(input, l)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
@@ -66,7 +66,7 @@ func IsTemplate(arg string) (bool, error) {
 	return inline, nil
 }
 
-func compileInput(input string, l *links) (node, error) {
+func compileInput(input string, l *loadFinds) (node, error) {
 	return compile(inputValue(input), l)
 }
 
@@ -87,17 +87,17 @@ func inputValue(input string) jsonvalue.Value {
 
 // loadInline loads the unloaded categories n reads, then runs n, compiled into l, through the
 // pipeline against root.
-func loadInline(root *folder, n node, l *links, label string, typedByGo bool) error {
+func loadInline(root *folder, n node, l *loadFinds, label string, typedByGo bool) error {
 	nodes := inlineNodes(n, label)
 	if err := refuseFolderRefs(nodes); err != nil {
 		return err
 	}
-	if err := loadReached(root, nil, newLinks(), referenced(root, nil, nodes)); err != nil {
+	if err := loadReached(root, nil, newLoadFinds(), referenced(root, nil, nodes)); err != nil {
 		return loadError{err}
 	}
 	return pipeline{
 		nodes:     nodes,
-		links:     l,
+		finds:     l,
 		resolve:   func() error { return resolveInlineTemplates(nodes, root.children, l) },
 		typedByGo: typedByGo,
 	}.run()

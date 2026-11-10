@@ -136,7 +136,7 @@ func parse(t *testing.T, s string) jsonvalue.Value {
 // resolved compiles a JSON fragment and resolves it against no data.
 func resolved(t *testing.T, s string) (node, error) {
 	t.Helper()
-	l := newLinks()
+	l := newLoadFinds()
 	n, err := compile(parse(t, s), l)
 	if err != nil {
 		return nil, err

@@ -94,7 +94,7 @@ type renderEdge struct {
 }
 
 // renderEdges lists the children rendering n recurses into, mirroring render.
-func renderEdges(n node, l *links) []renderEdge {
+func renderEdges(n node, l *loadFinds) []renderEdge {
 	switch n := n.(type) {
 	case *choice:
 		es := make([]renderEdge, len(n.items))
@@ -164,7 +164,7 @@ func repeatCheck(label string, n node, mem renderCounts) error {
 // graph (renderEdges). Every node is a root: a field its parent's format never
 // renders is still reachable by dot path, so a cycle in one would otherwise reach
 // render and be fatal there.
-func checkNoCycles(s nodeSet, l *links) error {
+func checkNoCycles(s nodeSet, l *loadFinds) error {
 	const (
 		grey  = 1
 		black = 2

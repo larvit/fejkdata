@@ -221,7 +221,7 @@ func TestNullColumn(t *testing.T) {
 
 func TestDisagreementRefusesTwoTextItems(t *testing.T) {
 	mustPanic(t, "two text items", func() {
-		_ = disagreement(&template{templateLinks: &templateLinks{}}, DataTypeString, &template{templateLinks: &templateLinks{}}, DataTypeString)
+		_ = disagreement(&template{templateFinds: &templateFinds{}}, DataTypeString, &template{templateFinds: &templateFinds{}}, DataTypeString)
 	})
 }
 

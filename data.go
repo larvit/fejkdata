@@ -12,7 +12,7 @@ import (
 // docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
 func loadSources(sources []datafiles.Source) (folder, error) {
 	root := folder{children: map[string]node{}}
-	l := newLinks()
+	l := newLoadFinds()
 	for _, src := range sources {
 		m, err := src.Manifest()
 		if err != nil {
@@ -25,7 +25,7 @@ func loadSources(sources []datafiles.Source) (folder, error) {
 	return root, loadReached(&root, categorySites(&root), l, nil)
 }
 
-func addSource(root *folder, src datafiles.Source, m datafiles.Manifest, l *links) error {
+func addSource(root *folder, src datafiles.Source, m datafiles.Manifest, l *loadFinds) error {
 	src = src.Mounted(m.Namespace)
 	if m.Index != nil {
 		placeIndex(root, src, m.Index)
@@ -39,7 +39,7 @@ func addSource(root *folder, src datafiles.Source, m datafiles.Manifest, l *link
 	return nil
 }
 
-func compileInto(place func(dir []string) *folder, l *links) func(datafiles.Category) error {
+func compileInto(place func(dir []string) *folder, l *loadFinds) func(datafiles.Category) error {
 	return func(c datafiles.Category) error {
 		n, err := compileCategory(c, l)
 		if err != nil {
@@ -123,11 +123,11 @@ func inlineNodes(n node, label string) nodeSet {
 	return func(fn func(label string, m node) error) error { return eachNode(n, label, fn) }
 }
 
-// pipeline is the one load pipeline, run over one nodeSet and the links its nodes were
-// compiled into; its fields are where entry points differ.
+// pipeline is the one load pipeline, run over one nodeSet and the finds its compile began;
+// its fields are where entry points differ.
 type pipeline struct {
 	nodes   nodeSet
-	links   *links
+	finds   *loadFinds
 	resolve func() error
 	// Set by a caller that proves the columns against their Go types itself.
 	typedByGo bool
@@ -135,10 +135,10 @@ type pipeline struct {
 
 // categoryPipeline is the pipeline over the categories of one load, their references
 // resolving against root.
-func categoryPipeline(sites []categorySite, root map[string]node, l *links) pipeline {
+func categoryPipeline(sites []categorySite, root map[string]node, l *loadFinds) pipeline {
 	return pipeline{
 		nodes: siteNodes(sites),
-		links: l,
+		finds: l,
 		resolve: func() error {
 			if err := linkTables(sites); err != nil {
 				return err
@@ -152,16 +152,16 @@ func categoryPipeline(sites []categorySite, root map[string]node, l *links) pipe
 // refuses a name or reference that can't resolve. The cycle check comes before the walks of
 // settleRecords and the node fences, which recurse unguarded. settleRecords fixes each record's
 // columns, which checkColumns proves and the node fences read. Until finish, each stage reads
-// from p.links what the stages before it found; from finish on, it reads the nodes.
+// from p.finds what the stages before it found; from finish on, it reads the nodes.
 func (p pipeline) run() error {
 	if err := p.resolve(); err != nil {
 		return err
 	}
-	if err := checkNoCycles(p.nodes, p.links); err != nil {
+	if err := checkNoCycles(p.nodes, p.finds); err != nil {
 		return err
 	}
-	settleRecords(p.nodes, p.links)
-	p.links.finish()
+	settleRecords(p.nodes, p.finds)
+	p.finds.finish()
 	if !p.typedByGo {
 		if err := checkColumns(p.nodes); err != nil {
 			return err

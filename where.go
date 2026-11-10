@@ -145,7 +145,7 @@ func (c clauseSpelling) membersRead(n int) error {
 }
 
 // compileClauseNames compiles the names w reads, each bound in a template enclosing t.
-func (t *template) compileClauseNames(w *grammar.Where, l *links) ([]arm, error) {
+func (t *template) compileClauseNames(w *grammar.Where, l *loadFinds) ([]arm, error) {
 	var arms []arm
 	for _, c := range clauseSpellings(w) {
 		read := splitRead(c.spelling, nil)
@@ -165,7 +165,7 @@ func (t *template) compileClauseNames(w *grammar.Where, l *links) ([]arm, error)
 }
 
 // refuseFilteredTails refuses a path through a name holding a filtered draw, which is read whole.
-func refuseFilteredTails(ts []templateSite, l *links) error {
+func refuseFilteredTails(ts []templateSite, l *loadFinds) error {
 	for _, s := range ts {
 		for _, r := range namedReads(s.t, l) {
 			if l.binding(r.a.named).values != nil && len(r.a.tail) > 0 {
@@ -178,7 +178,7 @@ func refuseFilteredTails(ts []templateSite, l *links) error {
 
 // refuseSelfReads refuses a token whose where clause reads the name the token binds, directly or
 // through what the names it reads draw: drawing the name would read itself.
-func refuseSelfReads(ts []templateSite, l *links) error {
+func refuseSelfReads(ts []templateSite, l *loadFinds) error {
 	for _, s := range ts {
 		tl := l.of(s.t)
 		for _, o := range tl.compiled.ops {
@@ -186,7 +186,7 @@ func refuseSelfReads(ts []templateSite, l *links) error {
 				continue
 			}
 			b := tl.nameScope.bindings[o.Bound]
-			r := selfRead{b: b, links: l, names: map[*nameBinding]bool{}, nodes: map[node]bool{}}
+			r := selfRead{b: b, finds: l, names: map[*nameBinding]bool{}, nodes: map[node]bool{}}
 			for _, a := range o.clause {
 				if !r.reaches(a) {
 					continue
@@ -205,7 +205,7 @@ func refuseSelfReads(ts []templateSite, l *links) error {
 // selfRead walks what reading an arm draws, looking for a read of b.
 type selfRead struct {
 	b     *nameBinding
-	links *links
+	finds *loadFinds
 	names map[*nameBinding]bool
 	nodes map[node]bool
 }
@@ -221,7 +221,7 @@ func (r selfRead) reaches(a arm) bool {
 			return false
 		}
 		r.names[a.named] = true
-		if v := r.links.binding(a.named).values; v != nil {
+		if v := r.finds.binding(a.named).values; v != nil {
 			return slices.ContainsFunc(v.clause, r.reaches)
 		}
 	}
@@ -235,9 +235,9 @@ func (r selfRead) reachesNode(n node) bool {
 	r.nodes[n] = true
 	t, ok := n.(*template)
 	if !ok {
-		return slices.ContainsFunc(renderEdges(n, r.links), func(e renderEdge) bool { return r.reachesNode(e.to) })
+		return slices.ContainsFunc(renderEdges(n, r.finds), func(e renderEdge) bool { return r.reachesNode(e.to) })
 	}
-	for _, o := range r.links.of(t).compiled.ops {
+	for _, o := range r.finds.of(t).compiled.ops {
 		if slices.ContainsFunc(o.reads(), func(a *arm) bool { return r.reaches(*a) }) {
 			return true
 		}
@@ -247,7 +247,7 @@ func (r selfRead) reachesNode(n node) bool {
 
 // valueDrawOf builds o's draw over the values o's path renders, and proves every draw leaves
 // enough to draw.
-func (t *template) valueDrawOf(o *op, l *links) (*valueDraw, error) {
+func (t *template) valueDrawOf(o *op, l *loadFinds) (*valueDraw, error) {
 	clause := "a where clause filters"
 	if o.Where == nil {
 		clause = "a distinct clause draws"
@@ -264,7 +264,7 @@ func (t *template) valueDrawOf(o *op, l *links) (*valueDraw, error) {
 		target := l.binding(l.of(t).nameScope.bindings[o.Bound]).target
 		start, tail = target.start, target.tail
 	}
-	w := valueWalk{links: l, seen: map[node]bool{}}
+	w := valueWalk{finds: l, seen: map[node]bool{}}
 	if err := w.walk(start, tail, 1, "", ""); err != nil {
 		return nil, fmt.Errorf("%s values fixed at load, and %w", clause, err)
 	}
@@ -329,13 +329,13 @@ func (v *valueDraw) lengthProof() lengthProof {
 
 // proveEveryDrawPasses refuses a draw that some render leaves with too few values: one where too few
 // values pass, or one whose length reads a name that may print a length too few values have.
-func (v lengthProof) proveEveryDrawPasses(l *links) error {
+func (v lengthProof) proveEveryDrawPasses(l *loadFinds) error {
 	bounds := map[*arm][2]float64{}
 	for _, e := range []lengthEnd{v.lo, v.hi} {
 		if e.read == nil {
 			continue
 		}
-		p := (&valueProof{links: l}).proveArm(*e.read)
+		p := (&valueProof{finds: l}).proveArm(*e.read)
 		switch {
 		case p.NotOperand != "":
 			return fmt.Errorf("length %s is not always a whole number: %s", e.read.spelling, p.NotOperand)

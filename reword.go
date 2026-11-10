@@ -39,7 +39,7 @@ type rewordDraw struct {
 
 // rewordDrawOf builds the draw of o, a {reword()} call; built holds the words of each path read
 // so far, so calls reading one path share its words.
-func (t *template) rewordDrawOf(o *op, l *links, built map[wordsAt]*wordList) (*rewordDraw, error) {
+func (t *template) rewordDrawOf(o *op, l *loadFinds, built map[wordsAt]*wordList) (*rewordDraw, error) {
 	words, err := t.wordsOf(o.operands[1], l, built)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (d *rewordDraw) draw(s *drawstate.State, t *template, env renderEnv, _ stri
 func (d *rewordDraw) mayFallBack() bool { return false }
 
 // wordsOf is the values a's path renders that are made of letters alone, by length.
-func (t *template) wordsOf(a arm, l *links, built map[wordsAt]*wordList) (*wordList, error) {
+func (t *template) wordsOf(a arm, l *loadFinds, built map[wordsAt]*wordList) (*wordList, error) {
 	if a.kind == namedRead {
 		return nil, fmt.Errorf("%q is a name, which holds one pick; pass the path it binds, as in {%s(t,/en_US.word)}", a.head, builtinfunc.RewordName)
 	}
@@ -62,7 +62,7 @@ func (t *template) wordsOf(a arm, l *links, built map[wordsAt]*wordList) (*wordL
 	if words, done := built[at]; done {
 		return words, nil
 	}
-	w := valueWalk{links: l, seen: map[node]bool{}}
+	w := valueWalk{finds: l, seen: map[node]bool{}}
 	if err := w.walk(at.start, a.tail, 1, "", ""); err != nil {
 		return nil, fmt.Errorf("its words are read whole at load, and %w", err)
 	}

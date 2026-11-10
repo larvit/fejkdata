@@ -83,7 +83,7 @@ type op struct {
 // newOp returns parts whole: with its call, and with its draw where it has one. parts is an op whose
 // arms, operands and clause compileFormat built. An adddays call takes the one layout its date
 // operand prints in, so every template's format must be compiled first.
-func newOp(t *template, parts op, l *links, words map[wordsAt]*wordList) (op, error) {
+func newOp(t *template, parts op, l *loadFinds, words map[wordsAt]*wordList) (op, error) {
 	o := parts
 	if o.Kind == grammar.BuiltinCall {
 		o.call = builtinfunc.Prep(o.Fn, o.Args)
@@ -146,7 +146,7 @@ func drawToken(s *drawstate.State, t *template, env renderEnv, d tokenDraw, emit
 	panic(invariant.Broken("no draw for %T", d))
 }
 
-func (t *template) compileArms(spellings []string, l *links) ([]arm, error) {
+func (t *template) compileArms(spellings []string, l *loadFinds) ([]arm, error) {
 	if len(spellings) == 0 {
 		return nil, nil
 	}
@@ -163,7 +163,7 @@ func (t *template) compileArms(spellings []string, l *links) ([]arm, error) {
 
 // compileArm compiles one read into a path: from the head it names, or, for a read through a
 // name, from what that name binds.
-func (t *template) compileArm(spelling string, l *links) (arm, error) {
+func (t *template) compileArm(spelling string, l *loadFinds) (arm, error) {
 	tl := l.of(t)
 	r := splitRead(spelling, tl.refs.bySpelling)
 	if !t.isName(r.head, l) {
