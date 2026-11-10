@@ -1192,7 +1192,7 @@ func TestARouteSaysWhereTheWalkStandsNext(t *testing.T) {
 		fromRow  bool
 	}{
 		"into a linked table": {region, []string{"municipality", "name"}, municipality, []string{"name"}, true},
-		"up to the parent":    {municipality, []string{"..", "name"}, region, []string{"name"}, true},
+		"up to the parent":    {municipality, []string{"..", "region", "name"}, region, []string{"name"}, true},
 		"onto a column":       {region, []string{"name"}, region.formatTemplate.fields["name"], nil, false},
 	} {
 		r, err := c.from.route(c.tail, false)
