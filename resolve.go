@@ -1,11 +1,6 @@
 package fejkdata
 
-import (
-	"fmt"
-
-	"github.com/larvit/fejkdata/internal/builtinfunc"
-	"github.com/larvit/fejkdata/internal/grammar"
-)
+import "fmt"
 
 type templateSite struct {
 	t      *template
@@ -135,8 +130,8 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 	return nil
 }
 
-// compileTemplates resolves each template's references and its names' targets, compiles its format,
-// its adddays calls and each token's draw, and finds what each name's reads address.
+// compileTemplates resolves each template's references and its names' targets, compiles its format
+// and each op's call and draw, and finds what each name's reads address.
 func compileTemplates(ts []templateSite, root map[string]node) (resolvedNames, error) {
 	for _, s := range ts {
 		refs, err := s.t.resolveRefs(s.folder, s.label, root)
@@ -149,10 +144,7 @@ func compileTemplates(ts []templateSite, root map[string]node) (resolvedNames, e
 	if err := compileFormats(ts, targets); err != nil {
 		return resolvedNames{}, err
 	}
-	if err := prepareAddDays(ts); err != nil {
-		return resolvedNames{}, err
-	}
-	draws, err := buildDraws(ts, targets)
+	draws, err := buildOps(ts, targets)
 	if err != nil {
 		return resolvedNames{}, err
 	}
@@ -167,34 +159,18 @@ func compileTemplates(ts []templateSite, root map[string]node) (resolvedNames, e
 	return names, nil
 }
 
-// buildDraws builds the draw of each token in ts with a where or a distinct clause, and of each
-// {reword()} call, and returns the draw of each name bound to such a token. A proof of a draw
-// reads the draws of the names built before it.
-func buildDraws(ts []templateSite, targets map[*nameBinding]nameTarget) (bindingDraws, error) {
+// buildOps completes each op of ts, once every template is compiled, and returns the draw of each
+// name bound to a token with a where or a distinct clause. A proof of a draw reads the draws of the
+// names built before it.
+func buildOps(ts []templateSite, targets map[*nameBinding]nameTarget) (bindingDraws, error) {
 	draws, words := bindingDraws{}, map[wordsAt]*wordList{}
 	for _, s := range ts {
-		for i := range s.t.compiled.ops {
-			o := &s.t.compiled.ops[i]
-			var d tokenDraw
-			var err error
-			switch {
-			case o.Kind == grammar.BuiltinCall && o.Fn == builtinfunc.RewordName:
-				d, err = s.t.rewordDrawOf(o, targets, words)
-			case o.Where == nil && o.Distinct == nil:
-				continue
-			case o.Kind == grammar.BuiltinCall:
-				d, err = newAlphabetDraw(o, draws)
-			default:
-				var v *valueDraw
-				if v, err = s.t.valueDrawOf(o, targets, draws); err == nil && o.Kind == grammar.NameBind {
-					draws[s.t.nameScope.bindings[o.Bound]] = v
-				}
-				d = v
-			}
+		for i, parts := range s.t.compiled.ops {
+			o, err := newOp(s.t, parts, targets, draws, words)
 			if err != nil {
-				return nil, fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
+				return nil, fmt.Errorf("%s: token {%s}: %w", s.label, parts.Body, err)
 			}
-			o.draw = d
+			s.t.compiled.ops[i] = o
 		}
 	}
 	return draws, nil

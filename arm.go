@@ -77,6 +77,41 @@ type op struct {
 	draw tokenDraw
 }
 
+// newOp completes parts, an op whose arms, operands and clause compileFormat built, with its call
+// and its draw, and returns it whole. A call of adddays reads back the one layout its date prints
+// in, so every template must be compiled first. A token with no where or distinct clause, and no
+// {reword()} call, has no draw.
+func newOp(t *template, parts op, targets map[*nameBinding]nameTarget, draws bindingDraws, words map[wordsAt]*wordList) (op, error) {
+	o := parts
+	if o.Kind == grammar.BuiltinCall {
+		o.call = builtinfunc.Prep(o.Fn, o.Args)
+		if o.Fn == builtinfunc.AddDaysName {
+			layout, err := addDaysLayout(o.operands[0])
+			if err != nil {
+				return op{}, err
+			}
+			o.call = builtinfunc.AddDays(layout, o.Args)
+		}
+	}
+	var err error
+	switch {
+	case o.Kind == grammar.BuiltinCall && o.Fn == builtinfunc.RewordName:
+		o.draw, err = t.rewordDrawOf(&o, targets, words)
+	case o.Where == nil && o.Distinct == nil:
+	case o.Kind == grammar.BuiltinCall:
+		o.draw, err = newAlphabetDraw(&o, draws)
+	default:
+		var v *valueDraw
+		if v, err = t.valueDrawOf(&o, targets, draws); err == nil {
+			o.draw = v
+			if o.Kind == grammar.NameBind {
+				draws[t.nameScope.bindings[o.Bound]] = v
+			}
+		}
+	}
+	return o, err
+}
+
 // reads is every arm a render of o reads: its arms, its builtin's operands and its clause's reads.
 // Each points into o's slices, so the same arm always yields the same pointer.
 func (o *op) reads() []*arm {
