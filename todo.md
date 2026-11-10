@@ -12,10 +12,9 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 409 | 0.5.0 |  |  | **Build each op whole in one constructor at resolve, so `prepareAddDays` and `buildDraws` stop rewriting an op.** | 2 | 1 | 2 | 3 | 2 | code health by 4 | 13.1 |
 | 172 | 0.5.0 |  |  | **Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
-| 410 | 0.5.0 | 409 |  | **Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.** | 2 | 1 | 2 | 3 | 3 | code health by 4 | 9.8 |
-| 411 | 0.5.0 | 409, 410 |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 3 | 1 | 2 | 4 | 4 | code health by 6 | 9.8 |
+| 410 | 0.5.0 |  |  | **Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.** | 2 | 1 | 2 | 3 | 3 | code health by 4 | 9.8 |
+| 411 | 0.5.0 | 410 |  | **Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.** | 3 | 1 | 2 | 4 | 4 | code health by 6 | 9.8 |
 | 413 | 0.5.0 |  |  | **Link a child table without writing its parent, so a failed lazy load changes no finished table.** | 3 | 1 | 2 | 4 | 2 | code health by 3 | 9.8 |
 | 415 | 0.5.0 | 411, 413 |  | **Move the node types into `internal/engine/tree`, written only by their constructors and `finish`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
@@ -232,21 +231,17 @@
 
 ## Details
 
-### 409. Build each op whole in one constructor at resolve, so `prepareAddDays` and `buildDraws` stop rewriting an op.
-
-Files: `format.go`, `adddays.go`, `resolve.go`, `arm.go`; about 150 lines. It ships with a paired ruling no worse.
-
 ### 172. Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.
 
 Ten seats of the 2026-10-09 panel named `drawSteps` (`path.go`); three named the nil arguments as the mode they had to infer.
 
 ### 410. Build each arm and its steps whole once references resolve, so no half-compiled arm exists and one field says a step leaves a selected row.
 
-Files: `arm.go`, `format.go`, `table.go`, `path.go`; about 200 lines. It comes after 409, since an arm holds the ops 409 builds whole. It folds in item 174, **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.**: `compileStep` copies one into the other (`path.go`), and two seats of the 2026-10-09 panel named it. It ships with a paired ruling no worse.
+Files: `arm.go`, `format.go`, `table.go`, `path.go`; about 200 lines. It folds in item 174, **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.**: `compileStep` copies one into the other (`path.go`), and two seats of the 2026-10-09 panel named it. It ships with a paired ruling no worse.
 
 ### 411. Collect every resolve, bind and settle result in one links value, and write templates, choices, ops and bindings only in one `finish` step that panics on a second call.
 
-Files: `resolve.go`, `name.go`, `record.go`, `graph.go`, `node.go`, `data.go`; about 300 lines. It comes after 409 and 410, since `finish` can be the one writer only once ops and arms are built whole. It ships with a paired ruling no worse.
+Files: `resolve.go`, `name.go`, `record.go`, `graph.go`, `node.go`, `data.go`; about 300 lines. It comes after 410, since `finish` can be the one writer only once ops and arms are built whole. It ships with a paired ruling no worse.
 
 ### 413. Link a child table without writing its parent, so a failed lazy load changes no finished table.
 
