@@ -142,8 +142,8 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 // readField renders one arm of a token. A read is kept in a name's pick when it reads the name, or
 // a level that a read of the name being rendered addresses; every other read draws afresh, so
 // {word} {word} draws twice and {p.a} {p.b} reads two draws of p.
-// Clearing env.pick on a fresh read stops a read nested in it from keying the pick's memo under
-// env.pickAt and sharing a value with another node at that key.
+// A fresh read clears env.pick, which stops a read nested in it from keying the pick's memo under
+// env.pickAt and sharing a value with another node at that key; a reference's read clears it in enter.
 func readField(s *drawstate.State, t *template, env renderEnv, a arm) readValue {
 	switch {
 	case a.kind == namedRead:
@@ -151,13 +151,13 @@ func readField(s *drawstate.State, t *template, env renderEnv, a arm) readValue 
 	case keptInPick(env, a):
 		return readUnder(s, t, env, a)
 	}
-	env.pick = nil
 	if !grammar.IsRef(a.head) {
-		leaf, _ := drawSteps(s, drawSibling, t.startOf(a.head), a.steps, nil, nil, a.levels)
+		env.pick = nil
+		leaf, _ := drawSteps(s, drawSibling, t.startOf(a.head), a.steps, nil, nil, nil)
 		return renderLeaf(s, leaf, env)
 	}
 	var pins pinSet
-	leaf, leafPins := drawSteps(s, drawFresh, t.startOf(a.head), a.steps, &pins, nil, a.levels)
+	leaf, leafPins := drawSteps(s, drawFresh, t.startOf(a.head), a.steps, &pins, nil, nil)
 	env, mark := env.at(leaf, leafPins).enter(leaf, nil)
 	r := renderLeaf(s, leaf, env)
 	env.frames.pop(mark)

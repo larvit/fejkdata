@@ -143,8 +143,8 @@ type drawMemo struct {
 	steppedDown   map[pickKey]*pinSet
 }
 
-// stepDownPins is the pins a path steps down into after stepping up to t: kept in m, so every
-// path stepping down there reads one draw.
+// stepDownPins is the pins a path steps down into after stepping up to t, drawn once per level
+// and kept in m, so every path of the pick stepping down at that level reads one draw.
 func (m *drawMemo) stepDownPins(pins *pinSet, t *rowsTable, levels []pickKey, at int) *pinSet {
 	p, ok := m.steppedDown[levels[at]]
 	if !ok {
