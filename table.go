@@ -233,14 +233,12 @@ func (t *table) linkParent(siblings map[string]node) error {
 }
 
 // tableRoute is how a path passes one table: the row it reads, by selector or
-// drawn, what it goes on into, and whether that is a linked table.
+// drawn, and where the walk stands after it.
 type tableRoute struct {
-	sel        string
-	draw       bool
-	next       node
-	rest       []string
-	nextLinked bool
-	up         bool
+	sel  string
+	draw bool
+	then pathPos
+	up   bool
 }
 
 // route is how tail passes t. fromRow means the previous route stepped into t
@@ -256,7 +254,7 @@ func (t *table) route(tail []string, fromRow bool) (tableRoute, error) {
 		if err := t.rows.ProveStepUp(tail[1:]); err != nil {
 			return tableRoute{}, err
 		}
-		return tableRoute{sel: sel, draw: sel == "", next: t.rows.Parent().Owner(), rest: tail[2:], nextLinked: true, up: true}, nil
+		return tableRoute{sel: sel, draw: sel == "", then: pathPos{n: t.rows.Parent().Owner(), tail: tail[2:], fromRow: true}, up: true}, nil
 	}
 	column, child, err := t.columnOrLinked(tail)
 	if err != nil {
@@ -270,13 +268,13 @@ func (t *table) route(tail []string, fromRow bool) (tableRoute, error) {
 	r := tableRoute{sel: sel, draw: !selected && readsRow && !pinnedBelow}
 	switch {
 	case !readsRow:
-		r.next = t
+		r.then = pathPos{n: t}
 	case len(tail) == 0:
-		r.next = t.rowNode
+		r.then = pathPos{n: t.rowNode}
 	case child != nil:
-		r.next, r.rest, r.nextLinked = child, tail[1:], true
+		r.then = pathPos{n: child, tail: tail[1:], fromRow: true}
 	default:
-		r.next, r.rest = column, tail[1:]
+		r.then = pathPos{n: column, tail: tail[1:]}
 	}
 	return r, nil
 }
@@ -295,7 +293,7 @@ func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) 
 	if r.draw {
 		steps = append(steps, pathStep{kind: stepDraw, at: at})
 	}
-	switch next := r.next.(type) {
+	switch next := r.then.n.(type) {
 	case *table:
 		switch {
 		case r.up:
@@ -308,7 +306,7 @@ func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) 
 	case *tableColumn:
 		steps = append(steps, pathStep{kind: stepColumn, at: at, name: next.name()})
 	default:
-		panic(invariant.Broken("%s: a route onto %T", t.rows.Segment(), r.next))
+		panic(invariant.Broken("%s: a route onto %T", t.rows.Segment(), r.then.n))
 	}
 	return steps, nil
 }

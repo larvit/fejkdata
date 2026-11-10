@@ -159,7 +159,7 @@ func (t *template) compileArms(spellings []string, targets map[*nameBinding]name
 }
 
 // compileArm compiles one read into a path: from the head it names, or, for a read through a
-// name, from what that name binds.
+// name, from what that name binds. The arm it returns is whole; an error returns none.
 func (t *template) compileArm(spelling string, targets map[*nameBinding]nameTarget) (arm, error) {
 	a := splitArm(spelling, t.refs.bySpelling)
 	if !t.isName(a.head) {
@@ -172,27 +172,26 @@ func (t *template) compileArm(spelling string, targets map[*nameBinding]nameTarg
 		return a, nil
 	}
 	b := t.nameScope.lookup(a.head)
+	tail, member := a.tail, 0
 	if b.distinct != nil {
-		member, err := memberRead(b, a)
-		if err != nil {
-			return a, err
+		var err error
+		if member, err = memberRead(b, a); err != nil {
+			return arm{}, err
 		}
-		a.member, a.tail = member, nil
-	} else if grammar.HasSelector(a.tail) {
+		tail = nil
+	} else if grammar.HasSelector(tail) {
 		if b.bindsField() {
-			return a, fmt.Errorf("a path through name %q may not select a row; bind the row to a name of its own", a.head)
+			return arm{}, fmt.Errorf("a path through name %q may not select a row; bind the row to a name of its own", a.head)
 		}
-		return a, fmt.Errorf("a path through name %q may not select a row; read the row without the name, {%s}, or bind it to a name of its own", a.head, grammar.JoinSegments(append([]string{b.ref}, a.tail...)))
+		return arm{}, fmt.Errorf("a path through name %q may not select a row; read the row without the name, {%s}, or bind it to a name of its own", a.head, grammar.JoinSegments(append([]string{b.ref}, tail...)))
 	}
 	target := targets[b]
-	full := append(target.tail[:len(target.tail):len(target.tail)], a.tail...)
+	full := append(target.tail[:len(target.tail):len(target.tail)], tail...)
 	if err := provePath(target.start, full, a.head, len(target.tail)); err != nil {
-		return a, err
+		return arm{}, err
 	}
 	w := compilePath(target.start, full)
-	a.kind, a.named, a.steps, a.leaves = namedRead, b, w.steps, w.leaves
-	a.levels = namedLevels(full)
-	return a, nil
+	return arm{spelling: a.spelling, head: a.head, tail: tail, levels: namedLevels(full), steps: w.steps, leaves: w.leaves, kind: namedRead, named: b, member: member}, nil
 }
 
 // memberRead is the member of b's distinct draw that a reads, counted from 1, or 0 where a reads them

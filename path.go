@@ -124,7 +124,7 @@ func compileStep(at *pathPos, whole []string, head string, headSpans int, steps 
 		if err != nil {
 			return steps, err
 		}
-		*at = pathPos{n: r.next, tail: r.rest, fromRow: r.nextLinked}
+		*at = r.then
 		return routeSteps(steps, pins, x, r, i)
 	case *template:
 		if x.repeat > 1 && !grammar.IsSelector(at.tail[0]) {
