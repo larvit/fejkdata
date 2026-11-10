@@ -1436,3 +1436,25 @@ Inherited architect, decided by:
 - Shape: `alphabetdraw.go:14` `alphabetDraw`: the name says it draws from an alphabet, and `mayFallBack` sits on the type
 - Self-sufficiency: `format.go:79` `checkReads`: `tokenReads` returns own and clause reads apart, so no index arithmetic splits one list
 - Locality: `arm.go:103` `drawToken`: a type switch mirrors the `tokenDraw` interface, so a new draw type is added in two places
+
+## 2026-11-10T19:49:53Z, PR #339 at 527e3ae, against 7a33428
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | better | better | better |
+| Inherited architect | same | better | better | better | better |
+
+Mid A, decided by:
+
+- Locality, Shape: `arm.go:83` `newOp`: one function builds each op's call and draw, where three passes wrote the same op in place before
+- Locality: `resolve.go:169` `buildOps`: stores each op whole and records a binding's draw in one `if`, not inside a switch arm
+- Shape: `arm.go:37` `splitArm`: a read's text is called a spelling, not a name
+- Self-sufficiency: `doc.go:27` "spelling": defines the term the renames use
+
+Inherited architect, decided by:
+
+- Locality, Shape: `arm.go:83` `newOp`: each op is built whole in one place; the one ordering need sits in its comment
+- Locality, Shape: `resolve.go:139` `compileTemplates`: loses a stage, `prepareAddDays` and `buildDraws` becoming one `buildOps`
+- Shape, Self-sufficiency: `node.go:93` `templateRefs.bySpelling`: the raw string is a spelling, and `doc.go:27` defines it
