@@ -1458,3 +1458,25 @@ Inherited architect, decided by:
 - Locality, Shape: `arm.go:83` `newOp`: each op is built whole in one place; the one ordering need sits in its comment
 - Locality, Shape: `resolve.go:139` `compileTemplates`: loses a stage, `prepareAddDays` and `buildDraws` becoming one `buildOps`
 - Shape, Self-sufficiency: `node.go:93` `templateRefs.bySpelling`: the raw string is a spelling, and `doc.go:27` defines it
+
+## 2026-11-10T20:42:56Z, PR #341 at 800aba4, against 33e465b
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | better | same | better |
+| Inherited architect | same | better | better | better | better |
+
+Mid A, decided by:
+
+- Locality, Shape: `path.go:205` `drawSteps`: the caller names the kind of read through drawMode, where nil pins and nil memo meant it before
+- Shape, Locality: `arm.go:166` `compileArm`: it builds each arm whole in one literal, where splitArm returned an arm with no steps
+- Shape: `table.go:237` `tableRoute`: one then pathPos replaces next, rest and nextLinked, so compileStep assigns it whole
+
+Inherited architect, decided by:
+
+- Locality, Shape: `arm.go:166` `compileArm`: splitRead returns only text, head and tail, and an arm exists only once complete
+- Locality, Self-sufficiency: `path.go:205` `drawSteps`: three named modes replace the nil-ness of pins and memo, checked in three places
+- Shape, Locality: `table.go:237` `tableRoute`: one shared vocabulary with the walk's pathPos
+- Self-sufficiency: `render.go:147` `readField`: the comment names the action at a distance, a reference clearing the pick in enter
