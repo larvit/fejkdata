@@ -20,6 +20,7 @@ type table struct {
 	formatTemplate *template // fields are the column nodes
 	rowNode        *tableRow
 	cellTemplates  map[int]*template // by cellIndex
+	siblings       map[string]node   // the folder holding t, set by linkTables; every table linked to t sits there
 }
 
 type (
@@ -204,11 +205,40 @@ func refuseInTable(toks []grammar.Token) error {
 func linkTables(sites []categorySite) error {
 	for _, s := range sites {
 		t, isTable := s.n.(*table)
-		if !isTable || t.rows.Options().Parent == "" {
+		if !isTable {
+			continue
+		}
+		t.siblings = s.in.children
+		if t.rows.Options().Parent == "" {
 			continue
 		}
 		if err := t.linkParent(s.in.children); err != nil {
 			return fmt.Errorf("%s: %w", s.path, err)
+		}
+	}
+	return nil
+}
+
+// children is each table whose parent is t, in name order.
+func (t *table) children() []*table {
+	var out []*table
+	for _, name := range sortedNames(t.siblings) {
+		if c, isTable := t.siblings[name].(*table); isTable && c.rows.Parent() == t.rows {
+			out = append(out, c)
+		}
+	}
+	return out
+}
+
+// descendant is the table named name among those linked to t, at any depth, or nil.
+func (t *table) descendant(name string) *table {
+	d, isTable := t.siblings[name].(*table)
+	if !isTable {
+		return nil
+	}
+	for p := d.rows.Parent(); p != nil; p = p.Parent() {
+		if p == t.rows {
+			return d
 		}
 	}
 	return nil
@@ -326,7 +356,7 @@ func (t *table) followStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 	case stepColumn:
 		return t.formatTemplate.fields[st.name]
 	case stepChild:
-		return t.rows.Descendant(st.name).Owner()
+		return t.descendant(st.name)
 	case stepParent:
 		return t.rows.Parent().Owner()
 	}
@@ -351,9 +381,9 @@ func (t *table) columnOrLinked(tail []string) (column node, child *table, err er
 	if column, ok := t.formatTemplate.fields[tail[0]]; ok {
 		return column, nil, nil
 	}
-	d := t.rows.Descendant(tail[0])
+	d := t.descendant(tail[0])
 	if d == nil {
 		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.rows.Segment())
 	}
-	return nil, d.Owner(), nil
+	return nil, d, nil
 }

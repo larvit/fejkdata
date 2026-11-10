@@ -80,8 +80,8 @@ func indexPaths(n node, path []string, index map[node][]string) {
 		indexPaths(c.node, below, index)
 	}
 	if t, isTable := n.(*table); isTable {
-		for _, linked := range t.rows.Children() {
-			indexPaths(linked.Owner(), append(path[:len(path):len(path)], linked.Segment()), index)
+		for _, linked := range t.children() {
+			indexPaths(linked, append(path[:len(path):len(path)], linked.rows.Segment()), index)
 		}
 	}
 }
