@@ -74,8 +74,8 @@ func referenced(root *folder, dir []string, nodes nodeSet) []categoryAt {
 		if !isTemplate {
 			return nil
 		}
-		for _, name := range refTokens(t.tokens) {
-			segs, err := refSegments(name, dir)
+		for _, spelling := range refSpellings(t.tokens) {
+			segs, err := refSegments(spelling, dir)
 			if err != nil {
 				continue // resolveRefs reports it
 			}

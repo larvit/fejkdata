@@ -108,13 +108,13 @@ func refuseFolderRefs(nodes nodeSet) error {
 		if !ok {
 			return nil
 		}
-		for _, name := range refTokens(t.tokens) {
-			sigil, rest, err := grammar.RefShape(name)
+		for _, spelling := range refSpellings(t.tokens) {
+			sigil, rest, err := grammar.RefShape(spelling)
 			if err != nil {
-				return fmt.Errorf("%s: reference {%s}: %w", label, name, err)
+				return fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
 			}
 			if sigil != "/" {
-				return fmt.Errorf("%s: reference {%s}: an inline template has no folder; write {/%s}", label, name, rest)
+				return fmt.Errorf("%s: reference {%s}: an inline template has no folder; write {/%s}", label, spelling, rest)
 			}
 		}
 		return nil

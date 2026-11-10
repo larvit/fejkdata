@@ -74,14 +74,14 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 	return nil, nil
 }
 
-// checkReads proves that each name t reads (its arms, its builtin's operands and its clause's
-// names) is a reference or a path into a field. It returns the reads whose head no field holds.
+// checkReads proves that each spelling t reads (its arms, its builtin's operands and its clause's
+// spellings) is a reference or a path into a field. It returns the reads whose head no field holds.
 func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unboundRead, error) {
 	own, clause := tokenReads(t)
 	wholeToken := !operands && len(own)+len(clause) == 1
 	var unbound []unboundRead
-	for _, name := range own {
-		u, err := checkRead(t, name, fields, wholeToken, nil)
+	for _, spelling := range own {
+		u, err := checkRead(t, spelling, fields, wholeToken, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -97,16 +97,16 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 	return unbound, nil
 }
 
-// checkRead proves name, one read of t, is a reference or a path into a field. Where no field holds
+// checkRead proves spelling, one read of t, is a reference or a path into a field. Where no field holds
 // its head, it returns the read as unbound; its error is unbound() where the unbound func is not nil.
-func checkRead(t grammar.Token, name string, fields map[string]node, wholeToken bool, unbound func() error) ([]unboundRead, error) {
-	if grammar.IsRef(name) {
-		if _, _, err := grammar.RefShape(name); err != nil {
+func checkRead(t grammar.Token, spelling string, fields map[string]node, wholeToken bool, unbound func() error) ([]unboundRead, error) {
+	if grammar.IsRef(spelling) {
+		if _, _, err := grammar.RefShape(spelling); err != nil {
 			return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
 		}
 		return nil, nil // resolveRefs checks its target once the tree is assembled
 	}
-	missing, err := checkArm(name, fields, wholeToken)
+	missing, err := checkArm(spelling, fields, wholeToken)
 	switch {
 	case err == nil:
 		return nil, nil
@@ -115,7 +115,7 @@ func checkRead(t grammar.Token, name string, fields map[string]node, wholeToken 
 	case unbound != nil:
 		err = unbound()
 	}
-	return []unboundRead{{head: splitArm(name, nil).head, body: t.Body, err: fmt.Errorf("token {%s}: %w", t.Body, err)}}, nil
+	return []unboundRead{{head: splitArm(spelling, nil).head, body: t.Body, err: fmt.Errorf("token {%s}: %w", t.Body, err)}}, nil
 }
 
 // checkBind proves a {x as name} token is spelled once, binds a reference or a path into a
@@ -154,12 +154,12 @@ func checkBound(ref string, fields map[string]node) error {
 	return err
 }
 
-// checkArm validates one sibling name or path against a template's fields.
-// wholeToken says the name is the token's entire body, so {/name} would render
+// checkArm validates one sibling spelling against a template's fields.
+// wholeToken says the spelling is the token's entire body, so {/name} would render
 // the same value and can be offered as the reference spelling. missing says no
 // field holds the head, which a name may yet answer.
-func checkArm(name string, fields map[string]node, wholeToken bool) (missing bool, err error) {
-	a := splitArm(name, nil)
+func checkArm(spelling string, fields map[string]node, wholeToken bool) (missing bool, err error) {
+	a := splitArm(spelling, nil)
 	if err := checkSegments(a); err != nil {
 		return false, err
 	}
@@ -173,8 +173,8 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 		}
 		if len(fields) == 0 {
 			hint := ""
-			if wholeToken && grammar.CheckPathIdentifiers(name) == nil {
-				hint = fmt.Sprintf(" — write {/%s} to reference the data", name)
+			if wholeToken && grammar.CheckPathIdentifiers(spelling) == nil {
+				hint = fmt.Sprintf(" — write {/%s} to reference the data", spelling)
 			}
 			return true, fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.head, hint)
 		}
@@ -186,8 +186,8 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 	return false, nil
 }
 
-// tokenReads lists the names t reads: own, a read's arms or the operands a call's builtin reads,
-// and clause, the names its where clause reads.
+// tokenReads lists the spellings t reads: own, a read's arms or the operands a call's builtin reads,
+// and clause, the spellings its where clause reads.
 func tokenReads(t grammar.Token) (own []string, clause []clauseName) {
 	own = t.Arms
 	if t.Kind == grammar.BuiltinCall {
@@ -204,7 +204,7 @@ type formatOps struct {
 
 // compileFormat compiles t's parsed format against its resolved references and its names'
 // targets; a {ref as n} token compiles to no op, and a bind with a where or distinct clause to an
-// op that expand skips, holding the names its where clause reads. checkTokens proved every token valid.
+// op that expand skips, holding the spellings its where clause reads. checkTokens proved every token valid.
 func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps, error) {
 	var c formatOps
 	for _, tok := range t.tokens {
