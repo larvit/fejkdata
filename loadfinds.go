@@ -3,7 +3,7 @@ package fejkdata
 import "github.com/larvit/fejkdata/internal/invariant"
 
 // loadFinds holds what one load finds for its templates, choices and name bindings. bindNames
-// records each template's and choice's name scope; resolveTemplates what each template reads
+// records each template's and choice's name scope; compileTemplates what each template reads
 // and draws, and what each binding resolves to; settleRecords each record's columns. The
 // stages before finish read them here, and finish writes them into the nodes.
 type loadFinds struct {

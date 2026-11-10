@@ -123,7 +123,8 @@ func (o *op) reads() []*arm {
 	return found
 }
 
-// tokenDraw is how a token draws what it prints, built at load once its paths resolve.
+// tokenDraw is a token's draw, one of the types drawToken switches on, built at load once its
+// paths resolve.
 type tokenDraw interface {
 	// mayFallBack says whether a draw may print the where clause's fallback, or a path's empty
 	// default, where the strings it reads leave no value.

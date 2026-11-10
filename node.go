@@ -62,7 +62,7 @@ func (*nullItem) isNode() {}
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
-// an independent draw. Every format compiles in `resolveTemplates`.
+// an independent draw. Every format compiles in `compileTemplates`.
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `compileRowFormat`:
 	format     string
@@ -202,7 +202,7 @@ func (t *template) fixedText() (string, bool) {
 }
 
 // printedOp is the one op of ops that prints, past the binds a where or distinct clause compiles to,
-// which print nothing; ok is false where ops print through more ops or none.
+// which print nothing; ok is false where more than one op prints, or none does.
 func printedOp(ops []op) (printed op, ok bool) {
 	n := 0
 	for _, o := range ops {

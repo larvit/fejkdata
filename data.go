@@ -149,10 +149,12 @@ func categoryPipeline(sites []categorySite, root map[string]node, l *loadFinds) 
 }
 
 // run needs each stage to follow the one before. resolve binds what each template's tokens read, and
-// refuses a name or reference that can't resolve. The cycle check comes before the walks of
-// settleRecords and the fences, which recurse unguarded. settleRecords fixes each record's
-// columns, which checkColumns proves and the node fences read. Until finish, each stage reads
-// from p.finds what the stages before it found; from finish on, the fences read the nodes.
+// refuses a name or reference that can't resolve. refuseReadsInsideFields comes before the cycle
+// check: a name read inside the field bound to it is also a reference cycle, and its error says how
+// to fix the read. The cycle check comes before settleRecords, fenceTemplates and checkNodeFences,
+// whose walks recurse unguarded. settleRecords fixes each record's columns, which checkColumns
+// proves and checkNodeFences reads. Until finish, each stage reads from p.finds what the stages
+// before it found; from finish on, each reads the nodes.
 func (p pipeline) run() error {
 	ts, err := p.resolve()
 	if err != nil {
