@@ -96,19 +96,18 @@ func TestNodeCompileErrors(t *testing.T) {
 }
 
 func TestEveryFormatCompilesAtResolve(t *testing.T) {
-	n, err := compile(parse(t, `{"format":"{a} {b}","a":{"format":"x{c}","c":["1","2"]},"b":"{/w}"}`))
+	l := newLinks()
+	n, err := compile(parse(t, `{"format":"{a} {b}","a":{"format":"x{c}","c":["1","2"]},"b":"{/w}"}`), l)
 	if err != nil {
 		t.Fatal(err)
 	}
-	w, err := compile(parse(t, `["p","q"]`))
-	if err != nil {
-		t.Fatal(err)
-	}
+	w := compiled(t, `["p","q"]`)
 	compiledByPath := func() map[string]bool {
 		compiled := map[string]bool{}
 		if err := eachNode(n, "t", func(label string, m node) error {
 			if tm, ok := m.(*template); ok {
-				compiled[label+" "+tm.format] = tm.compiled.ops != nil
+				tl := l.of(tm)
+				compiled[label+" "+tm.format] = tl != nil && tl.compiled.ops != nil
 			}
 			return nil
 		}); err != nil {
@@ -121,7 +120,7 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 			t.Errorf("%s compiled before resolve", format)
 		}
 	}
-	if err := resolveInlineTemplates(inlineNodes(n, "t"), map[string]node{"w": w}); err != nil {
+	if err := resolveInlineTemplates(inlineNodes(n, "t"), map[string]node{"w": w}, l); err != nil {
 		t.Fatal(err)
 	}
 	for format, has := range compiledByPath() {

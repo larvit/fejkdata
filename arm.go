@@ -83,12 +83,12 @@ type op struct {
 // newOp returns parts whole: with its call, and with its draw where it has one. parts is an op whose
 // arms, operands and clause compileFormat built. An adddays call takes the one layout its date
 // operand prints in, so every template's format must be compiled first.
-func newOp(t *template, parts op, targets map[*nameBinding]nameTarget, draws bindingDraws, words map[wordsAt]*wordList) (op, error) {
+func newOp(t *template, parts op, l *links, words map[wordsAt]*wordList) (op, error) {
 	o := parts
 	if o.Kind == grammar.BuiltinCall {
 		o.call = builtinfunc.Prep(o.Fn, o.Args)
 		if o.Fn == builtinfunc.AddDaysName {
-			layout, err := addDaysLayout(o.operands[0])
+			layout, err := addDaysLayout(o.operands[0], l)
 			if err != nil {
 				return op{}, err
 			}
@@ -98,12 +98,12 @@ func newOp(t *template, parts op, targets map[*nameBinding]nameTarget, draws bin
 	var err error
 	switch {
 	case o.Kind == grammar.BuiltinCall && o.Fn == builtinfunc.RewordName:
-		o.draw, err = t.rewordDrawOf(&o, targets, words)
+		o.draw, err = t.rewordDrawOf(&o, l, words)
 	case o.Where == nil && o.Distinct == nil:
 	case o.Kind == grammar.BuiltinCall:
-		o.draw, err = newAlphabetDraw(&o, draws)
+		o.draw, err = newAlphabetDraw(&o, l)
 	default:
-		o.draw, err = t.valueDrawOf(&o, targets, draws)
+		o.draw, err = t.valueDrawOf(&o, l)
 	}
 	if err != nil {
 		return op{}, err
@@ -146,13 +146,13 @@ func drawToken(s *drawstate.State, t *template, env renderEnv, d tokenDraw, emit
 	panic(invariant.Broken("no draw for %T", d))
 }
 
-func (t *template) compileArms(spellings []string, targets map[*nameBinding]nameTarget) ([]arm, error) {
+func (t *template) compileArms(spellings []string, l *links) ([]arm, error) {
 	if len(spellings) == 0 {
 		return nil, nil
 	}
 	arms := make([]arm, len(spellings))
 	for i, spelling := range spellings {
-		a, err := t.compileArm(spelling, targets)
+		a, err := t.compileArm(spelling, l)
 		if err != nil {
 			return nil, err
 		}
@@ -163,17 +163,18 @@ func (t *template) compileArms(spellings []string, targets map[*nameBinding]name
 
 // compileArm compiles one read into a path: from the head it names, or, for a read through a
 // name, from what that name binds.
-func (t *template) compileArm(spelling string, targets map[*nameBinding]nameTarget) (arm, error) {
-	r := splitRead(spelling, t.refs.bySpelling)
-	if !t.isName(r.head) {
-		start := t.startOf(r.head)
+func (t *template) compileArm(spelling string, l *links) (arm, error) {
+	tl := l.of(t)
+	r := splitRead(spelling, tl.refs.bySpelling)
+	if !t.isName(r.head, l) {
+		start := t.startOf(r.head, l)
 		if start == nil {
 			panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))
 		}
 		w := compilePath(start, r.tail)
 		return arm{spelling: r.text, head: r.head, tail: r.tail, levels: freshLevels(r.head, r.tail), steps: w.steps, leaves: w.leaves}, nil
 	}
-	b := t.nameScope.lookup(r.head)
+	b := tl.nameScope.lookup(r.head)
 	tail, member := r.tail, 0
 	if b.distinct != nil {
 		var err error
@@ -187,7 +188,7 @@ func (t *template) compileArm(spelling string, targets map[*nameBinding]nameTarg
 		}
 		return arm{}, fmt.Errorf("a path through name %q may not select a row; read the row without the name, {%s}, or bind it to a name of its own", r.head, grammar.JoinSegments(append([]string{b.ref}, tail...)))
 	}
-	target := targets[b]
+	target := l.binding(b).target
 	full := append(target.tail[:len(target.tail):len(target.tail)], tail...)
 	if err := provePath(target.start, full, r.head, len(target.tail)); err != nil {
 		return arm{}, err

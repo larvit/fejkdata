@@ -261,7 +261,7 @@ const (
 	holdsOnlyLets = noColumnsError(`holds every field in "let", which writes no column; move one out of "let"`)
 )
 
-// recordOf is the record template n is; settleRecords fixed its columns at load.
+// recordOf is the record template n is; its load fixed its columns.
 func recordOf(n node) (*template, error) {
 	if tb, isTable := n.(*table); isTable {
 		n = tb.formatTemplate
@@ -276,8 +276,8 @@ func recordOf(n node) (*template, error) {
 	if !t.isRecord {
 		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	if len(t.columns)+len(t.lets) != len(t.fields) {
-		panic(invariant.Broken("record %q was reached before its load settled its columns", t.format))
+	if t.templateLinks == nil {
+		panic(invariant.Broken("record %q was reached before its load finished", t.format))
 	}
 	if len(t.columns) == 0 {
 		return nil, holdsOnlyLets
@@ -297,17 +297,17 @@ type recordColumn struct {
 
 // settleRecords fixes the columns of every record in nodes. The pipeline runs it after checkNoCycles: a
 // column's datatype walks the column, and a cycle would walk forever.
-func settleRecords(nodes nodeSet) {
+func settleRecords(nodes nodeSet, l *links) {
 	_ = nodes(func(_ string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {
-			t.columns = recordColumns(t)
+			l.of(t).columns = recordColumns(t, l)
 		}
 		return nil
 	})
 }
 
 // recordColumns is t's columns in name order where t is a record with fields, else nil.
-func recordColumns(t *template) []recordColumn {
+func recordColumns(t *template, l *links) []recordColumn {
 	if !t.isRecord || len(t.fields) == 0 {
 		return nil
 	}
@@ -316,15 +316,16 @@ func recordColumns(t *template) []recordColumn {
 		if tok.Kind != grammar.NameBind {
 			continue
 		}
-		if b := t.nameScope.bindings[tok.Bound]; b.bindsField() && len(b.target.tail) == 0 && whole[b.target.start] == nil {
-			whole[b.target.start] = b
+		b := l.of(t).nameScope.bindings[tok.Bound]
+		if target := l.binding(b).target; b.bindsField() && len(target.tail) == 0 && whole[target.start] == nil {
+			whole[target.start] = b
 		}
 	}
 	var columns []recordColumn
 	for _, name := range sortedNames(t.fields) {
 		if !t.lets[name] {
 			field := t.fields[name]
-			columns = append(columns, recordColumn{name: name, datatype: columnDatatype(field), field: field, boundWhole: whole[field]})
+			columns = append(columns, recordColumn{name: name, datatype: columnDatatype(field, l), field: field, boundWhole: whole[field]})
 		}
 	}
 	return columns

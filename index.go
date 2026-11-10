@@ -58,7 +58,7 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 		return "", nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
-		if err := loadReached(&f.root, nil, []categoryAt{c}); err != nil {
+		if err := loadReached(&f.root, nil, newLinks(), []categoryAt{c}); err != nil {
 			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
 		}
 	}
@@ -104,17 +104,18 @@ func needs(root *folder, s categorySite) []categoryAt {
 }
 
 // loadReached loads the unloaded categories among wanted and every unloaded category they
-// or sites need, then runs sites and all it loaded through a whole load's pipeline. On an
-// error it puts back what it loaded, so the next call fails the same way.
-func loadReached(root *folder, sites []categorySite, wanted []categoryAt) error {
+// or sites need, compiling them into l, which sites were compiled into, then runs sites and
+// all it loaded through a whole load's pipeline. On an error it puts back what it loaded, so
+// the next call fails the same way.
+func loadReached(root *folder, sites []categorySite, l *links, wanted []categoryAt) error {
 	queue := wanted
 	for _, s := range sites {
 		queue = append(queue, needs(root, s)...)
 	}
 	var b batch
-	err := b.load(root, queue)
+	err := b.load(root, queue, l)
 	if err == nil {
-		err = b.run(root, sites)
+		err = b.run(root, sites, l)
 	}
 	if err != nil {
 		b.putBack()
@@ -133,14 +134,14 @@ type loaded struct {
 // load loads each unloaded category in queue and what it needs. It stops at a table whose
 // parent column disagrees with its entry. Otherwise a table could load without its parent,
 // or an earlier table could link to one that putBack then removes.
-func (b *batch) load(root *folder, queue []categoryAt) error {
+func (b *batch) load(root *folder, queue []categoryAt, l *links) error {
 	for ; len(queue) > 0; queue = queue[1:] {
 		c := queue[0]
 		x := c.in.unloaded[c.name]
 		if x == nil {
 			continue
 		}
-		if err := x.src.Load(c.dir, c.name, compileInto(func([]string) *folder { return c.in })); err != nil {
+		if err := x.src.Load(c.dir, c.name, compileInto(func([]string) *folder { return c.in }, l)); err != nil {
 			if errors.Is(err, fs.ErrNotExist) {
 				err = fmt.Errorf("%s indexes %s: %w", x.src.ManifestPath(), categoryPath(c.dir, c.name), err)
 			}
@@ -156,15 +157,15 @@ func (b *batch) load(root *folder, queue []categoryAt) error {
 	return nil
 }
 
-func (b batch) run(root *folder, sites []categorySite) error {
+func (b batch) run(root *folder, sites []categorySite, l *links) error {
 	sites = slices.Clip(sites)
-	for _, l := range b {
-		sites = append(sites, l.site)
+	for _, x := range b {
+		sites = append(sites, x.site)
 	}
 	if len(sites) == 0 {
 		return nil
 	}
-	return categoryPipeline(sites, root.children).run()
+	return categoryPipeline(sites, root.children, l).run()
 }
 
 func (b batch) putBack() {

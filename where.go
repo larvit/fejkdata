@@ -145,17 +145,17 @@ func (c clauseSpelling) membersRead(n int) error {
 }
 
 // compileClauseNames compiles the names w reads, each bound in a template enclosing t.
-func (t *template) compileClauseNames(w *grammar.Where, targets map[*nameBinding]nameTarget) ([]arm, error) {
+func (t *template) compileClauseNames(w *grammar.Where, l *links) ([]arm, error) {
 	var arms []arm
 	for _, c := range clauseSpellings(w) {
 		read := splitRead(c.spelling, nil)
-		if !t.isName(read.head) {
+		if !t.isName(read.head, l) {
 			return nil, c.fieldRead()
 		}
-		if b := t.nameScope.lookup(read.head); b.distinct != nil && len(read.tail) == 0 && c.listsStrings() {
+		if b := l.of(t).nameScope.lookup(read.head); b.distinct != nil && len(read.tail) == 0 && c.listsStrings() {
 			return nil, c.membersRead(b.distinct.N)
 		}
-		a, err := t.compileArm(c.spelling, targets)
+		a, err := t.compileArm(c.spelling, l)
 		if err != nil {
 			return nil, err
 		}
@@ -165,10 +165,10 @@ func (t *template) compileClauseNames(w *grammar.Where, targets map[*nameBinding
 }
 
 // refuseFilteredTails refuses a path through a name holding a filtered draw, which is read whole.
-func refuseFilteredTails(ts []templateSite, draws bindingDraws) error {
+func refuseFilteredTails(ts []templateSite, l *links) error {
 	for _, s := range ts {
-		for _, r := range namedReads(s.t) {
-			if draws.of(r.a.named) != nil && len(r.a.tail) > 0 {
+		for _, r := range namedReads(s.t, l) {
+			if l.binding(r.a.named).values != nil && len(r.a.tail) > 0 {
 				return fmt.Errorf("%s: token {%s}: name %q holds a filtered draw, which is read whole: {%s}", s.label, r.o.Body, r.a.head, r.a.head)
 			}
 		}
@@ -178,14 +178,15 @@ func refuseFilteredTails(ts []templateSite, draws bindingDraws) error {
 
 // refuseSelfReads refuses a token whose where clause reads the name the token binds, directly or
 // through what the names it reads draw: drawing the name would read itself.
-func refuseSelfReads(ts []templateSite, draws bindingDraws) error {
+func refuseSelfReads(ts []templateSite, l *links) error {
 	for _, s := range ts {
-		for _, o := range s.t.compiled.ops {
+		tl := l.of(s.t)
+		for _, o := range tl.compiled.ops {
 			if o.Kind != grammar.NameBind || o.draw == nil {
 				continue
 			}
-			b := s.t.nameScope.bindings[o.Bound]
-			r := selfRead{b: b, draws: draws, names: map[*nameBinding]bool{}, nodes: map[node]bool{}}
+			b := tl.nameScope.bindings[o.Bound]
+			r := selfRead{b: b, links: l, names: map[*nameBinding]bool{}, nodes: map[node]bool{}}
 			for _, a := range o.clause {
 				if !r.reaches(a) {
 					continue
@@ -204,7 +205,7 @@ func refuseSelfReads(ts []templateSite, draws bindingDraws) error {
 // selfRead walks what reading an arm draws, looking for a read of b.
 type selfRead struct {
 	b     *nameBinding
-	draws bindingDraws
+	links *links
 	names map[*nameBinding]bool
 	nodes map[node]bool
 }
@@ -220,7 +221,7 @@ func (r selfRead) reaches(a arm) bool {
 			return false
 		}
 		r.names[a.named] = true
-		if v := r.draws.of(a.named); v != nil {
+		if v := r.links.binding(a.named).values; v != nil {
 			return slices.ContainsFunc(v.clause, r.reaches)
 		}
 	}
@@ -234,9 +235,9 @@ func (r selfRead) reachesNode(n node) bool {
 	r.nodes[n] = true
 	t, ok := n.(*template)
 	if !ok {
-		return slices.ContainsFunc(renderEdges(n), func(e renderEdge) bool { return r.reachesNode(e.to) })
+		return slices.ContainsFunc(renderEdges(n, r.links), func(e renderEdge) bool { return r.reachesNode(e.to) })
 	}
-	for _, o := range t.compiled.ops {
+	for _, o := range r.links.of(t).compiled.ops {
 		if slices.ContainsFunc(o.reads(), func(a *arm) bool { return r.reaches(*a) }) {
 			return true
 		}
@@ -246,7 +247,7 @@ func (r selfRead) reachesNode(n node) bool {
 
 // valueDrawOf builds o's draw over the values o's path renders, and proves every draw leaves
 // enough to draw.
-func (t *template) valueDrawOf(o *op, targets map[*nameBinding]nameTarget, draws bindingDraws) (*valueDraw, error) {
+func (t *template) valueDrawOf(o *op, l *links) (*valueDraw, error) {
 	clause := "a where clause filters"
 	if o.Where == nil {
 		clause = "a distinct clause draws"
@@ -258,17 +259,17 @@ func (t *template) valueDrawOf(o *op, targets map[*nameBinding]nameTarget, draws
 		if a.kind == namedRead {
 			return nil, fmt.Errorf("%q is a name, drawn once; write the clause on the draw it binds: {%s … as %s}", a.head, a.named.ref, a.head)
 		}
-		start, tail = t.startOf(a.head), a.tail
+		start, tail = t.startOf(a.head, l), a.tail
 	} else {
-		target := targets[t.nameScope.bindings[o.Bound]]
+		target := l.binding(l.of(t).nameScope.bindings[o.Bound]).target
 		start, tail = target.start, target.tail
 	}
-	w := valueWalk{targets: targets, seen: map[node]bool{}}
+	w := valueWalk{links: l, seen: map[node]bool{}}
 	if err := w.walk(start, tail, 1, "", ""); err != nil {
 		return nil, fmt.Errorf("%s values fixed at load, and %w", clause, err)
 	}
 	v := newValueDraw(w.out, o.Where, o.Distinct, o.clause)
-	if err := v.lengthProof().proveEveryDrawPasses(draws); err != nil {
+	if err := v.lengthProof().proveEveryDrawPasses(l); err != nil {
 		return nil, err
 	}
 	return v, nil
@@ -328,13 +329,13 @@ func (v *valueDraw) lengthProof() lengthProof {
 
 // proveEveryDrawPasses refuses a draw that some render leaves with too few values: one where too few
 // values pass, or one whose length reads a name that may print a length too few values have.
-func (v lengthProof) proveEveryDrawPasses(draws bindingDraws) error {
+func (v lengthProof) proveEveryDrawPasses(l *links) error {
 	bounds := map[*arm][2]float64{}
 	for _, e := range []lengthEnd{v.lo, v.hi} {
 		if e.read == nil {
 			continue
 		}
-		p := (&valueProof{draws: draws}).proveArm(*e.read)
+		p := (&valueProof{links: l}).proveArm(*e.read)
 		switch {
 		case p.NotOperand != "":
 			return fmt.Errorf("length %s is not always a whole number: %s", e.read.spelling, p.NotOperand)

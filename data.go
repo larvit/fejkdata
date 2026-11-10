@@ -12,35 +12,36 @@ import (
 // docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
 func loadSources(sources []datafiles.Source) (folder, error) {
 	root := folder{children: map[string]node{}}
+	l := newLinks()
 	for _, src := range sources {
 		m, err := src.Manifest()
 		if err != nil {
 			return folder{}, err
 		}
-		if err := addSource(&root, src, m); err != nil {
+		if err := addSource(&root, src, m, l); err != nil {
 			return folder{}, err
 		}
 	}
-	return root, loadReached(&root, categorySites(&root), nil)
+	return root, loadReached(&root, categorySites(&root), l, nil)
 }
 
-func addSource(root *folder, src datafiles.Source, m datafiles.Manifest) error {
+func addSource(root *folder, src datafiles.Source, m datafiles.Manifest, l *links) error {
 	src = src.Mounted(m.Namespace)
 	if m.Index != nil {
 		placeIndex(root, src, m.Index)
 		return nil
 	}
 	g := &folder{children: map[string]node{}}
-	if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
+	if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) }, l)); err != nil {
 		return err
 	}
 	mergeFolder(root, g)
 	return nil
 }
 
-func compileInto(place func(dir []string) *folder) func(datafiles.Category) error {
+func compileInto(place func(dir []string) *folder, l *links) func(datafiles.Category) error {
 	return func(c datafiles.Category) error {
-		n, err := compileCategory(c)
+		n, err := compileCategory(c, l)
 		if err != nil {
 			return err
 		}
@@ -122,10 +123,11 @@ func inlineNodes(n node, label string) nodeSet {
 	return func(fn func(label string, m node) error) error { return eachNode(n, label, fn) }
 }
 
-// pipeline is the one load pipeline, run over one nodeSet; its fields are where
-// entry points differ.
+// pipeline is the one load pipeline, run over one nodeSet and the links its nodes were
+// compiled into; its fields are where entry points differ.
 type pipeline struct {
 	nodes   nodeSet
+	links   *links
 	resolve func() error
 	// Set by a caller that proves the columns against their Go types itself.
 	typedByGo bool
@@ -133,14 +135,15 @@ type pipeline struct {
 
 // categoryPipeline is the pipeline over the categories of one load, their references
 // resolving against root.
-func categoryPipeline(sites []categorySite, root map[string]node) pipeline {
+func categoryPipeline(sites []categorySite, root map[string]node, l *links) pipeline {
 	return pipeline{
 		nodes: siteNodes(sites),
+		links: l,
 		resolve: func() error {
 			if err := linkTables(sites); err != nil {
 				return err
 			}
-			return resolveCategoryTemplates(sites, root)
+			return resolveCategoryTemplates(sites, root, l)
 		},
 	}
 }
@@ -148,15 +151,17 @@ func categoryPipeline(sites []categorySite, root map[string]node) pipeline {
 // run needs each stage to follow the one before. resolve binds what each template's tokens read, and
 // refuses a name or reference that can't resolve. The cycle check comes before the walks of
 // settleRecords and the node fences, which recurse unguarded. settleRecords fixes each record's
-// columns, which checkColumns proves and the node fences read.
+// columns, which checkColumns proves and the node fences read. Until finish, each stage reads
+// what the ones before it found in p.links; from finish on, the nodes hold it.
 func (p pipeline) run() error {
 	if err := p.resolve(); err != nil {
 		return err
 	}
-	if err := checkNoCycles(p.nodes); err != nil {
+	if err := checkNoCycles(p.nodes, p.links); err != nil {
 		return err
 	}
-	settleRecords(p.nodes)
+	settleRecords(p.nodes, p.links)
+	p.links.finish()
 	if !p.typedByGo {
 		if err := checkColumns(p.nodes); err != nil {
 			return err

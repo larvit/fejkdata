@@ -229,7 +229,7 @@ func TestBuiltinArgLimits(t *testing.T) {
 		}
 	}
 	// Ordinary values still compile.
-	if _, err := compile(parse(t, `"{hex(16)} {int(-5,5)} {float(0,1,3)} {calc(1+1,2)}"`)); err != nil {
+	if _, err := compile(parse(t, `"{hex(16)} {int(-5,5)} {float(0,1,3)} {calc(1+1,2)}"`), newLinks()); err != nil {
 		t.Errorf("compile of normal args failed: %v", err)
 	}
 }
@@ -376,7 +376,7 @@ func TestBuiltinDateArgs(t *testing.T) {
 // can follow: a double-quoted layout is named single-quoted, without its own
 // quotes carried into the suggestion, whether it split on a comma or not.
 func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
-	_, err := compile(parse(t, `"{date(1990-01-01,1990-12-31,\"2006-01-02\")}"`))
+	_, err := compile(parse(t, `"{date(1990-01-01,1990-12-31,\"2006-01-02\")}"`), newLinks())
 	if err == nil || !strings.Contains(err.Error(), "write '2006-01-02'") {
 		t.Fatalf("a double-quoted layout = %v, want it named single-quoted", err)
 	}
@@ -386,12 +386,12 @@ func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
 	if !strings.Contains(err.Error(), "is double-quoted") {
 		t.Errorf("%v does not say which quotes were wrong", err)
 	}
-	_, err = compile(parse(t, `"{time(15:04)}"`))
+	_, err = compile(parse(t, `"{time(15:04)}"`), newLinks())
 	if err == nil || !strings.Contains(err.Error(), "write '15:04'") {
 		t.Fatalf("a bare layout = %v, want it named quoted", err)
 	}
 	// The comma hint belongs to a layout that split, not to a call given extra args.
-	_, err = compile(parse(t, `"{time(0,12,'15:04')}"`))
+	_, err = compile(parse(t, `"{time(0,12,'15:04')}"`), newLinks())
 	if err == nil || !strings.Contains(err.Error(), "takes 1 argument, got 3") {
 		t.Fatalf("time with three args = %v, want the count named in the singular", err)
 	}

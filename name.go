@@ -30,12 +30,8 @@ type nameBinding struct {
 	index    int
 	binder   *template
 
-	// Filled by `resolveTemplates`, once every check it runs passed:
-	target nameTarget
-	// addressed is every key a read of the name lands on or passes, the spelling of the
-	// first read reaching it beside it; a pick keeps the draws at these keys, and only these.
-	addressed map[pickKey]string
-	values    *valueDraw // what a {ref where … as name} or {ref distinct N as name} draws from; nil without either clause
+	// Written by finish, from what its load found:
+	*bindingLinks
 }
 
 // nameTarget is what a binding resolves to in the assembled tree: start, the node its head names, and
@@ -57,10 +53,10 @@ func (sc *nameScope) lookup(name string) *nameBinding {
 	return nil
 }
 
-// bindNames gives every template of a compiled category or inline template the scope its
-// names live in, and refuses a name bound twice along one chain of scopes, a name a field spells
-// too, and a read no field or name answers.
-func bindNames(root node) error {
+// bindNames gives every template and choice of a compiled category or inline template, in l, the
+// scope its names live in, and refuses a name bound twice along one chain of scopes, a name a
+// field spells too, and a read no field or name answers.
+func bindNames(root node, l *links) error {
 	var scopes []*nameScope
 	var gather func(n node, scope *nameScope, item bool, where string) error
 	gather = func(n node, scope *nameScope, item bool, where string) error {
@@ -70,12 +66,12 @@ func bindNames(root node) error {
 		}
 		switch t := n.(type) {
 		case *template:
-			t.nameScope = scope
+			l.template(t).nameScope = scope
 			if err := scope.bindAll(t, where); err != nil {
 				return err
 			}
 		case *choice:
-			t.nameScope = scope
+			l.choices[t] = scope
 		}
 		_, isChoice := n.(*choice)
 		return eachContained(n, where, func(c containedNode, where string) error { return gather(c.node, scope, isChoice, where) })
@@ -90,7 +86,7 @@ func bindNames(root node) error {
 			}
 		}
 	}
-	return answerReads(root, scopes)
+	return answerReads(root, scopes, l)
 }
 
 func (sc *nameScope) bindAll(t *template, where string) error {
@@ -178,7 +174,7 @@ func eachContained(n node, where string, fn func(c containedNode, where string) 
 // answerReads proves each unbound read under root is answered by a name its template sees. It answers a template's fields before its format, the
 // order compile reports in, and refuses a field spelling a name. A refusal searches scopes, every
 // scope of the category, for a name bound where the read cannot see it.
-func answerReads(root node, scopes []*nameScope) error {
+func answerReads(root node, scopes []*nameScope, l *links) error {
 	var answer func(n node, where string, up besideField) error
 	answer = func(n node, where string, up besideField) error {
 		t, isTemplate := n.(*template)
@@ -186,7 +182,7 @@ func answerReads(root node, scopes []*nameScope) error {
 			inner := up
 			switch n.(type) {
 			case *template:
-				inner = besideField{t: t, field: c.name}
+				inner = besideField{t: t, scope: l.of(t).nameScope, field: c.name}
 			case *choice:
 				inner.inItem = true
 			}
@@ -195,8 +191,9 @@ func answerReads(root node, scopes []*nameScope) error {
 		if err != nil || !isTemplate {
 			return err
 		}
+		sc := l.of(t).nameScope
 		for _, name := range sortedNames(t.fields) {
-			if b := t.nameScope.lookup(name); b != nil {
+			if b := sc.lookup(name); b != nil {
 				holder := "the root template"
 				if where != "" {
 					holder = strings.TrimSuffix(where, ": ")
@@ -205,8 +202,8 @@ func answerReads(root node, scopes []*nameScope) error {
 			}
 		}
 		for _, u := range t.unbound {
-			if t.nameScope.lookup(u.head) == nil {
-				return unanswered(where, u, t.nameScope, scopes, up)
+			if sc.lookup(u.head) == nil {
+				return unanswered(where, u, sc, scopes, up)
 			}
 		}
 		return nil
@@ -214,10 +211,12 @@ func answerReads(root node, scopes []*nameScope) error {
 	return answer(root, "", besideField{})
 }
 
-// besideField locates a template from above: t is the nearest template containing it, field
-// is the field of t it lies under, and inItem says it is an item of a choice in that field.
+// besideField locates a template from above: t is the nearest template containing it, scope
+// is t's, field is the field of t it lies under, and inItem says it is an item of a choice in
+// that field.
 type besideField struct {
 	t      *template
+	scope  *nameScope
 	field  string
 	inItem bool
 }
@@ -229,7 +228,7 @@ func (up besideField) refusal(where string, u unboundRead) error {
 		holder = fmt.Sprintf("the item of field %q holding it", up.field)
 	}
 	fix := fmt.Sprintf("give %s a format and a %q of its own", holder, u.head)
-	if up.t.nameScope.kind() != scopeChoiceItem {
+	if up.scope.kind() != scopeChoiceItem {
 		fix += fmt.Sprintf(", or bind {%s as n} in the format beside field %q and read n in place of %s", u.head, up.field, u.head)
 	}
 	return fmt.Errorf("%stoken {%s}: %q is a field beside field %q, and a token reads only the fields of the template whose format holds it: %s", where, u.body, u.head, up.field, fix)
@@ -269,8 +268,8 @@ func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 	return fmt.Errorf("%s%w", where, u.err)
 }
 
-func (t *template) isName(head string) bool {
-	return !grammar.IsRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
+func (t *template) isName(head string, l *links) bool {
+	return !grammar.IsRef(head) && t.fields[head] == nil && l.of(t).nameScope.lookup(head) != nil
 }
 
 // namedReadAt is one read of a name in a format: the op holding it, and the compiled arm.
@@ -280,10 +279,11 @@ type namedReadAt struct {
 }
 
 // namedReads is every read of a name t's format makes, in format order.
-func namedReads(t *template) []namedReadAt {
+func namedReads(t *template, l *links) []namedReadAt {
+	ops := l.of(t).compiled.ops
 	var out []namedReadAt
-	for i := range t.compiled.ops {
-		o := &t.compiled.ops[i]
+	for i := range ops {
+		o := &ops[i]
 		for _, a := range o.reads() {
 			if a.kind == namedRead {
 				out = append(out, namedReadAt{o: o, a: a})
@@ -294,26 +294,25 @@ func namedReads(t *template) []namedReadAt {
 }
 
 // readsOfNames is every read of each name in ts, in the order ts lists them.
-func readsOfNames(ts []templateSite) map[*nameBinding][]*arm {
+func readsOfNames(ts []templateSite, l *links) map[*nameBinding][]*arm {
 	reads := map[*nameBinding][]*arm{}
 	for _, s := range ts {
-		for _, r := range namedReads(s.t) {
+		for _, r := range namedReads(s.t, l) {
 			reads[r.a.named] = append(reads[r.a.named], r.a)
 		}
 	}
 	return reads
 }
 
-// nameTargets resolves what each binding of ts binds, from its binder's references.
-func nameTargets(ts []templateSite) map[*nameBinding]nameTarget {
-	targets := map[*nameBinding]nameTarget{}
+// nameTargets resolves what each binding of ts binds, from its binder's references, into l.
+func nameTargets(ts []templateSite, l *links) {
 	for _, s := range ts {
+		tl := l.of(s.t)
 		for _, tok := range s.t.tokens {
 			if tok.Kind == grammar.NameBind {
-				a := splitRead(tok.BoundRef, s.t.refs.bySpelling)
-				targets[s.t.nameScope.bindings[tok.Bound]] = nameTarget{start: s.t.startOf(a.head), tail: a.tail}
+				a := splitRead(tok.BoundRef, tl.refs.bySpelling)
+				l.bindings[tl.nameScope.bindings[tok.Bound]] = &bindingLinks{target: nameTarget{start: s.t.startOf(a.head, l), tail: a.tail}}
 			}
 		}
 	}
-	return targets
 }
