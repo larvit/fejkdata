@@ -1177,3 +1177,30 @@ func TestATableErrorNamesItsPathAndACellItsLine(t *testing.T) {
 		t.Errorf("Fake(misc.territory[ZZZ]) = %v, want it to contain %q", err, want)
 	}
 }
+
+// TestARouteSaysWhereTheWalkStandsNext holds a route's next position to one value: whether the
+// walk leaves from a selected row is a fact of that position, not of the route.
+func TestARouteSaysWhereTheWalkStandsNext(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
+	region := f.root.children["region"].(*table)
+	municipality := f.root.children["municipality"].(*table)
+	for name, c := range map[string]struct {
+		from     *table
+		tail     []string
+		wantNode node
+		wantTail []string
+		fromRow  bool
+	}{
+		"into a linked table": {region, []string{"municipality", "name"}, municipality, []string{"name"}, true},
+		"up to the parent":    {municipality, []string{"..", "name"}, region, []string{"name"}, true},
+		"onto a column":       {region, []string{"name"}, region.formatTemplate.fields["name"], nil, false},
+	} {
+		r, err := c.from.route(c.tail, false)
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		if r.then.n != c.wantNode || !slices.Equal(r.then.tail, c.wantTail) || r.then.fromRow != c.fromRow {
+			t.Errorf("%s: route leaves the walk at %+v, want node %p tail %q fromRow %v", name, r.then, c.wantNode, c.wantTail, c.fromRow)
+		}
+	}
+}

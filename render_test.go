@@ -105,7 +105,7 @@ func nodeSwitches(tbl *table) map[string]func(node) {
 			render(engine(1).drawState, n, renderEnv{frames: &frames, row: renderedRow{tbl, 0}})
 		},
 		"renderEdges":      func(n node) { renderEdges(n) },
-		"routeSteps":       func(n node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{next: n}, 0) },
+		"routeSteps":       func(n node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{then: pathPos{n: n}}, 0) },
 		"valueProof.prove": func(n node) { (&valueProof{}).prove(n) },
 	}
 }
