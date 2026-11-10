@@ -14,7 +14,7 @@ type templateSite struct {
 
 // resolveCategoryTemplates resolves every template of the categories, once all data is merged, so a
 // reference sees the override-resolved tree.
-func resolveCategoryTemplates(sites []categorySite, root map[string]node, l *loadFinds) error {
+func resolveCategoryTemplates(sites []categorySite, root map[string]node, l *loadFinds) ([]templateSite, error) {
 	var ts []templateSite
 	for _, s := range sites {
 		if err := eachNode(s.n, s.path, func(label string, n node) error {
@@ -23,13 +23,16 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]node, l *loa
 			}
 			return nil
 		}); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return resolveTemplates(ts, root, l)
+	if err := compileTemplates(ts, root, l); err != nil {
+		return nil, err
+	}
+	return ts, nil
 }
 
-func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *loadFinds) error {
+func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *loadFinds) ([]templateSite, error) {
 	var ts []templateSite
 	if err := nodes(func(label string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {
@@ -37,17 +40,18 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node, l *loadFinds) e
 		}
 		return nil
 	}); err != nil {
-		return err
+		return nil, err
 	}
-	return resolveTemplates(ts, root, l)
+	if err := compileTemplates(ts, root, l); err != nil {
+		return nil, err
+	}
+	return ts, nil
 }
 
-// resolvedNames is what the fences of resolveTemplates read about the names of a set of
-// templates. finds holds each binding's target, draw and addressed keys, and reads each
-// binding's reads. places caches pathTo: for each node it was called from, every node under
-// it with the fields leading there. fresh is each binding's freshFieldReads.
+// resolvedNames is what the name fences read about the names of a set of finished templates.
+// reads holds each binding's reads. places caches pathTo: for each node it was called from,
+// every node under it with the fields leading there. fresh is each binding's freshFieldReads.
 type resolvedNames struct {
-	finds  *loadFinds
 	reads  map[*nameBinding][]*arm
 	places map[node]map[node][]string
 	fresh  map[*nameBinding]map[pickKey][]fieldRead
@@ -95,23 +99,13 @@ func compileFormats(ts []templateSite, l *loadFinds) error {
 	return nil
 }
 
-// resolveTemplates resolves ts into l in two stages, each over every template before the next
-// starts: compile, then fence.
-func resolveTemplates(ts []templateSite, root map[string]node, l *loadFinds) error {
-	names, err := compileTemplates(ts, root, l)
-	if err != nil {
-		return err
-	}
-	return fenceTemplates(ts, names)
-}
-
 // compileTemplates resolves each template's references and its names' targets, compiles its format
 // and each op's call and draw, and finds what each name's reads address.
-func compileTemplates(ts []templateSite, root map[string]node, l *loadFinds) (resolvedNames, error) {
+func compileTemplates(ts []templateSite, root map[string]node, l *loadFinds) error {
 	for _, s := range ts {
 		refs, err := s.t.resolveRefs(s.folder, s.label, root)
 		if err != nil {
-			return resolvedNames{}, err
+			return err
 		}
 		l.template(s.t).refs = refs
 	}
@@ -119,28 +113,22 @@ func compileTemplates(ts []templateSite, root map[string]node, l *loadFinds) (re
 		l.bindings[b] = &bindingFinds{target: target}
 	}
 	if err := compileFormats(ts, l); err != nil {
-		return resolvedNames{}, err
+		return err
 	}
 	if err := buildOps(ts, l); err != nil {
-		return resolvedNames{}, err
+		return err
 	}
 	for _, s := range ts {
 		l.templates[s.t].readsColumn = columnReadOf(s.t, l)
 	}
-	reads := readsOfNames(ts, l)
-	for b, keys := range addressedKeys(reads, l) {
+	for b, keys := range addressedKeys(readsOfNames(ts, l), l) {
 		l.bindings[b].addressed = keys
 	}
-	names := resolvedNames{finds: l, reads: reads, places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
-	for b, bound := range reads {
-		names.fresh[b] = freshFieldReads(bound, l.bindings[b].addressed, l)
-	}
-	return names, nil
+	return nil
 }
 
 // buildOps completes each op of ts, once every template's format is compiled, and gives l the draw
-// of each name bound to a token with a where or a distinct clause. A proof of a draw reads the draws
-// of the names that earlier ops bind.
+// of each name bound to a token with a where or a distinct clause.
 func buildOps(ts []templateSite, l *loadFinds) error {
 	words := map[wordsAt]*wordList{}
 	for _, s := range ts {
@@ -159,27 +147,42 @@ func buildOps(ts []templateSite, l *loadFinds) error {
 	return nil
 }
 
-// fenceTemplates refuses a draw that would read itself or is read through a path, a read of a name
-// that could disagree with another read of it, and a calc or adddays whose proof fails.
-func fenceTemplates(ts []templateSite, names resolvedNames) error {
-	if err := refuseSelfReads(ts, names.finds); err != nil {
+// fenceTemplates refuses, in the finished templates of ts, a draw that some render leaves with too
+// few values, a draw that would read itself or is read through a path, a read of a name that could
+// disagree with another read of it, and a calc or adddays whose proof fails.
+func fenceTemplates(ts []templateSite) error {
+	if err := proveDrawLengths(ts); err != nil {
 		return err
 	}
-	if err := refuseFilteredTails(ts, names.finds); err != nil {
+	if err := refuseSelfReads(ts); err != nil {
 		return err
 	}
+	if err := refuseFilteredTails(ts); err != nil {
+		return err
+	}
+	names := namesOf(ts)
 	for _, s := range ts {
 		if err := checkNameReads(s.label, s.t, names); err != nil {
 			return err
 		}
 	}
 	for _, s := range ts {
-		if err := checkCalcNames(s.label, s.t, names.finds); err != nil {
+		if err := checkCalcNames(s.label, s.t); err != nil {
 			return err
 		}
-		if err := proveAddDays(s.label, s.t, names.finds); err != nil {
+		if err := proveAddDays(s.label, s.t); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// namesOf is what the name fences read about the names of ts.
+func namesOf(ts []templateSite) resolvedNames {
+	reads := readsOfNames(ts, nil)
+	names := resolvedNames{reads: reads, places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
+	for b, bound := range reads {
+		names.fresh[b] = freshFieldReads(bound, b.addressed)
+	}
+	return names
 }

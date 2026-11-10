@@ -77,7 +77,7 @@ func readsOneArm(t *template, l *loadFinds) (arm, bool) {
 	if t.repeat != 1 || (t.datatype != nil && *t.datatype == DataTypeString) {
 		return arm{}, false
 	}
-	o, one := t.printedOp(l)
+	o, one := printedOp(l.of(t).compiled.ops)
 	if !one || o.Kind != grammar.PathRead || len(o.arms) != 1 || o.Where != nil || o.Distinct != nil || readsJoined(o.arms[0]) {
 		return arm{}, false
 	}
@@ -143,7 +143,7 @@ func itemDatatype(t *template, l *loadFinds) DataType {
 
 // proveColumnItem proves what a column item renders or, where the item is a column read, the column it reads.
 func (p *valueProof) proveColumnItem(t *template) proven.Facts {
-	r := p.finds.of(t).readsColumn
+	r := t.readsColumn
 	if r == nil {
 		return p.prove(t)
 	}

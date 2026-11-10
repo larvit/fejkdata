@@ -128,7 +128,7 @@ func inlineNodes(n node, label string) nodeSet {
 type pipeline struct {
 	nodes   nodeSet
 	finds   *loadFinds
-	resolve func() error
+	resolve func() ([]templateSite, error)
 	// Set by a caller that proves the columns against their Go types itself.
 	typedByGo bool
 }
@@ -139,9 +139,9 @@ func categoryPipeline(sites []categorySite, root map[string]node, l *loadFinds) 
 	return pipeline{
 		nodes: siteNodes(sites),
 		finds: l,
-		resolve: func() error {
+		resolve: func() ([]templateSite, error) {
 			if err := linkTables(sites); err != nil {
-				return err
+				return nil, err
 			}
 			return resolveCategoryTemplates(sites, root, l)
 		},
@@ -150,11 +150,15 @@ func categoryPipeline(sites []categorySite, root map[string]node, l *loadFinds) 
 
 // run needs each stage to follow the one before. resolve binds what each template's tokens read, and
 // refuses a name or reference that can't resolve. The cycle check comes before the walks of
-// settleRecords and the node fences, which recurse unguarded. settleRecords fixes each record's
+// settleRecords and the fences, which recurse unguarded. settleRecords fixes each record's
 // columns, which checkColumns proves and the node fences read. Until finish, each stage reads
-// from p.finds what the stages before it found; from finish on, it reads the nodes.
+// from p.finds what the stages before it found; from finish on, the fences read the nodes.
 func (p pipeline) run() error {
-	if err := p.resolve(); err != nil {
+	ts, err := p.resolve()
+	if err != nil {
+		return err
+	}
+	if err := refuseReadsInsideFields(ts, p.finds); err != nil {
 		return err
 	}
 	if err := checkNoCycles(p.nodes, p.finds); err != nil {
@@ -162,6 +166,9 @@ func (p pipeline) run() error {
 	}
 	settleRecords(p.nodes, p.finds)
 	p.finds.finish()
+	if err := fenceTemplates(ts); err != nil {
+		return err
+	}
 	if !p.typedByGo {
 		if err := checkColumns(p.nodes); err != nil {
 			return err

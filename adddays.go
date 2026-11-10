@@ -21,20 +21,20 @@ func addDaysLayout(d arm, l *loadFinds) (string, error) {
 
 // proveAddDays proves the day count of each adddays of t that reads one is a whole number within
 // the cap.
-func proveAddDays(label string, t *template, l *loadFinds) error {
-	for _, o := range l.of(t).compiled.ops {
+func proveAddDays(label string, t *template) error {
+	for _, o := range t.compiled.ops {
 		if o.Kind != grammar.BuiltinCall || o.Fn != builtinfunc.AddDaysName || len(o.operands) == 1 {
 			continue
 		}
-		if err := proveDayCount(o.operands[1], l); err != nil {
+		if err := proveDayCount(o.operands[1]); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
 		}
 	}
 	return nil
 }
 
-func proveDayCount(n arm, l *loadFinds) error {
-	v := (&valueProof{finds: l}).proveArm(n)
+func proveDayCount(n arm) error {
+	v := (&valueProof{}).proveArm(n)
 	switch {
 	case v.NotOperand != "":
 		return fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.spelling, v.NotOperand)

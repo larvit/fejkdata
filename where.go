@@ -165,10 +165,10 @@ func (t *template) compileClauseNames(w *grammar.Where, l *loadFinds) ([]arm, er
 }
 
 // refuseFilteredTails refuses a path through a name holding a filtered draw, which is read whole.
-func refuseFilteredTails(ts []templateSite, l *loadFinds) error {
+func refuseFilteredTails(ts []templateSite) error {
 	for _, s := range ts {
-		for _, r := range namedReads(s.t, l) {
-			if l.binding(r.a.named).values != nil && len(r.a.tail) > 0 {
+		for _, r := range namedReads(s.t, nil) {
+			if r.a.named.values != nil && len(r.a.tail) > 0 {
 				return fmt.Errorf("%s: token {%s}: name %q holds a filtered draw, which is read whole: {%s}", s.label, r.o.Body, r.a.head, r.a.head)
 			}
 		}
@@ -178,15 +178,14 @@ func refuseFilteredTails(ts []templateSite, l *loadFinds) error {
 
 // refuseSelfReads refuses a token whose where clause reads the name the token binds, directly or
 // through what the names it reads draw: drawing the name would read itself.
-func refuseSelfReads(ts []templateSite, l *loadFinds) error {
+func refuseSelfReads(ts []templateSite) error {
 	for _, s := range ts {
-		tl := l.of(s.t)
-		for _, o := range tl.compiled.ops {
+		for _, o := range s.t.compiled.ops {
 			if o.Kind != grammar.NameBind || o.draw == nil {
 				continue
 			}
-			b := tl.nameScope.bindings[o.Bound]
-			r := selfRead{b: b, finds: l, names: map[*nameBinding]bool{}, nodes: map[node]bool{}}
+			b := s.t.nameScope.bindings[o.Bound]
+			r := selfRead{b: b, names: map[*nameBinding]bool{}, nodes: map[node]bool{}}
 			for _, a := range o.clause {
 				if !r.reaches(a) {
 					continue
@@ -205,7 +204,6 @@ func refuseSelfReads(ts []templateSite, l *loadFinds) error {
 // selfRead walks what reading an arm draws, looking for a read of b.
 type selfRead struct {
 	b     *nameBinding
-	finds *loadFinds
 	names map[*nameBinding]bool
 	nodes map[node]bool
 }
@@ -221,7 +219,7 @@ func (r selfRead) reaches(a arm) bool {
 			return false
 		}
 		r.names[a.named] = true
-		if v := r.finds.binding(a.named).values; v != nil {
+		if v := a.named.values; v != nil {
 			return slices.ContainsFunc(v.clause, r.reaches)
 		}
 	}
@@ -235,9 +233,9 @@ func (r selfRead) reachesNode(n node) bool {
 	r.nodes[n] = true
 	t, ok := n.(*template)
 	if !ok {
-		return slices.ContainsFunc(renderEdges(n, r.finds), func(e renderEdge) bool { return r.reachesNode(e.to) })
+		return slices.ContainsFunc(renderEdges(n, nil), func(e renderEdge) bool { return r.reachesNode(e.to) })
 	}
-	for _, o := range r.finds.of(t).compiled.ops {
+	for _, o := range t.compiled.ops {
 		if slices.ContainsFunc(o.reads(), func(a *arm) bool { return r.reaches(*a) }) {
 			return true
 		}
@@ -245,8 +243,7 @@ func (r selfRead) reachesNode(n node) bool {
 	return false
 }
 
-// valueDrawOf builds o's draw over the values o's path renders, and proves every draw leaves
-// enough to draw.
+// valueDrawOf builds o's draw over the values o's path renders.
 func (t *template) valueDrawOf(o *op, l *loadFinds) (*valueDraw, error) {
 	clause := "a where clause filters"
 	if o.Where == nil {
@@ -268,11 +265,7 @@ func (t *template) valueDrawOf(o *op, l *loadFinds) (*valueDraw, error) {
 	if err := w.walk(start, tail, 1, "", ""); err != nil {
 		return nil, fmt.Errorf("%s values fixed at load, and %w", clause, err)
 	}
-	v := newValueDraw(w.out, o.Where, o.Distinct, o.clause)
-	if err := v.lengthProof().proveEveryDrawPasses(l); err != nil {
-		return nil, err
-	}
-	return v, nil
+	return newValueDraw(w.out, o.Where, o.Distinct, o.clause), nil
 }
 
 // newValueDraw keeps the values that pass where's fixed conditions, shortest first, for draws of
@@ -323,19 +316,45 @@ type lengthProof struct {
 	filters bool // a where clause filters the values
 }
 
-func (v *valueDraw) lengthProof() lengthProof {
-	return lengthProof{v.lengths, v.lo, v.hi, v.count, v.filters}
+// proveDrawLengths refuses a draw in ts that some render leaves with too few values.
+func proveDrawLengths(ts []templateSite) error {
+	for _, s := range ts {
+		for _, o := range s.t.compiled.ops {
+			p, draws := drawLengthProof(o)
+			if !draws {
+				continue
+			}
+			if err := p.proveEveryDrawPasses(); err != nil {
+				return fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
+			}
+		}
+	}
+	return nil
+}
+
+// drawLengthProof is what proves the length of o's draw, where o draws through a where or a
+// distinct clause.
+func drawLengthProof(o op) (lengthProof, bool) {
+	switch d := o.draw.(type) {
+	case *valueDraw:
+		return lengthProof{d.lengths, d.lo, d.hi, d.count, d.filters}, true
+	case *alphabetDraw:
+		p := lengthProof{lengths: []int{d.runs.Len()}, count: 1, filters: true}
+		p.lo, p.hi = lengthEnds(o.Where, o.clause)
+		return p, true
+	}
+	return lengthProof{}, false
 }
 
 // proveEveryDrawPasses refuses a draw that some render leaves with too few values: one where too few
 // values pass, or one whose length reads a name that may print a length too few values have.
-func (v lengthProof) proveEveryDrawPasses(l *loadFinds) error {
+func (v lengthProof) proveEveryDrawPasses() error {
 	bounds := map[*arm][2]float64{}
 	for _, e := range []lengthEnd{v.lo, v.hi} {
 		if e.read == nil {
 			continue
 		}
-		p := (&valueProof{finds: l}).proveArm(*e.read)
+		p := (&valueProof{}).proveArm(*e.read)
 		switch {
 		case p.NotOperand != "":
 			return fmt.Errorf("length %s is not always a whole number: %s", e.read.spelling, p.NotOperand)
