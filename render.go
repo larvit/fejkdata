@@ -41,7 +41,7 @@ func drawCallerPath(s *drawstate.State, root node, segments []string) (node, pin
 		return nil, pinSet{}, err
 	}
 	var pins pinSet
-	n, leafPins := drawSteps(s, root, steps, &pins, nil, nil)
+	n, leafPins := drawSteps(s, drawFresh, root, steps, &pins, nil, nil)
 	return n, *leafPins, nil
 }
 
@@ -153,11 +153,11 @@ func readField(s *drawstate.State, t *template, env renderEnv, a arm) readValue 
 	}
 	env.pick = nil
 	if !grammar.IsRef(a.head) {
-		leaf, _ := drawSteps(s, t.startOf(a.head), a.steps, nil, nil, a.levels)
+		leaf, _ := drawSteps(s, drawSibling, t.startOf(a.head), a.steps, nil, nil, a.levels)
 		return renderLeaf(s, leaf, env)
 	}
 	var pins pinSet
-	leaf, leafPins := drawSteps(s, t.startOf(a.head), a.steps, &pins, nil, a.levels)
+	leaf, leafPins := drawSteps(s, drawFresh, t.startOf(a.head), a.steps, &pins, nil, a.levels)
 	env, mark := env.at(leaf, leafPins).enter(leaf, nil)
 	r := renderLeaf(s, leaf, env)
 	env.frames.pop(mark)
