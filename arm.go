@@ -77,10 +77,9 @@ type op struct {
 	draw tokenDraw
 }
 
-// newOp completes parts, an op whose arms, operands and clause compileFormat built, with its call
-// and its draw, and returns it whole. A call of adddays reads back the one layout its date prints
-// in, so every template must be compiled first. A token with no where or distinct clause, and no
-// {reword()} call, has no draw.
+// newOp returns parts whole: with its call, and with its draw where it has one. parts is an op whose
+// arms, operands and clause compileFormat built. An adddays call takes the one layout its date
+// operand prints in, so every template's format must be compiled first.
 func newOp(t *template, parts op, targets map[*nameBinding]nameTarget, draws bindingDraws, words map[wordsAt]*wordList) (op, error) {
 	o := parts
 	if o.Kind == grammar.BuiltinCall {
@@ -101,15 +100,12 @@ func newOp(t *template, parts op, targets map[*nameBinding]nameTarget, draws bin
 	case o.Kind == grammar.BuiltinCall:
 		o.draw, err = newAlphabetDraw(&o, draws)
 	default:
-		var v *valueDraw
-		if v, err = t.valueDrawOf(&o, targets, draws); err == nil {
-			o.draw = v
-			if o.Kind == grammar.NameBind {
-				draws[t.nameScope.bindings[o.Bound]] = v
-			}
-		}
+		o.draw, err = t.valueDrawOf(&o, targets, draws)
 	}
-	return o, err
+	if err != nil {
+		return op{}, err
+	}
+	return o, nil
 }
 
 // reads is every arm a render of o reads: its arms, its builtin's operands and its clause's reads.
