@@ -1414,3 +1414,20 @@ Read most (opens and searches):
 - `docs/decisions.md` 2
 - `docs/score-anchors.md` 1
 - `graph.go` 1
+
+## Reading cost, chunk 83afa5fd2282, finished 2026-11-11T01:41:16Z
+
+116869 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 5
+- `docs/decisions.md` 4
+- `arm.go` 3
+- `imports_test.go` 3
+- `format.go` 2
+- `where.go` 2
+- `README.md` 1
+- `alphabetdraw.go` 1
+- `compose.yaml` 1
+- `node.go` 1
