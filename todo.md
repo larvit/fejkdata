@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 432`
+`Next ID = 451`
 
 ## Items
 
@@ -219,6 +219,25 @@
 | 280 | 1.3.0 | 279 |  | **Give `geo/MX`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 285 | 1.3.0 | 284 |  | **Give `geo/BR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
+| 432 | 2.0.0 |  | question | **Reword goals 2.2, 7, 8.1, 8.5, 8.6, 9.2 and 10, and the README's Versioning table, for a Rust core that a native Go library and the npm package both serve.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.8 |
+| 434 | 2.0.0 | 432 |  | **Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 14, the tests, and cargo-mutants for the stability pass.** | 3 | 1 | 1 | 3 | 4 | 1 by 1 | 0.4 |
+| 435 | 2.0.0 | 434 |  | **Port internal/drawstate to Rust so a seed draws the same numbers as Go, and fail the gate where the Go and Rust CLIs print different bytes for a corpus of templates at a fixed seed and date.** | 3 | 1 | 2 | 4 | 4 | 9 by 5 | 10.4 |
+| 436 | 2.0.0 | 434 |  | **Port internal/datafiles, internal/rows and internal/jsonvalue to Rust, loading on first reach a source with an index, and embed the shipped data per locale behind a Cargo feature.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
+| 437 | 2.0.0 | 434 |  | **Port internal/grammar to Rust: templates, paths, selectors and where clauses.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
+| 438 | 2.0.0 | 421, 423, 436, 437 |  | **Port internal/engine/tree and internal/engine/load to Rust: compile, bind, link and resolve.** | 4 | 2 | 3 | 7 | 9 | 1 by 3 | 0.1 |
+| 440 | 2.0.0 | 435, 438 |  | **Port internal/engine/render and internal/avoid to Rust: drawing, named picks and distinct draws.** | 4 | 1 | 3 | 6 | 8 | 1 by 3 | 0.1 |
+| 444 | 2.0.0 | 440 |  | **Fail the Rust gate where a render allocates more than its pinned count, as the Go performance gate asserts allocations.** | 2 | 1 | 1 | 2 | 3 | 12 by 5 | 15.6 |
+| 441 | 2.0.0 | 435, 437 |  | **Port internal/builtinfunc to Rust: every builtin, Go's reference-time date layouts such as '060102', the checksums, calc with its Inf, and reword.** | 3 | 1 | 3 | 5 | 8 | 1 by 3 | 0.1 |
+| 442 | 2.0.0 | 440, 441 |  | **Port records and their serializers to Rust: JSON, NDJSON, CSV and SQL, typed columns, linked templates through --emit, streamed.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
+| 443 | 2.0.0 | 442 |  | **Port the CLI to Rust, with its getopt_long flags, exit codes, --list and --data-path.** | 3 | 1 | 3 | 5 | 6 | 1 by 3 | 0.4 |
+| 433 | 2.0.0 |  |  | **Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.** | 2 | 1 | 1 | 2 | 2 | 1 by 1 | 0.8 |
+| 446 | 2.0.0 | 433, 442 |  | **Serve the Go library from the Rust core through cgo, under the module path github.com/larvit/fejkdata/v2, keeping New, its options, Fake, the templates, records and FakeStruct.** | 4 | 3 | 3 | 8 | 8 | 1 by 3 | 0.1 |
+| 445 | 2.0.0 | 443 |  | **Build and publish the Rust CLI on every channel the Go one reaches: the binaries for six targets, deb, rpm and apk, Homebrew, Scoop and the image, with cargo-audit in place of govulncheck.** | 4 | 3 | 3 | 8 | 8 | 1.1 by 3 | 0.1 |
+| 447 | 2.0.0 | 443, 445, 446 |  | **Delete the Go engine, keep the Go tests that check the Go library's API, and revise each decision in docs/decisions.md that names Go.** | 3 | 2 | 3 | 6 | 6 | code health by 3 | 1.6 |
+| 448 | 2.0.0 | 359, 442 |  | **Build @larvit/fejkdata's WebAssembly from the Rust core with wasm-bindgen, in place of the Go build item 359 makes.** | 3 | 2 | 2 | 5 | 5 | 1.2 by 6 | 1.3 |
+| 450 | 2.0.0 | 447 |  | **Write MIGRATION.md, listing each change 2.0.0 makes to what a user relies on and what to do about it.** | 1 | 2 | 1 | 2 | 3 | 1 by 2 | 1.2 |
+| 449 | 2.0.0 | 447, 448 |  | **Rewrite the README's Install, Library, Layout and Development sections, and AGENTS.md's rules, for a Rust core with a Go library.** | 2 | 2 | 1 | 3 | 4 | 11 by 2 | 0.6 |
+| 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
 
@@ -1045,3 +1064,55 @@ IBGE's CNEFE lists every address with its CEP.
 ### 330. Give `geo/DE`'s places their streets.
 
 Each Land publishes its own address data. Where open registers cover every Land, they are its street source; else it ships without streets (decision: no open address register covering it whole), and this item goes.
+
+### 432. Reword goals 2.2, 7, 8.1, 8.5, 8.6, 9.2 and 10, and the README's Versioning table, for a Rust core that a native Go library and the npm package both serve.
+
+The owner decided on 2026-11-11 that fejkdata moves to Rust as a whole and keeps Go as a native library. Today those goals name Go as the one language: Go packages as modules, a CLI of your own in a few lines of Go, functions in Go, the JavaScript package matching the Go library, and the lowest supported Go in the Versioning table. The wording is the owner's; every other item of 2.0.0 waits for it.
+
+### 434. Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 14, the tests, and cargo-mutants for the stability pass.
+
+Rust runs through `docker compose run --rm`, as Go does. Clippy's cognitive-complexity lint stands in for the Go gate's cyclomatic limit. cargo-mutants on the changed lines will be slower than Go's mutation run, since Rust compiles more slowly; measure one run and say so in the Development section.
+
+### 435. Port internal/drawstate to Rust so a seed draws the same numbers as Go, and fail the gate where the Go and Rust CLIs print different bytes for a corpus of templates at a fixed seed and date.
+
+Go's `math/rand/v2` PCG is a 128-bit LCG step with a DXSM output. `IntN` is Lemire's multiply method, and `Float64` takes 53 bits of one draw. That comes to about 60 lines of Rust over `u128`. Every draw goes through `drawstate`'s `IntN`, `Float64` and `Weighted`. Seeds then stay as they are across 2.0.0, and the Go build serves as the port's test oracle, provided the Rust engine draws in the same order. The corpus takes the README's examples, `testdata/`, and the templates the Go tests render. A difference in `calc`'s float formatting may be accepted as a break and listed in item 450.
+
+### 436. Port internal/datafiles, internal/rows and internal/jsonvalue to Rust, loading on first reach a source with an index, and embed the shipped data per locale behind a Cargo feature.
+
+The data under `data/` stays as it is, JSON and TSV. A program that enables one locale's feature carries only that locale's data and its country's geo data, as goal 2.2 asks of Go today.
+
+### 438. Port internal/engine/tree and internal/engine/load to Rust: compile, bind, link and resolve.
+
+This is a milestone. Split it into two or three items before starting. It waits for items 421 and 423 because the places the comprehension seats find hardest sit in the code this item and items 439 and 440 port: `namefence.go`, `pick.go:87` `landsInPick`, `path.go` and `table.go:250` `route`. Lifting Locality, the lowest dimension at about 5.5, in Go first, where the Go tests check the change, lets this item translate the cleaner design rather than redesign and translate at once.
+
+### 444. Fail the Rust gate where a render allocates more than its pinned count, as the Go performance gate asserts allocations.
+
+A counting global allocator in the test binary stands in for Go's `testing.AllocsPerRun`.
+
+### 441. Port internal/builtinfunc to Rust: every builtin, Go's reference-time date layouts such as '060102', the checksums, calc with its Inf, and reword.
+
+The date layouts are template syntax users write, so they keep Go's spelling.
+
+### 433. Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.
+
+The owner accepts a Go library that runs the Rust core as WebAssembly only where it costs no more than a few percent against native Go. Expect 1.5 to 3 times slower before the cost of copying strings across the boundary. Where it does come within a few percent, item 446 binds through wazero instead of cgo, and Go users keep `CGO_ENABLED=0`.
+
+### 446. Serve the Go library from the Rust core through cgo, under the module path github.com/larvit/fejkdata/v2, keeping New, its options, Fake, the templates, records and FakeStruct.
+
+The owner wants Go to stay a native library. cgo's per-call cost, tens of nanoseconds, disappears inside a render. The module ships a prebuilt static library for each of the six targets. Go users then need `CGO_ENABLED=1` and a C linker, a break item 450 lists. `FakeStruct` stays Go reflection that builds a record template. A data package passes its embedded files into the core, so goal 2.2 holds. A function of one's own runs through a callback from Rust into Go, and its signature may change. Where item 433 finds wazero within a few percent, bind through wazero instead.
+
+### 445. Build and publish the Rust CLI on every channel the Go one reaches: the binaries for six targets, deb, rpm and apk, Homebrew, Scoop and the image, with cargo-audit in place of govulncheck.
+
+GoReleaser gives way to cargo builds for the six targets. `patch_release.py` cuts a patch on a new Rust toolchain or crate where it does on a new Go or module today. The decision on known vulnerabilities blocking a release carries over to RustSec advisories.
+
+### 448. Build @larvit/fejkdata's WebAssembly from the Rust core with wasm-bindgen, in place of the Go build item 359 makes.
+
+The owner's reasons for the move include the WebAssembly's speed, memory and size. The Go build item 359 measured runs about 4.5 times slower than native under Node's WASI. Items 360 to 363 carry over to the Rust build unchanged.
+
+### 450. Write MIGRATION.md, listing each change 2.0.0 makes to what a user relies on and what to do about it.
+
+The known breaks so far: the Go library needs cgo (`CGO_ENABLED=1` and a C linker) on the six targets only; the module path takes `/v2`; `go install …/cmd/fejkdata` stops installing the CLI; a Go function of one's own may change signature; error wording may change; and possibly `calc`'s float formatting. Each item of 2.0.0 that breaks something adds it here.
+
+### 439. Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.
+
+An error is a contract by what it names, not its bytes, so the wording may change in 2.0.0.
