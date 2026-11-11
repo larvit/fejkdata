@@ -59,6 +59,14 @@ func fnrCheck(digits string, weights []int) (k int, ok bool) {
 	return k % 11, k != 10
 }
 
+// lastSixDigits is the date ddmmyy that the digits of emitted end in, padded with zeros on the left,
+// and its year digits yy.
+func lastSixDigits(emitted string) (date string, yy int) {
+	date = digitsOf(emitted)
+	date = strings.Repeat("0", max(0, 6-len(date))) + date[max(0, len(date)-6):]
+	return date, int(date[4]-'0')*10 + int(date[5]-'0')
+}
+
 func digitsOf(s string) string {
 	var b strings.Builder
 	for i := 0; i < len(s); i++ {

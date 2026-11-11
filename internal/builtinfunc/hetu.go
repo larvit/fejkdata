@@ -2,7 +2,6 @@ package builtinfunc
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -12,8 +11,9 @@ import (
 // digits of the date and the individual number divided by 31.
 const hetuControlCharacters = "0123456789ABCDEFHJKLMNPRSTUVWXY"
 
-// hetuIndividuals is how many individual numbers of one parity DVV issues, from 002 to 899.
-const hetuIndividuals = 449
+// hetuIndividuals is how many individual numbers of one parity are in 900 to 999, which DVV issues
+// to no one: it issues 002 to 899.
+const hetuIndividuals = 50
 
 func hetuArg(a []string) error {
 	if _, _, isCall := grammar.FuncCall(a[0]); isCall {
@@ -27,9 +27,7 @@ func hetuPrep([]string) Call {
 		if len(operands[0]) != 1 || operands[0][0] < '0' || operands[0][0] > '9' {
 			return ""
 		}
-		date := digitsOf(emitted)
-		date = strings.Repeat("0", max(0, 6-len(date))) + date[max(0, len(date)-6):]
-		yy := int(date[4]-'0')*10 + int(date[5]-'0')
+		date, yy := lastSixDigits(emitted)
 		sign := hetuSign(s.Today().Year(), yy)
 		if sign == 0 {
 			return ""
@@ -52,10 +50,11 @@ func hetuSign(thisYear, yy int) byte {
 	return 0
 }
 
-// hetuTail completes a henkilötunnus after its date: the sign, the pick-th individual number of
-// the parity of the digit parity, odd for a man and even for a woman, and the control character.
+// hetuTail completes a henkilötunnus after its date: the sign, the pick-th individual number from
+// 900 whose parity is that of the digit parity, odd for a man and even for a woman, and the
+// control character.
 func hetuTail(date string, sign, parity byte, pick int) string {
-	individual := 2 + 2*pick
+	individual := 900 + 2*pick
 	if (parity-'0')%2 == 1 {
 		individual++
 	}

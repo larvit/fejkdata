@@ -2,7 +2,6 @@ package builtinfunc
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -24,9 +23,7 @@ func cprPrep([]string) Call {
 		if len(operands[0]) != 1 || operands[0][0] < '0' || operands[0][0] > '9' {
 			return ""
 		}
-		date := digitsOf(emitted)
-		date = strings.Repeat("0", max(0, 6-len(date))) + date[max(0, len(date)-6):]
-		yy := int(date[4]-'0')*10 + int(date[5]-'0')
+		date, yy := lastSixDigits(emitted)
 		thisYear := s.Today().Year()
 		sevenths := cprSeventhDigits(thisYear - ((thisYear-yy)%100+100)%100)
 		if sevenths == "" {
