@@ -693,7 +693,7 @@ Ends the decision "A country with no open address register covering it whole shi
 
 Goal 4.9. Today a path is a second spelling of the template that reads it; afterwards only the template remains.
 
-- A lone reference, a template of one reference token and nothing else, is what it references, as a record column reading one reference already is: `FakeRecord("{/users}")` returns the columns of `users`. The CLI's `loneReference` and the `isPath` check it copies from the token grammar then go, and `--format sql` takes its default `--table` from the library's parse of the reference.
+- A lone reference, a template of one reference token and nothing else, is what it references, as a record column reading one reference already is: `FakeRecord("{/users}")` returns the columns of `users`. The CLI's `loneReference` and the exported `IsLonePath` it calls then go, and `--format sql` takes its default `--table` from the library's parse of the reference.
 - `Fake` and `FakeRecord` take a template. `FakeTemplate` folds into `Fake`, `FakeRecordTemplate` into `FakeRecord`, and `IsTemplate` goes, with `grammar.IsTemplate`.
 - `Fake` of a lone reference costs what `Fake` of its path costs today, and the allocation gate holds a case for it.
 - `List` and `--list` give each entry as the template that renders it, `{/sv_SE.person}`.
