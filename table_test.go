@@ -327,6 +327,7 @@ func TestTableStepUpRefusals(t *testing.T) {
 		"locality[L4]..municipality.":      "empty segment",
 		"locality[L4].municipality.name":   "..municipality.name",
 		"locality[L4].name..municipality":  "column",
+		"locality.region.code":             `no column or linked table "region" in locality`,
 		"x..y":                             "only from a table's row",
 	} {
 		f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"x.json": `{"format":"{y}","y":"a"}`})))
