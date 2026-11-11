@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 431 | 0.5.0 |  |  | **Add tests that a {a\|b} read splits its item's weight evenly between its alternatives, and that a where clause's names don't count as what a read prints.** | 1 | 1 | 1 | 1 | 2 | code health by 2, 5.1 by 2 | 14.9 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
@@ -222,13 +221,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 
 ## Details
-
-### 431. Add tests that a {a|b} read splits its item's weight evenly between its alternatives, and that a where clause's names don't count as what a read prints.
-
-Item 424's stability review found two behaviours no test checks, by mutation. Both lines predate that item, which only renamed them. Take each test's expected values from the rule below, never from the code.
-
-- A `{a|b}` read splits its weight evenly. In `internal/engine/load/pathvalues.go`, `valueWalk` walks an op's alternatives at `weight/float64(len(op.Alternatives()))`, and the mutant `weight*float64(...)` survives. In the choice `["{a|b}", "c"]`, `c` weighs 0.5, and `a` and `b` 0.25 each.
-- A where clause's names are not what a read prints. In `proveTemplate` (`internal/engine/fence/valueproof.go:149`) and `nodeDateLayout` (`internal/engine/load/adddays.go:60`), the mutant that replaces `o.Alternatives()` with `o.AllReads()` survives. For a read such as `{/d where length k}`, the value proof would then take the union of `d`'s and `k`'s values, and `adddays` would check `k`'s layout. Test that each ignores `k`.
 
 ### 403. Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.
 
