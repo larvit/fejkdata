@@ -1508,3 +1508,20 @@ Read most (opens and searches):
 - `internal/engine/doc.go` 10
 - `internal/engine/fence/namefence.go` 10
 - `internal/engine/index.go` 10
+
+## Reading cost, chunk b221f1c5e314, finished 2026-11-11T21:25:29Z
+
+66156 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 5
+- `compose.yaml` 3
+- `internal/grammar/path.go` 3
+- `README.md` 2
+- `cli/cli.go` 2
+- `datatype.go` 1
+- `datatype_test.go` 1
+- `docs/decisions.md` 1
+- `inline.go` 1
+- `inline_test.go` 1
