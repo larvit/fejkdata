@@ -1397,3 +1397,20 @@ Read most (opens and searches):
 - `AGENTS.md` 1
 - `arm.go` 1
 - `docs/decisions.md` 1
+
+## Reading cost, chunk fa4856c72523, finished 2026-11-11T00:21:55Z
+
+113341 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 6
+- `node.go` 4
+- `arm.go` 3
+- `loadfinds.go` 3
+- `name.go` 3
+- `path.go` 3
+- `table.go` 3
+- `docs/decisions.md` 2
+- `docs/score-anchors.md` 1
+- `graph.go` 1
