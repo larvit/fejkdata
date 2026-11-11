@@ -11,7 +11,7 @@ import (
 
 // CheckColumns rejects a record column whose items hold different datatypes, checking a column
 // after the other categories' columns its items read, so a column read is named before its readers.
-func CheckColumns(s func(fn func(label string, n tree.Node) error) error) error {
+func CheckColumns(s NodeSet) error {
 	checked := map[tree.Node]bool{}
 	var check func(label, name string, column tree.Node) error
 	check = func(label, name string, column tree.Node) error {
