@@ -1580,3 +1580,28 @@ Inherited architect, decided by:
 - Locality, Shape, Overall: `valueproof.go:215` `checkCalcs`: one phase and one entry point, covering fields and names alike, where the base's two phases made a 3am reader work out which had fired
 - Shape: `valueproof.go:243` `zeroDivisor`: folds through `proven.OfCalc`, where the base's `constantValue` and `neverNumeric` were a second evaluator that could drift
 - Locality: `valueproof.go:203` `operand`: one operand function serves both the proof and the check
+
+## 2026-11-11T04:06:15Z, PR #350 at 6354987, against 2a1df89
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | same | better |
+| Inherited architect | better | same | better | better | better |
+
+Mid A, decided by:
+
+- Navigation, Shape: `internal/engine/fence/fence.go:1` `package fence` gives the load-time checks one home, whose doc lists what it refuses; before they were spread over root files, `resolve.go` and `load/graph.go`.
+- Locality, Shape: `struct.go:274` `compileRecord` makes one `fence.CheckFields` call where it built a `valueProof` and checked each field inline, and the field kinds sit beside the proof using them.
+- Shape, Navigation: `internal/engine/load/graph.go:91` `RenderEdges`: load's graph file holds only the graph structure; the cycle and repeat checks moved to `fence/graph.go`.
+- Locality, Shape: `resolve.go:10` `resolveCategoryTemplates`: the file only resolves; the name fences sit behind `fence.Templates`.
+- Navigation: `data.go:158` `pipeline.run` reads as a list of `fence.*` stages, each naming the package to open.
+
+Inherited architect, decided by:
+
+- Navigation, Shape: `AGENTS.md:112` the architecture decision line names one package holding every proof and fence, so a reader chasing a load-time refusal searches one package.
+- Navigation, Self-sufficiency: `data.go:158` `pipeline.run` prefixes every refusing stage with `fence.`, while the stages that change the tree have none, so the order comment reads straight against the code.
+- Shape: `internal/engine/load/graph.go:91` `RenderEdges`: a package named load no longer holds two refusals.
+- Shape, Self-sufficiency: `internal/engine/fence/fence.go:1` the package doc says in one sentence what the fences refuse, where before they sat in `resolve.go` beside resolving.
+- Shape: `datatype.go:1` the root file shrank to the public `DataType` constants and matches its name.
