@@ -12,17 +12,16 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
-| 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
+| 302 | 0.5.0 |  |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 422 | 0.5.0 |  |  | **Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 421 | 0.5.0 |  | owner | **Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.** | 4 | 2 | 2 | 6 | 7 | code health by 8 | 2.3 |
 | 423 | 0.5.0 | 421 |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
-| 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
+| 301 | 0.5.0 |  |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 428 | 0.5.0 |  |  | **Give the README's Development section a heading that lists, in order, what a pull request adding a locale ships.** | 1 | 2 | 1 | 2 | 2 | 11 by 4 | 2.3 |
-| 303 | 0.5.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
+| 303 | 0.5.0 |  |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.8 |
 | 395 | 0.5.0 |  |  | **Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time, and let `date()` take bounds relative to the caller's date.** | 2 | 1 | 1 | 2 | 4 | 1 by 4 | 1.6 |
-| 299 | 0.5.0 | 204 |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
+| 299 | 0.5.0 |  |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 429 | 0.5.0 |  |  | **State in the README's Functions section that a builtin receives the output its template has rendered so far.** | 1 | 2 | 1 | 2 | 1 | 11 by 2 | 1.4 |
 | 430 | 0.5.0 |  |  | **Say in the README's `nb_NO.fodselsnummer` paragraph that each `birth` band's weight is its count of years, so every year from 1940 to 2025 is equally likely.** | 1 | 2 | 1 | 2 | 1 | 11 by 1 | 0.7 |
