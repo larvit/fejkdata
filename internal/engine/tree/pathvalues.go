@@ -24,6 +24,9 @@ func SpanOf(lengths []int, lo, hi int) (from, to int) {
 	return from, to
 }
 
+// Odds is the odds of the text at index i.
+func (x *LengthIndex) Odds(i int) float64 { return x.cum[i] - x.Before(i) }
+
 // Before is the running sum of the odds of the texts before index i.
 func (x *LengthIndex) Before(i int) float64 {
 	if i == 0 {

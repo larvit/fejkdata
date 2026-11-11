@@ -2022,7 +2022,7 @@ fejkdata.go     Generator, New, options, List
 index.go        a source's index: its categories left unloaded, and loading one on the first call reaching it
 node.go         JSON -> node compilation
 table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
-name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and each binding's target
+name.go         names: binding each {x as n} in its scope, answering the reads of it, and finding each binding's target
 namefence.go    the load fences over names
 pick.go         a render's named picks: each level's pick key, the frame each name scope renders in, the memo a pick keeps, and the reads kept under it
 env.go          renderEnv: what a render reads names and rows through, the stack of frames it renders in, and the frames a read opens and finds
@@ -2032,7 +2032,7 @@ record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their ent
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and resolve
 format.go       a format's tokens checked against their fields, and compiled into ops
-arm.go          the compiled read of one {a|b} alternative or operand: its head, the path to its leaf, the op holding it, and the op's draw
+arm.go          compiling each {a|b} alternative or operand into a tree.Arm, building the op holding it and its draw, and drawing a token
 reference.go    one reference's resolution: its sigil, its category, its tail
 resolve.go      resolving templates against the assembled tree in two stages, compile and fence, each over every template before the next
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
@@ -2040,11 +2040,11 @@ sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
 where.go        where and distinct clauses: the names a clause reads, the draw of the values that pass, without repeats, and the proof that every draw has enough values
-pathvalues.go   the values a path holds fixed at load, with their weights and by length, and a draw among them that leaves out those already drawn
+pathvalues.go   walking a path for the values it holds fixed at load, with their weights, indexing them by length, and a draw among them that leaves out those already drawn
 alphabetdraw.go a where clause on an alphabet call: the draw of a value holding none of the clause's strings, and the fallback where no value can
 reword.go       {reword()}: the words a call draws from, one fake per word in a render, and the case each fake takes
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
-columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
+columnread.go   a format that only reads a column: finding which column it reads, and the datatype, proof and value load and render take from that column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cli/            the fejkdata command, as the library call Main

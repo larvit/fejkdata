@@ -236,18 +236,19 @@ func drawIn(x *tree.LengthIndex, s *drawstate.State, from, to int) string {
 // the ascending indexes drawn. It costs drawn's length plus a binary search over the span: it draws
 // among the odds left, and steps past each drawn text the draw lands at or beyond.
 func drawIndex(x *tree.LengthIndex, s *drawstate.State, from, to int, drawn []int) int {
-	base, left := x.Before(from), x.Cum()[to-1]-x.Before(from)
+	cum := x.Cum()
+	base, left := x.Before(from), cum[to-1]-x.Before(from)
 	for _, d := range drawn {
-		left -= x.Cum()[d] - x.Before(d)
+		left -= x.Odds(d)
 	}
 	v := base + s.Float64()*left
 	for _, d := range drawn {
 		if x.Before(d) > v {
 			break
 		}
-		v += x.Cum()[d] - x.Before(d)
+		v += x.Odds(d)
 	}
-	return undrawnNear(from+sort.Search(to-from, func(i int) bool { return x.Cum()[from+i] > v }), from, to, drawn)
+	return undrawnNear(from+sort.Search(to-from, func(i int) bool { return cum[from+i] > v }), from, to, drawn)
 }
 
 // undrawnNear is i, or where rounding landed i on a drawn index or on to, the first undrawn index
