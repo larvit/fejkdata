@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, and `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, and `fi_FI`'s names and persons, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
@@ -659,10 +659,10 @@ segments below that. It needs no index. Each shipped module carries one, so
 `nb_NO.title[dr.]`.
 
 `fi_FI`, Finnish, carries `first-name`, `last-name`, `person`, `sex` and `title`, built like `nb_NO`'s.
-`fi_FI.sex` is `nainen` and `mies`, weighed by [Statistics Finland](https://stat.fi/en)'s population of 31 December
+`fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
 2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
-and `fi_FI.last-name` the 5,000 commonest last names, each weighed by the Finnish citizens bearing it in
-[DVV](https://dvv.fi/en)'s register of 4 August 2026. A program showing those counts credits "Lähde: Digi- ja
+and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
+Population Data Services Agency ([DVV](https://dvv.fi/en)). A program showing those counts credits "Lähde: Digi- ja
 väestötietovirasto", and one showing the sex counts "Source: Statistics Finland".
 
 `da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
@@ -953,9 +953,9 @@ state a territory belongs to: `DK` for Greenland, `FI` for Åland. A sovereign s
 itself, and so does a territory its source names no state for, such as Western Sahara, `EH`.
 
 `first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
-SCB, Statistics Norway, the SSA and the Census Bureau, and for Denmark from Statistics Denmark's top 20 and a
+SCB, Statistics Norway, DVV, Statistics Finland, the SSA and the Census Bureau, and for Denmark from Statistics Denmark's top 20 and a
 language model's recall (the weights of the recalled names are estimates). `sex` counts the people of each
-sex in its `count` column: Sweden's population at the end of 2024, Norway's and Denmark's on 1 January 2026 and
+sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026 and
 the United States' on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
