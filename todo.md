@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 422 | 0.5.0 |  |  | **Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
@@ -240,12 +239,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 403. Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.
-
-`release-tooling/publish_release.py` finds a section only by `## [name]`, and `changelog.py` writes `## [Unreleased]`. A commit wrote `## Unreleased`, which the tooling skipped: it took `## [0.3.0]` as the newest section and failed every push to `main` from 2026-11-09 with "the version is burnt", and no pull request's check caught it. The brackets come from Keep a Changelog, where they link each heading to a comparison URL at the bottom of the file; fejkdata's changelog has no such URLs. The human chose to drop them, over keeping them and refusing a bare heading in the changelog check.
-
-The tooling then reads and writes the bare spelling. It still reads the bracketed headings of the releases cut so far, since packaging an old release again reads its tag's changelog. The changelog check refuses a `## ` heading it can't read, so a pull request catches the next one. `fixtures.py`, the README's release steps and the module doc of `publish_release.py` follow, and the decision "The changelog heading is the one spelling of a release; CI cuts the tag" names the spelling. Until this ships, a new section is spelled `## [Unreleased]`.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
@@ -521,7 +514,7 @@ Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` re
 
 The 0.2.0 commit changed only `CHANGELOG.md`, so the `changes` job skipped the `docker build` jobs and the dry run, and the release job tagged a commit neither had built.
 
-Make the `changes` job count a change to `CHANGELOG.md`'s top heading from `[Unreleased]` to a version as a code and packaging change, so the release commit builds through `docker build .` and runs the dry run before it is tagged. Adding `CHANGELOG.md` to the `code` and `packaging` lists would do the same, but it would also run the full build on every changelog fix-up and the dry run on every data pull request, which slows every such pull request.
+Make the `changes` job count a change to `CHANGELOG.md`'s top heading from `Unreleased` to a version as a code and packaging change, so the release commit builds through `docker build .` and runs the dry run before it is tagged. Adding `CHANGELOG.md` to the `code` and `packaging` lists would do the same, but it would also run the full build on every changelog fix-up and the dry run on every data pull request, which slows every such pull request.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 

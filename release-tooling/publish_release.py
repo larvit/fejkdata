@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Publish the release that CHANGELOG.md's top heading names, tagging SHA.
 
-A top heading of `[Unreleased]`, or a version already released, publishes nothing.
+A heading is `## Unreleased` or `## 0.5.0 - 2026-11-20`. The releases cut before 0.5.0 are headed `## [0.4.0] - 2026-11-10`,
+brackets and all, and still read. A top heading of Unreleased, or a version already released, publishes nothing.
+`publish_release.py check` fails on each `## ` heading it can't read.
 Env: FORGE_API_URL, FORGE_REPOSITORY (owner/repo), FORGE_TOKEN, SHA, and GITHUB_OUTPUT,
 to which it appends `tag=vX.Y.Z` when it publishes a release.
 """
@@ -13,9 +15,10 @@ import sys
 import urllib.error
 import urllib.request
 
-SECTION = re.compile(r"^## \[(?P<name>[^\]]+)\][^\n]*\n?(?P<body>.*?)(?=^## \[|\Z)", re.M | re.S)
+SECTION = re.compile(r"^## \[?(?P<name>[^\]\s]+)\]?[^\n]*\n?(?P<body>.*?)(?=^## |\Z)", re.M | re.S)
 """A changelog section: its heading's name, Unreleased or a version, and its body."""
 VERSION = re.compile(r"\d+\.\d+\.\d+")
+READABLE = re.compile(rf"## (?:\[(?:Unreleased|{VERSION.pattern})\]|Unreleased|{VERSION.pattern})(?: - \d{{4}}-\d{{2}}-\d{{2}})?")
 
 
 def request(path: str, data: dict | None = None):
@@ -32,14 +35,14 @@ def publish(changelog: str, sha: str) -> tuple[int, str | None]:
 	"""Publish the release the changelog's top heading names at the commit, returning the exit code and the tag it published, if any."""
 	top = SECTION.search(changelog)
 	if top is None:
-		print("CHANGELOG.md has no `## [...]` heading", file=sys.stderr)
+		print("CHANGELOG.md has no `## ` heading", file=sys.stderr)
 		return 1, None
 	version, body = top["name"], top["body"].strip()
 	if version == "Unreleased":
 		print("top heading is Unreleased; nothing to publish")
 		return 0, None
 	if not VERSION.fullmatch(version):
-		print(f"top heading `[{version}]` is neither Unreleased nor X.Y.Z", file=sys.stderr)
+		print(f"top heading `{version}` is neither Unreleased nor X.Y.Z", file=sys.stderr)
 		return 1, None
 	tag = f"v{version}"
 	# A tag at another commit means the version is taken, even when its release is published.
@@ -64,18 +67,29 @@ def publish(changelog: str, sha: str) -> tuple[int, str | None]:
 	return 0, tag
 
 
+def unreadable_headings(changelog: str) -> list[str]:
+	"""Each `## ` line of the changelog that is not Unreleased or a version, as a heading of the section above reads it."""
+	return [line for line in changelog.splitlines() if line.startswith("## ") and not READABLE.fullmatch(line)]
+
+
 def github_output(line: str) -> None:
 	with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
 		f.write(line + "\n")
 
 
-def main() -> int:
+def main(argv: list[str]) -> int:
 	with open("CHANGELOG.md", encoding="utf-8") as f:
-		code, tag = publish(f.read(), os.environ["SHA"])
+		changelog = f.read()
+	if argv == ["check"]:
+		bad = unreadable_headings(changelog)
+		for line in bad:
+			print(f"CHANGELOG.md heading `{line}` is neither `## Unreleased` nor `## X.Y.Z - YYYY-MM-DD`", file=sys.stderr)
+		return 1 if bad else 0
+	code, tag = publish(changelog, os.environ["SHA"])
 	if tag:
 		github_output(f"tag={tag}")
 	return code
 
 
 if __name__ == "__main__":
-	sys.exit(main())
+	sys.exit(main(sys.argv[1:]))

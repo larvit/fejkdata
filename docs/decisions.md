@@ -294,6 +294,12 @@ release carries at once, as a fejkdata patch cut from the last release's tag"). 
 release the same job publishes keeps one text as its body and is where prebuilt
 binaries attach.
 
+A heading is spelled `## Unreleased` or `## 0.5.0 - 2026-11-20`, without the brackets that
+Keep a Changelog uses to link a heading to a comparison URL, which this changelog has none
+of. The tooling still reads the bracketed headings of the releases up to 0.4.0, since
+packaging an old release reads its tag's changelog, and the changelog check refuses a
+`## ` heading it can't read, so a pull request catches one the push to `main` would skip.
+
 ## A `--data-path` override rebinds every reference to the category it replaces
 
 2026-09-24, Lilleman auf Larv.

@@ -31,7 +31,7 @@ def changes(released: carried.Carried, patch: carried.Carried) -> list[str]:
 def section(version: str, date: str, breaking: list[str], changed: list[str], last: str, fixed: str) -> str:
 	"""The patch's section: Breaking first, as CHANGELOG.md's preamble asks, then Changed, then Security."""
 	security = [f"The binaries no longer carry {last.removeprefix('v')}'s known vulnerabilities: {fixed}."] if fixed else []
-	text = f"## [{version}] - {date}\n\n"
+	text = f"## {version} - {date}\n\n"
 	for heading, lines in (("Breaking", breaking), ("Changed", changed), ("Security", security)):
 		if lines:
 			text += f"### {heading}\n\n" + "".join(f"- {line}\n" for line in lines) + "\n"
@@ -123,7 +123,7 @@ def new_subsection(changelog: str, heading: str, bullets: str, first: bool) -> s
 	has none."""
 	section = unreleased(changelog)
 	if section is None:
-		return insert_section(changelog, f"## [Unreleased]\n\n### {heading}\n\n{bullets}\n")
+		return insert_section(changelog, f"## Unreleased\n\n### {heading}\n\n{bullets}\n")
 	body = section["body"].strip("\n")
 	if first:
 		body = f"### {heading}\n\n{bullets}" + ("\n" + body if body else "")
