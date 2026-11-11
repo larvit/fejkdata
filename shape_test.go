@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 const shapePin = "testdata/shipped_shape.txt"
@@ -29,35 +31,35 @@ func TestShippedShapeIsPinned(t *testing.T) {
 
 func shippedShape(f *Generator) string {
 	facts := map[string]string{}
-	var walk func(prefix string, n node)
-	walk = func(prefix string, n node) {
+	var walk func(prefix string, n tree.Node)
+	walk = func(prefix string, n tree.Node) {
 		switch n := n.(type) {
-		case *folder:
-			for _, name := range sortedNames(n.children) {
-				walk(join(prefix, name), n.children[name])
+		case *tree.Folder:
+			for _, name := range sortedNames(n.Children()) {
+				walk(join(prefix, name), n.Children()[name])
 			}
-		case *choice:
+		case *tree.Choice:
 			facts[prefix] = readsFact(n)
-		case *table:
-			facts[prefix] = "\tformat " + strconv.Quote(n.formatTemplate.format) + tableFacts(n) + readsFact(n)
-			for _, name := range n.rows.Header() {
+		case *tree.Table:
+			facts[prefix] = "\tformat " + strconv.Quote(n.FormatTemplate().Format()) + tableFacts(n) + readsFact(n)
+			for _, name := range n.Rows().Header() {
 				facts[join(prefix, name)] = "\tstring"
 			}
-		case *template:
-			facts[prefix] = "\tformat " + strconv.Quote(n.format) + readsFact(n)
+		case *tree.Template:
+			facts[prefix] = "\tformat " + strconv.Quote(n.Format()) + readsFact(n)
 			if record, err := recordOf(n); err == nil {
-				for _, c := range record.columns {
-					fact := "\t" + c.datatype.String()
-					if _, nullable := columnItems(c.field); nullable {
+				for _, c := range record.Columns() {
+					fact := "\t" + c.DataType().String()
+					if _, nullable := columnItems(c.Field()); nullable {
 						fact += " null"
 					}
-					facts[join(prefix, c.name)] = fact
+					facts[join(prefix, c.Name())] = fact
 				}
 			}
 		}
 	}
-	for _, name := range sortedNames(f.root.children) {
-		walk(name, f.root.children[name])
+	for _, name := range sortedNames(f.root.Children()) {
+		walk(name, f.root.Children()[name])
 	}
 	var b strings.Builder
 	for _, p := range f.List() {
@@ -67,9 +69,9 @@ func shippedShape(f *Generator) string {
 }
 
 // tableFacts names the columns a table's options read.
-func tableFacts(t *table) string {
+func tableFacts(t *tree.Table) string {
 	var b strings.Builder
-	c := t.rows.Options()
+	c := t.Rows().Options()
 	for _, o := range []struct{ name, column string }{{"key", c.Key}, {"name", c.Name}, {"weight", c.Weight}, {"parent", c.Parent}} {
 		if o.column != "" {
 			b.WriteString("\t" + o.name + " " + o.column)
@@ -79,25 +81,25 @@ func tableFacts(t *table) string {
 }
 
 // readsFact names the categories any template under n references, sorted.
-func readsFact(n node) string {
+func readsFact(n tree.Node) string {
 	set := map[string]bool{}
-	var collect func(node)
-	collect = func(n node) {
+	var collect func(tree.Node)
+	collect = func(n tree.Node) {
 		switch n := n.(type) {
-		case *choice:
-			for _, it := range n.items {
+		case *tree.Choice:
+			for _, it := range n.Items() {
 				collect(it)
 			}
-		case *table:
-			collect(n.formatTemplate)
-			for _, cell := range n.cellTemplates {
+		case *tree.Table:
+			collect(n.FormatTemplate())
+			for _, cell := range n.CellTemplates() {
 				collect(cell)
 			}
-		case *template:
-			for _, b := range n.refs.bySpelling {
-				set[strings.TrimPrefix(b.head, "/")] = true
+		case *tree.Template:
+			for _, b := range n.Refs().BySpelling() {
+				set[strings.TrimPrefix(b.Head(), "/")] = true
 			}
-			for _, field := range n.fields {
+			for _, field := range n.Fields() {
 				collect(field)
 			}
 		}

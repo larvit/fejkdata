@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 // swedishPlaces is a two-variant sibling whose variants pair a locality with the
@@ -365,26 +367,26 @@ func TestAFreshReadInsideANamedPickSharesNoValueWithIt(t *testing.T) {
 }
 
 func TestEveryReadKeysEachLevelFromItsHeadToItsLeaf(t *testing.T) {
-	root := compiled(t, `{"format":"{place.geo as g}{g.town.zip} {g.town} {x.y.z}","place":{"format":"{geo}","geo":{"format":"{town}","town":{"format":"{zip}","zip":"1"}}},"x":{"format":"{y}","y":{"format":"{z}","z":"2"}}}`).(*template)
+	root := compiled(t, `{"format":"{place.geo as g}{g.town.zip} {g.town} {x.y.z}","place":{"format":"{geo}","geo":{"format":"{town}","town":{"format":"{zip}","zip":"1"}}},"x":{"format":"{y}","y":{"format":"{z}","z":"2"}}}`).(*tree.Template)
 	want := map[string]string{
 		"g.town.zip": "[ geo geo.town geo.town.zip]",
 		"g.town":     "[ geo geo.town]",
 		"x.y.z":      "[x x.y x.y.z]",
 	}
-	for _, o := range root.compiled.ops {
-		for _, a := range o.arms {
-			if got := fmt.Sprint(a.levels); got != want[a.spelling] {
-				t.Errorf("{%s} keys its levels %s, want %s", a.spelling, got, want[a.spelling])
+	for _, o := range root.Compiled().Ops() {
+		for _, a := range o.Arms() {
+			if got := fmt.Sprint(a.Levels()); got != want[a.Spelling()] {
+				t.Errorf("{%s} keys its levels %s, want %s", a.Spelling(), got, want[a.Spelling()])
 			}
 		}
 	}
 }
 
 func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T) {
-	addressed := map[pickKey]string{"first": "n.first", "k..x": "n.k..x", "w": "n.w", "x.first": "n.x.first"}
+	addressed := map[tree.PickKey]string{"first": "n.first", "k..x": "n.k..x", "w": "n.w", "x.first": "n.x.first"}
 	for name, c := range map[string]struct {
-		at     pickKey
-		a      arm
+		at     tree.PickKey
+		a      tree.Arm
 		wantBy string
 	}{
 		"a field addressed":               {"", freshArm("first"), "n.first"},
@@ -393,8 +395,8 @@ func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T
 		"a field no read addresses":       {"", freshArm("last"), ""},
 		"a field addressed elsewhere":     {"x", freshArm("w"), ""},
 		"a reference a read's key spells": {"k", freshArm(".x"), ""},
-		"a read through a name":           {"", arm{kind: namedRead, head: "n", levels: namedLevels([]string{"first"})}, ""},
-		"a read through a name at a key":  {"", arm{kind: namedRead, head: "first", levels: freshLevels("first", nil)}, ""},
+		"a read through a name":           {"", tree.NewArm("", "n", nil, namedLevels([]string{"first"}), nil, nil).ThroughName(nil, 0), ""},
+		"a read through a name at a key":  {"", tree.NewArm("", "first", nil, freshLevels("first", nil), nil, nil).ThroughName(nil, 0), ""},
 	} {
 		by, lands := landsInPick(addressed, c.at, c.a)
 		if by != c.wantBy || lands != (c.wantBy != "") {
@@ -403,7 +405,7 @@ func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T
 	}
 }
 
-func freshArm(spelling string) arm {
+func freshArm(spelling string) tree.Arm {
 	r := splitRead(spelling, nil)
-	return arm{spelling: spelling, head: r.head, tail: r.tail, levels: freshLevels(r.head, r.tail)}
+	return tree.NewArm(spelling, r.head, r.tail, freshLevels(r.head, r.tail), nil, nil)
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
@@ -24,7 +25,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	if err != nil {
 		return "", f.noDataNote(fmt.Errorf("fejkdata: %s: %w", path, err))
 	}
-	if _, ok := n.(*folder); ok {
+	if _, ok := n.(*tree.Folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
 	var frames frameStack
@@ -33,47 +34,47 @@ func (f *Generator) Fake(path string) (string, error) {
 }
 
 // drawCallerPath walks a caller's path to the node it names, returning the rows its leaf renders in.
-func drawCallerPath(s *drawstate.State, root node, segments []string) (node, pinSet, error) {
+func drawCallerPath(s *drawstate.State, root tree.Node, segments []string) (tree.Node, tree.PinSet, error) {
 	// docs/decisions.md#a-path-is-walked-once-without-drawing-before-it-is-walked-for-real
-	var buf [16]pathStep
+	var buf [16]tree.PathStep
 	steps, err := callerPathSteps(root, segments, buf[:0])
 	if err != nil {
-		return nil, pinSet{}, err
+		return nil, tree.PinSet{}, err
 	}
-	var pins pinSet
+	var pins tree.PinSet
 	n, leafPins := drawSteps(s, drawFresh, root, steps, &pins, nil, nil)
 	return n, *leafPins, nil
 }
 
-func renderOnce(s *drawstate.State, n node) string {
+func renderOnce(s *drawstate.State, n tree.Node) string {
 	var frames frameStack
 	return render(s, n, renderEnv{frames: &frames})
 }
 
 // A child this switch renders is one renderEdges must list too, or the fences miss it.
-func render(s *drawstate.State, n node, env renderEnv) string {
+func render(s *drawstate.State, n tree.Node, env renderEnv) string {
 	switch n := n.(type) {
-	case *choice:
+	case *tree.Choice:
 		return render(s, drawItem(s, n), env)
-	case *nullItem:
+	case *tree.NullItem:
 		return ""
-	case *table:
+	case *tree.Table:
 		env.row = renderedRow{n, env.drawRowOf(s, n)}
-		return expand(s, n.formatTemplate, env)
-	case *tableRow:
-		return expand(s, n.t.formatTemplate, env)
-	case *tableColumn:
-		row := env.rowOf(n.t)
-		if cell := n.t.cellTemplate(row, n.i); cell != nil {
+		return expand(s, n.FormatTemplate(), env)
+	case *tree.TableRow:
+		return expand(s, n.Table().FormatTemplate(), env)
+	case *tree.TableColumn:
+		row := env.rowOf(n.Table())
+		if cell := n.Table().CellTemplate(row, n.Index()); cell != nil {
 			return render(s, cell, env)
 		}
-		return n.t.rows.Cell(row, n.i)
-	case *template:
-		if n.repeat == 1 {
+		return n.Table().Rows().Cell(row, n.Index())
+	case *tree.Template:
+		if n.Repeat() == 1 {
 			if mark := env.renderFrame(n); mark >= 0 {
 				defer env.frames.pop(mark)
 			}
-			if lit, fixed := n.fixedText(); fixed {
+			if lit, fixed := n.FixedText(); fixed {
 				return lit
 			}
 			return expand(s, n, env)
@@ -86,13 +87,13 @@ func render(s *drawstate.State, n node, env renderEnv) string {
 
 // renderRepeat renders each iteration of t inside the name scopes rendering t, where a name bound
 // outside t keeps its pick, and a name t binds takes a fresh pick.
-func renderRepeat(s *drawstate.State, t *template, env renderEnv) string {
+func renderRepeat(s *drawstate.State, t *tree.Template, env renderEnv) string {
 	var b strings.Builder
-	b.Grow(t.repeat * (t.compiled.grow + len(t.separator)))
-	own := t.ownScope()
-	for i := 0; i < t.repeat; i++ {
+	b.Grow(t.Repeat() * (t.Compiled().Grow() + len(t.Separator())))
+	own := t.OwnScope()
+	for i := 0; i < t.Repeat(); i++ {
 		if i > 0 {
-			b.WriteString(t.separator)
+			b.WriteString(t.Separator())
 		}
 		if own == nil {
 			b.WriteString(expand(s, t, env))
@@ -105,35 +106,36 @@ func renderRepeat(s *drawstate.State, t *template, env renderEnv) string {
 	return b.String()
 }
 
-func drawItem(s *drawstate.State, c *choice) node {
-	if c.cum == nil {
-		return c.items[s.IntN(len(c.items))]
+func drawItem(s *drawstate.State, c *tree.Choice) tree.Node {
+	if c.Cum() == nil {
+		return c.Items()[s.IntN(len(c.Items()))]
 	}
-	return c.items[s.Weighted(c.cum)]
+	return c.Items()[s.Weighted(c.Cum())]
 }
 
-func expand(s *drawstate.State, t *template, env renderEnv) string {
+func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 	var b strings.Builder
-	b.Grow(t.compiled.grow)
-	for i := range t.compiled.ops {
-		o := &t.compiled.ops[i]
-		switch {
-		case o.Kind == grammar.LiteralRun:
-			b.WriteString(o.Lit)
-		case o.Kind == grammar.NameBind: // its draw prints where the name is read
-		case o.draw != nil:
-			b.WriteString(drawToken(s, t, env, o.draw, b.String()))
-		case o.Kind == grammar.PathRead:
-			b.WriteString(readField(s, t, env, o.arms[s.IntN(len(o.arms))]).text)
-		case o.Kind == grammar.BuiltinCall:
+	b.Grow(t.Compiled().Grow())
+	ops := t.Compiled().Ops()
+	for i := range ops {
+		o := &ops[i]
+		switch tok := o.Token(); {
+		case tok.Kind == grammar.LiteralRun:
+			b.WriteString(tok.Lit)
+		case tok.Kind == grammar.NameBind: // its draw prints where the name is read
+		case o.Draw() != nil:
+			b.WriteString(drawToken(s, t, env, o.Draw(), b.String()))
+		case tok.Kind == grammar.PathRead:
+			b.WriteString(readField(s, t, env, o.Arms()[s.IntN(len(o.Arms()))]).text)
+		case tok.Kind == grammar.BuiltinCall:
 			var operands []string
-			if len(o.operands) > 0 {
-				operands = make([]string, len(o.operands))
-				for j, a := range o.operands {
+			if len(o.Operands()) > 0 {
+				operands = make([]string, len(o.Operands()))
+				for j, a := range o.Operands() {
 					operands[j] = readField(s, t, env, a).text
 				}
 			}
-			b.WriteString(o.call(s, b.String(), operands)) // b.String() is the output so far
+			b.WriteString(o.Call()(s, b.String(), operands)) // b.String() is the output so far
 		}
 	}
 	return b.String()
@@ -144,20 +146,20 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 // {word} {word} draws twice and {p.a} {p.b} reads two draws of p.
 // A fresh read clears env.pick, which stops a read nested in it from keying the pick's memo under
 // env.pickAt and sharing a value with another node at that key; a reference's read clears it in enter.
-func readField(s *drawstate.State, t *template, env renderEnv, a arm) readValue {
+func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Arm) readValue {
 	switch {
-	case a.kind == namedRead:
+	case a.Kind() == tree.NamedRead:
 		return readName(s, env, a)
 	case keptInPick(env, a):
 		return readUnder(s, t, env, a)
 	}
-	if !grammar.IsRef(a.head) {
+	if !grammar.IsRef(a.Head()) {
 		env.pick = nil
-		leaf, _ := drawSteps(s, drawSibling, t.startOf(a.head, t.refs), a.steps, nil, nil, nil)
+		leaf, _ := drawSteps(s, drawSibling, t.StartOf(a.Head(), t.Refs()), a.Steps(), nil, nil, nil)
 		return renderLeaf(s, leaf, env)
 	}
-	var pins pinSet
-	leaf, leafPins := drawSteps(s, drawFresh, t.startOf(a.head, t.refs), a.steps, &pins, nil, nil)
+	var pins tree.PinSet
+	leaf, leafPins := drawSteps(s, drawFresh, t.StartOf(a.Head(), t.Refs()), a.Steps(), &pins, nil, nil)
 	env, mark := env.at(leaf, leafPins).enter(leaf, nil)
 	r := renderLeaf(s, leaf, env)
 	env.frames.pop(mark)
@@ -166,12 +168,12 @@ func readField(s *drawstate.State, t *template, env renderEnv, a arm) readValue 
 
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column that only
 // reads one reference or name whose read drew null.
-func renderLeaf(s *drawstate.State, n node, env renderEnv) readValue {
+func renderLeaf(s *drawstate.State, n tree.Node, env renderEnv) readValue {
 	n = drawThroughChoices(s, n)
 	switch leaf := n.(type) {
-	case *nullItem:
+	case *tree.NullItem:
 		return readValue{null: true}
-	case *template:
+	case *tree.Template:
 		if r, reads := readColumnItem(s, leaf, env); reads {
 			return r
 		}
@@ -181,8 +183,8 @@ func renderLeaf(s *drawstate.State, n node, env renderEnv) readValue {
 
 // drawThroughChoices draws a choice's variant. Nested choices unwrap too: a draw is one value,
 // not another set to draw from.
-func drawThroughChoices(s *drawstate.State, n node) node {
-	for c, ok := n.(*choice); ok; c, ok = n.(*choice) {
+func drawThroughChoices(s *drawstate.State, n tree.Node) tree.Node {
+	for c, ok := n.(*tree.Choice); ok; c, ok = n.(*tree.Choice) {
 		n = drawItem(s, c)
 	}
 	return n

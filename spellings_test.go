@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 // sameRenders holds long to render as short does, draw for draw under one seed.
@@ -30,7 +32,7 @@ func TestOneItemChoiceIsItsItem(t *testing.T) {
 }
 
 func TestOneItemChoiceOfARecordIsTheRecord(t *testing.T) {
-	if r, isTemplate := compiled(t, `[{"format":"","d":"x"}]`).(*template); !isTemplate || !r.isRecord {
+	if r, isTemplate := compiled(t, `[{"format":"","d":"x"}]`).(*tree.Template); !isTemplate || !r.IsRecord() {
 		t.Error("a one-item choice of a record is no record, want the record it holds")
 	}
 }

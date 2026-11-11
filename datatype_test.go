@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
@@ -221,7 +223,8 @@ func TestNullColumn(t *testing.T) {
 
 func TestDisagreementRefusesTwoTextItems(t *testing.T) {
 	mustPanic(t, "two text items", func() {
-		_ = disagreement(&template{templateFinds: &templateFinds{}}, DataTypeString, &template{templateFinds: &templateFinds{}}, DataTypeString)
+		text := compiled(t, `"a"`).(*tree.Template)
+		_ = disagreement(text, DataTypeString, text, DataTypeString)
 	})
 }
 

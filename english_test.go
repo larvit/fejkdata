@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	enus "github.com/larvit/fejkdata/data/en_US"
+	"github.com/larvit/fejkdata/data/en_US"
 )
 
 func englishWordForms(t *testing.T, table string) map[string]string {

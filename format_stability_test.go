@@ -1,6 +1,8 @@
 package fejkdata
 
-import "testing"
+import (
+	"testing"
+)
 
 // TestSeededOutputIsStable pins the exact bytes a seeded generator emits for each
 // piece of the token grammar, so a change to how a format is scanned or rendered

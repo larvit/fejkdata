@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
@@ -10,10 +11,10 @@ import (
 // error uses for it: the dot path reaching it, then ", line N" for a table cell. It never
 // crosses a reference edge — a {/path} reference is skipped — so a single inline node is
 // walked on its own.
-func eachNode(n node, label string, fn func(label string, n node) error) error {
-	seen := map[node]bool{}
-	var visit func(string, node) error
-	visit = func(label string, m node) error {
+func eachNode(n tree.Node, label string, fn func(label string, n tree.Node) error) error {
+	seen := map[tree.Node]bool{}
+	var visit func(string, tree.Node) error
+	visit = func(label string, m tree.Node) error {
 		if m == nil || seen[m] {
 			return nil
 		}
@@ -35,7 +36,7 @@ func eachNode(n node, label string, fn func(label string, n node) error) error {
 // no segment, matching how a dot path steps over a choice.
 type containedNode struct {
 	name string
-	node node
+	node tree.Node
 	line int // a table cell's line in its rows file, else 0
 }
 
@@ -46,39 +47,39 @@ func (c containedNode) labelIn(label string) string {
 	return join(label, c.name)
 }
 
-func contained(n node) []containedNode {
+func contained(n tree.Node) []containedNode {
 	switch n := n.(type) {
-	case *folder:
-		return containedByName(n.children)
-	case *choice:
-		out := make([]containedNode, len(n.items))
-		for i, it := range n.items {
+	case *tree.Folder:
+		return containedByName(n.Children())
+	case *tree.Choice:
+		out := make([]containedNode, len(n.Items()))
+		for i, it := range n.Items() {
 			out[i] = containedNode{node: it}
 		}
 		return out
-	case *template:
-		return containedByName(n.fields)
-	case *table:
-		return append([]containedNode{{node: n.formatTemplate}}, containedByName(n.formatTemplate.fields)...)
-	case *tableColumn:
-		if len(n.t.cellTemplates) == 0 {
+	case *tree.Template:
+		return containedByName(n.Fields())
+	case *tree.Table:
+		return append([]containedNode{{node: n.FormatTemplate()}}, containedByName(n.FormatTemplate().Fields())...)
+	case *tree.TableColumn:
+		if len(n.Table().CellTemplates()) == 0 {
 			return nil
 		}
 		var out []containedNode
-		for r := 0; r < n.t.rows.Len(); r++ {
-			if cell := n.t.cellTemplate(r, n.i); cell != nil {
+		for r := 0; r < n.Table().Rows().Len(); r++ {
+			if cell := n.Table().CellTemplate(r, n.Index()); cell != nil {
 				out = append(out, containedNode{node: cell, line: r + 2})
 			}
 		}
 		return out
-	case *nullItem, *tableRow:
+	case *tree.NullItem, *tree.TableRow:
 		return nil
 	default:
 		panic(invariant.Broken("contained has no case for node %T", n))
 	}
 }
 
-func containedByName(m map[string]node) []containedNode {
+func containedByName(m map[string]tree.Node) []containedNode {
 	out := make([]containedNode, 0, len(m))
 	for _, name := range sortedNames(m) {
 		out = append(out, containedNode{name: name, node: m[name]})
@@ -89,49 +90,49 @@ func containedByName(m map[string]node) []containedNode {
 // renderEdge is a child a node renders into, labelled by what reaches it (a field
 // name, reference, or choice index) for a readable cycle report.
 type renderEdge struct {
-	to    node
+	to    tree.Node
 	label string
 }
 
 // renderEdges lists the children rendering n recurses into, mirroring render.
-func renderEdges(n node, l *loadFinds) []renderEdge {
+func renderEdges(n tree.Node, l *tree.LoadFinds) []renderEdge {
 	switch n := n.(type) {
-	case *choice:
-		es := make([]renderEdge, len(n.items))
-		for i, it := range n.items {
+	case *tree.Choice:
+		es := make([]renderEdge, len(n.Items()))
+		for i, it := range n.Items() {
 			es[i] = renderEdge{to: it, label: fmt.Sprintf("[%d]", i)}
 		}
 		return es
-	case *template:
+	case *tree.Template:
 		var es []renderEdge
-		for _, o := range l.of(n).compiled.ops {
-			for _, a := range o.reads() {
-				for _, leaf := range a.leaves {
-					es = append(es, renderEdge{leaf, a.spelling})
+		for _, o := range l.Of(n).Compiled().Ops() {
+			for _, a := range o.Reads() {
+				for _, leaf := range a.Leaves() {
+					es = append(es, renderEdge{leaf, a.Spelling()})
 				}
 			}
 		}
 		return es
-	case *table:
-		return []renderEdge{{to: n.formatTemplate, label: "format"}}
-	case *tableRow:
-		return []renderEdge{{to: n.t.formatTemplate, label: "format"}}
-	case *tableColumn:
+	case *tree.Table:
+		return []renderEdge{{to: n.FormatTemplate(), label: "format"}}
+	case *tree.TableRow:
+		return []renderEdge{{to: n.Table().FormatTemplate(), label: "format"}}
+	case *tree.TableColumn:
 		var es []renderEdge
 		for _, c := range contained(n) {
-			es = append(es, renderEdge{to: c.node, label: n.name()})
+			es = append(es, renderEdge{to: c.node, label: n.Name()})
 		}
 		return es
-	case *folder, *nullItem:
+	case *tree.Folder, *tree.NullItem:
 		return nil
 	default:
 		panic(invariant.Broken("renderEdges has no case for node %T", n))
 	}
 }
 
-type renderCounts map[node]int
+type renderCounts map[tree.Node]int
 
-func (m renderCounts) renderCount(n node) int {
+func (m renderCounts) renderCount(n tree.Node) int {
 	if r, done := m[n]; done {
 		return r
 	}
@@ -141,8 +142,8 @@ func (m renderCounts) renderCount(n node) int {
 			r = c
 		}
 	}
-	if t, ok := n.(*template); ok {
-		r *= t.repeat
+	if t, ok := n.(*tree.Template); ok {
+		r *= t.Repeat()
 	}
 	m[n] = r
 	return r
@@ -151,9 +152,9 @@ func (m renderCounts) renderCount(n node) int {
 // repeatCheck bounds the renders a repeat multiplies to along any root-to-leaf
 // path, so nested repeats cannot build what one repeat may not.
 // docs/decisions.md#the-repeat-cap-bounds-renders-not-bytes
-func repeatCheck(label string, n node, mem renderCounts) error {
-	if t, ok := n.(*template); ok && t.repeat > 1 && mem.renderCount(n) > MaxRepeat {
-		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", label, t.repeat, mem.renderCount(n), MaxRepeat)
+func repeatCheck(label string, n tree.Node, mem renderCounts) error {
+	if t, ok := n.(*tree.Template); ok && t.Repeat() > 1 && mem.renderCount(n) > MaxRepeat {
+		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", label, t.Repeat(), mem.renderCount(n), MaxRepeat)
 	}
 	return nil
 }
@@ -164,22 +165,22 @@ func repeatCheck(label string, n node, mem renderCounts) error {
 // graph (renderEdges). Every node is a root: a field its parent's format never
 // renders is still reachable by dot path, so a cycle in one would otherwise reach
 // render and be fatal there.
-func checkNoCycles(s nodeSet, l *loadFinds) error {
+func checkNoCycles(s nodeSet, l *tree.LoadFinds) error {
 	const (
 		grey  = 1
 		black = 2
 	)
-	inSet := map[node]bool{}
-	_ = s(func(_ string, n node) error {
+	inSet := map[tree.Node]bool{}
+	_ = s(func(_ string, n tree.Node) error {
 		inSet[n] = true
-		if t, isTable := n.(*table); isTable {
-			inSet[t.rowNode] = true // a selector lands on it, and contained lists it nowhere
+		if t, isTable := n.(*tree.Table); isTable {
+			inSet[t.RowNode()] = true // a selector lands on it, and contained lists it nowhere
 		}
 		return nil
 	})
-	color := map[node]int{}
-	var visit func(n node, label string) error
-	visit = func(n node, label string) error {
+	color := map[tree.Node]int{}
+	var visit func(n tree.Node, label string) error
+	visit = func(n tree.Node, label string) error {
 		if !inSet[n] {
 			return nil // loaded before these nodes and proven then, so it never reaches back into it
 		}
@@ -198,5 +199,5 @@ func checkNoCycles(s nodeSet, l *loadFinds) error {
 		color[n] = black
 		return nil
 	}
-	return s(func(label string, n node) error { return visit(n, label) })
+	return s(func(label string, n tree.Node) error { return visit(n, label) })
 }

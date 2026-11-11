@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	svse "github.com/larvit/fejkdata/data/sv_SE"
+	"github.com/larvit/fejkdata/data/sv_SE"
 )
 
 var (

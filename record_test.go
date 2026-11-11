@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 func recordCat(t *testing.T) *Generator {
@@ -571,18 +573,18 @@ func TestRecordOfAChoiceNamesTheWrapper(t *testing.T) {
 func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 	f := newShippedWhole(t, WithSeed(1), onTestDay)
 	records := 0
-	if err := eachNode(&f.root, "", func(label string, n node) error {
-		tm, isTemplate := n.(*template)
-		if !isTemplate || !tm.isRecord || len(tm.fields) == 0 {
+	if err := eachNode(&f.root, "", func(label string, n tree.Node) error {
+		tm, isTemplate := n.(*tree.Template)
+		if !isTemplate || !tm.IsRecord() || len(tm.Fields()) == 0 {
 			return nil
 		}
 		records++
-		if want := len(tm.fields) - len(tm.lets); len(tm.columns) != want {
-			t.Errorf("%s: %d record columns, want one per field outside let, %d", label, len(tm.columns), want)
+		if want := len(tm.Fields()) - len(tm.Lets()); len(tm.Columns()) != want {
+			t.Errorf("%s: %d record columns, want one per field outside let, %d", label, len(tm.Columns()), want)
 		}
-		for _, c := range tm.columns {
-			if c.field != tm.fields[c.name] || c.datatype != columnDatatype(c.field, nil) {
-				t.Errorf("%s: column %q holds field %v of datatype %s, want field %q's", label, c.name, c.field, c.datatype, c.name)
+		for _, c := range tm.Columns() {
+			if c.Field() != tm.Fields()[c.Name()] || c.DataType() != columnDatatype(c.Field(), nil) {
+				t.Errorf("%s: column %q holds field %v of datatype %s, want field %q's", label, c.Name(), c.Field(), c.DataType(), c.Name())
 			}
 		}
 		return nil

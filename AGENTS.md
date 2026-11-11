@@ -109,7 +109,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read
 - comprehension floor: every dimension and the overall at 7.0 or above is the target, and blocks no merge
-- The template engine stays the root package until item 107 cuts it into `internal/engine`'s `tree`, `load`, `fence` and `render`; compile builds each node with its syntax, and one `finish` writes into it what its load found, save a table's `siblings`, which `linkTables` sets; what reads no engine type, a table's rows included, sits in `internal/`
+- The node types sit in `internal/engine/tree`, and the rest of the template engine stays the root package until item 107 cuts it into `internal/engine`'s `load`, `fence` and `render`; compile builds each node with its syntax, and one `finish` writes into it what its load found, save a table's `siblings`, which `linkTables` sets; what reads no engine type, a table's rows included, sits in `internal/`
 - Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 - Goal 6.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 - Locales ship by region: the Nordic countries, then the rest of the EU, then the rest of Europe, then the rest of the world

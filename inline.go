@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
@@ -15,7 +16,7 @@ import (
 // and its templates.
 type Template struct {
 	g *Generator
-	n node
+	n tree.Node
 }
 
 // Fake renders the template once; each call draws anew.
@@ -30,7 +31,7 @@ func (t *Template) Fake() string {
 // compile and validation once. It shares [New]'s guarantees: a bad template errors
 // here, and rendering cannot fail.
 func (f *Generator) NewTemplate(input string) (*Template, error) {
-	l := newLoadFinds()
+	l := tree.NewLoadFinds()
 	n, err := compileInput(input, l)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
@@ -66,7 +67,7 @@ func IsTemplate(arg string) (bool, error) {
 	return inline, nil
 }
 
-func compileInput(input string, l *loadFinds) (node, error) {
+func compileInput(input string, l *tree.LoadFinds) (tree.Node, error) {
 	return compile(inputValue(input), l)
 }
 
@@ -87,18 +88,18 @@ func inputValue(input string) jsonvalue.Value {
 
 // loadInline loads the unloaded categories n reads, then runs n, compiled into l, through the
 // pipeline against root.
-func loadInline(root *folder, n node, l *loadFinds, label string, typedByGo bool) error {
+func loadInline(root *tree.Folder, n tree.Node, l *tree.LoadFinds, label string, typedByGo bool) error {
 	nodes := inlineNodes(n, label)
 	if err := refuseFolderRefs(nodes); err != nil {
 		return err
 	}
-	if err := loadReached(root, nil, newLoadFinds(), referenced(root, nil, nodes)); err != nil {
+	if err := loadReached(root, nil, tree.NewLoadFinds(), referenced(root, nil, nodes)); err != nil {
 		return loadError{err}
 	}
 	return pipeline{
 		nodes:     nodes,
 		finds:     l,
-		resolve:   func() ([]templateSite, error) { return resolveInlineTemplates(nodes, root.children, l) },
+		resolve:   func() ([]templateSite, error) { return resolveInlineTemplates(nodes, root.Children(), l) },
 		typedByGo: typedByGo,
 	}.run()
 }
@@ -106,12 +107,12 @@ func loadInline(root *folder, n node, l *loadFinds, label string, typedByGo bool
 // refuseFolderRefs refuses each reference in nodes not written from the root, {/x}: an
 // inline node sits in no folder.
 func refuseFolderRefs(nodes nodeSet) error {
-	return nodes(func(label string, m node) error {
-		t, ok := m.(*template)
+	return nodes(func(label string, m tree.Node) error {
+		t, ok := m.(*tree.Template)
 		if !ok {
 			return nil
 		}
-		for _, spelling := range refSpellings(t.tokens) {
+		for _, spelling := range refSpellings(t.Tokens()) {
 			sigil, rest, err := grammar.RefShape(spelling)
 			if err != nil {
 				return fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)

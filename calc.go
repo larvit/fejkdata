@@ -7,51 +7,53 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // checkCalcFields runs checkOperands over each calc operand naming a field; an operand naming no
 // field is a name, which checkCalcNames checks once names resolve.
-func checkCalcFields(args []string, fields map[string]node) error {
-	return checkOperands(args[0], builtinfunc.ParsedCalc(args[0]), func(name string) []node {
+func checkCalcFields(args []string, fields map[string]tree.Node) error {
+	return checkOperands(args[0], builtinfunc.ParsedCalc(args[0]), func(name string) []tree.Node {
 		if n, ok := fields[name]; ok {
-			return []node{n}
+			return []tree.Node{n}
 		}
 		return nil
 	})
 }
 
 // checkCalcNames holds each calc of t reading a name to the checks checkCalcFields makes of a field.
-func checkCalcNames(label string, t *template) error {
-	for _, o := range t.compiled.ops {
-		if o.Fn != builtinfunc.CalcName || !slices.ContainsFunc(o.operands, func(a arm) bool { return a.kind == namedRead }) {
+func checkCalcNames(label string, t *tree.Template) error {
+	for _, o := range t.Compiled().Ops() {
+		tok := o.Token()
+		if tok.Fn != builtinfunc.CalcName || !slices.ContainsFunc(o.Operands(), func(a tree.Arm) bool { return a.Kind() == tree.NamedRead }) {
 			continue
 		}
-		if i := slices.IndexFunc(o.operands, readsJoined); i >= 0 {
-			return fmt.Errorf("%s: token {%s}: operand %s joins several values as text, never a number", label, o.Body, o.operands[i].spelling)
+		if i := slices.IndexFunc(o.Operands(), readsJoined); i >= 0 {
+			return fmt.Errorf("%s: token {%s}: operand %s joins several values as text, never a number", label, tok.Body, o.Operands()[i].Spelling())
 		}
-		if err := checkOperands(o.Args[0], builtinfunc.ParsedCalc(o.Args[0]), operandNodes(o)); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
+		if err := checkOperands(tok.Args[0], builtinfunc.ParsedCalc(tok.Args[0]), operandNodes(o)); err != nil {
+			return fmt.Errorf("%s: token {%s}: %w", label, tok.Body, err)
 		}
 	}
 	return nil
 }
 
 // operandNodes lists every node each operand of o may render, once its template and names resolve.
-func operandNodes(o op) func(name string) []node {
-	return func(name string) []node {
-		a := o.operands[slices.IndexFunc(o.operands, func(a arm) bool { return a.spelling == name })]
-		if len(a.leaves) == 0 {
+func operandNodes(o tree.Op) func(name string) []tree.Node {
+	return func(name string) []tree.Node {
+		a := o.Operands()[slices.IndexFunc(o.Operands(), func(a tree.Arm) bool { return a.Spelling() == name })]
+		if len(a.Leaves()) == 0 {
 			panic(invariant.Broken("calc operand %q was read before it was compiled", name))
 		}
-		return a.leaves
+		return a.Leaves()
 	}
 }
 
 // checkOperands refuses an operand that is never a number and a division by a constant zero.
 // operand lists every node an operand may render, nil while that is unknown.
-func checkOperands(text string, c grammar.Calc, operand func(name string) []node) error {
+func checkOperands(text string, c grammar.Calc, operand func(name string) []tree.Node) error {
 	for _, name := range c.Operands {
 		if rendered, never := allNeverNumeric(operand(name)); never {
 			return fmt.Errorf("calc(%q): operand %q is never a number: it renders %q", text, name, rendered)
@@ -65,7 +67,7 @@ func checkOperands(text string, c grammar.Calc, operand func(name string) []node
 
 // constantZeroDivisor finds a division whose right side is a constant zero: number
 // literals and fixed operands folded, anything that varies left unknown.
-func constantZeroDivisor(n grammar.CalcNode, operand func(string) []node) (string, bool) {
+func constantZeroDivisor(n grammar.CalcNode, operand func(string) []tree.Node) (string, bool) {
 	switch n := n.(type) {
 	case grammar.CalcNeg:
 		return constantZeroDivisor(n.X, operand)
@@ -84,7 +86,7 @@ func constantZeroDivisor(n grammar.CalcNode, operand func(string) []node) (strin
 }
 
 // constantValue evaluates an expression whose every operand is fixed.
-func constantValue(n grammar.CalcNode, operand func(string) []node) (float64, bool) {
+func constantValue(n grammar.CalcNode, operand func(string) []tree.Node) (float64, bool) {
 	switch n := n.(type) {
 	case grammar.CalcNum:
 		return float64(n), true
@@ -93,11 +95,11 @@ func constantValue(n grammar.CalcNode, operand func(string) []node) (float64, bo
 		if len(nodes) != 1 {
 			return 0, false
 		}
-		t, ok := nodes[0].(*template)
-		if !ok || t.repeat != 1 {
+		t, ok := nodes[0].(*tree.Template)
+		if !ok || t.Repeat() != 1 {
 			return 0, false
 		}
-		lit, fixed := t.fixedText()
+		lit, fixed := t.FixedText()
 		if !fixed {
 			return 0, false
 		}
@@ -119,29 +121,29 @@ func constantValue(n grammar.CalcNode, operand func(string) []node) (float64, bo
 
 // neverNumeric reports a node no render of which is a number: a null, a repeat of 0, fixed
 // text that does not parse, or a choice of only such items. text is one such render.
-func neverNumeric(n node) (text string, never bool) {
+func neverNumeric(n tree.Node) (text string, never bool) {
 	switch n := n.(type) {
-	case *nullItem:
+	case *tree.NullItem:
 		return "", true
-	case *template:
-		lit, fixed := n.fixedText()
-		if n.repeat == 0 {
+	case *tree.Template:
+		lit, fixed := n.FixedText()
+		if n.Repeat() == 0 {
 			return "", true
 		}
-		if !fixed || n.repeat != 1 {
+		if !fixed || n.Repeat() != 1 {
 			return "", false
 		}
 		if _, err := strconv.ParseFloat(strings.TrimSpace(lit), 64); err != nil {
 			return lit, true
 		}
-	case *choice:
-		return allNeverNumeric(n.items)
+	case *tree.Choice:
+		return allNeverNumeric(n.Items())
 	}
 	return "", false
 }
 
 // allNeverNumeric reports whether no render of any of nodes is a number; false for no nodes.
-func allNeverNumeric(nodes []node) (text string, never bool) {
+func allNeverNumeric(nodes []tree.Node) (text string, never bool) {
 	for _, n := range nodes {
 		t, nodeNever := neverNumeric(n)
 		if !nodeNever {

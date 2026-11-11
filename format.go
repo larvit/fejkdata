@@ -5,12 +5,13 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // checkFunc validates a call at compile time: a known builtin, its args, for calc the operands held
 // in fields, and for a where clause a builtin it can filter.
-func checkFunc(tok grammar.Token, fields map[string]node) error {
+func checkFunc(tok grammar.Token, fields map[string]tree.Node) error {
 	err := builtinfunc.Check(tok.Fn, tok.Args)
 	if err == nil && tok.Fn == builtinfunc.CalcName {
 		err = checkCalcFields(tok.Args, fields)
@@ -26,7 +27,7 @@ func checkFunc(tok grammar.Token, fields map[string]node) error {
 	return nil
 }
 
-func parseChecked(format string, fields map[string]node) ([]grammar.Token, []unboundRead, error) {
+func parseChecked(format string, fields map[string]tree.Node) ([]grammar.Token, []tree.UnboundRead, error) {
 	toks, err := grammar.ParseFormat(format)
 	if err != nil {
 		return nil, nil, err
@@ -35,17 +36,10 @@ func parseChecked(format string, fields map[string]node) ([]grammar.Token, []unb
 	return toks, unbound, err
 }
 
-// unboundRead is a token reading a head no field holds, which only a name bound around the
-// template can answer; err is the refusal where none does, and body is the token's.
-type unboundRead struct {
-	head, body string
-	err        error
-}
-
 // checkTokens proves every token's grammar, functions and field paths, and returns the reads
 // whose head no field holds, for bindNames to look up among the names.
-func checkTokens(toks []grammar.Token, fields map[string]node) ([]unboundRead, error) {
-	var unbound []unboundRead
+func checkTokens(toks []grammar.Token, fields map[string]tree.Node) ([]tree.UnboundRead, error) {
+	var unbound []tree.UnboundRead
 	for _, t := range toks {
 		u, err := checkToken(t, fields)
 		if err != nil {
@@ -56,7 +50,7 @@ func checkTokens(toks []grammar.Token, fields map[string]node) ([]unboundRead, e
 	return unbound, nil
 }
 
-func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) {
+func checkToken(t grammar.Token, fields map[string]tree.Node) ([]tree.UnboundRead, error) {
 	switch t.Kind {
 	case grammar.BuiltinCall:
 		if err := checkFunc(t, fields); err != nil {
@@ -75,10 +69,10 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 }
 
 // checkReads proves that each spelling t reads (its arms, its builtin's operands and its clause's) is a reference or a path into a field. It returns the reads whose head no field holds.
-func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unboundRead, error) {
+func checkReads(t grammar.Token, fields map[string]tree.Node, operands bool) ([]tree.UnboundRead, error) {
 	own, clause := tokenReads(t)
 	wholeToken := !operands && len(own)+len(clause) == 1
-	var unbound []unboundRead
+	var unbound []tree.UnboundRead
 	for _, spelling := range own {
 		u, err := checkRead(t, spelling, fields, wholeToken, nil)
 		if err != nil {
@@ -98,7 +92,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 
 // checkRead proves spelling, one read of t, is a reference or a path into a field. Where no field holds
 // its head, it returns the read as unbound; its error is unbound() where the unbound func is not nil.
-func checkRead(t grammar.Token, spelling string, fields map[string]node, wholeToken bool, unbound func() error) ([]unboundRead, error) {
+func checkRead(t grammar.Token, spelling string, fields map[string]tree.Node, wholeToken bool, unbound func() error) ([]tree.UnboundRead, error) {
 	if grammar.IsRef(spelling) {
 		if _, _, err := grammar.RefShape(spelling); err != nil {
 			return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
@@ -114,12 +108,12 @@ func checkRead(t grammar.Token, spelling string, fields map[string]node, wholeTo
 	case unbound != nil:
 		err = unbound()
 	}
-	return []unboundRead{{head: splitRead(spelling, nil).head, body: t.Body, err: fmt.Errorf("token {%s}: %w", t.Body, err)}}, nil
+	return []tree.UnboundRead{tree.NewUnboundRead(splitRead(spelling, nil).head, t.Body, fmt.Errorf("token {%s}: %w", t.Body, err))}, nil
 }
 
 // checkBind proves a {x as name} token is spelled once, binds a reference or a path into a
 // field, and names a valid name that is no option.
-func checkBind(t grammar.Token, fields map[string]node) error {
+func checkBind(t grammar.Token, fields map[string]tree.Node) error {
 	ref, name := t.BoundRef, t.Bound
 	if ref != strings.TrimSpace(ref) || name != strings.TrimSpace(name) {
 		between := strings.TrimPrefix(strings.TrimSuffix(t.Body, name), ref)
@@ -141,7 +135,7 @@ func checkBind(t grammar.Token, fields map[string]node) error {
 }
 
 // checkBound proves what a binding binds is a reference or a path into a field of its binder.
-func checkBound(ref string, fields map[string]node) error {
+func checkBound(ref string, fields map[string]tree.Node) error {
 	if grammar.IsRef(ref) {
 		_, _, err := grammar.RefShape(ref)
 		return err
@@ -157,7 +151,7 @@ func checkBound(ref string, fields map[string]node) error {
 // wholeToken says the spelling is the token's entire body, so {/name} would render
 // the same value and can be offered as the reference spelling. missing says no
 // field holds the head, which a name may yet answer.
-func checkArm(spelling string, fields map[string]node, wholeToken bool) (missing bool, err error) {
+func checkArm(spelling string, fields map[string]tree.Node, wholeToken bool) (missing bool, err error) {
 	a := splitRead(spelling, nil)
 	if err := checkSegments(a); err != nil {
 		return false, err
@@ -195,44 +189,39 @@ func tokenReads(t grammar.Token) (own []string, clause []clauseSpelling) {
 	return own, clauseSpellings(t.Where)
 }
 
-// formatOps is a compiled format: its ops, and the size of its literal text.
-type formatOps struct {
-	ops  []op
-	grow int
-}
-
 // compileFormat compiles t's parsed format against its resolved references and its names'
 // targets; a {ref as n} token compiles to no op, and a bind with a where or distinct clause to an
 // op that expand skips, holding the arms its where clause reads. It leaves each op's call and draw to
 // newOp. checkTokens proved every token valid.
-func compileFormat(t *template, l *loadFinds) (formatOps, error) {
-	var c formatOps
-	for _, tok := range t.tokens {
-		o := op{Token: tok}
+func compileFormat(t *tree.Template, l *tree.LoadFinds) (tree.FormatOps, error) {
+	var ops []tree.Op
+	grow := 0
+	for _, tok := range t.Tokens() {
+		var arms, operands, clause []tree.Arm
 		var err error
 		switch tok.Kind {
 		case grammar.LiteralRun:
-			c.grow += len(tok.Lit)
+			grow += len(tok.Lit)
 		case grammar.BuiltinCall:
-			o.operands, err = compileArms(t, builtinfunc.Operands(tok.Fn, tok.Args), l)
+			operands, err = compileArms(t, builtinfunc.Operands(tok.Fn, tok.Args), l)
 			if err == nil && tok.Where != nil {
-				o.clause, err = compileClauseNames(t, tok.Where, l)
+				clause, err = compileClauseNames(t, tok.Where, l)
 			}
 		case grammar.PathRead:
-			o.arms, err = compileArms(t, tok.Arms, l)
+			arms, err = compileArms(t, tok.Arms, l)
 			if err == nil && tok.Where != nil {
-				o.clause, err = compileClauseNames(t, tok.Where, l)
+				clause, err = compileClauseNames(t, tok.Where, l)
 			}
 		case grammar.NameBind:
 			if tok.Where == nil && tok.Distinct == nil {
 				continue
 			}
-			o.clause, err = compileClauseNames(t, tok.Where, l)
+			clause, err = compileClauseNames(t, tok.Where, l)
 		}
 		if err != nil {
-			return c, fmt.Errorf("token {%s}: %w", tok.Body, err)
+			return tree.FormatOps{}, fmt.Errorf("token {%s}: %w", tok.Body, err)
 		}
-		c.ops = append(c.ops, o)
+		ops = append(ops, tree.NewOp(tok, arms, operands, clause))
 	}
-	return c, nil
+	return tree.NewFormatOps(ops, grow), nil
 }

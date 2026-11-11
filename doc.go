@@ -25,16 +25,16 @@ package fejkdata
 //     start one each, and `FakeStruct` one per record.
 //   - env — what a render reads names and rows through: `renderEnv`.
 //   - spelling — what a token reads, as written: a name, a path into a field or a reference;
-//     its `arm` holds it split into head and tail.
-//   - scope — where a name is bound: a category, or one repeat iteration: `nameScope`.
+//     its `tree.Arm` holds it split into head and tail.
+//   - scope — where a name is bound: a category, or one repeat iteration: `tree.NameScope`.
 //   - named pick — the draw a token such as {/person as p} binds to a name, drawn
-//     on its first read and kept while its scope renders: `nameBinding`,
+//     on its first read and kept while its scope renders: `tree.NameBinding`,
 //     `namedPick`, `pickFrame`.
-//   - level, pick key, addressed key — `pickKey`.
+//   - level, pick key, addressed key — `tree.PickKey`.
 //   - memo — what a named pick keeps its draws in, the variant drawn at each level
 //     and the value each path read: `drawMemo`.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
-//     `pinSet`, `namedPick.pins`, `followStep`.
+//     `tree.PinSet`, `namedPick.pins`, `followStep`.
 //   - link — a table's tie to its parent table, each row to its parent row:
 //     `linkParent`.
 //   - family — a table and every table reaching it through a chain of parent
@@ -42,7 +42,7 @@ package fejkdata
 //   - resolve — tying a reference or a name to what it names in the assembled tree:
 //     `compileTemplates`, `resolveRefs`.
 //   - head — the string a read starts from: a field or a name as written, or a
-//     reference's category path with its sigil, /sv_SE.address: `arm.head`. The node it names is
-//     the read's start: `template.startOf`, `nameTarget.start`.
+//     reference's category path with its sigil, /sv_SE.address: `tree.Arm.Head`. The node it names is
+//     the read's start: `tree.Template.StartOf`, `tree.NameTarget.Start`.
 //   - fence — a load-time check, run over each category, template or struct as it
 //     loads or compiles, so rendering a compiled tree cannot fail.

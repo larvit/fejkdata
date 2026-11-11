@@ -17,15 +17,15 @@ import (
 	"testing/fstest"
 
 	"github.com/larvit/fejkdata/data"
-	dadk "github.com/larvit/fejkdata/data/da_DK"
-	enus "github.com/larvit/fejkdata/data/en_US"
-	geodk "github.com/larvit/fejkdata/data/geo/DK"
-	geono "github.com/larvit/fejkdata/data/geo/NO"
-	geose "github.com/larvit/fejkdata/data/geo/SE"
-	geous "github.com/larvit/fejkdata/data/geo/US"
+	"github.com/larvit/fejkdata/data/da_DK"
+	"github.com/larvit/fejkdata/data/en_US"
+	"github.com/larvit/fejkdata/data/geo/DK"
+	"github.com/larvit/fejkdata/data/geo/NO"
+	"github.com/larvit/fejkdata/data/geo/SE"
+	"github.com/larvit/fejkdata/data/geo/US"
 	"github.com/larvit/fejkdata/data/misc"
-	nbno "github.com/larvit/fejkdata/data/nb_NO"
-	svse "github.com/larvit/fejkdata/data/sv_SE"
+	"github.com/larvit/fejkdata/data/nb_NO"
+	"github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/datafiles"
 )
 

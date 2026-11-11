@@ -11,6 +11,7 @@ import (
 
 	"github.com/larvit/fejkdata/data"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
@@ -134,9 +135,9 @@ func parse(t *testing.T, s string) jsonvalue.Value {
 }
 
 // resolved compiles a JSON fragment and resolves it against no data.
-func resolved(t *testing.T, s string) (node, error) {
+func resolved(t *testing.T, s string) (tree.Node, error) {
 	t.Helper()
-	l := newLoadFinds()
+	l := tree.NewLoadFinds()
 	n, err := compile(parse(t, s), l)
 	if err != nil {
 		return nil, err
@@ -145,12 +146,12 @@ func resolved(t *testing.T, s string) (node, error) {
 	if err != nil {
 		return n, err
 	}
-	l.finish()
+	l.Finish()
 	return n, fenceTemplates(ts)
 }
 
 // compiled parses, compiles and resolves a JSON fragment into a node.
-func compiled(t *testing.T, s string) node {
+func compiled(t *testing.T, s string) tree.Node {
 	t.Helper()
 	n, err := resolved(t, s)
 	if err != nil {

@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
@@ -40,29 +41,29 @@ type renderEnv struct {
 	base int
 	// pick is the named pick being rendered, nil outside one; pickAt is the key in it of what renders.
 	pick   *namedPick
-	pickAt pickKey
+	pickAt tree.PickKey
 }
 
 type renderedRow struct {
-	t     *table
+	t     *tree.Table
 	index int
 }
 
 // at returns the env n renders in, n being the leaf of a path whose rows sit in pins; where n
 // is a table's row or column, the env carries the row pins holds for that table.
-func (env renderEnv) at(n node, pins *pinSet) renderEnv {
+func (env renderEnv) at(n tree.Node, pins *tree.PinSet) renderEnv {
 	switch n := n.(type) {
-	case *tableRow:
-		env.row = renderedRow{n.t, pins.MustRow(n.t.rows)}
-	case *tableColumn:
-		env.row = renderedRow{n.t, pins.MustRow(n.t.rows)}
+	case *tree.TableRow:
+		env.row = renderedRow{n.Table(), pins.MustRow(n.Table().Rows())}
+	case *tree.TableColumn:
+		env.row = renderedRow{n.Table(), pins.MustRow(n.Table().Rows())}
 	}
 	return env
 }
 
-func (env renderEnv) rowOf(t *table) int {
+func (env renderEnv) rowOf(t *tree.Table) int {
 	if env.row.t != t {
-		panic(invariant.Broken("a column of %s renders in an env holding no row of it", t.rows.Segment()))
+		panic(invariant.Broken("a column of %s renders in an env holding no row of it", t.Rows().Segment()))
 	}
 	return env.row.index
 }
@@ -71,10 +72,10 @@ func (env renderEnv) rowOf(t *table) int {
 // each name scope around n. A frame comes from memo where memo is non-nil, so reads sharing memo
 // read one pick of each name. It returns env.base, the frame count before it pushed any: popping
 // the frames to that mark closes them all.
-func (env renderEnv) enter(n node, memo *drawMemo) (renderEnv, int) {
+func (env renderEnv) enter(n tree.Node, memo *drawMemo) (renderEnv, int) {
 	env = env.entering()
-	for scope := scopeAround(n); scope != nil; scope = scope.up {
-		if len(scope.order) > 0 {
+	for scope := scopeAround(n); scope != nil; scope = scope.Up() {
+		if len(scope.Order()) > 0 {
 			env.frames.push(memo.enteredFrame(scope))
 		}
 	}
@@ -89,8 +90,8 @@ func (env renderEnv) entering() renderEnv {
 
 // renderFrame opens a fresh frame of t's scope, where t binds names and no read entering the
 // category opened one, returning the mark that closes it, or -1.
-func (env renderEnv) renderFrame(t *template) int {
-	own := t.ownScope()
+func (env renderEnv) renderFrame(t *tree.Template) int {
+	own := t.OwnScope()
 	if own == nil || env.frameOf(own) != nil {
 		return -1
 	}
@@ -98,7 +99,7 @@ func (env renderEnv) renderFrame(t *template) int {
 }
 
 // frameOf is the frame of scope rendering since the read entering the category, nil where none is.
-func (env renderEnv) frameOf(scope *nameScope) *pickFrame {
+func (env renderEnv) frameOf(scope *tree.NameScope) *pickFrame {
 	for i := len(env.frames.frames) - 1; i >= env.base; i-- {
 		if f := env.frames.frames[i]; f.scope == scope {
 			return f
@@ -108,9 +109,9 @@ func (env renderEnv) frameOf(scope *nameScope) *pickFrame {
 }
 
 // drawRowOf draws the row a render of t reads: inside the pick's rows where t renders as part of one.
-func (env renderEnv) drawRowOf(s *drawstate.State, t *table) int {
+func (env renderEnv) drawRowOf(s *drawstate.State, t *tree.Table) int {
 	if env.pick != nil {
-		return t.rows.DrawIn(s, &env.pick.pins)
+		return t.Rows().DrawIn(s, &env.pick.pins)
 	}
-	return t.rows.Draw(s)
+	return t.Rows().Draw(s)
 }

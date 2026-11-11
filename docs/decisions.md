@@ -1042,9 +1042,9 @@ Shipped under the floor before that by the maintainer's decisions of 2026-10-07,
 
 The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while the comprehension floor's target is 7.0.
 
-## The template engine stays the root package until item 107 cuts it into `internal/engine`'s `tree`, `load`, `fence` and `render`; compile builds each node with its syntax, and one `finish` writes into it what its load found, save a table's `siblings`, which `linkTables` sets; what reads no engine type, a table's rows included, sits in `internal/`
+## The node types sit in `internal/engine/tree`, and the rest of the template engine stays the root package until item 107 cuts it into `internal/engine`'s `load`, `fence` and `render`; compile builds each node with its syntax, and one `finish` writes into it what its load found, save a table's `siblings`, which `linkTables` sets; what reads no engine type, a table's rows included, sits in `internal/`
 
-2026-10-05, Lilleman auf Larv; revised 2026-11-10. Serves code health. On 2026-10-09 the
+2026-10-05, Lilleman auf Larv; revised 2026-11-11. Serves code health. On 2026-10-09 the
 maintainer chose to regroup the engine into packages, untangled first, over naming the root
 files by area; this is the plan for that choice, made with the systems architect.
 
@@ -1066,16 +1066,17 @@ to write a node's fields already gives. A load reads the categories finished bef
 doesn't write them. A child table is therefore linked without writing its parent: the
 parent's children come from its folder, so a lazy load that fails leaves every finished
 table as it was. Only `linkTables` writes a node before `finish`. It gives each table its
-`siblings`, through a `tree` method once `tree` exists. It also links the table's rows to
+`siblings`, through a `tree` method. It also links the table's rows to
 its parent's rows, which `internal/rows` writes in its own type.
 
 Packages, by the stage that writes or reads a type. The root keeps the public API and its
-options. `internal/engine` holds the pipeline, the folder and lazy loading. `tree` holds the
-node types, their constructors, `finish` and read-only accessors, so the whole cycle sits in
-one package. `load` compiles, binds, links and resolves; `fence` proves and fences the
+options. `internal/engine` holds the pipeline and lazy loading. `tree` holds the
+node types, the folder among them, their constructors, `finish` and read-only accessors, so the
+whole cycle sits in one package. A field of a node is unexported, so no other package writes it. `load` compiles, binds, links and resolves; `fence` proves and fences the
 finished tree; `render` draws. `engine` imports `load`, `fence`, `render` and the leaf
 libraries; each of the three imports `tree`, and none imports another of the three; `tree`
-imports four leaf libraries. Names and paths get no package of their own: each stage keeps
+imports seven: `avoid`, `builtinfunc`, `datafiles`, `datatype`, `grammar`, `invariant` and
+`rows`. Names and paths get no package of their own: each stage keeps
 its part of them, and `tree` holds the step type every stage walks. The three functions
 walking a path, one to load every branch, one to draw one and one to find the caller's
 folders, stay in their stages.
