@@ -1491,3 +1491,20 @@ Read most (opens and searches):
 - `todo.md` 3
 - `doc.go` 2
 - `fejkdata.go` 2
+
+## Reading cost, chunk 72b3ed87e4c8, finished 2026-11-11T20:19:48Z
+
+2398568 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 61
+- `todo.md` 29
+- `AGENTS.md` 11
+- `cli/cli.go` 11
+- `docs/decisions.md` 11
+- `internal/engine/render/env.go` 11
+- `internal/engine/render/render.go` 11
+- `internal/engine/doc.go` 10
+- `internal/engine/fence/namefence.go` 10
+- `internal/engine/index.go` 10
