@@ -1530,3 +1530,32 @@ Inherited architect, decided by:
 - Shape: `where.go:246` `newValueDraw`: nine positional arguments, a bare bool and swappable `LengthEnd`s; `NewAlphabetDraw` and `NewPathStep` lose names the same way
 - Shape: `internal/engine/tree/node.go:134` the getter block: about a hundred getters at the bottom of each file, away from their type, returning live maps and slices
 - Self-sufficiency: `internal/engine/tree/pick.go:3` `PickKey`: its doc explains it through root functions a reader of `tree` can't reach without opening another package
+
+## 2026-11-11T02:56:45Z, PR #346 at e8add15, against 196b26f
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | better | better |
+| Inherited architect | better | better | better | same | better |
+
+Mid A, decided by:
+
+- Navigation, Locality: `internal/engine/render/render.go:14` `Walk`: drawing sits in a package of its own, exporting only `Walk`, `Pinned`, `Once`, `Record` and `Row`, and importing no `load`; a postal code beside another postort's street leads straight to `render/pick.go`, `render/path.go` and `render/table.go`, where the base mixed them among about 30 root files with compile, resolve and the fences
+- Locality: `internal/engine/render/env.go:33` `renderEnv`: a render's frames and pick are private to `render`, where the base's `Fake`, `FakeRecord`, `RecordTemplate.Fake` and `structShape.fill` each built `renderEnv{frames: &frames}` by hand
+- Locality, Self-sufficiency: `internal/engine/tree/pick.go:68` `LandsInPick`: the one rule load and render both call sits beside `PickKey`, with a comment saying why a named read and a fresh read share a key, where the base's tree comment pointed at root-only names
+- Self-sufficiency, Shape: `internal/engine/tree/node.go:1` `tree`: the comments name `LoadFinds.Finish` and `SetSiblings`, which a reader of `tree` alone finds, where the base named unexported functions of another package; the getters sit beside their types
+- Shape: `internal/engine/tree/alphabetdraw.go:11` `AlphabetDrawSpec`: the constructors' seven and five positional arguments became named fields, each with a comment
+- Shape: `internal/engine/load/path.go:287` `CompilePath`: against, too light to flip the ruling: it is exported yet returns the unexported `compiledPath`, `load` exports about 40 fine-grained functions to the root, and the fences straddle the root and `load`
+- Self-sufficiency: `internal/engine/load/columnread.go:36` `columnsAt`: against, minor: its comment names the root's unexported `checkNameReads`, which a reader of `load` cannot find there
+
+Inherited architect, decided by:
+
+- Locality, Shape: `internal/engine/render/render.go:14` `Walk`: the render state is unexported inside one package with four entry points and `render.Row`, and `render` imports no `load`, so a reader changing a draw holds only `tree` beside it
+- Navigation: `internal/engine/tree/pick.go:80` `LandsInPick`: the 3am symptom is a named-pick question that lands in a 14-file `render/` package plus the shared key logic in `tree`, where the base kept `pick.go` and `env.go` among about 30 root files
+- Locality: `internal/engine/tree/pick.go:52` `AddressedKeys`: the functions load and render must agree on moved from the root into the package both import, so the agreement lives where both sides see it
+- Shape: `README.md:2020` "Layout": the root shrinks to 17 files, `load/` holds 18 and `render/` 14, each named for its phase, and one feature's file name repeats predictably across them
+- Shape, Navigation: `internal/engine/load/name.go:186` `NamedReads`: against: it and `CompilePath` return unexported types the root fences read fields of, a seam cut where the fences happen to sit
+- Locality, Navigation: `adddays.go:14` `proveAddDays`: against: the `{adddays()}` proof is split between the root and `load/adddays.go`, and the README line for root `adddays.go` still claims its date's one layout reads back
+- Self-sufficiency: `doc.go:20` vocabulary: net same: the vocabulary names each unit's package, but `load` and `render` have no package doc, unlike `tree`
