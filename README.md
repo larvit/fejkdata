@@ -1496,11 +1496,12 @@ A calc computes from the values its format shows where both read one [name](#nam
 Renders e.g. `19.99 x 3 = 59.97`.
 
 A result that rounds to zero prints unsigned — `0`, `0.00` — as `{float()}`'s does. An
-operand that can never be a number (`"abc"`, `"NaN"`, or a read whose every value is
-such) is rejected at load, as is a division by zero in every render (`1/0`, or a read
-whose every value is `0`); an operand that sometimes is not a number yields
-`NaN`, and a division by one that varies `Inf` — both print rather than
-fail, except in a [typed column](#datatype), which must prove neither happens.
+operand that is never a number is rejected at load: `"abc"`, `"NaN"`, `"Inf"`, or a read
+whose every value is such fixed text. So is a divisor that is always zero, as in `1/0` or
+a read whose every value is the fixed text `0`; a divisor that varies, as in `a/(b*c)` with
+`c` varying, loads. An operand that is sometimes not a number yields `NaN`, and a divisor
+that is sometimes zero `Inf`: both print rather than fail, except in a
+[typed column](#datatype), which must prove neither happens.
 
 ### Transforms
 
@@ -2042,7 +2043,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
-internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, the paths List advertises, and the cycle, repeat and calc fences
+internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, the paths List advertises, and the cycle and repeat fences
 internal/engine/render/ drawing a compiled tree: choices, format strings, expansions, paths and table steps, named picks and the frames they render in, where and reword draws, and a record's columns
 internal/engine/tree/ the node types of the template tree, what a load found for them, and the methods every other package reads or sets a node through
 internal/grammar/ how the template language is written: format tokens, where and distinct clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path

@@ -8,11 +8,13 @@ replacement, and each removed path, column or flag.
 
 ### Breaking
 
-- A `calc` fails to load where an operand is never a number or a divisor is
-  always zero through what it reads, not only through its own fixed text: an
-  operand that is `"NaN"`, or reads a path, name or table whose every value is
-  not a number, and a divisor that reads only fixed values folding to `0`. Each
-  printed `NaN` or `Inf` on every draw; read a number instead.
+- A `calc` fails to load where an operand is never a number, or a divisor is
+  always zero, through what it reads, not only through its own fixed text. This
+  holds for an operand that is `"NaN"` or `"Inf"` (`1 / x` with `x` set to
+  `"Inf"` printed `0`), that joins a `distinct` draw into text, or that reads a
+  path, name or table whose every value is fixed text that is not a number, and
+  for a divisor that reads only fixed text, such as `"0"`. Write a number
+  instead.
 - A where clause's `length` that reads a name, as `{x where length n}` does,
   fails to load where `n` binds a draw that leaves out a string read from a
   name, as `{w where not t as n}` does, or binds a field holding such a draw.
