@@ -48,14 +48,12 @@ func shippedShape(f *Generator) string {
 			}
 		case *tree.Template:
 			facts[prefix] = "\tformat " + strconv.Quote(n.Format()) + readsFact(n)
-			if record, err := recordOf(n); err == nil {
-				for _, c := range record.Columns() {
-					fact := "\t" + c.DataType().String()
-					if _, nullable := fence.ColumnItems(c.Field()); nullable {
-						fact += " null"
-					}
-					facts[prefix+"."+c.Name()] = fact
+			for _, c := range n.Columns() {
+				fact := "\t" + c.DataType().String()
+				if _, nullable := fence.ColumnItems(c.Field()); nullable {
+					fact += " null"
 				}
+				facts[prefix+"."+c.Name()] = fact
 			}
 		}
 	}

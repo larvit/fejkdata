@@ -1,10 +1,11 @@
-package fejkdata
+package engine
 
 import (
 	"errors"
 	"fmt"
 	"io/fs"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
@@ -42,20 +43,20 @@ func categoryOn(root *tree.Folder, segs []string) (categoryAt, bool) {
 	return c, c.unloaded() || g.Children()[c.name] != nil
 }
 
-// loadCallerPath strips the / a caller's path may start with, splits the path, and loads the
+// callerPath strips the / a caller's path may start with, splits the path, and loads the
 // unloaded category it names or passes. The caller walks it next, and a walk loads nothing.
-func (f *Generator) loadCallerPath(path string) (string, []string, error) {
+func callerPath(root *tree.Folder, path string) (string, []string, error) {
 	path, err := grammar.CallerPath(path)
 	if err != nil {
-		return "", nil, fmt.Errorf("fejkdata: %w", err)
+		return "", nil, err
 	}
 	segs, err := grammar.SplitPath(path)
 	if err != nil {
-		return "", nil, fmt.Errorf("fejkdata: %w", err)
+		return "", nil, err
 	}
-	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
-		if err := loadReached(&f.root, nil, tree.NewLoadFinds(), []categoryAt{c}); err != nil {
-			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
+	if c, ok := categoryOn(root, segs); ok && c.unloaded() {
+		if err := loadReached(root, nil, tree.NewLoadFinds(), []categoryAt{c}); err != nil {
+			return "", nil, loadError{err}
 		}
 	}
 	return path, segs, nil
@@ -181,4 +182,26 @@ func parentOf(n tree.Node) string {
 		return t.Rows().Options().Parent
 	}
 	return ""
+}
+
+// IndexLine is what a manifest's index says of a loaded category, and the dot path of each
+// category it needs.
+type IndexLine struct {
+	Path  string
+	Entry datafiles.IndexEntry
+	Needs []string
+}
+
+// Index is an IndexLine for every category root has loaded, in path order.
+func Index(root *tree.Folder) []IndexLine {
+	var out []IndexLine
+	for _, s := range categorySites(root) {
+		line := IndexLine{Path: s.path, Entry: datafiles.IndexEntry{Parent: parentOf(s.n), Paths: load.Paths(s.n, false)}}
+		sort.Strings(line.Entry.Paths)
+		for _, c := range needs(root, s) {
+			line.Needs = append(line.Needs, load.CategoryPath(c.dir, c.name))
+		}
+		out = append(out, line)
+	}
+	return out
 }

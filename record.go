@@ -2,19 +2,13 @@ package fejkdata
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
-	"github.com/larvit/fejkdata/internal/engine/fence"
-	"github.com/larvit/fejkdata/internal/engine/load"
-	"github.com/larvit/fejkdata/internal/engine/render"
-	"github.com/larvit/fejkdata/internal/engine/tree"
-	"github.com/larvit/fejkdata/internal/grammar"
-	"github.com/larvit/fejkdata/internal/invariant"
+	"github.com/larvit/fejkdata/internal/engine"
 )
 
 // Column is one rendered column of a record. Value is the rendered text, which a
@@ -166,63 +160,25 @@ func literal(c Column, quote func(string) string, nullText string) string {
 func (f *Generator) FakeRecord(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	path, segments, err := f.loadCallerPath(path)
+	record, err := engine.RecordAt(f.drawState, &f.root, path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	_, n, tail, err := load.ResolveCategory(f.root.Children(), segments)
-	if err != nil {
-		return nil, f.noDataNote(fmt.Errorf("fejkdata: %s: %w", path, err))
-	}
-	var row render.Row
-	if t, isTable := n.(*tree.Table); isTable {
-		if n, row, err = tableRecord(f.drawState, t, tail); err != nil {
-			return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
-		}
-	} else if len(tail) > 0 {
-		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
-	}
-	record, err := recordOf(n)
-	if errors.Is(err, ErrNoColumns) && err != holdsOnlyLets {
-		ns := grammar.IdentifierSegments(segments)
-		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, err, ns[len(ns)-1], path)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %s %w", path, err)
-	}
-	return renderRecord(f.drawState, record, row), nil
-}
-
-// tableRecord walks a path's tail from a table to the table whose row is the record, and that
-// row, selected or drawn.
-func tableRecord(s *drawstate.State, t *tree.Table, tail []string) (tree.Node, render.Row, error) {
-	n, pins, err := drawCallerPath(s, t, tail)
-	if err != nil {
-		return nil, render.Row{}, err
-	}
-	switch n := n.(type) {
-	case *tree.Table:
-		return n, render.Row{Table: n, Index: n.Rows().DrawIn(s, &pins)}, nil
-	case *tree.TableRow:
-		return n.Table(), render.Row{Table: n.Table(), Index: pins.MustRow(n.Table().Rows())}, nil
-	case *tree.TableColumn:
-		return nil, render.Row{}, fmt.Errorf("descends into %q, a column; a record is a table's row", n.Name())
-	}
-	return n, render.Row{}, nil
+	return renderRecord(f.drawState, record), nil
 }
 
 // RecordTemplate is an inline record compiled, referenced and validated once,
 // ready to render many times with [RecordTemplate.Fake].
 type RecordTemplate struct {
-	g        *Generator
-	template *tree.Template
+	g      *Generator
+	record engine.Record
 }
 
 // Fake renders the record, one pick of each name across its columns.
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	return renderRecord(t.g.drawState, t.template, render.Row{})
+	return renderRecord(t.g.drawState, t.record)
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
@@ -232,11 +188,11 @@ func (f *Generator) NewRecordTemplate(input string) (*RecordTemplate, error) {
 	if err != nil {
 		return nil, err
 	}
-	record, err := recordOf(t.n)
+	record, err := engine.InlineRecord(t.n)
 	if err != nil {
-		return nil, fmt.Errorf("fejkdata: an inline record %w", err)
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &RecordTemplate{g: f, template: record}, nil
+	return &RecordTemplate{g: f, record: record}, nil
 }
 
 // FakeRecordTemplate compiles and renders an inline record in one call.
@@ -250,86 +206,11 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 
 // ErrNoColumns matches the error for a record with no fields, naming a choice or holding every
 // field in "let"; FakeRecord's names the one-column record to write instead, for all but the last.
-var ErrNoColumns = errors.New("has no fields, so no columns")
+var ErrNoColumns = engine.ErrNoColumns
 
-// noColumnsError keeps its own message and matches ErrNoColumns.
-type noColumnsError string
-
-func (e noColumnsError) Error() string { return string(e) }
-
-func (noColumnsError) Is(target error) bool { return target == ErrNoColumns }
-
-const (
-	namesAChoice  = noColumnsError("names a choice, not a template; a record is a template whose fields are its columns")
-	holdsOnlyLets = noColumnsError(`holds every field in "let", which writes no column; move one out of "let"`)
-)
-
-// recordOf is the record template n is; its load fixed its columns.
-func recordOf(n tree.Node) (*tree.Template, error) {
-	if tb, isTable := n.(*tree.Table); isTable {
-		n = tb.FormatTemplate()
-	}
-	t, ok := n.(*tree.Template)
-	if !ok {
-		return nil, namesAChoice
-	}
-	if len(t.Fields()) == 0 {
-		return nil, ErrNoColumns
-	}
-	if !t.IsRecord() {
-		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.Repeat())
-	}
-	if !t.Finished() {
-		panic(invariant.Broken("record %q was reached before its load finished", t.Format()))
-	}
-	if len(t.Columns()) == 0 {
-		return nil, holdsOnlyLets
-	}
-	return t, nil
-}
-
-// settleRecords fixes the columns of every record in nodes. The pipeline runs it after fence.CheckNoCycles: a
-// column's datatype walks the column, and a cycle would walk forever.
-func settleRecords(nodes nodeSet, l *tree.LoadFinds) {
-	_ = nodes(func(_ string, n tree.Node) error {
-		if t, isTemplate := n.(*tree.Template); isTemplate {
-			l.SetColumns(t, recordColumns(t, l))
-		}
-		return nil
-	})
-}
-
-// recordColumns is t's columns in name order where t is a record with fields, else nil.
-func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
-	if !t.IsRecord() || len(t.Fields()) == 0 {
-		return nil
-	}
-	whole := map[tree.Node]*tree.NameBinding{}
-	for _, tok := range t.Tokens() {
-		if tok.Kind != grammar.NameBind {
-			continue
-		}
-		b := l.Of(t).NameScope().Bindings()[tok.Bound]
-		if target := l.Binding(b).Target(); b.BindsField() && len(target.Tail()) == 0 && whole[target.Start()] == nil {
-			whole[target.Start()] = b
-		}
-	}
-	var columns []tree.RecordColumn
-	for _, name := range tree.SortedNames(t.Fields()) {
-		if !t.Lets()[name] {
-			field := t.Fields()[name]
-			columns = append(columns, tree.NewRecordColumn(name, fence.ColumnDatatype(field, l), field, whole[field]))
-		}
-	}
-	return columns
-}
-
-// renderRecord draws t as a record; a table's columns read row.
-func renderRecord(s *drawstate.State, t *tree.Template, row render.Row) *Record {
-	r := &Record{columns: make([]Column, len(t.Columns()))}
-	render.Record(s, t, row, func(i int, text string, null bool) {
-		c := t.Columns()[i]
-		r.columns[i] = Column{Name: c.Name(), DataType: c.DataType(), Value: text, Null: null}
-	})
-	return r
+// renderRecord draws r as a record.
+func renderRecord(s *drawstate.State, r engine.Record) *Record {
+	out := &Record{columns: make([]Column, r.ColumnCount())}
+	r.Draw(s, func(i int, c engine.Column) { out.columns[i] = Column(c) })
+	return out
 }

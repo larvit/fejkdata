@@ -165,7 +165,7 @@ func TestBornRefusesItsMistakes(t *testing.T) {
 
 // luhn(n) reads only the last n digits printed, so a century can sit before them.
 func TestLuhnOverTheLastDigits(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for tmpl, want := range map[string]string{
 		`"19811218987{luhn(9)}"`:  "198112189876",
 		`"19811218-987{luhn(9)}"`: "19811218-9876",

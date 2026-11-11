@@ -11,7 +11,7 @@ import (
 // TestCalcArithmetic pins the operators, precedence, parentheses and unary minus
 // over number literals.
 func TestCalcArithmetic(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	cases := map[string]string{
 		`"{calc(2 + 3)}"`:       "5",
 		`"{calc(2 * 3 + 4)}"`:   "10", // * binds tighter than +
@@ -32,7 +32,7 @@ func TestCalcArithmetic(t *testing.T) {
 // TestCalcAuto pins the default (no-dp) rendering: minimal decimal form, no
 // scientific notation, whole numbers without a fraction.
 func TestCalcAuto(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	cases := map[string]string{
 		`"{calc(10 / 3)}"`: "3.3333333333333335",
 		`"{calc(6 / 2)}"`:  "3",
@@ -49,7 +49,7 @@ func TestCalcAuto(t *testing.T) {
 // TestCalcDecimals pins the optional decimals arg: rounds to dp places, dp 0
 // drops the fraction.
 func TestCalcDecimals(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	cases := map[string]string{
 		`"{calc(10 / 3, 2)}"`: "3.33",
 		`"{calc(10 / 3, 0)}"`: "3",
@@ -66,14 +66,14 @@ func TestCalcDecimals(t *testing.T) {
 // TestCalcFields pins that bare names resolve to sibling fields, rendered then
 // parsed as numbers.
 func TestCalcFields(t *testing.T) {
-	if got := mustRender(t, engine(1), `{"format":"{calc(price * qty, 2)}","price":"19.99","qty":"3"}`); got != "59.97" {
+	if got := mustRender(t, emptyGenerator(1), `{"format":"{calc(price * qty, 2)}","price":"19.99","qty":"3"}`); got != "59.97" {
 		t.Fatalf("calc over fields = %q, want 59.97", got)
 	}
 	// A field that is itself a template renders before parsing.
-	if got := mustRender(t, engine(1), `{"format":"{calc(a - b)}","a":{"format":"{n}","n":"10"},"b":"3"}`); got != "7" {
+	if got := mustRender(t, emptyGenerator(1), `{"format":"{calc(a - b)}","a":{"format":"{n}","n":"10"},"b":"3"}`); got != "7" {
 		t.Fatalf("calc(a - b) = %q, want 7", got)
 	}
-	if got := mustRender(t, engine(1), `{"format":"{calc(b * (a - b))}","a":"10","b":"3"}`); got != "21" {
+	if got := mustRender(t, emptyGenerator(1), `{"format":"{calc(b * (a - b))}","a":"10","b":"3"}`); got != "21" {
 		t.Fatalf("calc(b * (a - b)) = %q, want 21", got)
 	}
 }
@@ -81,7 +81,7 @@ func TestCalcFields(t *testing.T) {
 // TestCalcNonNumericIsNaN pins the never-fail rule: a field that sometimes does
 // not render to a number becomes NaN then, which propagates and prints visibly.
 func TestCalcNonNumericIsNaN(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for i := 0; i < 50; i++ {
 		if got := mustRender(t, f, `{"format":"{calc(x * 2)}","x":["abc","1"]}`); got == "NaN" {
 			return
@@ -93,7 +93,7 @@ func TestCalcNonNumericIsNaN(t *testing.T) {
 // TestCalcReproducible pins that a calc over a random operand stays seed-stable.
 func TestCalcReproducible(t *testing.T) {
 	tmpl := `{"format":"{calc(q * 2 + 1)}","q":"{int(1,1000000)}"}`
-	if a, b := mustRender(t, engine(7), tmpl), mustRender(t, engine(7), tmpl); a != b {
+	if a, b := mustRender(t, emptyGenerator(7), tmpl), mustRender(t, emptyGenerator(7), tmpl); a != b {
 		t.Fatalf("calc not reproducible: %q != %q", a, b)
 	}
 }
@@ -226,7 +226,7 @@ func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 	if _, err := resolved(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`); err != nil {
 		t.Errorf("compile(a/(b*c)) = %v, want a divisor that varies accepted", err)
 	}
-	f := engine(1)
+	f := emptyGenerator(1)
 	for i := 0; i < 50; i++ {
 		if got := mustRender(t, f, `{"format":"{calc(x/y)}","x":"1","y":["0","1"]}`); got == "+Inf" {
 			return

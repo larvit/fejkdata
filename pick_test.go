@@ -32,7 +32,7 @@ func varies(t *testing.T, f *Generator, src string, differ func(got string) bool
 }
 
 func TestEveryTokenDrawsAfresh(t *testing.T) {
-	f := engine(3)
+	f := emptyGenerator(3)
 	pair := func(got string) bool { p := strings.Split(got, "|"); return p[0] != p[1] }
 	varies(t, f, `{"format":"{w}|{w}","w":["a","b","c","d","e"]}`, pair)
 	varies(t, f, `{"format":"{p.first}|{p.first}","p":{"format":"{first}","first":["Anna","Astrid","Elin","Karin"]}}`, pair)
@@ -65,7 +65,7 @@ func TestEveryReferenceDrawsAfresh(t *testing.T) {
 }
 
 func TestANamedFieldCorrelatesItsReads(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	seen := map[string]bool{}
 	for i := 0; i < 500; i++ {
 		got := mustRender(t, f, places("{place as p}{p.postal-code} {p.locality}"))
@@ -82,7 +82,7 @@ func TestANamedFieldCorrelatesItsReads(t *testing.T) {
 func TestANamedFieldReadsItsVariantsWhole(t *testing.T) {
 	// One variant holds addr as a plain template where another holds a choice; the name
 	// keeps the variant drawn at every level its reads pass.
-	f := engine(13)
+	f := emptyGenerator(13)
 	tmpl := `{"format":"{p as q}{q.addr.city}/{q.addr.zip}","p":[
 		{"format":"{addr}","addr":{"format":"{city}","city":"Kiruna","zip":"98100"}},
 		{"format":"{addr}","addr":[
@@ -97,7 +97,7 @@ func TestANamedFieldReadsItsVariantsWhole(t *testing.T) {
 }
 
 func TestANamedFieldInARepeatPicksEachLine(t *testing.T) {
-	f := engine(5)
+	f := emptyGenerator(5)
 	tmpl := `{"format":"{lines}","lines":` + strings.Replace(places("{place as p}{p.postal-code} {p.locality}"), `"format":`, `"repeat":6,"separator":"\n","format":`, 1) + `}`
 	varied := false
 	for i := 0; i < 40; i++ {
@@ -199,7 +199,7 @@ func TestADeepDiamondChainLoads(t *testing.T) {
 
 func TestNestedChoiceDrawsOneVariant(t *testing.T) {
 	// A choice item may itself be a choice, so a path unwraps until it reaches a value.
-	f := engine(21)
+	f := emptyGenerator(21)
 	seen := map[string]bool{}
 	for i := 0; i < 200; i++ {
 		seen[mustRender(t, f, `{"format":"{p.x}","p":[{"format":"{x}","x":"1"},{"format":"{x}","x":"2"}]}`)] = true
@@ -243,7 +243,7 @@ func TestPathIntoAPlainTemplateNamesTheMissingField(t *testing.T) {
 
 func TestADrawIsSeedStable(t *testing.T) {
 	tmpl := places("{place as p}{p.postal-code} {p.locality}")
-	if a, b := mustRender(t, engine(42), tmpl), mustRender(t, engine(42), tmpl); a != b {
+	if a, b := mustRender(t, emptyGenerator(42), tmpl), mustRender(t, emptyGenerator(42), tmpl); a != b {
 		t.Fatalf("same seed gave %q and %q, want an identical draw", a, b)
 	}
 }
@@ -355,7 +355,7 @@ func TestAColumnReadingABoundColumnIsThatColumn(t *testing.T) {
 }
 
 func TestAFreshReadInsideANamedPickSharesNoValueWithIt(t *testing.T) {
-	f := engine(5)
+	f := emptyGenerator(5)
 	src := `{"format":"{w as p}{p.a}|{p.a.b}","w":{"format":"{a}","a":{"format":"{c}|{b}","b":["1","2","3"],"c":{"format":"{b}","b":["x","y","z"]}}}}`
 	want := regexp.MustCompile(`^[xyz]\|([123])\|([123])$`)
 	for i := 0; i < 100; i++ {

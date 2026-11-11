@@ -91,7 +91,7 @@ func eachCprAfter070761(t *testing.T, f *Generator, last string, check func(got 
 }
 
 func TestBuiltinCprDrawsAValidNumberWhoseLastDigitHasTheParityOfItsOperand(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for _, last := range cprLastDigits {
 		t.Run(last, func(t *testing.T) {
 			odd := last[0]%2 == 1
@@ -105,7 +105,7 @@ func TestBuiltinCprDrawsAValidNumberWhoseLastDigitHasTheParityOfItsOperand(t *te
 }
 
 func TestBuiltinCprDrawsASeventhDigitOf1937To1999(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for _, last := range cprLastDigits {
 		t.Run(last, func(t *testing.T) {
 			eachCprAfter070761(t, f, last, func(got string) {
@@ -118,7 +118,7 @@ func TestBuiltinCprDrawsASeventhDigitOf1937To1999(t *testing.T) {
 }
 
 func TestBuiltinCprVariesItsDigits(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for _, last := range cprLastDigits {
 		t.Run(last, func(t *testing.T) {
 			seen := tallyDraws(300, func() string {
@@ -144,14 +144,14 @@ func cprEighthAndNinthDigitsDrawn(t *testing.T, f *Generator) (eighths, ninths m
 }
 
 func TestBuiltinCprDrawsEveryEighthAndNinthDigit(t *testing.T) {
-	eighths, ninths := cprEighthAndNinthDigitsDrawn(t, engine(1))
+	eighths, ninths := cprEighthAndNinthDigitsDrawn(t, emptyGenerator(1))
 	if len(eighths) != 10 || len(ninths) != 10 {
 		t.Errorf("cpr drew the eighth digits %v and ninth digits %v, want all ten of each", eighths, ninths)
 	}
 }
 
 func TestBuiltinCprReadsItsOperandFromAPath(t *testing.T) {
-	f := engine(2)
+	f := emptyGenerator(2)
 	eachDraw(50, func() string {
 		return mustRender(t, f, `{"format":"{pre}{cpr(sex.last)}","pre":"070761","sex":{"format":"{last}","last":"4"}}`)
 	}, func(got string) {
@@ -162,7 +162,7 @@ func TestBuiltinCprReadsItsOperandFromAPath(t *testing.T) {
 }
 
 func TestBuiltinCprRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
-	f := engine(3)
+	f := emptyGenerator(3)
 	for _, last := range []string{"", "mand", "12", "x7", "-"} {
 		t.Run(fmt.Sprintf("operand %q", last), func(t *testing.T) {
 			tmpl := `{"format":"{pre}-{cpr(last)}","pre":"070761","last":"` + last + `"}`
@@ -174,7 +174,7 @@ func TestBuiltinCprRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
 }
 
 func TestBuiltinCprReadsTheLastSixDigitsEmitted(t *testing.T) {
-	f := engine(4)
+	f := emptyGenerator(4)
 	for pre, six := range map[string]string{"x-070761": "070761", "99070761": "070761", "a0b7c0d7e6f1g": "070761", "061": "000061", "5": "000005", "x": "000000"} {
 		t.Run(pre, func(t *testing.T) {
 			got := mustRender(t, f, `{"format":"{pre}{cpr(last)}","pre":"`+pre+`","last":"3"}`)

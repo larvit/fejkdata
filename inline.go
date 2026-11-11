@@ -1,14 +1,11 @@
 package fejkdata
 
 import (
-	"encoding/json"
 	"fmt"
 
-	"github.com/larvit/fejkdata/internal/engine/load"
-	"github.com/larvit/fejkdata/internal/engine/render"
+	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
-	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 // Template is an inline template compiled, referenced and validated against a
@@ -25,7 +22,7 @@ type Template struct {
 func (t *Template) Fake() string {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	return render.Once(t.g.drawState, t.n)
+	return engine.Render(t.g.drawState, t.n)
 }
 
 // NewTemplate compiles an inline template — a format string or a JSON value — and
@@ -33,15 +30,14 @@ func (t *Template) Fake() string {
 // compile and validation once. It shares [New]'s guarantees: a bad template errors
 // here, and rendering cannot fail.
 func (f *Generator) NewTemplate(input string) (*Template, error) {
-	l := tree.NewLoadFinds()
-	n, err := compileInput(input, l)
+	n, l, err := engine.CompileInput(input)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	if err := loadInline(&f.root, n, l, "template", false); err != nil {
-		return nil, f.noDataNote(fmt.Errorf("fejkdata: %w", err))
+	if err := engine.LoadInline(&f.root, n, l, "template"); err != nil {
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil
 }
@@ -67,62 +63,4 @@ func IsTemplate(arg string) (bool, error) {
 		return false, fmt.Errorf("fejkdata: %w", err)
 	}
 	return inline, nil
-}
-
-func compileInput(input string, l *tree.LoadFinds) (tree.Node, error) {
-	return load.Compile(inputValue(input), l)
-}
-
-// inputValue reads an inline template as the value load.Compile takes: the JSON object, array, string
-// or null it holds, the whitespace around it dropped, or else the input itself as a format string,
-// a bare number or boolean among them.
-func inputValue(input string) jsonvalue.Value {
-	raw, err := jsonvalue.Decode([]byte(input))
-	if err != nil {
-		return jsonvalue.String(input)
-	}
-	switch raw.Any().(type) {
-	case json.Number, bool:
-		return jsonvalue.String(input)
-	}
-	return raw
-}
-
-// loadInline loads the unloaded categories n reads, then runs n, compiled into l, through the
-// pipeline against root.
-func loadInline(root *tree.Folder, n tree.Node, l *tree.LoadFinds, label string, typedByGo bool) error {
-	nodes := inlineNodes(n, label)
-	if err := refuseFolderRefs(nodes); err != nil {
-		return err
-	}
-	if err := loadReached(root, nil, tree.NewLoadFinds(), referenced(root, nil, nodes)); err != nil {
-		return loadError{err}
-	}
-	return pipeline{
-		nodes:     nodes,
-		finds:     l,
-		resolve:   func() ([]load.TemplateSite, error) { return load.ResolveInlineTemplates(n, label, root.Children(), l) },
-		typedByGo: typedByGo,
-	}.run()
-}
-
-// refuseFolderRefs refuses each reference in nodes not written from the root, {/x}: an
-// inline node sits in no folder.
-func refuseFolderRefs(nodes nodeSet) error {
-	return nodes(func(label string, m tree.Node) error {
-		t, ok := m.(*tree.Template)
-		if !ok {
-			return nil
-		}
-		for _, spelling := range load.RefSpellings(t.Tokens()) {
-			sigil, rest, err := grammar.RefShape(spelling)
-			if err != nil {
-				return fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
-			}
-			if sigil != "/" {
-				return fmt.Errorf("%s: reference {%s}: an inline template has no folder; write {/%s}", label, spelling, rest)
-			}
-		}
-		return nil
-	})
 }

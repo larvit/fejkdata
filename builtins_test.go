@@ -26,7 +26,7 @@ func TestBuiltinIDGenerators(t *testing.T) {
 		{"nanoid", `"{nanoid(21)}"`, regexp.MustCompile(`^[A-Za-z0-9_-]{21}$`)},
 		{"hex", `"{hex(16)}"`, regexp.MustCompile(`^[0-9a-f]{16}$`)},
 	}
-	f := engine(1)
+	f := emptyGenerator(1)
 	for _, c := range cases {
 		seen := map[string]bool{}
 		for i := 0; i < 200; i++ {
@@ -51,14 +51,14 @@ func TestBuiltinSamplesReproducible(t *testing.T) {
 		`"{float(0,1,6)}"`, `"{base64(12)}"`, `"{iban(SE)}"`,
 		`"{date(2000-01-01,2020-12-31,'2006-01-02 15:04:05')}"`, `"{time('15:04:05')}"`,
 	} {
-		if a, b := mustRender(t, engine(7), tmpl), mustRender(t, engine(7), tmpl); a != b {
+		if a, b := mustRender(t, emptyGenerator(7), tmpl), mustRender(t, emptyGenerator(7), tmpl); a != b {
 			t.Fatalf("%s not reproducible: %q != %q", tmpl, a, b)
 		}
 	}
 }
 
 func TestBuiltinIntInclusiveRange(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	lo, hi := false, false
 	for i := 0; i < 1000; i++ {
 		n, err := strconv.Atoi(mustRender(t, f, `"{int(3,7)}"`))
@@ -73,7 +73,7 @@ func TestBuiltinIntInclusiveRange(t *testing.T) {
 }
 
 func TestBuiltinFloat(t *testing.T) {
-	f, re := engine(1), regexp.MustCompile(`^[12]\.\d{3}$`)
+	f, re := emptyGenerator(1), regexp.MustCompile(`^[12]\.\d{3}$`)
 	for i := 0; i < 200; i++ {
 		if got := mustRender(t, f, `"{float(1,2,3)}"`); !re.MatchString(got) {
 			t.Fatalf("float(1,2,3) = %q, want d.ddd in [1,2]", got)
@@ -85,7 +85,7 @@ func TestBuiltinFloat(t *testing.T) {
 }
 
 func TestBuiltinBase64(t *testing.T) {
-	got := mustRender(t, engine(1), `"{base64(9)}"`)
+	got := mustRender(t, emptyGenerator(1), `"{base64(9)}"`)
 	if b, err := base64.StdEncoding.DecodeString(got); err != nil || len(b) != 9 {
 		t.Fatalf("base64(9) = %q decodes to %d bytes (err %v), want 9", got, len(b), err)
 	}
@@ -99,7 +99,7 @@ func TestBuiltinChecksums(t *testing.T) {
 		`"6{mod11()}"`:          "6X",            // remainder 10 -> X
 		`"400638133393{ean()}"`: "4006381333931", // EAN-13 (= ISBN-13) check digit
 	}
-	f := engine(1)
+	f := emptyGenerator(1)
 	for tmpl, want := range cases {
 		if got := mustRender(t, f, tmpl); got != want {
 			t.Fatalf("%s = %q, want %q", tmpl, got, want)
@@ -108,7 +108,7 @@ func TestBuiltinChecksums(t *testing.T) {
 }
 
 func TestBuiltinFnr(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	seen := map[string]bool{}
 	for i := 0; i < 300; i++ {
 		got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"7"}`)
@@ -123,7 +123,7 @@ func TestBuiltinFnr(t *testing.T) {
 }
 
 func TestBuiltinFnrReadsItsOperandFromAPath(t *testing.T) {
-	f := engine(2)
+	f := emptyGenerator(2)
 	for i := 0; i < 50; i++ {
 		got := mustRender(t, f, `{"format":"{pre}{fnr(sex.last)}","pre":"3181804","sex":{"format":"{last}","last":"4"}}`)
 		if !validFnr(got) || got[8] != '4' {
@@ -133,7 +133,7 @@ func TestBuiltinFnrReadsItsOperandFromAPath(t *testing.T) {
 }
 
 func TestBuiltinFnrRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
-	f := engine(3)
+	f := emptyGenerator(3)
 	for _, last := range []string{"", "mann", "12", "x7", "-"} {
 		tmpl := `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"` + last + `"}`
 		if got := mustRender(t, f, tmpl); got != "0181804" {
@@ -143,7 +143,7 @@ func TestBuiltinFnrRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
 }
 
 func TestBuiltinFnrReadsTheLastSevenDigitsEmitted(t *testing.T) {
-	f := engine(5)
+	f := emptyGenerator(5)
 	for pre, seven := range map[string]string{"x-0181804": "0181804", "9990181804": "0181804", "181804": "0181804", "a1b2c3d4e5f6g7h8": "2345678"} {
 		got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"`+pre+`","last":"3"}`)
 		if tail := got[len(pre):]; !validFnr(seven + tail) {
@@ -189,7 +189,7 @@ func validFnr(s string) bool {
 // each call, named counters independent, and the whole thing scoped to one
 // draw state so a fresh Generator restarts at 1.
 func TestBuiltinSeqPerGenerator(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for i := 1; i <= 5; i++ {
 		if got := mustRender(t, f, `"{seq()}"`); got != strconv.Itoa(i) {
 			t.Fatalf("seq call %d = %q, want %d", i, got, i)
@@ -202,11 +202,11 @@ func TestBuiltinSeqPerGenerator(t *testing.T) {
 		t.Fatalf("default seq after the named one = %q, want 6 (counters are independent)", got)
 	}
 	// repeat drives one counter forward across its renders...
-	if got := mustRender(t, engine(2), `{"format":"{seq()}","repeat":3,"separator":","}`); got != "1,2,3" {
+	if got := mustRender(t, emptyGenerator(2), `{"format":"{seq()}","repeat":3,"separator":","}`); got != "1,2,3" {
 		t.Fatalf("repeat seq = %q, want 1,2,3", got)
 	}
 	// ...and a fresh generator restarts from 1.
-	if got := mustRender(t, engine(2), `"{seq()}"`); got != "1" {
+	if got := mustRender(t, emptyGenerator(2), `"{seq()}"`); got != "1" {
 		t.Fatalf("new generator seq = %q, want 1", got)
 	}
 }
@@ -238,7 +238,7 @@ func TestBuiltinArgLimits(t *testing.T) {
 
 func TestBuiltinIBAN(t *testing.T) {
 	wantLen := map[string]int{"SE": 24, "DE": 22, "NO": 15}
-	f := engine(1)
+	f := emptyGenerator(1)
 	for cc, n := range wantLen {
 		tmpl := `"{iban(` + cc + `)}"`
 		for i := 0; i < 100; i++ {
@@ -300,7 +300,7 @@ func TestClassBuiltinArgs(t *testing.T) {
 // [from 00:00:00, to 23:59:59], both days reachable, and renders it in the quoted Go
 // layout, commas and English names included; time draws a second within one day.
 func TestBuiltinDateAndTime(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	seen := map[string]bool{}
 	for i := 0; i < 500; i++ {
 		got := mustRender(t, f, `"{date(1990-01-01,1990-12-31,'2006-01-02')}"`)
@@ -405,7 +405,7 @@ func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
 // TestBuiltinDateSpansOneDay pins that from == to is a day: with a clock layout it
 // draws every second of it, and without one it prints that day.
 func TestBuiltinDateSpansOneDay(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	seen := map[string]bool{}
 	for i := 0; i < 500; i++ {
 		got := mustRender(t, f, `"{date(2026-01-01,2026-01-01,'2006-01-02 15:04:05')}"`)
@@ -431,7 +431,7 @@ func TestClassBuiltins(t *testing.T) {
 		`"{lower(1)}"`:           regexp.MustCompile(`^[a-z]$`),
 		`"{upper(2)}{lower(2)}"`: regexp.MustCompile(`^[A-Z]{2}[a-z]{2}$`),
 	}
-	f := engine(7)
+	f := emptyGenerator(7)
 	for tmpl, re := range cases {
 		for i := 0; i < 100; i++ {
 			if got := mustRender(t, f, tmpl); !re.MatchString(got) {
@@ -445,7 +445,7 @@ func TestFunctionTokenLuhn(t *testing.T) {
 	// {luhn()} appends a Luhn check digit over the digits emitted so far in the
 	// current expansion (non-digits skipped but kept). It reads the output
 	// buffer, so a value is never re-rendered. Bodies are escaped to fix input.
-	f := engine(1)
+	f := emptyGenerator(1)
 	cases := map[string]string{
 		`"811218987{luhn()}"`:                      "8112189876",  // personnummer body
 		`"7992739871{luhn()}"`:                     "79927398713", // classic Luhn vector

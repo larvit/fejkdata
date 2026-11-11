@@ -9,9 +9,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
-	"github.com/larvit/fejkdata/internal/engine/fence"
-	"github.com/larvit/fejkdata/internal/engine/load"
-	"github.com/larvit/fejkdata/internal/engine/render"
+	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
@@ -33,7 +31,7 @@ func (f *Generator) FakeStruct(v any) error {
 	defer f.mu.Unlock()
 	shape, err := f.structShapeOf(p.Elem().Type())
 	if err != nil {
-		return f.noDataNote(fmt.Errorf("fejkdata: %w", err))
+		return fmt.Errorf("fejkdata: %w", err)
 	}
 	shape.fill(f.drawState, p.Elem())
 	return nil
@@ -69,7 +67,7 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 // structShape is a struct type compiled to fill: its tagged fields as one record, the field
 // index path each column fills, and the struct fields carrying tags of their own.
 type structShape struct {
-	record       *tree.Template
+	record       *engine.Record
 	fieldIndexes [][]int
 	nested       []nestedStruct
 }
@@ -113,8 +111,15 @@ func (sc *structCompile) compileShape(t reflect.Type, label string) (*structShap
 		return nil, err
 	}
 	if len(c.tags) > 0 {
-		if err := c.shape.compileRecord(sc.root, t, label, c.tags); err != nil {
+		record, err := engine.LoadStruct(sc.root, t, label, c.tags)
+		if err != nil {
 			return nil, err
+		}
+		c.shape.record = &record
+		c.shape.fieldIndexes = make([][]int, record.ColumnCount())
+		for i := range c.shape.fieldIndexes {
+			sf, _ := t.FieldByName(record.Name(i))
+			c.shape.fieldIndexes[i] = sf.Index
 		}
 	}
 	return c.shape, nil
@@ -226,7 +231,7 @@ func tagValue(sf reflect.StructField, tag string) (jsonvalue.Value, error) {
 	case err != nil:
 		return jsonvalue.Value{}, err
 	case inline:
-		return inputValue(tag), nil
+		return engine.InputValue(tag), nil
 	}
 	path, err := grammar.CallerPath(tag)
 	if err != nil {
@@ -240,9 +245,9 @@ func tagValue(sf reflect.StructField, tag string) (jsonvalue.Value, error) {
 
 // checkTaggedType rejects a tagged field no column can fill.
 func checkTaggedType(sf reflect.StructField) error {
-	_, holds := fence.FieldKinds[sf.Type.Kind()]
+	_, holds := engine.FieldDataType(sf.Type.Kind())
 	if sf.Type.Kind() == reflect.Pointer {
-		_, holds = fence.FieldKinds[sf.Type.Elem().Kind()]
+		_, holds = engine.FieldDataType(sf.Type.Elem().Kind())
 	}
 	switch {
 	case !sf.IsExported():
@@ -255,38 +260,10 @@ func checkTaggedType(sf reflect.StructField) error {
 	return fmt.Errorf("a fake tag fills a string, bool, integer or float field, or a pointer to one, not %s", sf.Type)
 }
 
-// compileRecord compiles the tagged fields of t as one record, and proves each column holds
-// only what its field's Go type can.
-func (s *structShape) compileRecord(root *tree.Folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) error {
-	tags["format"] = jsonvalue.String("")
-	l := tree.NewLoadFinds()
-	n, err := load.CompileStruct(jsonvalue.Object(tags), l)
-	if err != nil {
-		return fmt.Errorf("%s: %w", label, err)
-	}
-	if err := loadInline(root, n, l, label, true); err != nil {
-		return err
-	}
-	record, err := recordOf(n)
-	if err != nil {
-		return fmt.Errorf("%s: %w", label, err)
-	}
-	if err := fence.CheckFields(label, t, record.Columns()); err != nil {
-		return err
-	}
-	s.fieldIndexes = make([][]int, len(record.Columns()))
-	for i, c := range record.Columns() {
-		sf, _ := t.FieldByName(c.Name())
-		s.fieldIndexes[i] = sf.Index
-	}
-	s.record = record
-	return nil
-}
-
 // fill draws the record into v's tagged fields, then each nested struct as a record of its own.
 func (s *structShape) fill(state *drawstate.State, v reflect.Value) {
 	if s.record != nil {
-		for i, c := range renderRecord(state, s.record, render.Row{}).columns {
+		for i, c := range renderRecord(state, *s.record).columns {
 			setColumn(fieldAt(v, s.fieldIndexes[i]), c)
 		}
 	}
@@ -332,17 +309,17 @@ func setColumn(field reflect.Value, c Column) {
 	field.Set(value)
 }
 
-// setText parses text into a field of one of fence.FieldKinds, which fence.CheckFields proved it parses as.
+// setText parses text into a field a fake tag fills, which engine.LoadStruct proved it parses as.
 func setText(field reflect.Value, text string) {
 	var err error
-	switch kind := fence.FieldKinds[field.Kind()]; {
-	case kind.Datatype == DataTypeString:
+	switch dt, _ := engine.FieldDataType(field.Kind()); {
+	case dt == DataTypeString:
 		field.SetString(text)
-	case kind.Datatype == DataTypeBoolean:
+	case dt == DataTypeBoolean:
 		var b bool
 		b, err = strconv.ParseBool(text)
 		field.SetBool(b)
-	case kind.Datatype == DataTypeNumber:
+	case dt == DataTypeNumber:
 		var x float64
 		x, err = strconv.ParseFloat(text, field.Type().Bits())
 		field.SetFloat(x)

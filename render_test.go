@@ -18,7 +18,7 @@ func TestRecursionHasNoDepthLimit(t *testing.T) {
 	for i := 0; i < 50; i++ {
 		tmpl = `{"format":"{a}","a":` + tmpl + `}`
 	}
-	if got := mustRender(t, engine(1), tmpl); got != "deep" {
+	if got := mustRender(t, emptyGenerator(1), tmpl); got != "deep" {
 		t.Fatalf("deep recursion = %q, want deep", got)
 	}
 }
@@ -27,7 +27,7 @@ func TestRecursionHasNoDepthLimit(t *testing.T) {
 // safe: grow must never exceed what one render emits. A repeat multiplies it,
 // so an over-estimate would amplify up to a million-fold.
 func TestGrowIsALowerBound(t *testing.T) {
-	f := engine(3)
+	f := emptyGenerator(3)
 	for _, format := range []string{
 		"",
 		"plain literal",
@@ -103,7 +103,7 @@ func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 		"Paths":       func(n tree.Node) { load.Paths(n, false) },
 		"render": func(n tree.Node) {
 			var pins tree.PinSet
-			s := engine(1).drawState
+			s := emptyGenerator(1).drawState
 			tbl.Rows().DrawIn(s, &pins)
 			render.Pinned(s, n, &pins)
 		},

@@ -169,7 +169,7 @@ func TestANameInAnInlineTemplate(t *testing.T) {
 }
 
 func TestAChoiceItemKeepsTheNamesItBinds(t *testing.T) {
-	f, n, apart := engine(1), compiled(t, `{"format":"{x}|{x}","x":[{"format":"{v as w}{w}{w}","v":["a","b"]},"c"]}`), false
+	f, n, apart := emptyGenerator(1), compiled(t, `{"format":"{x}|{x}","x":[{"format":"{v as w}{w}{w}","v":["a","b"]},"c"]}`), false
 	for i := 0; i < 100; i++ {
 		got := render.Once(f.drawState, n)
 		halves := strings.Split(got, "|")
@@ -520,7 +520,7 @@ func TestANameReadAloneIsTheRecordColumnItReads(t *testing.T) {
 }
 
 func TestAFieldBindingReadOutsideWhatItBindsLoads(t *testing.T) {
-	if _, err := engine(1).NewTemplate(`{"format":"{x.y as n}{n}{n}{x}","x":{"format":"{z}","y":["a","b"],"z":"{n}"}}`); err != nil {
+	if _, err := emptyGenerator(1).NewTemplate(`{"format":"{x.y as n}{n}{n}{x}","x":{"format":"{z}","y":["a","b"],"z":"{n}"}}`); err != nil {
 		t.Errorf("NewTemplate = %v, want a read of n from x.z, outside x.y, accepted", err)
 	}
 }

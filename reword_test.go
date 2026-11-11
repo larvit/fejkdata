@@ -7,7 +7,7 @@ import (
 )
 
 func TestRewordReplacesEachWordKeepingPunctuationDigitsAndCase(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string]string{
 		`{"format":"{reword(t, w)}","t":"Cat, 42 HORSE-Horse sat!","w":["abc","defgh"]}`: "Abc, 42 DEFGH-Defgh abc!",
 		`{"format":"{reword(t,w)}","t":"McDonald","w":["abcdefgh"]}`:                     "AbCdefgh",
@@ -24,7 +24,7 @@ func TestRewordReplacesEachWordKeepingPunctuationDigitsAndCase(t *testing.T) {
 }
 
 func TestRewordDrawsTheNearestLengthTheWordsHold(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string]string{
 		`{"format":"{reword(t,w)}","t":"HI hi Hi","w":["abc","abcdefgh"]}`:         "ABC abc Abc",
 		`{"format":"{reword(t,w)}","t":"Hello","w":["ab","abcdef"]}`:               "Abcdef",
@@ -41,7 +41,7 @@ func TestRewordDrawsTheNearestLengthTheWordsHold(t *testing.T) {
 }
 
 func TestRewordKeepsOneFakePerWordWithinARender(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	src := `{"format":"{reword(t,w)}|{reword(t,w)}","t":"cat Cat CAT dog","w":["abc","xyz"]}`
 	eachDraw(400, func() string { return mustRender(t, f, src) }, func(got string) {
 		halves := strings.Split(got, "|")
@@ -53,7 +53,7 @@ func TestRewordKeepsOneFakePerWordWithinARender(t *testing.T) {
 }
 
 func TestRewordDrawsEachWordAfreshPerRender(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	src := `{"format":"{reword(t,w)}|{reword(t,w)}","t":"cat Cat CAT dog","w":["abc","xyz"]}`
 	seen := tallyDraws(400, func() string {
 		words := strings.Fields(strings.Split(mustRender(t, f, src), "|")[0])
@@ -81,7 +81,7 @@ func TestRewordKeepsOneFakePerWordAcrossATemplateAndTheCategoryItReads(t *testin
 }
 
 func TestRewordDrawsWithTheWordsWeights(t *testing.T) {
-	f := engine(3)
+	f := emptyGenerator(3)
 	src := `{"format":"{reword(t,w)}","t":"cat","w":[{"format":"abc","weight":3},{"format":"xyz","weight":1}]}`
 	a := tallyDraws(4000, func() string { return mustRender(t, f, src) })["abc"]
 	if a < 2800 || a > 3200 {
@@ -90,7 +90,7 @@ func TestRewordDrawsWithTheWordsWeights(t *testing.T) {
 }
 
 func TestRewordRefusesAtLoad(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, why := range map[string]string{
 		`{"format":"{reword(t)}","t":"cat"}`:                          "one argument",
 		`{"format":"{reword(t,w)}","t":"cat","w":["{uuid()}"]}`:       "words that are not fixed text",

@@ -8,7 +8,7 @@ import (
 )
 
 func TestAddDaysFallsNDaysAfterTheDateItReads(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	tmpl := `{"format":"{start as s}{len as n}{s},{n},{adddays(s,n)}","start":"{date(2026-01-01,2026-12-31,'2006-01-02')}","len":"{int(1,30)}"}`
 	eachDraw(200, func() string { return mustRender(t, f, tmpl) }, func(render string) {
 		got := strings.Split(render, ",")
@@ -26,7 +26,7 @@ func TestAddDaysFallsNDaysAfterTheDateItReads(t *testing.T) {
 const addDaysFromATimestamp = `{"format":"{created as c}{c},{adddays(c,gap)},{adddays(c,-3,'January 2, 2006')}","created":"{date(2026-12-01,2026-12-31,'2006-01-02T15:04:05Z')}","gap":"{int(1,30)}"}`
 
 func TestAddDaysKeepsTheTimeOfDay(t *testing.T) {
-	f := engine(2)
+	f := emptyGenerator(2)
 	eachDraw(200, func() string { return mustRender(t, f, addDaysFromATimestamp) }, func(render string) {
 		got := strings.Split(render, ",")
 		created, err := time.Parse(time.RFC3339, got[0])
@@ -41,7 +41,7 @@ func TestAddDaysKeepsTheTimeOfDay(t *testing.T) {
 }
 
 func TestAddDaysPrintsInTheLayoutGiven(t *testing.T) {
-	f := engine(2)
+	f := emptyGenerator(2)
 	eachDraw(200, func() string { return mustRender(t, f, addDaysFromATimestamp) }, func(render string) {
 		got := strings.Split(render, ",")
 		created, err := time.Parse(time.RFC3339, got[0])
