@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io/fs"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -64,7 +64,7 @@ func callerPath(root *tree.Folder, path string) (string, []string, error) {
 
 // referenced is every category, loaded or not, that the templates of nodes reference, each
 // reference read from the folder dir.
-func referenced(root *tree.Folder, dir []string, nodes nodeSet) []categoryAt {
+func referenced(root *tree.Folder, dir []string, nodes fence.NodeSet) []categoryAt {
 	var out []categoryAt
 	_ = nodes(func(_ string, n tree.Node) error {
 		t, isTemplate := n.(*tree.Template)
@@ -182,26 +182,4 @@ func parentOf(n tree.Node) string {
 		return t.Rows().Options().Parent
 	}
 	return ""
-}
-
-// IndexLine is a loaded category's dot path, what a manifest's index says of it, and the dot
-// path of each category it needs.
-type IndexLine struct {
-	Path  string
-	Entry datafiles.IndexEntry
-	Needs []string
-}
-
-// Index is an IndexLine for every category root has loaded, in path order.
-func Index(root *tree.Folder) []IndexLine {
-	var out []IndexLine
-	for _, s := range categorySites(root) {
-		line := IndexLine{Path: s.path, Entry: datafiles.IndexEntry{Parent: parentOf(s.n), Paths: load.Paths(s.n, false)}}
-		sort.Strings(line.Entry.Paths)
-		for _, c := range needs(root, s) {
-			line.Needs = append(line.Needs, load.CategoryPath(c.dir, c.name))
-		}
-		out = append(out, line)
-	}
-	return out
 }

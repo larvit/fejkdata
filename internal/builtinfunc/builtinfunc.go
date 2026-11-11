@@ -44,8 +44,8 @@ type builtin struct {
 	avoids func(args []string) (avoid.Runs, string)
 }
 
-// CalcName is the builtin whose operands package fejkdata checks and proves, since only it
-// holds the nodes they read.
+// CalcName is the builtin whose operands internal/engine/fence checks and proves, since only
+// it holds the nodes they read.
 const CalcName = "calc"
 
 // rng is the randomness a builtin sample draws from, which *drawstate.State satisfies.

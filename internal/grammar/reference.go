@@ -37,3 +37,14 @@ func RefShape(name string) (sigil, rest string, err error) {
 	}
 	return sigil, rest, nil
 }
+
+// IsLonePath reports whether body, the text after a reference's /, is one path and nothing
+// else: written as {/body}, it parses to one path read of one reference.
+func IsLonePath(body string) bool {
+	toks, err := ParseFormat("{/" + body + "}")
+	if err != nil || len(toks) != 1 || toks[0].Kind != PathRead || len(toks[0].Arms) != 1 {
+		return false
+	}
+	sigil, path, err := RefShape(toks[0].Arms[0])
+	return err == nil && sigil == "/" && path == body
+}

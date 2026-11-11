@@ -60,3 +60,10 @@ func IsTemplate(arg string) (bool, error) {
 	}
 	return inline, nil
 }
+
+// IsLonePath reports whether body, the text after a reference's /, is one path and nothing
+// else, so {/body} is a lone reference: it holds no empty segment, and none of the |, ( or
+// " as " a template reads outside a selector.
+func IsLonePath(body string) bool {
+	return grammar.IsLonePath(body)
+}
