@@ -47,3 +47,29 @@ func TestBuiltinHetuRendersNothingForAYearOutside1800To2099(t *testing.T) {
 		}
 	}
 }
+
+func TestBuiltinHetuGivesEachDigitTheParityOfItsOperand(t *testing.T) {
+	f := emptyGenerator(7)
+	for digit := range 10 {
+		got := mustRender(t, f, fmt.Sprintf(`{"format":"131052{hetu(last)}","last":"%d"}`, digit))
+		if len(got) != 11 {
+			t.Fatalf("hetu with the operand %d = %q, want a date, a sign, three digits and a control character", digit, got)
+		}
+		if individual, _ := strconv.Atoi(got[7:10]); individual%2 != digit%2 {
+			t.Errorf("hetu with the operand %d = %q, want an individual number of that parity", digit, got)
+		}
+	}
+}
+
+func TestBuiltinHetuDrawsEveryIndividualNumberFrom900To999(t *testing.T) {
+	for parity := range 2 {
+		seen := map[string]bool{}
+		for seed := range uint64(3000) {
+			got := mustRender(t, emptyGenerator(seed), fmt.Sprintf(`{"format":"131052{hetu(last)}","last":"%d"}`, parity))
+			seen[got[7:10]] = true
+		}
+		if len(seen) != 50 {
+			t.Errorf("3000 draws with the operand %d gave %d individual numbers, want each of the 50", parity, len(seen))
+		}
+	}
+}
