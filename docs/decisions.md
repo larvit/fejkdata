@@ -1042,7 +1042,7 @@ Shipped under the floor before that by the maintainer's decisions of 2026-10-07,
 
 The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while the comprehension floor's target is 7.0.
 
-## The node types sit in `internal/engine/tree`, and the rest of the template engine stays the root package until item 107 cuts it into `internal/engine`'s `load`, `fence` and `render`; compile builds each node with its syntax, and one `finish` writes into it what its load found, save a table's `siblings`, which `linkTables` sets; what reads no engine type, a table's rows included, sits in `internal/`
+## The node types sit in `internal/engine/tree`, and the rest of the template engine stays the root package until items 416 to 418 cut out `render`, `fence` and `load` and item 107 moves the pipeline into `internal/engine`; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `linkTables` sets; what reads no engine type, a table's rows included, sits in `internal/`
 
 2026-10-05, Lilleman auf Larv; revised 2026-11-11. Serves code health. On 2026-10-09 the
 maintainer chose to regroup the engine into packages, untangled first, over naming the root
@@ -1059,31 +1059,32 @@ the import list `imports_test.go` checks.
 How load finishes a value. The node graph is cyclic by design, since a category may
 reference itself, so a node must exist before its references resolve. Compile builds each
 node with its syntax only. Every later load stage collects what it finds in one
-`loadFinds` value, and one `finish` writes it into the load's nodes, once; a second call is
-an `invariant` panic. A node is one struct, not a load-time type beside a render-time one:
+`tree.LoadFinds` value, and its `Finish` writes it into the load's nodes, once; a second call
+is an `invariant` panic. A node is one struct, not a load-time type beside a render-time one:
 two types would double every node type for a guarantee that `tree` being the only package
 to write a node's fields already gives. A load reads the categories finished before it and
 doesn't write them. A child table is therefore linked without writing its parent: the
 parent's children come from its folder, so a lazy load that fails leaves every finished
-table as it was. Only `linkTables` writes a node before `finish`. It gives each table its
-`siblings`, through a `tree` method. It also links the table's rows to
-its parent's rows, which `internal/rows` writes in its own type.
+table as it was. Two writers besides `Finish` remain: a load puts each folder's children as
+it reaches them, and `linkTables` gives each table its `siblings`, through a `tree` method.
+`linkTables` also links the table's rows to its parent's rows, which `internal/rows` writes in
+its own type.
 
-Packages, by the stage that writes or reads a type. The root keeps the public API and its
-options. `internal/engine` holds the pipeline and lazy loading. `tree` holds the
-node types, the folder among them, their constructors, `finish` and read-only accessors, so the
-whole cycle sits in one package. A field of a node is unexported, so no other package writes it. `load` compiles, binds, links and resolves; `fence` proves and fences the
-finished tree; `render` draws. `engine` imports `load`, `fence`, `render` and the leaf
-libraries; each of the three imports `tree`, and none imports another of the three; `tree`
-imports seven: `avoid`, `builtinfunc`, `datafiles`, `datatype`, `grammar`, `invariant` and
-`rows`. Names and paths get no package of their own: each stage keeps
+Packages, by the stage that writes or reads a type. `tree` holds the node types, the folder
+among them, their constructors, setters, `Finish` and accessors, so the whole cycle sits in one
+package; it imports only leaf libraries, as `imports_test.go` lists. The root keeps the rest
+today. Once items 416 to 418 and 107 land, the root keeps only the public API and its options;
+`internal/engine` will hold the pipeline and lazy loading; `load` will compile, bind, link and
+resolve; `fence` will prove and fence the finished tree; and `render` will draw. `engine` will
+import `load`, `fence`, `render` and the leaf libraries; each of the three will import `tree`,
+and none another of the three. Names and paths get no package of their own: each stage keeps
 its part of them, and `tree` holds the step type every stage walks. The three functions
 walking a path, one to load every branch, one to draw one and one to find the caller's
 folders, stay in their stages.
 
 The allocation gate holds because the hot path stays inside `render`, where `renderEnv`'s
 rule of passing by value applies unchanged. `render` reads `tree` through concrete pointer
-methods, never an interface, and `tokenDraw` becomes a closed sum in `tree` that `render`
+methods, never an interface, and `tree.TokenDraw` is a closed sum that `render`
 switches on. `perf_test.go` stays in the root and uses only the public API; a cut that raises
 an allocation count is fixed, not re-pinned.
 

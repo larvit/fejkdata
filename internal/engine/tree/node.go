@@ -1,6 +1,7 @@
 // Package tree holds the nodes of a compiled template tree. Compile builds each node with its
-// syntax, and the finish of the load that found it writes the rest in once; every other package
-// reads a node through its methods, and none writes its fields.
+// syntax, a load puts each folder's children, linkTables gives each table its siblings, and
+// LoadFinds.Finish writes in once the rest of what the load found. A node's fields are
+// unexported, so another package changes a node only through those methods.
 package tree
 
 import (
@@ -14,7 +15,7 @@ type Node interface{ isNode() }
 
 // Folder is a namespace of named children, built from a directory of JSON files
 // and subdirectories. It has no value of its own: descend into a named child by
-// dot path; rendering one is an error (see Fake).
+// dot path; rendering one is an error.
 // A name stands in children or in unloaded, never both; Put and PutUnloaded keep it so.
 type Folder struct {
 	children map[string]Node
