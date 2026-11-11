@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -573,7 +574,7 @@ func TestRecordOfAChoiceNamesTheWrapper(t *testing.T) {
 func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 	f := newShippedWhole(t, WithSeed(1), onTestDay)
 	records := 0
-	if err := eachNode(&f.root, "", func(label string, n tree.Node) error {
+	if err := load.EachNode(&f.root, "", func(label string, n tree.Node) error {
 		tm, isTemplate := n.(*tree.Template)
 		if !isTemplate || !tm.IsRecord() || len(tm.Fields()) == 0 {
 			return nil

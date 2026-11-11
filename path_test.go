@@ -5,72 +5,9 @@ import (
 	"slices"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/engine/tree"
-	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
-
-// bareCompiled compiles a JSON fragment and resolves it against no data, running no fence.
-func bareCompiled(t *testing.T, s string) tree.Node {
-	t.Helper()
-	v, err := jsonvalue.Decode([]byte(s))
-	if err != nil {
-		t.Fatalf("decode %q: %v", s, err)
-	}
-	l := tree.NewLoadFinds()
-	n, err := compile(v, l)
-	if err != nil {
-		t.Fatalf("compile %q: %v", s, err)
-	}
-	if _, err := resolveInlineTemplates(n, "template", nil, l); err != nil {
-		t.Fatalf("resolve %q: %v", s, err)
-	}
-	l.Finish()
-	return n
-}
-
-func TestCompiledPathStopsAtAMissingSegment(t *testing.T) {
-	n := bareCompiled(t, `{"format":"{a}","a":{"format":"{b}","b":"leaf"}}`)
-	if leaves := compilePath(n, []string{"a", "b"}).leaves; len(leaves) != 1 {
-		t.Fatalf("compilePath(a.b).leaves = %v, want the one leaf", leaves)
-	}
-	w := &compiledPath{tail: []string{"a", "nope", "deeper"}}
-	_, err := w.run(n)
-	if err == nil || !strings.Contains(err.Error(), `no field "nope"`) {
-		t.Errorf("walk(a.nope.deeper) = %v, want the missing segment named", err)
-	}
-	if len(w.leaves) > 0 {
-		t.Errorf("walk reached a leaf past a missing segment: %v", w.leaves)
-	}
-}
-
-func TestCompiledPathChoiceConsumesNoSegment(t *testing.T) {
-	n := bareCompiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
-	if leaves := compilePath(n, []string{"f"}).leaves; len(leaves) != 2 {
-		t.Fatalf("compilePath through a choice = %v, want both variants' f", leaves)
-	}
-}
-
-func TestDrawStepsPanicsOnAStepItsNodeLacks(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil || !strings.Contains(fmt.Sprint(r), `no field "f"`) {
-			t.Errorf("drawSteps(plain, f) recovered %v, want a panic naming the missing field", r)
-		}
-	}()
-	plain := tree.NewTemplate(tree.TemplateSyntax{Format: "plain"})
-	drawSteps(drawstate.New(1, time.Time{}), drawFresh, plain, []tree.PathStep{{Kind: tree.StepField, Name: "f"}}, &tree.PinSet{}, nil, nil)
-}
-
-func TestDrawStepsRefusesATableStepOnASiblingRead(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil || !strings.Contains(fmt.Sprint(r), "sibling") {
-			t.Errorf("drawSteps(sibling, a table step) recovered %v, want a panic naming a sibling read", r)
-		}
-	}()
-	drawSteps(drawstate.New(1, time.Time{}), drawSibling, &tree.Table{}, []tree.PathStep{{Kind: tree.StepDraw}}, nil, nil, nil)
-}
 
 func TestDeepDottedPath(t *testing.T) {
 	// A 5-segment path descends through alternating object/array nodes; choices

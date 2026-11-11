@@ -1,9 +1,8 @@
 package fejkdata
 
 import (
-	"strings"
-
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -43,7 +42,7 @@ func addSource(root *tree.Folder, src datafiles.Source, m datafiles.Manifest, l 
 
 func compileInto(place func(dir []string) *tree.Folder, l *tree.LoadFinds) func(datafiles.Category) error {
 	return func(c datafiles.Category) error {
-		n, err := compileCategory(c, l)
+		n, err := load.CompileCategory(c, l)
 		if err != nil {
 			return err
 		}
@@ -105,15 +104,13 @@ func categorySites(root *tree.Folder) []categorySite {
 }
 
 func siteIn(dir []string, in *tree.Folder, name string) categorySite {
-	return categorySite{categoryAt: categoryAt{dir: dir, in: in, name: name}, n: in.Children()[name], path: categoryPath(dir, name)}
+	return categorySite{categoryAt: categoryAt{dir: dir, in: in, name: name}, n: in.Children()[name], path: load.CategoryPath(dir, name)}
 }
-
-func categoryPath(dir []string, name string) string { return join(strings.Join(dir, "."), name) }
 
 func siteNodes(sites []categorySite) nodeSet {
 	return func(fn func(label string, n tree.Node) error) error {
 		for _, s := range sites {
-			if err := eachNode(s.n, s.path, fn); err != nil {
+			if err := load.EachNode(s.n, s.path, fn); err != nil {
 				return err
 			}
 		}
@@ -122,7 +119,7 @@ func siteNodes(sites []categorySite) nodeSet {
 }
 
 func inlineNodes(n tree.Node, label string) nodeSet {
-	return func(fn func(label string, m tree.Node) error) error { return eachNode(n, label, fn) }
+	return func(fn func(label string, m tree.Node) error) error { return load.EachNode(n, label, fn) }
 }
 
 // pipeline is the one load pipeline, run over one nodeSet and the finds its compile began;
@@ -130,7 +127,7 @@ func inlineNodes(n tree.Node, label string) nodeSet {
 type pipeline struct {
 	nodes   nodeSet
 	finds   *tree.LoadFinds
-	resolve func() ([]templateSite, error)
+	resolve func() ([]load.TemplateSite, error)
 	// Set by a caller that proves the columns against their Go types itself.
 	typedByGo bool
 }
@@ -141,7 +138,7 @@ func categoryPipeline(sites []categorySite, root map[string]tree.Node, l *tree.L
 	return pipeline{
 		nodes: siteNodes(sites),
 		finds: l,
-		resolve: func() ([]templateSite, error) {
+		resolve: func() ([]load.TemplateSite, error) {
 			if err := linkTables(sites); err != nil {
 				return nil, err
 			}
@@ -165,7 +162,7 @@ func (p pipeline) run() error {
 	if err := refuseReadsInsideFields(ts, p.finds); err != nil {
 		return err
 	}
-	if err := checkNoCycles(p.nodes, p.finds); err != nil {
+	if err := load.CheckNoCycles(p.nodes, p.finds); err != nil {
 		return err
 	}
 	settleRecords(p.nodes, p.finds)
@@ -184,8 +181,8 @@ func (p pipeline) run() error {
 // checkNodeFences runs the per-node fences over s, each over every node before the next,
 // so which of several broken nodes is reported does not depend on the walk.
 func checkNodeFences(s nodeSet) error {
-	mem := renderCounts{}
-	if err := s(func(label string, n tree.Node) error { return repeatCheck(label, n, mem) }); err != nil {
+	mem := load.RenderCounts{}
+	if err := s(func(label string, n tree.Node) error { return load.RepeatCheck(label, n, mem) }); err != nil {
 		return err
 	}
 	return s((&valueProof{}).checkDatatype)

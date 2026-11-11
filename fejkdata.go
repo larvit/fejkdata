@@ -12,12 +12,13 @@ import (
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 // MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along
 // any one path; the CLI's --repeat shares it.
-const MaxRepeat = maxRepeat
+const MaxRepeat = load.MaxRepeat
 
 // Fails to compile where uint is narrower than 64 bits: docs/decisions.md#64-bit-targets-only
 var _ [^uint(0)>>63 - 1]struct{}
@@ -100,7 +101,8 @@ var ErrLoad = errors.New("data fails to load")
 // loadError is a load's error, unchanged in its text, matching ErrLoad.
 type loadError struct{ error }
 
-func (e loadError) Unwrap() error      { return e.error }
+func (e loadError) Unwrap() error { return e.error }
+
 func (loadError) Is(target error) bool { return target == ErrLoad }
 
 // New builds a generator from the options' sources, merged in order with the last
@@ -135,7 +137,7 @@ func New(opts ...Option) (*Generator, error) {
 func (f *Generator) List() []string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	out := paths(&f.root, false)
+	out := load.Paths(&f.root, false)
 	sort.Strings(out)
 	return out
 }

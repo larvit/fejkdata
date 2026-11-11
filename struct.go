@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/load"
+	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
@@ -259,7 +261,7 @@ func checkTaggedType(sf reflect.StructField) error {
 func (s *structShape) compileRecord(root *tree.Folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) error {
 	tags["format"] = jsonvalue.String("")
 	l := tree.NewLoadFinds()
-	n, err := compileFrom(jsonvalue.Object(tags), atGoTop, l)
+	n, err := load.CompileStruct(jsonvalue.Object(tags), l)
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
@@ -323,7 +325,7 @@ func (k columnKind) holds(v proven.Facts) bool {
 // fill draws the record into v's tagged fields, then each nested struct as a record of its own.
 func (s *structShape) fill(state *drawstate.State, v reflect.Value) {
 	if s.record != nil {
-		for i, c := range renderRecord(state, s.record, renderedRow{}).columns {
+		for i, c := range renderRecord(state, s.record, render.Row{}).columns {
 			setColumn(fieldAt(v, s.fieldIndexes[i]), c)
 		}
 	}

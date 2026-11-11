@@ -1,4 +1,4 @@
-package fejkdata
+package render
 
 import (
 	"github.com/larvit/fejkdata/internal/drawstate"
@@ -35,7 +35,7 @@ func (st *frameStack) pop(mark int) { st.frames = st.frames[:mark] }
 // render's frames, moves to the heap.
 type renderEnv struct {
 	frames *frameStack
-	row    renderedRow
+	row    Row
 	// base is the depth of the frame stack when the read rendering the category entered it,
 	// below which no frame is the category's.
 	base int
@@ -44,9 +44,10 @@ type renderEnv struct {
 	pickAt tree.PickKey
 }
 
-type renderedRow struct {
-	t     *tree.Table
-	index int
+// Row is the row of Table whose columns a render reads; a zero Row is no row.
+type Row struct {
+	Table *tree.Table
+	Index int
 }
 
 // at returns the env n renders in, n being the leaf of a path whose rows sit in pins; where n
@@ -54,18 +55,18 @@ type renderedRow struct {
 func (env renderEnv) at(n tree.Node, pins *tree.PinSet) renderEnv {
 	switch n := n.(type) {
 	case *tree.TableRow:
-		env.row = renderedRow{t: n.Table(), index: pins.MustRow(n.Table().Rows())}
+		env.row = Row{Table: n.Table(), Index: pins.MustRow(n.Table().Rows())}
 	case *tree.TableColumn:
-		env.row = renderedRow{t: n.Table(), index: pins.MustRow(n.Table().Rows())}
+		env.row = Row{Table: n.Table(), Index: pins.MustRow(n.Table().Rows())}
 	}
 	return env
 }
 
 func (env renderEnv) rowOf(t *tree.Table) int {
-	if env.row.t != t {
+	if env.row.Table != t {
 		panic(invariant.Broken("a column of %s renders in an env holding no row of it", t.Rows().Segment()))
 	}
-	return env.row.index
+	return env.row.Index
 }
 
 // enter starts a read landing on n: the read sees no frame opened before it, and gets a frame for

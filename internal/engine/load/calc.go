@@ -1,4 +1,4 @@
-package fejkdata
+package load
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 )
 
 // checkCalcFields runs checkOperands over each calc operand naming a field; an operand naming no
-// field is a name, which checkCalcNames checks once names resolve.
+// field is a name, which CheckCalcNames checks once names resolve.
 func checkCalcFields(args []string, fields map[string]tree.Node) error {
 	return checkOperands(args[0], builtinfunc.ParsedCalc(args[0]), func(name string) []tree.Node {
 		if n, ok := fields[name]; ok {
@@ -23,8 +23,8 @@ func checkCalcFields(args []string, fields map[string]tree.Node) error {
 	})
 }
 
-// checkCalcNames holds each calc of t reading a name to the checks checkCalcFields makes of a field.
-func checkCalcNames(label string, t *tree.Template) error {
+// CheckCalcNames holds each calc of t reading a name to the checks checkCalcFields makes of a field.
+func CheckCalcNames(label string, t *tree.Template) error {
 	for _, o := range t.Compiled().Ops() {
 		tok := o.Token()
 		if tok.Fn != builtinfunc.CalcName || !slices.ContainsFunc(o.Operands(), func(a tree.Arm) bool { return a.Kind() == tree.NamedRead }) {
@@ -33,15 +33,15 @@ func checkCalcNames(label string, t *tree.Template) error {
 		if i := slices.IndexFunc(o.Operands(), tree.Arm.ReadsJoined); i >= 0 {
 			return fmt.Errorf("%s: token {%s}: operand %s joins several values as text, never a number", label, tok.Body, o.Operands()[i].Spelling())
 		}
-		if err := checkOperands(tok.Args[0], builtinfunc.ParsedCalc(tok.Args[0]), operandNodes(o)); err != nil {
+		if err := checkOperands(tok.Args[0], builtinfunc.ParsedCalc(tok.Args[0]), OperandNodes(o)); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", label, tok.Body, err)
 		}
 	}
 	return nil
 }
 
-// operandNodes lists every node each operand of o may render, once its template and names resolve.
-func operandNodes(o tree.Op) func(name string) []tree.Node {
+// OperandNodes lists every node each operand of o may render, once its template and names resolve.
+func OperandNodes(o tree.Op) func(name string) []tree.Node {
 	return func(name string) []tree.Node {
 		a := o.Operands()[slices.IndexFunc(o.Operands(), func(a tree.Arm) bool { return a.Spelling() == name })]
 		if len(a.Leaves()) == 0 {

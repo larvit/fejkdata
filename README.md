@@ -2020,33 +2020,20 @@ How the README serves goal 11:
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
 index.go        a source's index: its categories left unloaded, and loading one on the first call reaching it
-node.go         JSON -> node compilation
-table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
-name.go         names: binding each {x as n} in its scope, answering the reads of it, and finding each binding's target
+data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
+resolve.go      resolving every category's templates once all data is merged, then running the template fences over them
+table.go        linking each table to the parent it names
 namefence.go    the load fences over names
-pick.go         a render's named picks: each level's pick key, the frame each name scope renders in, the memo a pick keeps, and the reads kept under it
-env.go          renderEnv: what a render reads names and rows through, the stack of frames it renders in, and the frames a read opens and finds
-path.go         the dotted-path walks: the paths List advertises, the sub-paths every variant of a choice carries, proving a path reaches a node, and drawing the path
-render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
+where.go        the where fences: no filtered draw read through a path, no clause reading the name it binds, and the proof that every draw has enough values
+adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
+datatype.go     column datatypes: DataType, the check that a column's items agree on one, and the datatype a column holds
+columnread.go   a format that only reads a column: the checks run on the column it reads, and the datatype it takes from it
+valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
+reference.go    the note an error naming nothing gets when no data is loaded
+render.go       Fake, and the draw of the path a caller names
 record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and resolve
-format.go       a format's tokens checked against their fields, and compiled into ops
-arm.go          compiling each {a|b} alternative or operand into a tree.Arm, building the op holding it and its draw, and drawing a token
-reference.go    one reference's resolution: its sigil, its category, its tail
-resolve.go      resolving templates against the assembled tree in two stages, compile and fence, each over every template before the next
-graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
-sorted.go       sortedNames: a map's keys, sorted
-calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
-adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
-where.go        where and distinct clauses: the names a clause reads, the draw of the values that pass, without repeats, and the proof that every draw has enough values
-pathvalues.go   walking a path for the values it holds fixed at load, with their weights, indexing them by length, and a draw among them that leaves out those already drawn
-alphabetdraw.go a where clause on an alphabet call: the draw of a value holding none of the clause's strings, and the fallback where no value can
-reword.go       {reword()}: the words a call draws from, one fake per word in a render, and the case each fake takes
-datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
-columnread.go   a format that only reads a column: finding which column it reads, and the datatype, proof and value load and render take from that column
-valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
-data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
 internal/avoid/ the draw of a value of fixed runs of characters that holds none of a set of strings, planned over their Aho–Corasick automaton
@@ -2054,6 +2041,8 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
+internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, the paths List advertises, and the cycle, repeat and calc fences
+internal/engine/render/ drawing a compiled tree: choices, format strings, expansions, paths and table steps, named picks and the frames they render in, where and reword draws, and a record's columns
 internal/engine/tree/ the node types of the template tree, what a load found for them, and the methods every other package reads or sets a node through
 internal/grammar/ how the template language is written: format tokens, where and distinct clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -14,7 +15,7 @@ func sameRenders(t *testing.T, long, short string) {
 	l, s := compiled(t, long), compiled(t, short)
 	fl, fs := engine(1), engine(1)
 	for i := 0; i < 20; i++ {
-		if a, b := renderOnce(fl.drawState, l), renderOnce(fs.drawState, s); a != b {
+		if a, b := render.Once(fl.drawState, l), render.Once(fs.drawState, s); a != b {
 			t.Fatalf("%s rendered %q where %s rendered %q", long, a, short, b)
 		}
 	}
@@ -126,7 +127,7 @@ func TestARepeatedItemCountsAsWritten(t *testing.T) {
 	for _, src := range []string{`["a", "a", "b"]`, `{"format":"{x|x|y}","x":"a","y":"b"}`} {
 		f, n, as := engine(1), compiled(t, src), 0
 		for i := 0; i < 600; i++ {
-			if renderOnce(f.drawState, n) == "a" {
+			if render.Once(f.drawState, n) == "a" {
 				as++
 			}
 		}

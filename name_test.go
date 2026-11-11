@@ -3,6 +3,8 @@ package fejkdata
 import (
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/render"
 )
 
 // nameTables is a region table linked to by a municipality table.
@@ -169,7 +171,7 @@ func TestANameInAnInlineTemplate(t *testing.T) {
 func TestAChoiceItemKeepsTheNamesItBinds(t *testing.T) {
 	f, n, apart := engine(1), compiled(t, `{"format":"{x}|{x}","x":[{"format":"{v as w}{w}{w}","v":["a","b"]},"c"]}`), false
 	for i := 0; i < 100; i++ {
-		got := renderOnce(f.drawState, n)
+		got := render.Once(f.drawState, n)
 		halves := strings.Split(got, "|")
 		for _, h := range halves {
 			if h != "aa" && h != "bb" && h != "c" {

@@ -169,12 +169,15 @@ func TestNoStructAllocRegression(t *testing.T) {
 func BenchmarkNestedDepth25(b *testing.B) {
 	benchPath(b, WithDataPath(tmpData(b, "deep", nestedJSON(25))), "deep")
 }
+
 func BenchmarkNestedDepth100(b *testing.B) {
 	benchPath(b, WithDataPath(tmpData(b, "deep", nestedJSON(100))), "deep")
 }
+
 func BenchmarkWideTokens100(b *testing.B) {
 	benchPath(b, WithDataPath(tmpData(b, "wide", wideTokenJSON(100))), "wide")
 }
+
 func BenchmarkWideTokens500(b *testing.B) {
 	benchPath(b, WithDataPath(tmpData(b, "wide", wideTokenJSON(500))), "wide")
 }
