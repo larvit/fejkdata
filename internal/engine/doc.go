@@ -1,6 +1,6 @@
 // Package engine loads a generator's data and draws from it: it runs every load through one
-// pipeline, the stages of internal/engine/load, internal/engine/fence and
-// internal/engine/render in order, and loads an indexed category on the first call reaching it.
+// pipeline, the stages of internal/engine/load and internal/engine/fence in order, draws
+// through internal/engine/render, and loads an indexed category on the first call reaching it.
 //
 // Vocabulary
 //

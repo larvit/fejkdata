@@ -44,9 +44,6 @@ func drawCallerPath(s *drawstate.State, root tree.Node, segments []string) (tree
 	return n, *leafPins, nil
 }
 
-// Render draws n once.
-func Render(s *drawstate.State, n tree.Node) string { return render.Once(s, n) }
-
 // List is the sorted dotted paths Fake renders.
 func List(root *tree.Folder) []string {
 	out := load.Paths(root, false)
