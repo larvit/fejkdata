@@ -12,8 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 107 | 0.5.0 |  | decision | **Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
-| 177 | 0.5.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
+| 177 | 0.5.0 |  | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
 | 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
@@ -219,10 +218,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 
 ## Details
-
-### 107. Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.
-
-The engine returns column values and the root builds `Record`. Files: `data.go`, `index.go`, `resolve.go`, `table.go`, `fejkdata.go`, `record.go`, `struct.go`, `doc.go`, `imports_test.go`, `docs/decisions.md`; about 600 lines. It comes last, after 417, since the pipeline imports the three stages. It decides where the vocabulary lives, and revises the decision "The vocabulary sits below `doc.go`'s package clause, not in the package doc" if it moves. It replaces the decision "The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving, …" with one stating what holds after the cuts. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 177. Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.
 
