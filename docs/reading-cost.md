@@ -1556,3 +1556,20 @@ Read most (opens and searches):
 - `internal/engine/tree/read.go` 2
 - `reword_test.go` 2
 - `calc_test.go` 1
+
+## Reading cost, chunk 31958a7cadf6, finished 2026-11-11T22:52:09Z
+
+71190 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `.github/workflows/test.yml` 3
+- `README.md` 3
+- `release-tooling/changelog_test.py` 3
+- `CHANGELOG.md` 2
+- `compose.yaml` 2
+- `release-tooling/changelog.py` 2
+- `release-tooling/publish_release_test.py` 2
+- `vulnerability-filing/file_vulnerabilities_test.py` 2
+- `docs/decisions.md` 1
+- `release-tooling/fixtures.py` 1
