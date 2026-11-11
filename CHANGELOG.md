@@ -38,6 +38,17 @@ with its replacement, and each removed path, column or flag.
   Statistics Finland's population of 31 December 2025. Both are CC BY 4.0, so a program showing their
   counts credits "Lähde: Digi- ja väestötietovirasto" and "Source: Statistics Finland". The Go package
   is `github.com/larvit/fejkdata/data/fi_FI`, and the CLI carries it.
+- `fi_FI.henkilotunnus`, a Finnish personal identity code such as `131052-308T`: a birth date of
+  someone under 100, drawn by Statistics Finland's share aged 65 or over, the century sign `-` or
+  `A`, an individual number from 002 to 899 that is odd for a man and even for a woman, and the
+  control character DVV defines. DVV's pages on the code name no test series, so a number may be a living person's.
+  Its `birth` field is the date, and `fi_FI.individ` holds a digit of each `fi_FI.sex`'s parity.
+- The builtin `{hetu(x)}` completes a henkilötunnus. It reads the last six digits emitted, the date,
+  and adds the century sign the year of that date has, an individual number with the parity of the
+  digit `x` reads, and the control character. The year is the latest one not after the date of
+  `WithToday` or `--today` that bears the year digits. It adds nothing where `x` is not one digit
+  or that year lies outside 1800 to 2099. `{/fi_FI.henkilotunnus.birth}{hetu(s.individ.digit)}`
+  agrees with a bound sex `s`.
 - `IsLonePath` reports whether the text after a reference's `/` is one path and
   nothing else, so `{/users}` is a lone reference, and `{/users as u}` is not.
 

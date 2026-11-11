@@ -36,6 +36,7 @@ var builtins = withTransforms(map[string]builtin{
 	"bgmod11": {calls: []string{"bgmod11(x)"}, arity: 1, checkArgs: bgmod11Arg, prep: bgmod11Prep},
 	"fnr":     {calls: []string{"fnr(x)"}, arity: 1, checkArgs: fnrArg, prep: fnrPrep, operands: func(a []string) []string { return a }},
 	"cpr":     {calls: []string{"cpr(x)"}, arity: 1, checkArgs: cprArg, prep: cprPrep, operands: func(a []string) []string { return a }},
+	"hetu":    {calls: []string{"hetu(x)"}, arity: 1, checkArgs: hetuArg, prep: hetuPrep, operands: func(a []string) []string { return a }},
 	"uuid":    {calls: []string{"uuid()"}, arity: 0, prep: sample(uuidV7), avoids: fixedRuns(uuidRuns, "00000000-0000-0000-0000-000000000000")},
 	"ulid":    {calls: []string{"ulid()"}, arity: 0, prep: sample(ulid), avoids: fixedRuns(ulidRuns, strings.Repeat("0", 26))},
 	"nanoid":  {calls: []string{"nanoid(n)"}, arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet), avoids: charRuns(nanoidAlphabet, '0')},

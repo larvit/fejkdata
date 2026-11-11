@@ -1,0 +1,7 @@
+{
+  "format": "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit)}",
+  "birth": [
+    { "format": "{born(0,64,'020106')}", "weight": 4305387 },
+    { "format": "{born(65,99,'020106')}", "weight": 1347494 }
+  ]
+}
