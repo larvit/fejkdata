@@ -1457,3 +1457,20 @@ Read most (opens and searches):
 - `internal/proven/proven.go` 2
 - `adddays.go` 1
 - `fejkdata_test.go` 1
+
+## Reading cost, chunk 53db4307da8a, finished 2026-11-11T04:11:25Z
+
+135964 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `struct.go` 8
+- `internal/engine/load/graph.go` 7
+- `data.go` 5
+- `internal/engine/fence/datatype.go` 5
+- `internal/engine/fence/valueproof.go` 5
+- `datatype_test.go` 4
+- `fejkdata_test.go` 4
+- `README.md` 3
+- `datatype.go` 3
+- `record.go` 3
