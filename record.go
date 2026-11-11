@@ -188,7 +188,7 @@ func (f *Generator) NewRecordTemplate(input string) (*RecordTemplate, error) {
 	if err != nil {
 		return nil, err
 	}
-	record, err := engine.InlineRecord(t.n)
+	record, err := t.template.Record()
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/larvit/fejkdata/internal/engine"
-	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
@@ -14,15 +13,15 @@ import (
 // sequence is reproducible only when one goroutine makes every draw from a generator
 // and its templates.
 type Template struct {
-	g *Generator
-	n tree.Node
+	g        *Generator
+	template engine.Template
 }
 
 // Fake renders the template once; each call draws anew.
 func (t *Template) Fake() string {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	return engine.Render(t.g.drawState, t.n)
+	return t.template.Draw(t.g.drawState)
 }
 
 // NewTemplate compiles an inline template — a format string or a JSON value — and
@@ -30,16 +29,13 @@ func (t *Template) Fake() string {
 // compile and validation once. It shares [New]'s guarantees: a bad template errors
 // here, and rendering cannot fail.
 func (f *Generator) NewTemplate(input string) (*Template, error) {
-	n, l, err := engine.CompileInput(input)
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	template, err := engine.LoadTemplate(&f.root, input, "template")
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	if err := engine.LoadInline(&f.root, n, l, "template"); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	return &Template{g: f, n: n}, nil
+	return &Template{g: f, template: template}, nil
 }
 
 // FakeTemplate compiles and renders an inline template in one call. It is
