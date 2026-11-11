@@ -39,7 +39,7 @@ func hetuPrep([]string) Call {
 // hetuSign is the century sign DVV gives the latest year not after thisYear that bears the year
 // digits yy: + for the 1800s, - for the 1900s and A for the 2000s. It is 0 for any other century.
 func hetuSign(thisYear, yy int) byte {
-	switch year := thisYear - ((thisYear-yy)%100+100)%100; {
+	switch year := latestYear(thisYear, yy); {
 	case year >= 1800 && year <= 1899:
 		return '+'
 	case year >= 1900 && year <= 1999:

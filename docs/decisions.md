@@ -978,7 +978,7 @@ Goal 3 (a valid id passes the check the real system applies) and goal 3.3 (a for
 nothing real) are both served. DVV's page "Personal identity code" says the individual numbers
 issued are 002 to 899, and the test table linked from "Reform of personal identity code" holds
 hypothetical codes with 902 to 904. So `fi_FI.henkilotunnus` draws 900 to 999, 50 of each
-parity, and no drawn code is a living person's. Vero's API guidance calls codes whose ending
+parity, and no drawn code is a living person's. The Vero API FAQ on testing (vero.fi, "Vero API: testaus, onko henkilötunnuksen muodolle jotain tiettyjä vaatimuksia") calls codes whose ending
 starts with 9 synthetic ("keinohenkilötunnuksia") that may take extra checks, so a checker may
 refuse them; the README says so, as it does for the fødselsnummer. This follows the Swedish and
 Norwegian ids, which draw an issuer's test series, and not the Danish, whose office publishes

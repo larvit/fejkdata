@@ -67,6 +67,11 @@ func lastSixDigits(emitted string) (date string, yy int) {
 	return date, int(date[4]-'0')*10 + int(date[5]-'0')
 }
 
+// latestYear is the latest year not after thisYear that bears the year digits yy.
+func latestYear(thisYear, yy int) int {
+	return thisYear - ((thisYear-yy)%100+100)%100
+}
+
 func digitsOf(s string) string {
 	var b strings.Builder
 	for i := 0; i < len(s); i++ {

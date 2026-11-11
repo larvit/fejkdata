@@ -24,8 +24,7 @@ func cprPrep([]string) Call {
 			return ""
 		}
 		date, yy := lastSixDigits(emitted)
-		thisYear := s.Today().Year()
-		sevenths := cprSeventhDigits(thisYear - ((thisYear-yy)%100+100)%100)
+		sevenths := cprSeventhDigits(latestYear(s.Today().Year(), yy))
 		if sevenths == "" {
 			return ""
 		}
