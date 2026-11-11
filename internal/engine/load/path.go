@@ -10,7 +10,7 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// ChildNamed is what seg names under n: a folder's entry or a template's field.
+// ChildNamed is the child tree.Child finds, else an error saying why seg names nothing under n.
 func ChildNamed(n tree.Node, seg string) (tree.Node, error) {
 	switch {
 	case grammar.IsSelector(seg):
@@ -35,7 +35,7 @@ func ChildNamed(n tree.Node, seg string) (tree.Node, error) {
 		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.Name())
 	case *tree.NullItem:
 	default:
-		panic(invariant.Broken("childNamed has no case for node %T", n))
+		panic(invariant.Broken("ChildNamed has no case for node %T", n))
 	}
 	return nil, fmt.Errorf("no field %q", seg)
 }

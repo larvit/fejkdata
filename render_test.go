@@ -64,7 +64,7 @@ type unhandledNode struct{ tree.Node }
 
 // nodeSwitchSkips names, per switch, the kinds it is never handed.
 var nodeSwitchSkips = map[string][]string{
-	"childNamed":       {"Choice", "Table", "TableRow"},
+	"ChildNamed":       {"Choice", "Table", "TableRow"},
 	"columnItems":      {"Folder", "Table", "TableRow"},
 	"render":           {"Folder"},
 	"valueProof.prove": {"Folder"},
@@ -96,17 +96,17 @@ func nodeSamples(t *testing.T) (map[string]tree.Node, *tree.Table) {
 // nodeSwitches calls each function holding a type switch over node kinds.
 func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 	return map[string]func(tree.Node){
-		"childNamed":  func(n tree.Node) { _, _ = load.ChildNamed(n, "x") },
+		"ChildNamed":  func(n tree.Node) { _, _ = load.ChildNamed(n, "x") },
 		"columnItems": func(n tree.Node) { columnItems(n) },
-		"contained":   func(n tree.Node) { load.Contained(n) },
-		"paths":       func(n tree.Node) { load.Paths(n, false) },
+		"Contained":   func(n tree.Node) { load.Contained(n) },
+		"Paths":       func(n tree.Node) { load.Paths(n, false) },
 		"render": func(n tree.Node) {
 			var pins tree.PinSet
 			s := engine(1).drawState
 			tbl.Rows().DrawIn(s, &pins)
 			render.Pinned(s, n, &pins)
 		},
-		"renderEdges":      func(n tree.Node) { load.RenderEdges(n, nil) },
+		"RenderEdges":      func(n tree.Node) { load.RenderEdges(n, nil) },
 		"valueProof.prove": func(n tree.Node) { (&valueProof{}).prove(n) },
 	}
 }
@@ -143,7 +143,7 @@ func TestRenderEdgesListWhatRenderRecursesInto(t *testing.T) {
 	for kind, n := range samples {
 		recurses := kind != "NullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
 		if edges := load.RenderEdges(n, nil); recurses != (len(edges) > 0) {
-			t.Errorf("%s: render recurses into it %v, renderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
+			t.Errorf("%s: render recurses into it %v, RenderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
 		}
 	}
 }

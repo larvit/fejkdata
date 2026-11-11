@@ -2027,9 +2027,9 @@ namefence.go    the load fences over names
 where.go        the where fences: no filtered draw read through a path, no clause reading the name it binds, and the proof that every draw has enough values
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
 datatype.go     column datatypes: DataType, the check that a column's items agree on one, and the datatype a column holds
-columnread.go   a format that only reads a column: the checks run on the column it reads, and the datatype it takes from it
+columnread.go   a format that only reads a column: the checks run on the column read, and the datatype and proof the format takes from that column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
-reference.go    the note an error naming nothing gets when no data is loaded
+reference.go    the note an error gets, where a path names nothing, when no data is loaded
 render.go       Fake, and the draw of the path a caller names
 record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype

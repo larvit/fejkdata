@@ -6,8 +6,9 @@ import (
 )
 
 // Record draws each column of t once, in name order, as one render, so the columns read one
-// pick of each name, and hands column the i-th one's text; a table's columns read row.
-func Record(s *drawstate.State, t *tree.Template, row Row, column func(i int, text string, null bool)) {
+// pick of each name. It calls emit with each column's index, its text and whether it drew null;
+// a table's columns read row.
+func Record(s *drawstate.State, t *tree.Template, row Row, emit func(i int, text string, null bool)) {
 	var frames frameStack
 	env := renderEnv{frames: &frames, row: row}
 	if mark := env.renderFrame(t); mark >= 0 {
@@ -20,9 +21,9 @@ func Record(s *drawstate.State, t *tree.Template, row Row, column func(i int, te
 		} else {
 			v = renderLeaf(s, c.Field(), env)
 		}
-		column(i, v.text, v.null)
+		emit(i, v.text, v.null)
 	}
 }
 
-// wholeLevels is the levels of a read of a whole name, as compileArm compiles {n}.
+// wholeLevels is the levels of a read of a whole name, as load compiles {n}.
 var wholeLevels = tree.NamedLevels(nil)

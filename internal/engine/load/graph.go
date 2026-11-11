@@ -127,7 +127,7 @@ func RenderEdges(n tree.Node, l *tree.LoadFinds) []RenderEdge {
 	case *tree.Folder, *tree.NullItem:
 		return nil
 	default:
-		panic(invariant.Broken("renderEdges has no case for node %T", n))
+		panic(invariant.Broken("RenderEdges has no case for node %T", n))
 	}
 }
 

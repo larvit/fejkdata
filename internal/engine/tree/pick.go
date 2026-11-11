@@ -12,8 +12,7 @@ import "github.com/larvit/fejkdata/internal/grammar"
 // A name's addressed keys are the keys some read of it lands on or passes, from the level its
 // binding lands on onward; a load gathers them in AddressedKeys. When a template a pick renders
 // reads a field, the pick keeps that read's value only if the read's first-level key, put under
-// the rendering template's key, is one of the name's addressed keys. LandsInPick decides this,
-// for the load and the render alike.
+// the rendering template's key, is one of the name's addressed keys. LandsInPick decides this.
 //
 // In geo.SE.address, {.locality as l} binds l, and {l.street.name} passes the levels "", "street"
 // and "street.name", the last of which is its key. With {l.name} and {l.postal-code.code}, l's
