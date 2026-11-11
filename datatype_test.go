@@ -145,6 +145,7 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 		`{"format":"{calc(x / (b - c), 2)}","x":"{int(1,9)}","b":"{int(10,20)}","c":"{int(1,5)}","datatype":"number"}`,
 		`{"format":"{calc(x * x * x * x, 2)}","x":"{float(0,1,80)}","datatype":"number"}`,
 		`{"format":"{calc(a / (b + 1), 2)}","a":"{int(1,9)}","b":"{digits(2)}","datatype":"number"}`,
+		`{"format":"{n as k}{w where length 4 to k}","n":"{int(5,6)}","w":["true","false"],"datatype":"boolean"}`,
 		`{"format":"{calc(a + 1)}","a":"{digits(2) where not '11'}","datatype":"integer"}`,
 		`{"format":"{calc(a + 1)}","a":"{digits(2) where not '11' else 'none'}","datatype":"integer"}`,
 		`{"format":"{calc(a + 1)}","a":{"format":"{v as t}{digits(2) where not t}","v":"11"},"datatype":"integer"}`,
@@ -179,14 +180,6 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 				break
 			}
 		}
-	}
-}
-
-func TestDatatypeProvesAPathReadFromItsPathNotFromTheNamesOfItsWhereClause(t *testing.T) {
-	row := `{"format":"","col":{"format":"{n as k}{w where length 4 to k}","n":"{int(5,6)}","w":["true","false"],"datatype":"boolean"}}`
-	_, err := New(WithDataPath(writeData(t, map[string]string{"row": row})), WithSeed(1), onTestDay)
-	if err != nil {
-		t.Errorf("New = %v, want it loaded: col prints true or false, and k's 5 or 6 only bounds a length", err)
 	}
 }
 
