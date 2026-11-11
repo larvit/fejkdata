@@ -160,7 +160,7 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 	switch {
 	case tok.Kind == grammar.LiteralRun:
 		return proven.Literal(tok.Lit)
-	case tok.Kind == grammar.PathRead && (tok.Distinct != nil || slices.ContainsFunc(o.Arms(), readsJoined)):
+	case tok.Kind == grammar.PathRead && (tok.Distinct != nil || slices.ContainsFunc(o.Arms(), tree.Arm.ReadsJoined)):
 		return joinedText(body)
 	case p.mayFallBack(o):
 		return fallsBack(body)
@@ -200,7 +200,7 @@ func (p *valueProof) proveCalc(o tree.Op) proven.Facts {
 // joined.
 func (p *valueProof) proveArm(a tree.Arm) proven.Facts {
 	switch {
-	case readsJoined(a):
+	case a.ReadsJoined():
 		return joinedText(a.Spelling())
 	case p.readsFallback(a):
 		return fallsBack(a.Spelling())

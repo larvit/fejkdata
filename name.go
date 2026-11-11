@@ -95,7 +95,7 @@ func answerReads(root tree.Node, scopes []*tree.NameScope, l *tree.LoadFinds) er
 			return err
 		}
 		sc := l.Of(t).NameScope()
-		for _, name := range sortedNames(t.Fields()) {
+		for _, name := range tree.SortedNames(t.Fields()) {
 			if b := sc.Lookup(name); b != nil {
 				holder := "the root template"
 				if where != "" {

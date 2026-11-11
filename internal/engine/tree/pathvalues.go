@@ -18,6 +18,12 @@ func NewLengthIndex(texts []string, lengths []int, cum []float64) LengthIndex {
 // Span bounds the texts in x.texts[from:to], those whose length is lo to hi.
 func (x *LengthIndex) Span(lo, hi int) (from, to int) { return SpanOf(x.lengths, lo, hi) }
 
+func (x *LengthIndex) Cum() []float64 { return x.cum }
+
+func (x *LengthIndex) Lengths() []int { return x.lengths }
+
+func (x *LengthIndex) Texts() []string { return x.texts }
+
 func SpanOf(lengths []int, lo, hi int) (from, to int) {
 	from = sort.Search(len(lengths), func(i int) bool { return lengths[i] >= lo })
 	to = sort.Search(len(lengths), func(i int) bool { return lengths[i] > hi })
@@ -52,9 +58,3 @@ func (x *LengthIndex) Nearest(n int) (from, to int) {
 	}
 	return x.Span(l, l)
 }
-
-func (r *LengthIndex) Cum() []float64 { return r.cum }
-
-func (r *LengthIndex) Lengths() []int { return r.lengths }
-
-func (r *LengthIndex) Texts() []string { return r.texts }

@@ -35,7 +35,7 @@ func shippedShape(f *Generator) string {
 	walk = func(prefix string, n tree.Node) {
 		switch n := n.(type) {
 		case *tree.Folder:
-			for _, name := range sortedNames(n.Children()) {
+			for _, name := range tree.SortedNames(n.Children()) {
 				walk(join(prefix, name), n.Children()[name])
 			}
 		case *tree.Choice:
@@ -58,7 +58,7 @@ func shippedShape(f *Generator) string {
 			}
 		}
 	}
-	for _, name := range sortedNames(f.root.Children()) {
+	for _, name := range tree.SortedNames(f.root.Children()) {
 		walk(name, f.root.Children()[name])
 	}
 	var b strings.Builder
@@ -108,7 +108,7 @@ func readsFact(n tree.Node) string {
 	if len(set) == 0 {
 		return ""
 	}
-	return "\treads " + strings.Join(sortedNames(set), " ")
+	return "\treads " + strings.Join(tree.SortedNames(set), " ")
 }
 
 func TestShippedShapeNamesReads(t *testing.T) {

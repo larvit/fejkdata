@@ -395,17 +395,17 @@ func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T
 		"a field no read addresses":       {"", freshArm("last"), ""},
 		"a field addressed elsewhere":     {"x", freshArm("w"), ""},
 		"a reference a read's key spells": {"k", freshArm(".x"), ""},
-		"a read through a name":           {"", tree.NewArm("", "n", nil, namedLevels([]string{"first"}), nil, nil).ThroughName(nil, 0), ""},
-		"a read through a name at a key":  {"", tree.NewArm("", "first", nil, freshLevels("first", nil), nil, nil).ThroughName(nil, 0), ""},
+		"a read through a name":           {"", tree.NewArm("", "n", nil, tree.NamedLevels([]string{"first"}), nil, nil).ThroughName(nil, 0), ""},
+		"a read through a name at a key":  {"", tree.NewArm("", "first", nil, tree.FreshLevels("first", nil), nil, nil).ThroughName(nil, 0), ""},
 	} {
-		by, lands := landsInPick(addressed, c.at, c.a)
+		by, lands := tree.LandsInPick(addressed, c.at, c.a)
 		if by != c.wantBy || lands != (c.wantBy != "") {
-			t.Errorf("%s: landsInPick = %q, %v, want %q", name, by, lands, c.wantBy)
+			t.Errorf("%s: LandsInPick = %q, %v, want %q", name, by, lands, c.wantBy)
 		}
 	}
 }
 
 func freshArm(spelling string) tree.Arm {
 	r := splitRead(spelling, nil)
-	return tree.NewArm(spelling, r.head, r.tail, freshLevels(r.head, r.tail), nil, nil)
+	return tree.NewArm(spelling, r.head, r.tail, tree.FreshLevels(r.head, r.tail), nil, nil)
 }

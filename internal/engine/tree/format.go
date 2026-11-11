@@ -9,6 +9,12 @@ type UnboundRead struct {
 
 func NewUnboundRead(head, body string, err error) UnboundRead { return UnboundRead{head, body, err} }
 
+func (u UnboundRead) Body() string { return u.body }
+
+func (u UnboundRead) Err() error { return u.err }
+
+func (u UnboundRead) Head() string { return u.head }
+
 // FormatOps is a compiled format: its ops, and the size of its literal text.
 type FormatOps struct {
 	ops  []Op
@@ -17,12 +23,6 @@ type FormatOps struct {
 
 func NewFormatOps(ops []Op, grow int) FormatOps { return FormatOps{ops, grow} }
 
-func (r FormatOps) Grow() int { return r.grow }
+func (f FormatOps) Grow() int { return f.grow }
 
-func (r FormatOps) Ops() []Op { return r.ops }
-
-func (r UnboundRead) Body() string { return r.body }
-
-func (r UnboundRead) Err() error { return r.err }
-
-func (r UnboundRead) Head() string { return r.head }
+func (f FormatOps) Ops() []Op { return f.ops }

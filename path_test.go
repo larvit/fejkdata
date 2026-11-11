@@ -37,7 +37,7 @@ func TestDrawStepsPanicsOnAStepItsNodeLacks(t *testing.T) {
 			t.Errorf("drawSteps(plain, f) recovered %v, want a panic naming the missing field", r)
 		}
 	}()
-	drawSteps(engine(1).drawState, drawFresh, compiled(t, `"plain"`), []tree.PathStep{tree.NewPathStep(tree.StepField, 0, "f", 0)}, &tree.PinSet{}, nil, nil)
+	drawSteps(engine(1).drawState, drawFresh, compiled(t, `"plain"`), []tree.PathStep{{Kind: tree.StepField, Name: "f"}}, &tree.PinSet{}, nil, nil)
 }
 
 func TestDrawStepsRefusesATableStepOnASiblingRead(t *testing.T) {
@@ -47,7 +47,7 @@ func TestDrawStepsRefusesATableStepOnASiblingRead(t *testing.T) {
 			t.Errorf("drawSteps(sibling, a table step) recovered %v, want a panic naming a sibling read", r)
 		}
 	}()
-	drawSteps(engine(1).drawState, drawSibling, tbl, []tree.PathStep{tree.NewPathStep(tree.StepDraw, 0, "", 0)}, nil, nil, nil)
+	drawSteps(engine(1).drawState, drawSibling, tbl, []tree.PathStep{{Kind: tree.StepDraw}}, nil, nil, nil)
 }
 
 func TestDeepDottedPath(t *testing.T) {

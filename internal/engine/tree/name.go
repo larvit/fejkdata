@@ -27,8 +27,16 @@ func (sc *NameScope) Bind(tok grammar.Token, where string, binder *Template) {
 	sc.order = append(sc.order, b)
 }
 
+func (sc *NameScope) Bindings() map[string]*NameBinding { return sc.bindings }
+
+func (sc *NameScope) Order() []*NameBinding { return sc.order }
+
+func (sc *NameScope) Owner() Node { return sc.owner }
+
+func (sc *NameScope) Up() *NameScope { return sc.up }
+
 type NameBinding struct {
-	// Filled by `bindNames`, from the compiled category:
+	// Set as the load binds the names of its compiled category:
 	name     string
 	ref      string // what it binds, as written: a reference, or a path into a field of binder
 	body     string
@@ -38,11 +46,33 @@ type NameBinding struct {
 	index    int
 	binder   *Template
 
-	finds *BindingFinds // written by finish, from what its load found
+	finds *BindingFinds // written by LoadFinds.Finish, from what its load found
 }
 
-// Finished says whether finish has written what b's load found.
+// Finished says whether LoadFinds.Finish has written what b's load found.
 func (b *NameBinding) Finished() bool { return b.finds != nil }
+
+func (b *NameBinding) Addressed() map[PickKey]string { return b.finds.addressed }
+
+func (b *NameBinding) Binder() *Template { return b.binder }
+
+func (b *NameBinding) Body() string { return b.body }
+
+func (b *NameBinding) Distinct() *grammar.Distinct { return b.distinct }
+
+func (b *NameBinding) Index() int { return b.index }
+
+func (b *NameBinding) Name() string { return b.name }
+
+func (b *NameBinding) Ref() string { return b.ref }
+
+func (b *NameBinding) Scope() *NameScope { return b.scope }
+
+func (b *NameBinding) Target() NameTarget { return b.finds.target }
+
+func (b *NameBinding) Values() *ValueDraw { return b.finds.values }
+
+func (b *NameBinding) Where() string { return b.where }
 
 // NameTarget is what a binding resolves to in the assembled tree: start, the node its head names, and
 // the path it reads into that node.
@@ -52,6 +82,10 @@ type NameTarget struct {
 }
 
 func NewNameTarget(start Node, tail []string) NameTarget { return NameTarget{start, tail} }
+
+func (n NameTarget) Start() Node { return n.start }
+
+func (n NameTarget) Tail() []string { return n.tail }
 
 // BindsField reports whether b binds a path into a field, so a read of it stays in the category.
 func (b *NameBinding) BindsField() bool { return !grammar.IsRef(b.ref) }
@@ -104,37 +138,3 @@ func (sc *NameScope) Kind() ScopeKind {
 	}
 	return ScopeChoiceItem
 }
-
-func (r *NameBinding) Addressed() map[PickKey]string { return r.finds.addressed }
-
-func (r *NameBinding) Binder() *Template { return r.binder }
-
-func (r *NameBinding) Body() string { return r.body }
-
-func (r *NameBinding) Distinct() *grammar.Distinct { return r.distinct }
-
-func (r *NameBinding) Index() int { return r.index }
-
-func (r *NameBinding) Name() string { return r.name }
-
-func (r *NameBinding) Ref() string { return r.ref }
-
-func (r *NameBinding) Scope() *NameScope { return r.scope }
-
-func (r *NameBinding) Target() NameTarget { return r.finds.target }
-
-func (r *NameBinding) Values() *ValueDraw { return r.finds.values }
-
-func (r *NameBinding) Where() string { return r.where }
-
-func (r *NameScope) Bindings() map[string]*NameBinding { return r.bindings }
-
-func (r *NameScope) Order() []*NameBinding { return r.order }
-
-func (r *NameScope) Owner() Node { return r.owner }
-
-func (r *NameScope) Up() *NameScope { return r.up }
-
-func (r NameTarget) Start() Node { return r.start }
-
-func (r NameTarget) Tail() []string { return r.tail }

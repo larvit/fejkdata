@@ -27,9 +27,9 @@ func columnReadOf(t *tree.Template, l *tree.LoadFinds) *tree.ColumnRead {
 	case 0:
 		return nil
 	case 1:
-		return tree.NewColumnRead(a, category, tail[len(tail)-1], columns[0], false)
+		return tree.NewColumnRead(tree.ColumnReadSpec{Arm: a, Category: category, Field: tail[len(tail)-1], Column: columns[0]})
 	}
-	return tree.NewColumnRead(a, category, tail[len(tail)-1], tree.NewChoice(columns, nil, nil), true)
+	return tree.NewColumnRead(tree.ColumnReadSpec{Arm: a, Category: category, Field: tail[len(tail)-1], Column: tree.NewChoice(columns, nil, nil), Spread: true})
 }
 
 // columnsAt is the columns n holds along tail: the field of a template, and the column of each item
@@ -70,16 +70,10 @@ func readsOneArm(t *tree.Template, l *tree.LoadFinds) (tree.Arm, bool) {
 		return tree.Arm{}, false
 	}
 	tok, arms := o.Token(), o.Arms()
-	if tok.Kind != grammar.PathRead || len(arms) != 1 || tok.Where != nil || tok.Distinct != nil || readsJoined(arms[0]) {
+	if tok.Kind != grammar.PathRead || len(arms) != 1 || tok.Where != nil || tok.Distinct != nil || arms[0].ReadsJoined() {
 		return tree.Arm{}, false
 	}
 	return arms[0], true
-}
-
-// readsJoined is whether a reads the members of a distinct draw joined, which is text whatever
-// they are.
-func readsJoined(a tree.Arm) bool {
-	return a.Kind() == tree.NamedRead && a.Named().Distinct() != nil && a.Member() == 0
 }
 
 // columnSource is the node a's read starts from (nil where a reads no node), the category holding

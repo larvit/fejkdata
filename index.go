@@ -15,7 +15,7 @@ import (
 // placeIndex sets every category the index names as unloaded in root, in place of what
 // root holds at its path.
 func placeIndex(root *tree.Folder, src datafiles.Source, index map[string]datafiles.IndexEntry) {
-	for _, p := range sortedNames(index) {
+	for _, p := range tree.SortedNames(index) {
 		segs := strings.Split(p, ".")
 		madeFolder(root, segs[:len(segs)-1]).PutUnloaded(segs[len(segs)-1], tree.NewIndexed(index[p], src))
 	}
@@ -90,7 +90,7 @@ func needs(root *tree.Folder, s categorySite) []categoryAt {
 	if parent := parentOf(s.n); parent != "" {
 		out = append(out, categoryAt{dir: s.dir, in: s.in, name: parent})
 	}
-	for _, name := range sortedNames(s.in.Unloaded()) {
+	for _, name := range tree.SortedNames(s.in.Unloaded()) {
 		if s.in.Unloaded()[name].Entry().Parent == s.name {
 			out = append(out, categoryAt{dir: s.dir, in: s.in, name: name})
 		}

@@ -122,7 +122,7 @@ func compileTemplates(ts []templateSite, root map[string]tree.Node, l *tree.Load
 	for _, s := range ts {
 		l.SetReadsColumn(s.t, columnReadOf(s.t, l))
 	}
-	for b, keys := range addressedKeys(readsOfNames(ts, l), l) {
+	for b, keys := range tree.AddressedKeys(readsOfNames(ts, l), l) {
 		l.SetAddressed(b, keys)
 	}
 	return nil

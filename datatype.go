@@ -74,7 +74,7 @@ func checkColumns(s nodeSet) error {
 		if !ok || !t.IsRecord() {
 			return nil
 		}
-		for _, name := range sortedNames(t.Fields()) {
+		for _, name := range tree.SortedNames(t.Fields()) {
 			if err := check(label, name, t.Fields()[name]); err != nil {
 				return err
 			}

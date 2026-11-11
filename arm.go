@@ -114,7 +114,7 @@ func compileArm(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Arm,
 			panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))
 		}
 		w := compilePath(start, r.tail)
-		return tree.NewArm(r.text, r.head, r.tail, freshLevels(r.head, r.tail), w.steps, w.leaves), nil
+		return tree.NewArm(r.text, r.head, r.tail, tree.FreshLevels(r.head, r.tail), w.steps, w.leaves), nil
 	}
 	b := tl.NameScope().Lookup(r.head)
 	tail, member := r.tail, 0
@@ -136,7 +136,7 @@ func compileArm(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Arm,
 		return tree.Arm{}, err
 	}
 	w := compilePath(target.Start(), full)
-	return tree.NewArm(r.text, r.head, tail, namedLevels(full), w.steps, w.leaves).ThroughName(b, member), nil
+	return tree.NewArm(r.text, r.head, tail, tree.NamedLevels(full), w.steps, w.leaves).ThroughName(b, member), nil
 }
 
 // memberRead is the member of b's distinct draw that a reads, counted from 1, or 0 where a reads them

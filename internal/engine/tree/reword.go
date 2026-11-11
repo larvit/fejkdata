@@ -10,6 +10,8 @@ type WordsAt struct {
 
 func NewWordsAt(start Node, tail string) WordsAt { return WordsAt{start, tail} }
 
+func (w WordsAt) Start() Node { return w.start }
+
 // WordList is the words a {reword()} call draws from, by length, and where it reads them.
 type WordList struct {
 	index LengthIndex
@@ -17,6 +19,10 @@ type WordList struct {
 }
 
 func NewWordList(index LengthIndex, at WordsAt) *WordList { return &WordList{index, at} }
+
+func (w *WordList) At() WordsAt { return w.at }
+
+func (w *WordList) Index() *LengthIndex { return &w.index }
 
 // RewordDraw is a {reword()} call: the text it rewrites, its first operand, and the words its
 // second operand's path holds, read at load.
@@ -31,12 +37,6 @@ func (*RewordDraw) isTokenDraw() {}
 
 func (d *RewordDraw) MayFallBack() bool { return false }
 
-func (r *RewordDraw) Text() *Arm { return r.text }
+func (d *RewordDraw) Text() *Arm { return d.text }
 
-func (r *RewordDraw) Words() *WordList { return r.words }
-
-func (r *WordList) At() WordsAt { return r.at }
-
-func (r WordsAt) Start() Node { return r.start }
-
-func (r *WordList) Index() *LengthIndex { return &r.index }
+func (d *RewordDraw) Words() *WordList { return d.words }

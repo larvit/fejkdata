@@ -237,13 +237,13 @@ func valueDrawOf(t *tree.Template, o *tree.Op, l *tree.LoadFinds) (*tree.ValueDr
 // distinct's count, or of one value where distinct is nil.
 func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar.Distinct, clause []tree.Arm) *tree.ValueDraw {
 	lo, hi := lengthEnds(where, clause)
-	count, sep := 1, ""
+	spec := tree.ValueDrawSpec{Lo: lo, Hi: hi, Clause: clause, Count: 1, Fallback: fallbackOf(where, clause, "")}
 	if distinct != nil {
-		count, sep = distinct.N, distinct.Sep
+		spec.Count, spec.Sep = distinct.N, distinct.Sep
 	}
-	fallback := fallbackOf(where, clause, "")
 	if where == nil {
-		return tree.NewValueDraw(newLengthIndex(values), lo, hi, clause, false, count, sep, tree.ReadStrings{}, fallback)
+		spec.Index = newLengthIndex(values)
+		return tree.NewValueDraw(spec)
 	}
 	var kept []weightedText
 	containing := nonEmpty(where.NotContaining)
@@ -252,8 +252,9 @@ func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar
 			kept = append(kept, value)
 		}
 	}
-	strings := tree.NewReadStrings(clauseReads(clause, where.NotNames), clauseReads(clause, where.NotContainingNames))
-	return tree.NewValueDraw(newLengthIndex(kept), lo, hi, clause, true, count, sep, strings, fallback)
+	spec.Index, spec.Filters = newLengthIndex(kept), true
+	spec.Strings = tree.NewReadStrings(clauseReads(clause, where.NotNames), clauseReads(clause, where.NotContainingNames))
+	return tree.NewValueDraw(spec)
 }
 
 // lengthEnds are the ends of w's length, 0 to every length where w has none.
@@ -395,13 +396,17 @@ func (v lengthProof) shortfall(passing int) string {
 	return fmt.Sprintf("distinct %d draws %d values, and only %d pass the where clause", n, n, passing)
 }
 
-// passing is how many values are lo to hi long.
+// passing is how many values are lo to hi long. A name's bounds may lie beyond any int, so lo and
+// hi are clamped between a length shorter than any value and one longer than all before they turn
+// into ints.
 func (v lengthProof) passing(lo, hi float64) int {
-	past := 1.0
+	const shorterThanAny = -1.0
+	longerThanAll := 1.0
 	if len(v.lengths) > 0 {
-		past += float64(v.lengths[len(v.lengths)-1])
+		longerThanAll += float64(v.lengths[len(v.lengths)-1])
 	}
-	from, to := tree.SpanOf(v.lengths, int(min(max(lo, -1), past)), int(max(min(hi, past), -1)))
+	clamp := func(n float64) int { return int(min(max(n, shorterThanAny), longerThanAll)) }
+	from, to := tree.SpanOf(v.lengths, clamp(lo), clamp(hi))
 	return max(to-from, 0)
 }
 
@@ -431,7 +436,7 @@ func drawValues(v *tree.ValueDraw, s *drawstate.State, env renderEnv) []string {
 	return out
 }
 
-// holding is the indexes, ascending, of the texts in v.texts[from:to] that equal a not string, or
+// holding is the indexes, ascending, of the texts in v.Index().Texts()[from:to] that equal a not string, or
 // hold a not containing string, that v reads in env.
 func holding(v *tree.ValueDraw, s *drawstate.State, env renderEnv, from, to int) []int {
 	not, containing := readClauseStrings(v.Strings(), s, env)

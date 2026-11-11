@@ -81,7 +81,7 @@ func contained(n tree.Node) []containedNode {
 
 func containedByName(m map[string]tree.Node) []containedNode {
 	out := make([]containedNode, 0, len(m))
-	for _, name := range sortedNames(m) {
+	for _, name := range tree.SortedNames(m) {
 		out = append(out, containedNode{name: name, node: m[name]})
 	}
 	return out
