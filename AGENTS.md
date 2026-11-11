@@ -139,6 +139,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A distinct draw is `distinct N` after any `where` and before `as`; its members read `[1]` to `[N]`, and `joined 'sep'` prints them as one
 - `{reword(text,words)}` replaces each word of `text` with one drawn from the path `words`
 - A where clause also filters a call drawing from an alphabet, reads a name unquoted, and may end in `else` and a fallback
+- One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`
 
 # Scoring run
 
