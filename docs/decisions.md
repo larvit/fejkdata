@@ -1089,7 +1089,8 @@ switches on. `perf_test.go` stays in the root and uses only the public API; a cu
 an allocation count is fixed, not re-pinned.
 
 The moves are `todo.md` items, each merging only where its paired ruling reads no worse: 414
-untangling in place, 415 to 418 cutting leaf-first, and 107 moving the pipeline last.
+untangling in place, then 416 to 418 cutting a stage each, after the node types' move into
+`tree`, and 107 moving the pipeline last.
 Item 414 deletes the calc proof that duplicates `valueProof`.
 `internal/` will hold eleven directories, over the principle's about seven per level, since a
 reader finds the leaf libraries by name. Valid until `todo.md` item 107 lands.
