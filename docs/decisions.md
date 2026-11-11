@@ -294,11 +294,11 @@ release carries at once, as a fejkdata patch cut from the last release's tag"). 
 release the same job publishes keeps one text as its body and is where prebuilt
 binaries attach.
 
-A heading is spelled `## Unreleased` or `## 0.5.0 - 2026-11-20`, without the brackets that
-Keep a Changelog uses to link a heading to a comparison URL, which this changelog has none
-of. The tooling still reads the bracketed headings of the releases up to 0.4.0, since
-packaging an old release reads its tag's changelog, and the changelog check refuses a
-`## ` heading it can't read, so a pull request catches one the push to `main` would skip.
+A heading is spelled `## Unreleased` or `## 0.5.0 - 2026-11-20`. Keep a Changelog puts
+brackets around the name to link it to a comparison URL, and this changelog has no such
+URLs. The tooling still reads the bracketed headings of the releases up to 0.4.0, since
+packaging an old release reads its tag's changelog. The changelog check refuses a heading it
+can't read, so a pull request catches one that `publish_release.py` would reject on `main`.
 
 ## A `--data-path` override rebinds every reference to the category it replaces
 
