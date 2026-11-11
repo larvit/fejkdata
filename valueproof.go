@@ -141,7 +141,7 @@ func (p *valueProof) proveUnion(nodes []tree.Node) proven.Facts {
 	return v
 }
 
-// repeated proves a template whose repeat is not 1: nothing at 0, else composed text.
+// repeated proves a template whose repeat is not 1: a repeat of 0 renders no text, any other composes it.
 func repeated(t *tree.Template) proven.Facts {
 	if t.Repeat() == 0 {
 		return proven.NeverNumber(fmt.Sprintf("%q repeats 0 times, so it renders nothing", t.Format()))
@@ -210,8 +210,8 @@ func (p *valueProof) operand(o tree.Op) func(name string) proven.Facts {
 	}
 }
 
-// checkCalcs refuses each calc of t that prints NaN or Inf on every draw: an operand that is never a
-// number, or a divisor that is always zero.
+// checkCalcs refuses each calc of t with an operand that fixed text proves never a number, or a
+// divisor that fixed values prove always zero.
 func (p *valueProof) checkCalcs(label string, t *tree.Template) error {
 	for _, o := range t.Compiled().Ops() {
 		tok := o.Token()
@@ -239,8 +239,7 @@ func (p *valueProof) checkOperands(text string, c grammar.Calc, operand func(nam
 	return nil
 }
 
-// zeroDivisor finds a division whose right side is zero in every render. The fold stops where an
-// operand varies, so a/(b*c) with b fixed at 0 and c varying still loads.
+// zeroDivisor finds a division whose right side folds to zero from operands that are each one value.
 func zeroDivisor(n grammar.CalcNode, operand func(name string) proven.Facts) (string, bool) {
 	switch n := n.(type) {
 	case grammar.CalcNeg:

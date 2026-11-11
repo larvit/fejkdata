@@ -223,7 +223,7 @@
 
 ### 417. Move the proofs and fences into `internal/engine/fence`.
 
-Files: `valueproof.go`, `datatype.go`, `namefence.go`, `columnread.go`, `where.go`, `adddays.go`, `resolve.go`, `struct.go`, the cycle and repeat fences in `internal/engine/load/graph.go`, what 414 leaves of `internal/engine/load/calc.go`, `imports_test.go`, `docs/decisions.md`; about 800 moved lines. It comes after 414, so the calc proof moves once, as `valueProof`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+Files: `valueproof.go`, `datatype.go`, `namefence.go`, `columnread.go`, `where.go`, `adddays.go`, `resolve.go`, `struct.go`, the cycle and repeat fences in `internal/engine/load/graph.go`, `imports_test.go`, `docs/decisions.md`; about 800 moved lines. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 107. Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.
 
@@ -489,7 +489,7 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
-The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row. An operand that is sometimes not a number prints `NaN`. Both work against goals 5.1 and 3. `valueproof.go` already proves a typed column's divisor nonzero. Once every operand is proven, `neverNumeric` and `constantValue` in `calc.go` go, and with them their reading of `NaN` and `Inf` as numbers, which `proven.Literal` refuses: calc reads text as a number one way.
+The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row. An operand that is sometimes not a number prints `NaN`. Both work against goals 5.1 and 3. `valueproof.go` already proves a typed column's divisor nonzero. Item 414 made calc read text as a number one way, through `proven.Literal`, which refuses `NaN` and `Inf`.
 
 ### 265. Add `misc.commit` messages, branch names and `sha`s.
 
