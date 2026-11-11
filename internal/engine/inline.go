@@ -78,7 +78,7 @@ func loadInline(root *tree.Folder, n tree.Node, l *tree.LoadFinds, label string,
 
 // refuseFolderRefs refuses each reference in nodes not written from the root, {/x}: an
 // inline node sits in no folder.
-func refuseFolderRefs(nodes nodeSet) error {
+func refuseFolderRefs(nodes fence.NodeSet) error {
 	return nodes(func(label string, m tree.Node) error {
 		t, ok := m.(*tree.Template)
 		if !ok {

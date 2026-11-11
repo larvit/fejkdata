@@ -569,44 +569,10 @@ func loneReference(text string) (string, bool) {
 	}
 	path, opens := strings.CutPrefix(text, "{/")
 	path, closes := strings.CutSuffix(path, "}")
-	if !opens || !closes || !isPath(path) {
+	if !opens || !closes || !fejkdata.IsLonePath(path) {
 		return "", false
 	}
 	return path, true
-}
-
-// isPath reports whether a reference's body after its / is a path alone: no second /, no
-// folder sigil, no empty segment, and none of the |, ( or " as " a token reads outside a selector.
-// It copies the grammar, since the CLI reads only the library's public API.
-func isPath(body string) bool {
-	if body == "" || strings.ContainsAny(body[:1], "/.") {
-		return false
-	}
-	names := withoutSelectors(body)
-	if strings.ContainsAny(names, "|(") || strings.Contains(names, " as ") || hasEmptySegment(names) {
-		return false
-	}
-	inline, err := fejkdata.IsTemplate(body)
-	return !inline && err == nil
-}
-
-// hasEmptySegment reports whether a dotted path holds a segment with no name: two dots are a
-// step up, and only a step up may end the path.
-func hasEmptySegment(path string) bool {
-	segments := strings.Split(path, ".")
-	stepUp := false
-	for i, seg := range segments[1:] {
-		last := i == len(segments)-2
-		switch {
-		case seg != "":
-			stepUp = false
-		case stepUp != last:
-			return true
-		default:
-			stepUp = !stepUp
-		}
-	}
-	return false
 }
 
 // spacedReference adds to a record refusal that whitespace around a lone reference made

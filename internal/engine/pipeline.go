@@ -9,11 +9,7 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// nodeSet is the set of nodes one validation pass covers: one load's categories, or a
-// single inline node.
-type nodeSet func(fn func(label string, n tree.Node) error) error
-
-func siteNodes(sites []categorySite) nodeSet {
+func siteNodes(sites []categorySite) fence.NodeSet {
 	return func(fn func(label string, n tree.Node) error) error {
 		for _, s := range sites {
 			if err := load.EachNode(s.n, s.path, fn); err != nil {
@@ -24,14 +20,14 @@ func siteNodes(sites []categorySite) nodeSet {
 	}
 }
 
-func inlineNodes(n tree.Node, label string) nodeSet {
+func inlineNodes(n tree.Node, label string) fence.NodeSet {
 	return func(fn func(label string, m tree.Node) error) error { return load.EachNode(n, label, fn) }
 }
 
-// pipeline is the one load pipeline, run over one nodeSet and the finds its compile began;
+// pipeline is the one load pipeline, run over one set of nodes and the finds its compile began;
 // its fields are where entry points differ.
 type pipeline struct {
-	nodes   nodeSet
+	nodes   fence.NodeSet
 	finds   *tree.LoadFinds
 	resolve func() ([]load.TemplateSite, error)
 	// Set by a caller that proves the columns against their Go types itself.
@@ -117,7 +113,7 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]tree.Node, l
 
 // settleRecords fixes the columns of every record in nodes. The pipeline runs it after fence.CheckNoCycles: a
 // column's datatype walks the column, and a cycle would walk forever.
-func settleRecords(nodes nodeSet, l *tree.LoadFinds) {
+func settleRecords(nodes fence.NodeSet, l *tree.LoadFinds) {
 	_ = nodes(func(_ string, n tree.Node) error {
 		if t, isTemplate := n.(*tree.Template); isTemplate {
 			l.SetColumns(t, recordColumns(t, l))

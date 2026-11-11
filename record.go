@@ -14,12 +14,7 @@ import (
 // Column is one rendered column of a record. Value is the rendered text, which a
 // serializer quotes for DataTypeString and writes bare for any other datatype; a Null
 // column has no Value.
-type Column struct {
-	Name     string
-	DataType DataType
-	Value    string
-	Null     bool
-}
+type Column = engine.Column
 
 // Record is one record rendered from a template: every direct field is a column,
 // listed in name order. Each {…} draws afresh, while a pick bound by {x as n} is
@@ -212,6 +207,6 @@ var ErrNoColumns = engine.ErrNoColumns
 // renderRecord draws r.
 func renderRecord(s *drawstate.State, r engine.Record) *Record {
 	out := &Record{columns: make([]Column, r.ColumnCount())}
-	r.Draw(s, func(i int, c engine.Column) { out.columns[i] = Column(c) })
+	r.Draw(s, func(i int, c engine.Column) { out.columns[i] = c })
 	return out
 }
