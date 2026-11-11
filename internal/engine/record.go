@@ -90,17 +90,9 @@ func tableRecord(s *drawstate.State, t *tree.Table, tail []string) (tree.Node, r
 	return n, render.Row{}, nil
 }
 
-// InlineRecord is the record an inline template n is.
-func InlineRecord(n tree.Node) (Record, error) {
-	record, err := recordOf(n)
-	if err != nil {
-		return Record{}, fmt.Errorf("an inline record %w", err)
-	}
-	return Record{template: record}, nil
-}
-
 // ErrNoColumns matches the error for a record with no fields, naming a choice or holding every
-// field in "let"; RecordAt's names the one-column record to write instead, for all but the last.
+// field in "let". For the first two, RecordAt's error also names the one-column record to write
+// instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
 // noColumnsError keeps its own message and matches ErrNoColumns.
