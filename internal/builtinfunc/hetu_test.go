@@ -35,7 +35,7 @@ func TestHetuSignNamesTheCenturyOfTheLatestYearNotAfterToday(t *testing.T) {
 	}{
 		{2026, 0, 'A'}, {2026, 26, 'A'}, {2026, 27, '-'}, {2026, 99, '-'},
 		{2000, 0, 'A'}, {1999, 0, '-'}, {1990, 90, '-'}, {1990, 91, '+'}, {1990, 99, '+'},
-		{1899, 0, '+'}, {1800, 0, '+'}, {1799, 99, 0}, {2099, 0, 'A'}, {2100, 0, 0},
+		{1899, 0, '+'}, {1800, 0, '+'}, {1799, 99, 0}, {2099, 0, 'A'}, {2099, 99, 'A'}, {2100, 0, 0},
 	} {
 		if got := hetuSign(c.today, c.yy); got != c.want {
 			t.Errorf("hetuSign(%d, %d) = %q, want %q", c.today, c.yy, got, c.want)
