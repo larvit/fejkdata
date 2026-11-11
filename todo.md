@@ -12,11 +12,10 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 415 | 0.5.0 |  |  | **Move the node types into `internal/engine/tree`, so no other package writes a node's fields.** | 4 | 1 | 2 | 5 | 7 | code health by 5 | 1.4 |
-| 416 | 0.5.0 | 415 |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
+| 416 | 0.5.0 |  |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 414 | 0.5.0 |  |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
-| 417 | 0.5.0 | 414, 415 |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
-| 418 | 0.5.0 | 415 |  | **Move compile, bind, link and resolve into `internal/engine/load`.** | 4 | 1 | 2 | 5 | 6 | code health by 5 | 2.7 |
+| 417 | 0.5.0 | 414 |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
+| 418 | 0.5.0 |  |  | **Move compile, bind, link and resolve into `internal/engine/load`.** | 4 | 1 | 2 | 5 | 6 | code health by 5 | 2.7 |
 | 107 | 0.5.0 | 416, 417, 418 | decision | **Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
 | 177 | 0.5.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
 | 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
@@ -226,10 +225,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 
 ## Details
-
-### 415. Move the node types into `internal/engine/tree`, so no other package writes a node's fields.
-
-The node types move with the types their fields hold, among them `alphabetDraw`, `columnRead`, `formatOps`, `indexed`, `lengthIndex`, `pickKey`, `recordColumn`, `resolvedRef`, `rewordDraw`, `unboundRead`, `valueDraw` and `wordList`, each carrying only methods that read or write its own data; each stage's functions over them stay in the root until items 416, 417 and 418 move them. Outside `tree`, about 700 reads of a node's fields, in 28 of the root's 31 files, become accessor calls. A type-aware rewrite makes them, so none is missed. `linkTables` sets a table's `siblings` through a `tree` method. Files: `node.go`, `arm.go`, `name.go`, `table.go`, `path.go`, `graph.go`, `loadfinds.go`, the files defining the field types, and `imports_test.go`; about 1,500 moved lines. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 416. Move rendering into `internal/engine/render`.
 
