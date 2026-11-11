@@ -1525,3 +1525,17 @@ Read most (opens and searches):
 - `docs/decisions.md` 1
 - `inline.go` 1
 - `inline_test.go` 1
+
+## Reading cost, chunk a548782fc794, finished 2026-11-11T21:53:31Z
+
+100497 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/engine/tree/read.go` 7
+- `internal/engine/doc.go` 2
+- `internal/engine/load/format.go` 2
+- `todo.md` 2
+- `README.md` 1
+- `compose.yaml` 1
+- `internal/engine/load/columnread.go` 1
