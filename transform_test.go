@@ -1,6 +1,8 @@
 package fejkdata
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestTransforms(t *testing.T) {
 	f := engine(1)

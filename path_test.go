@@ -5,6 +5,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 func TestCompiledPathStopsAtAMissingSegment(t *testing.T) {
@@ -35,7 +37,7 @@ func TestDrawStepsPanicsOnAStepItsNodeLacks(t *testing.T) {
 			t.Errorf("drawSteps(plain, f) recovered %v, want a panic naming the missing field", r)
 		}
 	}()
-	drawSteps(engine(1).drawState, drawFresh, compiled(t, `"plain"`), []pathStep{{kind: stepField, name: "f"}}, &pinSet{}, nil, nil)
+	drawSteps(engine(1).drawState, drawFresh, compiled(t, `"plain"`), []tree.PathStep{tree.NewPathStep(tree.StepField, 0, "f", 0)}, &tree.PinSet{}, nil, nil)
 }
 
 func TestDrawStepsRefusesATableStepOnASiblingRead(t *testing.T) {
@@ -45,16 +47,16 @@ func TestDrawStepsRefusesATableStepOnASiblingRead(t *testing.T) {
 			t.Errorf("drawSteps(sibling, a table step) recovered %v, want a panic naming a sibling read", r)
 		}
 	}()
-	drawSteps(engine(1).drawState, drawSibling, tbl, []pathStep{{kind: stepDraw}}, nil, nil, nil)
+	drawSteps(engine(1).drawState, drawSibling, tbl, []tree.PathStep{tree.NewPathStep(tree.StepDraw, 0, "", 0)}, nil, nil, nil)
 }
 
 func TestDeepDottedPath(t *testing.T) {
 	// A 5-segment path descends through alternating object/array nodes; choices
 	// on the path are single-variant, so it resolves deterministically.
 	f := engine(1)
-	f.root.children = map[string]node{
+	f.root = *tree.NewFolderOf(map[string]tree.Node{
 		"deep": compiled(t, `{"format":"{a}","a":{"format":"{b}","b":{"format":"{c}","c":{"format":"{d}","d":"leaf"}}}}`),
-	}
+	})
 	if got, err := f.Fake("deep.a.b.c.d"); err != nil || got != "leaf" {
 		t.Fatalf("Fake(deep.a.b.c.d) = %q, %v, want leaf", got, err)
 	}
@@ -66,7 +68,7 @@ func TestDeepDottedPath(t *testing.T) {
 
 func TestDescendIntoStringErrors(t *testing.T) {
 	f := engine(1)
-	f.root.children = map[string]node{"greeting": compiled(t, `"hej"`)}
+	f.root = *tree.NewFolderOf(map[string]tree.Node{"greeting": compiled(t, `"hej"`)})
 	if _, err := f.Fake("greeting.extra"); err == nil || !strings.Contains(err.Error(), `no field "extra"`) {
 		t.Fatalf("Fake(greeting.extra) = %v, want a no-field error", err)
 	}
@@ -183,9 +185,9 @@ func TestBindingKeyIsNotAPathSegment(t *testing.T) {
 
 func TestFakePathNavigation(t *testing.T) {
 	f := engine(1)
-	f.root.children = map[string]node{
+	f.root = *tree.NewFolderOf(map[string]tree.Node{
 		"addr": compiled(t, `{"format":"{street}","street":"Main"}`),
-	}
+	})
 	if got, err := f.Fake("addr"); err != nil || !strings.Contains(got, "Main") {
 		t.Fatalf("Fake(addr) = %q, %v", got, err)
 	}

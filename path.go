@@ -6,65 +6,43 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // childNamed is what seg names under n: a folder's entry or a template's field.
-func childNamed(n node, seg string) (node, error) {
+func childNamed(n tree.Node, seg string) (tree.Node, error) {
 	switch {
 	case grammar.IsSelector(seg):
 		return nil, fmt.Errorf("%s is not a table, so it has no row to select", grammar.SelectorOf(seg))
 	case seg == "..":
-		if c, ok := n.(*tableColumn); ok {
-			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.name())
+		if c, ok := n.(*tree.TableColumn); ok {
+			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.Name())
 		}
 		return nil, fmt.Errorf(`".." steps up only from a table's row; name any other level by its path from the data root`)
 	}
 	switch n := n.(type) {
-	case *folder:
-		if child, ok := n.children[seg]; ok {
+	case *tree.Folder:
+		if child, ok := n.Children()[seg]; ok {
 			return child, nil
 		}
 		return nil, noEntry{seg}
-	case *template:
-		if child, ok := n.fields[seg]; ok {
+	case *tree.Template:
+		if child, ok := n.Fields()[seg]; ok {
 			return child, nil
 		}
-	case *tableColumn:
-		if n.name() == n.t.rows.Options().Parent {
-			return nil, fmt.Errorf("no field %q: %q is the link column, holding its parent's key; to read the row it links to, step up with ..%s.%s", seg, n.name(), n.name(), seg)
+	case *tree.TableColumn:
+		if n.Name() == n.Table().Rows().Options().Parent {
+			return nil, fmt.Errorf("no field %q: %q is the link column, holding its parent's key; to read the row it links to, step up with ..%s.%s", seg, n.Name(), n.Name(), seg)
 		}
-		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.name())
-	case *nullItem:
+		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.Name())
+	case *tree.NullItem:
 	default:
 		panic(invariant.Broken("childNamed has no case for node %T", n))
 	}
 	return nil, fmt.Errorf("no field %q", seg)
 }
-
-// pathStep is one step of a compiled path, taken at the node the steps before it
-// reached, a choice there drawn first; at indexes the tail where it is taken, and
-// only a table's step sits past the tail's end. A step holds no node, so a
-// caller's steps stay on its stack.
-type pathStep struct {
-	kind stepKind
-	at   int
-	name string // stepField: the field; stepSelect: the selector; stepColumn, stepChild: the column or table stepped to
-	row  int    // stepSelect: the row the selector names
-}
-
-type stepKind uint8
-
-const (
-	stepField  stepKind = iota + 1 // into a folder's entry or a template's field
-	stepSelect                     // pin the selected row of the table
-	stepDraw                       // draw a row of the table inside the pins
-	stepRow                        // land on the table's row node
-	stepColumn
-	stepChild
-	stepParent // up to the table's parent, at the row its own row links to
-)
 
 // compiledPath walks a path and proves it reaches a node whichever way the draws go: every
 // variant of a choice carries the rest of it, and is walked, a selector names a row inside the
@@ -72,22 +50,22 @@ const (
 // draw takes, and every leaf the path may render. headSpans is how many of tail's first segments
 // head stands for. An error names a level as head, then tail's segments after those, up to that level.
 type compiledPath struct {
-	pins      pinSet
+	pins      tree.PinSet
 	head      string
 	headSpans int
 	tail      []string
-	steps     []pathStep
-	leaves    []node
+	steps     []tree.PathStep
+	leaves    []tree.Node
 }
 
-func (w *compiledPath) run(n node) (node, error) {
+func (w *compiledPath) run(n tree.Node) (tree.Node, error) {
 	return w.walk(n, w.tail)
 }
 
-func (w *compiledPath) walk(n node, tail []string) (node, error) {
+func (w *compiledPath) walk(n tree.Node, tail []string) (tree.Node, error) {
 	at := pathPos{n: n, tail: tail}
 	for at.more() {
-		if c, ok := at.n.(*choice); ok {
+		if c, ok := at.n.(*tree.Choice); ok {
 			return w.walkEvery(c, at.tail)
 		}
 		var err error
@@ -106,7 +84,7 @@ func repeatLevelError(level string) error {
 // pathPos is where a walk stands: the node reached, the tail left to walk from it, and fromRow,
 // whether the walk entered n, a table, from a row of a table linked to it.
 type pathPos struct {
-	n       node
+	n       tree.Node
 	tail    []string
 	fromRow bool
 }
@@ -116,18 +94,18 @@ func (p pathPos) more() bool { return len(p.tail) > 0 || p.fromRow }
 // compileStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
 // it, and appends the step to steps: a field, or the route through a table. whole is the full
 // path; head and headSpans spell an error's level, as in compiledPath.
-func compileStep(at *pathPos, whole []string, head string, headSpans int, steps []pathStep, pins *pinSet) ([]pathStep, error) {
+func compileStep(at *pathPos, whole []string, head string, headSpans int, steps []tree.PathStep, pins *tree.PinSet) ([]tree.PathStep, error) {
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
-	case *table:
+	case *tree.Table:
 		r, err := routeThrough(x, at.tail, at.fromRow)
 		if err != nil {
 			return steps, err
 		}
 		*at = r.then
 		return routeSteps(steps, pins, x, r, i)
-	case *template:
-		if x.repeat > 1 && !grammar.IsSelector(at.tail[0]) {
+	case *tree.Template:
+		if x.Repeat() > 1 && !grammar.IsSelector(at.tail[0]) {
 			return steps, repeatLevelError(join(head, grammar.JoinSegments(whole[headSpans:i])))
 		}
 	}
@@ -135,22 +113,22 @@ func compileStep(at *pathPos, whole []string, head string, headSpans int, steps 
 	if err != nil {
 		return steps, err
 	}
-	steps = append(steps, pathStep{kind: stepField, at: i, name: at.tail[0]})
+	steps = append(steps, tree.NewPathStep(tree.StepField, i, at.tail[0], 0))
 	*at = pathPos{n: next, tail: at.tail[1:]}
 	return steps, nil
 }
 
 // walkEvery walks every variant and keeps the first one's steps: every variant carries
 // the rest of the path, so each compiles to the same steps past the choice.
-func (w *compiledPath) walkEvery(c *choice, tail []string) (node, error) {
+func (w *compiledPath) walkEvery(c *tree.Choice, tail []string) (tree.Node, error) {
 	if err := carriedByAll(c, tail); err != nil {
 		return nil, err
 	}
-	var last node
+	var last tree.Node
 	// before has no spare capacity, so each variant's append copies and leaves the first variant's
 	// steps intact.
 	before, first := w.steps[:len(w.steps):len(w.steps)], w.steps
-	for i, item := range c.items {
+	for i, item := range c.Items() {
 		var err error
 		w.steps = before
 		if last, err = w.walk(item, tail); err != nil {
@@ -167,14 +145,14 @@ func (w *compiledPath) walkEvery(c *choice, tail []string) (node, error) {
 // callerPathSteps proves a path reaches a node without drawing, appending to steps the steps a
 // draw takes. Where compiledPath walks every variant of a choice, it walks the first,
 // which carriedByAll lets stand for all.
-func callerPathSteps(n node, tail []string, steps []pathStep) ([]pathStep, error) {
-	var pins pinSet
+func callerPathSteps(n tree.Node, tail []string, steps []tree.PathStep) ([]tree.PathStep, error) {
+	var pins tree.PinSet
 	for at := (pathPos{n: n, tail: tail}); at.more(); {
-		if c, ok := at.n.(*choice); ok {
+		if c, ok := at.n.(*tree.Choice); ok {
 			if err := carriedByAll(c, at.tail); err != nil {
 				return nil, err
 			}
-			at.n = c.items[0]
+			at.n = c.Items()[0]
 			continue
 		}
 		var err error
@@ -202,39 +180,39 @@ const (
 // drawSteps draws the rows and variants a path's steps read from n, and returns the leaf and the
 // pins its row is in. mode says which of pins, memo and levels it reads: drawSibling none,
 // drawFresh pins, drawInPick all three.
-func drawSteps(s *drawstate.State, mode drawMode, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []pickKey) (node, *pinSet) {
+func drawSteps(s *drawstate.State, mode drawMode, n tree.Node, steps []tree.PathStep, pins *tree.PinSet, memo *drawMemo, levels []tree.PickKey) (tree.Node, *tree.PinSet) {
 	// climbed is the table a ".." stepped up to. The next step down from it draws the child's row
 	// afresh inside the row stepped up to, so it takes pins holding only the rows from climbed up,
 	// not the row the path came from.
-	var climbed *rowsTable
+	var climbed *tree.RowsTable
 	for _, st := range steps {
-		if c, ok := n.(*choice); ok {
+		if c, ok := n.(*tree.Choice); ok {
 			if mode == drawInPick {
-				n = memo.variantOf(s, c, levels[st.at])
+				n = memo.variantOf(s, c, levels[st.At()])
 			} else {
 				n = drawThroughChoices(s, c)
 			}
 		}
-		if st.kind == stepField {
+		if st.Kind() == tree.StepField {
 			var err error
-			if n, err = childNamed(n, st.name); err != nil {
-				panic(invariant.Broken("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.at, err))
+			if n, err = childNamed(n, st.Name()); err != nil {
+				panic(invariant.Broken("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.At(), err))
 			}
 			continue
 		}
 		if mode == drawSibling {
-			panic(invariant.Broken("step %d: a table's step of kind %d on a sibling read, which never crosses a table", st.at, st.kind))
+			panic(invariant.Broken("step %d: a table's step of kind %d on a sibling read, which never crosses a table", st.At(), st.Kind()))
 		}
-		t, ok := n.(*table)
+		t, ok := n.(*tree.Table)
 		if !ok {
-			panic(invariant.Broken("step %d: a table's step of kind %d on %T", st.at, st.kind, n))
+			panic(invariant.Broken("step %d: a table's step of kind %d on %T", st.At(), st.Kind(), n))
 		}
 		switch {
-		case st.kind == stepParent:
-			climbed = t.rows.Parent()
-		case st.kind == stepChild && climbed != nil:
+		case st.Kind() == tree.StepParent:
+			climbed = t.Rows().Parent()
+		case st.Kind() == tree.StepChild && climbed != nil:
 			if mode == drawInPick {
-				pins = memo.stepDownPins(pins, climbed, levels, st.at)
+				pins = memo.stepDownPins(pins, climbed, levels, st.At())
 			} else {
 				pins = pins.Above(climbed)
 			}
@@ -249,34 +227,34 @@ func drawSteps(s *drawstate.State, mode drawMode, n node, steps []pathStep, pins
 // itself. A folder has no value of its own, so it contributes only its children's.
 // With intoRepeats, it also lists the paths below a level carrying a repeat, so a path
 // there meets the repeat's refusal.
-func paths(n node, intoRepeats bool) []string {
+func paths(n tree.Node, intoRepeats bool) []string {
 	switch n := n.(type) {
-	case *folder:
+	case *tree.Folder:
 		var out []string
-		for _, name := range sortedNames(n.children) {
-			out = appendUnder(out, name, paths(n.children[name], intoRepeats))
+		for _, name := range sortedNames(n.Children()) {
+			out = appendUnder(out, name, paths(n.Children()[name], intoRepeats))
 		}
-		for _, name := range sortedNames(n.unloaded) {
-			out = appendUnder(out, name, n.unloaded[name].entry.Paths)
+		for _, name := range sortedNames(n.Unloaded()) {
+			out = appendUnder(out, name, n.Unloaded()[name].Entry().Paths)
 		}
 		return out
-	case *template:
+	case *tree.Template:
 		out := []string{""}
-		if n.repeat > 1 && !intoRepeats {
+		if n.Repeat() > 1 && !intoRepeats {
 			return out
 		}
-		for _, name := range sortedNames(n.fields) {
-			out = appendUnder(out, name, paths(n.fields[name], intoRepeats))
+		for _, name := range sortedNames(n.Fields()) {
+			out = appendUnder(out, name, paths(n.Fields()[name], intoRepeats))
 		}
 		return out
-	case *table:
+	case *tree.Table:
 		return tablePaths(n, intoRepeats)
-	case *tableColumn, *tableRow, *nullItem:
+	case *tree.TableColumn, *tree.TableRow, *tree.NullItem:
 		return []string{""}
-	case *choice:
-		shared := n.shared
+	case *tree.Choice:
+		shared := n.Shared()
 		if !intoRepeats {
-			shared = sharedPaths(n.items, false)
+			shared = sharedPaths(n.Items(), false)
 		}
 		return append([]string{""}, sortedNames(shared)...)
 	default:
@@ -293,11 +271,11 @@ func appendUnder(out []string, name string, ps []string) []string {
 
 // tablePaths is a table's columns, then each table linked to it under its name: the
 // direct descents, a step at a time.
-func tablePaths(t *table, intoRepeats bool) []string {
-	out := append([]string{""}, t.rows.Header()...)
+func tablePaths(t *tree.Table, intoRepeats bool) []string {
+	out := append([]string{""}, t.Rows().Header()...)
 	sort.Strings(out[1:])
-	for _, c := range t.childTables() {
-		out = appendUnder(out, c.rows.Segment(), paths(c, intoRepeats))
+	for _, c := range t.ChildTables() {
+		out = appendUnder(out, c.Rows().Segment(), paths(c, intoRepeats))
 	}
 	return out
 }
@@ -315,7 +293,7 @@ func join(prefix, name string) string {
 // sharedPaths is the sub-paths every item carries — the only ones a path may step
 // through a choice to reach. It intersects, bailing as soon as the set
 // is empty, which is immediate for a choice of plain strings.
-func sharedPaths(items []node, intoRepeats bool) map[string]bool {
+func sharedPaths(items []tree.Node, intoRepeats bool) map[string]bool {
 	shared := subPaths(items[0], intoRepeats)
 	for _, it := range items[1:] {
 		if len(shared) == 0 {
@@ -332,7 +310,7 @@ func sharedPaths(items []node, intoRepeats bool) map[string]bool {
 }
 
 // subPaths is paths(n, intoRepeats) as a set, without the empty path that means n itself.
-func subPaths(n node, intoRepeats bool) map[string]bool {
+func subPaths(n tree.Node, intoRepeats bool) map[string]bool {
 	out := map[string]bool{}
 	for _, p := range paths(n, intoRepeats) {
 		if p != "" {
@@ -344,8 +322,8 @@ func subPaths(n node, intoRepeats bool) map[string]bool {
 
 // carriedByAll is the choice rule a path that must reach a node on every call obeys:
 // the rest of the tail must be one every variant carries.
-func carriedByAll(c *choice, rest []string) error {
-	if want := strings.Join(rest, "."); !c.shared[want] {
+func carriedByAll(c *tree.Choice, rest []string) error {
+	if want := strings.Join(rest, "."); !c.Shared()[want] {
 		return unreachableInChoice(c, want)
 	}
 	return nil
@@ -353,21 +331,21 @@ func carriedByAll(c *choice, rest []string) error {
 
 // unreachableInChoice reports that a path cannot step through this choice, listing
 // what every variant does carry.
-func unreachableInChoice(c *choice, want string) error {
-	if len(c.shared) == 0 {
-		return fmt.Errorf("no variant of this %d-way choice carries %q", len(c.items), want)
+func unreachableInChoice(c *tree.Choice, want string) error {
+	if len(c.Shared()) == 0 {
+		return fmt.Errorf("no variant of this %d-way choice carries %q", len(c.Items()), want)
 	}
-	offered := sortedNames(c.shared)
-	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
+	offered := sortedNames(c.Shared())
+	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.Items()), want, offered)
 }
 
-func provePath(n node, tail []string, head string, headSpans int) error {
+func provePath(n tree.Node, tail []string, head string, headSpans int) error {
 	_, err := (&compiledPath{head: head, headSpans: headSpans, tail: tail}).run(n)
 	return err
 }
 
 // compilePath compiles a path provePath proved.
-func compilePath(n node, tail []string) compiledPath {
+func compilePath(n tree.Node, tail []string) compiledPath {
 	w := compiledPath{tail: tail}
 	if _, err := w.run(n); err != nil {
 		panic(invariant.Broken("%s: %v; the path should have been proved before it was compiled", grammar.JoinSegments(tail), err))

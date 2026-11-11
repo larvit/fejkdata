@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"slices"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 func TestRecursionHasNoDepthLimit(t *testing.T) {
@@ -36,14 +38,14 @@ func TestGrowIsALowerBound(t *testing.T) {
 		"{a|b} and {a|b}",
 	} {
 		src := `{"format":` + quote(format) + `,"x":"1","a":"A","b":"B","d":"012345678901234"}`
-		tmpl, ok := compiled(t, src).(*template)
+		tmpl, ok := compiled(t, src).(*tree.Template)
 		if !ok {
 			t.Fatalf("format %q did not compile to a template", format)
 		}
 		for i := 0; i < 50; i++ {
 			var frames frameStack
-			if got := len(expand(f.drawState, tmpl, renderEnv{frames: &frames})); got < tmpl.compiled.grow {
-				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.compiled.grow)
+			if got := len(expand(f.drawState, tmpl, renderEnv{frames: &frames})); got < tmpl.Compiled().Grow() {
+				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.Compiled().Grow())
 			}
 		}
 	}
@@ -57,36 +59,34 @@ func quote(s string) string {
 	return string(b)
 }
 
-type unhandledNode struct{}
-
-func (*unhandledNode) isNode() {}
+type unhandledNode struct{ tree.Node }
 
 // nodeSwitchSkips names, per switch, the kinds it is never handed.
 var nodeSwitchSkips = map[string][]string{
-	"childNamed":       {"choice", "table", "tableRow"},
-	"columnItems":      {"folder", "table", "tableRow"},
-	"render":           {"folder"},
-	"routeSteps":       {"choice", "folder", "nullItem", "template"},
-	"valueProof.prove": {"folder"},
+	"childNamed":       {"Choice", "Table", "TableRow"},
+	"columnItems":      {"Folder", "Table", "TableRow"},
+	"render":           {"Folder"},
+	"routeSteps":       {"Choice", "Folder", "NullItem", "Template"},
+	"valueProof.prove": {"Folder"},
 }
 
 // nodeSamples holds one node of each kind, by the kind's name, and the table they came from.
-func nodeSamples(t *testing.T) (map[string]node, *table) {
+func nodeSamples(t *testing.T) (map[string]tree.Node, *tree.Table) {
 	t.Helper()
 	f := newGenerator(t, writeFiles(t, map[string]string{
 		"r.json": `{"format":"{name}","rows":"r.tsv","key":"code"}`,
 		"r.tsv":  "code\tname\n01\t{digits(2)}\n02\tB\n",
 	}))
-	tbl := f.root.children["r"].(*table)
-	samples := map[string]node{}
-	for _, n := range []node{
+	tbl := f.root.Children()["r"].(*tree.Table)
+	samples := map[string]tree.Node{}
+	for _, n := range []tree.Node{
 		compiled(t, `["a","b"]`),
 		compiled(t, `{"format":"{x}","x":"1"}`),
 		&f.root,
-		&nullItem{},
+		&tree.NullItem{},
 		tbl,
-		tbl.formatTemplate.fields["name"],
-		tbl.rowNode,
+		tbl.FormatTemplate().Fields()["name"],
+		tbl.RowNode(),
 	} {
 		samples[reflect.TypeOf(n).Elem().Name()] = n
 	}
@@ -94,19 +94,19 @@ func nodeSamples(t *testing.T) (map[string]node, *table) {
 }
 
 // nodeSwitches calls each function holding a type switch over node kinds.
-func nodeSwitches(tbl *table) map[string]func(node) {
-	return map[string]func(node){
-		"childNamed":  func(n node) { _, _ = childNamed(n, "x") },
-		"columnItems": func(n node) { columnItems(n) },
-		"contained":   func(n node) { contained(n) },
-		"paths":       func(n node) { paths(n, false) },
-		"render": func(n node) {
+func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
+	return map[string]func(tree.Node){
+		"childNamed":  func(n tree.Node) { _, _ = childNamed(n, "x") },
+		"columnItems": func(n tree.Node) { columnItems(n) },
+		"contained":   func(n tree.Node) { contained(n) },
+		"paths":       func(n tree.Node) { paths(n, false) },
+		"render": func(n tree.Node) {
 			var frames frameStack
 			render(engine(1).drawState, n, renderEnv{frames: &frames, row: renderedRow{tbl, 0}})
 		},
-		"renderEdges":      func(n node) { renderEdges(n, nil) },
-		"routeSteps":       func(n node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{then: pathPos{n: n}}, 0) },
-		"valueProof.prove": func(n node) { (&valueProof{}).prove(n) },
+		"renderEdges":      func(n tree.Node) { renderEdges(n, nil) },
+		"routeSteps":       func(n tree.Node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{then: pathPos{n: n}}, 0) },
+		"valueProof.prove": func(n tree.Node) { (&valueProof{}).prove(n) },
 	}
 }
 
@@ -140,7 +140,7 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 func TestRenderEdgesListWhatRenderRecursesInto(t *testing.T) {
 	samples, _ := nodeSamples(t)
 	for kind, n := range samples {
-		recurses := kind != "nullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
+		recurses := kind != "NullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
 		if edges := renderEdges(n, nil); recurses != (len(edges) > 0) {
 			t.Errorf("%s: render recurses into it %v, renderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
 		}

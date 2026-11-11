@@ -4,34 +4,22 @@ import (
 	"slices"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// columnRead is a record's column that a format reads, where the format only reads that one
-// reference or name. The format then counts as the column: it takes the column's datatype and
-// null. category and field name the column; category is "" for a column of the reading
-// template's own record, which checkColumns reaches on its own. spread is set where the read goes
-// through the items of a choice: column is then a choice of the column each item holds, which
-// checkColumns checks for agreement, since nothing else reaches those items.
-type columnRead struct {
-	a               arm
-	category, field string
-	column          node
-	spread          bool
-}
-
 // columnReadOf is the record's column t's format reads, where the format only reads one reference
 // or name. It is nil where the format reads anything else, where t's repeat is not 1, or where t
 // declares a string, which reads the column as text.
-func columnReadOf(t *template, l *loadFinds) *columnRead {
+func columnReadOf(t *tree.Template, l *tree.LoadFinds) *tree.ColumnRead {
 	a, one := readsOneArm(t, l)
 	if !one {
 		return nil
 	}
 	start, category, tail := columnSource(t, a, l)
-	target, isTemplate := start.(*template)
-	if !isTemplate || !target.isRecord || len(tail) == 0 {
+	target, isTemplate := start.(*tree.Template)
+	if !isTemplate || !target.IsRecord() || len(tail) == 0 {
 		return nil
 	}
 	columns := columnsAt(target, tail)
@@ -39,28 +27,28 @@ func columnReadOf(t *template, l *loadFinds) *columnRead {
 	case 0:
 		return nil
 	case 1:
-		return &columnRead{a: a, category: category, field: tail[len(tail)-1], column: columns[0]}
+		return tree.NewColumnRead(a, category, tail[len(tail)-1], columns[0], false)
 	}
-	return &columnRead{a: a, category: category, field: tail[len(tail)-1], column: &choice{items: columns}, spread: true}
+	return tree.NewColumnRead(a, category, tail[len(tail)-1], tree.NewChoice(columns, nil, nil), true)
 }
 
 // columnsAt is the columns n holds along tail: the field of a template, and the column of each item
 // of a choice. It is nil where a step has no field to follow, where a template on the way repeats,
 // or where an item of a choice is no template. It runs before checkNameReads, so a read that fence
 // will refuse comes back nil.
-func columnsAt(n node, tail []string) (columns []node) {
+func columnsAt(n tree.Node, tail []string) (columns []tree.Node) {
 	if len(tail) == 0 {
-		return []node{n}
+		return []tree.Node{n}
 	}
 	switch n := n.(type) {
-	case *template:
-		field, ok := n.fields[tail[0]]
-		if !ok || n.repeat != 1 {
+	case *tree.Template:
+		field, ok := n.Fields()[tail[0]]
+		if !ok || n.Repeat() != 1 {
 			return nil
 		}
 		return columnsAt(field, tail[1:])
-	case *choice:
-		for _, it := range n.items {
+	case *tree.Choice:
+		for _, it := range n.Items() {
 			below := columnsAt(it, tail)
 			if below == nil {
 				return nil
@@ -73,55 +61,55 @@ func columnsAt(n node, tail []string) (columns []node) {
 
 // readsOneArm is the one arm t prints, where t's format prints one plain read and t reads it as its
 // datatype.
-func readsOneArm(t *template, l *loadFinds) (arm, bool) {
-	if t.repeat != 1 || (t.datatype != nil && *t.datatype == DataTypeString) {
-		return arm{}, false
+func readsOneArm(t *tree.Template, l *tree.LoadFinds) (tree.Arm, bool) {
+	if t.Repeat() != 1 || (t.DataType() != nil && *t.DataType() == DataTypeString) {
+		return tree.Arm{}, false
 	}
-	o, one := printedOp(l.of(t).compiled.ops)
-	if !one || o.Kind != grammar.PathRead || len(o.arms) != 1 || o.Where != nil || o.Distinct != nil || readsJoined(o.arms[0]) {
-		return arm{}, false
+	o, one := printedOp(l.Of(t).Compiled().Ops())
+	if !one || o.Token().Kind != grammar.PathRead || len(o.Arms()) != 1 || o.Token().Where != nil || o.Token().Distinct != nil || readsJoined(o.Arms()[0]) {
+		return tree.Arm{}, false
 	}
-	return o.arms[0], true
+	return o.Arms()[0], true
 }
 
 // readsJoined is whether a reads the members of a distinct draw joined, which is text whatever
 // they are.
-func readsJoined(a arm) bool {
-	return a.kind == namedRead && a.named.distinct != nil && a.member == 0
+func readsJoined(a tree.Arm) bool {
+	return a.Kind() == tree.NamedRead && a.Named().Distinct() != nil && a.Member() == 0
 }
 
 // columnSource is the node a's read starts from (nil where a reads no node), the category holding
 // that node (empty where it is t's own), and the path below the node.
-func columnSource(t *template, a arm, l *loadFinds) (start node, category string, tail []string) {
-	if b := a.named; a.kind == namedRead {
-		target := l.binding(b).target
-		if b.bindsField() {
+func columnSource(t *tree.Template, a tree.Arm, l *tree.LoadFinds) (start tree.Node, category string, tail []string) {
+	if b := a.Named(); a.Kind() == tree.NamedRead {
+		target := l.Binding(b).Target()
+		if b.BindsField() {
 			// {f as n}{n}: column f of the record binding n, in t's own category.
-			return b.binder, "", slices.Concat([]string{splitRead(b.ref, nil).head}, target.tail, a.tail)
+			return b.Binder(), "", slices.Concat([]string{splitRead(b.Ref(), nil).head}, target.Tail(), a.Tail())
 		}
 		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
-		return target.start, categoryOf(l.of(b.binder).refs.bySpelling[b.ref].head), slices.Concat(target.tail, a.tail)
+		return target.Start(), categoryOf(l.Of(b.Binder()).Refs().BySpelling()[b.Ref()].Head()), slices.Concat(target.Tail(), a.Tail())
 	}
-	if grammar.IsRef(a.head) {
+	if grammar.IsRef(a.Head()) {
 		// {/c.x}: column x of category c.
-		return t.startOf(a.head, l.of(t).refs), categoryOf(a.head), a.tail
+		return t.StartOf(a.Head(), l.Of(t).Refs()), categoryOf(a.Head()), a.Tail()
 	}
 	return nil, "", nil
 }
 
 // checkReadColumns runs check on the column of another category that each of items reads, and on
 // the choice of columns that an item of the column name of label reads through a choice.
-func checkReadColumns(label, name string, items []*template, check func(label, name string, column node) error) error {
+func checkReadColumns(label, name string, items []*tree.Template, check func(label, name string, column tree.Node) error) error {
 	for _, it := range items {
-		r := it.readsColumn
+		r := it.ReadsColumn()
 		switch {
 		case r == nil:
-		case r.category != "":
-			if err := check(r.category, r.field, r.column); err != nil {
+		case r.Category() != "":
+			if err := check(r.Category(), r.Field(), r.Column()); err != nil {
 				return err
 			}
-		case r.spread:
-			if err := check(label, name, r.column); err != nil {
+		case r.Spread():
+			if err := check(label, name, r.Column()); err != nil {
 				return err
 			}
 		}
@@ -130,35 +118,35 @@ func checkReadColumns(label, name string, items []*template, check func(label, n
 }
 
 // itemDatatype is the datatype a column item declares, else that of the column it reads.
-func itemDatatype(t *template, l *loadFinds) DataType {
-	r := l.of(t).readsColumn
+func itemDatatype(t *tree.Template, l *tree.LoadFinds) DataType {
+	r := l.Of(t).ReadsColumn()
 	switch {
-	case t.datatype != nil:
-		return *t.datatype
+	case t.DataType() != nil:
+		return *t.DataType()
 	case r != nil:
-		return columnDatatype(r.column, l)
+		return columnDatatype(r.Column(), l)
 	}
 	return DataTypeString
 }
 
 // proveColumnItem proves what a column item renders or, where the item is a column read, the column it reads.
-func (p *valueProof) proveColumnItem(t *template) proven.Facts {
-	r := t.readsColumn
+func (p *valueProof) proveColumnItem(t *tree.Template) proven.Facts {
+	r := t.ReadsColumn()
 	if r == nil {
 		return p.prove(t)
 	}
-	return p.proveColumn(r.column)
+	return p.proveColumn(r.Column())
 }
 
 // readColumnItem reads the column t reads, where t is a column read. Rendering t's format
 // instead would print a null the column drew as "". t's own name scope opens first, since the read
 // may be of a name t binds, such as {/c as n}{n.x}.
-func readColumnItem(s *drawstate.State, t *template, env renderEnv) (r readValue, reads bool) {
-	if t.readsColumn == nil {
+func readColumnItem(s *drawstate.State, t *tree.Template, env renderEnv) (r readValue, reads bool) {
+	if t.ReadsColumn() == nil {
 		return readValue{}, false
 	}
 	if mark := env.renderFrame(t); mark >= 0 {
 		defer env.frames.pop(mark)
 	}
-	return readField(s, t, env, t.readsColumn.a), true
+	return readField(s, t, env, t.ReadsColumn().Arm()), true
 }

@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 func TestAnOptionOfTheWrongKindIsNamedByItsJSONKind(t *testing.T) {
@@ -96,7 +98,7 @@ func TestNodeCompileErrors(t *testing.T) {
 }
 
 func TestEveryFormatCompilesAtResolve(t *testing.T) {
-	l := newLoadFinds()
+	l := tree.NewLoadFinds()
 	n, err := compile(parse(t, `{"format":"{a} {b}","a":{"format":"x{c}","c":["1","2"]},"b":"{/w}"}`), l)
 	if err != nil {
 		t.Fatal(err)
@@ -104,10 +106,10 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 	w := compiled(t, `["p","q"]`)
 	compiledByPath := func() map[string]bool {
 		compiled := map[string]bool{}
-		if err := eachNode(n, "t", func(label string, m node) error {
-			if tm, ok := m.(*template); ok {
-				tl := l.of(tm)
-				compiled[label+" "+tm.format] = tl != nil && tl.compiled.ops != nil
+		if err := eachNode(n, "t", func(label string, m tree.Node) error {
+			if tm, ok := m.(*tree.Template); ok {
+				tl := l.Of(tm)
+				compiled[label+" "+tm.Format()] = tl != nil && tl.Compiled().Ops() != nil
 			}
 			return nil
 		}); err != nil {
@@ -120,7 +122,7 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 			t.Errorf("%s compiled before resolve", format)
 		}
 	}
-	if _, err := resolveInlineTemplates(inlineNodes(n, "t"), map[string]node{"w": w}, l); err != nil {
+	if _, err := resolveInlineTemplates(inlineNodes(n, "t"), map[string]tree.Node{"w": w}, l); err != nil {
 		t.Fatal(err)
 	}
 	for format, has := range compiledByPath() {
@@ -136,22 +138,22 @@ func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 		`{"format":"{x as n}{y as m}{n}{n}{m}{m}","x":"{m}","y":"{n}"}`: "reference cycle",
 	} {
 		t.Run(src, func(t *testing.T) {
-			l := newLoadFinds()
+			l := tree.NewLoadFinds()
 			n, err := compile(parse(t, src), l)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := loadInline(&folder{children: map[string]node{}}, n, l, "t", false); err == nil || !strings.Contains(err.Error(), want) {
+			if err := loadInline(tree.NewFolder(), n, l, "t", false); err == nil || !strings.Contains(err.Error(), want) {
 				t.Fatalf("loadInline() = %v, want an error holding %q", err, want)
 			}
-			root := n.(*template)
-			written := root.templateFinds != nil
-			for _, field := range root.fields {
+			root := n.(*tree.Template)
+			written := root.Finished()
+			for _, field := range root.Fields() {
 				switch field := field.(type) {
-				case *template:
-					written = written || field.templateFinds != nil
-				case *choice:
-					written = written || field.nameScope != nil
+				case *tree.Template:
+					written = written || field.Finished()
+				case *tree.Choice:
+					written = written || field.NameScope() != nil
 				}
 			}
 			if written {
@@ -162,20 +164,20 @@ func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 }
 
 func TestFinishWritesEachNodeOnce(t *testing.T) {
-	l := newLoadFinds()
+	l := tree.NewLoadFinds()
 	n, err := compile(parse(t, `{"format":"{/w as n}{n} {c}","c":["x","y"]}`), l)
 	if err != nil {
 		t.Fatal(err)
 	}
 	w := compiled(t, `["p","q"]`)
-	if err := loadInline(&folder{children: map[string]node{"w": w}}, n, l, "t", false); err != nil {
+	if err := loadInline(tree.NewFolderOf(map[string]tree.Node{"w": w}), n, l, "t", false); err != nil {
 		t.Fatal(err)
 	}
-	root := n.(*template)
-	if root.templateFinds == nil || len(root.compiled.ops) == 0 || root.fields["c"].(*choice).nameScope == nil {
+	root := n.(*tree.Template)
+	if !root.Finished() || len(root.Compiled().Ops()) == 0 || root.Fields()["c"].(*tree.Choice).NameScope() == nil {
 		t.Fatal("a load that passed left its template, its ops or its choice unwritten")
 	}
-	if b := root.nameScope.bindings["n"]; b.bindingFinds == nil || b.target.start != w {
+	if b := root.NameScope().Bindings()["n"]; !b.Finished() || b.Target().Start() != w {
 		t.Fatal("a load that passed left its binding unwritten")
 	}
 	defer func() {
@@ -183,5 +185,5 @@ func TestFinishWritesEachNodeOnce(t *testing.T) {
 			t.Error("a second finish wrote the nodes again, want a panic")
 		}
 	}()
-	l.finish()
+	l.Finish()
 }

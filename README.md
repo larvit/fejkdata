@@ -2020,7 +2020,7 @@ How the README serves goal 11:
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
 index.go        a source's index: its categories left unloaded, and loading one on the first call reaching it
-node.go         the node model and JSON -> node compilation
+node.go         JSON -> node compilation
 table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
 name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and each binding's target
 namefence.go    the load fences over names
@@ -2035,7 +2035,6 @@ format.go       a format's tokens checked against their fields, and compiled int
 arm.go          the compiled read of one {a|b} alternative or operand: its head, the path to its leaf, the op holding it, and the op's draw
 reference.go    one reference's resolution: its sigil, its category, its tail
 resolve.go      resolving templates against the assembled tree in two stages, compile and fence, each over every template before the next
-loadfinds.go    what a load finds for its templates, choices and name bindings, kept out of the nodes until finish writes it into them
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
@@ -2055,6 +2054,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
+internal/engine/tree/ the node types of the template tree: what compile builds into each node, what its load found, which one finish writes into it, and the methods every other package reads a node through
 internal/grammar/ how the template language is written: format tokens, where and distinct clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one input a template compiles from, and the kind an error names it by

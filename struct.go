@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
@@ -67,7 +68,7 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 // structShape is a struct type compiled to fill: its tagged fields as one record, the field
 // index path each column fills, and the struct fields carrying tags of their own.
 type structShape struct {
-	record       *template
+	record       *tree.Template
 	fieldIndexes [][]int
 	nested       []nestedStruct
 }
@@ -84,7 +85,7 @@ func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 
 // loaded tree, the types compiling or embedded above, so a pointer back to one is left alone
 // rather than filled without end, and how many more structs it may walk.
 type structCompile struct {
-	root        *folder
+	root        *tree.Folder
 	visiting    map[reflect.Type]bool
 	structsLeft int
 }
@@ -255,9 +256,9 @@ func checkTaggedType(sf reflect.StructField) error {
 
 // compileRecord compiles the tagged fields of t as one record, and proves each column holds
 // only what its field's Go type can.
-func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) error {
+func (s *structShape) compileRecord(root *tree.Folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) error {
 	tags["format"] = jsonvalue.String("")
-	l := newLoadFinds()
+	l := tree.NewLoadFinds()
 	n, err := compileFrom(jsonvalue.Object(tags), atGoTop, l)
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
@@ -270,10 +271,10 @@ func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, 
 		return fmt.Errorf("%s: %w", label, err)
 	}
 	proof := &valueProof{}
-	s.fieldIndexes = make([][]int, len(record.columns))
-	for i, c := range record.columns {
-		sf, _ := t.FieldByName(c.name)
-		if err := proof.checkField(label+"."+c.name, sf.Type, c.field); err != nil {
+	s.fieldIndexes = make([][]int, len(record.Columns()))
+	for i, c := range record.Columns() {
+		sf, _ := t.FieldByName(c.Name())
+		if err := proof.checkField(label+"."+c.Name(), sf.Type, c.Field()); err != nil {
 			return err
 		}
 		s.fieldIndexes[i] = sf.Index

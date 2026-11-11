@@ -6,56 +6,16 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 	"github.com/larvit/fejkdata/internal/rows"
 )
 
-// table is a category whose rows come from a TSV beside it: the header names the
-// columns, each row is one draw, and the format renders the drawn row. A column is a
-// cell of the row a path pinned; a cell carrying tokens compiles to a string node.
-type table struct {
-	rows           *rowsTable
-	formatTemplate *template // fields are the column nodes
-	rowNode        *tableRow
-	cellTemplates  map[int]*template // by cellIndex
-	siblings       map[string]node   // the folder holding t, set by linkTables; every table linked to t sits there
-}
-
-type (
-	pinSet    = rows.Pins[*table]
-	rowsTable = rows.Table[*table]
-)
-
-func (*table) isNode() {}
-
-// tableColumn is one column of a table, rendered as the cell of the row the render pinned.
-type tableColumn struct {
-	t *table
-	i int
-}
-
-func (*tableColumn) isNode() {}
-
-func (c *tableColumn) name() string { return c.t.rows.Header()[c.i] }
-
-// tableRow is the row of a table the render pinned, rendered by the table's format.
-type tableRow struct{ t *table }
-
-func (*tableRow) isNode() {}
-
-// cellTemplate is what a cell renders: its compiled template where it carries tokens,
-// else nil for its text.
-func (t *table) cellTemplate(row, col int) *template {
-	return t.cellTemplates[t.cellIndex(row, col)]
-}
-
-func (t *table) cellIndex(row, col int) int { return row*len(t.rows.Header()) + col }
-
 var tableOptions = []string{"format", "key", "name", "parent", "rows", "weight"}
 
-func compileTable(m map[string]any, dir []string, name string, readRows func(file string) (string, error)) (*table, error) {
+func compileTable(m map[string]any, dir []string, name string, readRows func(file string) (string, error)) (*tree.Table, error) {
 	o, err := readTableOptions(m)
 	if err != nil {
 		return nil, err
@@ -64,16 +24,21 @@ func compileTable(m map[string]any, dir []string, name string, readRows func(fil
 	if err != nil {
 		return nil, err
 	}
-	t := &table{}
-	if t.rows, err = rows.Parse(t, name, categoryPath(dir, name), o.rows, data, o.options); err != nil {
+	t := &tree.Table{}
+	rs, err := rows.Parse(t, name, categoryPath(dir, name), o.rows, data, o.options)
+	if err != nil {
 		return nil, err
 	}
-	if err := compileCells(t); err != nil {
+	t.SetRows(rs)
+	cells, err := compileCells(rs)
+	if err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
-	if err := compileRowFormat(t, o.format); err != nil {
+	format, err := compileRowFormat(t, rs, o.format)
+	if err != nil {
 		return nil, err
 	}
+	t.SetSyntax(format, cells)
 	return t, nil
 }
 
@@ -112,52 +77,54 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 	return o, nil
 }
 
-func compileCells(t *table) error {
-	header := t.rows.Header()
-	for row := 0; row < t.rows.Len(); row++ {
+// compileCells compiles each cell of rs that carries tokens, by cellIndex.
+func compileCells(rs *tree.RowsTable) (map[int]*tree.Template, error) {
+	var cells map[int]*tree.Template
+	header := rs.Header()
+	for row := 0; row < rs.Len(); row++ {
 		for col := range header {
-			cell := t.rows.Cell(row, col)
+			cell := rs.Cell(row, col)
 			if strings.IndexByte(cell, '{') < 0 && strings.IndexByte(cell, '}') < 0 {
 				continue
 			}
 			n, err := compileCell(cell)
 			if err != nil {
-				return fmt.Errorf("line %d, %s: %w", row+2, header[col], err)
+				return nil, fmt.Errorf("line %d, %s: %w", row+2, header[col], err)
 			}
-			if t.cellTemplates == nil {
-				t.cellTemplates = map[int]*template{}
+			if cells == nil {
+				cells = map[int]*tree.Template{}
 			}
-			t.cellTemplates[t.cellIndex(row, col)] = n
+			cells[tree.CellIndex(len(header), row, col)] = n
 		}
 	}
-	return nil
+	return cells, nil
 }
 
 // compileCell compiles a cell carrying a token. A cell sits in no name scope, so it binds no
 // name and reads only references.
-func compileCell(cell string) (*template, error) {
+func compileCell(cell string) (*tree.Template, error) {
 	n, err := compileString(cell)
 	if err != nil {
 		return nil, err
 	}
-	if err := refuseInTable(n.tokens); err != nil {
+	if err := refuseInTable(n.Tokens()); err != nil {
 		return nil, err
 	}
-	if len(n.unbound) > 0 {
-		return nil, n.unbound[0].err
+	if len(n.Unbound()) > 0 {
+		return nil, n.Unbound()[0].Err()
 	}
 	return n, nil
 }
 
 // compileRowFormat compiles the format a row renders through, over the columns as its
 // fields.
-func compileRowFormat(t *table, format string) error {
+func compileRowFormat(t *tree.Table, rs *tree.RowsTable, format string) (*tree.Template, error) {
 	toks, err := grammar.ParseFormat(format)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := refuseInTable(toks); err != nil {
-		return err
+		return nil, err
 	}
 	for _, tok := range toks {
 		if tok.Kind != grammar.PathRead {
@@ -165,25 +132,23 @@ func compileRowFormat(t *table, format string) error {
 		}
 		for _, name := range tok.Arms {
 			a := splitRead(name, nil)
-			if _, ok := t.rows.Column(a.head); !ok && !grammar.IsRef(a.head) && a.head != "" {
-				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.head, t.rows.File(), t.rows.Header())
+			if _, ok := rs.Column(a.head); !ok && !grammar.IsRef(a.head) && a.head != "" {
+				return nil, fmt.Errorf("format names no column %q of %s; the columns are %v", a.head, rs.File(), rs.Header())
 			}
 		}
 	}
-	fields := make(map[string]node, len(t.rows.Header()))
-	for i, name := range t.rows.Header() {
-		fields[name] = &tableColumn{t, i}
+	fields := make(map[string]tree.Node, len(rs.Header()))
+	for i, name := range rs.Header() {
+		fields[name] = tree.NewTableColumn(t, i)
 	}
 	unbound, err := checkTokens(toks, fields)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if len(unbound) > 0 {
-		return unbound[0].err
+		return nil, unbound[0].Err()
 	}
-	t.formatTemplate = &template{format: format, tokens: toks, fields: fields, repeat: 1, isRecord: true}
-	t.rowNode = &tableRow{t}
-	return nil
+	return tree.NewTemplate(tree.TemplateSyntax{Format: format, Tokens: toks, Fields: fields, Repeat: 1, IsRecord: true}), nil
 }
 
 // refuseInTable refuses a table's format or cell binding a name, filtering a draw or drawing
@@ -204,59 +169,34 @@ func refuseInTable(toks []grammar.Token) error {
 
 func linkTables(sites []categorySite) error {
 	for _, s := range sites {
-		t, isTable := s.n.(*table)
+		t, isTable := s.n.(*tree.Table)
 		if !isTable {
 			continue
 		}
-		t.siblings = s.in.children
-		if t.rows.Options().Parent == "" {
+		t.SetSiblings(s.in.Children())
+		if t.Rows().Options().Parent == "" {
 			continue
 		}
-		if err := linkParent(t, s.in.children); err != nil {
+		if err := linkParent(t, s.in.Children()); err != nil {
 			return fmt.Errorf("%s: %w", s.path, err)
 		}
 	}
 	return nil
 }
 
-// childTables is each table whose parent is t, in name order.
-func (t *table) childTables() []*table {
-	var out []*table
-	for _, name := range sortedNames(t.siblings) {
-		if c, isTable := t.siblings[name].(*table); isTable && c.rows.Parent() == t.rows {
-			out = append(out, c)
-		}
-	}
-	return out
-}
-
-// descendant is the table named name among those linked to t, at any depth, or nil.
-func (t *table) descendant(name string) *table {
-	d, isTable := t.siblings[name].(*table)
-	if !isTable {
-		return nil
-	}
-	for p := d.rows.Parent(); p != nil; p = p.Parent() {
-		if p == t.rows {
-			return d
-		}
-	}
-	return nil
-}
-
 // linkParent links t to the table among siblings that its link column names.
-func linkParent(t *table, siblings map[string]node) error {
-	name := t.rows.Options().Parent
-	p, ok := siblings[name].(*table)
+func linkParent(t *tree.Table, siblings map[string]tree.Node) error {
+	name := t.Rows().Options().Parent
+	p, ok := siblings[name].(*tree.Table)
 	switch {
 	case siblings[name] == nil:
 		return fmt.Errorf("parent %q names no table beside it", name)
 	case !ok:
 		return fmt.Errorf("parent %q is not a table; a link column reads a table's key", name)
 	}
-	return t.rows.Link(p.rows, func(sibling string) *rowsTable {
-		if q, ok := siblings[sibling].(*table); ok {
-			return q.rows
+	return t.Rows().Link(p.Rows(), func(sibling string) *tree.RowsTable {
+		if q, ok := siblings[sibling].(*tree.Table); ok {
+			return q.Rows()
 		}
 		return nil
 	})
@@ -275,16 +215,16 @@ type tableRoute struct {
 // from a row of a table linked to it, so t reads a row even where tail is empty; a
 // table reached otherwise, with no selector and an empty tail, is left to a render's
 // own draw.
-func routeThrough(t *table, tail []string, fromRow bool) (tableRoute, error) {
+func routeThrough(t *tree.Table, tail []string, fromRow bool) (tableRoute, error) {
 	sel, tail, err := splitSelector(t, tail)
 	if err != nil {
 		return tableRoute{}, err
 	}
 	if len(tail) > 0 && tail[0] == ".." {
-		if err := t.rows.ProveStepUp(tail[1:]); err != nil {
+		if err := t.Rows().ProveStepUp(tail[1:]); err != nil {
 			return tableRoute{}, err
 		}
-		return tableRoute{sel: sel, draw: sel == "", then: pathPos{n: t.rows.Parent().Owner(), tail: tail[2:], fromRow: true}, up: true}, nil
+		return tableRoute{sel: sel, draw: sel == "", then: pathPos{n: t.Rows().Parent().Owner(), tail: tail[2:], fromRow: true}, up: true}, nil
 	}
 	column, child, err := columnOrLinked(t, tail)
 	if err != nil {
@@ -300,7 +240,7 @@ func routeThrough(t *table, tail []string, fromRow bool) (tableRoute, error) {
 	case !readsRow:
 		r.then = pathPos{n: t}
 	case len(tail) == 0:
-		r.then = pathPos{n: t.rowNode}
+		r.then = pathPos{n: t.RowNode()}
 	case child != nil:
 		r.then = pathPos{n: child, tail: tail[1:], fromRow: true}
 	default:
@@ -311,79 +251,79 @@ func routeThrough(t *table, tail []string, fromRow bool) (tableRoute, error) {
 
 // routeSteps appends the steps r takes past t, the first at at, pinning in pins the row
 // it selects.
-func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) ([]pathStep, error) {
+func routeSteps(steps []tree.PathStep, pins *tree.PinSet, t *tree.Table, r tableRoute, at int) ([]tree.PathStep, error) {
 	if r.sel != "" {
-		row, err := pins.Select(t.rows, r.sel)
+		row, err := pins.Select(t.Rows(), r.sel)
 		if err != nil {
 			return steps, err
 		}
-		steps = append(steps, pathStep{kind: stepSelect, at: at, name: r.sel, row: row})
+		steps = append(steps, tree.NewPathStep(tree.StepSelect, at, r.sel, row))
 		at++
 	}
 	if r.draw {
-		steps = append(steps, pathStep{kind: stepDraw, at: at})
+		steps = append(steps, tree.NewPathStep(tree.StepDraw, at, "", 0))
 	}
 	switch next := r.then.n.(type) {
-	case *table:
+	case *tree.Table:
 		switch {
 		case r.up:
-			steps = append(steps, pathStep{kind: stepParent, at: at})
+			steps = append(steps, tree.NewPathStep(tree.StepParent, at, "", 0))
 		case next != t:
-			steps = append(steps, pathStep{kind: stepChild, at: at, name: next.rows.Segment()})
+			steps = append(steps, tree.NewPathStep(tree.StepChild, at, next.Rows().Segment(), 0))
 		}
-	case *tableRow:
-		steps = append(steps, pathStep{kind: stepRow, at: at})
-	case *tableColumn:
-		steps = append(steps, pathStep{kind: stepColumn, at: at, name: next.name()})
+	case *tree.TableRow:
+		steps = append(steps, tree.NewPathStep(tree.StepRow, at, "", 0))
+	case *tree.TableColumn:
+		steps = append(steps, tree.NewPathStep(tree.StepColumn, at, next.Name(), 0))
 	default:
-		panic(invariant.Broken("%s: a route onto %T", t.rows.Segment(), r.then.n))
+		panic(invariant.Broken("%s: a route onto %T", t.Rows().Segment(), r.then.n))
 	}
 	return steps, nil
 }
 
-func followStep(t *table, s *drawstate.State, st pathStep, pins *pinSet) node {
-	switch st.kind {
-	case stepSelect:
-		if err := pins.PinRow(t.rows, st.row); err != nil {
-			panic(invariant.Broken("%s[%s]: %v", t.rows.Segment(), st.name, err))
+func followStep(t *tree.Table, s *drawstate.State, st tree.PathStep, pins *tree.PinSet) tree.Node {
+	switch st.Kind() {
+	case tree.StepSelect:
+		if err := pins.PinRow(t.Rows(), st.Row()); err != nil {
+			panic(invariant.Broken("%s[%s]: %v", t.Rows().Segment(), st.Name(), err))
 		}
 		return t
-	case stepDraw:
-		t.rows.DrawIn(s, pins)
+	case tree.StepDraw:
+		t.Rows().DrawIn(s, pins)
 		return t
-	case stepRow:
-		return t.rowNode
-	case stepColumn:
-		return t.formatTemplate.fields[st.name]
-	case stepChild:
-		return t.descendant(st.name)
-	case stepParent:
-		return t.rows.Parent().Owner()
+	case tree.StepRow:
+		return t.RowNode()
+	case tree.StepColumn:
+		return t.FormatTemplate().Fields()[st.Name()]
+	case tree.StepChild:
+		return t.Descendant(st.Name())
+	case tree.StepParent:
+		return t.Rows().Parent().Owner()
 	}
-	panic(invariant.Broken("followStep has no case for step kind %d", st.kind))
+	panic(invariant.Broken("followStep has no case for step kind %d", st.Kind()))
 }
 
-func splitSelector(t *table, tail []string) (sel string, rest []string, err error) {
+func splitSelector(t *tree.Table, tail []string) (sel string, rest []string, err error) {
 	if len(tail) == 0 || !grammar.IsSelector(tail[0]) {
 		return "", tail, nil
 	}
 	sel, rest = grammar.SelectorOf(tail[0]), tail[1:]
 	if len(rest) > 0 && grammar.IsSelector(rest[0]) {
-		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.rows.Segment(), sel)
+		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.Rows().Segment(), sel)
 	}
 	return sel, rest, nil
 }
 
-func columnOrLinked(t *table, tail []string) (column node, child *table, err error) {
+func columnOrLinked(t *tree.Table, tail []string) (column tree.Node, child *tree.Table, err error) {
 	if len(tail) == 0 {
 		return nil, nil, nil
 	}
-	if column, ok := t.formatTemplate.fields[tail[0]]; ok {
+	if column, ok := t.FormatTemplate().Fields()[tail[0]]; ok {
 		return column, nil, nil
 	}
-	d := t.descendant(tail[0])
+	d := t.Descendant(tail[0])
 	if d == nil {
-		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.rows.Segment())
+		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.Rows().Segment())
 	}
 	return nil, d, nil
 }

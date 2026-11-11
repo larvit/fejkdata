@@ -6,159 +6,62 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
-
-// nameScope is where a name is bound: a category, one iteration of a repeat inside it, or one
-// render of a choice's item. A token sees its scope's names and every enclosing scope's, so one
-// field may bind a name and another read it.
-type nameScope struct {
-	up       *nameScope
-	owner    node // the category's root, the repeat, or the choice's item
-	bindings map[string]*nameBinding
-	order    []*nameBinding
-}
-
-type nameBinding struct {
-	// Filled by `bindNames`, from the compiled category:
-	name     string
-	ref      string // what it binds, as written: a reference, or a path into a field of binder
-	body     string
-	distinct *grammar.Distinct // what a {ref distinct N as name} draws; nil for a single value
-	where    string            // the fields reaching the binding template, as a compile error spells them
-	scope    *nameScope
-	index    int
-	binder   *template
-
-	// Written by finish, from what its load found:
-	*bindingFinds
-}
-
-// nameTarget is what a binding resolves to in the assembled tree: start, the node its head names, and
-// the path it reads into that node.
-type nameTarget struct {
-	start node
-	tail  []string
-}
-
-// bindsField reports whether b binds a path into a field, so a read of it stays in the category.
-func (b *nameBinding) bindsField() bool { return !grammar.IsRef(b.ref) }
-
-func (sc *nameScope) lookup(name string) *nameBinding {
-	for ; sc != nil; sc = sc.up {
-		if b, ok := sc.bindings[name]; ok {
-			return b
-		}
-	}
-	return nil
-}
 
 // bindNames records in l, for every template and choice of a compiled category or inline
 // template, the scope its names live in. It refuses a name bound twice along one chain of
 // scopes, a name a field spells too, and a read no field or name answers.
-func bindNames(root node, l *loadFinds) error {
-	var scopes []*nameScope
-	var gather func(n node, scope *nameScope, item bool, where string) error
-	gather = func(n node, scope *nameScope, item bool, where string) error {
-		if t, isTemplate := n.(*template); n == root || isTemplate && (t.repeat > 1 || item) {
-			scope = &nameScope{up: scope, owner: n}
+func bindNames(root tree.Node, l *tree.LoadFinds) error {
+	var scopes []*tree.NameScope
+	var gather func(n tree.Node, scope *tree.NameScope, item bool, where string) error
+	gather = func(n tree.Node, scope *tree.NameScope, item bool, where string) error {
+		if t, isTemplate := n.(*tree.Template); n == root || isTemplate && (t.Repeat() > 1 || item) {
+			scope = tree.NewNameScope(scope, n)
 			scopes = append(scopes, scope)
 		}
 		switch t := n.(type) {
-		case *template:
-			l.template(t).nameScope = scope
+		case *tree.Template:
+			l.SetNameScope(t, scope)
 			if err := bindAll(scope, t, where); err != nil {
 				return err
 			}
-		case *choice:
-			l.choices[t] = scope
+		case *tree.Choice:
+			l.SetChoiceScope(t, scope)
 		}
-		_, isChoice := n.(*choice)
+		_, isChoice := n.(*tree.Choice)
 		return eachContained(n, where, func(c containedNode, where string) error { return gather(c.node, scope, isChoice, where) })
 	}
 	if err := gather(root, nil, false, ""); err != nil {
 		return err
 	}
 	for _, sc := range scopes[1:] {
-		for _, b := range sc.order {
-			if outer := sc.up.lookup(b.name); outer != nil {
-				return fmt.Errorf("%stoken {%s}: name %q is bound outside this %s too, by {%s}; rename one", b.where, b.body, b.name, sc.kind(), outer.body)
+		for _, b := range sc.Order() {
+			if outer := sc.Up().Lookup(b.Name()); outer != nil {
+				return fmt.Errorf("%stoken {%s}: name %q is bound outside this %s too, by {%s}; rename one", b.Where(), b.Body(), b.Name(), sc.Kind(), outer.Body())
 			}
 		}
 	}
 	return answerReads(root, scopes, l)
 }
 
-func bindAll(sc *nameScope, t *template, where string) error {
-	for _, tok := range t.tokens {
+func bindAll(sc *tree.NameScope, t *tree.Template, where string) error {
+	for _, tok := range t.Tokens() {
 		if tok.Kind != grammar.NameBind {
 			continue
 		}
-		if b, twice := sc.bindings[tok.Bound]; twice {
-			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.Body, tok.Bound, sc.spelled(), b.body)
+		if b, twice := sc.Bindings()[tok.Bound]; twice {
+			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.Body, tok.Bound, sc.Spelled(), b.Body())
 		}
-		b := &nameBinding{name: tok.Bound, ref: tok.BoundRef, body: tok.Body, distinct: tok.Distinct, where: where, scope: sc, index: len(sc.order), binder: t}
-		if sc.bindings == nil {
-			sc.bindings = map[string]*nameBinding{}
-		}
-		sc.bindings[b.name] = b
-		sc.order = append(sc.order, b)
-	}
-	return nil
-}
-
-// within reports whether sc is other or lies inside it, so other's frame is open wherever sc's is.
-func (sc *nameScope) within(other *nameScope) bool {
-	for ; sc != nil; sc = sc.up {
-		if sc == other {
-			return true
-		}
-	}
-	return false
-}
-
-func (sc *nameScope) spelled() string {
-	if k := sc.kind(); k != scopeCategory {
-		return "in one " + k.String()
-	}
-	return "outside any repeat"
-}
-
-// scopeKind is what a name scope is: the category's own, a repeat's, or a choice's item's.
-type scopeKind uint8
-
-const (
-	scopeCategory scopeKind = iota
-	scopeRepeat
-	scopeChoiceItem
-)
-
-func (k scopeKind) String() string {
-	return [...]string{scopeCategory: "category", scopeRepeat: "repeat", scopeChoiceItem: "choice item"}[k]
-}
-
-func (sc *nameScope) kind() scopeKind {
-	switch t, isTemplate := sc.owner.(*template); {
-	case isTemplate && t.repeat > 1:
-		return scopeRepeat
-	case sc.up == nil:
-		return scopeCategory
-	}
-	return scopeChoiceItem
-}
-
-// ownScope is the scope t renders a frame of: a category's, once per render of its root, a
-// repeat's, once per iteration, or a choice item's, once per draw of the item. It is nil where t owns no scope, or its scope binds no name.
-func (t *template) ownScope() *nameScope {
-	if sc := t.nameScope; sc != nil && sc.owner == node(t) && len(sc.order) > 0 {
-		return sc
+		sc.Bind(tok, where, t)
 	}
 	return nil
 }
 
 // eachContained calls fn for each node n contains, with where naming the fields reaching it as
 // compile errors do.
-func eachContained(n node, where string, fn func(c containedNode, where string) error) error {
+func eachContained(n tree.Node, where string, fn func(c containedNode, where string) error) error {
 	for _, c := range contained(n) {
 		next := where
 		if c.name != "" {
@@ -174,16 +77,16 @@ func eachContained(n node, where string, fn func(c containedNode, where string) 
 // answerReads proves each unbound read under root is answered by a name its template sees. It answers a template's fields before its format, the
 // order compile reports in, and refuses a field spelling a name. A refusal searches scopes, every
 // scope of the category, for a name bound where the read cannot see it.
-func answerReads(root node, scopes []*nameScope, l *loadFinds) error {
-	var answer func(n node, where string, up besideField) error
-	answer = func(n node, where string, up besideField) error {
-		t, isTemplate := n.(*template)
+func answerReads(root tree.Node, scopes []*tree.NameScope, l *tree.LoadFinds) error {
+	var answer func(n tree.Node, where string, up besideField) error
+	answer = func(n tree.Node, where string, up besideField) error {
+		t, isTemplate := n.(*tree.Template)
 		err := eachContained(n, where, func(c containedNode, where string) error {
 			inner := up
 			switch n.(type) {
-			case *template:
-				inner = besideField{t: t, scope: l.of(t).nameScope, field: c.name}
-			case *choice:
+			case *tree.Template:
+				inner = besideField{t: t, scope: l.Of(t).NameScope(), field: c.name}
+			case *tree.Choice:
 				inner.inItem = true
 			}
 			return answer(c.node, where, inner)
@@ -191,18 +94,18 @@ func answerReads(root node, scopes []*nameScope, l *loadFinds) error {
 		if err != nil || !isTemplate {
 			return err
 		}
-		sc := l.of(t).nameScope
-		for _, name := range sortedNames(t.fields) {
-			if b := sc.lookup(name); b != nil {
+		sc := l.Of(t).NameScope()
+		for _, name := range sortedNames(t.Fields()) {
+			if b := sc.Lookup(name); b != nil {
 				holder := "the root template"
 				if where != "" {
 					holder = strings.TrimSuffix(where, ": ")
 				}
-				return fmt.Errorf("%stoken {%s}: name %q is a field of %s too; options, fields and names share one namespace, so rename one", b.where, b.body, name, holder)
+				return fmt.Errorf("%stoken {%s}: name %q is a field of %s too; options, fields and names share one namespace, so rename one", b.Where(), b.Body(), name, holder)
 			}
 		}
-		for _, u := range t.unbound {
-			if sc.lookup(u.head) == nil {
+		for _, u := range t.Unbound() {
+			if sc.Lookup(u.Head()) == nil {
 				return unanswered(where, u, sc, scopes, up)
 			}
 		}
@@ -215,47 +118,47 @@ func answerReads(root node, scopes []*nameScope, l *loadFinds) error {
 // is t's, field is the field of t it lies under, and inItem says it is an item of a choice in
 // that field.
 type besideField struct {
-	t      *template
-	scope  *nameScope
+	t      *tree.Template
+	scope  *tree.NameScope
 	field  string
 	inItem bool
 }
 
 // refusal is the refusal of u where up's template holds u's head.
-func (up besideField) refusal(where string, u unboundRead) error {
+func (up besideField) refusal(where string, u tree.UnboundRead) error {
 	holder := fmt.Sprintf("field %q", up.field)
 	if up.inItem {
 		holder = fmt.Sprintf("the item of field %q holding it", up.field)
 	}
-	fix := fmt.Sprintf("give %s a format and a %q of its own", holder, u.head)
-	if up.scope.kind() != scopeChoiceItem {
-		fix += fmt.Sprintf(", or bind {%s as n} in the format beside field %q and read n in place of %s", u.head, up.field, u.head)
+	fix := fmt.Sprintf("give %s a format and a %q of its own", holder, u.Head())
+	if up.scope.Kind() != tree.ScopeChoiceItem {
+		fix += fmt.Sprintf(", or bind {%s as n} in the format beside field %q and read n in place of %s", u.Head(), up.field, u.Head())
 	}
-	return fmt.Errorf("%stoken {%s}: %q is a field beside field %q, and a token reads only the fields of the template whose format holds it: %s", where, u.body, u.head, up.field, fix)
+	return fmt.Errorf("%stoken {%s}: %q is a field beside field %q, and a token reads only the fields of the template whose format holds it: %s", where, u.Body(), u.Head(), up.field, fix)
 }
 
 // unanswered is the refusal of u, a read no field or name answers: naming the repeat binding the
 // name where the read cannot see it, else the names the read sees.
-func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScope, up besideField) error {
+func unanswered(where string, u tree.UnboundRead, seen *tree.NameScope, scopes []*tree.NameScope, up besideField) error {
 	for _, sc := range scopes {
-		if b, ok := sc.bindings[u.head]; ok {
-			at := strings.TrimSuffix(b.where, ": ")
+		if b, ok := sc.Bindings()[u.Head()]; ok {
+			at := strings.TrimSuffix(b.Where(), ": ")
 			if at == "" {
 				at = "an item of the root choice"
 			}
-			if sc.kind() == scopeChoiceItem {
-				return fmt.Errorf("%s%w; name %q is bound at %s, inside an item of a choice, which a read outside that item cannot see; bind it outside the choice", where, u.err, u.head, at)
+			if sc.Kind() == tree.ScopeChoiceItem {
+				return fmt.Errorf("%s%w; name %q is bound at %s, inside an item of a choice, which a read outside that item cannot see; bind it outside the choice", where, u.Err(), u.Head(), at)
 			}
-			return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, at)
+			return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.Err(), u.Head(), at)
 		}
 	}
-	if up.t != nil && up.t.fields[u.head] != nil {
+	if up.t != nil && up.t.Fields()[u.Head()] != nil {
 		return up.refusal(where, u)
 	}
 	var visible []string
-	for sc := seen; sc != nil; sc = sc.up {
-		for _, b := range sc.order {
-			visible = append(visible, b.name)
+	for sc := seen; sc != nil; sc = sc.Up() {
+		for _, b := range sc.Order() {
+			visible = append(visible, b.Name())
 		}
 	}
 	if len(visible) > 0 {
@@ -263,29 +166,29 @@ func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 		for i, name := range visible {
 			visible[i] = strconv.Quote(name)
 		}
-		return fmt.Errorf("%stoken {%s}: no field or name %q; the names bound here are %s", where, u.body, u.head, strings.Join(visible, ", "))
+		return fmt.Errorf("%stoken {%s}: no field or name %q; the names bound here are %s", where, u.Body(), u.Head(), strings.Join(visible, ", "))
 	}
-	return fmt.Errorf("%s%w", where, u.err)
+	return fmt.Errorf("%s%w", where, u.Err())
 }
 
-func isName(t *template, head string, l *loadFinds) bool {
-	return !grammar.IsRef(head) && t.fields[head] == nil && l.of(t).nameScope.lookup(head) != nil
+func isName(t *tree.Template, head string, l *tree.LoadFinds) bool {
+	return !grammar.IsRef(head) && t.Fields()[head] == nil && l.Of(t).NameScope().Lookup(head) != nil
 }
 
 // namedReadAt is one read of a name in a format: the op holding it, and the compiled arm.
 type namedReadAt struct {
-	o *op
-	a *arm
+	o *tree.Op
+	a *tree.Arm
 }
 
 // namedReads is every read of a name t's format makes, in format order.
-func namedReads(t *template, l *loadFinds) []namedReadAt {
-	ops := l.of(t).compiled.ops
+func namedReads(t *tree.Template, l *tree.LoadFinds) []namedReadAt {
+	ops := l.Of(t).Compiled().Ops()
 	var out []namedReadAt
 	for i := range ops {
 		o := &ops[i]
-		for _, a := range o.reads() {
-			if a.kind == namedRead {
+		for _, a := range o.Reads() {
+			if a.Kind() == tree.NamedRead {
 				out = append(out, namedReadAt{o: o, a: a})
 			}
 		}
@@ -294,25 +197,25 @@ func namedReads(t *template, l *loadFinds) []namedReadAt {
 }
 
 // readsOfNames is every read of each name in ts, in the order ts lists them.
-func readsOfNames(ts []templateSite, l *loadFinds) map[*nameBinding][]*arm {
-	reads := map[*nameBinding][]*arm{}
+func readsOfNames(ts []templateSite, l *tree.LoadFinds) map[*tree.NameBinding][]*tree.Arm {
+	reads := map[*tree.NameBinding][]*tree.Arm{}
 	for _, s := range ts {
 		for _, r := range namedReads(s.t, l) {
-			reads[r.a.named] = append(reads[r.a.named], r.a)
+			reads[r.a.Named()] = append(reads[r.a.Named()], r.a)
 		}
 	}
 	return reads
 }
 
 // nameTargets resolves what each binding of ts binds, from its binder's references.
-func nameTargets(ts []templateSite, l *loadFinds) map[*nameBinding]nameTarget {
-	targets := map[*nameBinding]nameTarget{}
+func nameTargets(ts []templateSite, l *tree.LoadFinds) map[*tree.NameBinding]tree.NameTarget {
+	targets := map[*tree.NameBinding]tree.NameTarget{}
 	for _, s := range ts {
-		tl := l.of(s.t)
-		for _, tok := range s.t.tokens {
+		tl := l.Of(s.t)
+		for _, tok := range s.t.Tokens() {
 			if tok.Kind == grammar.NameBind {
-				a := splitRead(tok.BoundRef, tl.refs.bySpelling)
-				targets[tl.nameScope.bindings[tok.Bound]] = nameTarget{start: s.t.startOf(a.head, tl.refs), tail: a.tail}
+				a := splitRead(tok.BoundRef, tl.Refs().BySpelling())
+				targets[tl.NameScope().Bindings()[tok.Bound]] = tree.NewNameTarget(s.t.StartOf(a.head, tl.Refs()), a.tail)
 			}
 		}
 	}

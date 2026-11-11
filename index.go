@@ -8,21 +8,16 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// indexed is a category an index names and no call has reached yet, and the source holding it.
-type indexed struct {
-	entry datafiles.IndexEntry
-	src   datafiles.Source
-}
-
 // placeIndex sets every category the index names as unloaded in root, in place of what
 // root holds at its path.
-func placeIndex(root *folder, src datafiles.Source, index map[string]datafiles.IndexEntry) {
+func placeIndex(root *tree.Folder, src datafiles.Source, index map[string]datafiles.IndexEntry) {
 	for _, p := range sortedNames(index) {
 		segs := strings.Split(p, ".")
-		madeFolder(root, segs[:len(segs)-1]).putUnloaded(segs[len(segs)-1], &indexed{entry: index[p], src: src})
+		madeFolder(root, segs[:len(segs)-1]).PutUnloaded(segs[len(segs)-1], tree.NewIndexed(index[p], src))
 	}
 }
 
@@ -30,20 +25,20 @@ func placeIndex(root *folder, src datafiles.Source, index map[string]datafiles.I
 // folder's path, and its name.
 type categoryAt struct {
 	dir  []string
-	in   *folder
+	in   *tree.Folder
 	name string
 }
 
-func (c categoryAt) unloaded() bool { return c.in.unloaded[c.name] != nil }
+func (c categoryAt) unloaded() bool { return c.in.Unloaded()[c.name] != nil }
 
 // categoryOn is the category, loaded or not, that a path from root names or passes.
-func categoryOn(root *folder, segs []string) (categoryAt, bool) {
+func categoryOn(root *tree.Folder, segs []string) (categoryAt, bool) {
 	g, i := folderAt(root, segs)
 	if i == len(segs) {
 		return categoryAt{}, false
 	}
 	c := categoryAt{dir: segs[:i:i], in: g, name: segs[i]}
-	return c, c.unloaded() || g.children[c.name] != nil
+	return c, c.unloaded() || g.Children()[c.name] != nil
 }
 
 // loadCallerPath strips the / a caller's path may start with, splits the path, and loads the
@@ -58,7 +53,7 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 		return "", nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
-		if err := loadReached(&f.root, nil, newLoadFinds(), []categoryAt{c}); err != nil {
+		if err := loadReached(&f.root, nil, tree.NewLoadFinds(), []categoryAt{c}); err != nil {
 			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
 		}
 	}
@@ -67,14 +62,14 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 
 // referenced is every category, loaded or not, that the templates of nodes reference, each
 // reference read from the folder dir.
-func referenced(root *folder, dir []string, nodes nodeSet) []categoryAt {
+func referenced(root *tree.Folder, dir []string, nodes nodeSet) []categoryAt {
 	var out []categoryAt
-	_ = nodes(func(_ string, n node) error {
-		t, isTemplate := n.(*template)
+	_ = nodes(func(_ string, n tree.Node) error {
+		t, isTemplate := n.(*tree.Template)
 		if !isTemplate {
 			return nil
 		}
-		for _, spelling := range refSpellings(t.tokens) {
+		for _, spelling := range refSpellings(t.Tokens()) {
 			segs, err := refSegments(spelling, dir)
 			if err != nil {
 				continue // resolveRefs reports it
@@ -90,13 +85,13 @@ func referenced(root *folder, dir []string, nodes nodeSet) []categoryAt {
 
 // needs is every category, loaded or not, that s references, the table beside s that its
 // parent column names, and every unloaded table beside s whose parent s is.
-func needs(root *folder, s categorySite) []categoryAt {
+func needs(root *tree.Folder, s categorySite) []categoryAt {
 	out := referenced(root, s.dir, siteNodes([]categorySite{s}))
 	if parent := parentOf(s.n); parent != "" {
 		out = append(out, categoryAt{dir: s.dir, in: s.in, name: parent})
 	}
-	for _, name := range sortedNames(s.in.unloaded) {
-		if s.in.unloaded[name].entry.Parent == s.name {
+	for _, name := range sortedNames(s.in.Unloaded()) {
+		if s.in.Unloaded()[name].Entry().Parent == s.name {
 			out = append(out, categoryAt{dir: s.dir, in: s.in, name: name})
 		}
 	}
@@ -104,10 +99,10 @@ func needs(root *folder, s categorySite) []categoryAt {
 }
 
 // loadReached loads the unloaded categories among wanted, and every unloaded category they
-// or sites need, compiling each into l, the loadFinds sites were compiled into. It then runs
+// or sites need, compiling each into l, the tree.LoadFinds sites were compiled into. It then runs
 // sites and all it loaded through a whole load's pipeline. On an error it puts back what it
 // loaded, so the next call fails the same way.
-func loadReached(root *folder, sites []categorySite, l *loadFinds, wanted []categoryAt) error {
+func loadReached(root *tree.Folder, sites []categorySite, l *tree.LoadFinds, wanted []categoryAt) error {
 	queue := wanted
 	for _, s := range sites {
 		queue = append(queue, needs(root, s)...)
@@ -128,35 +123,35 @@ type batch []loaded
 
 type loaded struct {
 	site categorySite
-	was  *indexed
+	was  *tree.Indexed
 }
 
 // load loads each unloaded category in queue and what it needs. It stops at a table whose
 // parent column disagrees with its entry. Otherwise a table could load without its parent.
-func (b *batch) load(root *folder, queue []categoryAt, l *loadFinds) error {
+func (b *batch) load(root *tree.Folder, queue []categoryAt, l *tree.LoadFinds) error {
 	for ; len(queue) > 0; queue = queue[1:] {
 		c := queue[0]
-		x := c.in.unloaded[c.name]
+		x := c.in.Unloaded()[c.name]
 		if x == nil {
 			continue
 		}
-		if err := x.src.Load(c.dir, c.name, compileInto(func([]string) *folder { return c.in }, l)); err != nil {
+		if err := x.Src().Load(c.dir, c.name, compileInto(func([]string) *tree.Folder { return c.in }, l)); err != nil {
 			if errors.Is(err, fs.ErrNotExist) {
-				err = fmt.Errorf("%s indexes %s: %w", x.src.ManifestPath(), categoryPath(c.dir, c.name), err)
+				err = fmt.Errorf("%s indexes %s: %w", x.Src().ManifestPath(), categoryPath(c.dir, c.name), err)
 			}
 			return err
 		}
 		s := siteIn(c.dir, c.in, c.name)
 		*b = append(*b, loaded{site: s, was: x})
-		if parent := parentOf(s.n); parent != x.entry.Parent {
-			return fmt.Errorf("%s: the index entry for %s %s, and its table %s", x.src.ManifestPath(), s.path, namesParent(x.entry.Parent), namesParent(parent))
+		if parent := parentOf(s.n); parent != x.Entry().Parent {
+			return fmt.Errorf("%s: the index entry for %s %s, and its table %s", x.Src().ManifestPath(), s.path, namesParent(x.Entry().Parent), namesParent(parent))
 		}
 		queue = append(queue, needs(root, s)...)
 	}
 	return nil
 }
 
-func (b batch) run(root *folder, sites []categorySite, l *loadFinds) error {
+func (b batch) run(root *tree.Folder, sites []categorySite, l *tree.LoadFinds) error {
 	sites = slices.Clip(sites)
 	for _, x := range b {
 		sites = append(sites, x.site)
@@ -164,12 +159,12 @@ func (b batch) run(root *folder, sites []categorySite, l *loadFinds) error {
 	if len(sites) == 0 {
 		return nil
 	}
-	return categoryPipeline(sites, root.children, l).run()
+	return categoryPipeline(sites, root.Children(), l).run()
 }
 
 func (b batch) putBack() {
 	for _, l := range b {
-		l.site.in.putUnloaded(l.site.name, l.was)
+		l.site.in.PutUnloaded(l.site.name, l.was)
 	}
 }
 
@@ -180,9 +175,9 @@ func namesParent(parent string) string {
 	return fmt.Sprintf("names parent %q", parent)
 }
 
-func parentOf(n node) string {
-	if t, isTable := n.(*table); isTable {
-		return t.rows.Options().Parent
+func parentOf(n tree.Node) string {
+	if t, isTable := n.(*tree.Table); isTable {
+		return t.Rows().Options().Parent
 	}
 	return ""
 }

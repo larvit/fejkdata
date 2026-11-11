@@ -12,6 +12,7 @@ import (
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 // MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along
@@ -29,7 +30,7 @@ type Generator struct {
 	// first call reaching it.
 	mu        sync.Mutex
 	drawState *drawstate.State
-	root      folder // the categories as the node a path walks from, owned here so a walk allocates none
+	root      tree.Folder // the categories as the node a path walks from, owned here so a walk allocates none
 	structs   map[reflect.Type]structResult
 }
 

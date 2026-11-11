@@ -8,99 +8,20 @@ import (
 	"strconv"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// node is a compiled element of the namespace tree: a folder, choice, null,
-// template, table, column or row.
-type node interface{ isNode() }
-
-// folder is a namespace of named children, built from a directory of JSON files
-// and subdirectories. It has no value of its own: descend into a named child by
-// dot path; rendering one is an error (see Fake).
-// A name stands in children or in unloaded, never both; put and putUnloaded keep it so.
-type folder struct {
-	children map[string]node
-	unloaded map[string]*indexed
-}
-
-func (*folder) isNode() {}
-
-func (g *folder) put(name string, n node) {
-	g.children[name] = n
-	delete(g.unloaded, name)
-}
-
-func (g *folder) putUnloaded(name string, x *indexed) {
-	delete(g.children, name)
-	if g.unloaded == nil {
-		g.unloaded = map[string]*indexed{}
-	}
-	g.unloaded[name] = x
-}
-
-// choice draws one of its items. cum holds cumulative weights for a weighted
-// draw; when nil the choice is uniform and selection is O(1). shared is the set of
-// relative dot paths every item carries, counting paths inside a repeated template.
-type choice struct {
-	items     []node
-	cum       []float64
-	shared    map[string]bool
-	nameScope *nameScope // where its items look a name up, written by finish
-}
-
-func (*choice) isNode() {}
-
-// nullItem is a column's missing value, rendered ""; sized so two nulls are two map keys.
-type nullItem struct{ _ byte }
-
-func (*nullItem) isNode() {}
-
-// template renders a format string, substituting {tokens} from fields. A bare
-// JSON string is a template with no fields. repeat (default 1) renders that format
-// that many times and joins the results with separator (default ""), each render
-// an independent draw. Every format compiles in `compileTemplates`.
-type template struct {
-	// Filled by `compileString`, `compileTemplate` and `compileRowFormat`:
-	format     string
-	tokens     []grammar.Token
-	fields     map[string]node
-	lets       map[string]bool // the fields its "let" holds, which write no column
-	repeat     int
-	separator  string
-	datatype   *DataType     // the "datatype" it carries, which wins over that of a column it reads; nil where none
-	fromString bool          // written as a JSON string rather than an object
-	isRecord   bool          // compiled at the top or as a column without a repeat, so its fields are columns
-	unbound    []unboundRead // the heads its tokens read that no field holds
-
-	// Written by finish, from what its load found:
-	*templateFinds
-}
-
-// templateRefs is what a template resolves to in the assembled tree.
-type templateRefs struct {
-	bySpelling map[string]resolvedRef // each reference the format reads -> what it resolves to
-	categories map[string]node        // each resolvedRef.head -> the category it names
-}
-
-func (*template) isNode() {}
-
-// startOf is the node an arm's head names: a sibling field, or a reference's category.
-func (t *template) startOf(name string, refs templateRefs) node {
-	if grammar.IsRef(name) {
-		return refs.categories[name]
-	}
-	return t.fields[name]
-}
-
 // compile converts parsed JSON — a category or an inline template — into a node tree,
 // validating structure up front, and gives its names their scopes in l.
-func compile(v jsonvalue.Value, l *loadFinds) (node, error) { return compileFrom(v, atTop, l) }
+func compile(v jsonvalue.Value, l *tree.LoadFinds) (tree.Node, error) {
+	return compileFrom(v, atTop, l)
+}
 
-func compileFrom(v jsonvalue.Value, pos position, l *loadFinds) (node, error) {
+func compileFrom(v jsonvalue.Value, pos position, l *tree.LoadFinds) (tree.Node, error) {
 	n, err := compileItem(v.Any(), pos)
 	if err != nil {
 		return nil, err
@@ -110,7 +31,7 @@ func compileFrom(v jsonvalue.Value, pos position, l *loadFinds) (node, error) {
 
 // compileCategory compiles a data file's value, which may be a table over a rows
 // file beside it.
-func compileCategory(c datafiles.Category, l *loadFinds) (node, error) {
+func compileCategory(c datafiles.Category, l *tree.LoadFinds) (tree.Node, error) {
 	if m, ok := c.JSON.Any().(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
 			return compileTable(m, c.Folders, c.Name, c.ReadRows)
@@ -136,7 +57,7 @@ const (
 func (p position) column() bool { return p == inColumn || p == inGoColumn || p == inColumnField }
 
 // compileItem compiles one node; a weight on it skews only a choice drawing it.
-func compileItem(v any, pos position) (node, error) {
+func compileItem(v any, pos position) (tree.Node, error) {
 	if _, err := weightOf(v); err != nil {
 		return nil, err
 	}
@@ -155,7 +76,7 @@ func compileItem(v any, pos position) (node, error) {
 		if !pos.column() {
 			return compileString("")
 		}
-		return &nullItem{}, nil
+		return &tree.NullItem{}, nil
 	case json.Number:
 		if pos == inColumn {
 			return nil, typedOrText(string(v), DataTypeInteger, DataTypeNumber)
@@ -182,38 +103,27 @@ func typedOrText(text string, ds ...DataType) error {
 	return fmt.Errorf(`%s in a record column fits no datatype; write %q for text`, text, text)
 }
 
-func compileString(s string) (*template, error) {
+func compileString(s string) (*tree.Template, error) {
 	toks, unbound, err := parseChecked(s, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: s, tokens: toks, repeat: 1, fromString: true, unbound: unbound}, nil
-}
-
-// fixedText is one render's output when the format holds no token; repeat is the caller's.
-func (t *template) fixedText() (string, bool) {
-	switch {
-	case len(t.tokens) == 0:
-		return "", true
-	case len(t.tokens) == 1 && t.tokens[0].Kind == grammar.LiteralRun:
-		return t.tokens[0].Lit, true
-	}
-	return "", false
+	return tree.NewTemplate(tree.TemplateSyntax{Format: s, Tokens: toks, Repeat: 1, FromString: true, Unbound: unbound}), nil
 }
 
 // printedOp is the one op of ops that prints, past the binds a where or distinct clause compiles to,
 // which print nothing; ok is false where more than one op prints, or none does.
-func printedOp(ops []op) (printed op, ok bool) {
+func printedOp(ops []tree.Op) (printed tree.Op, ok bool) {
 	n := 0
 	for _, o := range ops {
-		if o.Kind != grammar.NameBind {
+		if o.Token().Kind != grammar.NameBind {
 			printed, n = o, n+1
 		}
 	}
 	return printed, n == 1
 }
 
-func compileChoice(items []any, pos position) (node, error) {
+func compileChoice(items []any, pos position) (tree.Node, error) {
 	switch len(items) {
 	case 0:
 		return nil, fmt.Errorf("empty choice")
@@ -224,7 +134,7 @@ func compileChoice(items []any, pos position) (node, error) {
 	if pos.column() {
 		itemPos = pos
 	}
-	c := &choice{items: make([]node, len(items))}
+	compiled := make([]tree.Node, len(items))
 	cum := make([]float64, len(items))
 	var total float64
 	weighted := false
@@ -238,22 +148,20 @@ func compileChoice(items []any, pos position) (node, error) {
 		}
 		total += w
 		cum[i] = total
-		if c.items[i], err = compileItem(raw, itemPos); err != nil {
+		if compiled[i], err = compileItem(raw, itemPos); err != nil {
 			return nil, err
 		}
 	}
-	if weighted {
-		if err := checkWeightSum(total); err != nil {
-			return nil, err
-		}
-		c.cum = cum
+	if !weighted {
+		cum = nil
+	} else if err := checkWeightSum(total); err != nil {
+		return nil, err
 	}
-	c.shared = sharedPaths(c.items, true)
-	return c, nil
+	return tree.NewChoice(compiled, cum, sharedPaths(compiled, true)), nil
 }
 
 // compileLoneItem compiles a choice of one item, which is that item.
-func compileLoneItem(raw any, pos position) (node, error) {
+func compileLoneItem(raw any, pos position) (tree.Node, error) {
 	w, err := weightOf(raw)
 	if err != nil {
 		return nil, err
@@ -276,7 +184,7 @@ func checkWeightSum(total float64) error {
 	return nil
 }
 
-func compileTemplate(m map[string]any, pos position) (node, error) {
+func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
 	if _, isTable := m["rows"]; isTable {
 		return nil, fmt.Errorf("rows names a TSV beside a category's file, so only a category is a table; an inline template has no file beside it")
 	}
@@ -303,7 +211,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: o.format, tokens: toks, fields: fields, lets: lets, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos.column(), unbound: unbound}, nil
+	return tree.NewTemplate(tree.TemplateSyntax{Format: o.format, Tokens: toks, Fields: fields, Lets: lets, Repeat: o.repeat, Separator: o.separator, DataType: o.datatype, IsRecord: fieldPos.column(), Unbound: unbound}), nil
 }
 
 type templateOptions struct {
@@ -338,8 +246,8 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 
 // compileFields compiles the fields beside the options, and those the "let" option holds, which it
 // also names in lets. A key of let that is an option name fails, as a field cannot take it.
-func compileFields(m map[string]any, pos position) (fields map[string]node, lets map[string]bool, err error) {
-	fields = make(map[string]node, len(m))
+func compileFields(m map[string]any, pos position) (fields map[string]tree.Node, lets map[string]bool, err error) {
+	fields = make(map[string]tree.Node, len(m))
 	compile := func(raw map[string]any, skipOptions bool) error {
 		for _, k := range sortedNames(raw) {
 			if isOption(k) {

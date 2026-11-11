@@ -1,6 +1,8 @@
 package fejkdata
 
-import "sort"
+import (
+	"sort"
+)
 
 func sortedNames[V any](m map[string]V) []string {
 	names := make([]string, 0, len(m))
