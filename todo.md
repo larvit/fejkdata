@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 424 | 0.5.0 |  |  | **Rename `tree.Arm` to `tree.Read`, with its methods and variables, and define "read" in `internal/engine/doc.go`'s vocabulary.** | 1 | 1 | 1 | 1 | 2 | code health by 3 | 9.8 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
@@ -222,10 +221,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 
 ## Details
-
-### 424. Rename `tree.Arm` to `tree.Read`, with its methods and variables, and define "read" in `internal/engine/doc.go`'s vocabulary.
-
-The inherited architect of item 177's scoring run at 3f909f1 named `tree/arm.go:8` `Arm` a navigation cost: its comments and the vocabulary say a read, and the type says arm. `Op.Arms()` becomes `Op.Reads()`, where `Op.Reads()` (`tree/arm.go:104`) already returns a subset; give that one the name of what it returns. The file follows its type's stem. `doc.go:15` and `:32` name `tree.Arm` today.
 
 ### 403. Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.
 
