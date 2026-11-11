@@ -3,20 +3,19 @@ package fejkdata
 import (
 	"errors"
 	"fmt"
-	"math"
 	"reflect"
 	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
-	"github.com/larvit/fejkdata/internal/proven"
 )
 
 // FakeStruct fills the struct v points to. Each exported field tagged `fake:"…"` is a
@@ -241,9 +240,9 @@ func tagValue(sf reflect.StructField, tag string) (jsonvalue.Value, error) {
 
 // checkTaggedType rejects a tagged field no column can fill.
 func checkTaggedType(sf reflect.StructField) error {
-	_, holds := columnKinds[sf.Type.Kind()]
+	_, holds := fence.FieldKinds[sf.Type.Kind()]
 	if sf.Type.Kind() == reflect.Pointer {
-		_, holds = columnKinds[sf.Type.Elem().Kind()]
+		_, holds = fence.FieldKinds[sf.Type.Elem().Kind()]
 	}
 	switch {
 	case !sf.IsExported():
@@ -272,54 +271,16 @@ func (s *structShape) compileRecord(root *tree.Folder, t reflect.Type, label str
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
-	proof := &valueProof{}
+	if err := fence.CheckFields(label, t, record.Columns()); err != nil {
+		return err
+	}
 	s.fieldIndexes = make([][]int, len(record.Columns()))
 	for i, c := range record.Columns() {
 		sf, _ := t.FieldByName(c.Name())
-		if err := proof.checkField(label+"."+c.Name(), sf.Type, c.Field()); err != nil {
-			return err
-		}
 		s.fieldIndexes[i] = sf.Index
 	}
 	s.record = record
 	return nil
-}
-
-// columnKind is what a field of one Go kind holds: the datatype its text proves as, the range a
-// number of it stays in, and the kind to name when a value is not proven within that range.
-type columnKind struct {
-	datatype DataType
-	lo, hi   float64
-	wider    reflect.Kind
-}
-
-var columnKinds = map[reflect.Kind]columnKind{
-	reflect.Bool:    {datatype: DataTypeBoolean},
-	reflect.Float32: {DataTypeNumber, -math.MaxFloat32, math.MaxFloat32, reflect.Float64},
-	reflect.Float64: {DataTypeNumber, -math.MaxFloat64, math.MaxFloat64, reflect.Float64},
-	reflect.Int:     {DataTypeInteger, math.MinInt, math.MaxInt, reflect.Int64},
-	reflect.Int16:   {DataTypeInteger, math.MinInt16, math.MaxInt16, reflect.Int64},
-	reflect.Int32:   {DataTypeInteger, math.MinInt32, math.MaxInt32, reflect.Int64},
-	reflect.Int64:   {DataTypeInteger, math.MinInt64, math.MaxInt64, reflect.Int64},
-	reflect.Int8:    {DataTypeInteger, math.MinInt8, math.MaxInt8, reflect.Int64},
-	reflect.String:  {datatype: DataTypeString},
-	reflect.Uint:    {DataTypeInteger, 0, math.MaxUint, reflect.Int64},
-	reflect.Uint16:  {DataTypeInteger, 0, math.MaxUint16, reflect.Int64},
-	reflect.Uint32:  {DataTypeInteger, 0, math.MaxUint32, reflect.Int64},
-	reflect.Uint64:  {DataTypeInteger, 0, math.MaxUint64, reflect.Int64},
-	reflect.Uint8:   {DataTypeInteger, 0, math.MaxUint8, reflect.Int64},
-}
-
-// holds reports whether a field of this kind holds every value v proves. An integer prints
-// whole, so its bounds round inward first.
-func (k columnKind) holds(v proven.Facts) bool {
-	switch k.datatype {
-	case DataTypeString, DataTypeBoolean:
-		return true
-	case DataTypeInteger:
-		return math.Ceil(v.Lo) >= k.lo && math.Floor(v.Hi) <= k.hi
-	}
-	return v.Lo >= k.lo && v.Hi <= k.hi
 }
 
 // fill draws the record into v's tagged fields, then each nested struct as a record of its own.
@@ -371,17 +332,17 @@ func setColumn(field reflect.Value, c Column) {
 	field.Set(value)
 }
 
-// setText parses text into a field of one of columnKinds, which checkField proved it parses as.
+// setText parses text into a field of one of fence.FieldKinds, which fence.CheckFields proved it parses as.
 func setText(field reflect.Value, text string) {
 	var err error
-	switch kind := columnKinds[field.Kind()]; {
-	case kind.datatype == DataTypeString:
+	switch kind := fence.FieldKinds[field.Kind()]; {
+	case kind.Datatype == DataTypeString:
 		field.SetString(text)
-	case kind.datatype == DataTypeBoolean:
+	case kind.Datatype == DataTypeBoolean:
 		var b bool
 		b, err = strconv.ParseBool(text)
 		field.SetBool(b)
-	case kind.datatype == DataTypeNumber:
+	case kind.Datatype == DataTypeNumber:
 		var x float64
 		x, err = strconv.ParseFloat(text, field.Type().Bits())
 		field.SetFloat(x)

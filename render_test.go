@@ -6,6 +6,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
@@ -64,10 +65,10 @@ type unhandledNode struct{ tree.Node }
 
 // nodeSwitchSkips names, per switch, the kinds it is never handed.
 var nodeSwitchSkips = map[string][]string{
-	"ChildNamed":       {"Choice", "Table", "TableRow"},
-	"columnItems":      {"Folder", "Table", "TableRow"},
-	"render":           {"Folder"},
-	"valueProof.prove": {"Folder"},
+	"ChildNamed":  {"Choice", "Table", "TableRow"},
+	"ColumnItems": {"Folder", "Table", "TableRow"},
+	"render":      {"Folder"},
+	"Prove":       {"Folder"},
 }
 
 // nodeSamples holds one node of each kind, by the kind's name, and the table they came from.
@@ -97,7 +98,7 @@ func nodeSamples(t *testing.T) (map[string]tree.Node, *tree.Table) {
 func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 	return map[string]func(tree.Node){
 		"ChildNamed":  func(n tree.Node) { _, _ = load.ChildNamed(n, "x") },
-		"columnItems": func(n tree.Node) { columnItems(n) },
+		"ColumnItems": func(n tree.Node) { fence.ColumnItems(n) },
 		"Contained":   func(n tree.Node) { load.Contained(n) },
 		"Paths":       func(n tree.Node) { load.Paths(n, false) },
 		"render": func(n tree.Node) {
@@ -106,8 +107,8 @@ func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 			tbl.Rows().DrawIn(s, &pins)
 			render.Pinned(s, n, &pins)
 		},
-		"RenderEdges":      func(n tree.Node) { load.RenderEdges(n, nil) },
-		"valueProof.prove": func(n tree.Node) { (&valueProof{}).prove(n) },
+		"RenderEdges": func(n tree.Node) { load.RenderEdges(n, nil) },
+		"Prove":       func(n tree.Node) { fence.Prove(n) },
 	}
 }
 

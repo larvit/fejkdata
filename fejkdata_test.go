@@ -11,6 +11,7 @@ import (
 
 	"github.com/larvit/fejkdata/data"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
@@ -149,7 +150,7 @@ func resolved(t *testing.T, s string) (tree.Node, error) {
 		return n, err
 	}
 	l.Finish()
-	return n, fenceTemplates(ts)
+	return n, fence.Templates(ts)
 }
 
 // compiled parses, compiles and resolves a JSON fragment into a node.

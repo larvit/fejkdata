@@ -1,8 +1,8 @@
-package fejkdata
+package fence
 
 import (
 	"fmt"
-	"reflect"
+	"github.com/larvit/fejkdata/internal/datatype"
 	"slices"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
@@ -22,43 +22,11 @@ type valueProof struct {
 // checkDatatype rejects a typed column item some render of which is not text of its datatype.
 func (p *valueProof) checkDatatype(label string, n tree.Node) error {
 	t, ok := n.(*tree.Template)
-	if !ok || t.DataType() == nil || *t.DataType() == DataTypeString {
+	if !ok || t.DataType() == nil || *t.DataType() == datatype.String {
 		return nil
 	}
 	if reason := p.proveColumnItem(t).Not[*t.DataType()]; reason != "" {
 		return fmt.Errorf("%s: datatype %s: %s", label, *t.DataType(), reason)
-	}
-	return nil
-}
-
-// checkField rejects a column a field of Go type ft cannot fill: a datatype other than the one the
-// Go type sets, a null outside a pointer, or a value its kind's datatype or range refuses.
-func (p *valueProof) checkField(label string, ft reflect.Type, column tree.Node) error {
-	elem := ft
-	if ft.Kind() == reflect.Pointer {
-		elem = ft.Elem()
-	}
-	kind := columnKinds[elem.Kind()]
-	items, _ := columnItems(column)
-	for _, it := range items {
-		if it.DataType() != nil && *it.DataType() != kind.datatype {
-			return fmt.Errorf("%s: its Go type %s sets the datatype %s; drop \"datatype\"", label, ft, kind.datatype)
-		}
-	}
-	if ft.Kind() != reflect.Pointer && p.proveColumn(column).Nullable {
-		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
-	}
-	if kind.datatype == DataTypeString {
-		return nil
-	}
-	for _, it := range items {
-		v := p.proveColumnItem(it)
-		if reason := v.Not[kind.datatype]; reason != "" {
-			return fmt.Errorf("%s (%s): %s", label, ft, reason)
-		}
-		if !kind.holds(v) {
-			return fmt.Errorf("%s (%s): %q is not proven within %s; narrow it to that range, or make the field %s", label, ft, it.Format(), elem.Kind(), kind.wider)
-		}
 	}
 	return nil
 }
@@ -72,7 +40,7 @@ func (p *valueProof) proveColumn(n tree.Node) proven.Facts {
 	if p.columnMemo == nil {
 		p.columnMemo = map[tree.Node]proven.Facts{}
 	}
-	items, nullable := columnItems(n)
+	items, nullable := ColumnItems(n)
 	var v proven.Facts
 	for i, it := range items {
 		if w := p.proveColumnItem(it); i == 0 {
@@ -85,6 +53,9 @@ func (p *valueProof) proveColumn(n tree.Node) proven.Facts {
 	p.columnMemo[n] = v
 	return v
 }
+
+// Prove is what every render of n can print, proven on its own.
+func Prove(n tree.Node) proven.Facts { return (&valueProof{}).prove(n) }
 
 func (p *valueProof) prove(n tree.Node) proven.Facts {
 	if v, done := p.memo[n]; done {
@@ -187,7 +158,7 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 	if v, numeric := builtinfunc.ProveNumber(name, body, args); numeric {
 		return v
 	}
-	return proven.Printing(body, DataTypeString, proven.Facts{NotOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
+	return proven.Printing(body, datatype.String, proven.Facts{NotOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
 }
 
 func (p *valueProof) proveCalc(o tree.Op) proven.Facts {
@@ -295,7 +266,7 @@ func fallsBack(token string) proven.Facts {
 }
 
 func joinedText(token string) proven.Facts {
-	return proven.Printing(token, DataTypeString, proven.Facts{NotOperand: "{" + token + "} joins several values as text", Never: true})
+	return proven.Printing(token, datatype.String, proven.Facts{NotOperand: "{" + token + "} joins several values as text", Never: true})
 }
 
 var typedCalls, operandCalls = builtinfunc.TypedCalls(), builtinfunc.OperandCalls()

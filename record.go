@@ -9,6 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
@@ -287,7 +288,7 @@ func recordOf(n tree.Node) (*tree.Template, error) {
 	return t, nil
 }
 
-// settleRecords fixes the columns of every record in nodes. The pipeline runs it after load.CheckNoCycles: a
+// settleRecords fixes the columns of every record in nodes. The pipeline runs it after fence.CheckNoCycles: a
 // column's datatype walks the column, and a cycle would walk forever.
 func settleRecords(nodes nodeSet, l *tree.LoadFinds) {
 	_ = nodes(func(_ string, n tree.Node) error {
@@ -317,7 +318,7 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 	for _, name := range tree.SortedNames(t.Fields()) {
 		if !t.Lets()[name] {
 			field := t.Fields()[name]
-			columns = append(columns, tree.NewRecordColumn(name, columnDatatype(field, l), field, whole[field]))
+			columns = append(columns, tree.NewRecordColumn(name, fence.ColumnDatatype(field, l), field, whole[field]))
 		}
 	}
 	return columns

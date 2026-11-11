@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
@@ -148,42 +149,32 @@ func categoryPipeline(sites []categorySite, root map[string]tree.Node, l *tree.L
 }
 
 // run needs each stage to follow the one before. resolve binds what each template's tokens read, and
-// refuses a name or reference that can't resolve. refuseReadsInsideFields comes before the cycle
+// refuses a name or reference that can't resolve. fence.RefuseReadsInsideFields comes before the cycle
 // check: a name read inside the field bound to it is also a reference cycle, and its error says how
-// to fix the read. The cycle check comes before settleRecords, fenceTemplates and checkNodeFences,
-// whose walks recurse unguarded. settleRecords fixes each record's columns, which checkColumns
-// proves and checkNodeFences reads. Until finish, each stage reads from p.finds what the stages
+// to fix the read. The cycle check comes before settleRecords, fence.Templates and fence.CheckNodes,
+// whose walks recurse unguarded. settleRecords fixes each record's columns, which fence.CheckColumns
+// proves and fence.CheckNodes reads. Until finish, each stage reads from p.finds what the stages
 // before it found; from finish on, each reads the nodes.
 func (p pipeline) run() error {
 	ts, err := p.resolve()
 	if err != nil {
 		return err
 	}
-	if err := refuseReadsInsideFields(ts, p.finds); err != nil {
+	if err := fence.RefuseReadsInsideFields(ts, p.finds); err != nil {
 		return err
 	}
-	if err := load.CheckNoCycles(p.nodes, p.finds); err != nil {
+	if err := fence.CheckNoCycles(p.nodes, p.finds); err != nil {
 		return err
 	}
 	settleRecords(p.nodes, p.finds)
 	p.finds.Finish()
-	if err := fenceTemplates(ts); err != nil {
+	if err := fence.Templates(ts); err != nil {
 		return err
 	}
 	if !p.typedByGo {
-		if err := checkColumns(p.nodes); err != nil {
+		if err := fence.CheckColumns(p.nodes); err != nil {
 			return err
 		}
 	}
-	return checkNodeFences(p.nodes)
-}
-
-// checkNodeFences runs the per-node fences over s, each over every node before the next,
-// so which of several broken nodes is reported does not depend on the walk.
-func checkNodeFences(s nodeSet) error {
-	mem := load.RenderCounts{}
-	if err := s(func(label string, n tree.Node) error { return load.RepeatCheck(label, n, mem) }); err != nil {
-		return err
-	}
-	return s((&valueProof{}).checkDatatype)
+	return fence.CheckNodes(p.nodes)
 }

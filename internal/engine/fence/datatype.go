@@ -1,4 +1,4 @@
-package fejkdata
+package fence
 
 import (
 	"errors"
@@ -9,21 +9,9 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// DataType is what a record column holds, which decides how a record writes its value. It
-// prints as data spells it: string, integer, number or boolean.
-type DataType = datatype.DataType
-
-// The datatypes a column declares with "datatype"; a column without one is a string.
-const (
-	DataTypeString  DataType = datatype.String
-	DataTypeInteger DataType = datatype.Integer
-	DataTypeNumber  DataType = datatype.Number
-	DataTypeBoolean DataType = datatype.Boolean
-)
-
-// checkColumns rejects a record column whose items hold different datatypes, checking a column
+// CheckColumns rejects a record column whose items hold different datatypes, checking a column
 // after the other categories' columns its items read, so a column read is named before its readers.
-func checkColumns(s nodeSet) error {
+func CheckColumns(s func(fn func(label string, n tree.Node) error) error) error {
 	checked := map[tree.Node]bool{}
 	var check func(label, name string, column tree.Node) error
 	check = func(label, name string, column tree.Node) error {
@@ -31,14 +19,14 @@ func checkColumns(s nodeSet) error {
 			return nil
 		}
 		checked[column] = true
-		items, _ := columnItems(column)
+		items, _ := ColumnItems(column)
 		if err := checkReadColumns(label, name, items, check); err != nil {
 			return err
 		}
 		if len(items) == 0 {
 			return nil
 		}
-		first := columnDatatype(column, nil)
+		first := ColumnDatatype(column, nil)
 		for _, it := range items[1:] {
 			if d := itemDatatype(it, nil); d != first {
 				return fmt.Errorf("%s: field %q: %w", label, name, disagreement(items[0], first, it, d))
@@ -60,18 +48,18 @@ func checkColumns(s nodeSet) error {
 	})
 }
 
-// columnDatatype is the datatype a column holds, which its first item decides: checkColumns refuses
+// ColumnDatatype is the datatype a column holds, which its first item decides: CheckColumns refuses
 // a column whose items disagree. A table's column, like one only ever null, has no item and is a string.
-func columnDatatype(n tree.Node, l *tree.LoadFinds) DataType {
-	items, _ := columnItems(n)
+func ColumnDatatype(n tree.Node, l *tree.LoadFinds) datatype.DataType {
+	items, _ := ColumnItems(n)
 	if len(items) == 0 {
-		return DataTypeString
+		return datatype.String
 	}
 	return itemDatatype(items[0], l)
 }
 
-// columnItems is a column's template items, its choices unwrapped, and whether one is null.
-func columnItems(n tree.Node) (items []*tree.Template, nullable bool) {
+// ColumnItems is a column's template items, its choices unwrapped, and whether one is null.
+func ColumnItems(n tree.Node) (items []*tree.Template, nullable bool) {
 	var collect func(tree.Node)
 	collect = func(n tree.Node) {
 		switch n := n.(type) {
@@ -85,7 +73,7 @@ func columnItems(n tree.Node) (items []*tree.Template, nullable bool) {
 			nullable = true
 		case *tree.TableColumn:
 		default:
-			panic(invariant.Broken("columnItems has no case for node %T", n))
+			panic(invariant.Broken("ColumnItems has no case for node %T", n))
 		}
 	}
 	collect(n)
@@ -105,7 +93,7 @@ func kindOf(t *tree.Template) itemKind {
 	switch {
 	case t.DataType() != nil:
 		return kindDeclares
-	case itemDatatype(t, nil) != DataTypeString:
+	case itemDatatype(t, nil) != datatype.String:
 		return kindReads
 	}
 	return kindText
@@ -113,7 +101,7 @@ func kindOf(t *tree.Template) itemKind {
 
 // disagreement names the fix for items a and b of one column holding different datatypes, fixing
 // the one that declares least, a when both declare alike.
-func disagreement(a *tree.Template, da DataType, b *tree.Template, db DataType) error {
+func disagreement(a *tree.Template, da datatype.DataType, b *tree.Template, db datatype.DataType) error {
 	c := clash{fix: a, other: b, want: db, held: fmt.Sprintf("its items hold %s and %s; a column holds one datatype", da, db)}
 	if kindOf(b) < kindOf(a) {
 		c.fix, c.other, c.want = b, a, da
@@ -129,7 +117,7 @@ func disagreement(a *tree.Template, da DataType, b *tree.Template, db DataType) 
 // what each holds.
 type clash struct {
 	fix, other *tree.Template
-	want       DataType
+	want       datatype.DataType
 	held       string
 }
 
@@ -151,12 +139,12 @@ func (c clash) retypeRead() error {
 	if c.fits() {
 		return fmt.Errorf("%s, so %s", c.held, typedAs(c.fix, c.want))
 	}
-	return fmt.Errorf("%s, so to read %q as text, %s", c.held, c.fix.Format(), typedAs(c.fix, DataTypeString))
+	return fmt.Errorf("%s, so to read %q as text, %s", c.held, c.fix.Format(), typedAs(c.fix, datatype.String))
 }
 
 func (c clash) textBesideRead() error {
 	if !c.fits() {
-		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, c.fix.Format(), datatype.Noun(c.want), c.other.Format(), typedAs(c.other, DataTypeString))
+		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, c.fix.Format(), datatype.Noun(c.want), c.other.Format(), typedAs(c.other, datatype.String))
 	}
 	return c.declareText()
 }
@@ -170,7 +158,7 @@ func (c clash) declareText() error {
 
 // typedAs names the spelling giving a column-read item datatype d, keeping the other keys an object
 // item carries.
-func typedAs(t *tree.Template, d DataType) string {
+func typedAs(t *tree.Template, d datatype.DataType) string {
 	if t.FromString() {
 		return fmt.Sprintf(`write %q as {"format":%q,"datatype":%q}`, t.Format(), t.Format(), d)
 	}

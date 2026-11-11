@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
@@ -219,13 +218,6 @@ func TestNullColumn(t *testing.T) {
 	if !slices.Contains(f.List(), "row.gone") {
 		t.Errorf("List() = %v, want the null column row.gone, which Fake accepts", f.List())
 	}
-}
-
-func TestDisagreementRefusesTwoTextItems(t *testing.T) {
-	mustPanic(t, "two text items", func() {
-		text := compiled(t, `"a"`).(*tree.Template)
-		_ = disagreement(text, DataTypeString, text, DataTypeString)
-	})
 }
 
 func TestAReadOfAPathIntoAColumnIsNotThatColumn(t *testing.T) {

@@ -2023,14 +2023,9 @@ doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
 index.go        a source's index: its categories left unloaded, and loading one on the first call reaching it
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
-resolve.go      resolving every category's templates once all data is merged, then running the template fences over them
+resolve.go      resolving every category's templates once all data is merged
 table.go        linking each table to the parent it names
-namefence.go    the load fences over names
-where.go        the where fences: no filtered draw read through a path, no clause reading the name it binds, and the proof that every draw has enough values
-adddays.go      the {adddays()} proof that its day count is a whole number within the cap
-datatype.go     column datatypes: DataType, the check that a column's items agree on one, and the datatype a column holds
-columnread.go   a format that only reads a column: the checks run on the column read, and the datatype and proof the format takes from that column
-valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
+datatype.go     DataType, what a record column holds
 reference.go    the note an error gets, where a path names nothing, when no data is loaded
 render.go       Fake, and the draw of the path a caller names
 record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
@@ -2043,7 +2038,8 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
-internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, the paths List advertises, and the cycle and repeat fences
+internal/engine/fence/ the proofs and fences a finished tree passes at load: no reference cycle, no repeat past the cap, names that keep one pick, where clauses with enough values to draw, {adddays()} day counts, typed columns whose items agree, and what a typed column, calc operand or struct field can hold
+internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, and the paths List advertises
 internal/engine/render/ drawing a compiled tree: choices, format strings, expansions, paths and table steps, named picks and the frames they render in, where and reword draws, and a record's columns
 internal/engine/tree/ the node types of the template tree, what a load found for them, and the methods every other package reads or sets a node through
 internal/grammar/ how the template language is written: format tokens, where and distinct clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path

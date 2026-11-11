@@ -29,7 +29,7 @@ func TestPackageImports(t *testing.T) {
 	}
 	checked := 0
 	allowed := map[string][]string{
-		".":                      {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/engine/load", "internal/engine/render", "internal/engine/tree", "internal/grammar", "internal/invariant", "internal/jsonvalue", "internal/proven"},
+		".":                      {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/engine/fence", "internal/engine/load", "internal/engine/render", "internal/engine/tree", "internal/grammar", "internal/invariant", "internal/jsonvalue", "internal/proven"},
 		"cli":                    {"."},
 		"cmd/fejkdata":           {"cli", "data"},
 		"internal/avoid":         nil,
@@ -37,6 +37,7 @@ func TestPackageImports(t *testing.T) {
 		"internal/datafiles":     {"internal/grammar", "internal/jsonvalue"},
 		"internal/datatype":      nil,
 		"internal/drawstate":     nil,
+		"internal/engine/fence":  {"internal/builtinfunc", "internal/datatype", "internal/engine/load", "internal/engine/tree", "internal/grammar", "internal/invariant", "internal/proven"},
 		"internal/engine/load":   {"internal/avoid", "internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/engine/tree", "internal/grammar", "internal/invariant", "internal/jsonvalue", "internal/proven", "internal/rows"},
 		"internal/engine/render": {"internal/avoid", "internal/drawstate", "internal/engine/tree", "internal/grammar", "internal/invariant"},
 		"internal/engine/tree":   {"internal/avoid", "internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/grammar", "internal/invariant", "internal/rows"},
@@ -47,7 +48,8 @@ func TestPackageImports(t *testing.T) {
 		"internal/rows":          {"internal/drawstate", "internal/grammar", "internal/invariant"},
 	}
 	testsAlso := map[string][]string{
-		"cli": {"internal/grammar"},
+		"cli":                   {"internal/grammar"},
+		"internal/engine/fence": {"internal/jsonvalue"},
 	}
 	seen := map[string]bool{}
 	eachPackage(t, func(dir string, pkg *build.Package) {
