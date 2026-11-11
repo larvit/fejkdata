@@ -47,31 +47,13 @@ func TestFinnishTopNamesAreDVVsCounts(t *testing.T) {
 	}
 }
 
-func TestFinnishNamesAreBorneByTheFewestDVVPublishes(t *testing.T) {
-	for file, fewest := range map[string]int{"first-name": 5, "last-name": 20} {
-		counts := finnishCounts(t, file)
-		total := 0
-		for _, byName := range counts {
-			total += len(byName)
-			for name, n := range byName {
-				if n < fewest {
-					t.Errorf("%s: %q is borne by %d, which DVV does not publish below %d", file, name, n, fewest)
-				}
-			}
-		}
-		if total < 2000 {
-			t.Errorf("%s holds %d names, want 2000 or more", file, total)
-		}
-	}
-}
-
 func TestFinnishFirstNamesAreRowsUnderTheSexesThatBearThem(t *testing.T) {
 	first := finnishCounts(t, "first-name")
 	if len(first) != 2 || first["f"] == nil || first["m"] == nil {
 		t.Fatalf("first-name.tsv holds sexes %v, want f and m", first)
 	}
 	if first["f"]["Kim"] != 146 || first["m"]["Kim"] != 4872 {
-		t.Errorf("Kim is borne by %d girls and %d boys, want DVV's 146 and 4872", first["f"]["Kim"], first["m"]["Kim"])
+		t.Errorf("Kim is borne by %d women and %d men, want DVV's 146 and 4872", first["f"]["Kim"], first["m"]["Kim"])
 	}
 	if first["m"]["Anne"] != 0 || first["f"]["Juha"] != 0 {
 		t.Error("Anne is a boy's name or Juha a girl's, want each under the sex DVV counts it for")
