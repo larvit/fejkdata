@@ -142,7 +142,7 @@ func resolved(t *testing.T, s string) (tree.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	ts, err := resolveInlineTemplates(inlineNodes(n, "template"), nil, l)
+	ts, err := resolveInlineTemplates(n, "template", nil, l)
 	if err != nil {
 		return n, err
 	}

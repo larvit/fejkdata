@@ -323,8 +323,7 @@ func (k columnKind) holds(v proven.Facts) bool {
 // fill draws the record into v's tagged fields, then each nested struct as a record of its own.
 func (s *structShape) fill(state *drawstate.State, v reflect.Value) {
 	if s.record != nil {
-		var frames frameStack
-		for i, c := range renderRecord(state, s.record, renderEnv{frames: &frames}).columns {
+		for i, c := range renderRecord(state, s.record, renderedRow{}).columns {
 			setColumn(fieldAt(v, s.fieldIndexes[i]), c)
 		}
 	}

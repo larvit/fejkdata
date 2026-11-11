@@ -23,7 +23,7 @@ const (
 )
 
 // datatypeOf reads a template's "datatype", nil where it carries none or sits outside a column.
-func datatypeOf(m map[string]any, pos position) (*DataType, error) {
+func datatypeOf(m map[string]any, pos position) (*datatype.DataType, error) {
 	v, ok := m["datatype"]
 	if !ok {
 		return nil, nil
@@ -32,7 +32,7 @@ func datatypeOf(m map[string]any, pos position) (*DataType, error) {
 	if !ok {
 		return nil, fmt.Errorf("datatype must be a string, not %s", jsonvalue.Kind(v))
 	}
-	for d := DataTypeString; d < datatype.Count; d++ {
+	for d := datatype.String; d < datatype.Count; d++ {
 		if name != d.String() {
 			continue
 		}
@@ -85,10 +85,10 @@ func checkColumns(s nodeSet) error {
 
 // columnDatatype is the datatype a column holds, which its first item decides: checkColumns refuses
 // a column whose items disagree. A table's column, like one only ever null, has no item and is a string.
-func columnDatatype(n tree.Node, l *tree.LoadFinds) DataType {
+func columnDatatype(n tree.Node, l *tree.LoadFinds) datatype.DataType {
 	items, _ := columnItems(n)
 	if len(items) == 0 {
-		return DataTypeString
+		return datatype.String
 	}
 	return itemDatatype(items[0], l)
 }
@@ -128,7 +128,7 @@ func kindOf(t *tree.Template) itemKind {
 	switch {
 	case t.DataType() != nil:
 		return kindDeclares
-	case itemDatatype(t, nil) != DataTypeString:
+	case itemDatatype(t, nil) != datatype.String:
 		return kindReads
 	}
 	return kindText
@@ -136,7 +136,7 @@ func kindOf(t *tree.Template) itemKind {
 
 // disagreement names the fix for items a and b of one column holding different datatypes, fixing
 // the one that declares least, a when both declare alike.
-func disagreement(a *tree.Template, da DataType, b *tree.Template, db DataType) error {
+func disagreement(a *tree.Template, da datatype.DataType, b *tree.Template, db datatype.DataType) error {
 	c := clash{fix: a, other: b, want: db, held: fmt.Sprintf("its items hold %s and %s; a column holds one datatype", da, db)}
 	if kindOf(b) < kindOf(a) {
 		c.fix, c.other, c.want = b, a, da
@@ -174,12 +174,12 @@ func (c clash) retypeRead() error {
 	if c.fits() {
 		return fmt.Errorf("%s, so %s", c.held, typedAs(c.fix, c.want))
 	}
-	return fmt.Errorf("%s, so to read %q as text, %s", c.held, c.fix.Format(), typedAs(c.fix, DataTypeString))
+	return fmt.Errorf("%s, so to read %q as text, %s", c.held, c.fix.Format(), typedAs(c.fix, datatype.String))
 }
 
 func (c clash) textBesideRead() error {
 	if !c.fits() {
-		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, c.fix.Format(), datatype.Noun(c.want), c.other.Format(), typedAs(c.other, DataTypeString))
+		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, c.fix.Format(), datatype.Noun(c.want), c.other.Format(), typedAs(c.other, datatype.String))
 	}
 	return c.declareText()
 }
@@ -193,7 +193,7 @@ func (c clash) declareText() error {
 
 // typedAs names the spelling giving a column-read item datatype d, keeping the other keys an object
 // item carries.
-func typedAs(t *tree.Template, d DataType) string {
+func typedAs(t *tree.Template, d datatype.DataType) string {
 	if t.FromString() {
 		return fmt.Sprintf(`write %q as {"format":%q,"datatype":%q}`, t.Format(), t.Format(), d)
 	}

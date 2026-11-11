@@ -21,7 +21,7 @@ func TestRecursionHasNoDepthLimit(t *testing.T) {
 }
 
 // TestGrowIsALowerBound pins the property that makes the pre-sized render buffer
-// safe: grow must never exceed what expand emits. render multiplies it by repeat,
+// safe: grow must never exceed what one render emits. A repeat multiplies it,
 // so an over-estimate would amplify up to a million-fold.
 func TestGrowIsALowerBound(t *testing.T) {
 	f := engine(3)
@@ -43,9 +43,8 @@ func TestGrowIsALowerBound(t *testing.T) {
 			t.Fatalf("format %q did not compile to a template", format)
 		}
 		for i := 0; i < 50; i++ {
-			var frames frameStack
-			if got := len(expand(f.drawState, tmpl, renderEnv{frames: &frames})); got < tmpl.Compiled().Grow() {
-				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.Compiled().Grow())
+			if got := len(renderOnce(f.drawState, tmpl)); got < tmpl.Compiled().Grow() {
+				t.Errorf("format %q: a render emitted %d bytes, below grow %d", format, got, tmpl.Compiled().Grow())
 			}
 		}
 	}
@@ -66,7 +65,6 @@ var nodeSwitchSkips = map[string][]string{
 	"childNamed":       {"Choice", "Table", "TableRow"},
 	"columnItems":      {"Folder", "Table", "TableRow"},
 	"render":           {"Folder"},
-	"routeSteps":       {"Choice", "Folder", "NullItem", "Template"},
 	"valueProof.prove": {"Folder"},
 }
 
@@ -101,11 +99,12 @@ func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 		"contained":   func(n tree.Node) { contained(n) },
 		"paths":       func(n tree.Node) { paths(n, false) },
 		"render": func(n tree.Node) {
-			var frames frameStack
-			render(engine(1).drawState, n, renderEnv{frames: &frames, row: renderedRow{tbl, 0}})
+			var pins tree.PinSet
+			s := engine(1).drawState
+			tbl.Rows().DrawIn(s, &pins)
+			pinnedRender(s, n, &pins)
 		},
 		"renderEdges":      func(n tree.Node) { renderEdges(n, nil) },
-		"routeSteps":       func(n tree.Node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{then: pathPos{n: n}}, 0) },
 		"valueProof.prove": func(n tree.Node) { (&valueProof{}).prove(n) },
 	}
 }

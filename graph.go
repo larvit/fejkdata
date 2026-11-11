@@ -149,12 +149,15 @@ func (m renderCounts) renderCount(n tree.Node) int {
 	return r
 }
 
+// maxRepeat caps a repeat, and the renders nested repeats multiply to along any one path.
+const maxRepeat = 1 << 20
+
 // repeatCheck bounds the renders a repeat multiplies to along any root-to-leaf
 // path, so nested repeats cannot build what one repeat may not.
 // docs/decisions.md#the-repeat-cap-bounds-renders-not-bytes
 func repeatCheck(label string, n tree.Node, mem renderCounts) error {
-	if t, ok := n.(*tree.Template); ok && t.Repeat() > 1 && mem.renderCount(n) > MaxRepeat {
-		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", label, t.Repeat(), mem.renderCount(n), MaxRepeat)
+	if t, ok := n.(*tree.Template); ok && t.Repeat() > 1 && mem.renderCount(n) > maxRepeat {
+		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", label, t.Repeat(), mem.renderCount(n), maxRepeat)
 	}
 	return nil
 }
@@ -165,7 +168,7 @@ func repeatCheck(label string, n tree.Node, mem renderCounts) error {
 // graph (renderEdges). Every node is a root: a field its parent's format never
 // renders is still reachable by dot path, so a cycle in one would otherwise reach
 // render and be fatal there.
-func checkNoCycles(s nodeSet, l *tree.LoadFinds) error {
+func checkNoCycles(s func(fn func(label string, n tree.Node) error) error, l *tree.LoadFinds) error {
 	const (
 		grey  = 1
 		black = 2

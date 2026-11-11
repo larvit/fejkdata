@@ -12,6 +12,7 @@ import (
 	"unicode"
 
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // writeFiles writes a data directory from a map of relative file name, extension
@@ -1099,9 +1100,16 @@ func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 		"region[12].municipality[1281].locality.code",
 		"region[12].name",
 	} {
-		read := splitRead(path, nil)
-		start := f.root.Children()[read.head].(*tree.Table)
-		for _, st := range compilePath(start, read.tail).steps {
+		segs, err := grammar.SplitPath(path)
+		if err != nil {
+			t.Fatalf("SplitPath(%s) = %v", path, err)
+		}
+		tail := segs[1:]
+		steps, err := callerPathSteps(f.root.Children()[segs[0]], tail, nil)
+		if err != nil {
+			t.Fatalf("%s: callerPathSteps = %v", path, err)
+		}
+		for _, st := range steps {
 			seg := ""
 			switch st.Kind {
 			case tree.StepSelect:
@@ -1111,7 +1119,7 @@ func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 			default:
 				continue
 			}
-			if st.At >= len(read.tail) || read.tail[st.At] != seg {
+			if st.At >= len(tail) || tail[st.At] != seg {
 				t.Errorf("%s: step %q sits at %d, want the segment it consumes", path, seg, st.At)
 			}
 		}

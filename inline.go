@@ -99,7 +99,7 @@ func loadInline(root *tree.Folder, n tree.Node, l *tree.LoadFinds, label string,
 	return pipeline{
 		nodes:     nodes,
 		finds:     l,
-		resolve:   func() ([]templateSite, error) { return resolveInlineTemplates(nodes, root.Children(), l) },
+		resolve:   func() ([]templateSite, error) { return resolveInlineTemplates(n, label, root.Children(), l) },
 		typedByGo: typedByGo,
 	}.run()
 }
