@@ -30,7 +30,7 @@ func checkCalcNames(label string, t *tree.Template) error {
 		if tok.Fn != builtinfunc.CalcName || !slices.ContainsFunc(o.Operands(), func(a tree.Arm) bool { return a.Kind() == tree.NamedRead }) {
 			continue
 		}
-		if i := slices.IndexFunc(o.Operands(), readsJoined); i >= 0 {
+		if i := slices.IndexFunc(o.Operands(), tree.Arm.ReadsJoined); i >= 0 {
 			return fmt.Errorf("%s: token {%s}: operand %s joins several values as text, never a number", label, tok.Body, o.Operands()[i].Spelling())
 		}
 		if err := checkOperands(tok.Args[0], builtinfunc.ParsedCalc(tok.Args[0]), operandNodes(o)); err != nil {

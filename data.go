@@ -92,7 +92,7 @@ func categorySites(root *tree.Folder) []categorySite {
 	var out []categorySite
 	var walk func(dir []string, g *tree.Folder)
 	walk = func(dir []string, g *tree.Folder) {
-		for _, name := range sortedNames(g.Children()) {
+		for _, name := range tree.SortedNames(g.Children()) {
 			if sub, isFolder := g.Children()[name].(*tree.Folder); isFolder {
 				walk(append(dir[:len(dir):len(dir)], name), sub)
 				continue

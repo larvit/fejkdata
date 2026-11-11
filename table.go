@@ -257,24 +257,24 @@ func routeSteps(steps []tree.PathStep, pins *tree.PinSet, t *tree.Table, r table
 		if err != nil {
 			return steps, err
 		}
-		steps = append(steps, tree.NewPathStep(tree.StepSelect, at, r.sel, row))
+		steps = append(steps, tree.PathStep{Kind: tree.StepSelect, At: at, Name: r.sel, Row: row})
 		at++
 	}
 	if r.draw {
-		steps = append(steps, tree.NewPathStep(tree.StepDraw, at, "", 0))
+		steps = append(steps, tree.PathStep{Kind: tree.StepDraw, At: at})
 	}
 	switch next := r.then.n.(type) {
 	case *tree.Table:
 		switch {
 		case r.up:
-			steps = append(steps, tree.NewPathStep(tree.StepParent, at, "", 0))
+			steps = append(steps, tree.PathStep{Kind: tree.StepParent, At: at})
 		case next != t:
-			steps = append(steps, tree.NewPathStep(tree.StepChild, at, next.Rows().Segment(), 0))
+			steps = append(steps, tree.PathStep{Kind: tree.StepChild, At: at, Name: next.Rows().Segment()})
 		}
 	case *tree.TableRow:
-		steps = append(steps, tree.NewPathStep(tree.StepRow, at, "", 0))
+		steps = append(steps, tree.PathStep{Kind: tree.StepRow, At: at})
 	case *tree.TableColumn:
-		steps = append(steps, tree.NewPathStep(tree.StepColumn, at, next.Name(), 0))
+		steps = append(steps, tree.PathStep{Kind: tree.StepColumn, At: at, Name: next.Name()})
 	default:
 		panic(invariant.Broken("%s: a route onto %T", t.Rows().Segment(), r.then.n))
 	}
@@ -282,10 +282,10 @@ func routeSteps(steps []tree.PathStep, pins *tree.PinSet, t *tree.Table, r table
 }
 
 func followStep(t *tree.Table, s *drawstate.State, st tree.PathStep, pins *tree.PinSet) tree.Node {
-	switch st.Kind() {
+	switch st.Kind {
 	case tree.StepSelect:
-		if err := pins.PinRow(t.Rows(), st.Row()); err != nil {
-			panic(invariant.Broken("%s[%s]: %v", t.Rows().Segment(), st.Name(), err))
+		if err := pins.PinRow(t.Rows(), st.Row); err != nil {
+			panic(invariant.Broken("%s[%s]: %v", t.Rows().Segment(), st.Name, err))
 		}
 		return t
 	case tree.StepDraw:
@@ -294,13 +294,13 @@ func followStep(t *tree.Table, s *drawstate.State, st tree.PathStep, pins *tree.
 	case tree.StepRow:
 		return t.RowNode()
 	case tree.StepColumn:
-		return t.FormatTemplate().Fields()[st.Name()]
+		return t.FormatTemplate().Fields()[st.Name]
 	case tree.StepChild:
-		return t.Descendant(st.Name())
+		return t.Descendant(st.Name)
 	case tree.StepParent:
 		return t.Rows().Parent().Owner()
 	}
-	panic(invariant.Broken("followStep has no case for step kind %d", st.Kind()))
+	panic(invariant.Broken("followStep has no case for step kind %d", st.Kind))
 }
 
 func splitSelector(t *tree.Table, tail []string) (sel string, rest []string, err error) {

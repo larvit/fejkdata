@@ -249,7 +249,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 func compileFields(m map[string]any, pos position) (fields map[string]tree.Node, lets map[string]bool, err error) {
 	fields = make(map[string]tree.Node, len(m))
 	compile := func(raw map[string]any, skipOptions bool) error {
-		for _, k := range sortedNames(raw) {
+		for _, k := range tree.SortedNames(raw) {
 			if isOption(k) {
 				if skipOptions {
 					continue

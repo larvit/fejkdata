@@ -1103,16 +1103,16 @@ func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 		start := f.root.Children()[read.head].(*tree.Table)
 		for _, st := range compilePath(start, read.tail).steps {
 			seg := ""
-			switch st.Kind() {
+			switch st.Kind {
 			case tree.StepSelect:
-				seg = "[" + st.Name() + "]"
+				seg = "[" + st.Name + "]"
 			case tree.StepChild, tree.StepColumn:
-				seg = st.Name()
+				seg = st.Name
 			default:
 				continue
 			}
-			if st.At() >= len(read.tail) || read.tail[st.At()] != seg {
-				t.Errorf("%s: step %q sits at %d, want the segment it consumes", path, seg, st.At())
+			if st.At >= len(read.tail) || read.tail[st.At] != seg {
+				t.Errorf("%s: step %q sits at %d, want the segment it consumes", path, seg, st.At)
 			}
 		}
 	}

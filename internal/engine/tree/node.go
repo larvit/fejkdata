@@ -1,7 +1,8 @@
-// Package tree holds the nodes of a compiled template tree. Compile builds each node with its
-// syntax, a load puts each folder's children, linkTables gives each table its siblings, and
-// LoadFinds.Finish writes in once the rest of what the load found. A node's fields are
-// unexported, so another package changes a node only through those methods.
+// Package tree holds the nodes of a compiled template tree. A load builds each node with its
+// syntax, puts each folder's children, gives each table its siblings, and then writes in, through
+// LoadFinds.Finish, the rest of what it found. A node's fields are unexported, so another package
+// changes a node only through its methods. A map or slice a method returns is the node's own,
+// not a copy, so a caller only reads it.
 package tree
 
 import (
@@ -41,6 +42,10 @@ func (g *Folder) PutUnloaded(name string, x *Indexed) {
 	g.unloaded[name] = x
 }
 
+func (g *Folder) Children() map[string]Node { return g.children }
+
+func (g *Folder) Unloaded() map[string]*Indexed { return g.unloaded }
+
 // Choice draws one of its items. cum holds cumulative weights for a weighted
 // draw; when nil the choice is uniform and selection is O(1). shared is the set of
 // relative dot paths every item carries, counting paths inside a repeated template.
@@ -48,7 +53,7 @@ type Choice struct {
 	items     []Node
 	cum       []float64
 	shared    map[string]bool
-	nameScope *NameScope // where its items look a name up, written by finish
+	nameScope *NameScope // where its items look a name up, written by LoadFinds.Finish
 }
 
 func (*Choice) isNode() {}
@@ -56,6 +61,14 @@ func (*Choice) isNode() {}
 func NewChoice(items []Node, cum []float64, shared map[string]bool) *Choice {
 	return &Choice{items: items, cum: cum, shared: shared}
 }
+
+func (c *Choice) Cum() []float64 { return c.cum }
+
+func (c *Choice) Items() []Node { return c.items }
+
+func (c *Choice) NameScope() *NameScope { return c.nameScope }
+
+func (c *Choice) Shared() map[string]bool { return c.shared }
 
 // NullItem is a column's missing value, rendered ""; sized so two nulls are two map keys.
 type NullItem struct{ _ byte }
@@ -65,14 +78,44 @@ func (*NullItem) isNode() {}
 // Template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
-// an independent draw. Every format compiles in `compileTemplates`.
+// an independent draw.
 type Template struct {
 	syntax TemplateSyntax
-	finds  *TemplateFinds // written by finish, from what its load found
+	finds  *TemplateFinds // written by LoadFinds.Finish, from what its load found
 }
 
-// TemplateSyntax is what `compileString`, `compileTemplate` and `compileRowFormat` build a
-// template from.
+func (t *Template) Columns() []RecordColumn { return t.finds.columns }
+
+func (t *Template) Compiled() FormatOps { return t.finds.compiled }
+
+func (t *Template) DataType() *datatype.DataType { return t.syntax.DataType }
+
+func (t *Template) Fields() map[string]Node { return t.syntax.Fields }
+
+func (t *Template) Format() string { return t.syntax.Format }
+
+func (t *Template) FromString() bool { return t.syntax.FromString }
+
+func (t *Template) IsRecord() bool { return t.syntax.IsRecord }
+
+func (t *Template) Lets() map[string]bool { return t.syntax.Lets }
+
+func (t *Template) NameScope() *NameScope { return t.finds.nameScope }
+
+func (t *Template) ReadsColumn() *ColumnRead { return t.finds.readsColumn }
+
+func (t *Template) Refs() TemplateRefs { return t.finds.refs }
+
+func (t *Template) Repeat() int { return t.syntax.Repeat }
+
+func (t *Template) Separator() string { return t.syntax.Separator }
+
+func (t *Template) Tokens() []grammar.Token { return t.syntax.Tokens }
+
+func (t *Template) Unbound() []UnboundRead { return t.syntax.Unbound }
+
+// TemplateSyntax is what a template compiles from: a JSON string, a JSON object or a table's
+// row format.
 type TemplateSyntax struct {
 	Format     string
 	Tokens     []grammar.Token
@@ -88,7 +131,7 @@ type TemplateSyntax struct {
 
 func NewTemplate(s TemplateSyntax) *Template { return &Template{syntax: s} }
 
-// Finished says whether finish has written what t's load found.
+// Finished says whether LoadFinds.Finish has written what t's load found.
 func (t *Template) Finished() bool { return t.finds != nil }
 
 // TemplateRefs is what a template resolves to in the assembled tree.
@@ -100,6 +143,10 @@ type TemplateRefs struct {
 func NewTemplateRefs(bySpelling map[string]ResolvedRef, categories map[string]Node) TemplateRefs {
 	return TemplateRefs{bySpelling, categories}
 }
+
+func (t TemplateRefs) BySpelling() map[string]ResolvedRef { return t.bySpelling }
+
+func (t TemplateRefs) Categories() map[string]Node { return t.categories }
 
 func (*Template) isNode() {}
 
@@ -130,49 +177,3 @@ func (t *Template) OwnScope() *NameScope {
 	}
 	return nil
 }
-
-func (r *Choice) Cum() []float64 { return r.cum }
-
-func (r *Choice) Items() []Node { return r.items }
-
-func (r *Choice) NameScope() *NameScope { return r.nameScope }
-
-func (r *Choice) Shared() map[string]bool { return r.shared }
-
-func (r *Folder) Children() map[string]Node { return r.children }
-
-func (r *Folder) Unloaded() map[string]*Indexed { return r.unloaded }
-
-func (r *Template) Columns() []RecordColumn { return r.finds.columns }
-
-func (r *Template) Compiled() FormatOps { return r.finds.compiled }
-
-func (r *Template) DataType() *datatype.DataType { return r.syntax.DataType }
-
-func (r *Template) Fields() map[string]Node { return r.syntax.Fields }
-
-func (r *Template) Format() string { return r.syntax.Format }
-
-func (r *Template) FromString() bool { return r.syntax.FromString }
-
-func (r *Template) IsRecord() bool { return r.syntax.IsRecord }
-
-func (r *Template) Lets() map[string]bool { return r.syntax.Lets }
-
-func (r *Template) NameScope() *NameScope { return r.finds.nameScope }
-
-func (r *Template) ReadsColumn() *ColumnRead { return r.finds.readsColumn }
-
-func (r *Template) Refs() TemplateRefs { return r.finds.refs }
-
-func (r *Template) Repeat() int { return r.syntax.Repeat }
-
-func (r *Template) Separator() string { return r.syntax.Separator }
-
-func (r *Template) Tokens() []grammar.Token { return r.syntax.Tokens }
-
-func (r *Template) Unbound() []UnboundRead { return r.syntax.Unbound }
-
-func (r TemplateRefs) BySpelling() map[string]ResolvedRef { return r.bySpelling }
-
-func (r TemplateRefs) Categories() map[string]Node { return r.categories }

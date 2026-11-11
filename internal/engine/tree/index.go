@@ -14,6 +14,6 @@ func NewIndexed(entry datafiles.IndexEntry, src datafiles.Source) *Indexed {
 	return &Indexed{entry, src}
 }
 
-func (r Indexed) Entry() datafiles.IndexEntry { return r.entry }
+func (i Indexed) Entry() datafiles.IndexEntry { return i.entry }
 
-func (r Indexed) Src() datafiles.Source { return r.src }
+func (i Indexed) Src() datafiles.Source { return i.src }

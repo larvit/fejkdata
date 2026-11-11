@@ -4,10 +4,10 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// LoadFinds holds what one load finds for its templates, choices and name bindings. bindNames
-// records each template's and choice's name scope; compileTemplates what each template reads
-// and draws, and what each binding resolves to; settleRecords each record's columns. The
-// stages before finish read them here, and finish writes them into the nodes.
+// LoadFinds holds what one load finds for its templates, choices and name bindings: each
+// template's and choice's name scope, as the load binds names; what each template reads and
+// draws, and what each binding resolves to, as it compiles formats; and each record's columns.
+// The load's later stages read them here, and Finish writes them into the nodes.
 type LoadFinds struct {
 	templates map[*Template]*TemplateFinds
 	choices   map[*Choice]*NameScope
@@ -27,6 +27,14 @@ type TemplateFinds struct {
 	columns     []RecordColumn // a record's, where it has fields, in name order
 }
 
+func (t *TemplateFinds) Compiled() FormatOps { return t.compiled }
+
+func (t *TemplateFinds) NameScope() *NameScope { return t.nameScope }
+
+func (t *TemplateFinds) ReadsColumn() *ColumnRead { return t.readsColumn }
+
+func (t *TemplateFinds) Refs() TemplateRefs { return t.refs }
+
 // BindingFinds is what a load resolved a name binding to.
 type BindingFinds struct {
 	target NameTarget
@@ -35,6 +43,8 @@ type BindingFinds struct {
 	addressed map[PickKey]string
 	values    *ValueDraw // what a {ref where … as name} or {ref distinct N as name} draws from; nil without either clause
 }
+
+func (b *BindingFinds) Target() NameTarget { return b.target }
 
 // Of is what l holds for t, else what an earlier load wrote into t. A nil l reads only
 // what was written.
@@ -104,7 +114,7 @@ func (l *LoadFinds) SetAddressed(b *NameBinding, keys map[PickKey]string) {
 func (l *LoadFinds) SetValues(b *NameBinding, v *ValueDraw) { l.bindings[b].values = v }
 
 // Finish writes what l holds into its templates, choices and bindings. Each is written
-// once, by the load that found it, so finish panics on a template written before; every
+// once, by the load that found it, so Finish panics on a template written before; every
 // choice and binding a load finds sits in a template of that load.
 func (l *LoadFinds) Finish() {
 	for t, tl := range l.templates {
@@ -120,13 +130,3 @@ func (l *LoadFinds) Finish() {
 		b.finds = bl
 	}
 }
-
-func (r *BindingFinds) Target() NameTarget { return r.target }
-
-func (r *TemplateFinds) Compiled() FormatOps { return r.compiled }
-
-func (r *TemplateFinds) NameScope() *NameScope { return r.nameScope }
-
-func (r *TemplateFinds) ReadsColumn() *ColumnRead { return r.readsColumn }
-
-func (r *TemplateFinds) Refs() TemplateRefs { return r.refs }

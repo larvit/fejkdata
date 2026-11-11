@@ -24,7 +24,15 @@ func newAlphabetDraw(o *tree.Op) (*tree.AlphabetDraw, error) {
 	}
 	strings := tree.NewReadStrings(clauseReads(o.Clause(), w.NotNames), clauseReads(o.Clause(), w.NotContainingNames))
 	fallback := fallbackOf(w, o.Clause(), builtinfunc.Default(tok.Fn, tok.Args))
-	return tree.NewAlphabetDraw(runs, quoted, plan, o.Call(), strings, fallback, w.Else == nil), nil
+	return tree.NewAlphabetDraw(tree.AlphabetDrawSpec{
+		Runs:     runs,
+		Quoted:   quoted,
+		Plan:     plan,
+		Call:     o.Call(),
+		Strings:  strings,
+		Fallback: fallback,
+		OwnShape: w.Else == nil,
+	}), nil
 }
 
 // patterns is what a value n bytes long must not hold: each of not that is n bytes long, which a

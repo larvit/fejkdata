@@ -15,8 +15,16 @@ type Table struct {
 	formatTemplate *Template // fields are the column nodes
 	rowNode        *TableRow
 	cellTemplates  map[int]*Template // by CellIndex
-	siblings       map[string]Node   // the folder holding t, set by linkTables; every table linked to t sits there
+	siblings       map[string]Node   // the folder holding t, set by SetSiblings; every table linked to t sits there
 }
+
+func (t *Table) CellTemplates() map[int]*Template { return t.cellTemplates }
+
+func (t *Table) FormatTemplate() *Template { return t.formatTemplate }
+
+func (t *Table) RowNode() *TableRow { return t.rowNode }
+
+func (t *Table) Rows() *RowsTable { return t.rows }
 
 type (
 	PinSet    = rows.Pins[*Table]
@@ -35,12 +43,18 @@ func (*TableColumn) isNode() {}
 
 func (c *TableColumn) Name() string { return c.t.rows.Header()[c.i] }
 
+func (c *TableColumn) Index() int { return c.i }
+
+func (c *TableColumn) Table() *Table { return c.t }
+
 // TableRow is the row of a table the render pinned, rendered by the table's format.
 type TableRow struct{ t *Table }
 
 func NewTableColumn(t *Table, i int) *TableColumn { return &TableColumn{t, i} }
 
 func (*TableRow) isNode() {}
+
+func (t *TableRow) Table() *Table { return t.t }
 
 // CellTemplate is what a cell renders: its compiled template where it carries tokens,
 // else nil for its text.
@@ -100,17 +114,3 @@ func (t *Table) Descendant(name string) *Table {
 	}
 	return nil
 }
-
-func (r *Table) CellTemplates() map[int]*Template { return r.cellTemplates }
-
-func (r *Table) FormatTemplate() *Template { return r.formatTemplate }
-
-func (r *Table) RowNode() *TableRow { return r.rowNode }
-
-func (r *Table) Rows() *RowsTable { return r.rows }
-
-func (r *TableColumn) Index() int { return r.i }
-
-func (r *TableColumn) Table() *Table { return r.t }
-
-func (r *TableRow) Table() *Table { return r.t }

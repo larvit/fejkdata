@@ -313,7 +313,7 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 		}
 	}
 	var columns []tree.RecordColumn
-	for _, name := range sortedNames(t.Fields()) {
+	for _, name := range tree.SortedNames(t.Fields()) {
 		if !t.Lets()[name] {
 			field := t.Fields()[name]
 			columns = append(columns, tree.NewRecordColumn(name, columnDatatype(field, l), field, whole[field]))
@@ -342,4 +342,4 @@ func renderRecord(s *drawstate.State, t *tree.Template, env renderEnv) *Record {
 }
 
 // wholeLevels is the levels of a read of a whole name, as compileArm compiles {n}.
-var wholeLevels = namedLevels(nil)
+var wholeLevels = tree.NamedLevels(nil)

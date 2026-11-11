@@ -113,7 +113,7 @@ func compileStep(at *pathPos, whole []string, head string, headSpans int, steps 
 	if err != nil {
 		return steps, err
 	}
-	steps = append(steps, tree.NewPathStep(tree.StepField, i, at.tail[0], 0))
+	steps = append(steps, tree.PathStep{Kind: tree.StepField, At: i, Name: at.tail[0]})
 	*at = pathPos{n: next, tail: at.tail[1:]}
 	return steps, nil
 }
@@ -188,31 +188,31 @@ func drawSteps(s *drawstate.State, mode drawMode, n tree.Node, steps []tree.Path
 	for _, st := range steps {
 		if c, ok := n.(*tree.Choice); ok {
 			if mode == drawInPick {
-				n = memo.variantOf(s, c, levels[st.At()])
+				n = memo.variantOf(s, c, levels[st.At])
 			} else {
 				n = drawThroughChoices(s, c)
 			}
 		}
-		if st.Kind() == tree.StepField {
+		if st.Kind == tree.StepField {
 			var err error
-			if n, err = childNamed(n, st.Name()); err != nil {
-				panic(invariant.Broken("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.At(), err))
+			if n, err = childNamed(n, st.Name); err != nil {
+				panic(invariant.Broken("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.At, err))
 			}
 			continue
 		}
 		if mode == drawSibling {
-			panic(invariant.Broken("step %d: a table's step of kind %d on a sibling read, which never crosses a table", st.At(), st.Kind()))
+			panic(invariant.Broken("step %d: a table's step of kind %d on a sibling read, which never crosses a table", st.At, st.Kind))
 		}
 		t, ok := n.(*tree.Table)
 		if !ok {
-			panic(invariant.Broken("step %d: a table's step of kind %d on %T", st.At(), st.Kind(), n))
+			panic(invariant.Broken("step %d: a table's step of kind %d on %T", st.At, st.Kind, n))
 		}
 		switch {
-		case st.Kind() == tree.StepParent:
+		case st.Kind == tree.StepParent:
 			climbed = t.Rows().Parent()
-		case st.Kind() == tree.StepChild && climbed != nil:
+		case st.Kind == tree.StepChild && climbed != nil:
 			if mode == drawInPick {
-				pins = memo.stepDownPins(pins, climbed, levels, st.At())
+				pins = memo.stepDownPins(pins, climbed, levels, st.At)
 			} else {
 				pins = pins.Above(climbed)
 			}
@@ -231,10 +231,10 @@ func paths(n tree.Node, intoRepeats bool) []string {
 	switch n := n.(type) {
 	case *tree.Folder:
 		var out []string
-		for _, name := range sortedNames(n.Children()) {
+		for _, name := range tree.SortedNames(n.Children()) {
 			out = appendUnder(out, name, paths(n.Children()[name], intoRepeats))
 		}
-		for _, name := range sortedNames(n.Unloaded()) {
+		for _, name := range tree.SortedNames(n.Unloaded()) {
 			out = appendUnder(out, name, n.Unloaded()[name].Entry().Paths)
 		}
 		return out
@@ -243,7 +243,7 @@ func paths(n tree.Node, intoRepeats bool) []string {
 		if n.Repeat() > 1 && !intoRepeats {
 			return out
 		}
-		for _, name := range sortedNames(n.Fields()) {
+		for _, name := range tree.SortedNames(n.Fields()) {
 			out = appendUnder(out, name, paths(n.Fields()[name], intoRepeats))
 		}
 		return out
@@ -256,7 +256,7 @@ func paths(n tree.Node, intoRepeats bool) []string {
 		if !intoRepeats {
 			shared = sharedPaths(n.Items(), false)
 		}
-		return append([]string{""}, sortedNames(shared)...)
+		return append([]string{""}, tree.SortedNames(shared)...)
 	default:
 		panic(invariant.Broken("paths has no case for node %T", n))
 	}
@@ -335,7 +335,7 @@ func unreachableInChoice(c *tree.Choice, want string) error {
 	if len(c.Shared()) == 0 {
 		return fmt.Errorf("no variant of this %d-way choice carries %q", len(c.Items()), want)
 	}
-	offered := sortedNames(c.Shared())
+	offered := tree.SortedNames(c.Shared())
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.Items()), want, offered)
 }
 

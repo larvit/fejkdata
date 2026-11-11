@@ -5,71 +5,15 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/engine/tree"
-	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// namedLevels is the levels of a read through a name, whose path runs from its target's start: the
-// key of that start, "", then the key of each longer prefix of path, shortest first.
-func namedLevels(path []string) []tree.PickKey {
-	levels := make([]tree.PickKey, len(path)+1)
-	for i := range levels {
-		levels[i] = tree.PickKey(grammar.JoinSegments(path[:i]))
-	}
-	return levels
-}
-
-// freshLevels is the levels of a fresh read of head and segs: the key of head, then the key of each
-// longer path, shortest first. It has no "" level, since the template the read sits in is already
-// rendering and head is the first node the read can draw.
-func freshLevels(head string, segs []string) []tree.PickKey {
-	return namedLevels(append([]string{head}, segs...))[1:]
-}
-
-// addressedKeys is every key the reads of each name land on or pass, from the name's own level,
-// with the spelling of the first read reaching it.
-func addressedKeys(reads map[*tree.NameBinding][]*tree.Arm, l *tree.LoadFinds) map[*tree.NameBinding]map[tree.PickKey]string {
-	keys := map[*tree.NameBinding]map[tree.PickKey]string{}
-	for b, rs := range reads {
-		keys[b] = map[tree.PickKey]string{}
-		for _, r := range rs {
-			for _, key := range r.Levels()[len(l.Binding(b).Target().Tail()):] {
-				if _, seen := keys[b][key]; !seen {
-					keys[b][key] = r.Spelling()
-				}
-			}
-		}
-	}
-	return keys
-}
-
-// landsInPick reports whether a pick keeps the value of a. a is a read in a template the pick
-// renders, at is that template's key, and by is the spelling of the read of the name that addresses
-// a. Load and render both call it, so they agree on what a pick keeps. A reference draws afresh and
-// a read through a name reads its own name's pick, so the pick keeps neither. It keeps any other
-// read where a read of the name addresses a's first level, moved under at.
-//
-// The two kinds of read share a key because of where their levels start. A named read starts at
-// the node its name's target starts at, and may draw a variant there, so its levels start at that
-// node, keyed "" (namedLevels). A fresh read starts in the template it sits in, which is already
-// rendering. The first node it can draw is its head, so its levels start at the head (freshLevels).
-// at is that template's path from the target's start, so moved under at, a fresh read's key spells
-// the path a named read's does. Where p binds a category whose format reads {first}, the {first}
-// that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
-func landsInPick(addressed map[tree.PickKey]string, at tree.PickKey, a tree.Arm) (by string, lands bool) {
-	if grammar.IsRef(a.Head()) || a.Kind() == tree.NamedRead {
-		return "", false
-	}
-	by, lands = addressed[at.Under(a.Levels()[0])]
-	return by, lands
-}
-
-// keptInPick is landsInPick for a read rendering in env; with no pick in env it is false.
+// keptInPick is tree.LandsInPick for a read rendering in env; with no pick in env it is false.
 func keptInPick(env renderEnv, a tree.Arm) bool {
 	if env.pick == nil {
 		return false
 	}
-	_, kept := landsInPick(env.pick.named.Addressed(), env.pickAt, a)
+	_, kept := tree.LandsInPick(env.pick.named.Addressed(), env.pickAt, a)
 	return kept
 }
 

@@ -27,6 +27,7 @@ import (
 	"github.com/larvit/fejkdata/data/nb_NO"
 	"github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 // withoutManifest is fsys with its manifest hidden, so it loads whole in New.
@@ -241,7 +242,7 @@ func TestEachShippedPackagesModulesHoldWhatItReadsAndRender(t *testing.T) {
 		if err != nil {
 			t.Fatalf("New(%s's Modules) = %v", m.namespace, err)
 		}
-		for _, p := range sortedNames(manifest.Index) {
+		for _, p := range tree.SortedNames(manifest.Index) {
 			if _, err := f.Fake(p); err != nil {
 				t.Errorf("%s's Modules: Fake(%q) = %v", m.namespace, p, err)
 			}
@@ -534,7 +535,7 @@ func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
 
 func TestEveryShippedCategoryLoadsAlone(t *testing.T) {
 	t.Parallel()
-	for _, p := range sortedNames(shippedIndex(t)) {
+	for _, p := range tree.SortedNames(shippedIndex(t)) {
 		f, err := New(withShipped(), WithSeed(1), onTestDay)
 		if err != nil {
 			t.Fatalf("New() = %v", err)

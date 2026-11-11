@@ -11,7 +11,7 @@ type Arm struct {
 	spelling string // as written, for messages
 	head     string
 	tail     []string
-	levels   []PickKey // the key of each level the steps pass, from the head they start at to the leaf; a step's at indexes it
+	levels   []PickKey // the key of each level the steps pass, from the head they start at to the leaf; a step's At indexes it
 	steps    []PathStep
 	leaves   []Node // every node the path may land on, one per variant it passes
 	kind     ArmKind
@@ -19,7 +19,25 @@ type Arm struct {
 	member   int          // NamedRead of a distinct draw: the member it reads, counted from 1; 0 reads them joined
 }
 
-// ArmKind is how expand reads an arm, fixed at compile.
+func (a Arm) Head() string { return a.head }
+
+func (a Arm) Kind() ArmKind { return a.kind }
+
+func (a Arm) Leaves() []Node { return a.leaves }
+
+func (a Arm) Levels() []PickKey { return a.levels }
+
+func (a Arm) Member() int { return a.member }
+
+func (a Arm) Named() *NameBinding { return a.named }
+
+func (a Arm) Spelling() string { return a.spelling }
+
+func (a Arm) Steps() []PathStep { return a.steps }
+
+func (a Arm) Tail() []string { return a.tail }
+
+// ArmKind is how a render reads an arm, fixed at compile.
 type ArmKind uint8
 
 const (
@@ -40,16 +58,24 @@ func (a Arm) ThroughName(b *NameBinding, member int) Arm {
 // Key is the key of the leaf a lands on, the one key every way of writing this read shares.
 func (a Arm) Key() PickKey { return a.levels[len(a.levels)-1] }
 
+// ReadsJoined is whether a reads the members of a distinct draw joined, which is text whatever
+// they are.
+func (a Arm) ReadsJoined() bool {
+	return a.kind == NamedRead && a.named.Distinct() != nil && a.member == 0
+}
+
 // Op is one compiled unit of a format string: a literal run, a read,
 // or a builtin already prepared with its args.
 type Op struct {
 	token grammar.Token
 	arms  []Arm // grammar.PathRead: the '|' alternatives, split into head and tail once
 	call  builtinfunc.Call
-	// operands are the fields the builtin reads, in the order its operands func fixed; expand reads
-	// them before a call that has no draw. nil for a token that reads none.
+	// operands are the fields the builtin reads, in the order its operands func fixed; a render
+	// reads them before a call that has no draw. nil for a token that reads none.
 	operands []Arm
-	clause   []Arm // the token's where clause's reads, in clauseSpellings' order
+	// clause is the reads of the token's where clause, each once: its length's first, then not's,
+	// not containing's and else's
+	clause []Arm
 	// draw is what a token with a where or a distinct clause, or a {reword()} call, prints in
 	// place of a plain read or call; nil for any other token
 	draw TokenDraw
@@ -85,6 +111,18 @@ func (o *Op) Reads() []*Arm {
 	return found
 }
 
+func (o *Op) Arms() []Arm { return o.arms }
+
+func (o *Op) Call() builtinfunc.Call { return o.call }
+
+func (o *Op) Clause() []Arm { return o.clause }
+
+func (o *Op) Draw() TokenDraw { return o.draw }
+
+func (o *Op) Operands() []Arm { return o.operands }
+
+func (o *Op) Token() grammar.Token { return o.token }
+
 // TokenDraw is a token's draw, built at load once its paths resolve: a *ValueDraw, an
 // *AlphabetDraw or a *RewordDraw, and no other.
 type TokenDraw interface {
@@ -93,33 +131,3 @@ type TokenDraw interface {
 	// default, where the strings it reads leave no value.
 	MayFallBack() bool
 }
-
-func (r Arm) Head() string { return r.head }
-
-func (r Arm) Kind() ArmKind { return r.kind }
-
-func (r Arm) Leaves() []Node { return r.leaves }
-
-func (r Arm) Levels() []PickKey { return r.levels }
-
-func (r Arm) Member() int { return r.member }
-
-func (r Arm) Named() *NameBinding { return r.named }
-
-func (r Arm) Spelling() string { return r.spelling }
-
-func (r Arm) Steps() []PathStep { return r.steps }
-
-func (r Arm) Tail() []string { return r.tail }
-
-func (r *Op) Arms() []Arm { return r.arms }
-
-func (r *Op) Call() builtinfunc.Call { return r.call }
-
-func (r *Op) Clause() []Arm { return r.clause }
-
-func (r *Op) Draw() TokenDraw { return r.draw }
-
-func (r *Op) Operands() []Arm { return r.operands }
-
-func (r *Op) Token() grammar.Token { return r.token }
