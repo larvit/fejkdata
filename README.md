@@ -2019,18 +2019,13 @@ How the README serves goal 11:
 ## Layout
 
 ```
-doc.go          the package doc, and the vocabulary the package is written in
+doc.go          the package doc
 fejkdata.go     Generator, New, options, List
-index.go        a source's index: its categories left unloaded, and loading one on the first call reaching it
-data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
-resolve.go      resolving every category's templates once all data is merged
-table.go        linking each table to the parent it names
 datatype.go     DataType, what a record column holds
-reference.go    the note an error gets, where a path names nothing, when no data is loaded
-render.go       Fake, and the draw of the path a caller names
+render.go       Fake
 record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
-struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
-inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and resolve
+struct.go       structs: FakeStruct, and fake tags as one record's columns
+inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
 internal/avoid/ the draw of a value of fixed runs of characters that holds none of a set of strings, planned over their Aho–Corasick automaton
@@ -2038,6 +2033,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
+internal/engine/ the load pipeline every entry point runs, a source's index and the lazy load of an indexed category on the first call reaching it, the draw of a caller's path and record, and the vocabulary the engine is written in
 internal/engine/fence/ the proofs and fences a finished tree passes at load: no reference cycle, no repeat past the cap, names that keep one pick, where clauses that read no name they bind, filter no draw read through a path and have enough values to draw, {adddays()} day counts, record columns whose items agree on a datatype, and what a typed column, calc operand or struct field can hold
 internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, and the paths List advertises
 internal/engine/render/ drawing a compiled tree: choices, format strings, expansions, paths and table steps, named picks and the frames they render in, where and reword draws, and a record's columns

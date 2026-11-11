@@ -17,16 +17,15 @@ a fork on a personal instance. Valid while the project wants contribution from o
 a second owner. Until `todo.md` item 68 converts it, the Gitea copy goes stale. Valid
 while the maintainer keeps a Gitea copy.
 
-## The vocabulary sits below `doc.go`'s package clause, not in the package doc
+## The vocabulary is `internal/engine`'s package doc
 
-2026-09-21, Lilleman auf Larv.
-
-Goal 1 is what a developer choosing a library reads first, and the package doc is that
-page: the glossary would fill two thirds of it with the render path's units, mostly
-unexported, and Go doc comments have no code markup, so every name would render its
-backticks literally. Below the clause it reaches code health's reader — who opens the file —
-and nothing else. Valid while the glossary's subject is the render path; one written to
-teach the exported API belongs above the clause.
+2026-09-21, Lilleman auf Larv; revised 2026-11-11. Goal 1 is what a developer choosing a
+library reads first, and the root's package doc is that page: the glossary would fill two
+thirds of it with the engine's units, mostly unexported. The glossary names the load and render
+path, which `internal/engine` and its stages hold, and an internal package's doc reaches only
+code health's reader. It therefore sits above `internal/engine/doc.go`'s package clause, where
+`go doc` shows it. Valid while the glossary's subject is the engine; one written to teach the
+exported API belongs in the root's package doc.
 
 ## Options and fields share one namespace
 
@@ -1043,7 +1042,7 @@ Shipped under the floor before that by the maintainer's decisions of 2026-10-07,
 
 The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while the comprehension floor's target is 7.0.
 
-## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, and drawing in `internal/engine/render`; the pipeline stays in the root package until item 107 moves it into `internal/engine`; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
+## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, drawing in `internal/engine/render`, and the pipeline and lazy loading in `internal/engine`, with the root the public API and its options; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
 
 2026-10-05, Lilleman auf Larv; revised 2026-11-11, twice. Serves code health. On 2026-10-09 the
 maintainer chose to regroup the engine into packages, untangled first, over naming the root
@@ -1079,9 +1078,11 @@ repeat fences among them, since they check the finished graph; `render` draws. `
 `render` each import `tree` and leaf libraries, and neither imports the other. `fence` imports
 `load` as well as `tree`, since the fences walk the graph `load` built, read its names and
 compile a path as it does; an import one way keeps the stages acyclic, and `render` imports
-neither. The root keeps the pipeline and the public API today. Once item 107 lands, the root
-keeps only the public API and its options, and `internal/engine` will hold the pipeline and lazy
-loading, importing `load`, `fence`, `render` and the leaf libraries. Names and paths get no package of their own: each stage keeps
+neither. `internal/engine` holds the pipeline and lazy loading, and the entry points' walks of a
+caller's path and record, importing `load`, `fence`, `render` and the leaf libraries. The root
+keeps only the public API and its options: it imports `internal/engine`, `tree`, whose node types
+its generator and templates hold, and leaf libraries, never a stage, and builds `Record` from
+the column values the engine draws. Names and paths get no package of their own: each stage keeps
 its part of them, and `tree` holds the step type every stage walks. The three functions
 walking a path, one to load every branch, one to draw one and one to find the caller's
 folders, stay in their stages.
@@ -1092,9 +1093,9 @@ methods, never an interface, and `tree.TokenDraw` is a closed sum that `render`
 switches on. `perf_test.go` stays in the root and uses only the public API; a cut that raises
 an allocation count is fixed, not re-pinned.
 
-The move left is `todo.md` item 107, which moves the pipeline and merges only where its paired
-ruling reads no worse. `internal/` holds eleven directories, over the principle's about seven per
-level, since a reader finds the leaf libraries by name. Valid until `todo.md` item 107 lands.
+Each cut merged only where its paired ruling read no worse. `internal/` holds eleven
+directories, over the principle's about seven per level, since a reader finds the leaf libraries
+by name. Valid while the root holds no stage.
 
 ## Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 
