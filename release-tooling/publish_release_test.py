@@ -37,7 +37,7 @@ class TagGuard(unittest.TestCase):
 		os.chdir(tmp.name)
 		self.addCleanup(os.chdir, cwd)
 		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
-			f.write("# Changelog\n\n## [1.2.3]\n\n- A change.\n")
+			f.write("# Changelog\n\n## 1.2.3\n\n- A change.\n")
 		env = mock.patch.dict(os.environ, {"SHA": SHA})
 		env.start()
 		self.addCleanup(env.stop)
@@ -76,9 +76,50 @@ class TagGuard(unittest.TestCase):
 
 	def test_an_unreleased_heading_publishes_nothing(self):
 		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
-			f.write("# Changelog\n\n## [Unreleased]\n\n- A change.\n")
+			f.write("# Changelog\n\n## Unreleased\n\n- A change.\n")
 		code, created = self.publish({})
 		self.assertEqual((code, created, self.tag), (0, [], None))
+
+	def test_a_bracketed_heading_of_an_older_release_publishes(self):
+		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+			f.write("# Changelog\n\n## [1.2.3] - 2026-11-05\n\n- A change.\n")
+		code, created = self.publish({})
+		self.assertEqual((code, [c["tag_name"] for c in created]), (0, ["v1.2.3"]))
+
+	def test_a_dated_heading_publishes_with_its_body(self):
+		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+			f.write("# Changelog\n\n## 1.2.3 - 2026-11-20\n\n- A change.\n\n## 1.2.2 - 2026-11-05\n\n- Older.\n")
+		code, created = self.publish({})
+		self.assertEqual((code, [(c["tag_name"], c["body"]) for c in created]), (0, [("v1.2.3", "- A change.")]))
+
+	def test_a_bracketed_unreleased_heading_publishes_nothing(self):
+		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+			f.write("# Changelog\n\n## [Unreleased]\n\n- A change.\n\n## [1.2.3] - 2026-11-05\n")
+		code, created = self.publish({})
+		self.assertEqual((code, created, self.tag), (0, [], None))
+
+	def test_the_check_names_each_heading_it_cannot_read(self):
+		changelog = (
+			"# Changelog\n\n## [Unreleased\n\n## Unreleased (draft)\n\n## 0.5\n\n## [0.4.0] - soon\n\n"
+			"## Unreleased\n\n### Added\n\n## [Unreleased]\n\n## 0.5.0 - 2026-11-20\n\n## [0.3.0] - 2026-11-05\n"
+		)
+		self.assertEqual(
+			publish_release.unreadable_headings(changelog),
+			["## [Unreleased", "## Unreleased (draft)", "## 0.5", "## [0.4.0] - soon"],
+		)
+
+	def test_main_check_fails_on_an_unreadable_heading_and_names_it(self):
+		for text, code, error in (
+			("# Changelog\n\n## Unreleased\n\n## 1.2.3 - 2026-11-05\n", 0, ""),
+			("# Changelog\n\n## Unrelesed\n", 1, "## Unrelesed"),
+		):
+			with self.subTest(text=text):
+				with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+					f.write(text)
+				stderr = io.StringIO()
+				with redirect_stderr(stderr):
+					self.assertEqual(publish_release.main(["check"]), code)
+				self.assertIn(error, stderr.getvalue())
 
 	def test_main_names_only_a_published_tag_to_ci(self):
 		for responses, code, output in (
@@ -91,7 +132,7 @@ class TagGuard(unittest.TestCase):
 			with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
 				mock.patch.object(publish_release, "request", forge(responses, created)), \
 				redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-				self.assertEqual(publish_release.main(), code)
+				self.assertEqual(publish_release.main([]), code)
 			with open("output", encoding="utf-8") as f:
 				self.assertEqual(f.read(), output)
 			self.assertEqual([c["target_commitish"] for c in created], [SHA] if output else [])
@@ -107,7 +148,7 @@ class TagGuard(unittest.TestCase):
 		for name in ("1.2.3-rc.1", "1.2."):
 			with self.subTest(name=name):
 				with open("CHANGELOG.md", "w", encoding="utf-8") as f:
-					f.write(f"# Changelog\n\n## [{name}]\n\n- A change.\n")
+					f.write(f"# Changelog\n\n## {name}\n\n- A change.\n")
 				code, created = self.publish({})
 				self.assertEqual((code, created, self.tag), (1, [], None))
 

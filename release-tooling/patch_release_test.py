@@ -189,9 +189,9 @@ class Cut(Repository):
 		self.assertNotIn("go.sum", self.shipped)
 		self.assertEqual(
 			self.shipped["CHANGELOG.md"],
-			"# Changelog\n\n## [0.1.1] - 2026-10-14\n\n### Changed\n\n- The binaries and image are built with Go 1.27.2.\n\n"
+			"# Changelog\n\n## 0.1.1 - 2026-10-14\n\n### Changed\n\n- The binaries and image are built with Go 1.27.2.\n\n"
 			"### Security\n\n- The binaries no longer carry 0.1.0's known vulnerabilities: GO-2026-0001 (CVE-2026-0001),"
-			" GO-2026-0002 (CVE-2026-0002).\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
+			" GO-2026-0002 (CVE-2026-0002).\n\n## 0.1.0 - 2026-10-13\n\nThe first release.\n",
 		)
 		self.assertEqual([go for go, _ in self.scanned], ["1.27.1", "1.27.2"])
 		self.assertEqual(
@@ -206,7 +206,7 @@ class Cut(Repository):
 		self.assertEqual(self.cut()[0], 0)
 		self.assertEqual(self.notes_read, ["1.28"])
 		self.assertIn(
-			"## [0.1.1] - 2026-10-14\n\n### Breaking\n\n"
+			"## 0.1.1 - 2026-10-14\n\n### Breaking\n\n"
 			"- Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.\n"
 			"- Go 1.28 now requires at least Windows 10.1 or Windows Server 2019, and so do the binaries.\n\n"
 			"### Changed\n\n- The binaries and image are built with Go 1.28.0.\n\n",
@@ -253,7 +253,7 @@ class Cut(Repository):
 		self.assertEqual(self.scanned, [("1.27.1", GO_MOD.format("1.22", "v0.29.0")), ("1.27.1", NEW_GO_MOD)])
 		self.assertIn("- The binaries carry golang.org/x/text v0.30.0, up from v0.29.0.\n", self.shipped["CHANGELOG.md"])
 		self.assertIn(
-			"### Security\n\n- The binaries no longer carry 0.1.0's known vulnerabilities: GO-2026-0003 (CVE-2026-0003).\n\n## [0.1.0]",
+			"### Security\n\n- The binaries no longer carry 0.1.0's known vulnerabilities: GO-2026-0003 (CVE-2026-0003).\n\n## 0.1.0",
 			self.shipped["CHANGELOG.md"],
 		)
 
@@ -267,7 +267,7 @@ class Cut(Repository):
 		self.assertEqual(self.shipped["release-tooling/package-repos.Dockerfile"], PACKAGE_REPOS.replace("v2.18.3", "v2.19.0"))
 		self.assertEqual(self.shipped["release-tooling/goreleaser.yaml"], main_config)
 		self.assertIn(
-			"### Changed\n\n- The binaries, packages and image are built with GoReleaser v2.19.0.\n\n## [0.1.0]",
+			"### Changed\n\n- The binaries, packages and image are built with GoReleaser v2.19.0.\n\n## 0.1.0",
 			self.shipped["CHANGELOG.md"],
 		)
 
@@ -318,7 +318,7 @@ class Cut(Repository):
 	def test_main_hands_the_cut_tag_to_the_workflow(self):
 		self.assertEqual(self.main_cut(), (0, "", "tag=v0.1.1\n"))
 		today = datetime.datetime.now(datetime.UTC).date().isoformat()
-		self.assertTrue(self.shipped["CHANGELOG.md"].startswith(f"# Changelog\n\n## [0.1.1] - {today}\n\n"))
+		self.assertTrue(self.shipped["CHANGELOG.md"].startswith(f"# Changelog\n\n## 0.1.1 - {today}\n\n"))
 		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
 
 	def test_main_reads_a_go_minor_s_release_notes(self):
@@ -405,7 +405,7 @@ class Plan(Repository):
 	def test_files_under_the_next_patch_and_reconciles_the_last_release(self):
 		self.assertEqual(self.plan("GO-2026-0009"), 0)
 		self.assertIn("\n| 7 | 0.1.2 |  | security |", self.read("todo.md"))
-		self.assertEqual(self.read("CHANGELOG.md"), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]"))
+		self.assertEqual(self.read("CHANGELOG.md"), MAIN.replace("## 0.1.0", SECTION + "## 0.1.0"))
 
 	def test_files_while_goreleaser_yaml_names_its_systems_in_another_shape(self):
 		self.write(("release-tooling/goreleaser.yaml", "builds:\n  - goos:\n      - linux\n    goarch: [amd64]\n"))
@@ -417,7 +417,7 @@ class Plan(Repository):
 		self.plan()
 		self.assertNotIn("\n| 7 |", self.read("todo.md"))
 		self.assertIn(
-			"### Security\n\n- The binaries no longer carry Go 1.27.2's known vulnerabilities: GO-2026-0009 (CVE-2026-0009).\n\n## [0.1.1]",
+			"### Security\n\n- The binaries no longer carry Go 1.27.2's known vulnerabilities: GO-2026-0009 (CVE-2026-0009).\n\n## 0.1.1",
 			self.read("CHANGELOG.md"),
 		)
 
@@ -433,7 +433,7 @@ class Plan(Repository):
 			"- Go 1.28 now requires at least Windows 10.1 or Windows Server 2019, and so do the binaries.\n\n"
 		)
 		self.assertEqual(
-			self.read("CHANGELOG.md"), MAIN.replace("### Added", breaking + "### Added").replace("## [0.1.0]", SECTION + "## [0.1.0]")
+			self.read("CHANGELOG.md"), MAIN.replace("### Added", breaking + "### Added").replace("## 0.1.0", SECTION + "## 0.1.0")
 		)
 
 	def test_go_notes_it_cannot_read_still_move_a_fixed_item_and_record_no_breaking_line(self):
@@ -449,7 +449,7 @@ class Plan(Repository):
 		self.plan("GO-2026-0001", last="v0.1.0")
 		self.plan(last="v0.1.0")
 		self.plan()
-		self.assertEqual(self.read("CHANGELOG.md"), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]"))
+		self.assertEqual(self.read("CHANGELOG.md"), MAIN.replace("## 0.1.0", SECTION + "## 0.1.0"))
 
 
 FORGE = {"FORGE_SERVER_URL": "https://forge.example", "FORGE_REPOSITORY": "owner/repo", "FORGE_TOKEN": "t0ken"}
