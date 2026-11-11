@@ -223,6 +223,7 @@ func TestIsLonePath(t *testing.T) {
 		"a...b":                               false,
 		"a|b":                                 false,
 		"x(1)":                                false,
+		"w where length 5":                    false,
 		"x as p":                              false,
 		"x}}":                                 false,
 		"x} {/y":                              false,
