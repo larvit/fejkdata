@@ -22,3 +22,16 @@ const (
 	StepChild
 	StepParent // up to the table's parent, at the row its own row links to
 )
+
+// Child is what seg names under n: a folder's entry or a template's field.
+func Child(n Node, seg string) (Node, bool) {
+	var child Node
+	ok := false
+	switch n := n.(type) {
+	case *Folder:
+		child, ok = n.children[seg]
+	case *Template:
+		child, ok = n.syntax.Fields[seg]
+	}
+	return child, ok
+}

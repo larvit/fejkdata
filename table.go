@@ -169,19 +169,22 @@ func refuseInTable(toks []grammar.Token) error {
 
 func linkTables(sites []categorySite) error {
 	for _, s := range sites {
-		t, isTable := s.n.(*tree.Table)
-		if !isTable {
-			continue
-		}
-		t.SetSiblings(s.in.Children())
-		if t.Rows().Options().Parent == "" {
-			continue
-		}
-		if err := linkParent(t, s.in.Children()); err != nil {
-			return fmt.Errorf("%s: %w", s.path, err)
+		if t, isTable := s.n.(*tree.Table); isTable {
+			if err := linkTable(t, s.in.Children()); err != nil {
+				return fmt.Errorf("%s: %w", s.path, err)
+			}
 		}
 	}
 	return nil
+}
+
+// linkTable gives t the folder holding it, siblings, and links it to its parent there.
+func linkTable(t *tree.Table, siblings map[string]tree.Node) error {
+	t.SetSiblings(siblings)
+	if t.Rows().Options().Parent == "" {
+		return nil
+	}
+	return linkParent(t, siblings)
 }
 
 // linkParent links t to the table among siblings that its link column names.

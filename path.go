@@ -22,16 +22,13 @@ func childNamed(n tree.Node, seg string) (tree.Node, error) {
 		}
 		return nil, fmt.Errorf(`".." steps up only from a table's row; name any other level by its path from the data root`)
 	}
+	if child, ok := tree.Child(n, seg); ok {
+		return child, nil
+	}
 	switch n := n.(type) {
 	case *tree.Folder:
-		if child, ok := n.Children()[seg]; ok {
-			return child, nil
-		}
 		return nil, noEntry{seg}
 	case *tree.Template:
-		if child, ok := n.Fields()[seg]; ok {
-			return child, nil
-		}
 	case *tree.TableColumn:
 		if n.Name() == n.Table().Rows().Options().Parent {
 			return nil, fmt.Errorf("no field %q: %q is the link column, holding its parent's key; to read the row it links to, step up with ..%s.%s", seg, n.Name(), n.Name(), seg)
@@ -194,9 +191,9 @@ func drawSteps(s *drawstate.State, mode drawMode, n tree.Node, steps []tree.Path
 			}
 		}
 		if st.Kind == tree.StepField {
-			var err error
-			if n, err = childNamed(n, st.Name); err != nil {
-				panic(invariant.Broken("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.At, err))
+			var ok bool
+			if n, ok = tree.Child(n, st.Name); !ok {
+				panic(invariant.Broken("step %d: no field %q; a path's steps should have been compiled from the node they are drawn from", st.At, st.Name))
 			}
 			continue
 		}
