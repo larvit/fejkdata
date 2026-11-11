@@ -1559,3 +1559,24 @@ Inherited architect, decided by:
 - Shape, Navigation: `internal/engine/load/name.go:186` `NamedReads`: against: it and `CompilePath` return unexported types the root fences read fields of, a seam cut where the fences happen to sit
 - Locality, Navigation: `adddays.go:14` `proveAddDays`: against: the `{adddays()}` proof is split between the root and `load/adddays.go`, and the README line for root `adddays.go` still claims its date's one layout reads back
 - Self-sufficiency: `doc.go:20` vocabulary: net same: the vocabulary names each unit's package, but `load` and `render` have no package doc, unlike `tree`
+
+## 2026-11-11T03:34:30Z, PR #348 at e46a48e, against 451d71b
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | better | same | better |
+| Inherited architect | same | better | better | same | better |
+
+Mid A, decided by:
+
+- Locality, Shape, Overall: `valueproof.go:213` `checkCalcs`: the calc fence is one pass reading operands through the same `proveArm` as the typed-column proof; the base split it across `checkFunc`, `CheckCalcNames` and a second numeric reasoner in `calc.go`
+- Locality: `valueproof.go:203` `operand`: one closure serves proof and check, where the base repeated the fallback test inline beside `load.OperandNodes`
+- Shape: `internal/engine/load/format.go:14` `checkFunc`: no longer takes `fields` to special-case calc
+
+Inherited architect, decided by:
+
+- Locality, Shape, Overall: `valueproof.go:215` `checkCalcs`: one phase and one entry point, covering fields and names alike, where the base's two phases made a 3am reader work out which had fired
+- Shape: `valueproof.go:243` `zeroDivisor`: folds through `proven.OfCalc`, where the base's `constantValue` and `neverNumeric` were a second evaluator that could drift
+- Locality: `valueproof.go:203` `operand`: one operand function serves both the proof and the check
