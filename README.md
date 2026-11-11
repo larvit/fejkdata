@@ -2093,9 +2093,9 @@ check and the Go tests under the race detector, on the latest supported Go.
 Go, which the Dockerfile's `LOWEST_GO_VERSION` names. That target also runs the release
 tooling's tests, the vulnerability filer's tests, the geo imports' tests and the check of GoReleaser's config; the
 filer's tests file an item into `todo.md` themselves, so a change to the plan's shape can
-fail them. The rest of the gate is the changelog check, which CI runs against the PR
-base and which refuses a `## ` heading in `CHANGELOG.md` that is neither `Unreleased` nor a
-version, and the Packages dry run below. The check `gate` passes once each of these has
+fail them. The rest of the gate is the Packages dry run below and the changelog check, which
+CI runs against the PR base and which refuses a `## ` heading in `CHANGELOG.md` other than
+`Unreleased` or a version with its date. The check `gate` passes once each of these has
 passed or been skipped, and it is the only check that branch protection on `main`
 requires. Run `docker build .` locally before pushing. It keeps Go's build and module
 caches between runs, so a rerun tests only the packages a change reaches:
