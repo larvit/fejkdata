@@ -1573,3 +1573,11 @@ Read most (opens and searches):
 - `vulnerability-filing/file_vulnerabilities_test.py` 2
 - `docs/decisions.md` 1
 - `release-tooling/fixtures.py` 1
+
+## Reading cost, chunk 4ccbdac07526, finished 2026-11-11T23:18:38Z
+
+53301 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 4
