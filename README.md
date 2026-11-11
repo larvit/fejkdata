@@ -2038,7 +2038,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
-internal/engine/fence/ the proofs and fences a finished tree passes at load: no reference cycle, no repeat past the cap, names that keep one pick, where clauses with enough values to draw, {adddays()} day counts, typed columns whose items agree, and what a typed column, calc operand or struct field can hold
+internal/engine/fence/ the proofs and fences a finished tree passes at load: no reference cycle, no repeat past the cap, names that keep one pick, where clauses that read no name they bind, filter no draw read through a path and have enough values to draw, {adddays()} day counts, record columns whose items agree on a datatype, and what a typed column, calc operand or struct field can hold
 internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, and the paths List advertises
 internal/engine/render/ drawing a compiled tree: choices, format strings, expansions, paths and table steps, named picks and the frames they render in, where and reword draws, and a record's columns
 internal/engine/tree/ the node types of the template tree, what a load found for them, and the methods every other package reads or sets a node through

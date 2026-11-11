@@ -54,7 +54,7 @@ func (p *valueProof) proveColumn(n tree.Node) proven.Facts {
 	return v
 }
 
-// Prove is what every render of n can print, proven on its own.
+// Prove is what every render of n can print.
 func Prove(n tree.Node) proven.Facts { return (&valueProof{}).prove(n) }
 
 func (p *valueProof) prove(n tree.Node) proven.Facts {
