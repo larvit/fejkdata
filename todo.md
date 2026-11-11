@@ -12,8 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 414 | 0.5.0 |  |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
-| 417 | 0.5.0 | 414 |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
+| 417 | 0.5.0 |  |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 107 | 0.5.0 | 417 | decision | **Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
 | 177 | 0.5.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
 | 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
@@ -43,8 +42,6 @@
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 7.3 |
 | 40 | 0.8.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 6.5 |
 | 95 | 0.8.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 6.5 |
-| 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 1.1 |
-| 112 | 0.8.0 | 36 |  | **Check a calc's field operands in `fenceTemplates`, beside its name operands.** | 2 | 1 | 1 | 2 | 2 | code health by 2 | 6.5 |
 | 116 | 0.8.0 |  |  | **Turn a row index into its rows file's line in one function.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 6.5 |
 | 350 | 0.8.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.9 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.8 |
@@ -120,6 +117,7 @@
 | 161 | 0.8.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.4 |
 | 18 | 0.8.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
 | 29 | 0.8.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
+| 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 1.1 |
 | 56 | 0.8.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.9 |
 | 53 | 0.8.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 4 by 2 | 0.8 |
 | 404 | 0.8.0 |  |  | **Let a template in a `repeat` or a choice item bind a name to a path through an enclosing name, `{l.street as s}`, so each render draws a fresh row inside the enclosing pick.** | 3 | 2 | 2 | 5 | 6 | 1 by 3, 4 by 4 | 0.8 |
@@ -222,12 +220,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 
 ## Details
-
-### 414. Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.
-
-Files: `internal/engine/load/calc.go`, `internal/engine/load/format.go`, `valueproof.go`, `internal/proven`; about 120 lines, net negative. It ships with a paired ruling no worse.
-
-It widens two fences. Today a calc refuses an operand that is never a number only where it renders a field's own fixed text that doesn't parse, a null, a repeat of 0 or a choice of these, and a zero divisor only where number literals and fixed text fold to 0. `valueProof` proves an operand through every path, table cell and choice it reads, and refuses the text `"NaN"`. So a calc also refuses an operand that is `"NaN"`, or whose format reads, say, another field whose fixed text isn't a number, and a divisor whose operands prove to fixed values that fold to 0. Each of those prints `NaN` or `Inf` on every draw, which goal 5.1 calls no valid value. A load then rejects templates it accepted, so the item adds a Breaking entry to `CHANGELOG.md`, revises the decision "A constant zero divisor is a load error", and the product-owner pass reviews it. As the decision says today, the divisor's fold still stops where an operand varies, so `a/(b*c)` with `b` fixed at 0 and `c` varying still loads, though `valueProof` bounds `b*c` to 0.
 
 ### 417. Move the proofs and fences into `internal/engine/fence`.
 
@@ -360,14 +352,6 @@ The CLI counts brackets of its own, so a change to the selector grammar desyncs 
 ### 95. Hold a struct's columns and the field each fills in one slice.
 
 `structShape.fieldIndexes` pairs with its record template's `columns` by index alone, against the technical principle "one owner per value".
-
-### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
-
-`New` and `NewTemplate` stop at the first, so data holding two mistakes takes two runs to fix. Split it into items before starting, one of them the shape a Go caller iterates and the CLI prints, and the order of an inline template's mistakes, which name no path; reword the README's "`New` refuses a mistake in the data" to every mistake.
-
-### 112. Check a calc's field operands in `fenceTemplates`, beside its name operands.
-
-`checkCalcFields` runs at compile and `checkCalcNames` in `fenceTemplates`, after finish, two passes over one rule. Moving the field check there before item 36 would change which of two mistakes in two category files a load reports, since every category compiles before any resolves.
 
 ### 116. Turn a row index into its rows file's line in one function.
 
@@ -630,6 +614,10 @@ Choices and a template.
 ### 29. Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.
 
 Require the path step to reach a sibling category.
+
+### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
+
+`New` and `NewTemplate` stop at the first, so data holding two mistakes takes two runs to fix. Split it into items before starting, one of them the shape a Go caller iterates and the CLI prints, and the order of an inline template's mistakes, which name no path; reword the README's "`New` refuses a mistake in the data" to every mistake.
 
 ### 56. Build on a manual run of `test.yml` on `main`.
 

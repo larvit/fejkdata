@@ -1496,9 +1496,10 @@ A calc computes from the values its format shows where both read one [name](#nam
 Renders e.g. `19.99 x 3 = 59.97`.
 
 A result that rounds to zero prints unsigned — `0`, `0.00` — as `{float()}`'s does. An
-operand that can never be a number (`"abc"`, or a choice of such) is rejected at load, as
-is a division by a constant zero (`1/0`, or a fixed `"0"` field); an operand that sometimes is not a number yields
-`NaN`, and a division by one that is not constant `Inf` — both print rather than
+operand that can never be a number (`"abc"`, `"NaN"`, or a read whose every value is
+such) is rejected at load, as is a division by zero in every render (`1/0`, or a read
+whose every value is `0`); an operand that sometimes is not a number yields
+`NaN`, and a division by one that varies `Inf` — both print rather than
 fail, except in a [typed column](#datatype), which must prove neither happens.
 
 ### Transforms

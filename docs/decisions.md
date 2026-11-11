@@ -328,10 +328,10 @@ assumes a 64-bit int; on a 32-bit target it could overflow and panic.
 2026-09-24, Lilleman auf Larv. Serves goal 5.1: a value that is always `NaN` or `Inf` is
 no valid value.
 
-`1/0` and a fixed `"0"` field are decidable, so they join the never-numeric operand as a
-load error; the fold stops where an operand varies, so `a/(b*c)` with `b` fixed at `0`
-and `c` varying loads and prints `Inf` every draw — catching it needs zero-absorbing
-algebra for a shape nobody writes. A [typed column](../README.md#datatype) bounds its operands
+`1/0` and a read whose every value is `0` are decidable, so they join the never-numeric
+operand as a load error, both proven by `valueProof`; the fold stops where an operand
+varies, so `a/(b*c)` with `b` fixed at `0` and `c` varying loads and prints `Inf` every
+draw — catching it needs zero-absorbing algebra for a shape nobody writes. A [typed column](../README.md#datatype) bounds its operands
 instead and refuses a divisor it cannot keep from zero. In a string column, an operand that
 is sometimes not a number loads, and prints `NaN` on each draw where it is not one. `Inf`
 and `NaN` in a string column work against goals 5.1 and 3 until `todo.md` item 81

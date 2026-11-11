@@ -9,13 +9,10 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// checkFunc validates a call at compile time: a known builtin, its args, for calc the operands held
-// in fields, and for a where clause a builtin it can filter.
-func checkFunc(tok grammar.Token, fields map[string]tree.Node) error {
+// checkFunc validates a call at compile time: a known builtin, its args, and for a where clause a
+// builtin it can filter.
+func checkFunc(tok grammar.Token) error {
 	err := builtinfunc.Check(tok.Fn, tok.Args)
-	if err == nil && tok.Fn == builtinfunc.CalcName {
-		err = checkCalcFields(tok.Args, fields)
-	}
 	if err == nil && tok.Where != nil {
 		if _, filters := builtinfunc.Runs(tok.Fn, tok.Args); !filters {
 			err = fmt.Errorf("a where clause filters only %s", builtinfunc.FilteredCalls())
@@ -53,7 +50,7 @@ func checkTokens(toks []grammar.Token, fields map[string]tree.Node) ([]tree.Unbo
 func checkToken(t grammar.Token, fields map[string]tree.Node) ([]tree.UnboundRead, error) {
 	switch t.Kind {
 	case grammar.BuiltinCall:
-		if err := checkFunc(t, fields); err != nil {
+		if err := checkFunc(t); err != nil {
 			return nil, err
 		}
 		return checkReads(t, fields, true)
