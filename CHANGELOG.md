@@ -1,6 +1,7 @@
 # Changelog
 
-Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). A release's
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), with headings written
+`## Unreleased` and `## 0.5.0 - 2026-11-20`. A release's
 `Breaking` section comes first and names each rejected spelling with its
 replacement, and each removed path, column or flag.
 
