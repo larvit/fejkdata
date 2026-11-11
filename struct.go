@@ -309,7 +309,8 @@ func setColumn(field reflect.Value, c Column) {
 	field.Set(value)
 }
 
-// setText parses text into a field a fake tag fills, which engine.LoadStruct proved it parses as.
+// setText writes text into a field a fake tag fills, parsed as the field's kind; engine.LoadStruct
+// proved that the text parses.
 func setText(field reflect.Value, text string) {
 	var err error
 	switch dt, _ := engine.FieldDataType(field.Kind()); {

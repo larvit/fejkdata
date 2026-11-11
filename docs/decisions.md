@@ -17,15 +17,16 @@ a fork on a personal instance. Valid while the project wants contribution from o
 a second owner. Until `todo.md` item 68 converts it, the Gitea copy goes stale. Valid
 while the maintainer keeps a Gitea copy.
 
-## The vocabulary is `internal/engine`'s package doc
+## The vocabulary sits in `internal/engine`'s package doc
 
-2026-09-21, Lilleman auf Larv; revised 2026-11-11. Goal 1 is what a developer choosing a
-library reads first, and the root's package doc is that page: the glossary would fill two
-thirds of it with the engine's units, mostly unexported. The glossary names the load and render
-path, which `internal/engine` and its stages hold, and an internal package's doc reaches only
-code health's reader. It therefore sits above `internal/engine/doc.go`'s package clause, where
-`go doc` shows it. Valid while the glossary's subject is the engine; one written to teach the
-exported API belongs in the root's package doc.
+2026-09-21, Lilleman auf Larv; revised 2026-11-11. A developer choosing a library, the reader
+goal 1 serves, reads the root's package doc first. The glossary would fill two thirds of that
+page with the engine's units, mostly unexported. The glossary names the load and render path,
+which `internal/engine` and its stages hold, and an internal package's doc reaches only code
+health's reader. It therefore sits above `internal/engine/doc.go`'s package clause, where `go
+doc` shows it. Go doc comments have no code markup, so its names keep their backticks; that
+reader takes them as code. Valid while the glossary's subject is the engine; one written to
+teach the exported API belongs in the root's package doc.
 
 ## Options and fields share one namespace
 
@@ -1044,7 +1045,7 @@ The scoring runs are in [the comprehension history](comprehension-history.md). T
 
 ## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, drawing in `internal/engine/render`, and the pipeline and lazy loading in `internal/engine`, with the root the public API and its options; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
 
-2026-10-05, Lilleman auf Larv; revised 2026-11-11, twice. Serves code health. On 2026-10-09 the
+2026-10-05, Lilleman auf Larv; revised 2026-11-11, three times. Serves code health. On 2026-10-09 the
 maintainer chose to regroup the engine into packages, untangled first, over naming the root
 files by area; this is the plan for that choice, made with the systems architect.
 
@@ -1079,9 +1080,9 @@ repeat fences among them, since they check the finished graph; `render` draws. `
 `load` as well as `tree`, since the fences walk the graph `load` built, read its names and
 compile a path as it does; an import one way keeps the stages acyclic, and `render` imports
 neither. `internal/engine` holds the pipeline and lazy loading, and the entry points' walks of a
-caller's path and record, importing `load`, `fence`, `render` and the leaf libraries. The root
-keeps only the public API and its options: it imports `internal/engine`, `tree`, whose node types
-its generator and templates hold, and leaf libraries, never a stage, and builds `Record` from
+caller's path and record, importing `tree`, `load`, `fence`, `render` and the leaf libraries.
+The root keeps only the public API and its options: it imports `internal/engine`, `tree`, whose
+folder its generator holds, and leaf libraries, never a stage, and builds `Record` from
 the column values the engine draws. Names and paths get no package of their own: each stage keeps
 its part of them, and `tree` holds the step type every stage walks. The three functions
 walking a path, one to load every branch, one to draw one and one to find the caller's

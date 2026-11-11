@@ -184,8 +184,8 @@ func parentOf(n tree.Node) string {
 	return ""
 }
 
-// IndexLine is what a manifest's index says of a loaded category, and the dot path of each
-// category it needs.
+// IndexLine is a loaded category's dot path, what a manifest's index says of it, and the dot
+// path of each category it needs.
 type IndexLine struct {
 	Path  string
 	Entry datafiles.IndexEntry

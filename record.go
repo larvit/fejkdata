@@ -205,10 +205,11 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 }
 
 // ErrNoColumns matches the error for a record with no fields, naming a choice or holding every
-// field in "let"; FakeRecord's names the one-column record to write instead, for all but the last.
+// field in "let". For the first two, FakeRecord's error also names the one-column record to write
+// instead.
 var ErrNoColumns = engine.ErrNoColumns
 
-// renderRecord draws r as a record.
+// renderRecord draws r.
 func renderRecord(s *drawstate.State, r engine.Record) *Record {
 	out := &Record{columns: make([]Column, r.ColumnCount())}
 	r.Draw(s, func(i int, c engine.Column) { out.columns[i] = Column(c) })

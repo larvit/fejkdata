@@ -22,7 +22,7 @@ In [docs/decisions.md](docs/decisions.md):
 
 - GitHub is canonical, and the module path names it
 - The Gitea copy stays, as a pull mirror of GitHub
-- The vocabulary is `internal/engine`'s package doc
+- The vocabulary sits in `internal/engine`'s package doc
 - Options and fields share one namespace
 - `{a|b}` stays beside nested choices
 - Flags follow getopt_long

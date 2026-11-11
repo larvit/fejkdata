@@ -14,7 +14,7 @@ import (
 // MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along any one path.
 const MaxRepeat = load.MaxRepeat
 
-// Fake draws the value a caller's path names, loading the unloaded category it reaches first.
+// Fake draws the value a caller's path names, first loading any unloaded category it reaches.
 // A failed load matches ErrLoad.
 func Fake(s *drawstate.State, root *tree.Folder, path string) (string, error) {
 	path, segments, err := callerPath(root, path)
