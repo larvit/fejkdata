@@ -6,9 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-
-	"github.com/larvit/fejkdata/internal/engine/load"
-	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 // TestCalcArithmetic pins the operators, precedence, parentheses and unary minus
@@ -222,7 +219,7 @@ func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected naming %q", src, err, want)
 		}
 	}
-	if _, err := load.Compile(parse(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`), tree.NewLoadFinds()); err != nil {
+	if _, err := resolved(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`); err != nil {
 		t.Errorf("compile(a/(b*c)) = %v, want a divisor that varies accepted", err)
 	}
 	f := engine(1)
@@ -281,10 +278,14 @@ func TestCalcReadsANameItReadsNowhereElse(t *testing.T) {
 
 func TestCalcRefusesABadOperand(t *testing.T) {
 	for card, want := range map[string]string{
-		`"{/word as w}{w}{calc(w * 2)}"`:    `operand "w" is never a number: it renders "def"`,
-		`"{/zero as z}{z}{calc(1 / z)}"`:    `divides by z, which is always zero`,
-		`"{calc(nope * 2)}"`:                `no field "nope"`,
-		`"{/word as w}{w}{calc(nope * 2)}"`: `no field or name "nope"; the names bound here are "w"`,
+		`"{/word as w}{w}{calc(w * 2)}"`:                 `operand "w" is never a number: "abc" is not a number`,
+		`"{/zero as z}{z}{calc(1 / z)}"`:                 `divides by z, which is always zero`,
+		`"{calc(nope * 2)}"`:                             `no field "nope"`,
+		`"{/word as w}{w}{calc(nope * 2)}"`:              `no field or name "nope"; the names bound here are "w"`,
+		`{"format":"{calc(x * 2)}","x":"NaN"}`:           `operand "x" is never a number`,
+		`{"format":"{calc(x * 2)}","x":"{/word}"}`:       `operand "x" is never a number`,
+		`{"format":"{calc(1 / x)}","x":"{/zero}"}`:       `divides by x, which is always zero`,
+		`{"format":"{calc(1 / (x - 0))}","x":["0","0"]}`: `divides by (x - 0), which is always zero`,
 	} {
 		dir := writeData(t, map[string]string{
 			"word": `["abc","def"]`,
@@ -332,7 +333,7 @@ func TestATypedColumnProvesACalcOverAName(t *testing.T) {
 }
 
 func TestARepeatOfZeroIsNeverANumber(t *testing.T) {
-	if _, err := resolved(t, `{"format":"{calc(x / y)}","x":"1","y":{"format":"0","repeat":0}}`); err == nil || !strings.Contains(err.Error(), `operand "y" is never a number: it renders ""`) {
+	if _, err := resolved(t, `{"format":"{calc(x / y)}","x":"1","y":{"format":"0","repeat":0}}`); err == nil || !strings.Contains(err.Error(), `operand "y" is never a number: "0" repeats 0 times`) {
 		t.Errorf("a calc over a repeat of 0 = %v, want the operand refused as never a number", err)
 	}
 }
