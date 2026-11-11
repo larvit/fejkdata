@@ -9,12 +9,12 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// drawIn draws one of the texts in x.texts[from:to], by their odds.
+// drawIn draws one of the texts in x.Texts()[from:to], by their odds.
 func drawIn(x *tree.LengthIndex, s *drawstate.State, from, to int) string {
 	return x.Texts()[drawIndex(x, s, from, to, nil)]
 }
 
-// drawIndex draws the index of one of the texts in x.texts[from:to] by their odds, leaving out
+// drawIndex draws the index of one of the texts in x.Texts()[from:to] by their odds, leaving out
 // the ascending indexes drawn. It costs drawn's length plus a binary search over the span: it draws
 // among the odds left, and steps past each drawn text the draw lands at or beyond.
 func drawIndex(x *tree.LengthIndex, s *drawstate.State, from, to int, drawn []int) int {

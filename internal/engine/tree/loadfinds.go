@@ -7,7 +7,8 @@ import (
 // LoadFinds holds what one load finds for its templates, choices and name bindings: each
 // template's and choice's name scope, as the load binds names; what each template reads and
 // draws, and what each binding resolves to, as it compiles formats; and each record's columns.
-// The load's later stages read them here, and Finish writes them into the nodes.
+// Each load stage reads here what the stages before it found, until Finish writes it all into
+// the nodes.
 type LoadFinds struct {
 	templates map[*Template]*TemplateFinds
 	choices   map[*Choice]*NameScope

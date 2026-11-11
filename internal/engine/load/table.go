@@ -166,7 +166,8 @@ func refuseInTable(toks []grammar.Token) error {
 	return nil
 }
 
-// LinkTable gives t the folder holding it, siblings, and links it to its parent there.
+// LinkTable gives t its siblings, the entries of the folder holding it, and links it to the
+// parent table among them.
 func LinkTable(t *tree.Table, siblings map[string]tree.Node) error {
 	t.SetSiblings(siblings)
 	if t.Rows().Options().Parent == "" {
