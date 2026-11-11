@@ -209,9 +209,9 @@ func TestWhereNamesTheLengthsThatLeaveNoValue(t *testing.T) {
 		`{"format":"{n as k}{m as j}{w where length k to j}","n":"{int(3,5)}","m":"{int(4,6)}","w":["cat","bird"]}`:         "where k is 5 and j is 4, length 5 to 4 holds no length; keep k at or below j",
 		`{"format":"{n as k}{w where length k to 9}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:                          "where k is 6, no value passes the where clause",
 		`{"format":"{n as k}{w where length k to 9 distinct 2 joined ','}","n":"{int(3,5)}","w":["cat","bird","horse"]}`:    "where k is 5, distinct 2 draws 2 values, and only 1 passes",
-		`{"format":"{v as t}{w where not t as n}{x where length n}","v":"1","w":["1"],"x":["a","bb"]}`:                      "may print its fallback",
-		`{"format":"{x where length n}{v as t}{w where not t as n}","v":"1","w":["1","2"],"x":["a","bb"]}`:                  "may print its fallback",
-		`{"format":"{n as k}{x where length k}","n":{"format":"{v as t}{w where not t}","v":"1","w":["1"]},"x":["a","bb"]}`: "may print its fallback",
+		`{"format":"{v as t}{w where not t as n}{x where length n}","v":"1","w":["1"],"x":["a","bb"]}`:                      "leaves out a string read from a name, so it may print its fallback or an empty string, which are text; leave out quoted strings instead, as in not '1'",
+		`{"format":"{x where length n}{v as t}{w where not t as n}","v":"1","w":["1","2"],"x":["a","bb"]}`:                  "leaves out a string read from a name, so it may print its fallback or an empty string, which are text; leave out quoted strings instead, as in not '1'",
+		`{"format":"{n as k}{x where length k}","n":{"format":"{v as t}{w where not t}","v":"1","w":["1"]},"x":["a","bb"]}`: "leaves out a string read from a name, so it may print its fallback or an empty string, which are text; leave out quoted strings instead, as in not '1'",
 	} {
 		t.Run(src, func(t *testing.T) {
 			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
