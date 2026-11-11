@@ -185,8 +185,8 @@ func TestFinnishHenkilotunnusHasDVVsShapeAndControlCharacterOnADayNotAfterToday(
 		if b.born.After(testDay) || b.age > 99 {
 			t.Fatalf("%q was born %s, want someone aged 0 to 99 on %s", got, b.born.Format("2006-01-02"), testDay.Format("2006-01-02"))
 		}
-		if b.individual < 2 || b.individual > 899 {
-			t.Fatalf("%q has the individual number %03d, want 002 to 899, the range DVV says is issued", got, b.individual)
+		if b.individual < 900 {
+			t.Fatalf("%q has the individual number %03d, want 900 to 999, which DVV's 002 to 899 issued range leaves out", got, b.individual)
 		}
 	})
 }

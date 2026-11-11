@@ -2,6 +2,7 @@ package builtinfunc
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -42,26 +43,28 @@ func TestHetuSignNamesTheCenturyOfTheLatestYearNotAfterToday(t *testing.T) {
 	}
 }
 
-// DVV: odd individual numbers go to men, even to women, and all issued are 002 to 899.
-func TestHetuTailGivesAnIndividualNumberOfTheParityFrom002To899AndItsCheck(t *testing.T) {
+// DVV: odd individual numbers go to men, even to women, and all issued are 002 to 899, so 900 to 999
+// is the range it issues no one and its test table draws from.
+func TestHetuTailGivesAnIndividualNumberOfTheParityFrom900To999AndItsCheck(t *testing.T) {
 	for _, parity := range []byte{'0', '1', '2', '3', '9'} {
 		seen := map[string]bool{}
-		for pick := range 449 {
+		for pick := range 50 {
 			tail := hetuTail("131052", '-', parity, pick)
 			if len(tail) != 5 || tail[0] != '-' {
 				t.Fatalf("hetuTail(131052, -, %c, %d) = %q, want a sign, three digits and a character", parity, pick, tail)
 			}
 			number := int(tail[1]-'0')*100 + int(tail[2]-'0')*10 + int(tail[3]-'0')
-			if number < 2 || number > 899 || number%2 != int(parity-'0')%2 {
-				t.Errorf("hetuTail(131052, -, %c, %d) = %q, want an individual number of that parity from 002 to 899", parity, pick, tail)
+			if number < 900 || number > 999 || number%2 != int(parity-'0')%2 {
+				t.Errorf("hetuTail(131052, -, %c, %d) = %q, want an individual number of that parity from 900 to 999", parity, pick, tail)
 			}
-			if want := hetuCheck("131052" + tail[1:4]); tail[4] != want {
+			whole, _ := strconv.Atoi("131052" + tail[1:4])
+			if want := dvvControlCharacters[whole%31]; tail[4] != want {
 				t.Errorf("hetuTail(131052, -, %c, %d) = %q, want the check character %c", parity, pick, tail, want)
 			}
 			seen[tail] = true
 		}
-		if len(seen) != 449 {
-			t.Errorf("449 picks of parity %c gave %d individual numbers, want each of the 449", parity, len(seen))
+		if len(seen) != 50 {
+			t.Errorf("50 picks of parity %c gave %d individual numbers, want each of the 50", parity, len(seen))
 		}
 	}
 }
