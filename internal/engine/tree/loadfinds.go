@@ -23,7 +23,7 @@ type TemplateFinds struct {
 	nameScope   *NameScope // where its tokens look a name up
 	refs        TemplateRefs
 	compiled    FormatOps
-	readsColumn *ColumnRead    // the column its format only reads, nil where it reads more; read only in columnread.go
+	readsColumn *ColumnRead    // the column its format only reads, nil where it reads more
 	columns     []RecordColumn // a record's, where it has fields, in name order
 }
 

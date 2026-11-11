@@ -55,7 +55,7 @@ type Op struct {
 	draw TokenDraw
 }
 
-// newOpParts is the op of tok before its call and draw: the arms it reads, its builtin's
+// NewOp is the op of tok before its call and draw: the arms it reads, its builtin's
 // operands and its where clause's reads.
 func NewOp(tok grammar.Token, arms, operands, clause []Arm) Op {
 	return Op{token: tok, arms: arms, operands: operands, clause: clause}

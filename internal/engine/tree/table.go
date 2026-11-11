@@ -14,7 +14,7 @@ type Table struct {
 	rows           *RowsTable
 	formatTemplate *Template // fields are the column nodes
 	rowNode        *TableRow
-	cellTemplates  map[int]*Template // by cellIndex
+	cellTemplates  map[int]*Template // by CellIndex
 	siblings       map[string]Node   // the folder holding t, set by linkTables; every table linked to t sits there
 }
 
