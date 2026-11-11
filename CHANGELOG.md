@@ -17,6 +17,12 @@ replacement, and each removed path, column or flag.
   doesn't help, since a fallback is text even where it names a number, and where
   the string must come from a name, no spelling keeps that `length`.
 
+## [0.4.1] - 2026-11-11
+
+### Changed
+
+- The binaries and image are built with Go 1.27.4.
+
 ## [0.4.0] - 2026-11-10
 
 ### Breaking
