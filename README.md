@@ -2026,7 +2026,7 @@ datatype.go     DataType, what a record column holds
 render.go       Fake
 record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, and fake tags as one record's columns
-inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate
+inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, IsLonePath
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
 internal/avoid/ the draw of a value of fixed runs of characters that holds none of a set of strings, planned over their Aho–Corasick automaton
