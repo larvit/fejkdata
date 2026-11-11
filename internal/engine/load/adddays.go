@@ -57,7 +57,7 @@ func nodeDateLayout(n tree.Node, l *tree.LoadFinds, seen map[tree.Node]bool) (st
 			return "", fmt.Sprintf("it renders {%s}; add both offsets in one adddays", o.Token().Body)
 		case o.Token().Kind == grammar.PathRead:
 			var leaves []tree.Node
-			for _, a := range o.Reads() {
+			for _, a := range o.Alternatives() {
 				leaves = append(leaves, a.Leaves()...)
 			}
 			return dateLayout(leaves, l, seen)

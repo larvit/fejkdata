@@ -5,8 +5,9 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// Read is one read of a path or a name: one alternative of a {a|b} token, or one operand, split
-// into the head, whose node `Template.StartOf` finds, and the tail of a dotted path into it.
+// Read is one read of a path or a name: one alternative of a {a|b} token, one operand of a builtin
+// or one name of its where clause. It is split into the head, whose node `Template.StartOf` finds,
+// and the tail of a dotted path into it.
 type Read struct {
 	spelling string // as written, for messages
 	head     string
@@ -41,7 +42,7 @@ func (a Read) Tail() []string { return a.tail }
 type ReadKind uint8
 
 const (
-	FreshRead ReadKind = iota // drawn afresh at every read
+	FreshRead ReadKind = iota // drawn afresh, unless a name's pick holds its level
 	NamedRead                 // read through a name, kept in its pick
 )
 
@@ -64,12 +65,12 @@ func (a Read) ReadsJoined() bool {
 	return a.kind == NamedRead && a.named.Distinct() != nil && a.member == 0
 }
 
-// Op is one compiled unit of a format string: a literal run, a read,
+// Op is one compiled unit of a format string: a literal run, a path read with its alternatives,
 // or a builtin already prepared with its args.
 type Op struct {
-	token grammar.Token
-	reads []Read // grammar.PathRead: the '|' alternatives, split into head and tail once
-	call  builtinfunc.Call
+	token        grammar.Token
+	alternatives []Read // grammar.PathRead: the '|' alternatives, split into head and tail once
+	call         builtinfunc.Call
 	// operands are the fields the builtin reads, in the order its operands func fixed; a render
 	// reads them before a call that has no draw. nil for a token that reads none.
 	operands []Read
@@ -83,8 +84,8 @@ type Op struct {
 
 // NewOp is the op of tok before its call and draw: the reads of its alternatives, its builtin's
 // operands and its where clause's reads.
-func NewOp(tok grammar.Token, reads, operands, clause []Read) Op {
-	return Op{token: tok, reads: reads, operands: operands, clause: clause}
+func NewOp(tok grammar.Token, alternatives, operands, clause []Read) Op {
+	return Op{token: tok, alternatives: alternatives, operands: operands, clause: clause}
 }
 
 // WithCall is o with its builtin prepared.
@@ -99,11 +100,11 @@ func (o Op) WithDraw(d TokenDraw) Op {
 	return o
 }
 
-// AllReads is every read a render of o makes: those of its alternatives, its builtin's operands and its
+// AllReads is every read o holds: those of its alternatives, its builtin's operands and its
 // clause's. Each points into o's slices, so the same read always yields the same pointer.
 func (o *Op) AllReads() []*Read {
-	found := make([]*Read, 0, len(o.reads)+len(o.operands)+len(o.clause))
-	for _, group := range [][]Read{o.reads, o.operands, o.clause} {
+	found := make([]*Read, 0, len(o.alternatives)+len(o.operands)+len(o.clause))
+	for _, group := range [][]Read{o.alternatives, o.operands, o.clause} {
 		for i := range group {
 			found = append(found, &group[i])
 		}
@@ -111,7 +112,7 @@ func (o *Op) AllReads() []*Read {
 	return found
 }
 
-func (o *Op) Reads() []Read { return o.reads }
+func (o *Op) Alternatives() []Read { return o.alternatives }
 
 func (o *Op) Call() builtinfunc.Call { return o.call }
 

@@ -11,11 +11,11 @@
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
 //     start one each, and `FakeStruct` one per record.
 //   - env — what a render reads names and rows through: `render.renderEnv`.
-//   - read — one use of a spelling in a token: one alternative of {a|b}, one operand of a
-//     builtin or one name of a where clause. It is fresh, drawn afresh each time, or named,
-//     taken from a name's pick: `tree.Read`, `tree.ReadKind`.
-//   - spelling — what a token reads, as written: a name, a path into a field or a reference;
-//     its `tree.Read` holds it split into head and tail.
+//   - spelling — what a token reads, as written: a name, a path into a field or a reference.
+//   - read — one spelling a token reads, split into head and tail: one alternative of {a|b},
+//     one operand of a builtin or one name of a where clause. A named read goes through a
+//     name; any other is fresh, drawn afresh unless a name's pick holds its level:
+//     `tree.Read`, `tree.ReadKind`.
 //   - scope — where a name is bound: a category, one repeat iteration or one choice item's render: `tree.NameScope`.
 //   - named pick — the draw a token such as {/person as p} binds to a name, drawn
 //     on its first read and kept while its scope renders: `tree.NameBinding`,

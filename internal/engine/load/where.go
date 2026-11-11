@@ -128,7 +128,7 @@ func valueDrawOf(t *tree.Template, o *tree.Op, l *tree.LoadFinds) (*tree.ValueDr
 	var start tree.Node
 	var tail []string
 	if o.Token().Kind == grammar.PathRead {
-		a := o.Reads()[0]
+		a := o.Alternatives()[0]
 		if a.Kind() == tree.NamedRead {
 			return nil, fmt.Errorf("%q is a name, drawn once; write the clause on the draw it binds: {%s … as %s}", a.Head(), a.Named().Ref(), a.Head())
 		}
