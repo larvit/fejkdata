@@ -12,15 +12,11 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 424 | 0.5.0 |  |  | **Rename `tree.Arm` to `tree.Read`, with its methods and variables, and define "read" in `internal/engine/doc.go`'s vocabulary.** | 1 | 1 | 1 | 1 | 2 | code health by 3 | 9.8 |
-| 427 | 0.5.0 |  |  | **Declare `fejkdata.Column` as an alias of `engine.Column`, as `DataType` is, and spell the node-set type once, as `fence.NodeSet`.** | 1 | 1 | 2 | 2 | 2 | code health by 3 | 9.8 |
-| 425 | 0.5.0 |  |  | **Name `internal/engine/index.go` for the lazy loader it holds, and move the manifest's `Index` and `IndexLine` to a file of their own.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 422 | 0.5.0 |  |  | **Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
-| 426 | 0.5.0 |  |  | **Say at `builtinfunc.CalcName` that `internal/engine/fence` proves `calc`'s operands.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 3.9 |
 | 421 | 0.5.0 |  | owner | **Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.** | 4 | 2 | 2 | 6 | 7 | code health by 8 | 2.3 |
 | 423 | 0.5.0 | 421 |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
@@ -227,21 +223,9 @@
 
 ## Details
 
-### 251. Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.
-
-The inherited architect of the 0.1.0 scoring run on 52e0304 named `isPath` (`cli/cli.go`) the CLI's first rot point when the path grammar changes: it copies the grammar because the CLI reads only the library's public API.
-
 ### 424. Rename `tree.Arm` to `tree.Read`, with its methods and variables, and define "read" in `internal/engine/doc.go`'s vocabulary.
 
 The inherited architect of item 177's scoring run at 3f909f1 named `tree/arm.go:8` `Arm` a navigation cost: its comments and the vocabulary say a read, and the type says arm. `Op.Arms()` becomes `Op.Reads()`, where `Op.Reads()` (`tree/arm.go:104`) already returns a subset; give that one the name of what it returns. The file follows its type's stem. `doc.go:15` and `:32` name `tree.Arm` today.
-
-### 427. Declare `fejkdata.Column` as an alias of `engine.Column`, as `DataType` is, and spell the node-set type once, as `fence.NodeSet`.
-
-Today `record.go:17` declares `Column` a second struct with `engine.Column`'s fields, copied across at the boundary, where `datatype.go:7` aliases `DataType`. `internal/engine/pipeline.go:14` declares `nodeSet` with the signature `internal/engine/fence/fence.go:12` aliases as `NodeSet`. The alias changes what `%T` and reflection print for `fejkdata.Column`, so the item adds a `CHANGELOG.md` entry, as `AGENTS.md` asks of a change to an exported name.
-
-### 425. Name `internal/engine/index.go` for the lazy loader it holds, and move the manifest's `Index` and `IndexLine` to a file of their own.
-
-The inherited architect of item 177's scoring run at 3f909f1 named `index.go:107` `loadReached` a navigation cost: the file named index holds the lazy loader, and beside it `Index` and `IndexLine` (`:187-196`), which only the generator's test reads. A file takes the stem of the units it holds (decision "A unit takes the stem of what it is, and a file the stem of the units it holds"). `index_test.go` follows what it tests.
 
 ### 403. Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.
 
@@ -256,10 +240,6 @@ Find the issuer's rules, and a test series if it publishes one, first.
 ### 422. Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.
 
 A Locality lift beside item 421, from item 177's scoring run at 3f909f1. Today a template's findings live in `tree/loadfinds.go:52` `LoadFinds.Of` until `:120` `Finish` writes them into the node, and the getters at `tree/name.go:55-73`, such as `Addressed`, `Target` and `Values`, dereference `finds` and panic when called early. Callers mix `l.Of(t)`, `t.Compiled()` and the nil form, so a reader must know where `pipeline.run` stands (mid). A stage reads through `l` before `Finish` and through the node after it (junior). Afterwards one of two holds: the before and after phases are separate types, so an early read does not compile; or each getter checks one named invariant and its failure names the phase. Make `LoadFinds.Of`, `Finish` and the getters easier to read; each caller reads findings one way.
-
-### 426. Say at `builtinfunc.CalcName` that `internal/engine/fence` proves `calc`'s operands.
-
-`internal/builtinfunc/builtinfunc.go:47` says package fejkdata checks and proves them, since only it holds the nodes they read; the proof moved to `internal/engine/fence`.
 
 ### 421. Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.
 

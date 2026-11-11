@@ -23,6 +23,15 @@ replacement, and each removed path, column or flag.
   to panic at render. Leave out quoted strings instead, as `not '1'`. An `else`
   doesn't help, since a fallback is text even where it names a number, and where
   the string must come from a name, no spelling keeps that `length`.
+- `fejkdata.Column` is an alias of the engine's column type, as `DataType` is, so
+  `%T` and reflection print that type instead of `fejkdata.Column`. Its fields
+  and every use that names them are the same.
+
+### Added
+
+- `IsLonePath` reports whether the text after a reference's `/` is one path and
+  nothing else, so `{/body}` is a lone reference, as the CLI reads a record from
+  stdin.
 
 ## [0.4.2] - 2026-11-11
 
