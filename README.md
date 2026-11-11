@@ -671,8 +671,8 @@ väestötietovirasto", and one showing the sex counts "Source: Statistics Finlan
 `ddmmyy`, a century sign, an individual number and a control character, such as `131052-9085`. Its individual
 number is from 900 to 999, which DVV issues to no one: its page "Personal identity code" says the numbers issued run
 from 002 to 899, and its test table on "Reform of personal identity code" holds codes with 902 to 904. A drawn number
-is no living person's, but a checker that treats endings from 900 as synthetic ("keinohenkilötunnus"), as Vero's API
-guidance does, may apply more checks or refuse it. The sign is `+` for the 1800s, `-` for the 1900s and `A`
+is no living person's, but a checker that treats endings from 900 as synthetic ("keinohenkilötunnus"), as the
+[Vero API FAQ on testing](https://www.vero.fi/tietoa-verohallinnosta/kehittaja/vero-api/yleiset-virhetilanteet-ja-ratkaisut/ukk/vero-api-testaus-onko-henkilotunnuksen-muodolle-jotain-tiettyja-vaatimuksia/) does, may apply more checks or refuse it. The sign is `+` for the 1800s, `-` for the 1900s and `A`
 for the 2000s; fejkdata doesn't draw the letters DVV has added for the 1900s and 2000s since 2023. The individual
 number is odd for a man and even for a woman, and the control character is the remainder of the nine digits of the date
 and the individual number divided by 31, read in DVV's table of `0` to `9` and the letters `A` to `Y` without `G`,
