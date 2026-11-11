@@ -3,10 +3,9 @@
 
     data-import/names-fi.py [--etunimet URL_OR_FILE] [--sukunimet URL_OR_FILE] [--first N] [--last N] [--cache DIR] [--out DIR]
 
-The first names are the first given names of the Finnish citizens in the population register, the sheets
-`Miehet ens` and `Naiset ens` of the "Etunimitilasto", and the last names are the "Sukunimitilasto". DVV
-publishes no first name that fewer than 5 persons bear and no last name that fewer than 20 bear. A name
-that girls and boys both bear has two rows. A label that is not a name in letters, as `tsv.NAME` says, is dropped.
+The first names are the sheets `Miehet ens` and `Naiset ens` of the "Etunimitilasto": the first given names
+of the Finnish citizens in the population register. The last names are the sheet `Nimet` of the "Sukunimitilasto". A name
+that women and men both bear has two rows. A label that is not a name in letters, as `tsv.NAME` says, is dropped.
 """
 import argparse
 from pathlib import Path

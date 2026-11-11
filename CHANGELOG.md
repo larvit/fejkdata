@@ -32,7 +32,7 @@ with its replacement, and each removed path, column or flag.
 
 - `fi_FI`, Finnish, with `fi_FI.person` and the tables it reads: `fi_FI.first-name`, `fi_FI.last-name`,
   `fi_FI.sex` (`nainen` and `mies`) and `fi_FI.title` (`tohtori` and `professori`). A first name that
-  girls and boys both bear has a row under each sex, and a person's first name and sex agree. The
+  women and men both bear has a row under each sex, and a person's first name and sex agree. The
   names are the 2,000 commonest first given names of each sex and the 5,000 commonest last names in
   DVV's name statistics of 4 August 2026, each with the Finnish citizens bearing it, and `sex` carries
   Statistics Finland's population of 31 December 2025. Both are CC BY 4.0, so a program showing their
