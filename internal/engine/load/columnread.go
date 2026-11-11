@@ -68,14 +68,14 @@ func onlyRead(t *tree.Template, l *tree.LoadFinds) (tree.Read, bool) {
 	if !one {
 		return tree.Read{}, false
 	}
-	tok, reads := o.Token(), o.Reads()
+	tok, reads := o.Token(), o.Alternatives()
 	if tok.Kind != grammar.PathRead || len(reads) != 1 || tok.Where != nil || tok.Distinct != nil || reads[0].ReadsJoined() {
 		return tree.Read{}, false
 	}
 	return reads[0], true
 }
 
-// columnSource is the node a's read starts from (nil where a reads no node), the category holding
+// columnSource is the node a starts from (nil where a reads no node), the category holding
 // that node (empty where it is t's own), and the path below the node.
 func columnSource(t *tree.Template, a tree.Read, l *tree.LoadFinds) (start tree.Node, category string, tail []string) {
 	if b := a.Named(); a.Kind() == tree.NamedRead {

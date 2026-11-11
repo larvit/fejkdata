@@ -118,7 +118,7 @@ func (m *drawMemo) enteredFrame(scope *tree.NameScope) *pickFrame {
 	return f
 }
 
-// readName reads the read a from the pick of its name, held in the frame of the name's scope.
+// readName reads a from the pick of its name, held in the frame of the name's scope.
 // When the pick renders another category, enter takes that category's frames from the pick's
 // memo, and renderFrame finds them and opens no new one. enter pushes those frames above mark,
 // and popping to mark after the render leaves the frames as the read found them.

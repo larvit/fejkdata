@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 431`
+`Next ID = 432`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 431 | 0.5.0 |  |  | **Add tests that a {a\|b} read splits its item's weight evenly between its alternatives, and that a where clause's names don't count as what a read prints.** | 1 | 1 | 1 | 1 | 2 | code health by 2, 5.1 by 2 | 14.9 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
@@ -221,6 +222,13 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 
 ## Details
+
+### 431. Add tests that a {a|b} read splits its item's weight evenly between its alternatives, and that a where clause's names don't count as what a read prints.
+
+Item 424's stability review found two behaviours no test checks, by mutation. Both lines predate that item, which only renamed them. Take each test's expected values from the rule below, never from the code.
+
+- A `{a|b}` read splits its weight evenly. In `internal/engine/load/pathvalues.go`, `valueWalk` walks an op's alternatives at `weight/float64(len(op.Alternatives()))`, and the mutant `weight*float64(...)` survives. In the choice `["{a|b}", "c"]`, `c` weighs 0.5, and `a` and `b` 0.25 each.
+- A where clause's names are not what a read prints. In `proveTemplate` (`internal/engine/fence/valueproof.go:149`) and `nodeDateLayout` (`internal/engine/load/adddays.go:60`), the mutant that replaces `o.Alternatives()` with `o.AllReads()` survives. For a read such as `{/d where length k}`, the value proof would then take the union of `d`'s and `k`'s values, and `adddays` would check `k`'s layout. Test that each ignores `k`.
 
 ### 403. Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.
 
@@ -476,7 +484,7 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 
 ### 228. Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.
 
-From the 2026-10-11 audience bench, a Go test author tagging `{p.first}` before binding `p`. The hint is built in `checkArm` before the root is known, and only where the template has no fields; offering the binding there also told `{sv_SE.person.last}` to bind a name `sv_SE`. Decide between the reference and the binding once the root is loaded.
+From the 2026-10-11 audience bench, a Go test author tagging `{p.first}` before binding `p`. The hint is built in `checkFieldRead` before the root is known, and only where the template has no fields; offering the binding there also told `{sv_SE.person.last}` to bind a name `sv_SE`. Decide between the reference and the binding once the root is loaded.
 
 ### 38. Compare `calcParser.binary`'s operator as a rune.
 
@@ -602,7 +610,7 @@ From a real-world use case, a scheduler's fixtures: durations cluster around 2 h
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
-A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name. A data author who bound a row, `{.product as p}`, then bound its column, `{p.price as pr}`, got `no field "p"; a binding names a field, or a reference…` though `p` is a bound name.
+A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileRead`'s leaves, as `operandNodes` does for a bare name. A data author who bound a row, `{.product as p}`, then bound its column, `{p.price as pr}`, got `no field "p"; a binding names a field, or a reference…` though `p` is a bound name.
 
 ### 109. Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.
 

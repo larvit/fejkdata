@@ -374,7 +374,7 @@ func TestEveryReadKeysEachLevelFromItsHeadToItsLeaf(t *testing.T) {
 		"x.y.z":      "[x x.y x.y.z]",
 	}
 	for _, o := range root.Compiled().Ops() {
-		for _, a := range o.Reads() {
+		for _, a := range o.Alternatives() {
 			if got := fmt.Sprint(a.Levels()); got != want[a.Spelling()] {
 				t.Errorf("{%s} keys its levels %s, want %s", a.Spelling(), got, want[a.Spelling()])
 			}

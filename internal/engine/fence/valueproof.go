@@ -140,13 +140,13 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 	switch {
 	case tok.Kind == grammar.LiteralRun:
 		return proven.Literal(tok.Lit)
-	case tok.Kind == grammar.PathRead && (tok.Distinct != nil || slices.ContainsFunc(o.Reads(), tree.Read.ReadsJoined)):
+	case tok.Kind == grammar.PathRead && (tok.Distinct != nil || slices.ContainsFunc(o.Alternatives(), tree.Read.ReadsJoined)):
 		return joinedText(body)
 	case p.mayFallBack(o):
 		return fallsBack(body)
 	case tok.Kind == grammar.PathRead:
 		var leaves []tree.Node
-		for _, a := range o.Reads() {
+		for _, a := range o.Alternatives() {
 			leaves = append(leaves, a.Leaves()...)
 		}
 		return p.proveUnion(leaves)
@@ -250,7 +250,7 @@ func (p *valueProof) mayFallBack(o tree.Op) bool {
 	if o.Draw() != nil {
 		return o.Draw().MayFallBack()
 	}
-	return slices.ContainsFunc(o.Reads(), p.readsFallback)
+	return slices.ContainsFunc(o.Alternatives(), p.readsFallback)
 }
 
 func (p *valueProof) readsFallback(a tree.Read) bool {

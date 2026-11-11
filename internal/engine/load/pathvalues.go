@@ -78,28 +78,28 @@ func (w *valueWalk) walkTemplate(t *tree.Template, weight float64, pre, suf stri
 	if lit, fixed := t.FixedText(); fixed {
 		return w.emit(pre+lit+suf, weight)
 	}
-	before, read, after, err := oneRead(t, w.finds)
+	before, op, after, err := oneOp(t, w.finds)
 	if err != nil {
 		return err
 	}
-	if read == nil {
+	if op == nil {
 		return w.emit(pre+before+after+suf, weight)
 	}
-	for _, a := range read.Reads() {
-		if err := w.walkRead(t, a, weight/float64(len(read.Reads())), pre+before, after+suf); err != nil {
+	for _, a := range op.Alternatives() {
+		if err := w.walkRead(t, a, weight/float64(len(op.Alternatives())), pre+before, after+suf); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// oneRead splits t's format around its one read, refusing a format that draws anything else.
-func oneRead(t *tree.Template, l *tree.LoadFinds) (before string, read *tree.Op, after string, err error) {
+// oneOp splits t's format around the one op that reads, refusing a format that draws anything else.
+func oneOp(t *tree.Template, l *tree.LoadFinds) (before string, op *tree.Op, after string, err error) {
 	ops := l.Of(t).Compiled().Ops()
 	for i := range ops {
 		o := &ops[i]
 		switch tok := o.Token(); {
-		case tok.Kind == grammar.LiteralRun && read == nil:
+		case tok.Kind == grammar.LiteralRun && op == nil:
 			before += tok.Lit
 		case tok.Kind == grammar.LiteralRun:
 			after += tok.Lit
@@ -107,17 +107,17 @@ func oneRead(t *tree.Template, l *tree.LoadFinds) (before string, read *tree.Op,
 			return "", nil, "", fmt.Errorf("%q renders {%s}, which draws anew each time", t.Format(), tok.Body)
 		case tok.Where != nil || tok.Distinct != nil:
 			return "", nil, "", fmt.Errorf("%q renders {%s}, which draws through a clause of its own", t.Format(), tok.Body)
-		case read != nil:
-			return "", nil, "", fmt.Errorf("%q reads both {%s} and {%s}", t.Format(), read.Token().Body, tok.Body)
+		case op != nil:
+			return "", nil, "", fmt.Errorf("%q reads both {%s} and {%s}", t.Format(), op.Token().Body, tok.Body)
 		default:
-			read = o
+			op = o
 		}
 	}
-	return before, read, after, nil
+	return before, op, after, nil
 }
 
-// walkRead walks one alternative of t's read: a path from a field or a reference, or through a name t
-// binds itself; that name's one read draws as a fresh read would.
+// walkRead walks one alternative a of the op t reads through: a path from a field or a reference, or through a
+// name t binds itself; that name's one read draws as a fresh read would.
 func (w *valueWalk) walkRead(t *tree.Template, a tree.Read, weight float64, pre, suf string) error {
 	if a.Kind() != tree.NamedRead {
 		return w.walk(t.StartOf(a.Head(), w.finds.Of(t).Refs()), a.Tail(), weight, pre, suf)
@@ -157,10 +157,10 @@ func ownColumnReads(t *tree.Table, l *tree.LoadFinds) (parts []rowPart, own bool
 			parts = append(parts, rowPart{lit: tok.Lit})
 			continue
 		}
-		if tok.Kind != grammar.PathRead || tok.Where != nil || tok.Distinct != nil || len(o.Reads()) != 1 {
+		if tok.Kind != grammar.PathRead || tok.Where != nil || tok.Distinct != nil || len(o.Alternatives()) != 1 {
 			return nil, false
 		}
-		a := o.Reads()[0]
+		a := o.Alternatives()[0]
 		c, isColumn := t.FormatTemplate().Fields()[a.Head()].(*tree.TableColumn)
 		if !isColumn || a.Kind() != tree.FreshRead || len(a.Tail()) > 0 {
 			return nil, false

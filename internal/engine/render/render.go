@@ -103,7 +103,7 @@ func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 		case o.Draw() != nil:
 			b.WriteString(drawToken(s, t, env, o.Draw(), b.String()))
 		case tok.Kind == grammar.PathRead:
-			b.WriteString(readField(s, t, env, o.Reads()[s.IntN(len(o.Reads()))]).text)
+			b.WriteString(readField(s, t, env, o.Alternatives()[s.IntN(len(o.Alternatives()))]).text)
 		case tok.Kind == grammar.BuiltinCall:
 			var operands []string
 			if len(o.Operands()) > 0 {
