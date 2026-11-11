@@ -162,6 +162,11 @@ fi_FI.first-name	format "{name}"	name name	weight count	parent sex
 fi_FI.first-name.count	string
 fi_FI.first-name.name	string
 fi_FI.first-name.sex	string
+fi_FI.henkilotunnus	format "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit)}"	reads fi_FI.sex
+fi_FI.henkilotunnus.birth	string
+fi_FI.individ	format "{digit}"	parent sex
+fi_FI.individ.digit	string
+fi_FI.individ.sex	string
 fi_FI.last-name	format "{name}"	key name	weight count
 fi_FI.last-name.count	string
 fi_FI.last-name.name	string
@@ -177,6 +182,9 @@ fi_FI.sex.first-name
 fi_FI.sex.first-name.count
 fi_FI.sex.first-name.name
 fi_FI.sex.first-name.sex
+fi_FI.sex.individ
+fi_FI.sex.individ.digit
+fi_FI.sex.individ.sex
 fi_FI.sex.name	string
 fi_FI.title	format "{name}"	key name	weight share
 fi_FI.title.name	string
