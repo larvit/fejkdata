@@ -63,8 +63,9 @@ func fenceTemplates(ts []load.TemplateSite) error {
 			return err
 		}
 	}
+	proof := &valueProof{}
 	for _, s := range ts {
-		if err := load.CheckCalcNames(s.Label, s.Template); err != nil {
+		if err := proof.checkCalcs(s.Label, s.Template); err != nil {
 			return err
 		}
 		if err := proveAddDays(s.Label, s.Template); err != nil {

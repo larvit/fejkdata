@@ -21,6 +21,7 @@ type Facts struct {
 	NonZero    float64 // every value is at least this far from zero; 0 when one can be zero
 	Integral   bool
 	NotOperand string // why some render reads as no finite number, the way calc reads it
+	Never      bool   // every render reads as no finite number, which calc prints as NaN
 	Not        [datatype.Count]string
 	Nullable   bool // some draw of a column is null
 }
@@ -35,7 +36,7 @@ const limit = 1e300
 // Or is what a proof knows of a render that is either v or w.
 func (v Facts) Or(w Facts) Facts {
 	v.Lo, v.Hi, v.NonZero = min(v.Lo, w.Lo), max(v.Hi, w.Hi), min(v.NonZero, w.NonZero)
-	v.Integral, v.Nullable = v.Integral && w.Integral, v.Nullable || w.Nullable
+	v.Integral, v.Nullable, v.Never = v.Integral && w.Integral, v.Nullable || w.Nullable, v.Never && w.Never
 	if v.NotOperand == "" {
 		v.NotOperand = w.NotOperand
 	}
@@ -159,6 +160,13 @@ func Printing(token string, prints datatype.DataType, v Facts) Facts {
 	return v
 }
 
+// NeverNumber is a render that reads as no finite number, for why.
+func NeverNumber(why string) Facts {
+	v := Unproven(why)
+	v.Never = true
+	return v
+}
+
 // Unproven is a render no datatype and no calc can take, for why.
 func Unproven(why string) Facts {
 	v := Facts{NotOperand: why}
@@ -177,7 +185,7 @@ var (
 func Literal(text string) Facts {
 	var v Facts
 	if f, err := strconv.ParseFloat(strings.TrimSpace(text), 64); err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
-		v.NotOperand = fmt.Sprintf("%q is not a number", text)
+		v.NotOperand, v.Never = fmt.Sprintf("%q is not a number", text), true
 	} else {
 		v = Bounded(f, f, f == math.Trunc(f))
 	}
