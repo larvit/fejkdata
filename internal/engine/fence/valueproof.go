@@ -2,10 +2,10 @@ package fence
 
 import (
 	"fmt"
-	"github.com/larvit/fejkdata/internal/datatype"
 	"slices"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
+	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"

@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-
 )
 
 func TestDatatypeSitsOnlyInAColumn(t *testing.T) {

@@ -93,7 +93,7 @@
 | 13 | 0.8.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 3.2 by 2 | 2.1 |
 | 165 | 0.8.0 |  |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 2.0 |
 | 166 | 0.8.0 |  |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 2.0 |
-| 39 | 0.8.0 |  |  | **Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.0 |
+| 39 | 0.8.0 |  |  | **Stop the `fence.FieldKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.0 |
 | 42 | 0.8.0 |  |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.0 |
 | 46 | 0.8.0 |  |  | **Report the same error every load for a table with two bad options.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.0 |
 | 51 | 0.8.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.0 |
@@ -526,7 +526,7 @@ The maintainer ruled so on 2026-10-09. Today `bindOptions` in `internal/rows` re
 
 The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
 
-### 39. Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.
+### 39. Stop the `fence.FieldKinds` suggestion naming a field's own kind or a narrower one.
 
 An `int64` or `float64` field unproven in range is told to become itself, and a `uint64` one to become `int64`.
 
