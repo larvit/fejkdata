@@ -66,10 +66,14 @@ func readsOneArm(t *tree.Template, l *tree.LoadFinds) (tree.Arm, bool) {
 		return tree.Arm{}, false
 	}
 	o, one := printedOp(l.Of(t).Compiled().Ops())
-	if !one || o.Token().Kind != grammar.PathRead || len(o.Arms()) != 1 || o.Token().Where != nil || o.Token().Distinct != nil || readsJoined(o.Arms()[0]) {
+	if !one {
 		return tree.Arm{}, false
 	}
-	return o.Arms()[0], true
+	tok, arms := o.Token(), o.Arms()
+	if tok.Kind != grammar.PathRead || len(arms) != 1 || tok.Where != nil || tok.Distinct != nil || readsJoined(arms[0]) {
+		return tree.Arm{}, false
+	}
+	return arms[0], true
 }
 
 // readsJoined is whether a reads the members of a distinct draw joined, which is text whatever
@@ -88,7 +92,8 @@ func columnSource(t *tree.Template, a tree.Arm, l *tree.LoadFinds) (start tree.N
 			return b.Binder(), "", slices.Concat([]string{splitRead(b.Ref(), nil).head}, target.Tail(), a.Tail())
 		}
 		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
-		return target.Start(), categoryOf(l.Of(b.Binder()).Refs().BySpelling()[b.Ref()].Head()), slices.Concat(target.Tail(), a.Tail())
+		ref := l.Of(b.Binder()).Refs().BySpelling()[b.Ref()]
+		return target.Start(), categoryOf(ref.Head()), slices.Concat(target.Tail(), a.Tail())
 	}
 	if grammar.IsRef(a.Head()) {
 		// {/c.x}: column x of category c.

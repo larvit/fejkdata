@@ -97,8 +97,8 @@ type TemplateRefs struct {
 	categories map[string]Node        // each ResolvedRef.head -> the category it names
 }
 
-func NewTemplateRefs(n int) TemplateRefs {
-	return TemplateRefs{make(map[string]ResolvedRef, n), make(map[string]Node, n)}
+func NewTemplateRefs(bySpelling map[string]ResolvedRef, categories map[string]Node) TemplateRefs {
+	return TemplateRefs{bySpelling, categories}
 }
 
 func (*Template) isNode() {}

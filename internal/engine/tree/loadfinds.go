@@ -123,12 +123,6 @@ func (l *LoadFinds) Finish() {
 
 func (r *BindingFinds) Target() NameTarget { return r.target }
 
-func (r *LoadFinds) Bindings() map[*NameBinding]*BindingFinds { return r.bindings }
-
-func (r *LoadFinds) Choices() map[*Choice]*NameScope { return r.choices }
-
-func (r *LoadFinds) Templates() map[*Template]*TemplateFinds { return r.templates }
-
 func (r *TemplateFinds) Compiled() FormatOps { return r.compiled }
 
 func (r *TemplateFinds) NameScope() *NameScope { return r.nameScope }

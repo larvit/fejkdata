@@ -33,29 +33,28 @@ func refSegments(spelling string, folder []string) ([]string, error) {
 
 // resolveRefs resolves every reference t reads.
 func resolveRefs(t *tree.Template, folder []string, label string, root map[string]tree.Node) (tree.TemplateRefs, error) {
-	var refs tree.TemplateRefs
 	spellings := refSpellings(t.Tokens())
 	if len(spellings) == 0 {
-		return refs, nil
+		return tree.TemplateRefs{}, nil
 	}
-	refs = tree.NewTemplateRefs(len(spellings))
+	bySpelling, categories := make(map[string]tree.ResolvedRef, len(spellings)), make(map[string]tree.Node, len(spellings))
 	for _, spelling := range spellings {
 		segments, err := refSegments(spelling, folder)
 		if err != nil {
-			return refs, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
+			return tree.TemplateRefs{}, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
 		}
 		categorySegs, target, tail, err := resolveCategory(root, segments)
 		if err != nil {
-			return refs, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
+			return tree.TemplateRefs{}, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
 		}
 		head := "/" + strings.Join(categorySegs, ".")
 		if err := provePath(target, tail, head, 0); err != nil {
-			return refs, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
+			return tree.TemplateRefs{}, fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)
 		}
-		refs.Categories()[head] = target
-		refs.BySpelling()[spelling] = tree.NewResolvedRef(head, tail)
+		categories[head] = target
+		bySpelling[spelling] = tree.NewResolvedRef(head, tail)
 	}
-	return refs, nil
+	return tree.NewTemplateRefs(bySpelling, categories), nil
 }
 
 // resolveCategory walks a dotted path through the folders to the category it
