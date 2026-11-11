@@ -1,4 +1,4 @@
-package fejkdata
+package fence
 
 import (
 	"fmt"
@@ -27,7 +27,7 @@ func checkNameReads(label string, t *tree.Template, names resolvedNames) error {
 // two ways to break it.
 //
 // The read has no pick to read:
-//   - the name is read inside the field bound to it: refuseReadsInsideFields, which `run` calls
+//   - the name is read inside the field bound to it: RefuseReadsInsideFields, which the load pipeline calls
 //     before the cycle check, so such a read never reaches checkNameRead
 //   - the read steps into a choice's item without opening the item's frame: refuseSkippedItem
 //
@@ -54,9 +54,9 @@ func checkNameRead(t *tree.Template, read *tree.Arm, names resolvedNames) error 
 	return refuseKeptAndFreshField(read, routes, names)
 }
 
-// refuseReadsInsideFields refuses, in the templates of ts, a read of a name inside the field bound
+// RefuseReadsInsideFields refuses, in the templates of ts, a read of a name inside the field bound
 // to it. It reads what l found, since it runs before finish.
-func refuseReadsInsideFields(ts []load.TemplateSite, l *tree.LoadFinds) error {
+func RefuseReadsInsideFields(ts []load.TemplateSite, l *tree.LoadFinds) error {
 	for _, s := range ts {
 		for _, r := range load.NamedReads(s.Template, l) {
 			b := r.Arm.Named()
@@ -339,7 +339,7 @@ func refuseDrawnApart(pick pickReads, read *tree.Arm, routes []route, names reso
 	outer := read.Named()
 	for _, r := range routes {
 		inner := r.a.Named()
-		if r.a.Kind() != tree.NamedRead || !inner.BindsField() || inner == outer { // refuseReadsInsideFields refused a name's own read inside its field
+		if r.a.Kind() != tree.NamedRead || !inner.BindsField() || inner == outer { // RefuseReadsInsideFields refused a name's own read inside its field
 			continue
 		}
 		target := inner.Target()

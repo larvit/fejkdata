@@ -314,7 +314,7 @@ func repeatOf(m map[string]any) (int, error) {
 	if math.IsNaN(r) || math.IsInf(r, 0) || r < 0 || r != math.Trunc(r) {
 		return 0, fmt.Errorf("repeat must be an integer of 0 or more, got %v", rv)
 	}
-	if r > MaxRepeat { // caps the renders one repeat asks for; RepeatCheck bounds what nested ones multiply to
+	if r > MaxRepeat { // caps the renders one repeat asks for; fence.RepeatCheck bounds what nested ones multiply to
 		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, MaxRepeat)
 	}
 	return int(r), nil

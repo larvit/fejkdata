@@ -12,8 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 417 | 0.5.0 |  |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
-| 107 | 0.5.0 | 417 | decision | **Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
+| 107 | 0.5.0 |  | decision | **Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
 | 177 | 0.5.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
 | 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
@@ -220,10 +219,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 
 ## Details
-
-### 417. Move the proofs and fences into `internal/engine/fence`.
-
-Files: `valueproof.go`, `datatype.go`, `namefence.go`, `columnread.go`, `where.go`, `adddays.go`, `resolve.go`, `struct.go`, the cycle and repeat fences in `internal/engine/load/graph.go`, `imports_test.go`, `docs/decisions.md`; about 800 moved lines. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 107. Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.
 

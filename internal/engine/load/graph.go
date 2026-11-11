@@ -92,7 +92,7 @@ func containedByName(m map[string]tree.Node) []ContainedNode {
 // name, reference, or choice index) for a readable cycle report.
 type RenderEdge struct {
 	To    tree.Node
-	label string
+	Label string
 }
 
 // RenderEdges lists the children rendering n recurses into, mirroring render.
@@ -101,7 +101,7 @@ func RenderEdges(n tree.Node, l *tree.LoadFinds) []RenderEdge {
 	case *tree.Choice:
 		es := make([]RenderEdge, len(n.Items()))
 		for i, it := range n.Items() {
-			es[i] = RenderEdge{To: it, label: fmt.Sprintf("[%d]", i)}
+			es[i] = RenderEdge{To: it, Label: fmt.Sprintf("[%d]", i)}
 		}
 		return es
 	case *tree.Template:
@@ -115,13 +115,13 @@ func RenderEdges(n tree.Node, l *tree.LoadFinds) []RenderEdge {
 		}
 		return es
 	case *tree.Table:
-		return []RenderEdge{{To: n.FormatTemplate(), label: "format"}}
+		return []RenderEdge{{To: n.FormatTemplate(), Label: "format"}}
 	case *tree.TableRow:
-		return []RenderEdge{{To: n.Table().FormatTemplate(), label: "format"}}
+		return []RenderEdge{{To: n.Table().FormatTemplate(), Label: "format"}}
 	case *tree.TableColumn:
 		var es []RenderEdge
 		for _, c := range Contained(n) {
-			es = append(es, RenderEdge{To: c.Node, label: n.Name()})
+			es = append(es, RenderEdge{To: c.Node, Label: n.Name()})
 		}
 		return es
 	case *tree.Folder, *tree.NullItem:
@@ -131,79 +131,5 @@ func RenderEdges(n tree.Node, l *tree.LoadFinds) []RenderEdge {
 	}
 }
 
-// RenderCounts holds, per node, the renders its costliest path down multiplies to, its own
-// repeat included; RepeatCheck fills it as it reads it.
-type RenderCounts map[tree.Node]int
-
-func (m RenderCounts) renderCount(n tree.Node) int {
-	if r, done := m[n]; done {
-		return r
-	}
-	r := 1
-	for _, e := range RenderEdges(n, nil) {
-		if c := m.renderCount(e.To); c > r {
-			r = c
-		}
-	}
-	if t, ok := n.(*tree.Template); ok {
-		r *= t.Repeat()
-	}
-	m[n] = r
-	return r
-}
-
 // MaxRepeat caps a repeat, and the renders nested repeats multiply to along any one path.
 const MaxRepeat = 1 << 20
-
-// RepeatCheck bounds the renders a repeat multiplies to along any root-to-leaf
-// path, so nested repeats cannot build what one repeat may not.
-// docs/decisions.md#the-repeat-cap-bounds-renders-not-bytes
-func RepeatCheck(label string, n tree.Node, mem RenderCounts) error {
-	if t, ok := n.(*tree.Template); ok && t.Repeat() > 1 && mem.renderCount(n) > MaxRepeat {
-		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", label, t.Repeat(), mem.renderCount(n), MaxRepeat)
-	}
-	return nil
-}
-
-// CheckNoCycles rejects a reference cycle: a node whose rendering can reach itself
-// — directly, mutually, or through a chain — never terminates, so it must fail at
-// New rather than stack-overflow at render. It is a depth-first walk of the render
-// graph (RenderEdges). Every node is a root: a field its parent's format never
-// renders is still reachable by dot path, so a cycle in one would otherwise reach
-// render and be fatal there.
-func CheckNoCycles(s func(fn func(label string, n tree.Node) error) error, l *tree.LoadFinds) error {
-	const (
-		grey  = 1
-		black = 2
-	)
-	inSet := map[tree.Node]bool{}
-	_ = s(func(_ string, n tree.Node) error {
-		inSet[n] = true
-		if t, isTable := n.(*tree.Table); isTable {
-			inSet[t.RowNode()] = true // a selector lands on it, and Contained lists it nowhere
-		}
-		return nil
-	})
-	color := map[tree.Node]int{}
-	var visit func(n tree.Node, label string) error
-	visit = func(n tree.Node, label string) error {
-		if !inSet[n] {
-			return nil // loaded before these nodes and proven then, so it never reaches back into it
-		}
-		switch color[n] {
-		case grey:
-			return fmt.Errorf("reference cycle: %s", label)
-		case black:
-			return nil
-		}
-		color[n] = grey
-		for _, e := range RenderEdges(n, l) {
-			if err := visit(e.To, label+" -> "+e.label); err != nil {
-				return err
-			}
-		}
-		color[n] = black
-		return nil
-	}
-	return s(func(label string, n tree.Node) error { return visit(n, label) })
-}
