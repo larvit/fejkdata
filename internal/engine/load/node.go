@@ -1,4 +1,4 @@
-package fejkdata
+package load
 
 import (
 	"encoding/json"
@@ -16,10 +16,15 @@ import (
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// compile converts parsed JSON — a category or an inline template — into a node tree,
+// Compile converts parsed JSON — a category or an inline template — into a node tree,
 // validating structure up front, and gives its names their scopes in l.
-func compile(v jsonvalue.Value, l *tree.LoadFinds) (tree.Node, error) {
+func Compile(v jsonvalue.Value, l *tree.LoadFinds) (tree.Node, error) {
 	return compileFrom(v, atTop, l)
+}
+
+// CompileStruct compiles the template a Go struct's tags spell, whose fields are its columns.
+func CompileStruct(v jsonvalue.Value, l *tree.LoadFinds) (tree.Node, error) {
+	return compileFrom(v, atGoTop, l)
 }
 
 func compileFrom(v jsonvalue.Value, pos position, l *tree.LoadFinds) (tree.Node, error) {
@@ -30,15 +35,15 @@ func compileFrom(v jsonvalue.Value, pos position, l *tree.LoadFinds) (tree.Node,
 	return n, bindNames(n, l)
 }
 
-// compileCategory compiles a data file's value, which may be a table over a rows
+// CompileCategory compiles a data file's value, which may be a table over a rows
 // file beside it.
-func compileCategory(c datafiles.Category, l *tree.LoadFinds) (tree.Node, error) {
+func CompileCategory(c datafiles.Category, l *tree.LoadFinds) (tree.Node, error) {
 	if m, ok := c.JSON.Any().(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
 			return compileTable(m, c.Folders, c.Name, c.ReadRows)
 		}
 	}
-	return compile(c.JSON, l)
+	return Compile(c.JSON, l)
 }
 
 // position is where a JSON value sits, which decides whether it may carry a datatype or
@@ -112,9 +117,9 @@ func compileString(s string) (*tree.Template, error) {
 	return tree.NewTemplate(tree.TemplateSyntax{Format: s, Tokens: toks, Repeat: 1, FromString: true, Unbound: unbound}), nil
 }
 
-// printedOp is the one op of ops that prints, past the binds a where or distinct clause compiles to,
+// PrintedOp is the one op of ops that prints, past the binds a where or distinct clause compiles to,
 // which print nothing; ok is false where more than one op prints, or none does.
-func printedOp(ops []tree.Op) (printed tree.Op, ok bool) {
+func PrintedOp(ops []tree.Op) (printed tree.Op, ok bool) {
 	n := 0
 	for _, o := range ops {
 		if o.Token().Kind != grammar.NameBind {
@@ -309,8 +314,8 @@ func repeatOf(m map[string]any) (int, error) {
 	if math.IsNaN(r) || math.IsInf(r, 0) || r < 0 || r != math.Trunc(r) {
 		return 0, fmt.Errorf("repeat must be an integer of 0 or more, got %v", rv)
 	}
-	if r > maxRepeat { // caps the renders one repeat asks for; repeatCheck bounds what nested ones multiply to
-		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, maxRepeat)
+	if r > MaxRepeat { // caps the renders one repeat asks for; RepeatCheck bounds what nested ones multiply to
+		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, MaxRepeat)
 	}
 	return int(r), nil
 }

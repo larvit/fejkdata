@@ -228,13 +228,13 @@
 
 ### 414. Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.
 
-Files: `calc.go`, `valueproof.go`, `format.go`, `internal/proven`; about 120 lines, net negative. It ships with a paired ruling no worse.
+Files: `internal/engine/load/calc.go`, `internal/engine/load/format.go`, `valueproof.go`, `internal/proven`; about 120 lines, net negative. It ships with a paired ruling no worse.
 
 It widens two fences. Today a calc refuses an operand that is never a number only where it renders a field's own fixed text that doesn't parse, a null, a repeat of 0 or a choice of these, and a zero divisor only where number literals and fixed text fold to 0. `valueProof` proves an operand through every path, table cell and choice it reads, and refuses the text `"NaN"`. So a calc also refuses an operand that is `"NaN"`, or whose format reads, say, another field whose fixed text isn't a number, and a divisor whose operands prove to fixed values that fold to 0. Each of those prints `NaN` or `Inf` on every draw, which goal 5.1 calls no valid value. A load then rejects templates it accepted, so the item adds a Breaking entry to `CHANGELOG.md`, revises the decision "A constant zero divisor is a load error", and the product-owner pass reviews it. As the decision says today, the divisor's fold still stops where an operand varies, so `a/(b*c)` with `b` fixed at 0 and `c` varying still loads, though `valueProof` bounds `b*c` to 0.
 
 ### 417. Move the proofs and fences into `internal/engine/fence`.
 
-Files: `valueproof.go`, `datatype.go`, `namefence.go`, `columnread.go`, `pathvalues.go`, `struct.go`, `imports_test.go`; about 700 moved lines. It comes after 415, since the fences read the node types from `tree`, and after 414, so the calc proof moves once, as `valueProof`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+Files: `valueproof.go`, `datatype.go`, `namefence.go`, `columnread.go`, `where.go`, `adddays.go`, `resolve.go`, `struct.go`, `imports_test.go`, `docs/decisions.md`; about 700 moved lines. `fence` imports `load`, since the fences call `load.RenderEdges`, `load.Contained`, `load.ChildNamed`, `load.NamedReads`, `load.CompilePath` and `load.LengthEnds`. It comes after 415, since the fences read the node types from `tree`, and after 414, so the calc proof moves once, as `valueProof`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 418. Move compile, bind, link and resolve into `internal/engine/load`.
 
@@ -246,7 +246,7 @@ Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go
 
 ### 107. Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.
 
-The engine returns column values and the root builds `Record`. Files: `data.go`, `index.go`, `fejkdata.go`, `record.go`, `struct.go`, `sorted.go`, `doc.go`, `imports_test.go`, `docs/decisions.md`; about 600 lines. It comes last, after 416, 417 and 418, since the pipeline imports the three stages. It decides where the vocabulary lives, and revises the decision "The vocabulary sits below `doc.go`'s package clause, not in the package doc" if it moves. It replaces the decision "The node types sit in `internal/engine/tree`, and the rest of the template engine stays the root package until items 416 to 418 cut out …" with one stating what holds after the cuts. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+The engine returns column values and the root builds `Record`. Files: `data.go`, `index.go`, `resolve.go`, `table.go`, `fejkdata.go`, `record.go`, `struct.go`, `doc.go`, `imports_test.go`, `docs/decisions.md`; about 600 lines. It comes last, after 416, 417 and 418, since the pipeline imports the three stages. It decides where the vocabulary lives, and revises the decision "The vocabulary sits below `doc.go`'s package clause, not in the package doc" if it moves. It replaces the decision "The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, …" with one stating what holds after the cuts. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 177. Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.
 

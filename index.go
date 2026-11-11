@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
@@ -33,7 +34,7 @@ func (c categoryAt) unloaded() bool { return c.in.Unloaded()[c.name] != nil }
 
 // categoryOn is the category, loaded or not, that a path from root names or passes.
 func categoryOn(root *tree.Folder, segs []string) (categoryAt, bool) {
-	g, i := folderAt(root, segs)
+	g, i := load.FolderAt(root, segs)
 	if i == len(segs) {
 		return categoryAt{}, false
 	}
@@ -69,8 +70,8 @@ func referenced(root *tree.Folder, dir []string, nodes nodeSet) []categoryAt {
 		if !isTemplate {
 			return nil
 		}
-		for _, spelling := range refSpellings(t.Tokens()) {
-			segs, err := refSegments(spelling, dir)
+		for _, spelling := range load.RefSpellings(t.Tokens()) {
+			segs, err := load.RefSegments(spelling, dir)
 			if err != nil {
 				continue // resolveRefs reports it
 			}
@@ -137,7 +138,7 @@ func (b *batch) load(root *tree.Folder, queue []categoryAt, l *tree.LoadFinds) e
 		}
 		if err := x.Src().Load(c.dir, c.name, compileInto(func([]string) *tree.Folder { return c.in }, l)); err != nil {
 			if errors.Is(err, fs.ErrNotExist) {
-				err = fmt.Errorf("%s indexes %s: %w", x.Src().ManifestPath(), categoryPath(c.dir, c.name), err)
+				err = fmt.Errorf("%s indexes %s: %w", x.Src().ManifestPath(), load.CategoryPath(c.dir, c.name), err)
 			}
 			return err
 		}

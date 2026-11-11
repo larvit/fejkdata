@@ -1,4 +1,4 @@
-package fejkdata
+package load
 
 import (
 	"fmt"

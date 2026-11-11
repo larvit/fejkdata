@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
@@ -13,9 +14,9 @@ import (
 // checkNameReads refuses a read of a name that could disagree with another read of it, or that reads
 // a name of a choice's item it never renders.
 func checkNameReads(label string, t *tree.Template, names resolvedNames) error {
-	for _, r := range namedReads(t, nil) {
-		if err := checkNameRead(t, r.a, names); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", label, r.o.Token().Body, err)
+	for _, r := range load.NamedReads(t, nil) {
+		if err := checkNameRead(t, r.Arm, names); err != nil {
+			return fmt.Errorf("%s: token {%s}: %w", label, r.Op.Token().Body, err)
 		}
 	}
 	return nil
@@ -55,16 +56,16 @@ func checkNameRead(t *tree.Template, read *tree.Arm, names resolvedNames) error 
 
 // refuseReadsInsideFields refuses, in the templates of ts, a read of a name inside the field bound
 // to it. It reads what l found, since it runs before finish.
-func refuseReadsInsideFields(ts []templateSite, l *tree.LoadFinds) error {
+func refuseReadsInsideFields(ts []load.TemplateSite, l *tree.LoadFinds) error {
 	for _, s := range ts {
-		for _, r := range namedReads(s.t, l) {
-			b := r.a.Named()
+		for _, r := range load.NamedReads(s.Template, l) {
+			b := r.Arm.Named()
 			if !b.BindsField() {
 				continue
 			}
 			target := l.Binding(b).Target()
-			if rendersInside(compilePath(target.Start(), target.Tail()).leaves, s.t) {
-				return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", s.label, r.o.Token().Body, b.Name(), b.Ref())
+			if rendersInside(load.CompilePath(target.Start(), target.Tail()).Leaves, s.Template) {
+				return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", s.Label, r.Op.Token().Body, b.Name(), b.Ref())
 			}
 		}
 	}
@@ -82,8 +83,8 @@ func rendersInside(nodes []tree.Node, t *tree.Template) bool {
 			return false
 		}
 		seen[n] = true
-		for _, c := range contained(n) {
-			if inside(c.node) {
+		for _, c := range load.Contained(n) {
+			if inside(c.Node) {
 				return true
 			}
 		}
@@ -153,8 +154,8 @@ func walkRoutes(nodes []tree.Node, start tree.PickKey, addressed map[tree.PickKe
 				walk(item, at, inPick)
 			}
 		case *tree.Table, *tree.TableRow:
-			for _, e := range renderEdges(n, nil) {
-				walk(e.to, "", false)
+			for _, e := range load.RenderEdges(n, nil) {
+				walk(e.To, "", false)
 			}
 		case *tree.Template:
 			for i, o := range n.Compiled().Ops() {
@@ -305,7 +306,7 @@ func drawsAlong(start tree.Node, path []string, leaf bool) bool {
 			return leaf && !isConstant(n)
 		}
 		var err error
-		if n, err = childNamed(n, path[i]); err != nil {
+		if n, err = load.ChildNamed(n, path[i]); err != nil {
 			return true
 		}
 	}
@@ -379,7 +380,7 @@ func sharedDraw(pick pickReads, target tree.NameTarget, above []string) (by stri
 			return lander, true
 		}
 		var err error
-		if n, err = childNamed(n, target.Tail()[i]); err != nil {
+		if n, err = load.ChildNamed(n, target.Tail()[i]); err != nil {
 			return by, true
 		}
 	}

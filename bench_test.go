@@ -26,12 +26,17 @@ func benchPath(b *testing.B, data Option, path string) {
 	}
 }
 
-func BenchmarkPerson(b *testing.B)       { benchPath(b, withShipped(), "sv_SE.person") }
-func BenchmarkAddress(b *testing.B)      { benchPath(b, withShipped(), "sv_SE.address") }
-func BenchmarkWord(b *testing.B)         { benchPath(b, withShipped(), "sv_SE.word") }
-func BenchmarkCreditcard(b *testing.B)   { benchPath(b, withShipped(), "misc.creditcard") }
+func BenchmarkPerson(b *testing.B) { benchPath(b, withShipped(), "sv_SE.person") }
+
+func BenchmarkAddress(b *testing.B) { benchPath(b, withShipped(), "sv_SE.address") }
+
+func BenchmarkWord(b *testing.B) { benchPath(b, withShipped(), "sv_SE.word") }
+
+func BenchmarkCreditcard(b *testing.B) { benchPath(b, withShipped(), "misc.creditcard") }
+
 func BenchmarkPersonnummer(b *testing.B) { benchPath(b, withShipped(), "sv_SE.personnummer") }
-func BenchmarkUUIDv7(b *testing.B)       { benchPath(b, withShipped(), "misc.uuid") }
+
+func BenchmarkUUIDv7(b *testing.B) { benchPath(b, withShipped(), "misc.uuid") }
 
 func tmpData(b *testing.B, name, body string) string {
 	b.Helper()

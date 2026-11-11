@@ -6,6 +6,8 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/larvit/fejkdata/internal/engine/load"
+	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -43,7 +45,7 @@ func TestGrowIsALowerBound(t *testing.T) {
 			t.Fatalf("format %q did not compile to a template", format)
 		}
 		for i := 0; i < 50; i++ {
-			if got := len(renderOnce(f.drawState, tmpl)); got < tmpl.Compiled().Grow() {
+			if got := len(render.Once(f.drawState, tmpl)); got < tmpl.Compiled().Grow() {
 				t.Errorf("format %q: a render emitted %d bytes, below grow %d", format, got, tmpl.Compiled().Grow())
 			}
 		}
@@ -94,17 +96,17 @@ func nodeSamples(t *testing.T) (map[string]tree.Node, *tree.Table) {
 // nodeSwitches calls each function holding a type switch over node kinds.
 func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 	return map[string]func(tree.Node){
-		"childNamed":  func(n tree.Node) { _, _ = childNamed(n, "x") },
+		"childNamed":  func(n tree.Node) { _, _ = load.ChildNamed(n, "x") },
 		"columnItems": func(n tree.Node) { columnItems(n) },
-		"contained":   func(n tree.Node) { contained(n) },
-		"paths":       func(n tree.Node) { paths(n, false) },
+		"contained":   func(n tree.Node) { load.Contained(n) },
+		"paths":       func(n tree.Node) { load.Paths(n, false) },
 		"render": func(n tree.Node) {
 			var pins tree.PinSet
 			s := engine(1).drawState
 			tbl.Rows().DrawIn(s, &pins)
-			pinnedRender(s, n, &pins)
+			render.Pinned(s, n, &pins)
 		},
-		"renderEdges":      func(n tree.Node) { renderEdges(n, nil) },
+		"renderEdges":      func(n tree.Node) { load.RenderEdges(n, nil) },
 		"valueProof.prove": func(n tree.Node) { (&valueProof{}).prove(n) },
 	}
 }
@@ -140,7 +142,7 @@ func TestRenderEdgesListWhatRenderRecursesInto(t *testing.T) {
 	samples, _ := nodeSamples(t)
 	for kind, n := range samples {
 		recurses := kind != "NullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
-		if edges := renderEdges(n, nil); recurses != (len(edges) > 0) {
+		if edges := load.RenderEdges(n, nil); recurses != (len(edges) > 0) {
 			t.Errorf("%s: render recurses into it %v, renderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
 		}
 	}

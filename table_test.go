@@ -11,6 +11,7 @@ import (
 	"testing"
 	"unicode"
 
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
@@ -1105,7 +1106,7 @@ func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 			t.Fatalf("SplitPath(%s) = %v", path, err)
 		}
 		tail := segs[1:]
-		steps, err := callerPathSteps(f.root.Children()[segs[0]], tail, nil)
+		steps, err := load.CallerPathSteps(f.root.Children()[segs[0]], tail, nil)
 		if err != nil {
 			t.Fatalf("%s: callerPathSteps = %v", path, err)
 		}

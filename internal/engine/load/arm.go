@@ -1,11 +1,10 @@
-package fejkdata
+package load
 
 import (
 	"fmt"
 	"strconv"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
-	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
@@ -75,19 +74,6 @@ func newOp(t *tree.Template, parts tree.Op, l *tree.LoadFinds, words map[tree.Wo
 	return o.WithDraw(draw), nil
 }
 
-// drawToken prints one draw of d in t; emitted is the output so far.
-func drawToken(s *drawstate.State, t *tree.Template, env renderEnv, d tree.TokenDraw, emitted string) string {
-	switch d := d.(type) {
-	case *tree.ValueDraw:
-		return drawValue(d, s, env)
-	case *tree.AlphabetDraw:
-		return drawAlphabet(d, s, env, emitted)
-	case *tree.RewordDraw:
-		return drawReword(d, s, t, env)
-	}
-	panic(invariant.Broken("no draw for %T", d))
-}
-
 func compileArms(t *tree.Template, spellings []string, l *tree.LoadFinds) ([]tree.Arm, error) {
 	if len(spellings) == 0 {
 		return nil, nil
@@ -113,8 +99,8 @@ func compileArm(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Arm,
 		if start == nil {
 			panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))
 		}
-		w := compilePath(start, r.tail)
-		return tree.NewArm(r.text, r.head, r.tail, tree.FreshLevels(r.head, r.tail), w.steps, w.leaves), nil
+		w := CompilePath(start, r.tail)
+		return tree.NewArm(r.text, r.head, r.tail, tree.FreshLevels(r.head, r.tail), w.steps, w.Leaves), nil
 	}
 	b := tl.NameScope().Lookup(r.head)
 	tail, member := r.tail, 0
@@ -135,8 +121,8 @@ func compileArm(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Arm,
 	if err := provePath(target.Start(), full, r.head, len(target.Tail())); err != nil {
 		return tree.Arm{}, err
 	}
-	w := compilePath(target.Start(), full)
-	return tree.NewArm(r.text, r.head, tail, tree.NamedLevels(full), w.steps, w.leaves).ThroughName(b, member), nil
+	w := CompilePath(target.Start(), full)
+	return tree.NewArm(r.text, r.head, tail, tree.NamedLevels(full), w.steps, w.Leaves).ThroughName(b, member), nil
 }
 
 // memberRead is the member of b's distinct draw that a reads, counted from 1, or 0 where a reads them

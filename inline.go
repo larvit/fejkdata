@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/larvit/fejkdata/internal/engine/load"
+	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
@@ -23,7 +25,7 @@ type Template struct {
 func (t *Template) Fake() string {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	return renderOnce(t.g.drawState, t.n)
+	return render.Once(t.g.drawState, t.n)
 }
 
 // NewTemplate compiles an inline template — a format string or a JSON value — and
@@ -68,10 +70,10 @@ func IsTemplate(arg string) (bool, error) {
 }
 
 func compileInput(input string, l *tree.LoadFinds) (tree.Node, error) {
-	return compile(inputValue(input), l)
+	return load.Compile(inputValue(input), l)
 }
 
-// inputValue reads an inline template as the value compile takes: the JSON object, array, string
+// inputValue reads an inline template as the value load.Compile takes: the JSON object, array, string
 // or null it holds, the whitespace around it dropped, or else the input itself as a format string,
 // a bare number or boolean among them.
 func inputValue(input string) jsonvalue.Value {
@@ -99,7 +101,7 @@ func loadInline(root *tree.Folder, n tree.Node, l *tree.LoadFinds, label string,
 	return pipeline{
 		nodes:     nodes,
 		finds:     l,
-		resolve:   func() ([]templateSite, error) { return resolveInlineTemplates(n, label, root.Children(), l) },
+		resolve:   func() ([]load.TemplateSite, error) { return load.ResolveInlineTemplates(n, label, root.Children(), l) },
 		typedByGo: typedByGo,
 	}.run()
 }
@@ -112,7 +114,7 @@ func refuseFolderRefs(nodes nodeSet) error {
 		if !ok {
 			return nil
 		}
-		for _, spelling := range refSpellings(t.Tokens()) {
+		for _, spelling := range load.RefSpellings(t.Tokens()) {
 			sigil, rest, err := grammar.RefShape(spelling)
 			if err != nil {
 				return fmt.Errorf("%s: reference {%s}: %w", label, spelling, err)

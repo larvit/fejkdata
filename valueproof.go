@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
@@ -144,7 +145,7 @@ func (p *valueProof) proveUnion(nodes []tree.Node) proven.Facts {
 // that prints stands alone.
 func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 	lit, fixed := t.FixedText()
-	o, one := printedOp(t.Compiled().Ops())
+	o, one := load.PrintedOp(t.Compiled().Ops())
 	switch {
 	case t.Repeat() != 1:
 		return proven.Unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.Format()))
@@ -183,7 +184,7 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 
 func (p *valueProof) proveCalc(o tree.Op) proven.Facts {
 	body, args := o.Token().Body, o.Token().Args
-	nodes := operandNodes(o)
+	nodes := load.OperandNodes(o)
 	v, doubt := proven.OfCalc(builtinfunc.ParsedCalc(args[0]).Expr, func(name string) proven.Facts {
 		if slices.ContainsFunc(o.Operands(), func(a tree.Arm) bool { return a.Spelling() == name && p.readsFallback(a) }) {
 			return fallsBack(name)

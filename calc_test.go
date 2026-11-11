@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
-	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // TestCalcArithmetic pins the operators, precedence, parentheses and unary minus
@@ -98,23 +98,6 @@ func TestCalcReproducible(t *testing.T) {
 	tmpl := `{"format":"{calc(q * 2 + 1)}","q":"{int(1,1000000)}"}`
 	if a, b := mustRender(t, engine(7), tmpl), mustRender(t, engine(7), tmpl); a != b {
 		t.Fatalf("calc not reproducible: %q != %q", a, b)
-	}
-}
-
-// TestParsedCallReadsOnlyAnOperandBuiltin pins the operands a parsed call carries for a
-// call that is not a calc, and for one whose expression does not parse: none, either way.
-func TestParsedCallReadsOnlyAnOperandBuiltin(t *testing.T) {
-	ownReads := func(tok grammar.Token) []string {
-		own, _ := tokenReads(tok)
-		return own
-	}
-	for _, format := range []string{"{luhn()}", "{calc()}", "{calc(1 +)}", "{calc(()}"} {
-		if toks, err := grammar.ParseFormat(format); err != nil || len(toks) != 1 || ownReads(toks[0]) != nil {
-			t.Errorf("ParseFormat(%q) = %+v, %v, want one call reading no operand", format, toks, err)
-		}
-	}
-	if toks, err := grammar.ParseFormat("{calc(net * qty)}"); err != nil || len(toks) != 1 || len(ownReads(toks[0])) != 2 {
-		t.Errorf("ParseFormat({calc(net * qty)}) = %+v, %v, want both operands", toks, err)
 	}
 }
 
@@ -239,7 +222,7 @@ func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected naming %q", src, err, want)
 		}
 	}
-	if _, err := compile(parse(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`), tree.NewLoadFinds()); err != nil {
+	if _, err := load.Compile(parse(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`), tree.NewLoadFinds()); err != nil {
 		t.Errorf("compile(a/(b*c)) = %v, want a divisor that varies accepted", err)
 	}
 	f := engine(1)

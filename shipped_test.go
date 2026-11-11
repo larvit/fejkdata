@@ -27,6 +27,7 @@ import (
 	"github.com/larvit/fejkdata/data/nb_NO"
 	"github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -173,7 +174,7 @@ func shippedManifests(whole *Generator, modules []shippedModule) ([][]byte, [][]
 		key, _ := json.Marshal(s.path)
 		index[i] = append(index[i], "\n\t\t"+string(key)+": "+string(line))
 		for _, c := range needs(&whole.root, s) {
-			if j := owner(categoryPath(c.dir, c.name)); j != i && !slices.Contains(direct[i], j) {
+			if j := owner(load.CategoryPath(c.dir, c.name)); j != i && !slices.Contains(direct[i], j) {
 				direct[i] = append(direct[i], j)
 			}
 		}
@@ -632,7 +633,7 @@ func TestADataPathTableUnderAShippedTableLoads(t *testing.T) {
 
 // indexEntry is what an index says of the loaded category s.
 func indexEntry(s categorySite) datafiles.IndexEntry {
-	e := datafiles.IndexEntry{Parent: parentOf(s.n), Paths: paths(s.n, false)}
+	e := datafiles.IndexEntry{Parent: parentOf(s.n), Paths: load.Paths(s.n, false)}
 	sort.Strings(e.Paths)
 	return e
 }

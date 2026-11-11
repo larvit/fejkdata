@@ -11,6 +11,8 @@ import (
 
 	"github.com/larvit/fejkdata/data"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/engine/load"
+	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
@@ -138,11 +140,11 @@ func parse(t *testing.T, s string) jsonvalue.Value {
 func resolved(t *testing.T, s string) (tree.Node, error) {
 	t.Helper()
 	l := tree.NewLoadFinds()
-	n, err := compile(parse(t, s), l)
+	n, err := load.Compile(parse(t, s), l)
 	if err != nil {
 		return nil, err
 	}
-	ts, err := resolveInlineTemplates(n, "template", nil, l)
+	ts, err := load.ResolveInlineTemplates(n, "template", nil, l)
 	if err != nil {
 		return n, err
 	}
@@ -162,5 +164,5 @@ func compiled(t *testing.T, s string) tree.Node {
 
 func mustRender(t *testing.T, f *Generator, s string) string {
 	t.Helper()
-	return renderOnce(f.drawState, compiled(t, s))
+	return render.Once(f.drawState, compiled(t, s))
 }

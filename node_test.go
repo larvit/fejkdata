@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -99,14 +100,14 @@ func TestNodeCompileErrors(t *testing.T) {
 
 func TestEveryFormatCompilesAtResolve(t *testing.T) {
 	l := tree.NewLoadFinds()
-	n, err := compile(parse(t, `{"format":"{a} {b}","a":{"format":"x{c}","c":["1","2"]},"b":"{/w}"}`), l)
+	n, err := load.Compile(parse(t, `{"format":"{a} {b}","a":{"format":"x{c}","c":["1","2"]},"b":"{/w}"}`), l)
 	if err != nil {
 		t.Fatal(err)
 	}
 	w := compiled(t, `["p","q"]`)
 	compiledByPath := func() map[string]bool {
 		compiled := map[string]bool{}
-		if err := eachNode(n, "t", func(label string, m tree.Node) error {
+		if err := load.EachNode(n, "t", func(label string, m tree.Node) error {
 			if tm, ok := m.(*tree.Template); ok {
 				tl := l.Of(tm)
 				compiled[label+" "+tm.Format()] = tl != nil && tl.Compiled().Ops() != nil
@@ -122,7 +123,7 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 			t.Errorf("%s compiled before resolve", format)
 		}
 	}
-	if _, err := resolveInlineTemplates(n, "t", map[string]tree.Node{"w": w}, l); err != nil {
+	if _, err := load.ResolveInlineTemplates(n, "t", map[string]tree.Node{"w": w}, l); err != nil {
 		t.Fatal(err)
 	}
 	for format, has := range compiledByPath() {
@@ -139,7 +140,7 @@ func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 	} {
 		t.Run(src, func(t *testing.T) {
 			l := tree.NewLoadFinds()
-			n, err := compile(parse(t, src), l)
+			n, err := load.Compile(parse(t, src), l)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -165,7 +166,7 @@ func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 
 func TestFinishWritesEachNodeOnce(t *testing.T) {
 	l := tree.NewLoadFinds()
-	n, err := compile(parse(t, `{"format":"{/w as n}{n} {c}","c":["x","y"]}`), l)
+	n, err := load.Compile(parse(t, `{"format":"{/w as n}{n} {c}","c":["x","y"]}`), l)
 	if err != nil {
 		t.Fatal(err)
 	}

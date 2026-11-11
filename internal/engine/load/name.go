@@ -1,4 +1,4 @@
-package fejkdata
+package load
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ func bindNames(root tree.Node, l *tree.LoadFinds) error {
 			l.SetChoiceScope(t, scope)
 		}
 		_, isChoice := n.(*tree.Choice)
-		return eachContained(n, where, func(c containedNode, where string) error { return gather(c.node, scope, isChoice, where) })
+		return eachContained(n, where, func(c ContainedNode, where string) error { return gather(c.Node, scope, isChoice, where) })
 	}
 	if err := gather(root, nil, false, ""); err != nil {
 		return err
@@ -61,8 +61,8 @@ func bindAll(sc *tree.NameScope, t *tree.Template, where string) error {
 
 // eachContained calls fn for each node n contains, with where naming the fields reaching it as
 // compile errors do.
-func eachContained(n tree.Node, where string, fn func(c containedNode, where string) error) error {
-	for _, c := range contained(n) {
+func eachContained(n tree.Node, where string, fn func(c ContainedNode, where string) error) error {
+	for _, c := range Contained(n) {
 		next := where
 		if c.name != "" {
 			next += fmt.Sprintf("field %q: ", c.name)
@@ -74,14 +74,15 @@ func eachContained(n tree.Node, where string, fn func(c containedNode, where str
 	return nil
 }
 
-// answerReads proves each unbound read under root is answered by a name its template sees. It answers a template's fields before its format, the
-// order compile reports in, and refuses a field spelling a name. A refusal searches scopes, every
-// scope of the category, for a name bound where the read cannot see it.
+// answerReads proves each unbound read under root is answered by a name its template sees. It
+// answers a template's fields before its format, the order Compile reports in, and refuses a
+// field spelling a name. A refusal searches scopes, every scope of the category, for a name bound
+// where the read cannot see it.
 func answerReads(root tree.Node, scopes []*tree.NameScope, l *tree.LoadFinds) error {
 	var answer func(n tree.Node, where string, up besideField) error
 	answer = func(n tree.Node, where string, up besideField) error {
 		t, isTemplate := n.(*tree.Template)
-		err := eachContained(n, where, func(c containedNode, where string) error {
+		err := eachContained(n, where, func(c ContainedNode, where string) error {
 			inner := up
 			switch n.(type) {
 			case *tree.Template:
@@ -89,7 +90,7 @@ func answerReads(root tree.Node, scopes []*tree.NameScope, l *tree.LoadFinds) er
 			case *tree.Choice:
 				inner.inItem = true
 			}
-			return answer(c.node, where, inner)
+			return answer(c.Node, where, inner)
 		})
 		if err != nil || !isTemplate {
 			return err
@@ -177,45 +178,45 @@ func isName(t *tree.Template, head string, l *tree.LoadFinds) bool {
 
 // namedReadAt is one read of a name in a format: the op holding it, and the compiled arm.
 type namedReadAt struct {
-	o *tree.Op
-	a *tree.Arm
+	Op  *tree.Op
+	Arm *tree.Arm
 }
 
-// namedReads is every read of a name t's format makes, in format order.
-func namedReads(t *tree.Template, l *tree.LoadFinds) []namedReadAt {
+// NamedReads is every read of a name t's format makes, in format order.
+func NamedReads(t *tree.Template, l *tree.LoadFinds) []namedReadAt {
 	ops := l.Of(t).Compiled().Ops()
 	var out []namedReadAt
 	for i := range ops {
 		o := &ops[i]
 		for _, a := range o.Reads() {
 			if a.Kind() == tree.NamedRead {
-				out = append(out, namedReadAt{o: o, a: a})
+				out = append(out, namedReadAt{Op: o, Arm: a})
 			}
 		}
 	}
 	return out
 }
 
-// readsOfNames is every read of each name in ts, in the order ts lists them.
-func readsOfNames(ts []templateSite, l *tree.LoadFinds) map[*tree.NameBinding][]*tree.Arm {
+// ReadsOfNames is every read of each name in ts, in the order ts lists them.
+func ReadsOfNames(ts []TemplateSite, l *tree.LoadFinds) map[*tree.NameBinding][]*tree.Arm {
 	reads := map[*tree.NameBinding][]*tree.Arm{}
 	for _, s := range ts {
-		for _, r := range namedReads(s.t, l) {
-			reads[r.a.Named()] = append(reads[r.a.Named()], r.a)
+		for _, r := range NamedReads(s.Template, l) {
+			reads[r.Arm.Named()] = append(reads[r.Arm.Named()], r.Arm)
 		}
 	}
 	return reads
 }
 
 // nameTargets resolves what each binding of ts binds, from its binder's references.
-func nameTargets(ts []templateSite, l *tree.LoadFinds) map[*tree.NameBinding]tree.NameTarget {
+func nameTargets(ts []TemplateSite, l *tree.LoadFinds) map[*tree.NameBinding]tree.NameTarget {
 	targets := map[*tree.NameBinding]tree.NameTarget{}
 	for _, s := range ts {
-		tl := l.Of(s.t)
-		for _, tok := range s.t.Tokens() {
+		tl := l.Of(s.Template)
+		for _, tok := range s.Template.Tokens() {
 			if tok.Kind == grammar.NameBind {
 				a := splitRead(tok.BoundRef, tl.Refs().BySpelling())
-				targets[tl.NameScope().Bindings()[tok.Bound]] = tree.NewNameTarget(s.t.StartOf(a.head, tl.Refs()), a.tail)
+				targets[tl.NameScope().Bindings()[tok.Bound]] = tree.NewNameTarget(s.Template.StartOf(a.head, tl.Refs()), a.tail)
 			}
 		}
 	}
