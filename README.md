@@ -2025,7 +2025,7 @@ resolve.go      resolving every category's templates once all data is merged, th
 table.go        linking each table to the parent it names
 namefence.go    the load fences over names
 where.go        the where fences: no filtered draw read through a path, no clause reading the name it binds, and the proof that every draw has enough values
-adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
+adddays.go      the {adddays()} proof that its day count is a whole number within the cap
 datatype.go     column datatypes: DataType, the check that a column's items agree on one, and the datatype a column holds
 columnread.go   a format that only reads a column: the checks run on the column read, and the datatype and proof the format takes from that column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
