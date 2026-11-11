@@ -1605,3 +1605,28 @@ Inherited architect, decided by:
 - Shape: `internal/engine/load/graph.go:91` `RenderEdges`: a package named load no longer holds two refusals.
 - Shape, Self-sufficiency: `internal/engine/fence/fence.go:1` the package doc says in one sentence what the fences refuse, where before they sat in `resolve.go` beside resolving.
 - Shape: `datatype.go:1` the root file shrank to the public `DataType` constants and matches its name.
+
+## 2026-11-11T04:49:06Z, PR #351 at 6c1d030, against 634f31c
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | same | better |
+| Inherited architect | better | better | better | same | better |
+
+Mid A, decided by:
+
+- Navigation, Shape: `README.md:2022` "Layout": the root lists only the public files, and one `internal/engine/` line says where the pipeline, the lazy load and the path draw live
+- Locality, Shape: `render.go:13` `Generator.Fake`: locks and makes one call to `engine.Fake`, which takes the root as an argument rather than reaching into the generator
+- Locality: `internal/engine/inline.go:101` `LoadStruct`: returns a value where `compileRecord` filled its receiver while it loaded
+- Navigation: `internal/engine/pipeline.go:63` `pipeline.run`: each stage it names sits in the same file
+- Shape: `record.go:214` `renderRecord`: `Column`, `Record` and `Template` now exist in both the root and the engine, a small step back
+
+Inherited architect, decided by:
+
+- Navigation, Shape: `README.md:2022` "Layout": the root went from 13 files to 7, each named after the API it exports
+- Navigation, Locality: `render.go:13` `Generator.Fake`: lock, `engine.Fake`, prefix; the draw reads straight down from `internal/engine/draw.go` where it ran through three root files
+- Locality: `fejkdata.go:118` `New`: each root entry point adds the `fejkdata: ` prefix exactly once
+- Locality, Shape: `internal/engine/inline.go:103` `LoadStruct`: owns compile, load and the field checks, leaving `compileShape` only the reflect side
+- Shape: `internal/engine/record.go:17` `Column`: duplicates the root's `Column` field for field, tied only by a conversion
