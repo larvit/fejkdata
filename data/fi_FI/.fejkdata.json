@@ -1,0 +1,10 @@
+{
+	"index": {
+		"fi_FI.first-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"fi_FI.last-name": {"paths":["","count","name"]},
+		"fi_FI.person": {"paths":["","first","last","prefix","sex"]},
+		"fi_FI.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name"]},
+		"fi_FI.title": {"paths":["","name","share"]}
+	},
+	"namespace": "fi_FI"
+}

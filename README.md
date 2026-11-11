@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, and `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, and `fi_FI`'s names and persons, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
@@ -605,10 +605,10 @@ template calls. `--no-shipped-data` leaves out the modules passed to
 ## Data
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
-its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/en_US`, `data/nb_NO`,
+its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/en_US`, `data/fi_FI`, `data/nb_NO`,
 `data/sv_SE`), one per country's tree of places (`data/geo/DK`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`dadk`, `enus`, `nbno`, `svse`, `geodk`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `enus`, `fifi`, `nbno`, `svse`, `geodk`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -657,6 +657,13 @@ segments below that. It needs no index. Each shipped module carries one, so
 `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
+
+`fi_FI`, Finnish, carries `first-name`, `last-name`, `person`, `sex` and `title`, built like `nb_NO`'s.
+`fi_FI.sex` is `nainen` and `mies`, weighed by [Statistics Finland](https://stat.fi/en)'s population of 31 December
+2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
+and `fi_FI.last-name` the 5,000 commonest last names, each weighed by the Finnish citizens bearing it in
+[DVV](https://dvv.fi/en)'s register of 4 August 2026. A program showing those counts credits "Lähde: Digi- ja
+väestötietovirasto", and one showing the sex counts "Source: Statistics Finland".
 
 `da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/sv_SE/sex.tsv, nb_NO/sex.tsv, da_DK/sex.tsv and en_US/sex.tsv: the people of each sex.
+"""Rebuild data/sv_SE/sex.tsv, nb_NO/sex.tsv, da_DK/sex.tsv, fi_FI/sex.tsv and en_US/sex.tsv: the people of each sex.
 
     data-import/sex-population.py [--cache DIR] [--out-dir DIR]
 
@@ -7,10 +7,11 @@
 - nb_NO: Statistics Norway's StatBank table 07459, the population on 1 January 2026, all ages summed
   (CC BY 4.0, "Kilde: Statistisk sentralbyrå")
 - da_DK: Statistics Denmark's table FOLK1A, the population on 1 January 2026 (CC BY 4.0, "Kilde: Danmarks Statistik")
+- fi_FI: Statistics Finland's table 11rb, the population on 31 December 2025 (CC BY 4.0, "Source: Statistics Finland")
 - en_US: the Census Bureau's national population estimates by age and sex, the resident population on
   1 July 2024 (vintage 2024, public domain)
 
-The names are ours: `kvinna` and `man`, `kvinne` and `mann`, `kvinde` and `mand`, `female` and `male`.
+The names are ours: `kvinna` and `man`, `kvinne` and `mann`, `kvinde` and `mand`, `nainen` and `mies`, `female` and `male`.
 """
 import argparse
 import csv
@@ -25,11 +26,12 @@ import tsv
 SCB = "https://api.scb.se/OV0104/v1/doris/en/ssd/BE/BE0101/BE0101A/BefolkningR1860N"
 SSB = "https://data.ssb.no/api/v0/en/table/07459"
 DST = "https://api.statbank.dk/v1/data"
+STATFIN = "https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/vaerak/11rb.px"
 CENSUS = "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/national/asrh/nc-est2024-agesex-res.csv"
 ROOT = Path(__file__).resolve().parent.parent / "data"
 CACHE = Path(__file__).resolve().parent / "cache"
 JSON = {"Content-Type": "application/json"}
-NAMES = {"sv_SE": ("kvinna", "man"), "nb_NO": ("kvinne", "mann"), "da_DK": ("kvinde", "mand"), "en_US": ("female", "male")}
+NAMES = {"sv_SE": ("kvinna", "man"), "nb_NO": ("kvinne", "mann"), "da_DK": ("kvinde", "mand"), "fi_FI": ("nainen", "mies"), "en_US": ("female", "male")}
 
 
 def post(url, cache, name, query):
@@ -75,6 +77,17 @@ def denmark(cache):
     return counts["Kvinder"], counts["Mænd"]
 
 
+def finland(cache):
+    """(women, men) on 31 December 2025."""
+    query = {"query": [{"code": "timeperiod_y", "selection": {"filter": "item", "values": ["2025"]}}, {"code": "sukupuoli_9_20180101", "selection": {"filter": "item", "values": ["1", "2"]}}, {"code": "contentscode", "selection": {"filter": "item", "values": ["vaerak-vaesto"]}}], "response": {"format": "json-stat2"}}
+    cube = post(STATFIN, cache, "statfin-11rb-2025.json", query)
+    sexes = cube["dimension"]["sukupuoli_9_20180101"]["category"]
+    if cube["id"] != ["timeperiod_y", "sukupuoli_9_20180101", "contentscode"] or cube["size"] != [1, 2, 1] or sexes["label"] != {"1": "Males", "2": "Females"} or list(sexes["index"]) != ["1", "2"]:
+        sys.exit(f"table 11rb answers {cube['id']} of sizes {cube['size']} with sexes {sexes['label']}, not the Males and Females of 2025")
+    men, women = cube["value"]
+    return women, men
+
+
 def america(cache):
     """(women, men) on 1 July 2024."""
     text = source.fetch(CENSUS, cache, "census-nc-est2024-agesex-res.csv").decode("utf-8")
@@ -89,7 +102,7 @@ def main():
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--out-dir", default=str(ROOT))
     a = p.parse_args()
-    for locale, read in (("sv_SE", sweden), ("nb_NO", norway), ("da_DK", denmark), ("en_US", america)):
+    for locale, read in (("sv_SE", sweden), ("nb_NO", norway), ("da_DK", denmark), ("fi_FI", finland), ("en_US", america)):
         (women, men), (woman, man) = read(a.cache), NAMES[locale]
         tsv.write(Path(a.out_dir) / locale / "sex.tsv", ["code", "name", "count"], [{"code": "f", "name": woman, "count": women}, {"code": "m", "name": man, "count": men}])
 
