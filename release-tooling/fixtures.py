@@ -7,13 +7,13 @@ GO_MOD = "module example.com/m\n\ngo {}\n\nrequire (\n\tgolang.org/x/text {}\n\t
 GORELEASER = "builds:\n  - main: ./cmd/fejkdata\n    goos: [linux, darwin, windows]\n    goarch: [amd64, arm64]\n"
 MAIN = """# Changelog
 
-## [Unreleased]
+## Unreleased
 
 ### Added
 
 - A thing.
 
-## [0.1.0] - 2026-10-13
+## 0.1.0 - 2026-10-13
 
 The first release.
 """
@@ -48,12 +48,12 @@ Go 1.28 requires nothing new of Darwin.
 PACKAGES = "    steps:\n      - uses: goreleaser/goreleaser-action@v7\n        with:\n          version: {}\n"
 RELEASED = """# Changelog
 
-## [0.1.0] - 2026-10-13
+## 0.1.0 - 2026-10-13
 
 The first release.
 """
 SECTION = (
-	"## [0.1.1] - 2026-10-14\n\n### Changed\n\n- The binaries and image are built with Go 1.27.2.\n\n"
+	"## 0.1.1 - 2026-10-14\n\n### Changed\n\n- The binaries and image are built with Go 1.27.2.\n\n"
 	"### Security\n\n- The binaries no longer carry 0.1.0's known vulnerabilities: GO-2026-0001.\n\n"
 )
 
