@@ -50,7 +50,7 @@ COPY data-import/ /data-import/
 COPY data/ /data/
 RUN python3 -m unittest discover -s /data-import -p '*_test.py' && touch /tested
 
-FROM goreleaser/goreleaser:v2.20.0 AS packaging
+FROM goreleaser/goreleaser:v2.20.1 AS packaging
 WORKDIR /check
 COPY release-tooling/goreleaser.yaml ./
 RUN git init -q && git remote add origin https://github.com/larvit/fejkdata.git && goreleaser check --config goreleaser.yaml && touch /tested

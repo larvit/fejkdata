@@ -2,7 +2,7 @@
 ARG BASE_URL=https://larvit.github.io/fejkdata
 ARG EXPECTED_VERSION
 
-FROM goreleaser/goreleaser:v2.20.0 AS snapshot
+FROM goreleaser/goreleaser:v2.20.1 AS snapshot
 WORKDIR /w/src
 COPY . .
 RUN git init -q && git add -A && git -c user.name=snapshot -c user.email=snapshot@example.invalid commit -qm snapshot \
