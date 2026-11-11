@@ -1506,3 +1506,27 @@ Inherited architect, decided by:
 - Shape: `namefence.go:292` `readTwiceApart`: x.in.startOf(x.a.head, x.in.refs) hands a method its receiver's own field, which with the next place cancels the slimmer fences' gain
 - Shape: `datatype.go:63` `checkColumns`: calls after finish pass a bare nil for l, a rule only of's comment states, and three spellings reach an entry with nothing saying why each call picks its own
 - Locality: `columnread.go:133` `itemDatatype`: reads l.of(t).readsColumn while the next function reads t.readsColumn, and only pipeline.run's comment says which phase makes each right
+
+## 2026-11-11T01:35:08Z, PR #345 at 4fc9122, against ab57ff0
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | worse | same | same |
+| Inherited architect | same | better | worse | worse | same |
+
+Mid A, decided by:
+
+- Locality: `internal/engine/tree/node.go:69` `Template`: its syntax and what its load found are two named parts, and only `LoadFinds.Finish` writes the found part
+- Locality: `table.go:18` `compileTable`: the compile steps return values that `Table.SetRows` and `Table.SetSyntax` store once, where they wrote the table's fields as side effects
+- Shape: `where.go:246` `newValueDraw`: `tree.NewValueDraw` takes nine positional arguments, a bare bool and same-typed pairs that swap silently, where fields were set by name
+- Shape: `internal/engine/tree/node.go:134` the getter block: dozens of one-line getters with receiver `r`, and call chains heavier than the field reads they replaced
+
+Inherited architect, decided by:
+
+- Locality: `internal/engine/tree/loadfinds.go:72` `LoadFinds.SetNameScope`: every write of a load's results goes through one file of named setters, and `Finish` alone gives a node its finds
+- Locality: `internal/engine/tree/node.go:69` `Template`: the syntax and finds split shows the two lifetimes in the type, and `Finished()` names the check
+- Shape: `where.go:246` `newValueDraw`: nine positional arguments, a bare bool and swappable `LengthEnd`s; `NewAlphabetDraw` and `NewPathStep` lose names the same way
+- Shape: `internal/engine/tree/node.go:134` the getter block: about a hundred getters at the bottom of each file, away from their type, returning live maps and slices
+- Self-sufficiency: `internal/engine/tree/pick.go:3` `PickKey`: its doc explains it through root functions a reader of `tree` can't reach without opening another package
