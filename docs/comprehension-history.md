@@ -1480,3 +1480,29 @@ Inherited architect, decided by:
 - Locality, Self-sufficiency: `path.go:205` `drawSteps`: three named modes replace the nil-ness of pins and memo, checked in three places
 - Shape, Locality: `table.go:237` `tableRoute`: one shared vocabulary with the walk's pathPos
 - Self-sufficiency: `render.go:147` `readField`: the comment names the action at a distance, a reference clearing the pick in enter
+
+## 2026-11-11T00:16:30Z, PR #343 at 8613dd6, against 0b9b2ce
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | same | same | better |
+| Inherited architect | same | better | same | same | better |
+
+Mid A, decided by:
+
+- Locality: `loadfinds.go:9` `loadFinds`: what one load finds sits in one value behind one read rule, and only finish writes it into the nodes, where the base kept it in three homes, each with its own fallback to an earlier load
+- Locality: `namefence.go:343` `refuseDrawnApart`: reads inner.target and outer.target off the nodes, where the base read one binding through targetOf and the other through targets, falling back unevenly
+- Locality: `data.go:158` `pipeline.run`: the order of stages reads in one function, and its comment says which read p.finds and which the nodes, where the base hid the fences inside resolveTemplates
+- Locality: `graph.go:139` `renderCount`: a nil loadFinds is a mode meaning only what was finished, and loadInline pairs the l it compiled into with the one it runs, a smaller cost than the split it replaces
+- Locality: `record.go:279` `recordOf`: the guard t.templateFinds == nil says the load hasn't finished, where the base made the reader derive it from counts
+
+Inherited architect, decided by:
+
+- Locality: `loadfinds.go:9` `loadFinds`: one side table, written into the nodes only by finish, answers whether a field is written yet, where the base wrote templates in place and kept bindings and draws in two maps with their own lookups
+- Locality, Shape: `resolve.go:151` `fenceTemplates`: the fences read b.addressed, b.target and b.values off the nodes, so each reads on its own, and resolvedNames drops from six fields to three
+- Locality: `internal/rows/rows.go:288` `Link`: writes only its own table, since child tables come from the folder, where the base also wrote the parent's children, which putBack could leave stale
+- Shape: `namefence.go:292` `readTwiceApart`: x.in.startOf(x.a.head, x.in.refs) hands a method its receiver's own field, which with the next place cancels the slimmer fences' gain
+- Shape: `datatype.go:63` `checkColumns`: calls after finish pass a bare nil for l, a rule only of's comment states, and three spellings reach an entry with nothing saying why each call picks its own
+- Locality: `columnread.go:133` `itemDatatype`: reads l.of(t).readsColumn while the next function reads t.readsColumn, and only pipeline.run's comment says which phase makes each right
