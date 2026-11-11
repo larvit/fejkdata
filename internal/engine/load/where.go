@@ -39,14 +39,14 @@ func clauseSpellings(w *grammar.Where) []clauseSpelling {
 	return names
 }
 
-// clauseRead returns the arm in clause, an op's compiled where clause, that reads spelling; spelling
+// clauseRead returns the read in clause, an op's compiled where clause, that reads spelling; spelling
 // must be one the clause reads.
-func clauseRead(clause []tree.Arm, spelling string) *tree.Arm {
-	return &clause[slices.IndexFunc(clause, func(a tree.Arm) bool { return a.Spelling() == spelling })]
+func clauseRead(clause []tree.Read, spelling string) *tree.Read {
+	return &clause[slices.IndexFunc(clause, func(a tree.Read) bool { return a.Spelling() == spelling })]
 }
 
-func clauseReads(clause []tree.Arm, of []string) []*tree.Arm {
-	var reads []*tree.Arm
+func clauseReads(clause []tree.Read, of []string) []*tree.Read {
+	var reads []*tree.Read
 	for _, n := range of {
 		reads = append(reads, clauseRead(clause, n))
 	}
@@ -54,7 +54,7 @@ func clauseReads(clause []tree.Arm, of []string) []*tree.Arm {
 }
 
 // fallbackOf is what a draw under w prints where no value passes, deflt where w names no fallback.
-func fallbackOf(w *grammar.Where, clause []tree.Arm, deflt string) tree.Fallback {
+func fallbackOf(w *grammar.Where, clause []tree.Read, deflt string) tree.Fallback {
 	switch {
 	case w == nil || w.Else == nil:
 		return tree.NewFallbackText(deflt)
@@ -100,8 +100,8 @@ func (c clauseSpelling) membersRead(n int) error {
 }
 
 // compileClauseNames compiles the names w reads, each bound in a template enclosing t.
-func compileClauseNames(t *tree.Template, w *grammar.Where, l *tree.LoadFinds) ([]tree.Arm, error) {
-	var arms []tree.Arm
+func compileClauseNames(t *tree.Template, w *grammar.Where, l *tree.LoadFinds) ([]tree.Read, error) {
+	var reads []tree.Read
 	for _, c := range clauseSpellings(w) {
 		read := splitRead(c.spelling, nil)
 		if !isName(t, read.head, l) {
@@ -110,13 +110,13 @@ func compileClauseNames(t *tree.Template, w *grammar.Where, l *tree.LoadFinds) (
 		if b := l.Of(t).NameScope().Lookup(read.head); b.Distinct() != nil && len(read.tail) == 0 && c.listsStrings() {
 			return nil, c.membersRead(b.Distinct().N)
 		}
-		a, err := compileArm(t, c.spelling, l)
+		a, err := compileRead(t, c.spelling, l)
 		if err != nil {
 			return nil, err
 		}
-		arms = append(arms, a)
+		reads = append(reads, a)
 	}
-	return arms, nil
+	return reads, nil
 }
 
 // valueDrawOf builds o's draw over the values o's path renders.
@@ -128,7 +128,7 @@ func valueDrawOf(t *tree.Template, o *tree.Op, l *tree.LoadFinds) (*tree.ValueDr
 	var start tree.Node
 	var tail []string
 	if o.Token().Kind == grammar.PathRead {
-		a := o.Arms()[0]
+		a := o.Reads()[0]
 		if a.Kind() == tree.NamedRead {
 			return nil, fmt.Errorf("%q is a name, drawn once; write the clause on the draw it binds: {%s … as %s}", a.Head(), a.Named().Ref(), a.Head())
 		}
@@ -146,7 +146,7 @@ func valueDrawOf(t *tree.Template, o *tree.Op, l *tree.LoadFinds) (*tree.ValueDr
 
 // newValueDraw keeps the values that pass where's fixed conditions, shortest first, for draws of
 // distinct's count, or of one value where distinct is nil.
-func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar.Distinct, clause []tree.Arm) *tree.ValueDraw {
+func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar.Distinct, clause []tree.Read) *tree.ValueDraw {
 	lo, hi := LengthEnds(where, clause)
 	spec := tree.ValueDrawSpec{Lo: lo, Hi: hi, Clause: clause, Count: 1, Fallback: fallbackOf(where, clause, "")}
 	if distinct != nil {
@@ -169,14 +169,14 @@ func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar
 }
 
 // LengthEnds are the ends of w's length, 0 to every length where w has none.
-func LengthEnds(w *grammar.Where, clause []tree.Arm) (lo, hi tree.LengthEnd) {
+func LengthEnds(w *grammar.Where, clause []tree.Read) (lo, hi tree.LengthEnd) {
 	if w == nil || w.Length == nil {
 		return tree.NewLengthEndN(0), tree.NewLengthEndN(math.MaxInt)
 	}
 	return endOf(w.Length.Lo, clause), endOf(w.Length.Hi, clause)
 }
 
-func endOf(l grammar.Length, clause []tree.Arm) tree.LengthEnd {
+func endOf(l grammar.Length, clause []tree.Read) tree.LengthEnd {
 	if l.Name == "" {
 		return tree.NewLengthEndN(l.N)
 	}

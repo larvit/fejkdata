@@ -49,7 +49,7 @@ func FreshLevels(head string, segs []string) []PickKey {
 
 // AddressedKeys is every key the reads of each name land on or pass, from the name's own level,
 // with the spelling of the first read reaching it.
-func AddressedKeys(reads map[*NameBinding][]*Arm, l *LoadFinds) map[*NameBinding]map[PickKey]string {
+func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBinding]map[PickKey]string {
 	keys := map[*NameBinding]map[PickKey]string{}
 	for b, rs := range reads {
 		keys[b] = map[PickKey]string{}
@@ -77,7 +77,7 @@ func AddressedKeys(reads map[*NameBinding][]*Arm, l *LoadFinds) map[*NameBinding
 // at is that template's path from the target's start, so moved under at, a fresh read's key spells
 // the path a named read's does. Where p binds a category whose format reads {first}, the {first}
 // that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
-func LandsInPick(addressed map[PickKey]string, at PickKey, a Arm) (by string, lands bool) {
+func LandsInPick(addressed map[PickKey]string, at PickKey, a Read) (by string, lands bool) {
 	if grammar.IsRef(a.Head()) || a.Kind() == NamedRead {
 		return "", false
 	}

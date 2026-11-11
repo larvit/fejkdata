@@ -7,7 +7,7 @@ type ColumnRead struct{ spec ColumnReadSpec }
 
 // ColumnReadSpec is what NewColumnRead builds a ColumnRead of.
 type ColumnReadSpec struct {
-	Arm Arm // the format's one read
+	Read Read // the format's one read
 	// Category and Field name the column. Category is "" for a column of the reading template's
 	// own record, which a load already checks with that record's columns.
 	Category, Field string
@@ -20,7 +20,7 @@ type ColumnReadSpec struct {
 
 func NewColumnRead(s ColumnReadSpec) *ColumnRead { return &ColumnRead{s} }
 
-func (c *ColumnRead) Arm() Arm { return c.spec.Arm }
+func (c *ColumnRead) Read() Read { return c.spec.Read }
 
 func (c *ColumnRead) Category() string { return c.spec.Category }
 

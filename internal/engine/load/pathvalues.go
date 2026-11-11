@@ -85,8 +85,8 @@ func (w *valueWalk) walkTemplate(t *tree.Template, weight float64, pre, suf stri
 	if read == nil {
 		return w.emit(pre+before+after+suf, weight)
 	}
-	for _, a := range read.Arms() {
-		if err := w.walkArm(t, a, weight/float64(len(read.Arms())), pre+before, after+suf); err != nil {
+	for _, a := range read.Reads() {
+		if err := w.walkRead(t, a, weight/float64(len(read.Reads())), pre+before, after+suf); err != nil {
 			return err
 		}
 	}
@@ -116,9 +116,9 @@ func oneRead(t *tree.Template, l *tree.LoadFinds) (before string, read *tree.Op,
 	return before, read, after, nil
 }
 
-// walkArm walks one arm of t's read: a path from a field or a reference, or through a name t
+// walkRead walks one alternative of t's read: a path from a field or a reference, or through a name t
 // binds itself; that name's one read draws as a fresh read would.
-func (w *valueWalk) walkArm(t *tree.Template, a tree.Arm, weight float64, pre, suf string) error {
+func (w *valueWalk) walkRead(t *tree.Template, a tree.Read, weight float64, pre, suf string) error {
 	if a.Kind() != tree.NamedRead {
 		return w.walk(t.StartOf(a.Head(), w.finds.Of(t).Refs()), a.Tail(), weight, pre, suf)
 	}
@@ -157,10 +157,10 @@ func ownColumnReads(t *tree.Table, l *tree.LoadFinds) (parts []rowPart, own bool
 			parts = append(parts, rowPart{lit: tok.Lit})
 			continue
 		}
-		if tok.Kind != grammar.PathRead || tok.Where != nil || tok.Distinct != nil || len(o.Arms()) != 1 {
+		if tok.Kind != grammar.PathRead || tok.Where != nil || tok.Distinct != nil || len(o.Reads()) != 1 {
 			return nil, false
 		}
-		a := o.Arms()[0]
+		a := o.Reads()[0]
 		c, isColumn := t.FormatTemplate().Fields()[a.Head()].(*tree.TableColumn)
 		if !isColumn || a.Kind() != tree.FreshRead || len(a.Tail()) > 0 {
 			return nil, false

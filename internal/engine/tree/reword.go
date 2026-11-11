@@ -27,16 +27,16 @@ func (w *WordList) Index() *LengthIndex { return &w.index }
 // RewordDraw is a {reword()} call: the text it rewrites, its first operand, and the words its
 // second operand's path holds, read at load.
 type RewordDraw struct {
-	text  *Arm
+	text  *Read
 	words *WordList
 }
 
-func NewRewordDraw(text *Arm, words *WordList) *RewordDraw { return &RewordDraw{text, words} }
+func NewRewordDraw(text *Read, words *WordList) *RewordDraw { return &RewordDraw{text, words} }
 
 func (*RewordDraw) isTokenDraw() {}
 
 func (d *RewordDraw) MayFallBack() bool { return false }
 
-func (d *RewordDraw) Text() *Arm { return d.text }
+func (d *RewordDraw) Text() *Read { return d.text }
 
 func (d *RewordDraw) Words() *WordList { return d.words }

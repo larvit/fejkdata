@@ -150,7 +150,7 @@ func (t TemplateRefs) Categories() map[string]Node { return t.categories }
 
 func (*Template) isNode() {}
 
-// StartOf is the node an arm's head names: a sibling field, or a reference's category.
+// StartOf is the node a read's head names: a sibling field, or a reference's category.
 func (t *Template) StartOf(name string, refs TemplateRefs) Node {
 	if grammar.IsRef(name) {
 		return refs.categories[name]

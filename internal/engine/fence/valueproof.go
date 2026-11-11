@@ -140,13 +140,13 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 	switch {
 	case tok.Kind == grammar.LiteralRun:
 		return proven.Literal(tok.Lit)
-	case tok.Kind == grammar.PathRead && (tok.Distinct != nil || slices.ContainsFunc(o.Arms(), tree.Arm.ReadsJoined)):
+	case tok.Kind == grammar.PathRead && (tok.Distinct != nil || slices.ContainsFunc(o.Reads(), tree.Read.ReadsJoined)):
 		return joinedText(body)
 	case p.mayFallBack(o):
 		return fallsBack(body)
 	case tok.Kind == grammar.PathRead:
 		var leaves []tree.Node
-		for _, a := range o.Arms() {
+		for _, a := range o.Reads() {
 			leaves = append(leaves, a.Leaves()...)
 		}
 		return p.proveUnion(leaves)
@@ -173,11 +173,11 @@ func (p *valueProof) proveCalc(o tree.Op) proven.Facts {
 // operand proves what each operand of the calc o renders, by its spelling.
 func (p *valueProof) operand(o tree.Op) func(name string) proven.Facts {
 	return func(name string) proven.Facts {
-		a := o.Operands()[slices.IndexFunc(o.Operands(), func(a tree.Arm) bool { return a.Spelling() == name })]
+		a := o.Operands()[slices.IndexFunc(o.Operands(), func(a tree.Read) bool { return a.Spelling() == name })]
 		if len(a.Leaves()) == 0 {
 			panic(invariant.Broken("calc operand %q was read before it was compiled", name))
 		}
-		return p.proveArm(a)
+		return p.proveRead(a)
 	}
 }
 
@@ -233,9 +233,9 @@ func zeroDivisor(n grammar.CalcNode, operand func(name string) proven.Facts) (st
 	return "", false
 }
 
-// proveArm proves what a prints: one of its leaves, or text where it reads a distinct draw's members
+// proveRead proves what a prints: one of its leaves, or text where it reads a distinct draw's members
 // joined.
-func (p *valueProof) proveArm(a tree.Arm) proven.Facts {
+func (p *valueProof) proveRead(a tree.Read) proven.Facts {
 	switch {
 	case a.ReadsJoined():
 		return joinedText(a.Spelling())
@@ -250,10 +250,10 @@ func (p *valueProof) mayFallBack(o tree.Op) bool {
 	if o.Draw() != nil {
 		return o.Draw().MayFallBack()
 	}
-	return slices.ContainsFunc(o.Arms(), p.readsFallback)
+	return slices.ContainsFunc(o.Reads(), p.readsFallback)
 }
 
-func (p *valueProof) readsFallback(a tree.Arm) bool {
+func (p *valueProof) readsFallback(a tree.Read) bool {
 	if a.Kind() != tree.NamedRead {
 		return false
 	}
