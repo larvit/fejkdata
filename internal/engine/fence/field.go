@@ -10,7 +10,7 @@ import (
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// CheckFields proves that each column holds only what the field of struct type t it fills can.
+// CheckFields refuses a column that can draw a value its field in struct type t cannot hold.
 func CheckFields(label string, t reflect.Type, columns []tree.RecordColumn) error {
 	proof := &valueProof{}
 	for _, c := range columns {

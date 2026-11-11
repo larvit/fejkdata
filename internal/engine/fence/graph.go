@@ -41,7 +41,7 @@ func RepeatCheck(label string, n tree.Node, mem RenderCounts) error {
 // CheckNoCycles rejects a reference cycle: a node whose rendering can reach itself
 // — directly, mutually, or through a chain — never terminates, so it must fail at
 // New rather than stack-overflow at render. It is a depth-first walk of the render
-// graph (RenderEdges). Every node is a root: a field its parent's format never
+// graph (load.RenderEdges). Every node is a root: a field its parent's format never
 // renders is still reachable by dot path, so a cycle in one would otherwise reach
 // render and be fatal there.
 func CheckNoCycles(s NodeSet, l *tree.LoadFinds) error {

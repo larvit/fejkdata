@@ -1,5 +1,6 @@
-// Package fence proves a finished node tree: it refuses at load what could render a value its
-// own rules forbid, or that two readers could read differently.
+// Package fence proves a finished node tree at load. It refuses a reference cycle, a repeat past
+// the cap, a template that could render a value its datatype or its calc forbids, and one that two
+// readers could read differently.
 package fence
 
 import (
@@ -11,8 +12,7 @@ import (
 type NodeSet = func(fn func(label string, n tree.Node) error) error
 
 // resolvedNames is what the name fences read about the names of a set of finished templates.
-// places caches pathTo: for each node it was called from,
-// every node under it with the fields leading there. fresh is each binding's freshFieldReads.
+// places caches pathTo: per starting node, the fields leading down from it to each node below. fresh is each binding's freshFieldReads.
 type resolvedNames struct {
 	reads  map[*tree.NameBinding][]*tree.Arm
 	places map[tree.Node]map[tree.Node][]string

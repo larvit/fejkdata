@@ -152,8 +152,8 @@ func categoryPipeline(sites []categorySite, root map[string]tree.Node, l *tree.L
 // refuses a name or reference that can't resolve. fence.RefuseReadsInsideFields comes before the cycle
 // check: a name read inside the field bound to it is also a reference cycle, and its error says how
 // to fix the read. The cycle check comes before settleRecords, fence.Templates and fence.CheckNodes,
-// whose walks recurse unguarded. settleRecords fixes each record's columns, which fence.CheckColumns
-// proves and fence.CheckNodes reads. Until finish, each stage reads from p.finds what the stages
+// whose walks recurse unguarded. settleRecords fixes each record's columns, whose datatypes
+// fence.CheckColumns proves agree. Until finish, each stage reads from p.finds what the stages
 // before it found; from finish on, each reads the nodes.
 func (p pipeline) run() error {
 	ts, err := p.resolve()
