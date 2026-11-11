@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
@@ -751,5 +752,11 @@ func TestRecordColumnReadingTwoFieldsDeepKeepsItsDatatypeAndNull(t *testing.T) {
 	}
 	if !seen[true] || !seen[false] {
 		t.Errorf("100 records drew null and digit as %v, want both", seen)
+	}
+}
+
+func TestColumnIsTheEngineColumn(t *testing.T) {
+	if reflect.TypeOf(Column{}) != reflect.TypeOf(engine.Column{}) {
+		t.Errorf("fejkdata.Column is %T, want the engine's %T, as DataType is", Column{}, engine.Column{})
 	}
 }
