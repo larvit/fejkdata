@@ -22,7 +22,7 @@ In [docs/decisions.md](docs/decisions.md):
 
 - GitHub is canonical, and the module path names it
 - The Gitea copy stays, as a pull mirror of GitHub
-- The vocabulary sits below `doc.go`'s package clause, not in the package doc
+- The vocabulary is `internal/engine`'s package doc
 - Options and fields share one namespace
 - `{a|b}` stays beside nested choices
 - Flags follow getopt_long
@@ -109,7 +109,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read
 - comprehension floor: every dimension and the overall at 7.0 or above is the target, and blocks no merge
-- The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, and drawing in `internal/engine/render`; the pipeline stays in the root package until item 107 moves it into `internal/engine`; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
+- The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, drawing in `internal/engine/render`, and the pipeline and lazy loading in `internal/engine`, with the root the public API and its options; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
 - Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 - Goal 6.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 - Locales ship by region: the Nordic countries, then the rest of the EU, then the rest of Europe, then the rest of the world
