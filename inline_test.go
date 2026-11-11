@@ -205,3 +205,30 @@ func TestFakeTemplateRepeatBound(t *testing.T) {
 		t.Errorf("nested repeat over the cap = %v, want it rejected naming the maximum", err)
 	}
 }
+
+func TestIsLonePath(t *testing.T) {
+	for body, want := range map[string]bool{
+		"x":                                   true,
+		"a.b":                                 true,
+		"sv_SE.person":                        true,
+		"a..":                                 true,
+		"a..b":                                true,
+		"misc.currency[US Dollar (Next day)]": true,
+		"t[a as b].c":                         true,
+		"t[f(x)]":                             true,
+		"":                                    false,
+		"/x":                                  false,
+		".x":                                  false,
+		"a.":                                  false,
+		"a...b":                               false,
+		"a|b":                                 false,
+		"x(1)":                                false,
+		"x as p":                              false,
+		"x}}":                                 false,
+		"x} {/y":                              false,
+	} {
+		if got := IsLonePath(body); got != want {
+			t.Errorf("IsLonePath(%q) = %v, want %v", body, got, want)
+		}
+	}
+}
