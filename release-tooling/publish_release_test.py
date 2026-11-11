@@ -108,7 +108,7 @@ class TagGuard(unittest.TestCase):
 		)
 		self.assertEqual(
 			publish_release.unreadable_headings(changelog),
-			["## [Unreleased", "## Unreleased (draft)", "## 0.5", "## [0.4.0] - soon", "##\tUnreleased", " ## 0.5.0 - 2026-11-20", "## 0.5.0 - 2026-11-20 "],
+			["## [Unreleased", "## Unreleased (draft)", "## 0.5", "## [0.4.0] - soon", "##\tUnreleased", " ## 0.5.0 - 2026-11-20"],
 		)
 
 	def test_main_check_fails_on_an_unreadable_heading_and_names_it(self):
