@@ -199,6 +199,8 @@ func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
 		`{"format":"{calc(x * 2)}","x":" 2.5 "}`,
 		`{"format":"{calc(x * 2)}","x":["1","abc"]}`,
 		`{"format":"{calc(x * 2)}","x":"{digits(2)}"}`,
+		`{"format":"{calc(x * 0)}","x":"3"}`,
+		`{"format":"{calc(2 - 0)}"}`,
 	} {
 		if _, err := resolved(t, ok); err != nil {
 			t.Errorf("compile(%s) = %v, want it accepted", ok, err)
@@ -214,6 +216,8 @@ func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 		`{"format":"{calc(x/(y*2))}","x":"1","y":" 0 "}`: "divides by (y * 2)",
 		`{"format":"{calc((a/0)+b)}","a":"1","b":"2"}`:   "divides by 0",
 		`{"format":"{calc(a/-0)}","a":"1"}`:              "divides by -0",
+		`"{calc(-(1/0))}"`:                               "divides by 0",
+		`{"format":"{calc(b+a/0)}","a":"1","b":"2"}`:     "divides by 0",
 	} {
 		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected naming %q", src, err, want)
@@ -283,6 +287,8 @@ func TestCalcRefusesABadOperand(t *testing.T) {
 		`"{calc(nope * 2)}"`:                             `no field "nope"`,
 		`"{/word as w}{w}{calc(nope * 2)}"`:              `no field or name "nope"; the names bound here are "w"`,
 		`{"format":"{calc(x * 2)}","x":"NaN"}`:           `operand "x" is never a number`,
+		`{"format":"{calc(x * 2)}","x":"Inf"}`:           `operand "x" is never a number`,
+		`{"format":"{calc(x * 2)}","x":null}`:            `operand "x" is never a number`,
 		`{"format":"{calc(x * 2)}","x":"{/word}"}`:       `operand "x" is never a number`,
 		`{"format":"{calc(1 / x)}","x":"{/zero}"}`:       `divides by x, which is always zero`,
 		`{"format":"{calc(1 / (x - 0))}","x":["0","0"]}`: `divides by (x - 0), which is always zero`,
