@@ -101,8 +101,8 @@ template per run.
 CLI carrying your own modules is a few lines of Go over `cli.Main` and works just like
 `fejkdata`. `cli`'s non-test code imports nothing under `internal/`, so whatever the CLI
 does, a program of your own can do through the public API. Until `todo.md` item 129 moves
-the lone-reference check into the library, the CLI copies how the grammar tells a lone reference, in `isPath`,
-`hasEmptySegment` and `withoutSelectors`, and a test pins the copy to the grammar.
+the lone-reference check into the library, the CLI cuts the reference's `{/` and `}` itself and asks
+the library's `IsLonePath` whether what is left is one path.
 
 ## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 
