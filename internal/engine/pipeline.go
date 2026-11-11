@@ -24,7 +24,7 @@ func inlineNodes(n tree.Node, label string) fence.NodeSet {
 	return func(fn func(label string, m tree.Node) error) error { return load.EachNode(n, label, fn) }
 }
 
-// pipeline is the one load pipeline, run over one set of nodes and the finds its compile began;
+// pipeline is the one load pipeline, run over a set of nodes and the finds the compile of those nodes began;
 // its fields are where entry points differ.
 type pipeline struct {
 	nodes   fence.NodeSet

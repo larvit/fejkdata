@@ -11,9 +11,9 @@ import (
 	"github.com/larvit/fejkdata/internal/engine"
 )
 
-// Column is one rendered column of a record. Value is the rendered text, which a
-// serializer quotes for DataTypeString and writes bare for any other datatype; a Null
-// column has no Value.
+// Column is one rendered column of a record: its Name, its DataType and its Value, the
+// rendered text, which a serializer quotes for DataTypeString and writes bare for any other
+// datatype. A Null column has no Value.
 type Column = engine.Column
 
 // Record is one record rendered from a template: every direct field is a column,
