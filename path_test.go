@@ -9,10 +9,30 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
+// bareCompiled compiles a JSON fragment and resolves it against no data, running no fence.
+func bareCompiled(t *testing.T, s string) tree.Node {
+	t.Helper()
+	v, err := jsonvalue.Decode([]byte(s))
+	if err != nil {
+		t.Fatalf("decode %q: %v", s, err)
+	}
+	l := tree.NewLoadFinds()
+	n, err := compile(v, l)
+	if err != nil {
+		t.Fatalf("compile %q: %v", s, err)
+	}
+	if _, err := resolveInlineTemplates(n, "template", nil, l); err != nil {
+		t.Fatalf("resolve %q: %v", s, err)
+	}
+	l.Finish()
+	return n
+}
+
 func TestCompiledPathStopsAtAMissingSegment(t *testing.T) {
-	n := compiled(t, `{"format":"{a}","a":{"format":"{b}","b":"leaf"}}`)
+	n := bareCompiled(t, `{"format":"{a}","a":{"format":"{b}","b":"leaf"}}`)
 	if leaves := compilePath(n, []string{"a", "b"}).leaves; len(leaves) != 1 {
 		t.Fatalf("compilePath(a.b).leaves = %v, want the one leaf", leaves)
 	}
@@ -27,7 +47,7 @@ func TestCompiledPathStopsAtAMissingSegment(t *testing.T) {
 }
 
 func TestCompiledPathChoiceConsumesNoSegment(t *testing.T) {
-	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
+	n := bareCompiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
 	if leaves := compilePath(n, []string{"f"}).leaves; len(leaves) != 2 {
 		t.Fatalf("compilePath through a choice = %v, want both variants' f", leaves)
 	}
