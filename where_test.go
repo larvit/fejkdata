@@ -152,6 +152,7 @@ func TestWhereRefusesAtLoad(t *testing.T) {
 		`{"format":"{w where length 9}","w":["cat","horse"]}`:                                  "no item passes",
 		`{"format":"{n as k}{w where length k}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:  "no item of length 6",
 		`{"format":"{n as k}{w where length k}","n":["3","x"],"w":["cat"]}`:                    "a length that can be no whole number",
+		`{"format":"{n as k}{w where length k}","n":"{int(-1,0)}","w":["","a"]}`:               "a length that may be negative, beside an empty item",
 		`{"format":"{w where length 5}","w":["{lower(5)}","horse"]}`:                           "a generated value",
 		`{"format":"{w where length 1}","w":["a",null]}`:                                       "a null",
 		`{"format":"{w as x}{x where length 5}","w":["horse"]}`:                                "a name, already drawn",
