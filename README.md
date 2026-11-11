@@ -17,9 +17,11 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   does every Danish and Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
-  fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
-  a checker that requires a month of 1 to 12 refuses the fødselsnummer; Danish CPR numbers that pass the
-  office's modulus 11 check, so a drawn one may be a living person's; Finnish henkilötunnus that pass DVV's control character, so a drawn one may be a living person's; Swedish
+  fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
+  900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
+  requires a month of 1 to 12 refuses the fødselsnummer, and one that applies the extra checks of the
+  synthetic henkilötunnus refuses those; Danish CPR numbers that pass the
+  office's modulus 11 check, so a drawn one may be a living person's; Swedish
   organisationsnummer and VAT numbers that pass the format and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
   and ITINs in the ranges the SSA and the IRS assign, so a drawn one may be a real
   person's; Luhn-valid card numbers; and IBANs for seven European countries.
@@ -666,20 +668,34 @@ Population Data Services Agency ([DVV](https://dvv.fi/en)). A program showing th
 väestötietovirasto", and one showing the sex counts "Source: Statistics Finland".
 
 `fi_FI.henkilotunnus` is a Finnish personal identity code as DVV defines it on its page "Personal identity code",
-`ddmmyy`, a century sign, an individual number and a control character, such as `131052-308T`. It passes DVV's
-checks but is not synthetic: its pages "Personal identity code" and "Reform of personal identity code" name no test
-series and no unassigned range, and say the individual numbers issued run from 002 to 899, so one may be a living person's. The sign is `+` for the 1800s, `-` for the 1900s and `A`
+`ddmmyy`, a century sign, an individual number and a control character, such as `131052-9085`. Its individual
+number is from 900 to 999, which DVV issues to no one: its page "Personal identity code" says the numbers issued run
+from 002 to 899, and its test table on "Reform of personal identity code" holds codes with 902 to 904. A drawn number
+is no living person's, but a checker that treats endings from 900 as synthetic ("keinohenkilötunnus"), as Vero's API
+guidance does, may apply more checks or refuse it. The sign is `+` for the 1800s, `-` for the 1900s and `A`
 for the 2000s; fejkdata doesn't draw the letters DVV has added for the 1900s and 2000s since 2023. The individual
 number is odd for a man and even for a woman, and the control character is the remainder of the nine digits of the date
 and the individual number divided by 31, read in DVV's table of `0` to `9` and the letters `A` to `Y` without `G`,
-`I`, `O`, `Q` and `Z`. The date is of someone under 100, drawn by [Statistics Finland](https://stat.fi/en/news/Finland-in-Figures-2026-ageing-Finland-is-visible-in-numbers)'s
-1,347,494 of 5,652,881 residents aged 65 or over at the end of 2025, so 23.84% of the numbers are of that age and the
-rest of someone under 65; a number of someone 100 or older is not drawn. The builtin `{hetu(x)}` completes a number
+`I`, `O`, `Q` and `Z`. The date is of someone aged 0 to 99, drawn evenly within two bands that are weighted by [Statistics Finland](https://stat.fi/en/news/Finland-in-Figures-2026-ageing-Finland-is-visible-in-numbers)'s
+1,347,494 of 5,652,881 residents aged 65 or over at the end of 2025: 23.84% of the dates are of the band aged 65 to 99 and
+the rest of the band aged 0 to 64. A date of someone 100 or older is not drawn. The builtin `{hetu(x)}` completes a number
 after its date: it reads the last six digits emitted, takes the sign from the latest year not after the date of `--today`
 or `WithToday` that bears the year digits, then adds an individual number of the parity of the digit `x` reads and the
-control character, and renders nothing where `x` is not one digit or that year lies outside 1800 to 2099. To agree with
-a bound sex, read the `birth` field and `fi_FI.individ`, which holds a digit of each `fi_FI.sex`'s parity:
-`{/fi_FI.henkilotunnus.birth}{hetu(s.individ.digit)}`.
+control character, and renders nothing in the cases the Functions table lists. A fixture of a few
+thousand rows starts to repeat a number, and a `UNIQUE` column needs a category of your own.
+
+`fi_FI.individ`, under `sex`, holds one digit of each sex's parity. To make a number agree with a
+bound sex, read the `birth` field of `fi_FI.henkilotunnus`, the date, then `{hetu(x)}` with the digit
+that `individ` gives:
+
+```json
+{ "format": "{first} {last}, {hetu}",
+  "first": "{/fi_FI.sex as s}{s.first-name}",
+  "last": "{/fi_FI.last-name}",
+  "hetu": "{/fi_FI.henkilotunnus.birth}{hetu(s.individ.digit)}" }
+```
+
+Renders e.g. `Eila Kirjavainen, 260163-9405`.
 
 `da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
@@ -1428,7 +1444,7 @@ time-based id takes its timestamp from the rng, not the clock. `born` also reads
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
 | `{cpr(x)}` | derivation | completes a Danish CPR number after the last six digits emitted, its date, with a seventh digit that the CPR office's table of century digits allows for the year, an eighth and a ninth digit it picks, and the check digit, whose parity is that of the digit `x` reads; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1858 to 2057, renders nothing |
-| `{hetu(x)}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number of the parity of the digit `x` reads, from 002 to 899, and the control character; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
+| `{hetu(x)}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number from 900 to 999 of the parity of the digit `x` reads, and the control character; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
 | `{bgmod11(x)}` | derivation | a random digit, then the check digit, that complete the digits emitted so far in this expansion to a number Bankgirot's 11-modul accepts: its digits, weighted 1 to 10 from the right and then 1 again, sum to a multiple of 11; the literal digits `x` count as coming first and are not printed (`0` for none) |
 | `{digits(n)}` | sample | `n` digits 0–9 |
 | `{upper(n)}`, `{lower(n)}` | sample | `n` letters A–Z, a–z |

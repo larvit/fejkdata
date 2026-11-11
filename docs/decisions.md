@@ -970,6 +970,34 @@ fixture authors picked the spellings. All four chose `cpr` for the path and `{cp
 function, since Danes write it, and all four chose `individ` over `parity` for the table, the
 name `nb_NO` uses for the same job.
 
+## The Finnish id draws DVV's unissued 900 to 999
+
+2026-11-12, Lilleman auf Larv.
+
+Goal 3 (a valid id passes the check the real system applies) and goal 3.3 (a form that reaches
+nothing real) are both served. DVV's page "Personal identity code" says the individual numbers
+issued are 002 to 899, and the test table linked from "Reform of personal identity code" holds
+hypothetical codes with 902 to 904. So `fi_FI.henkilotunnus` draws 900 to 999, 50 of each
+parity, and no drawn code is a living person's. Vero's API guidance calls codes whose ending
+starts with 9 synthetic ("keinohenkilötunnuksia") that may take extra checks, so a checker may
+refuse them; the README says so, as it does for the fødselsnummer. This follows the Swedish and
+Norwegian ids, which draw an issuer's test series, and not the Danish, whose office publishes
+none.
+
+Valid while DVV issues no number from 900. A variant over 002 to 899 is a later item.
+
+The control character, the century signs and the parity of the individual number are DVV's. The
+sign is the latest year not after today that bears the year digits, as `{cpr(x)}` takes its
+century, and a year outside 1800 to 2099 renders nothing. The date is two bands, born 0 to 64 and
+65 to 99, weighted by Statistics Finland's population aged 65 or over at the end of 2025, drawn
+evenly within a band.
+
+Fresh-context readers seated as the README's hand fixture, Go test, validator-facing and bulk
+fixture authors picked the spellings. `henkilotunnus` won three of four for the path, and `hetu`
+all four for the function, since Finns write it. The validator-facing author would have named
+the series in the path, and the bulk fixture author argued against; Skatteverket's test series
+sets the precedent of a plain name with the series documented.
+
 ## The US given names come from a mirror of the SSA file
 
 2026-09-18, Lilleman auf Larv.
