@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Publish the release that CHANGELOG.md's top heading names, tagging SHA.
 
-A heading is `## Unreleased` or `## 0.5.0 - 2026-11-20`. The releases cut before 0.5.0 are headed `## [0.4.0] - 2026-11-10`,
-brackets and all, and still read. A top heading of Unreleased, or a version already released, publishes nothing.
-`publish_release.py check` fails on each `## ` heading it can't read.
+A heading is `## Unreleased` or `## 0.5.0 - 2026-11-20`. The headings of the releases up to 0.4.0 have brackets, as in
+`## [0.4.0] - 2026-11-10`, and are read too. A top heading of Unreleased, or a version already released, publishes nothing.
+`publish_release.py check` fails on each heading it can't read.
 Env: FORGE_API_URL, FORGE_REPOSITORY (owner/repo), FORGE_TOKEN, SHA, and GITHUB_OUTPUT,
 to which it appends `tag=vX.Y.Z` when it publishes a release.
 """
@@ -18,7 +18,9 @@ import urllib.request
 SECTION = re.compile(r"^## \[?(?P<name>[^\]\s]+)\]?[^\n]*\n?(?P<body>.*?)(?=^## |\Z)", re.M | re.S)
 """A changelog section: its heading's name, Unreleased or a version, and its body."""
 VERSION = re.compile(r"\d+\.\d+\.\d+")
-READABLE = re.compile(rf"## (?:\[(?:Unreleased|{VERSION.pattern})\]|Unreleased|{VERSION.pattern})(?: - \d{{4}}-\d{{2}}-\d{{2}})?")
+HEADING = re.compile(r" {0,3}##(?=[ \t]|$)")
+"""A line a Markdown renderer shows as a second-level heading."""
+READABLE = re.compile(rf"## (?:\[(?:Unreleased|{VERSION.pattern})\]|Unreleased|{VERSION.pattern})(?: - \d{{4}}-\d{{2}}-\d{{2}})?[ \t]*")
 
 
 def request(path: str, data: dict | None = None):
@@ -68,8 +70,8 @@ def publish(changelog: str, sha: str) -> tuple[int, str | None]:
 
 
 def unreadable_headings(changelog: str) -> list[str]:
-	"""Each `## ` line of the changelog that is not Unreleased or a version, as a heading of the section above reads it."""
-	return [line for line in changelog.splitlines() if line.startswith("## ") and not READABLE.fullmatch(line)]
+	"""Each line of the changelog that renders as a heading but is not Unreleased or a version, with its date where it has one."""
+	return [line for line in changelog.splitlines() if HEADING.match(line) and not READABLE.fullmatch(line)]
 
 
 def github_output(line: str) -> None:
@@ -78,9 +80,12 @@ def github_output(line: str) -> None:
 
 
 def main(argv: list[str]) -> int:
+	if argv not in ([], ["check"]):
+		print("usage: publish_release.py [check]", file=sys.stderr)
+		return 2
 	with open("CHANGELOG.md", encoding="utf-8") as f:
 		changelog = f.read()
-	if argv == ["check"]:
+	if argv:
 		bad = unreadable_headings(changelog)
 		for line in bad:
 			print(f"CHANGELOG.md heading `{line}` is neither `## Unreleased` nor `## X.Y.Z - YYYY-MM-DD`", file=sys.stderr)
