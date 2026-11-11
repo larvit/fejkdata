@@ -14,15 +14,12 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 414 | 0.5.0 |  |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 417 | 0.5.0 | 414 |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
-| 418 | 0.5.0 |  |  | **Move compile, bind, link and resolve into `internal/engine/load`.** | 4 | 1 | 2 | 5 | 6 | code health by 5 | 2.7 |
-| 416 | 0.5.0 |  |  | **Move rendering into `internal/engine/render`.** | 4 | 1 | 2 | 5 | 7 | code health by 5 | 1.4 |
-| 107 | 0.5.0 | 416, 417, 418 | decision | **Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
+| 107 | 0.5.0 | 417 | decision | **Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
 | 177 | 0.5.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
 | 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
-| 420 | 0.5.0 |  |  | **Give `tree`'s constructors named arguments, set each getter beside its type, and make its docs stand inside the package.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 303 | 0.5.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.8 |
@@ -236,17 +233,9 @@ It widens two fences. Today a calc refuses an operand that is never a number onl
 
 Files: `valueproof.go`, `datatype.go`, `namefence.go`, `columnread.go`, `where.go`, `adddays.go`, `resolve.go`, `struct.go`, `imports_test.go`, `docs/decisions.md`; about 700 moved lines. `fence` imports `load`, since the fences call `load.RenderEdges`, `load.Contained`, `load.ChildNamed`, `load.NamedReads`, `load.CompilePath` and `load.LengthEnds`. It comes after 415, since the fences read the node types from `tree`, and after 414, so the calc proof moves once, as `valueProof`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
-### 418. Move compile, bind, link and resolve into `internal/engine/load`.
-
-Files: `node.go`, `format.go`, `arm.go`, `name.go`, `resolve.go`, `reference.go`, `table.go`, `adddays.go`, `calc.go`, `graph.go`, `record.go`, `inline.go`, `struct.go`, `imports_test.go`; about 1200 moved lines. It comes after 415, since load builds the node types `tree` holds. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
-
-### 416. Move rendering into `internal/engine/render`.
-
-Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go`, `reword.go`, `record.go`, `imports_test.go`; about 900 moved lines. A cross-reference of the root package measures more: the render files hold load-time code that `arm.go`, `format.go`, `namefence.go`, `resolve.go`, `reference.go`, `node.go`, `data.go`, `graph.go` and `fejkdata.go` call, which splits out or stays behind; render calls root helpers that turn exported; and its lazy loading through `batch.run`, `pipeline.run` and `loadCallerPath` needs a new seam back into the root, so about 20 files and well over 1000 changed lines. It comes after 415, since render reads the node types from `tree`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
-
 ### 107. Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.
 
-The engine returns column values and the root builds `Record`. Files: `data.go`, `index.go`, `resolve.go`, `table.go`, `fejkdata.go`, `record.go`, `struct.go`, `doc.go`, `imports_test.go`, `docs/decisions.md`; about 600 lines. It comes last, after 416, 417 and 418, since the pipeline imports the three stages. It decides where the vocabulary lives, and revises the decision "The vocabulary sits below `doc.go`'s package clause, not in the package doc" if it moves. It replaces the decision "The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, …" with one stating what holds after the cuts. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+The engine returns column values and the root builds `Record`. Files: `data.go`, `index.go`, `resolve.go`, `table.go`, `fejkdata.go`, `record.go`, `struct.go`, `doc.go`, `imports_test.go`, `docs/decisions.md`; about 600 lines. It comes last, after 417, since the pipeline imports the three stages. It decides where the vocabulary lives, and revises the decision "The vocabulary sits below `doc.go`'s package clause, not in the package doc" if it moves. It replaces the decision "The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, …" with one stating what holds after the cuts. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 177. Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.
 
@@ -265,16 +254,6 @@ The tooling then reads and writes the bare spelling. It still reads the brackete
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
-
-### 420. Give `tree`'s constructors named arguments, set each getter beside its type, and make its docs stand inside the package.
-
-From the paired comprehension ruling of the PR that moved the node types into `internal/engine/tree`: both seats ruled Shape worse than the base, which set a node's fields by name.
-
-- Constructors: `tree.NewValueDraw` (called at `where.go:246` `newValueDraw`) takes nine positional arguments, a bare bool `filters`, and the pair `lo, hi` of one type, which still compiles when swapped. `tree.NewAlphabetDraw` (a bare `w.Else == nil`), `tree.NewColumnRead` (adjacent `category, field` strings) and `tree.NewPathStep(tree.StepDraw, at, "", 0)` lose their names the same way. Give each a form whose call site names what it sets, such as a struct of fields, so a swap no longer compiles silently. Where the change touches `lengthEnd`, make `where.go:635` `proveEveryDrawPasses` easier to read too, which the seats found hard: say why `lo` takes the name's upper bound, and name the `-1` sentinel.
-- Getters: about a hundred one-line getters sit alphabetically at the bottom of each `tree` file (`internal/engine/tree/node.go:134` and the like), away from their type, all with receiver `r` while the type's other methods use `t`, `sc` or `b`. Set each beside its type, with that type's receiver name. Some return live maps and slices: `Folder.Children()` is shared into `Table.SetSiblings` by the root's `linkTables`. Either return a copy, or state at the package doc that another package changes a node only through those methods for scalar fields, and that a returned map or slice is shared.
-- Docs: `PickKey` (`tree/pick.go:3`), `ColumnRead` (`tree/columnread.go:3`), `LoadFinds` (`tree/loadfinds.go:7`) and `tree/arm.go:22` and `:52` explain themselves through root-package functions a reader of `tree` can't reach, such as `landsInPick`, `checkColumns`, `bindNames` and `expand`. Say what each holds in `tree`'s own terms. `where.go:434` `holding` cites `v.texts`, a field `ValueDraw` no longer has; fix it.
-
-Items 416, 417 and 418 move render, fence and load out of the root and rewrite these constructors' call sites. Any of them may take this item in; land it before or with the first of them, so the call sites move once.
 
 ### 301. Add `fi_FI.phone`, drawn from Finland's numbering plan.
 
