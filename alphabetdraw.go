@@ -15,7 +15,7 @@ func newAlphabetDraw(o *tree.Op) (*tree.AlphabetDraw, error) {
 	tok := o.Token()
 	w := tok.Where
 	runs, _ := builtinfunc.Runs(tok.Fn, tok.Args)
-	quoted := patterns(runs.Len(), w.Not, nonEmpty(w.NotContaining))
+	quoted := avoid.Patterns(runs.Len(), w.Not, nonEmpty(w.NotContaining))
 	var plan *avoid.Plan
 	if len(quoted) > 0 {
 		if plan = avoid.Compile(runs, quoted); plan == nil {
@@ -35,21 +35,9 @@ func newAlphabetDraw(o *tree.Op) (*tree.AlphabetDraw, error) {
 	}), nil
 }
 
-// patterns is what a value n bytes long must not hold: each of not that is n bytes long, which a
-// value holds only by equalling it, and each of containing.
-func patterns(n int, not, containing []string) []string {
-	var out []string
-	for _, s := range not {
-		if len(s) == n {
-			out = append(out, s)
-		}
-	}
-	return append(out, containing...)
-}
-
 func drawAlphabet(d *tree.AlphabetDraw, s *drawstate.State, env renderEnv, emitted string) string {
 	not, containing := readClauseStrings(d.Strings(), s, env)
-	read := patterns(d.Runs().Len(), not, containing)
+	read := avoid.Patterns(d.Runs().Len(), not, containing)
 	switch {
 	case len(read) > 0:
 		plan := avoid.Compile(d.Runs(), append(read, d.Quoted()...))

@@ -1,7 +1,11 @@
 // Package avoid draws a value made of fixed runs of characters that holds none of a set of strings.
 package avoid
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"slices"
+	"strings"
+)
 
 // Run is N characters, each one byte of Alphabet.
 type Run struct {
@@ -226,4 +230,21 @@ func (b bitset) key() (key string) {
 		buf = binary.LittleEndian.AppendUint64(buf, w)
 	}
 	return string(buf)
+}
+
+// Patterns is what a value n bytes long must not hold: each of not that is n bytes long, which a
+// value holds only by equalling it, and each of containing.
+func Patterns(n int, not, containing []string) []string {
+	var out []string
+	for _, s := range not {
+		if len(s) == n {
+			out = append(out, s)
+		}
+	}
+	return append(out, containing...)
+}
+
+// HoldsAny is whether text holds any of patterns.
+func HoldsAny(text string, patterns []string) bool {
+	return slices.ContainsFunc(patterns, func(p string) bool { return strings.Contains(text, p) })
 }

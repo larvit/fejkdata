@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/larvit/fejkdata/internal/avoid"
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -248,7 +249,7 @@ func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar
 	var kept []weightedText
 	containing := nonEmpty(where.NotContaining)
 	for _, value := range values {
-		if !slices.Contains(where.Not, value.text) && !holdsAny(value.text, containing) {
+		if !slices.Contains(where.Not, value.text) && !avoid.HoldsAny(value.text, containing) {
 			kept = append(kept, value)
 		}
 	}
@@ -445,7 +446,7 @@ func holding(v *tree.ValueDraw, s *drawstate.State, env renderEnv, from, to int)
 	}
 	var out []int
 	for i := from; i < to; i++ {
-		if slices.Contains(not, v.Index().Texts()[i]) || holdsAny(v.Index().Texts()[i], containing) {
+		if slices.Contains(not, v.Index().Texts()[i]) || avoid.HoldsAny(v.Index().Texts()[i], containing) {
 			out = append(out, i)
 		}
 	}
@@ -469,10 +470,6 @@ func readClauseStrings(r tree.ReadStrings, s *drawstate.State, env renderEnv) (n
 // nonEmpty is texts without the empty string, which every value holds.
 func nonEmpty(texts []string) []string {
 	return slices.DeleteFunc(slices.Clone(texts), func(t string) bool { return t == "" })
-}
-
-func holdsAny(text string, of []string) bool {
-	return slices.ContainsFunc(of, func(s string) bool { return strings.Contains(text, s) })
 }
 
 func lengthEndAt(e tree.LengthEnd, s *drawstate.State, env renderEnv) int {
