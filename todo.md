@@ -19,7 +19,10 @@
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
+| 422 | 0.5.0 |  |  | **Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 426 | 0.5.0 |  |  | **Say at `builtinfunc.CalcName` that `internal/engine/fence` proves `calc`'s operands.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 3.9 |
+| 421 | 0.5.0 |  | owner | **Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.** | 4 | 2 | 2 | 6 | 7 | code health by 8 | 2.3 |
+| 423 | 0.5.0 | 421 |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 428 | 0.5.0 |  |  | **Give the README's Development section a heading that lists, in order, what a pull request adding a locale ships.** | 1 | 2 | 1 | 2 | 2 | 11 by 4 | 2.3 |
 | 303 | 0.5.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
@@ -32,9 +35,6 @@
 | 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 3 | 2 | 1 | 4 | 7 | code health by 2 | 0.6 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
-| 422 | 0.6.0 |  |  | **Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
-| 421 | 0.6.0 |  | owner | **Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.** | 4 | 2 | 2 | 6 | 7 | code health by 8 | 2.3 |
-| 423 | 0.6.0 | 421 |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 328 | 0.6.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 324 | 0.6.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
@@ -253,9 +253,37 @@ The tooling then reads and writes the bare spelling. It still reads the brackete
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
+### 422. Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.
+
+A Locality lift beside item 421, from item 177's scoring run at 3f909f1. Today a template's findings live in `tree/loadfinds.go:52` `LoadFinds.Of` until `:120` `Finish` writes them into the node, and the getters at `tree/name.go:55-73`, such as `Addressed`, `Target` and `Values`, dereference `finds` and panic when called early. Callers mix `l.Of(t)`, `t.Compiled()` and the nil form, so a reader must know where `pipeline.run` stands (mid). A stage reads through `l` before `Finish` and through the node after it (junior). Afterwards one of two holds: the before and after phases are separate types, so an early read does not compile; or each getter checks one named invariant and its failure names the phase. Make `LoadFinds.Of`, `Finish` and the getters easier to read; each caller reads findings one way.
+
 ### 426. Say at `builtinfunc.CalcName` that `internal/engine/fence` proves `calc`'s operands.
 
 `internal/builtinfunc/builtinfunc.go:47` says package fejkdata checks and proves them, since only it holds the nodes they read; the proof moved to `internal/engine/fence`.
+
+### 421. Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.
+
+The scoring run of item 177 at 3f909f1 measured Locality at 5.63, the lowest dimension and under the floor, and every seat found named picks and name fences the hardest cluster. This item takes the fence half of it; items filed beside it take the `LoadFinds` phase and the render half. Behaviour does not change: every test keeps its expected values.
+
+In scope, and only this:
+
+- One edge list. `render/render.go:32` `render` draws a node's children, `load/graph.go:99` `RenderEdges` lists them again, and `fence/namefence.go:137` `walkRoutes` walks them a third time, held in step by a comment and a render-time panic. The greenfield architect, the inherited architect, the extender senior and the maintainability senior each named it the most dangerous trap: a child drawn but not listed silently misses a fence. Afterwards the three read one list, so a child missing from it is missing from all three, and a test fails. The inherited architect of the 7d2b3a5 run also named `paths`, `valueProof.prove`, `compileItem` and `drawSteps` as lists of the same children; move each onto the list where it lists the same edges, and leave it where it walks something else.
+- Split `fence/namefence.go`, about 590 lines that hold the route walk (`checkNameReads` :16, `walkRoutes` :137) beside five refusal rules (`refuseTwiceDrawn` :267, `refuseDrawnApart` :338 with `sharedDraw` :366, `refuseSkippedItem` :397, `refuseFreshDraw` :430, `refuseKeptAndFreshField` :517). `checkNameRead` :39 then reads as the list of rules it applies, in order, and says why that order. Seats' places to make easier to read: `checkNameRead`, five refusals held in mind at once with route kinds, pick levels and addressed keys (junior, mid); `sharedDraw`, five ordered cases whose order is the logic, with nothing saying why (maintainability senior, and both 7d2b3a5 runs); `refuseFreshDraw`, the same key arithmetic as `readAddressing` and `rendersField` (maintainability senior), and the README's "Refused at `New`" list it implements, with neither linking the other; `refuseKeptAndFreshField`, three nested loops and a nine-argument error.
+
+Out of scope: `tree/pick.go:80` `LandsInPick` and the render side of a named pick, which the item on the named-pick state takes after this one.
+
+### 423. Shrink the state a reader holds to follow a named pick through render to what one function and its type show.
+
+The render half of the named-pick cluster that every seat of item 177's scoring run at 3f909f1 found hardest; item 421 takes the fence half first, since its rules call `LandsInPick` too. Behaviour does not change: every test keeps its expected values and seeded output.
+
+The places, each to make easier to read:
+
+- `render/pick.go:128` `readName` enters, marks and pops frames across `drawMemo` and a `renderEnv` passed by value, whose `frameStack` sits behind a pointer, so which of the env's fields a call changes can't be seen at the call site (junior, mid, maintainability senior).
+- `render/env.go:76` `enter`, with `renderFrame` and `frameOf` beside it, is where that sharing happens.
+- `tree/pick.go:80` `LandsInPick`: a named read keys its levels from `""` and a fresh one from its head moved under `at.Under`, and an off-by-one in `NamedLevels` or `FreshLevels` changes what a pick keeps at load and at render alike (junior, mid).
+- `render/path.go:26` `drawSteps`: seven parameters and three modes, with `climbed` carrying `..` across the loop and `memo.stepDownPins` across steps (junior).
+
+Afterwards a call that changes the frames says so in its signature, the key alignment is one rule both load and render call, and `drawSteps`' modes are named where its callers choose one.
 
 ### 301. Add `fi_FI.phone`, drawn from Finland's numbering plan.
 
@@ -298,34 +326,6 @@ The principles pass of the release review of 0.4.0 found that the test files hol
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
-
-### 422. Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.
-
-A Locality lift beside item 421, from item 177's scoring run at 3f909f1. Today a template's findings live in `tree/loadfinds.go:52` `LoadFinds.Of` until `:120` `Finish` writes them into the node, and the getters at `tree/name.go:55-73`, such as `Addressed`, `Target` and `Values`, dereference `finds` and panic when called early. Callers mix `l.Of(t)`, `t.Compiled()` and the nil form, so a reader must know where `pipeline.run` stands (mid). A stage reads through `l` before `Finish` and through the node after it (junior). Afterwards one of two holds: the before and after phases are separate types, so an early read does not compile; or each getter checks one named invariant and its failure names the phase. Make `LoadFinds.Of`, `Finish` and the getters easier to read; each caller reads findings one way.
-
-### 421. Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.
-
-The scoring run of item 177 at 3f909f1 measured Locality at 5.63, the lowest dimension and under the floor, and every seat found named picks and name fences the hardest cluster. This item takes the fence half of it; items filed beside it take the `LoadFinds` phase and the render half. Behaviour does not change: every test keeps its expected values.
-
-In scope, and only this:
-
-- One edge list. `render/render.go:32` `render` draws a node's children, `load/graph.go:99` `RenderEdges` lists them again, and `fence/namefence.go:137` `walkRoutes` walks them a third time, held in step by a comment and a render-time panic. The greenfield architect, the inherited architect, the extender senior and the maintainability senior each named it the most dangerous trap: a child drawn but not listed silently misses a fence. Afterwards the three read one list, so a child missing from it is missing from all three, and a test fails. The inherited architect of the 7d2b3a5 run also named `paths`, `valueProof.prove`, `compileItem` and `drawSteps` as lists of the same children; move each onto the list where it lists the same edges, and leave it where it walks something else.
-- Split `fence/namefence.go`, about 590 lines that hold the route walk (`checkNameReads` :16, `walkRoutes` :137) beside five refusal rules (`refuseTwiceDrawn` :267, `refuseDrawnApart` :338 with `sharedDraw` :366, `refuseSkippedItem` :397, `refuseFreshDraw` :430, `refuseKeptAndFreshField` :517). `checkNameRead` :39 then reads as the list of rules it applies, in order, and says why that order. Seats' places to make easier to read: `checkNameRead`, five refusals held in mind at once with route kinds, pick levels and addressed keys (junior, mid); `sharedDraw`, five ordered cases whose order is the logic, with nothing saying why (maintainability senior, and both 7d2b3a5 runs); `refuseFreshDraw`, the same key arithmetic as `readAddressing` and `rendersField` (maintainability senior), and the README's "Refused at `New`" list it implements, with neither linking the other; `refuseKeptAndFreshField`, three nested loops and a nine-argument error.
-
-Out of scope: `tree/pick.go:80` `LandsInPick` and the render side of a named pick, which the item on the named-pick state takes after this one.
-
-### 423. Shrink the state a reader holds to follow a named pick through render to what one function and its type show.
-
-The render half of the named-pick cluster that every seat of item 177's scoring run at 3f909f1 found hardest; item 421 takes the fence half first, since its rules call `LandsInPick` too. Behaviour does not change: every test keeps its expected values and seeded output.
-
-The places, each to make easier to read:
-
-- `render/pick.go:128` `readName` enters, marks and pops frames across `drawMemo` and a `renderEnv` passed by value, whose `frameStack` sits behind a pointer, so which of the env's fields a call changes can't be seen at the call site (junior, mid, maintainability senior).
-- `render/env.go:76` `enter`, with `renderFrame` and `frameOf` beside it, is where that sharing happens.
-- `tree/pick.go:80` `LandsInPick`: a named read keys its levels from `""` and a fresh one from its head moved under `at.Under`, and an off-by-one in `NamedLevels` or `FreshLevels` changes what a pick keeps at load and at render alike (junior, mid).
-- `render/path.go:26` `drawSteps`: seven parameters and three modes, with `climbed` carrying `..` across the loop and `memo.stepDownPins` across steps (junior).
-
-Afterwards a call that changes the frames says so in its signature, the key alignment is one rule both load and render call, and `drawSteps`' modes are named where its callers choose one.
 
 ### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
 
