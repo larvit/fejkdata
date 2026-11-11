@@ -176,10 +176,10 @@ func isName(t *tree.Template, head string, l *tree.LoadFinds) bool {
 	return !grammar.IsRef(head) && t.Fields()[head] == nil && l.Of(t).NameScope().Lookup(head) != nil
 }
 
-// namedReadAt is one read of a name in a format: the op holding it, and the compiled arm.
+// namedReadAt is one read of a name in a format: the op holding it, and the compiled read.
 type namedReadAt struct {
-	Op  *tree.Op
-	Arm *tree.Arm
+	Op   *tree.Op
+	Read *tree.Read
 }
 
 // NamedReads is every read of a name t's format makes, in format order.
@@ -188,9 +188,9 @@ func NamedReads(t *tree.Template, l *tree.LoadFinds) []namedReadAt {
 	var out []namedReadAt
 	for i := range ops {
 		o := &ops[i]
-		for _, a := range o.Reads() {
+		for _, a := range o.AllReads() {
 			if a.Kind() == tree.NamedRead {
-				out = append(out, namedReadAt{Op: o, Arm: a})
+				out = append(out, namedReadAt{Op: o, Read: a})
 			}
 		}
 	}
@@ -198,11 +198,11 @@ func NamedReads(t *tree.Template, l *tree.LoadFinds) []namedReadAt {
 }
 
 // ReadsOfNames is every read of each name in ts, in the order ts lists them.
-func ReadsOfNames(ts []TemplateSite, l *tree.LoadFinds) map[*tree.NameBinding][]*tree.Arm {
-	reads := map[*tree.NameBinding][]*tree.Arm{}
+func ReadsOfNames(ts []TemplateSite, l *tree.LoadFinds) map[*tree.NameBinding][]*tree.Read {
+	reads := map[*tree.NameBinding][]*tree.Read{}
 	for _, s := range ts {
 		for _, r := range NamedReads(s.Template, l) {
-			reads[r.Arm.Named()] = append(reads[r.Arm.Named()], r.Arm)
+			reads[r.Read.Named()] = append(reads[r.Read.Named()], r.Read)
 		}
 	}
 	return reads

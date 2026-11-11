@@ -9,7 +9,7 @@ import (
 )
 
 // keptInPick is tree.LandsInPick for a read rendering in env; with no pick in env it is false.
-func keptInPick(env renderEnv, a tree.Arm) bool {
+func keptInPick(env renderEnv, a tree.Read) bool {
 	if env.pick == nil {
 		return false
 	}
@@ -17,8 +17,8 @@ func keptInPick(env renderEnv, a tree.Arm) bool {
 	return kept
 }
 
-// readUnder reads a, an arm of t kept in env.pick, once per pick, keyed by a's key under env.pickAt.
-func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Arm) readValue {
+// readUnder reads a, a read of t kept in env.pick, once per pick, keyed by a's key under env.pickAt.
+func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
 	p, key := env.pick, env.pickAt.Under(a.Key())
 	if r, done := p.memo.value[key]; done {
 		return r
@@ -118,14 +118,14 @@ func (m *drawMemo) enteredFrame(scope *tree.NameScope) *pickFrame {
 	return f
 }
 
-// readName reads the arm a from the pick of its name, held in the frame of the name's scope.
+// readName reads the read a from the pick of its name, held in the frame of the name's scope.
 // When the pick renders another category, enter takes that category's frames from the pick's
 // memo, and renderFrame finds them and opens no new one. enter pushes those frames above mark,
 // and popping to mark after the render leaves the frames as the read found them.
 // So every read through one pick sees one pick of each name the other category binds:
 // {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l
 // that geo.SE.address binds.
-func readName(s *drawstate.State, env renderEnv, a tree.Arm) readValue {
+func readName(s *drawstate.State, env renderEnv, a tree.Read) readValue {
 	f := env.frameOf(a.Named().Scope())
 	if f == nil {
 		panic(invariant.Broken("name %q is read where no frame of its scope renders", a.Named().Name()))

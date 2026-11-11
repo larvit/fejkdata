@@ -14,7 +14,7 @@ type NodeSet = func(fn func(label string, n tree.Node) error) error
 // resolvedNames is what the name fences read about the names of a set of finished templates.
 // places caches pathTo: per starting node, the fields leading down from it to each node below. fresh is each binding's freshFieldReads.
 type resolvedNames struct {
-	reads  map[*tree.NameBinding][]*tree.Arm
+	reads  map[*tree.NameBinding][]*tree.Read
 	places map[tree.Node]map[tree.Node][]string
 	fresh  map[*tree.NameBinding]map[tree.PickKey][]fieldRead
 }

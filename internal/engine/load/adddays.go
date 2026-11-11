@@ -8,7 +8,7 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-func addDaysLayout(d tree.Arm, l *tree.LoadFinds) (string, error) {
+func addDaysLayout(d tree.Read, l *tree.LoadFinds) (string, error) {
 	layout, why := dateLayout(d.Leaves(), l, map[tree.Node]bool{})
 	switch {
 	case why != "":
@@ -57,7 +57,7 @@ func nodeDateLayout(n tree.Node, l *tree.LoadFinds, seen map[tree.Node]bool) (st
 			return "", fmt.Sprintf("it renders {%s}; add both offsets in one adddays", o.Token().Body)
 		case o.Token().Kind == grammar.PathRead:
 			var leaves []tree.Node
-			for _, a := range o.Arms() {
+			for _, a := range o.Reads() {
 				leaves = append(leaves, a.Leaves()...)
 			}
 			return dateLayout(leaves, l, seen)

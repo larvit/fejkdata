@@ -103,7 +103,7 @@ func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 		case o.Draw() != nil:
 			b.WriteString(drawToken(s, t, env, o.Draw(), b.String()))
 		case tok.Kind == grammar.PathRead:
-			b.WriteString(readField(s, t, env, o.Arms()[s.IntN(len(o.Arms()))]).text)
+			b.WriteString(readField(s, t, env, o.Reads()[s.IntN(len(o.Reads()))]).text)
 		case tok.Kind == grammar.BuiltinCall:
 			var operands []string
 			if len(o.Operands()) > 0 {
@@ -118,12 +118,12 @@ func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 	return b.String()
 }
 
-// readField renders one arm of a token. A read is kept in a name's pick when it reads the name, or
+// readField renders one read of a token. A read is kept in a name's pick when it reads the name, or
 // a level that a read of the name being rendered addresses; every other read draws afresh, so
 // {word} {word} draws twice and {p.a} {p.b} reads two draws of p.
 // A fresh read clears env.pick, which stops a read nested in it from keying the pick's memo under
 // env.pickAt and sharing a value with another node at that key; a reference's read clears it in enter.
-func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Arm) readValue {
+func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
 	switch {
 	case a.Kind() == tree.NamedRead:
 		return readName(s, env, a)

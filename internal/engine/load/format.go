@@ -65,7 +65,7 @@ func checkToken(t grammar.Token, fields map[string]tree.Node) ([]tree.UnboundRea
 	return nil, nil
 }
 
-// checkReads proves that each spelling t reads (its arms, its builtin's operands and its clause's) is a reference or a path into a field. It returns the reads whose head no field holds.
+// checkReads proves that each spelling t reads (its alternatives, its builtin's operands and its clause's) is a reference or a path into a field. It returns the reads whose head no field holds.
 func checkReads(t grammar.Token, fields map[string]tree.Node, operands bool) ([]tree.UnboundRead, error) {
 	own, clause := tokenReads(t)
 	wholeToken := !operands && len(own)+len(clause) == 1
@@ -96,7 +96,7 @@ func checkRead(t grammar.Token, spelling string, fields map[string]tree.Node, wh
 		}
 		return nil, nil // resolveRefs checks its target once the tree is assembled
 	}
-	missing, err := checkArm(spelling, fields, wholeToken)
+	missing, err := checkFieldRead(spelling, fields, wholeToken)
 	switch {
 	case err == nil:
 		return nil, nil
@@ -137,18 +137,18 @@ func checkBound(ref string, fields map[string]tree.Node) error {
 		_, _, err := grammar.RefShape(ref)
 		return err
 	}
-	missing, err := checkArm(ref, fields, false)
+	missing, err := checkFieldRead(ref, fields, false)
 	if missing {
 		return fmt.Errorf("%w; a binding names a field, or a reference, which starts with /, . or ..", err)
 	}
 	return err
 }
 
-// checkArm validates one read of a sibling field against a template's fields.
+// checkFieldRead validates one read of a sibling field against a template's fields.
 // wholeToken says the spelling is the token's entire body, so {/name} would render
 // the same value and can be offered as the reference spelling. missing says no
 // field holds the head, which a name may yet answer.
-func checkArm(spelling string, fields map[string]tree.Node, wholeToken bool) (missing bool, err error) {
+func checkFieldRead(spelling string, fields map[string]tree.Node, wholeToken bool) (missing bool, err error) {
 	a := splitRead(spelling, nil)
 	if err := checkSegments(a); err != nil {
 		return false, err
@@ -176,7 +176,7 @@ func checkArm(spelling string, fields map[string]tree.Node, wholeToken bool) (mi
 	return false, nil
 }
 
-// tokenReads lists the spellings t reads: own, a read's arms or the operands a call's builtin reads,
+// tokenReads lists the spellings t reads: own, a token's alternatives or the operands a call's builtin reads,
 // and clause, the spellings its where clause reads.
 func tokenReads(t grammar.Token) (own []string, clause []clauseSpelling) {
 	own = t.Arms
@@ -188,24 +188,24 @@ func tokenReads(t grammar.Token) (own []string, clause []clauseSpelling) {
 
 // compileFormat compiles t's parsed format against its resolved references and its names'
 // targets; a {ref as n} token compiles to no op, and a bind with a where or distinct clause to an
-// op that expand skips, holding the arms its where clause reads. It leaves each op's call and draw to
+// op that expand skips, holding the reads of its where clause. It leaves each op's call and draw to
 // newOp. checkTokens proved every token valid.
 func compileFormat(t *tree.Template, l *tree.LoadFinds) (tree.FormatOps, error) {
 	var ops []tree.Op
 	grow := 0
 	for _, tok := range t.Tokens() {
-		var arms, operands, clause []tree.Arm
+		var alternatives, operands, clause []tree.Read
 		var err error
 		switch tok.Kind {
 		case grammar.LiteralRun:
 			grow += len(tok.Lit)
 		case grammar.BuiltinCall:
-			operands, err = compileArms(t, builtinfunc.Operands(tok.Fn, tok.Args), l)
+			operands, err = compileReads(t, builtinfunc.Operands(tok.Fn, tok.Args), l)
 			if err == nil && tok.Where != nil {
 				clause, err = compileClauseNames(t, tok.Where, l)
 			}
 		case grammar.PathRead:
-			arms, err = compileArms(t, tok.Arms, l)
+			alternatives, err = compileReads(t, tok.Arms, l)
 			if err == nil && tok.Where != nil {
 				clause, err = compileClauseNames(t, tok.Where, l)
 			}
@@ -218,7 +218,7 @@ func compileFormat(t *tree.Template, l *tree.LoadFinds) (tree.FormatOps, error) 
 		if err != nil {
 			return tree.FormatOps{}, fmt.Errorf("token {%s}: %w", tok.Body, err)
 		}
-		ops = append(ops, tree.NewOp(tok, arms, operands, clause))
+		ops = append(ops, tree.NewOp(tok, alternatives, operands, clause))
 	}
 	return tree.NewFormatOps(ops, grow), nil
 }

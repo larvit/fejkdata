@@ -107,7 +107,7 @@ func RenderEdges(n tree.Node, l *tree.LoadFinds) []RenderEdge {
 	case *tree.Template:
 		var es []RenderEdge
 		for _, o := range l.Of(n).Compiled().Ops() {
-			for _, a := range o.Reads() {
+			for _, a := range o.AllReads() {
 				for _, leaf := range a.Leaves() {
 					es = append(es, RenderEdge{leaf, a.Spelling()})
 				}

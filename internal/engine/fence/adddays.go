@@ -23,8 +23,8 @@ func proveAddDays(label string, t *tree.Template) error {
 	return nil
 }
 
-func proveDayCount(n tree.Arm) error {
-	v := (&valueProof{}).proveArm(n)
+func proveDayCount(n tree.Read) error {
+	v := (&valueProof{}).proveRead(n)
 	switch {
 	case v.NotOperand != "":
 		return fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.Spelling(), v.NotOperand)

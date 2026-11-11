@@ -41,7 +41,7 @@ func checkSegments(r readSpelling) error {
 }
 
 // newOp returns parts whole: with its call, and with its draw where it has one. parts is an op whose
-// arms, operands and clause compileFormat built. An adddays call takes the one layout its date
+// alternatives, operands and clause compileFormat built. An adddays call takes the one layout its date
 // operand prints in, so every template's format must be compiled first.
 func newOp(t *tree.Template, parts tree.Op, l *tree.LoadFinds, words map[tree.WordsAt]*tree.WordList) (tree.Op, error) {
 	tok := parts.Token()
@@ -74,24 +74,24 @@ func newOp(t *tree.Template, parts tree.Op, l *tree.LoadFinds, words map[tree.Wo
 	return o.WithDraw(draw), nil
 }
 
-func compileArms(t *tree.Template, spellings []string, l *tree.LoadFinds) ([]tree.Arm, error) {
+func compileReads(t *tree.Template, spellings []string, l *tree.LoadFinds) ([]tree.Read, error) {
 	if len(spellings) == 0 {
 		return nil, nil
 	}
-	arms := make([]tree.Arm, len(spellings))
+	reads := make([]tree.Read, len(spellings))
 	for i, spelling := range spellings {
-		a, err := compileArm(t, spelling, l)
+		a, err := compileRead(t, spelling, l)
 		if err != nil {
 			return nil, err
 		}
-		arms[i] = a
+		reads[i] = a
 	}
-	return arms, nil
+	return reads, nil
 }
 
-// compileArm compiles one read into a path: from the head it names, or, for a read through a
+// compileRead compiles one read into a path: from the head it names, or, for a read through a
 // name, from what that name binds.
-func compileArm(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Arm, error) {
+func compileRead(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Read, error) {
 	tl := l.Of(t)
 	r := splitRead(spelling, tl.Refs().BySpelling())
 	if !isName(t, r.head, l) {
@@ -100,29 +100,29 @@ func compileArm(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Arm,
 			panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))
 		}
 		w := CompilePath(start, r.tail)
-		return tree.NewArm(r.text, r.head, r.tail, tree.FreshLevels(r.head, r.tail), w.steps, w.Leaves), nil
+		return tree.NewRead(r.text, r.head, r.tail, tree.FreshLevels(r.head, r.tail), w.steps, w.Leaves), nil
 	}
 	b := tl.NameScope().Lookup(r.head)
 	tail, member := r.tail, 0
 	if b.Distinct() != nil {
 		var err error
 		if member, err = memberRead(b, r); err != nil {
-			return tree.Arm{}, err
+			return tree.Read{}, err
 		}
 		tail = nil
 	} else if grammar.HasSelector(tail) {
 		if b.BindsField() {
-			return tree.Arm{}, fmt.Errorf("a path through name %q may not select a row; bind the row to a name of its own", r.head)
+			return tree.Read{}, fmt.Errorf("a path through name %q may not select a row; bind the row to a name of its own", r.head)
 		}
-		return tree.Arm{}, fmt.Errorf("a path through name %q may not select a row; read the row without the name, {%s}, or bind it to a name of its own", r.head, grammar.JoinSegments(append([]string{b.Ref()}, tail...)))
+		return tree.Read{}, fmt.Errorf("a path through name %q may not select a row; read the row without the name, {%s}, or bind it to a name of its own", r.head, grammar.JoinSegments(append([]string{b.Ref()}, tail...)))
 	}
 	target := l.Binding(b).Target()
 	full := append(target.Tail()[:len(target.Tail()):len(target.Tail())], tail...)
 	if err := provePath(target.Start(), full, r.head, len(target.Tail())); err != nil {
-		return tree.Arm{}, err
+		return tree.Read{}, err
 	}
 	w := CompilePath(target.Start(), full)
-	return tree.NewArm(r.text, r.head, tail, tree.NamedLevels(full), w.steps, w.Leaves).ThroughName(b, member), nil
+	return tree.NewRead(r.text, r.head, tail, tree.NamedLevels(full), w.steps, w.Leaves).ThroughName(b, member), nil
 }
 
 // memberRead is the member of b's distinct draw that a reads, counted from 1, or 0 where a reads them

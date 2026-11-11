@@ -15,8 +15,8 @@ import (
 func refuseFilteredTails(ts []load.TemplateSite) error {
 	for _, s := range ts {
 		for _, r := range load.NamedReads(s.Template, nil) {
-			if r.Arm.Named().Values() != nil && len(r.Arm.Tail()) > 0 {
-				return fmt.Errorf("%s: token {%s}: name %q holds a filtered draw, which is read whole: {%s}", s.Label, r.Op.Token().Body, r.Arm.Head(), r.Arm.Head())
+			if r.Read.Named().Values() != nil && len(r.Read.Tail()) > 0 {
+				return fmt.Errorf("%s: token {%s}: name %q holds a filtered draw, which is read whole: {%s}", s.Label, r.Op.Token().Body, r.Read.Head(), r.Read.Head())
 			}
 		}
 	}
@@ -48,7 +48,7 @@ func refuseSelfReads(ts []load.TemplateSite) error {
 	return nil
 }
 
-// selfRead walks what reading an arm draws, looking for a read of b.
+// selfRead walks what a read draws, looking for a read of b.
 type selfRead struct {
 	b     *tree.NameBinding
 	names map[*tree.NameBinding]bool
@@ -57,7 +57,7 @@ type selfRead struct {
 
 // reaches says whether reading a reads b: a name holding a filtered draw reads only its clause's
 // names, since its values are fixed at load; any other read renders its leaves.
-func (r selfRead) reaches(a tree.Arm) bool {
+func (r selfRead) reaches(a tree.Read) bool {
 	if a.Kind() == tree.NamedRead {
 		if a.Named() == r.b {
 			return true
@@ -83,7 +83,7 @@ func (r selfRead) reachesNode(n tree.Node) bool {
 		return slices.ContainsFunc(load.RenderEdges(n, nil), func(e load.RenderEdge) bool { return r.reachesNode(e.To) })
 	}
 	for _, o := range t.Compiled().Ops() {
-		if slices.ContainsFunc(o.Reads(), func(a *tree.Arm) bool { return r.reaches(*a) }) {
+		if slices.ContainsFunc(o.AllReads(), func(a *tree.Read) bool { return r.reaches(*a) }) {
 			return true
 		}
 	}
@@ -132,12 +132,12 @@ func drawLengthProof(o tree.Op) (lengthProof, bool) {
 // proveEveryDrawPasses refuses a draw that some render leaves with too few values: one where too few
 // values pass, or one whose length reads a name that may print a length too few values have.
 func (v lengthProof) proveEveryDrawPasses() error {
-	bounds := map[*tree.Arm][2]float64{}
+	bounds := map[*tree.Read][2]float64{}
 	for _, e := range []tree.LengthEnd{v.lo, v.hi} {
 		if e.Read() == nil {
 			continue
 		}
-		p := (&valueProof{}).proveArm(*e.Read())
+		p := (&valueProof{}).proveRead(*e.Read())
 		switch {
 		case p.NotOperand != "":
 			return fmt.Errorf("length %s is not always a whole number: %s", e.Read().Spelling(), p.NotOperand)
@@ -164,7 +164,7 @@ func (v lengthProof) proveEveryDrawPasses() error {
 // narrowest is the narrowest length lo to hi a render can read, given the bounds of what each
 // name read prints. Every render must pass, so the low end takes its name's highest value and the
 // high end its lowest, which may cross.
-func narrowest(lo, hi tree.LengthEnd, bounds map[*tree.Arm][2]float64) (float64, float64) {
+func narrowest(lo, hi tree.LengthEnd, bounds map[*tree.Read][2]float64) (float64, float64) {
 	from, to := float64(lo.N()), float64(hi.N())
 	if lo.Read() != nil {
 		from = bounds[lo.Read()][1]

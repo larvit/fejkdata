@@ -17,7 +17,7 @@ func Record(s *drawstate.State, t *tree.Template, row Row, emit func(i int, text
 	for i, c := range t.Columns() {
 		var v readValue
 		if c.BoundWhole() != nil {
-			v = readName(s, env, tree.NewArm("", "", nil, wholeLevels, nil, nil).ThroughName(c.BoundWhole(), 0))
+			v = readName(s, env, tree.NewRead("", "", nil, wholeLevels, nil, nil).ThroughName(c.BoundWhole(), 0))
 		} else {
 			v = renderLeaf(s, c.Field(), env)
 		}

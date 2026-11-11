@@ -20,7 +20,7 @@ func rewordDrawOf(t *tree.Template, o *tree.Op, l *tree.LoadFinds, built map[tre
 }
 
 // wordsOf is the values a's path renders that are made of letters alone, by length.
-func wordsOf(t *tree.Template, a tree.Arm, l *tree.LoadFinds, built map[tree.WordsAt]*tree.WordList) (*tree.WordList, error) {
+func wordsOf(t *tree.Template, a tree.Read, l *tree.LoadFinds, built map[tree.WordsAt]*tree.WordList) (*tree.WordList, error) {
 	if a.Kind() == tree.NamedRead {
 		return nil, fmt.Errorf("%q is a name, which holds one pick; pass the path it binds, as in {%s(t,/en_US.word)}", a.Head(), builtinfunc.RewordName)
 	}
