@@ -97,6 +97,14 @@ func TestAddDaysRefusesWhatIsNoProvenDateOrDayCount(t *testing.T) {
 	}
 }
 
+func TestAddDaysIgnoresTheNamesOfAWhereClauseWhenItChecksTheLayout(t *testing.T) {
+	tmpl := `{"format":"{n as k}{x as s}{adddays(s,1)}","n":"{date(2020-01-01,2020-12-31,'01-02')}","x":{"format":"{d where not k}","d":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}}`
+	_, err := resolved(t, tmpl)
+	if err == nil || !strings.Contains(err.Error(), "draws anew each time") || strings.Contains(err.Error(), "two layouts") {
+		t.Errorf("compile(%s) = %v, want the where clause's error, with no word of k's layout", tmpl, err)
+	}
+}
+
 func TestAddDaysAcceptsAMillionDaysEitherWay(t *testing.T) {
 	for _, tmpl := range []string{
 		`{"format":"{x as s}{adddays(s,1000000)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`,

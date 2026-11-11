@@ -68,6 +68,17 @@ func TestWhereKeepsTheWeightsOfTheItemsThatPass(t *testing.T) {
 	}
 }
 
+func TestWhereSplitsTheWeightOfAnItemEvenlyBetweenItsAlternatives(t *testing.T) {
+	f := emptyGenerator(3)
+	src := `{"format":"{w where length 1}","w":[{"format":"{a|b}","a":"x","b":"y"},"c"]}`
+	seen := tallyDraws(4000, func() string { return mustRender(t, f, src) })
+	for value, want := range map[string]int{"c": 2000, "x": 1000, "y": 1000} {
+		if got := seen[value]; got < want*9/10 || got > want*11/10 {
+			t.Errorf("%s drew %d of 4000, want about %d: c weighs 0.5, x and y 0.25 each (%v)", value, got, want, seen)
+		}
+	}
+}
+
 func TestWhereBindsTheFilteredDraw(t *testing.T) {
 	f := emptyGenerator(1)
 	src := `{"format":"{w where length 5 as x}{x} {uppercase(x)}","w":["cat","horse","mouse"]}`

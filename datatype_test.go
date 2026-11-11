@@ -182,6 +182,14 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 	}
 }
 
+func TestDatatypeProvesAPathReadFromItsPathNotFromTheNamesOfItsWhereClause(t *testing.T) {
+	row := `{"format":"","col":{"format":"{n as k}{w where length 4 to k}","n":"{int(5,6)}","w":["true","false"],"datatype":"boolean"}}`
+	_, err := New(WithDataPath(writeData(t, map[string]string{"row": row})), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Errorf("New = %v, want it loaded: col prints true or false, and k's 5 or 6 only bounds a length", err)
+	}
+}
+
 func TestNullColumn(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"row": `{"format":"[{middle}]","gone":null,"middle":[null,"Ann"],"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
