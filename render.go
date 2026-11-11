@@ -28,9 +28,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	if _, ok := n.(*tree.Folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
-	var frames frameStack
-	env, _ := renderEnv{frames: &frames}.at(n, &pins).enter(n, nil)
-	return render(f.drawState, n, env), nil
+	return pinnedRender(f.drawState, n, &pins), nil
 }
 
 // drawCallerPath walks a caller's path to the node it names, returning the rows its leaf renders in.
@@ -42,10 +40,24 @@ func drawCallerPath(s *drawstate.State, root tree.Node, segments []string) (tree
 		return nil, tree.PinSet{}, err
 	}
 	var pins tree.PinSet
-	n, leafPins := drawSteps(s, drawFresh, root, steps, &pins, nil, nil)
+	n, leafPins := walkSteps(s, root, steps, &pins)
 	return n, *leafPins, nil
 }
 
+// walkSteps draws steps from root, starting from the rows pins holds, and returns the node they
+// reach with the rows it renders in.
+func walkSteps(s *drawstate.State, root tree.Node, steps []tree.PathStep, pins *tree.PinSet) (tree.Node, *tree.PinSet) {
+	return drawSteps(s, drawFresh, root, steps, pins, nil, nil)
+}
+
+// pinnedRender renders n once, in the rows pins holds.
+func pinnedRender(s *drawstate.State, n tree.Node, pins *tree.PinSet) string {
+	var frames frameStack
+	env, _ := renderEnv{frames: &frames}.at(n, pins).enter(n, nil)
+	return render(s, n, env)
+}
+
+// renderOnce renders n once, outside any row.
 func renderOnce(s *drawstate.State, n tree.Node) string {
 	var frames frameStack
 	return render(s, n, renderEnv{frames: &frames})
@@ -59,7 +71,7 @@ func render(s *drawstate.State, n tree.Node, env renderEnv) string {
 	case *tree.NullItem:
 		return ""
 	case *tree.Table:
-		env.row = renderedRow{n, env.drawRowOf(s, n)}
+		env.row = renderedRow{t: n, index: env.drawRowOf(s, n)}
 		return expand(s, n.FormatTemplate(), env)
 	case *tree.TableRow:
 		return expand(s, n.Table().FormatTemplate(), env)

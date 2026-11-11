@@ -17,7 +17,7 @@ import (
 
 // MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along
 // any one path; the CLI's --repeat shares it.
-const MaxRepeat = 1 << 20
+const MaxRepeat = maxRepeat
 
 // Fails to compile where uint is narrower than 64 bits: docs/decisions.md#64-bit-targets-only
 var _ [^uint(0)>>63 - 1]struct{}

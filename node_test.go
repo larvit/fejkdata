@@ -122,7 +122,7 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 			t.Errorf("%s compiled before resolve", format)
 		}
 	}
-	if _, err := resolveInlineTemplates(inlineNodes(n, "t"), map[string]tree.Node{"w": w}, l); err != nil {
+	if _, err := resolveInlineTemplates(n, "t", map[string]tree.Node{"w": w}, l); err != nil {
 		t.Fatal(err)
 	}
 	for format, has := range compiledByPath() {

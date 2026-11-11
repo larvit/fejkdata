@@ -36,14 +36,14 @@ func shippedShape(f *Generator) string {
 		switch n := n.(type) {
 		case *tree.Folder:
 			for _, name := range tree.SortedNames(n.Children()) {
-				walk(join(prefix, name), n.Children()[name])
+				walk(prefix+"."+name, n.Children()[name])
 			}
 		case *tree.Choice:
 			facts[prefix] = readsFact(n)
 		case *tree.Table:
 			facts[prefix] = "\tformat " + strconv.Quote(n.FormatTemplate().Format()) + tableFacts(n) + readsFact(n)
 			for _, name := range n.Rows().Header() {
-				facts[join(prefix, name)] = "\tstring"
+				facts[prefix+"."+name] = "\tstring"
 			}
 		case *tree.Template:
 			facts[prefix] = "\tformat " + strconv.Quote(n.Format()) + readsFact(n)
@@ -53,7 +53,7 @@ func shippedShape(f *Generator) string {
 					if _, nullable := columnItems(c.Field()); nullable {
 						fact += " null"
 					}
-					facts[join(prefix, c.Name())] = fact
+					facts[prefix+"."+c.Name()] = fact
 				}
 			}
 		}

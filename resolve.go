@@ -33,9 +33,11 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]tree.Node, l
 	return ts, nil
 }
 
-func resolveInlineTemplates(nodes nodeSet, root map[string]tree.Node, l *tree.LoadFinds) ([]templateSite, error) {
+// resolveInlineTemplates resolves every template in n, labelled from label, against the categories
+// in root.
+func resolveInlineTemplates(n tree.Node, label string, root map[string]tree.Node, l *tree.LoadFinds) ([]templateSite, error) {
 	var ts []templateSite
-	if err := nodes(func(label string, n tree.Node) error {
+	if err := eachNode(n, label, func(label string, n tree.Node) error {
 		if t, isTemplate := n.(*tree.Template); isTemplate {
 			ts = append(ts, templateSite{t: t, label: label})
 		}

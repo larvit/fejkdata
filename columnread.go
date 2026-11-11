@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/proven"
@@ -62,7 +63,7 @@ func columnsAt(n tree.Node, tail []string) (columns []tree.Node) {
 // readsOneArm is the one arm t prints, where t's format prints one plain read and t reads it as its
 // datatype.
 func readsOneArm(t *tree.Template, l *tree.LoadFinds) (tree.Arm, bool) {
-	if t.Repeat() != 1 || (t.DataType() != nil && *t.DataType() == DataTypeString) {
+	if t.Repeat() != 1 || (t.DataType() != nil && *t.DataType() == datatype.String) {
 		return tree.Arm{}, false
 	}
 	o, one := printedOp(l.Of(t).Compiled().Ops())
@@ -117,7 +118,7 @@ func checkReadColumns(label, name string, items []*tree.Template, check func(lab
 }
 
 // itemDatatype is the datatype a column item declares, else that of the column it reads.
-func itemDatatype(t *tree.Template, l *tree.LoadFinds) DataType {
+func itemDatatype(t *tree.Template, l *tree.LoadFinds) datatype.DataType {
 	r := l.Of(t).ReadsColumn()
 	switch {
 	case t.DataType() != nil:
@@ -125,7 +126,7 @@ func itemDatatype(t *tree.Template, l *tree.LoadFinds) DataType {
 	case r != nil:
 		return columnDatatype(r.Column(), l)
 	}
-	return DataTypeString
+	return datatype.String
 }
 
 // proveColumnItem proves what a column item renders or, where the item is a column read, the column it reads.

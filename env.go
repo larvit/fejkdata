@@ -54,9 +54,9 @@ type renderedRow struct {
 func (env renderEnv) at(n tree.Node, pins *tree.PinSet) renderEnv {
 	switch n := n.(type) {
 	case *tree.TableRow:
-		env.row = renderedRow{n.Table(), pins.MustRow(n.Table().Rows())}
+		env.row = renderedRow{t: n.Table(), index: pins.MustRow(n.Table().Rows())}
 	case *tree.TableColumn:
-		env.row = renderedRow{n.Table(), pins.MustRow(n.Table().Rows())}
+		env.row = renderedRow{t: n.Table(), index: pins.MustRow(n.Table().Rows())}
 	}
 	return env
 }

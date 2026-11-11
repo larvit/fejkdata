@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
@@ -79,12 +80,12 @@ func compileItem(v any, pos position) (tree.Node, error) {
 		return &tree.NullItem{}, nil
 	case json.Number:
 		if pos == inColumn {
-			return nil, typedOrText(string(v), DataTypeInteger, DataTypeNumber)
+			return nil, typedOrText(string(v), datatype.Integer, datatype.Number)
 		}
 		return compileString(string(v))
 	case bool:
 		if pos == inColumn {
-			return nil, typedOrText(strconv.FormatBool(v), DataTypeBoolean)
+			return nil, typedOrText(strconv.FormatBool(v), datatype.Boolean)
 		}
 		return compileString(strconv.FormatBool(v))
 	}
@@ -93,7 +94,7 @@ func compileItem(v any, pos position) (tree.Node, error) {
 
 // typedOrText refuses a bare JSON number or boolean in a record column, which could be the
 // text it spells or a typed value, naming the text and the first of ds that holds it.
-func typedOrText(text string, ds ...DataType) error {
+func typedOrText(text string, ds ...datatype.DataType) error {
 	held := proven.Literal(text)
 	for _, d := range ds {
 		if held.Not[d] == "" {
@@ -215,7 +216,7 @@ func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
 }
 
 type templateOptions struct {
-	datatype  *DataType
+	datatype  *datatype.DataType
 	format    string
 	repeat    int
 	separator string
@@ -308,8 +309,8 @@ func repeatOf(m map[string]any) (int, error) {
 	if math.IsNaN(r) || math.IsInf(r, 0) || r < 0 || r != math.Trunc(r) {
 		return 0, fmt.Errorf("repeat must be an integer of 0 or more, got %v", rv)
 	}
-	if r > MaxRepeat { // caps the renders one repeat asks for; repeatCheck bounds what nested ones multiply to
-		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, MaxRepeat)
+	if r > maxRepeat { // caps the renders one repeat asks for; repeatCheck bounds what nested ones multiply to
+		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, maxRepeat)
 	}
 	return int(r), nil
 }
