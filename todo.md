@@ -12,10 +12,10 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 416 | 0.5.0 |  |  | **Move rendering into `internal/engine/render`.** | 3 | 1 | 2 | 4 | 5 | code health by 5 | 4.9 |
 | 414 | 0.5.0 |  |  | **Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
 | 417 | 0.5.0 | 414 |  | **Move the proofs and fences into `internal/engine/fence`.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 418 | 0.5.0 |  |  | **Move compile, bind, link and resolve into `internal/engine/load`.** | 4 | 1 | 2 | 5 | 6 | code health by 5 | 2.7 |
+| 416 | 0.5.0 |  |  | **Move rendering into `internal/engine/render`.** | 4 | 1 | 2 | 5 | 7 | code health by 5 | 1.4 |
 | 107 | 0.5.0 | 416, 417, 418 | decision | **Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.** | 3 | 1 | 3 | 5 | 5 | code health by 6 | 5.9 |
 | 177 | 0.5.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
 | 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
@@ -226,10 +226,6 @@
 
 ## Details
 
-### 416. Move rendering into `internal/engine/render`.
-
-Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go`, `reword.go`, `record.go`, `imports_test.go`; about 900 moved lines. It comes after 415, since render reads the node types from `tree`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
-
 ### 414. Prove calc operands only through `valueProof`, so `neverNumeric` and `constantValue` are gone.
 
 Files: `calc.go`, `valueproof.go`, `format.go`, `internal/proven`; about 120 lines, net negative. It ships with a paired ruling no worse.
@@ -243,6 +239,10 @@ Files: `valueproof.go`, `datatype.go`, `namefence.go`, `columnread.go`, `pathval
 ### 418. Move compile, bind, link and resolve into `internal/engine/load`.
 
 Files: `node.go`, `format.go`, `arm.go`, `name.go`, `resolve.go`, `reference.go`, `table.go`, `adddays.go`, `calc.go`, `graph.go`, `record.go`, `inline.go`, `struct.go`, `imports_test.go`; about 1200 moved lines. It comes after 415, since load builds the node types `tree` holds. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
+
+### 416. Move rendering into `internal/engine/render`.
+
+Files: `env.go`, `pick.go`, `render.go`, `path.go`, `where.go`, `alphabetdraw.go`, `reword.go`, `record.go`, `imports_test.go`; about 900 moved lines. A cross-reference of the root package measures more: the render files hold load-time code that `arm.go`, `format.go`, `namefence.go`, `resolve.go`, `reference.go`, `node.go`, `data.go`, `graph.go` and `fejkdata.go` call, which splits out or stays behind; render calls root helpers that turn exported; and its lazy loading through `batch.run`, `pipeline.run` and `loadCallerPath` needs a new seam back into the root, so about 20 files and well over 1000 changed lines. It comes after 415, since render reads the node types from `tree`. It ships with a paired ruling no worse. The allocation counts in `perf_test.go` stay unchanged and are never re-pinned.
 
 ### 107. Move the pipeline and lazy loading into `internal/engine`, leaving the root the public API and its options.
 
