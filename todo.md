@@ -6,27 +6,35 @@
 
 `Bar = 0`
 
-`Next ID = 421`
+`Next ID = 431`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 177 | 0.5.0 |  | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 9.8 |
 | 251 | 0.5.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 9.8 |
+| 424 | 0.5.0 |  |  | **Rename `tree.Arm` to `tree.Read`, with its methods and variables, and define "read" in `internal/engine/doc.go`'s vocabulary.** | 1 | 1 | 1 | 1 | 2 | code health by 3 | 9.8 |
+| 427 | 0.5.0 |  |  | **Declare `fejkdata.Column` as an alias of `engine.Column`, as `DataType` is, and spell the node-set type once, as `fence.NodeSet`.** | 1 | 1 | 2 | 2 | 2 | code health by 3 | 9.8 |
+| 425 | 0.5.0 |  |  | **Name `internal/engine/index.go` for the lazy loader it holds, and move the manifest's `Index` and `IndexLine` to a file of their own.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
+| 426 | 0.5.0 |  |  | **Say at `builtinfunc.CalcName` that `internal/engine/fence` proves `calc`'s operands.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 3.9 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
+| 428 | 0.5.0 |  |  | **Give the README's Development section a heading that lists, in order, what a pull request adding a locale ships.** | 1 | 2 | 1 | 2 | 2 | 11 by 4 | 2.3 |
 | 303 | 0.5.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.8 |
 | 395 | 0.5.0 |  |  | **Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time, and let `date()` take bounds relative to the caller's date.** | 2 | 1 | 1 | 2 | 4 | 1 by 4 | 1.6 |
 | 299 | 0.5.0 | 204 |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
-| 392 | 0.5.0 |  |  | **Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.** | 1 | 1 | 2 | 2 | 3 | 1 by 2 | 1.2 |
+| 429 | 0.5.0 |  |  | **State in the README's Functions section that a builtin receives the output its template has rendered so far.** | 1 | 2 | 1 | 2 | 1 | 11 by 2 | 1.4 |
+| 430 | 0.5.0 |  |  | **Say in the README's `nb_NO.fodselsnummer` paragraph that each `birth` band's weight is its count of years, so every year from 1940 to 2025 is equally likely.** | 1 | 2 | 1 | 2 | 1 | 11 by 1 | 0.7 |
 | 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 3 | 2 | 1 | 4 | 7 | code health by 2 | 0.6 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
+| 422 | 0.6.0 |  |  | **Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
+| 421 | 0.6.0 |  | owner | **Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.** | 4 | 2 | 2 | 6 | 7 | code health by 8 | 2.3 |
+| 423 | 0.6.0 | 421 |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 328 | 0.6.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 324 | 0.6.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
@@ -125,7 +133,7 @@
 | 14 | 0.8.0 |  |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 1 | 1 | 1 | 1 | 2 | 4 by 1 | 0.6 |
 | 33 | 0.8.0 |  |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 3 | 1 | 3 | 5 | 5 | 1 by 1, 4 by 2 | 0.6 |
 | 193 | 0.8.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.5 |
-| 393 | 0.8.0 | 392 |  | **Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.** | 3 | 2 | 2 | 5 | 7 | 1 by 6 | 0.4 |
+| 393 | 0.8.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 6 | 0.4 |
 | 407 | 0.8.0 |  |  | **Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.** | 3 | 2 | 2 | 5 | 6 | 1 by 3 | 0.4 |
 | 218 | 0.8.0 |  | decision | **Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
 | 129 | 0.8.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
@@ -219,13 +227,21 @@
 
 ## Details
 
-### 177. Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.
-
-The decision "comprehension floor: every dimension and the overall at 7.0 or above is the target, and blocks no merge" holds the scores this run is measured against.
-
 ### 251. Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.
 
 The inherited architect of the 0.1.0 scoring run on 52e0304 named `isPath` (`cli/cli.go`) the CLI's first rot point when the path grammar changes: it copies the grammar because the CLI reads only the library's public API.
+
+### 424. Rename `tree.Arm` to `tree.Read`, with its methods and variables, and define "read" in `internal/engine/doc.go`'s vocabulary.
+
+The inherited architect of item 177's scoring run at 3f909f1 named `tree/arm.go:8` `Arm` a navigation cost: its comments and the vocabulary say a read, and the type says arm. `Op.Arms()` becomes `Op.Reads()`, where `Op.Reads()` (`tree/arm.go:104`) already returns a subset; give that one the name of what it returns. The file follows its type's stem. `doc.go:15` and `:32` name `tree.Arm` today.
+
+### 427. Declare `fejkdata.Column` as an alias of `engine.Column`, as `DataType` is, and spell the node-set type once, as `fence.NodeSet`.
+
+Today `record.go:17` declares `Column` a second struct with `engine.Column`'s fields, copied across at the boundary, where `datatype.go:7` aliases `DataType`. `internal/engine/pipeline.go:14` declares `nodeSet` with the signature `internal/engine/fence/fence.go:12` aliases as `NodeSet`. The alias changes what `%T` and reflection print for `fejkdata.Column`, so the item adds a `CHANGELOG.md` entry, as `AGENTS.md` asks of a change to an exported name.
+
+### 425. Name `internal/engine/index.go` for the lazy loader it holds, and move the manifest's `Index` and `IndexLine` to a file of their own.
+
+The inherited architect of item 177's scoring run at 3f909f1 named `index.go:107` `loadReached` a navigation cost: the file named index holds the lazy loader, and beside it `Index` and `IndexLine` (`:187-196`), which only the generator's test reads. A file takes the stem of the units it holds (decision "A unit takes the stem of what it is, and a file the stem of the units it holds"). `index_test.go` follows what it tests.
 
 ### 403. Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.
 
@@ -237,9 +253,17 @@ The tooling then reads and writes the bare spelling. It still reads the brackete
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
+### 426. Say at `builtinfunc.CalcName` that `internal/engine/fence` proves `calc`'s operands.
+
+`internal/builtinfunc/builtinfunc.go:47` says package fejkdata checks and proves them, since only it holds the nodes they read; the proof moved to `internal/engine/fence`.
+
 ### 301. Add `fi_FI.phone`, drawn from Finland's numbering plan.
 
 Find the numbering plan and its licence first.
+
+### 428. Give the README's Development section a heading that lists, in order, what a pull request adding a locale ships.
+
+A contributor finds no one place saying it today. The steps: add the package to `data/modules.go`, run `generate` for its `.fejkdata.json`, re-pin `testdata/shipped_shape.txt` with `REPIN=1` in a commit of its own, add the `CHANGELOG.md` entry and the `DATA-LICENSES.md` entry. Keep the README true and not longer: where the Development section already states a step, near "A change to the shipped data runs `generate`", the list links that text or replaces it, and does not repeat it.
 
 ### 394. Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.
 
@@ -259,9 +283,13 @@ Posti's free postal code file names each postinumeroalue.
 
 Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus a Swedish-name column where the municipality is bilingual.
 
-### 392. Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.
+### 429. State in the README's Functions section that a builtin receives the output its template has rendered so far.
 
-From the same review, whose first ask was relational integrity: an invoice's `customer_id` naming a customer the run wrote. Today one run writes one record shape (item 221), and `--format tsv` links two runs through a table over that file. The panel picks between a manifest file naming each template and its count, a repeated flag, and a folder of templates, and what a parent with no rows, a cycle and a child outnumbering its parents do. Seat the readers from the README's `## Audience`, and bench the spelling before any code (`CLAUDE.md` → "Bench a syntax"). A new flag reserves its name against goal 6.1. Output ordering must keep a SQL load valid: parents first.
+`internal/engine/render/render.go:115` passes `b.String()` to every builtin call, and `{fnr(x)}` completes a number from the digits before it, but the template-language section never says a builtin sees them. Say it once, in the paragraph that opens `### Functions`, and keep the README no longer than the sentence it adds.
+
+### 430. Say in the README's `nb_NO.fodselsnummer` paragraph that each `birth` band's weight is its count of years, so every year from 1940 to 2025 is equally likely.
+
+`data/nb_NO/fodselsnummer.json:3` draws three `birth` bands weighted 60, 20 and 6: 1940 to 1999 with individ digits 0 to 4, 2000 to 2019 and 2020 to 2025 with 5 to 9. The README's paragraph at about line 1001 states the bands but not why the weights are those numbers, so a data author extending the range doesn't know to keep them equal to the years. Keep the README no longer than the clause it adds.
 
 ### 402. Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.
 
@@ -270,6 +298,34 @@ The principles pass of the release review of 0.4.0 found that the test files hol
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
+
+### 422. Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.
+
+A Locality lift beside item 421, from item 177's scoring run at 3f909f1. Today a template's findings live in `tree/loadfinds.go:52` `LoadFinds.Of` until `:120` `Finish` writes them into the node, and the getters at `tree/name.go:55-73`, such as `Addressed`, `Target` and `Values`, dereference `finds` and panic when called early. Callers mix `l.Of(t)`, `t.Compiled()` and the nil form, so a reader must know where `pipeline.run` stands (mid). A stage reads through `l` before `Finish` and through the node after it (junior). Afterwards one of two holds: the before and after phases are separate types, so an early read does not compile; or each getter checks one named invariant and its failure names the phase. Make `LoadFinds.Of`, `Finish` and the getters easier to read; each caller reads findings one way.
+
+### 421. Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.
+
+The scoring run of item 177 at 3f909f1 measured Locality at 5.63, the lowest dimension and under the floor, and every seat found named picks and name fences the hardest cluster. This item takes the fence half of it; items filed beside it take the `LoadFinds` phase and the render half. Behaviour does not change: every test keeps its expected values.
+
+In scope, and only this:
+
+- One edge list. `render/render.go:32` `render` draws a node's children, `load/graph.go:99` `RenderEdges` lists them again, and `fence/namefence.go:137` `walkRoutes` walks them a third time, held in step by a comment and a render-time panic. The greenfield architect, the inherited architect, the extender senior and the maintainability senior each named it the most dangerous trap: a child drawn but not listed silently misses a fence. Afterwards the three read one list, so a child missing from it is missing from all three, and a test fails. The inherited architect of the 7d2b3a5 run also named `paths`, `valueProof.prove`, `compileItem` and `drawSteps` as lists of the same children; move each onto the list where it lists the same edges, and leave it where it walks something else.
+- Split `fence/namefence.go`, about 590 lines that hold the route walk (`checkNameReads` :16, `walkRoutes` :137) beside five refusal rules (`refuseTwiceDrawn` :267, `refuseDrawnApart` :338 with `sharedDraw` :366, `refuseSkippedItem` :397, `refuseFreshDraw` :430, `refuseKeptAndFreshField` :517). `checkNameRead` :39 then reads as the list of rules it applies, in order, and says why that order. Seats' places to make easier to read: `checkNameRead`, five refusals held in mind at once with route kinds, pick levels and addressed keys (junior, mid); `sharedDraw`, five ordered cases whose order is the logic, with nothing saying why (maintainability senior, and both 7d2b3a5 runs); `refuseFreshDraw`, the same key arithmetic as `readAddressing` and `rendersField` (maintainability senior), and the README's "Refused at `New`" list it implements, with neither linking the other; `refuseKeptAndFreshField`, three nested loops and a nine-argument error.
+
+Out of scope: `tree/pick.go:80` `LandsInPick` and the render side of a named pick, which the item on the named-pick state takes after this one.
+
+### 423. Shrink the state a reader holds to follow a named pick through render to what one function and its type show.
+
+The render half of the named-pick cluster that every seat of item 177's scoring run at 3f909f1 found hardest; item 421 takes the fence half first, since its rules call `LandsInPick` too. Behaviour does not change: every test keeps its expected values and seeded output.
+
+The places, each to make easier to read:
+
+- `render/pick.go:128` `readName` enters, marks and pops frames across `drawMemo` and a `renderEnv` passed by value, whose `frameStack` sits behind a pointer, so which of the env's fields a call changes can't be seen at the call site (junior, mid, maintainability senior).
+- `render/env.go:76` `enter`, with `renderFrame` and `frameOf` beside it, is where that sharing happens.
+- `tree/pick.go:80` `LandsInPick`: a named read keys its levels from `""` and a fresh one from its head moved under `at.Under`, and an off-by-one in `NamedLevels` or `FreshLevels` changes what a pick keeps at load and at render alike (junior, mid).
+- `render/path.go:26` `drawSteps`: seven parameters and three modes, with `climbed` carrying `..` across the loop and `memo.stepDownPins` across steps (junior).
+
+Afterwards a call that changes the frames says so in its signature, the key alignment is one rule both load and render call, and `drawSteps`' modes are named where its callers choose one.
 
 ### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
 
@@ -637,9 +693,13 @@ A `"repeat": 14` over `{digits(1)}` draws every 14-digit run with the odds `{dig
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Each nested module requires the core release that drops its package, so no build sees the package twice. It brings per-module tags and a workspace, so it moves into the release of the chunk whose data trips the gate.
 
-### 393. Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.
+### 393. Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.
 
-Implements item 392's pick. `--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. The same seed gives the same files (goal 9). `{seq(name)}` counters stay per table. A child that outnumbers its parents repeats them, as repeated draws do, and a `weight` skews it. Ship the first chunk with two tables, then widen.
+Builds the decision "One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`", whose "What holds" list is the spec: the load errors (exit 2), the order of the rows, `--out-dir`, the flags `--emit` is refused beside, and that adding a template doesn't change another's rows under the same `--seed`. Take each test's expected values from that list.
+
+Three of the bench's readers feared a category named `run` clashing with `{/run.…}`. Either reserve `run` as a root name, or refuse a category named `run` in a run that reads `{/run.…}`; record which in the decision's paragraph that names this item.
+
+`--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. `{seq(name)}` counters stay per template. Ship the first chunk with two templates, then widen. `--emit` is a new flag, so it needs a `CHANGELOG.md` entry under `Unreleased` (`AGENTS.md`) and its own README heading.
 
 ### 407. Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.
 
