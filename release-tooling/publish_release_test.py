@@ -1,5 +1,7 @@
 import io
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 import urllib.error
@@ -101,11 +103,12 @@ class TagGuard(unittest.TestCase):
 	def test_the_check_names_each_heading_it_cannot_read(self):
 		changelog = (
 			"# Changelog\n\n## [Unreleased\n\n## Unreleased (draft)\n\n## 0.5\n\n## [0.4.0] - soon\n\n"
-			"## Unreleased\n\n### Added\n\n## [Unreleased]\n\n## 0.5.0 - 2026-11-20\n\n## [0.3.0] - 2026-11-05\n"
+			"## Unreleased\n\n### Added\n\n## [Unreleased]\n\n## 0.5.0 - 2026-11-20\n\n## [0.3.0] - 2026-11-05\n\n"
+			"##\tUnreleased\n\n ## 0.5.0 - 2026-11-20\n\n    ## indented code\n\n## 0.5.0 - 2026-11-20 \n"
 		)
 		self.assertEqual(
 			publish_release.unreadable_headings(changelog),
-			["## [Unreleased", "## Unreleased (draft)", "## 0.5", "## [0.4.0] - soon"],
+			["## [Unreleased", "## Unreleased (draft)", "## 0.5", "## [0.4.0] - soon", "##\tUnreleased", " ## 0.5.0 - 2026-11-20", "## 0.5.0 - 2026-11-20 "],
 		)
 
 	def test_main_check_fails_on_an_unreadable_heading_and_names_it(self):
@@ -120,6 +123,20 @@ class TagGuard(unittest.TestCase):
 				with redirect_stderr(stderr):
 					self.assertEqual(publish_release.main(["check"]), code)
 				self.assertIn(error, stderr.getvalue())
+
+	def test_an_argument_other_than_check_publishes_nothing(self):
+		created = []
+		with mock.patch.object(publish_release, "request", forge({}, created)), redirect_stderr(io.StringIO()):
+			self.assertEqual(publish_release.main(["--dry-run"]), 2)
+		self.assertEqual(created, [])
+
+	def test_the_script_run_as_ci_runs_it_checks_the_changelog_in_its_directory(self):
+		for text, code in (("# Changelog\n\n## Unreleased\n", 0), ("# Changelog\n\n## Unrelesed\n", 1)):
+			with self.subTest(text=text):
+				with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+					f.write(text)
+				run = subprocess.run([sys.executable, publish_release.__file__, "check"], capture_output=True, text=True)
+				self.assertEqual((run.returncode, "Unrelesed" in run.stderr), (code, code == 1))
 
 	def test_main_names_only_a_published_tag_to_ci(self):
 		for responses, code, output in (
