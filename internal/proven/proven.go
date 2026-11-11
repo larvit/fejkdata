@@ -21,7 +21,7 @@ type Facts struct {
 	NonZero    float64 // every value is at least this far from zero; 0 when one can be zero
 	Integral   bool
 	NotOperand string // why some render reads as no finite number, the way calc reads it
-	Never      bool   // every render reads as no finite number, which calc prints as NaN
+	Never      bool   // every render is text calc cannot read as a finite number
 	Not        [datatype.Count]string
 	Nullable   bool // some draw of a column is null
 }

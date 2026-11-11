@@ -328,8 +328,9 @@ assumes a 64-bit int; on a 32-bit target it could overflow and panic.
 2026-09-24, Lilleman auf Larv. Serves goal 5.1: a value that is always `NaN` or `Inf` is
 no valid value.
 
-`1/0` and a read whose every value is `0` are decidable, so they join the never-numeric
-operand as a load error, both proven by `valueProof`; the fold stops where an operand
+`1/0` and a read whose every value is the fixed text `0` are decidable, so they join the
+operand that is never a number, fixed text such as `abc`, `NaN` or `Inf`, as a load error;
+the fold stops where an operand
 varies, so `a/(b*c)` with `b` fixed at `0` and `c` varying loads and prints `Inf` every
 draw — catching it needs zero-absorbing algebra for a shape nobody writes. A [typed column](../README.md#datatype) bounds its operands
 instead and refuses a divisor it cannot keep from zero. In a string column, an operand that
@@ -1042,7 +1043,7 @@ Shipped under the floor before that by the maintainer's decisions of 2026-10-07,
 
 The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while the comprehension floor's target is 7.0.
 
-## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving, with the cycle, repeat and calc fences, in `internal/engine/load`, and drawing in `internal/engine/render`; the other proofs and fences and the pipeline stay the root package until item 417 gathers every fence in `fence` and item 107 moves the pipeline into `internal/engine`; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
+## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving, with the cycle and repeat fences, in `internal/engine/load`, and drawing in `internal/engine/render`; the other proofs and fences and the pipeline stay the root package until item 417 gathers every fence in `fence` and item 107 moves the pipeline into `internal/engine`; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
 
 2026-10-05, Lilleman auf Larv; revised 2026-11-11. Serves code health. On 2026-10-09 the
 maintainer chose to regroup the engine into packages, untangled first, over naming the root
@@ -1073,7 +1074,7 @@ in its own type.
 Packages, by the stage that writes or reads a type. `tree` holds the node types, the folder
 among them, their constructors, setters, `Finish` and accessors, so the whole cycle sits in one
 package; it imports only leaf libraries, as `imports_test.go` lists. `load` compiles, binds,
-links and resolves, and runs the cycle, repeat and calc fences; `render` draws. Each imports
+links and resolves, and runs the cycle and repeat fences; `render` draws. Each imports
 `tree` and leaf libraries, and neither imports the other. The root keeps the other proofs and
 fences, the pipeline and the public API today. Once items 417 and 107 land, the root keeps only
 the public API and its options; `internal/engine` will hold the pipeline and lazy loading, and
@@ -1093,8 +1094,7 @@ switches on. `perf_test.go` stays in the root and uses only the public API; a cu
 an allocation count is fixed, not re-pinned.
 
 The moves left are `todo.md` items, each merging only where its paired ruling reads no worse:
-414 deletes the calc proof that duplicates `valueProof`, 417 cuts out `fence`, and 107 moves
-the pipeline last. `internal/` holds eleven directories, over the principle's about seven per
+417 cuts out `fence`, and 107 moves the pipeline last. `internal/` holds eleven directories, over the principle's about seven per
 level, since a reader finds the leaf libraries by name. Valid until `todo.md` item 107 lands.
 
 ## Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
