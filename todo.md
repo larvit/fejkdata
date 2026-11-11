@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 420`
+`Next ID = 421`
 
 ## Items
 
@@ -23,6 +23,7 @@
 | 403 | 0.5.0 |  |  | **Read and write `CHANGELOG.md`'s headings without brackets, as `## Unreleased` and `## 0.5.0 - 2026-11-20`, as every other project of ours spells them.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 7.3 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
+| 420 | 0.5.0 |  |  | **Give `tree`'s constructors named arguments, set each getter beside its type, and make its docs stand inside the package.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 303 | 0.5.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.8 |
@@ -269,6 +270,16 @@ The tooling then reads and writes the bare spelling. It still reads the brackete
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
+
+### 420. Give `tree`'s constructors named arguments, set each getter beside its type, and make its docs stand inside the package.
+
+From the paired comprehension ruling of the PR that moved the node types into `internal/engine/tree`: both seats ruled Shape worse than the base, which set a node's fields by name.
+
+- Constructors: `tree.NewValueDraw` (called at `where.go:246` `newValueDraw`) takes nine positional arguments, a bare bool `filters`, and the pair `lo, hi` of one type, which still compiles when swapped. `tree.NewAlphabetDraw` (a bare `w.Else == nil`), `tree.NewColumnRead` (adjacent `category, field` strings) and `tree.NewPathStep(tree.StepDraw, at, "", 0)` lose their names the same way. Give each a form whose call site names what it sets, such as a struct of fields, so a swap no longer compiles silently. Where the change touches `lengthEnd`, make `where.go:635` `proveEveryDrawPasses` easier to read too, which the seats found hard: say why `lo` takes the name's upper bound, and name the `-1` sentinel.
+- Getters: about a hundred one-line getters sit alphabetically at the bottom of each `tree` file (`internal/engine/tree/node.go:134` and the like), away from their type, all with receiver `r` while the type's other methods use `t`, `sc` or `b`. Set each beside its type, with that type's receiver name. Some return live maps and slices: `Folder.Children()` is shared into `Table.SetSiblings` by the root's `linkTables`. Either return a copy, or state at the package doc that another package changes a node only through those methods for scalar fields, and that a returned map or slice is shared.
+- Docs: `PickKey` (`tree/pick.go:3`), `ColumnRead` (`tree/columnread.go:3`), `LoadFinds` (`tree/loadfinds.go:7`) and `tree/arm.go:22` and `:52` explain themselves through root-package functions a reader of `tree` can't reach, such as `landsInPick`, `checkColumns`, `bindNames` and `expand`. Say what each holds in `tree`'s own terms. `where.go:434` `holding` cites `v.texts`, a field `ValueDraw` no longer has; fix it.
+
+Items 416, 417 and 418 move render, fence and load out of the root and rewrite these constructors' call sites. Any of them may take this item in; land it before or with the first of them, so the call sites move once.
 
 ### 301. Add `fi_FI.phone`, drawn from Finland's numbering plan.
 
