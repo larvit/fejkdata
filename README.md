@@ -1682,8 +1682,9 @@ its default, a value of its own shape:
 
 The fallback and the default print unchecked, so a render never fails: the Nil UUID holds `0000`.
 In a distinct draw, the fallback prints in place of each member left without a value. A fallback,
-or a path's empty string, is text, so a [typed](#datatype) column refuses a clause that may print
-one, whether the column reads the clause directly or through `calc`.
+or a path's empty string, is text, even where `else` names a number. So a [typed](#datatype)
+column refuses a clause that may print one, whether the column reads the clause directly or
+through `calc`, and so does a `length` reading a name that binds the clause, or a field holding it.
 
 Refused at `New`:
 

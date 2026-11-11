@@ -223,7 +223,7 @@ func (p *valueProof) readsFallback(a arm) bool {
 }
 
 func fallsBack(token string) proven.Facts {
-	return proven.Unproven(fmt.Sprintf("{%s} may print its fallback or default, where the strings it reads leave no value", token))
+	return proven.Unproven(fmt.Sprintf("{%s} leaves out a string read from a name, so it may print its fallback or an empty string, which are text; leave out quoted strings instead, as in not '1'", token))
 }
 
 func joinedText(token string) proven.Facts {

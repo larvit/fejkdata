@@ -9,11 +9,13 @@ replacement, and each removed path, column or flag.
 ### Breaking
 
 - A where clause's `length` that reads a name, as `{x where length n}` does,
-  fails to load wherever `n` may print a fallback or default: where `n` binds a
-  draw whose where clause leaves out a value it reads, as `{w where not t as n}`
-  does, or binds a field holding such a draw. 0.4.0 refused only some of these,
-  by where `n` was bound, and loaded the rest, some to panic at render. Bind `n`
-  to a draw that leaves out only quoted values, or none.
+  fails to load where `n` binds a draw that leaves out a string read from a
+  name, as `{w where not t as n}` does, or binds a field holding such a draw.
+  This holds wherever `n` is bound, and even where a value always remains. 0.4.0
+  refused only some of these, by where `n` was bound, and loaded the rest, some
+  to panic at render. Leave out quoted strings instead, as `not '1'`. An `else`
+  doesn't help, since a fallback is text even where it names a number, and where
+  the string must come from a name, no spelling keeps that `length`.
 
 ## [0.4.0] - 2026-11-10
 
