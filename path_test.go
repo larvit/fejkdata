@@ -12,7 +12,7 @@ import (
 func TestDeepDottedPath(t *testing.T) {
 	// A 5-segment path descends through alternating object/array nodes; choices
 	// on the path are single-variant, so it resolves deterministically.
-	f := engine(1)
+	f := emptyGenerator(1)
 	f.root = *tree.NewFolderOf(map[string]tree.Node{
 		"deep": compiled(t, `{"format":"{a}","a":{"format":"{b}","b":{"format":"{c}","c":{"format":"{d}","d":"leaf"}}}}`),
 	})
@@ -26,7 +26,7 @@ func TestDeepDottedPath(t *testing.T) {
 }
 
 func TestDescendIntoStringErrors(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	f.root = *tree.NewFolderOf(map[string]tree.Node{"greeting": compiled(t, `"hej"`)})
 	if _, err := f.Fake("greeting.extra"); err == nil || !strings.Contains(err.Error(), `no field "extra"`) {
 		t.Fatalf("Fake(greeting.extra) = %v, want a no-field error", err)
@@ -143,7 +143,7 @@ func TestBindingKeyIsNotAPathSegment(t *testing.T) {
 }
 
 func TestFakePathNavigation(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	f.root = *tree.NewFolderOf(map[string]tree.Node{
 		"addr": compiled(t, `{"format":"{street}","street":"Main"}`),
 	})

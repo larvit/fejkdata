@@ -122,8 +122,8 @@ func fakeTemplate(t *testing.T, f *Generator, s string) string {
 	return got
 }
 
-// engine builds a seeded generator with no loaded categories, for rendering tests.
-func engine(seed uint64) *Generator {
+// emptyGenerator builds a seeded generator with no loaded categories, for rendering tests.
+func emptyGenerator(seed uint64) *Generator {
 	return &Generator{drawState: drawstate.New(seed, testDay)}
 }
 

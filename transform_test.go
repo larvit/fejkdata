@@ -5,7 +5,7 @@ import (
 )
 
 func TestTransforms(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string]string{
 		`{"format":"{uppercase(x)}|{lowercase(x)}|{ascii(x)}","x":"Åsa Ödegård-Nuñez"}`: "ÅSA ÖDEGÅRD-NUÑEZ|åsa ödegård-nuñez|Asa Odegard-Nunez",
 		`{"format":"{lowercase(ascii(x))}","x":"Åsa"}`:                                  "asa",
@@ -20,7 +20,7 @@ func TestTransforms(t *testing.T) {
 }
 
 func TestSlugify(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for name, want := range map[string]string{
 		"Anna Lena":  "anna-lena",
 		"Åsa Öberg":  "asa-oberg",
@@ -46,7 +46,7 @@ func TestSlugify(t *testing.T) {
 }
 
 func TestTransformReadsTheNamedDraw(t *testing.T) {
-	f := engine(2)
+	f := emptyGenerator(2)
 	src := `{"format":"{p as q}{q.first}={lowercase(q.first)}","p":[{"format":"{first}","first":"Anna"},{"format":"{first}","first":"Bo"}]}`
 	for i := 0; i < 50; i++ {
 		if got := mustRender(t, f, src); got != "Anna=anna" && got != "Bo=bo" {
@@ -85,7 +85,7 @@ func TestTransformArgs(t *testing.T) {
 }
 
 func TestAsciiKeepsDEL(t *testing.T) {
-	if got := mustRender(t, engine(1), `{"format":"{ascii(x)}","x":"a\u007fb"}`); got != "a\u007fb" {
+	if got := mustRender(t, emptyGenerator(1), `{"format":"{ascii(x)}","x":"a\u007fb"}`); got != "a\u007fb" {
 		t.Errorf("ascii over DEL = %q, want it kept: DEL is ASCII", got)
 	}
 }

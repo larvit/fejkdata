@@ -9,7 +9,7 @@ import (
 )
 
 func TestDistinctDrawsDistinctItems(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string][]string{
 		`{"format":"{w distinct 2 joined ','}","w":["a","b","c"]}`:                        {"a,b", "a,c", "b,a", "b,c", "c,a", "c,b"},
 		`{"format":"{w distinct 3 joined ''}","w":["a","b","c"]}`:                         {"abc", "acb", "bac", "bca", "cab", "cba"},
@@ -25,7 +25,7 @@ func TestDistinctDrawsDistinctItems(t *testing.T) {
 }
 
 func TestDistinctBindsMembersCountedFromOne(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string][]string{
 		`{"format":"{w distinct 3 as e}{e[1]}{e[2]}{e[3]}","w":["a","b","c"]}`:           {"abc", "acb", "bac", "bca", "cab", "cba"},
 		`{"format":"{w distinct 2 as e}{e[1]}{e[2]}{e[1]}","w":["a","b"]}`:               {"aba", "bab"},
@@ -40,7 +40,7 @@ func TestDistinctBindsMembersCountedFromOne(t *testing.T) {
 }
 
 func TestDistinctMemberIsAnOperand(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string][]string{
 		`{"format":"{w distinct 2 as m}{calc(m[1]*2)},{m[1]}","w":["3","4"]}`:                           {"6,3", "8,4"},
 		`{"format":"{w distinct 2 as m}{m[2]}:{v where length m[2]}","w":["3","4"],"v":["cat","bird"]}`: {"3:cat", "4:bird"},
@@ -98,7 +98,7 @@ func TestDistinctDrawsDistinctRowsWhateverTheyPrint(t *testing.T) {
 // The first draw takes a by its weight of 6 in 10; the second weighs b against c as 3 to 1, so a,b
 // is 0.6 × 3/4 = 0.45. A first b leaves a against c as 6 to 1, so b,a is 0.3 × 6/7 ≈ 0.257.
 func TestDistinctWeighsEachMemberAmongTheItemsLeft(t *testing.T) {
-	f := engine(3)
+	f := emptyGenerator(3)
 	src := `{"format":"{w distinct 2 joined ','}","w":[{"format":"a","weight":6},{"format":"b","weight":3},{"format":"c","weight":1}]}`
 	seen := tallyDraws(6000, func() string { return mustRender(t, f, src) })
 	if n := seen["a,b"]; n < 2550 || n > 2850 {

@@ -5,20 +5,19 @@ import (
 	"fmt"
 	"io/fs"
 	"reflect"
-	"sort"
 	"sync"
 	"time"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
-	"github.com/larvit/fejkdata/internal/engine/load"
+	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
 // MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along
 // any one path; the CLI's --repeat shares it.
-const MaxRepeat = load.MaxRepeat
+const MaxRepeat = engine.MaxRepeat
 
 // Fails to compile where uint is narrower than 64 bits: docs/decisions.md#64-bit-targets-only
 var _ [^uint(0)>>63 - 1]struct{}
@@ -96,14 +95,7 @@ var errNoData = errors.New(`fejkdata: no data: add fejkdata.WithDataFS(data.Modu
 
 // ErrLoad marks data that fails to load: in New, or on the first call reaching a category
 // of an indexed source.
-var ErrLoad = errors.New("data fails to load")
-
-// loadError is a load's error, unchanged in its text, matching ErrLoad.
-type loadError struct{ error }
-
-func (e loadError) Unwrap() error { return e.error }
-
-func (loadError) Is(target error) bool { return target == ErrLoad }
+var ErrLoad = engine.ErrLoad
 
 // New builds a generator from the options' sources, merged in order with the last
 // winning a name clash; it fails where no [WithSeed] gives the seed, no [WithToday] the
@@ -123,9 +115,9 @@ func New(opts ...Option) (*Generator, error) {
 	if err := c.misuse(); err != nil {
 		return nil, err
 	}
-	root, err := loadSources(c.sources)
+	root, err := engine.Load(c.sources)
 	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", loadError{err})
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Generator{drawState: drawstate.New(c.seed, c.today), root: root}, nil
 }
@@ -137,9 +129,7 @@ func New(opts ...Option) (*Generator, error) {
 func (f *Generator) List() []string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	out := load.Paths(&f.root, false)
-	sort.Strings(out)
-	return out
+	return engine.List(&f.root)
 }
 
 // misuse names every mistake in the options, before any data loads.

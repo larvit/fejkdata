@@ -7,7 +7,7 @@ import (
 )
 
 func TestStringIsAFormat(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string]string{
 		`"Malmö"`:                  "Malmö",
 		`"100 Main St, Apt 1A #0"`: "100 Main St, Apt 1A #0",
@@ -26,13 +26,13 @@ func TestStringIsAFormat(t *testing.T) {
 }
 
 func TestTextIsLiteral(t *testing.T) {
-	if got := mustRender(t, engine(1), `{"format":"100 Main St #1 {x}","x":"A"}`); got != "100 Main St #1 A" {
+	if got := mustRender(t, emptyGenerator(1), `{"format":"100 Main St #1 {x}","x":"A"}`); got != "100 Main St #1 A" {
 		t.Fatalf("text = %q, want it verbatim", got)
 	}
 }
 
 func TestBraceEscapes(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string]string{
 		`{"format":"{{","x":"v"}`:         "{",
 		`{"format":"}}","x":"v"}`:         "}",
@@ -57,13 +57,13 @@ func TestBraceEscapes(t *testing.T) {
 }
 
 func TestTokenSubstitution(t *testing.T) {
-	if got := mustRender(t, engine(1), `{"format":"{x}sson","x":"Erik"}`); got != "Eriksson" {
+	if got := mustRender(t, emptyGenerator(1), `{"format":"{x}sson","x":"Erik"}`); got != "Eriksson" {
 		t.Fatalf("token = %q, want Eriksson", got)
 	}
 }
 
 func TestAlternationDrawsOneField(t *testing.T) {
-	f := engine(3)
+	f := emptyGenerator(3)
 	seen := map[string]bool{}
 	for i := 0; i < 100; i++ {
 		seen[mustRender(t, f, `{"format":"{a|b}","a":"A","b":"B"}`)] = true
@@ -74,7 +74,7 @@ func TestAlternationDrawsOneField(t *testing.T) {
 }
 
 func TestAlternationThreeWay(t *testing.T) {
-	f := engine(4)
+	f := emptyGenerator(4)
 	seen := map[string]bool{}
 	for i := 0; i < 200; i++ {
 		seen[mustRender(t, f, `{"format":"{a|b|c}","a":"A","b":"B","c":"C"}`)] = true
@@ -85,7 +85,7 @@ func TestAlternationThreeWay(t *testing.T) {
 }
 
 func TestHashIsLiteral(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	cases := map[string]string{
 		`{"format":"","x":"v"}`:         "",
 		`{"format":"#","x":"v"}`:        "#",
@@ -103,7 +103,7 @@ func TestHashIsLiteral(t *testing.T) {
 func TestMultibyteFormat(t *testing.T) {
 	// Scanning is rune-aware: multibyte literals coexist with class chars and
 	// tokens without corrupting indices.
-	got := mustRender(t, engine(2), `{"format":"Öster{x}-{digits(1)}å","x":"väg"}`)
+	got := mustRender(t, emptyGenerator(2), `{"format":"Öster{x}-{digits(1)}å","x":"väg"}`)
 	if !regexp.MustCompile(`^Österväg-[0-9]å$`).MatchString(got) {
 		t.Fatalf("multibyte format = %q", got)
 	}
@@ -167,7 +167,7 @@ func TestAReadOfAFieldBesideItsTemplateNamesTheRuleAndTheFix(t *testing.T) {
 		`{"format":"{b as n}{a}","a":["x{n}"],"b":"y"}`,
 		`{"format":"{b as n}{a}","a":"x{n.c}","b":{"format":"{c}","c":"y"}}`,
 	} {
-		if got := mustRender(t, engine(1), src); got != "xy" {
+		if got := mustRender(t, emptyGenerator(1), src); got != "xy" {
 			t.Errorf("render(%s) = %q, want the fix the refusal names to print xy", src, got)
 		}
 	}

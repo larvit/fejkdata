@@ -13,7 +13,7 @@ import (
 func sameRenders(t *testing.T, long, short string) {
 	t.Helper()
 	l, s := compiled(t, long), compiled(t, short)
-	fl, fs := engine(1), engine(1)
+	fl, fs := emptyGenerator(1), emptyGenerator(1)
 	for i := 0; i < 20; i++ {
 		if a, b := render.Once(fl.drawState, l), render.Once(fs.drawState, s); a != b {
 			t.Fatalf("%s rendered %q where %s rendered %q", long, a, short, b)
@@ -76,7 +76,7 @@ func TestAPartWithNoEffectRendersAsWithoutIt(t *testing.T) {
 	if err != nil || r.Fake().Columns()[0].DataType != DataTypeString {
 		t.Errorf("a column of datatype string = %v, want a string column", err)
 	}
-	if got := mustRender(t, engine(1), `"{date(1990-01-01,1990-12-31,'15:04')}"`); !regexp.MustCompile(`^\d\d:\d\d$`).MatchString(got) {
+	if got := mustRender(t, emptyGenerator(1), `"{date(1990-01-01,1990-12-31,'15:04')}"`); !regexp.MustCompile(`^\d\d:\d\d$`).MatchString(got) {
 		t.Errorf("date with a clock-only layout = %q, want a clock", got)
 	}
 }
@@ -125,7 +125,7 @@ func TestAJSONNumberOrBooleanIsItsText(t *testing.T) {
 
 func TestARepeatedItemCountsAsWritten(t *testing.T) {
 	for _, src := range []string{`["a", "a", "b"]`, `{"format":"{x|x|y}","x":"a","y":"b"}`} {
-		f, n, as := engine(1), compiled(t, src), 0
+		f, n, as := emptyGenerator(1), compiled(t, src), 0
 		for i := 0; i < 600; i++ {
 			if render.Once(f.drawState, n) == "a" {
 				as++

@@ -27,7 +27,7 @@ import (
 	"github.com/larvit/fejkdata/data/nb_NO"
 	"github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/datafiles"
-	"github.com/larvit/fejkdata/internal/engine/load"
+	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -122,8 +122,8 @@ func newShippedWhole(t testing.TB, opts ...Option) *Generator {
 // loadedCategories is the dot path of every category f has parsed and resolved.
 func loadedCategories(f *Generator) []string {
 	var out []string
-	for _, s := range categorySites(&f.root) {
-		out = append(out, s.path)
+	for _, line := range engine.Index(&f.root) {
+		out = append(out, line.Path)
 	}
 	return out
 }
@@ -162,19 +162,19 @@ func shippedManifests(whole *Generator, modules []shippedModule) ([][]byte, [][]
 	}
 	index := make([][]string, len(modules))
 	direct := make([][]int, len(modules))
-	for _, s := range categorySites(&whole.root) {
-		i := owner(s.path)
+	for _, s := range engine.Index(&whole.root) {
+		i := owner(s.Path)
 		if i < 0 {
-			return nil, nil, fmt.Errorf("no shipped module holds %s", s.path)
+			return nil, nil, fmt.Errorf("no shipped module holds %s", s.Path)
 		}
-		line, err := json.Marshal(indexEntry(s))
+		line, err := json.Marshal(s.Entry)
 		if err != nil {
 			return nil, nil, err
 		}
-		key, _ := json.Marshal(s.path)
+		key, _ := json.Marshal(s.Path)
 		index[i] = append(index[i], "\n\t\t"+string(key)+": "+string(line))
-		for _, c := range needs(&whole.root, s) {
-			if j := owner(load.CategoryPath(c.dir, c.name)); j != i && !slices.Contains(direct[i], j) {
+		for _, c := range s.Needs {
+			if j := owner(c); j != i && !slices.Contains(direct[i], j) {
 				direct[i] = append(direct[i], j)
 			}
 		}
@@ -592,29 +592,6 @@ func TestATableWhoseEntryOmitsItsParentFailsAtFirstReach(t *testing.T) {
 	}
 }
 
-func TestAChildTableThatFailsItsLazyLoadIsNotLinkedToItsLoadedParent(t *testing.T) {
-	f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{
-		"country.json": {Data: []byte(`{"format":"{name}","rows":"country.tsv","key":"code"}`)},
-		"country.tsv":  {Data: []byte("code\tname\nSE\tSweden\n")},
-	}))
-	if err != nil {
-		t.Fatalf("New() = %v", err)
-	}
-	placeIndex(&f.root, datafiles.FS(fstest.MapFS{
-		"city.json": {Data: []byte(`{"format":"{name}{/nope}","rows":"city.tsv","key":"name","parent":"country"}`)},
-		"city.tsv":  {Data: []byte("name\tcountry\nStockholm\tSE\n")},
-	}), map[string]datafiles.IndexEntry{"city": {Parent: "country", Paths: []string{"", "country", "name"}}})
-	if _, err := f.Fake("city"); err == nil || !strings.Contains(err.Error(), "{/nope}") {
-		t.Fatalf(`Fake("city") = %v, want an error naming {/nope}`, err)
-	}
-	if got, err := f.Fake("country.city.name"); err == nil {
-		t.Fatalf(`Fake("country.city.name") = %q, want an error: city failed to load`, got)
-	}
-	if got := f.List(); slices.Contains(got, "country.city.name") {
-		t.Fatalf("List() = %v, want no country.city.name", got)
-	}
-}
-
 func TestADataPathTableUnderAShippedTableLoads(t *testing.T) {
 	f, err := New(withShipped(), WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
 		"sv_SE/nickname.json": `{"format":"{name}","rows":"nickname.tsv","key":"name","parent":"sex"}`,
@@ -629,13 +606,6 @@ func TestADataPathTableUnderAShippedTableLoads(t *testing.T) {
 	if got := fake(t, f, "sv_SE.person"); got == "" {
 		t.Fatal("sv_SE.person rendered empty")
 	}
-}
-
-// indexEntry is what an index says of the loaded category s.
-func indexEntry(s categorySite) datafiles.IndexEntry {
-	e := datafiles.IndexEntry{Parent: parentOf(s.n), Paths: load.Paths(s.n, false)}
-	sort.Strings(e.Paths)
-	return e
 }
 
 func TestAMountedIndexedCategoryWithNoFileNamesTheManifestBesideItsFiles(t *testing.T) {

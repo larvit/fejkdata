@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
@@ -40,7 +41,7 @@ func TestAnOptionTooCloseToZeroIsRefused(t *testing.T) {
 }
 
 func TestWeightSkewsDistribution(t *testing.T) {
-	f := engine(9)
+	f := emptyGenerator(9)
 	heavy := 0
 	for i := 0; i < 1000; i++ {
 		if mustRender(t, f, `[{"format":"H","weight":10},"L"]`) == "H" {
@@ -55,14 +56,14 @@ func TestWeightSkewsDistribution(t *testing.T) {
 func TestRepeatRendersFormatNTimes(t *testing.T) {
 	// repeat N concatenates N independent renders of the format ('x','y' are
 	// literal, not character classes).
-	if got := mustRender(t, engine(1), `{"format":"xy","repeat":3}`); got != "xyxyxy" {
+	if got := mustRender(t, emptyGenerator(1), `{"format":"xy","repeat":3}`); got != "xyxyxy" {
 		t.Fatalf("repeat literal = %q, want xyxyxy", got)
 	}
 	// separator joins renders (N-1 of them, no trailing one).
-	if got := mustRender(t, engine(1), `{"format":"xy","repeat":3,"separator":"-"}`); got != "xy-xy-xy" {
+	if got := mustRender(t, emptyGenerator(1), `{"format":"xy","repeat":3,"separator":"-"}`); got != "xy-xy-xy" {
 		t.Fatalf("repeat with separator = %q, want xy-xy-xy", got)
 	}
-	f, re := engine(7), regexp.MustCompile(`^[0-9]{4}$`)
+	f, re := emptyGenerator(7), regexp.MustCompile(`^[0-9]{4}$`)
 	seen := map[string]bool{}
 	for i := 0; i < 50; i++ {
 		got := mustRender(t, f, `{"format":"{digits(1)}","repeat":4}`)
@@ -144,8 +145,8 @@ func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := loadInline(tree.NewFolder(), n, l, "t", false); err == nil || !strings.Contains(err.Error(), want) {
-				t.Fatalf("loadInline() = %v, want an error holding %q", err, want)
+			if err := engine.LoadInline(tree.NewFolder(), n, l, "t"); err == nil || !strings.Contains(err.Error(), want) {
+				t.Fatalf("engine.LoadInline() = %v, want an error holding %q", err, want)
 			}
 			root := n.(*tree.Template)
 			written := root.Finished()
@@ -171,7 +172,7 @@ func TestFinishWritesEachNodeOnce(t *testing.T) {
 		t.Fatal(err)
 	}
 	w := compiled(t, `["p","q"]`)
-	if err := loadInline(tree.NewFolderOf(map[string]tree.Node{"w": w}), n, l, "t", false); err != nil {
+	if err := engine.LoadInline(tree.NewFolderOf(map[string]tree.Node{"w": w}), n, l, "t"); err != nil {
 		t.Fatal(err)
 	}
 	root := n.(*tree.Template)

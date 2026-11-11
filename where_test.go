@@ -38,7 +38,7 @@ func tallyDraws(n int, draw func() string) map[string]int {
 }
 
 func TestWhereDrawsOnlyTheItemsThatPass(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string][]string{
 		`{"format":"{w where length 5}","w":["cat","horse","mouse","elephant"]}`:                            {"horse", "mouse"},
 		`{"format":"{w where length 4 to 6}","w":["cat","bird","horse","turtle","giraffes"]}`:               {"bird", "horse", "turtle"},
@@ -57,7 +57,7 @@ func TestWhereDrawsOnlyTheItemsThatPass(t *testing.T) {
 }
 
 func TestWhereKeepsTheWeightsOfTheItemsThatPass(t *testing.T) {
-	f := engine(3)
+	f := emptyGenerator(3)
 	src := `{"format":"{w where length 2}","w":[{"format":"a1","weight":3},{"format":"b1","weight":1},{"format":"ccc","weight":100}]}`
 	seen := tallyDraws(4000, func() string { return mustRender(t, f, src) })
 	if seen["a1"]+seen["b1"] != 4000 {
@@ -69,7 +69,7 @@ func TestWhereKeepsTheWeightsOfTheItemsThatPass(t *testing.T) {
 }
 
 func TestWhereBindsTheFilteredDraw(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	src := `{"format":"{w where length 5 as x}{x} {uppercase(x)}","w":["cat","horse","mouse"]}`
 	drawsExactly(t, src, func() string { return mustRender(t, f, src) }, "horse HORSE", "mouse MOUSE")
 }
@@ -178,13 +178,13 @@ func TestWhereRefusesAtLoad(t *testing.T) {
 
 func TestWhereRefusesAFieldReadOfAFilteredDraw(t *testing.T) {
 	src := `{"format":"{w where length 5 as x}{x.y}","w":[{"format":"horse","y":"a"}]}`
-	if _, err := engine(1).NewTemplate(src); err == nil || !strings.Contains(err.Error(), "read whole") {
+	if _, err := emptyGenerator(1).NewTemplate(src); err == nil || !strings.Contains(err.Error(), "read whole") {
 		t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, "read whole")
 	}
 }
 
 func TestAClauseWordRightAfterAsIsTheNameItBinds(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string]string{
 		`{"format":"{x as where}{where}","x":"a"}`:                                "a",
 		`{"format":"{x as distinct}{distinct}","x":"a"}`:                          "a",
@@ -224,7 +224,7 @@ func TestWhereNamesTheLengthsThatLeaveNoValue(t *testing.T) {
 
 func TestWhereSaysAQuotedValueHoldsNoApostrophe(t *testing.T) {
 	src := `{"format":"{w where not 'O'Brien'}","w":["Ann"]}`
-	if _, err := engine(1).NewTemplate(src); err == nil || !strings.Contains(err.Error(), "a quoted value can't hold an apostrophe") {
+	if _, err := emptyGenerator(1).NewTemplate(src); err == nil || !strings.Contains(err.Error(), "a quoted value can't hold an apostrophe") {
 		t.Errorf("NewTemplate(%s) = %v, want an error saying a quoted value can't hold an apostrophe", src, err)
 	}
 }
@@ -255,7 +255,7 @@ func quotedAllBut(alphabet, keep string) string {
 }
 
 func TestWhereOnACallDrawsOnlyTheValuesThatPass(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string][]string{
 		`"{digits(1) where not containing ` + quotedAllBut("0123456789", "9") + `}"`:                                                       {"9"},
 		`"{digits(1) where not '3', '33', '' and length 1}"`:                                                                               {"0", "1", "2", "4", "5", "6", "7", "8", "9"},
@@ -271,7 +271,7 @@ func TestWhereOnACallDrawsOnlyTheValuesThatPass(t *testing.T) {
 }
 
 func TestWhereOnACallDrawsOnlyValuesOfItsKindHoldingNoneOfTheStrings(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, pattern := range map[string]string{
 		`"{digits(2) where not containing '10','11','12','13','14','15','16','17','18','19'}"`: `^[02-9][0-9]$`,
 		`"{uuid() where not containing '0', 'f'}"`:                                             `^[1-9a-e]{8}-[1-9a-e]{4}-7[1-9a-e]{3}-[89ab][1-9a-e]{3}-[1-9a-e]{12}$`,
@@ -293,7 +293,7 @@ func TestWhereOnACallDrawsOnlyValuesOfItsKindHoldingNoneOfTheStrings(t *testing.
 }
 
 func TestWhereReadsItsStringsFromAName(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string][]string{
 		`{"format":"{v as t}{t}:{w where not t}","v":["cat","dog"],"w":["cat","dog","cow"]}`:                                {"cat:dog", "cat:cow", "dog:cat", "dog:cow"},
 		`{"format":"{v as t}{t}:{w where not containing t}","v":["a","o"],"w":["cat","dog","bee"]}`:                         {"a:dog", "a:bee", "o:cat", "o:bee"},
@@ -318,13 +318,13 @@ func prefixedWithEach(prefixes []string, suffixes string) []string {
 }
 
 func TestWhereReadsItsStringsFromTheMembersOfADistinctDraw(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	src := `{"format":"{v distinct 2 as m}{m[1]}{m[2]}:{digits(1) where not containing m[1], m[2]}","v":["1","2"]}`
 	drawsExactly(t, src, func() string { return mustRender(t, f, src) }, prefixedWithEach([]string{"12", "21"}, "03456789")...)
 }
 
 func TestWherePrintsTheFallbackWhereNoValuePasses(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string]string{
 		`{"format":"{v as t}{w where not t else 'none'}","v":"cat","w":["cat"]}`:                                          "none",
 		`{"format":"{v as t}{u as f}{w where not containing t else f}","v":"a","u":"fb","w":["cat","bar"]}`:               "fb",
@@ -347,7 +347,7 @@ func TestWherePrintsTheFallbackWhereNoValuePasses(t *testing.T) {
 }
 
 func TestWherePrintsADefaultWhereNoValuePassesAndNoFallbackIsNamed(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for src, want := range map[string]string{
 		`{"format":"<{v as t}{w where not t}>","v":"cat","w":["cat"]}`:                                                                                                  "<>",
 		`{"format":"{v as t}{w where not t distinct 2 joined ','}","v":"cat","w":["cat","dog"]}`:                                                                        "dog,",
@@ -397,7 +397,7 @@ func TestWhereOnACallOrReadingANameRefusesAtLoad(t *testing.T) {
 }
 
 func TestWhereFiltersEveryClauseAfterAFilteredCall(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	src := `{"format":"{hex(2) where not containing 'a'}:{w where not 'x'}","w":["x","y"]}`
 	eachDraw(50, func() string { return mustRender(t, f, src) }, func(got string) {
 		if !strings.HasSuffix(got, ":y") {
@@ -407,7 +407,7 @@ func TestWhereFiltersEveryClauseAfterAFilteredCall(t *testing.T) {
 }
 
 func TestWhereRefusesAClauseReadingTheNameItsTokenBinds(t *testing.T) {
-	f := engine(1)
+	f := emptyGenerator(1)
 	for _, src := range []string{
 		`{"format":"{w where not u as u}{u}","w":["a","b"]}`,
 		`{"format":"{w where not containing u as u}{u}","w":["a","b"]}`,
