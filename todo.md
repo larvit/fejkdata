@@ -300,7 +300,7 @@ Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus 
 
 The principles pass of the release review of 0.4.0 found that the test files hold 876 `for` lines in test bodies and 22 `t.Run` calls, against the technical principle "One behaviour per test, named for it … No loops or branches in a test body; parametrize the cases." A failing case can't be rerun alone with `go test -run`, and a `t.Fatalf` inside a loop hides every case after it. The release review reshaped the test files this release added; this item takes the rest, keeping every expected value, seed and draw count.
 
-Scored L 4: the change spans S 7 and about ten packages, two of L level 3's conditions. A worker at L 4 runs a rung above an L 3 item's, so the item ships in a chunk of its own.
+Scored L 4: the change spans S 7 and about ten packages, two of L level 3's conditions.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
