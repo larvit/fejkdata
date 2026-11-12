@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 452`
+`Next ID = 453`
 
 ## Items
 
@@ -34,6 +34,7 @@
 | 334 | 0.7.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
 | 169 | 0.8.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
+| 452 | 0.8.0 |  | defect | **Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.** | 2 | 2 | 2 | 4 | 3 | 3.1 by 2, 4.6 by 2 | 12.5 |
 | 343 | 0.8.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 9.4 |
 | 354 | 0.8.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
@@ -335,6 +336,14 @@ Its entry says "The import script drops or fills such rows". There are two geo i
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 
 The decision says that where no Go version fixes a vulnerability yet, the maintainer drops the vulnerabilities job from the release job's `needs`. The release job's `if` in `.github/workflows/test.yml` also requires `needs.vulnerabilities.result == 'success'`, and a job missing from `needs` is no success, so the release job would be skipped, not run. A skipped job isn't red, so nothing would ship and nothing would say why. Rewording the decision is the maintainer's call. The principles review of item 336 found it.
+
+### 452. Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.
+
+`fence/namefence.go` `walkRoutes` steps into a node's children by `tree.RenderEdges`, and skips a `*tree.TableColumn` on purpose, to keep what item 421 found. So no refusal rule sees a read inside a table cell.
+
+Found by probe on 2026-11-12: with `place.json` `{"format":"{zip}/{tag}","rows":"place.tsv","key":"name"}` and `place.tsv` holding the row `Stockholm`, `1{digits(4)}`, `{/place.zip}`, the template `{/place as n}{n.tag} {n.zip}` loads and prints two different postal codes, such as `19166 15556`. The same shape in a template's fields, `"zip":"1{digits(4)}","tag":"{/place.zip}"`, is refused by `refuseFreshDraw`: "`{n.tag}` reaches `{/place.zip}`, which draws afresh a path `{n.zip}` reads from the pick".
+
+Drop the `*tree.TableColumn` case in `walkRoutes` so a cell's reads become routes, apart as a table's format is, and check each of the five rules in `nameRules` against a cell. Test first with the probe above; every shipped category must still load. A template that loaded is then refused, which the changelog states.
 
 ### 343. Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).
 
