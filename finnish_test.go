@@ -236,3 +236,132 @@ func TestFinnishHenkilotunnusAgreesWithABoundSexAndDrawsBoth(t *testing.T) {
 		t.Errorf("500 numbers held the sexes %v, want both", sexes)
 	}
 }
+
+// Traficom's Regulation 32 V/2025 M, Annex 1: the area codes of the telecommunications areas and the
+// mobile area codes whose row says "No" under Available ranges, so every number behind them is assigned.
+var (
+	finnishFixedAreas = map[string]string{
+		"02": "Turku and Pori", "03": "Häme", "05": "Kymi", "06": "Vaasa", "08": "Oulu", "09": "Uusimaa I",
+		"013": "North Karelia", "014": "Central Finland", "015": "Mikkeli", "016": "Lapland", "017": "Kuopio",
+		"018": "Åland", "019": "Uusimaa II",
+	}
+	finnishMobileAreas = []string{
+		"040", "041", "042", "044", "046", "050",
+		"0435", "0436", "0437", "0438", "0439", "0450", "0451", "0452", "0453", "0456", "0458",
+	}
+)
+
+func finnishAreaSet(codes ...string) map[string]bool {
+	out := map[string]bool{}
+	for _, c := range codes {
+		out[c] = true
+	}
+	return out
+}
+
+func finnishPhoneAreas(t *testing.T, kind string) map[string]bool {
+	t.Helper()
+	got := map[string]bool{}
+	for _, row := range tsvRows(t, "data/fi_FI/phone-"+kind+".tsv") {
+		if got[row["area"]] {
+			t.Errorf("phone-%s repeats %q", kind, row["area"])
+		}
+		got[row["area"]] = true
+	}
+	return got
+}
+
+func TestShippedFinnishPhoneTablesHoldExactlyTheAreaCodesTheNumberingPlanAllocates(t *testing.T) {
+	fixed := make([]string, 0, len(finnishFixedAreas))
+	for code := range finnishFixedAreas {
+		fixed = append(fixed, code)
+	}
+	for kind, want := range map[string][]string{"fixed": fixed, "mobile": finnishMobileAreas} {
+		t.Run(kind, func(t *testing.T) {
+			got, wantSet := finnishPhoneAreas(t, kind), finnishAreaSet(want...)
+			if len(got) != len(wantSet) {
+				t.Errorf("phone-%s holds %d area codes, the plan allocates %d", kind, len(got), len(wantSet))
+			}
+			for code := range wantSet {
+				if !got[code] {
+					t.Errorf("phone-%s lacks %q", kind, code)
+				}
+			}
+		})
+	}
+}
+
+func TestShippedFinnishPhoneFixedAreaNamesItsTelecommunicationsArea(t *testing.T) {
+	for _, row := range tsvRows(t, "data/fi_FI/phone-fixed.tsv") {
+		if want := finnishFixedAreas[row["area"]]; row["name"] != want {
+			t.Errorf("area %q is named %q, the plan names it %q", row["area"], row["name"], want)
+		}
+		if row["ndc"] != strings.TrimPrefix(row["area"], "0") {
+			t.Errorf("area %q has ndc %q, want the code without the trunk 0", row["area"], row["ndc"])
+		}
+	}
+}
+
+var finnishNationalPhone = regexp.MustCompile(`^(0\d{1,3}) (\d+(?: \d+)?)$`)
+
+func eachShippedFinnishPhone(t *testing.T, check func(n string)) {
+	t.Helper()
+	f := shipped(t, WithSeed(11))
+	eachDraw(30000, func() string { return fake(t, f, "fi_FI.phone") }, check)
+}
+
+// Table 1 of the regulation: the national number, without the trunk 0, is 7 to 9 digits behind a
+// telecommunications area's code and 8 to 10 behind a mobile network's.
+func TestShippedFinnishPhoneIsAnAllocatedAreaCodeAndASubscriberNumberOfTheLengthTheRegulationGives(t *testing.T) {
+	fixed, mobile := finnishAreaSet(), finnishAreaSet(finnishMobileAreas...)
+	for code := range finnishFixedAreas {
+		fixed[code] = true
+	}
+	eachShippedFinnishPhone(t, func(n string) {
+		m := finnishNationalPhone.FindStringSubmatch(n)
+		if m == nil {
+			t.Fatalf("phone %q is not an area code and a subscriber number in groups", n)
+		}
+		length := len(m[1]) - 1 + len(strings.ReplaceAll(m[2], " ", ""))
+		switch {
+		case fixed[m[1]] && length >= 7 && length <= 9:
+		case mobile[m[1]] && length >= 8 && length <= 10:
+		default:
+			t.Fatalf("phone %q has area code %q and %d digits after the 0, which the plan allows for neither a fixed nor a mobile number", n, m[1], length)
+		}
+	})
+}
+
+func TestShippedFinnishPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
+	var nFixed int
+	eachShippedFinnishPhone(t, func(n string) {
+		if _, fixed := finnishFixedAreas[strings.Fields(n)[0]]; fixed {
+			nFixed++
+		}
+	})
+	if nFixed < 2580 || nFixed > 2880 {
+		t.Fatalf("30000 phones drew %d fixed, want about an eleventh, 2727 give or take 150", nFixed)
+	}
+}
+
+func TestShippedFinnishPhoneInternationalDropsTheTrunkZeroBehindTheCountryCode(t *testing.T) {
+	f := shipped(t, WithSeed(5))
+	eachDraw(300, func() string { return fakeTemplate(t, f, "{/fi_FI.phone as p}{p}|{p.national}|{p.international}") }, func(got string) {
+		parts := strings.Split(got, "|")
+		if len(parts) != 3 || parts[0] != parts[1] || parts[2] != "+358 "+strings.TrimPrefix(parts[0], "0") {
+			t.Fatalf("%q: want the national form twice, then +358 and the national form without its 0", got)
+		}
+	})
+}
+
+func TestShippedFinnishPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
+	f := shipped(t, WithSeed(1))
+	for path, want := range map[string]string{
+		"fi_FI.phone-fixed[09].name": "Uusimaa I", "fi_FI.phone-fixed[013].name": "North Karelia",
+		"fi_FI.phone-mobile[040].ndc": "40", "fi_FI.phone-mobile[0451].ndc": "451",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("%s printed %q, want %q", path, got, want)
+		}
+	}
+}
