@@ -714,18 +714,18 @@ real: a real subscriber may hold it. The tables leave out the mobile codes the p
 digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
 
 `fi_FI.date` is a date from 1970 to 2029 in the Finnish spelling, day, month and year with dots and no zero before a
-one-digit day or month, such as `2.4.2019`; Kotus's Kielitoimiston ohjepankki, in "Ajanilmaukset: päiväys ja vuosiluku",
-says a number under ten needs no leading zero. `fi_FI.email` is built like `nb_NO.email`: half its local parts are a first and
-a last name from `fi_FI`'s names, with `ä`, `ö` and `å` folded to ASCII.
+one-digit day or month, such as `2.4.2019`; the Institute for the Languages of Finland (Kotus), in "Ajanilmaukset: päiväys ja
+vuosiluku" of its Kielitoimiston ohjepankki, says a number under ten needs no leading zero. `fi_FI.email` is built like
+`nb_NO.email`: half its local parts are a first and a last name from `fi_FI`'s names, with `ä`, `ö` and `å` folded to ASCII.
 
 `fi_FI.company` draws a legal form as often as Statistics Finland counted enterprises of it in 2024 (its table 13w6):
-sole trader (a natural person, `tmi`), limited company (`Oy`), limited partnership (`Ky`), general partnership (`Ay`) and
+sole trader (a natural person), limited company (`Oy`), limited partnership (`Ky`), general partnership (`Ay`) and
 co-operative (`osk`). A sole trader's name has no abbreviation after it, and the others end in theirs, such as
 `Pohjanniemi Rakennus Oy`. `fi_FI.company.tmi`, `.oy`, `.ky`, `.ay` and `.osk` each draw one form, and
-`{/fi_FI.company as c}{c.legal}` prints the abbreviation of the same pick. The table's other legal forms are not drawn.
+`{/fi_FI.company as c}{c.legal}` prints the abbreviation of the same pick, empty for a sole trader.
 No open bulk file of Finnish company names was found, so the name's shapes and the words of `company-coined` and
 `company-word` are a language model's recall. Each name is made of those words and `fi_FI`'s names. A name is
-invented, and may also be a real company's. A program showing the counts credits "Lähde: Tilastokeskus".
+invented, and may also be a real company's. A program showing the counts credits "Source: Statistics Finland".
 
 `da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of

@@ -1614,14 +1614,14 @@ Statistics Finland's table 13w6, "Yritykset toimialoittain ja oikeudellisen muod
 legal units of 2024 by legal form: 295,203 natural persons (sole traders, `tmi`), 240,524 limited
 companies (`Oy`), 13,356 limited partnerships (`Ky`), 4,726 general partnerships (`Ay`), 2,811
 co-operatives (`osk`) and 51,401 of other forms. The company's forms weigh by the first five counts. The
-other forms are not drawn: the table names no one of them. A sole trader's name carries no abbreviation,
-as the Danish ENK's carries none.
+table doesn't split its other forms, so none is drawn. A sole trader's name has no abbreviation, as the
+Danish ENK's has none.
 
 No open bulk file of Finnish company names was found. So the name shapes and the words of
 `company-coined` and `company-word` are a language model's recall of how Finnish companies are named,
 each shape and word weighing the same. An open bulk file of Finnish company names replaces them. The names
-read no place, as `geo/FI` doesn't exist yet; item 299 adds it, and a later change may then add a
-place and a trade word as a name's shape, as `da_DK.company` has.
+don't read a place, since `geo/FI` doesn't exist yet. Item 299 adds it, and a later change may then
+add a place and a trade word as a name's shape, as `da_DK.company` has.
 
 ## A record's `let` fields write no column
 
