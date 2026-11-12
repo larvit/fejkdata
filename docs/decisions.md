@@ -1019,7 +1019,8 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
 replaces "The path walks are separate loops".
-Code health and goal 12: `drawAcrossTables` draws every path that may cross a table from its steps, compiled when templates resolve, by
+Code health and goal 12: `drawAcrossTables` draws every path that may cross a table, from its
+steps, compiled when templates resolve, by
 `compiledPath` or, for a caller's path, by `callerPathSteps` into a stack buffer. Both take each
 step through `compileStep`, and differ only at a choice: `compiledPath` walks every variant,
 `callerPathSteps` the first. On 2026-09-29 one loop over all three walks, switching on a mode field,

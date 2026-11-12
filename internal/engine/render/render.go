@@ -123,7 +123,7 @@ func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 // a level that a read of the name being rendered addresses; every other read draws afresh, so
 // {word} {word} draws twice and {p.a} {p.b} reads two draws of p.
 // A fresh read clears env.pick, which stops a read nested in it from keying the pick's memo under
-// env.pickAt and sharing a value with another node at that key; a reference's read clears it in entered.
+// env.pickAt and sharing a value with another node at that key; a reference's read clears it in env.entered.
 func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
 	switch {
 	case a.Kind() == tree.NamedRead:
