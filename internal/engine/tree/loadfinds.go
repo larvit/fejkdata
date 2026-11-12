@@ -51,8 +51,8 @@ func (b *BindingFinds) Target() NameTarget { return b.target }
 // read only what Finish wrote into the nodes.
 var AfterFinish *LoadFinds
 
-// Of is what l holds for t, else what Finish wrote into t. A read of a template that neither
-// holds panics, naming the phase.
+// Of is what l holds for t, else what Finish wrote into t. Where Finish hasn't written t and
+// l doesn't hold it, Of panics, naming the phase.
 func (l *LoadFinds) Of(t *Template) *TemplateFinds {
 	if l != nil {
 		if tl, loading := l.templates[t]; loading {
@@ -72,8 +72,8 @@ func (l *LoadFinds) template(t *Template) *TemplateFinds {
 	return tl
 }
 
-// Binding is what l holds for b, else what Finish wrote into b. A read of a binding that
-// neither holds panics, naming the phase.
+// Binding is what l holds for b, else what Finish wrote into b. Where Finish hasn't written b
+// and l doesn't hold it, Binding panics, naming the phase.
 func (l *LoadFinds) Binding(b *NameBinding) *BindingFinds {
 	if l != nil {
 		if bl, loading := l.bindings[b]; loading {
@@ -136,18 +136,16 @@ func (l *LoadFinds) Finish() {
 	}
 }
 
-// found is what Finish wrote into t, which a stage reads only after its load has finished.
 func (t *Template) found() *TemplateFinds {
 	if t.finds == nil {
-		panic(invariant.Broken("template %q is read before LoadFinds.Finish; a load stage reads it through LoadFinds.Of", t.syntax.Format))
+		panic(invariant.Broken("template %q is read before LoadFinds.Finish; a load stage reads it through its own load's LoadFinds", t.syntax.Format))
 	}
 	return t.finds
 }
 
-// found is what Finish wrote into b, which a stage reads only after its load has finished.
 func (b *NameBinding) found() *BindingFinds {
 	if b.finds == nil {
-		panic(invariant.Broken("name %q is read before LoadFinds.Finish; a load stage reads it through LoadFinds.Binding", b.name))
+		panic(invariant.Broken("name %q is read before LoadFinds.Finish; a load stage reads it through its own load's LoadFinds", b.name))
 	}
 	return b.finds
 }
