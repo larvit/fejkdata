@@ -1,5 +1,15 @@
 {
   "format": "{digits-6-8}",
+  "fixed-5-7": [
+    "{int(2,8)}{digits(1)} {digits(3)}",
+    "{int(2,8)}{digits(2)} {digits(3)}",
+    "{int(2,8)}{digits(2)} {digits(4)}"
+  ],
+  "fixed-6-8": [
+    "{int(2,8)}{digits(2)} {digits(3)}",
+    "{int(2,8)}{digits(2)} {digits(4)}",
+    "{int(2,8)}{digits(3)} {digits(4)}"
+  ],
   "digits-5-7": [
     "{int(1,9)}{digits(1)} {digits(3)}",
     "{int(1,9)}{digits(2)} {digits(3)}",
