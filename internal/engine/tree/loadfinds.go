@@ -47,15 +47,19 @@ type BindingFinds struct {
 
 func (b *BindingFinds) Target() NameTarget { return b.target }
 
-// Of is what l holds for t, else what an earlier load wrote into t. A nil l reads only
-// what was written.
+// AfterFinish is the LoadFinds a stage passes once its load has finished: Of and Binding then
+// read only what Finish wrote into the nodes.
+var AfterFinish *LoadFinds
+
+// Of is what l holds for t, else what Finish wrote into t. A read of a template that neither
+// holds panics, naming the phase.
 func (l *LoadFinds) Of(t *Template) *TemplateFinds {
 	if l != nil {
 		if tl, loading := l.templates[t]; loading {
 			return tl
 		}
 	}
-	return t.finds
+	return t.found()
 }
 
 // template is what l holds for t, which must belong to l's load; it makes the entry on first use.
@@ -68,15 +72,15 @@ func (l *LoadFinds) template(t *Template) *TemplateFinds {
 	return tl
 }
 
-// Binding is what l holds for b, else what an earlier load wrote into b. A nil l reads
-// only what was written.
+// Binding is what l holds for b, else what Finish wrote into b. A read of a binding that
+// neither holds panics, naming the phase.
 func (l *LoadFinds) Binding(b *NameBinding) *BindingFinds {
 	if l != nil {
 		if bl, loading := l.bindings[b]; loading {
 			return bl
 		}
 	}
-	return b.finds
+	return b.found()
 }
 
 // SetNameScope records sc as the scope t's tokens look a name up in.
@@ -130,4 +134,20 @@ func (l *LoadFinds) Finish() {
 	for b, bl := range l.bindings {
 		b.finds = bl
 	}
+}
+
+// found is what Finish wrote into t, which a stage reads only after its load has finished.
+func (t *Template) found() *TemplateFinds {
+	if t.finds == nil {
+		panic(invariant.Broken("template %q is read before LoadFinds.Finish; a load stage reads it through LoadFinds.Of", t.syntax.Format))
+	}
+	return t.finds
+}
+
+// found is what Finish wrote into b, which a stage reads only after its load has finished.
+func (b *NameBinding) found() *BindingFinds {
+	if b.finds == nil {
+		panic(invariant.Broken("name %q is read before LoadFinds.Finish; a load stage reads it through LoadFinds.Binding", b.name))
+	}
+	return b.finds
 }

@@ -1099,7 +1099,9 @@ node with its syntax only. Every later load stage collects what it finds in one
 `tree.LoadFinds` value, and its `Finish` writes it into the load's nodes, once; a second call
 is an `invariant` panic. A node is one struct, not a load-time type beside a render-time one:
 two types would double every node type for a guarantee that `tree` being the only package
-to write a node's fields already gives. A load reads the categories finished before it and
+to write a node's fields already gives. In place of the second type's compile error, an
+accessor read before `Finish` is an `invariant` panic that names the phase, and a stage running
+after its load passes `tree.AfterFinish` where a load stage passes its `LoadFinds`. A load reads the categories finished before it and
 doesn't write them. A child table is therefore linked without writing its parent: the
 parent's children come from its folder, so a lazy load that fails leaves every finished
 table as it was. Two writers besides `Finish` remain: a load puts each folder's children as

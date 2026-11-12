@@ -14,7 +14,7 @@ import (
 // refuseFilteredTails refuses a path through a name holding a filtered draw, which is read whole.
 func refuseFilteredTails(ts []load.TemplateSite) error {
 	for _, s := range ts {
-		for _, r := range load.NamedReads(s.Template, nil) {
+		for _, r := range load.NamedReads(s.Template, tree.AfterFinish) {
 			if r.Read.Named().Values() != nil && len(r.Read.Tail()) > 0 {
 				return fmt.Errorf("%s: token {%s}: name %q holds a filtered draw, which is read whole: {%s}", s.Label, r.Op.Token().Body, r.Read.Head(), r.Read.Head())
 			}
@@ -80,7 +80,7 @@ func (r selfRead) reachesNode(n tree.Node) bool {
 	r.nodes[n] = true
 	t, ok := n.(*tree.Template)
 	if !ok {
-		return slices.ContainsFunc(load.RenderEdges(n, nil), func(e load.RenderEdge) bool { return r.reachesNode(e.To) })
+		return slices.ContainsFunc(load.RenderEdges(n, tree.AfterFinish), func(e load.RenderEdge) bool { return r.reachesNode(e.To) })
 	}
 	for _, o := range t.Compiled().Ops() {
 		if slices.ContainsFunc(o.AllReads(), func(a *tree.Read) bool { return r.reaches(*a) }) {

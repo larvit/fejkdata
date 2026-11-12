@@ -16,7 +16,7 @@ func (m RenderCounts) renderCount(n tree.Node) int {
 		return r
 	}
 	r := 1
-	for _, e := range load.RenderEdges(n, nil) {
+	for _, e := range load.RenderEdges(n, tree.AfterFinish) {
 		if c := m.renderCount(e.To); c > r {
 			r = c
 		}
