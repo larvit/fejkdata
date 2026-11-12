@@ -8,7 +8,7 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// refuseFreshDraw refuses a read of a name where what it renders holds a reference that draws
+// refuseFreshDraw refuses read, a read of a name, where what it renders holds a reference that draws
 // afresh a level another read of the name reads from the pick. For example, {n} and {n.ab.name}
 // could differ where n's format reads {/cat.ab.name}, and so could {n} and {n.ab} where ab's format
 // reads {name}. It takes each node the references reach, through other references too

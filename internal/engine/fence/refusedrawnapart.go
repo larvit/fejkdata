@@ -33,8 +33,8 @@ func refuseDrawnApart(nr nameRead) error {
 
 // sharedDraw reports whether a read of one name shares, with a second name bound to target, a draw
 // that could differ, and returns that read. Parameter above is target's path under the first name's
-// pick. It walks target's path from its start, a level at a time, and the first name's pick holds
-// a draw of a level only while a read of that name addresses the level. Each level is settled by
+// pick. It walks target's path from its start, a level at a time. The first name's pick holds a
+// draw of a level only where a read of that name addresses the level. Each level is settled by
 // the first case that fits, and each case rests on the ones before it not fitting.
 func sharedDraw(pick pickReads, target tree.NameTarget, above []string) (by string, shares bool) {
 	n := target.Start()
@@ -43,18 +43,18 @@ func sharedDraw(pick pickReads, target tree.NameTarget, above []string) (by stri
 		by, here := pick.addressed[key]
 		switch {
 		case !here:
-			// First, since by names the read every later case reports. A read that addresses a
-			// level addresses every level above it, so no deeper level is addressed either.
+			// First: every later case needs a read that addresses this level. A read that
+			// addresses a level addresses every level above it, so no deeper level is addressed.
 			return "", false
 		case isDraw(n):
 			// Before the leaf case: a choice or a table is a draw wherever on the path it sits.
 			return by, true
 		case i == len(target.Tail()):
-			// The leaf is no choice or table here, so only a constant renders the same twice.
+			// The leaf isn't a choice or a table here, so only a constant renders the same twice.
 			return by, !isConstant(n)
 		}
-		// Before the step down: a read landing here renders all below it, whether or not a read
-		// addresses the next level, where the first case would otherwise say they share none.
+		// Before the step down: a read landing here renders every level below it. The next
+		// level may be one no read addresses, and the first case would then say they share none.
 		if lander, lands := pick.landingOn(key); lands && drawsAlong(n, target.Tail()[i:], true) {
 			return lander, true
 		}

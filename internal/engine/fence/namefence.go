@@ -26,29 +26,28 @@ type nameRead struct {
 	in     *tree.Template // the template holding read
 	read   *tree.Read
 	pick   pickReads     // every read of the name, read included
-	routes []route       // every read that rendering read makes
+	routes []route       // every read made while read renders
 	names  resolvedNames // every name of the load
 }
 
-// nameRules is the refusal rules of a read of a name, each in the file of its name. A name keeps one
-// pick (goal 4.3), and a template that can't keep that fails to load (goal 4.6). The README lists
-// what the rules refuse, under Names, "Refused at `New`".
+// nameRules is the rules that refuse a read of a name, in the order checkNameRead applies them. A
+// name keeps one pick (goal 4.3), and a template that can't keep that fails to load (goal 4.6).
+// The README lists what the rules refuse, under Names, "Refused at `New`".
 //
-// Four refuse a read that reaches one level by a route another read of the name reaches by a
-// second route, where the two can draw apart:
+// Four of them refuse a read that could disagree with another read of the name: both reach one
+// level, each by its own route, and the two routes can draw apart. One, refuseSkippedItem,
+// refuses a read that has no pick to read.
 //   - refuseTwiceDrawn: the pick renders a field twice
 //   - refuseDrawnApart: a nested name has a pick of its own
+//   - refuseSkippedItem: the read steps into a choice's item without opening the item's frame
 //   - refuseFreshDraw: a reference draws afresh
 //   - refuseKeptAndFreshField: a field read the pick doesn't keep draws afresh
 //
-// One refuses a read that has no pick to read:
-//   - refuseSkippedItem: the read steps into a choice's item without opening the item's frame
+// A sixth rule, RefuseReadsInsideFields, refuses a name read inside the field bound to it. The
+// load pipeline calls it before the cycle check, so such a read never reaches these.
 //
-// A sixth, RefuseReadsInsideFields, refuses a name read inside the field bound to it. The load
-// pipeline calls it before the cycle check, so such a read never reaches these.
-//
-// Each rule decides alone, so the order changes no verdict. It picks the error of a read that
-// breaks two rules, and errors are a contract by what they name: keep the order.
+// Each rule decides alone, so the order changes no verdict. A read that breaks two rules gets the
+// error of the first, and an error is a contract by what it names: keep the order.
 // docs/decisions.md#an-error-is-a-contract-by-what-it-names-not-its-bytes
 var nameRules = []func(nameRead) error{
 	refuseTwiceDrawn,
@@ -103,14 +102,13 @@ func routesApart(nodes []tree.Node) []route {
 	return walkRoutes(nodes, "", nil, false)
 }
 
-// walkRoutes lists reads in render order. It visits a node once per key, and steps into its children
-// by tree.RenderEdges, the list a render steps by:
-//   - a template's edges are the leaves of its ops' reads, so it walks the reads and lists each as a
-//     route. A read that stays in the pick's category passes its place in the pick down.
-//   - a choice's items take the choice's place in the pick, since the pick keeps the item drawn.
-//   - a table's format is apart: the pick pins the row, so its columns read one row whichever read
-//     renders them.
-//   - a column's cells are not walked, so no rule sees a read in a cell (item 452).
+// walkRoutes lists reads in render order, and visits a node once per key.
+//   - In a template it lists each read of each op as a route, and steps into the read's leaves
+//     where the read stays in the pick's category, passing down the read's place in the pick.
+//     Those leaves are the template's edges in tree.RenderEdges.
+//   - It steps into any other node by tree.RenderEdges. A choice's items take the choice's place
+//     in the pick, since the pick keeps the item drawn. A table's format is apart: the pick pins
+//     the row, so its columns read one row whichever read renders them.
 func walkRoutes(nodes []tree.Node, start tree.PickKey, addressed map[tree.PickKey]string, inPick bool) []route {
 	type site struct {
 		n      tree.Node
@@ -147,7 +145,7 @@ func walkRoutes(nodes []tree.Node, start tree.PickKey, addressed map[tree.PickKe
 			for _, e := range tree.RenderEdges(n, tree.AfterFinish) {
 				walk(e.To, at, inPick)
 			}
-		case *tree.TableColumn:
+		case *tree.TableColumn: // its cells are not walked, so no rule sees a read in a cell (item 452)
 		default:
 			for _, e := range tree.RenderEdges(n, tree.AfterFinish) {
 				walk(e.To, "", false)
@@ -241,7 +239,7 @@ func secondDraw(b *tree.NameBinding, by string) string {
 	return b.Ref() + strings.TrimPrefix(by, b.Name())
 }
 
-// keyOf is the key in a pick of the level the segments of parts, one after another, lead to.
+// keyOf joins the path segments in parts, in order, into the key a pick keeps that level under.
 func keyOf(parts ...[]string) tree.PickKey {
 	return tree.PickKey(strings.Join(slices.Concat(parts...), "."))
 }
