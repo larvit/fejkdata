@@ -47,7 +47,7 @@ func TestAFreshReadsLevelsUnderAKeySpellThePathANamedReadKeys(t *testing.T) {
 		"a field under a key":         {"x", freshRead("first"), []string{"x", "first"}, []tree.PickKey{"x.first"}},
 		"a path under a key":          {"a.b", freshRead("street.name"), []string{"a", "b", "street", "name"}, []tree.PickKey{"a.b.street", "a.b.street.name"}},
 	} {
-		got := tree.LevelsUnder(c.at, c.a)
+		got := tree.LevelsUnder(c.at, c.a, tree.KeyUnder(c.at, c.a))
 		if !slices.Equal(got, c.want) {
 			t.Errorf("%s: LevelsUnder(%q) = %q, want %q", name, c.at, got, c.want)
 		}

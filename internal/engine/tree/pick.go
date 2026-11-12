@@ -64,8 +64,13 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 	return keys
 }
 
+// KeyUnder is the key a pick keeps a's value under, the last of LevelsUnder's: a's key, moved
+// under at.
+func KeyUnder(at PickKey, a Read) PickKey { return at.Under(a.Key()) }
+
 // LevelsUnder is the levels of a as a pick keys them: each of a's levels, moved under at. a is a
-// fresh read in a template the pick renders, and at is that template's key. It is the one rule that lines a fresh read's
+// fresh read in a template the pick renders, and at is that template's key. key is KeyUnder(at, a),
+// which the caller has built to look a's value up, and building it again would allocate. It is the one rule that lines a fresh read's
 // keys up with a named read's, and load and render both call it.
 //
 // The two kinds of read share a key because of where their levels start. A named read starts at
@@ -75,11 +80,12 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 // at is that template's path from the target's start, so moved under at, a fresh read's key spells
 // the path a named read's does. Where p binds a category whose format reads {first}, the {first}
 // that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
-func LevelsUnder(at PickKey, a Read) []PickKey {
+func LevelsUnder(at PickKey, a Read, key PickKey) []PickKey {
 	levels := make([]PickKey, len(a.levels))
-	for i, l := range a.levels {
+	for i, l := range a.levels[:len(levels)-1] {
 		levels[i] = at.Under(l)
 	}
+	levels[len(levels)-1] = key
 	return levels
 }
 
