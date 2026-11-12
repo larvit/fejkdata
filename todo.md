@@ -12,15 +12,11 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 301 | 0.5.0 |  |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
-| 428 | 0.5.0 |  |  | **Give the README's Development section a heading that lists, in order, what a pull request adding a locale ships.** | 1 | 2 | 1 | 2 | 2 | 11 by 4 | 2.3 |
 | 303 | 0.5.0 |  |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.8 |
 | 395 | 0.5.0 |  |  | **Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time, and let `date()` take bounds relative to the caller's date.** | 2 | 1 | 1 | 2 | 4 | 1 by 4 | 1.6 |
 | 299 | 0.5.0 |  |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
-| 429 | 0.5.0 |  |  | **State in the README's Functions section that a builtin receives the output its template has rendered so far.** | 1 | 2 | 1 | 2 | 1 | 11 by 2 | 1.4 |
-| 430 | 0.5.0 |  |  | **Say in the README's `nb_NO.fodselsnummer` paragraph that each `birth` band's weight is its count of years, so every year from 1940 to 2025 is equally likely.** | 1 | 2 | 1 | 2 | 1 | 11 by 1 | 0.7 |
 | 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 4 | 2 | 1 | 5 | 7 | code health by 2 | 0.6 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
@@ -238,14 +234,6 @@
 
 ## Details
 
-### 301. Add `fi_FI.phone`, drawn from Finland's numbering plan.
-
-Find the numbering plan and its licence first.
-
-### 428. Give the README's Development section a heading that lists, in order, what a pull request adding a locale ships.
-
-A contributor finds no one place saying it today. The steps: add the package to `data/modules.go`, run `generate` for its `.fejkdata.json`, re-pin `testdata/shipped_shape.txt` with `REPIN=1` in a commit of its own, add the `CHANGELOG.md` entry and the `DATA-LICENSES.md` entry. Keep the README true and not longer: where the Development section already states a step, near "A change to the shipped data runs `generate`", the list links that text or replaces it, and does not repeat it.
-
 ### 394. Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.
 
 From the same review, which asked for fast seeding of a million-row database. `COPY ... FROM STDIN` takes tab-separated text with `\N` for null, and loads several times faster than INSERT. It needs no dependency (goal 10). A writer panel picks the spelling, `copy` or `pgcopy`, and whether the `COPY` line is written. Measure it against `--format sql` for 1,000,000 rows (goal 12) and show both in the Records section beside the README's database pipes. Escape a tab, a newline and a backslash in a value as COPY text asks; a null column writes `\N`.
@@ -263,14 +251,6 @@ Posti's free postal code file names each postinumeroalue.
 ### 300. Give `geo/FI`'s places their streets.
 
 Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus a Swedish-name column where the municipality is bilingual.
-
-### 429. State in the README's Functions section that a builtin receives the output its template has rendered so far.
-
-`internal/engine/render/render.go:115` passes `b.String()` to every builtin call, and `{fnr(x)}` completes a number from the digits before it, but the template-language section never says a builtin sees them. Say it once, in the paragraph that opens `### Functions`, and keep the README no longer than the sentence it adds.
-
-### 430. Say in the README's `nb_NO.fodselsnummer` paragraph that each `birth` band's weight is its count of years, so every year from 1940 to 2025 is equally likely.
-
-`data/nb_NO/fodselsnummer.json:3` draws three `birth` bands weighted 60, 20 and 6: 1940 to 1999 with individ digits 0 to 4, 2000 to 2019 and 2020 to 2025 with 5 to 9. The README's paragraph at about line 1001 states the bands but not why the weights are those numbers, so a data author extending the range doesn't know to keep them equal to the years. Keep the README no longer than the clause it adds.
 
 ### 402. Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.
 
