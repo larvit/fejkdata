@@ -185,11 +185,11 @@ fi_FI.phone-mobile	format "{area}"	key area	reads fi_FI.phone-subscriber
 fi_FI.phone-mobile.area	string
 fi_FI.phone-mobile.ndc	string
 fi_FI.phone-mobile.subscriber	string
-fi_FI.phone-subscriber	format "{digits-6-8}"
-fi_FI.phone-subscriber.digits-5-7	string
-fi_FI.phone-subscriber.digits-6-8	string
+fi_FI.phone-subscriber	format "{mobile-6-8}"
 fi_FI.phone-subscriber.fixed-5-7	string
 fi_FI.phone-subscriber.fixed-6-8	string
+fi_FI.phone-subscriber.mobile-5-7	string
+fi_FI.phone-subscriber.mobile-6-8	string
 fi_FI.phone.international
 fi_FI.phone.national
 fi_FI.sex	format "{name}"	key code	name name	weight count
