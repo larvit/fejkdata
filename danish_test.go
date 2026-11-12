@@ -710,12 +710,12 @@ func TestShippedDanishDatesIncludeADayOfOneDigit(t *testing.T) {
 	}
 }
 
-var danishEmail = regexp.MustCompile(`^[a-z0-9]+([._-][a-z0-9]+)*@([a-z0-9-]+\.)*example\.(com|org|net)$`)
+var exampleEmail = regexp.MustCompile(`^[a-z0-9]+([._-][a-z0-9]+)*@([a-z0-9-]+\.)*example\.(com|org|net)$`)
 
 func TestShippedDanishEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 	f := shipped(t, WithSeed(4))
 	eachDraw(500, func() string { return fake(t, f, "da_DK.email") }, func(got string) {
-		if !danishEmail.MatchString(got) {
+		if !exampleEmail.MatchString(got) {
 			t.Fatalf("email %q is not lower-case ASCII at example.com, example.org or example.net", got)
 		}
 	})

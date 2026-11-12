@@ -434,8 +434,6 @@ func finnishDateYear(got string) int {
 	return d.Year()
 }
 
-// Kotus's Kielitoimiston ohjepankki, "Ajanilmaukset: päiväys ja vuosiluku", writes the date 24.12.2014
-// and says a number under ten needs no leading zero.
 func TestShippedFinnishDateIsDayMonthYearWithDotsAndNoLeadingZeroFrom1970To2029(t *testing.T) {
 	date := regexp.MustCompile(`^([1-9]|[12]\d|3[01])\.([1-9]|1[0-2])\.\d{4}$`)
 	eachShippedFinnishDate(t, func(got string) {
@@ -465,7 +463,7 @@ func TestShippedFinnishDatesIncludeADayOfOneDigit(t *testing.T) {
 func TestShippedFinnishEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 	f := shipped(t, WithSeed(4))
 	eachDraw(500, func() string { return fake(t, f, "fi_FI.email") }, func(got string) {
-		if !danishEmail.MatchString(got) {
+		if !exampleEmail.MatchString(got) {
 			t.Fatalf("email %q is not lower-case ASCII at example.com, example.org or example.net", got)
 		}
 	})
@@ -499,8 +497,9 @@ func TestShippedFinnishEmailHoldsAFirstAndALastNameInHalfItsAddresses(t *testing
 	})
 	named := 5000 - seen[""]
 	delete(seen, "")
-	if named < 2000 || len(seen) < 40 {
-		t.Errorf("5000 emails held a first and a last name in %d, of %d distinct last names; want 2000 or more of 40 or more", named, len(seen))
+	assertShare(t, "addresses holding a first and a last name", named, 5000, 0.5)
+	if len(seen) < 40 {
+		t.Errorf("5000 emails held %d distinct last names, want 40 or more", len(seen))
 	}
 }
 
@@ -529,9 +528,6 @@ func TestShippedFinnishCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
 	})
 }
 
-// Statistics Finland's table 13w6, "Yritykset toimialoittain ja oikeudellisen muodon mukaan", 2024:
-// 295,203 natural persons (sole traders), 240,524 limited companies, 13,356 limited partnerships,
-// 4,726 general partnerships and 2,811 co-operatives.
 func TestShippedFinnishCompanyEndsInALegalFormDrawnByStatisticsFinlandsEnterprises(t *testing.T) {
 	t.Parallel()
 	registered := map[string]int{"Tmi": 295203, "Oy": 240524, "Ky": 13356, "Ay": 4726, "osk": 2811}
@@ -554,7 +550,7 @@ func TestShippedFinnishCompanyPathsDrawOneFormEach(t *testing.T) {
 		t.Run(path, func(t *testing.T) {
 			eachDraw(100, func() string { return fake(t, f, "fi_FI.company."+path) }, func(got string) {
 				if suffix == "" && finnishLegalFormSuffix.MatchString(got) || !strings.HasSuffix(got, suffix) {
-					t.Fatalf("fi_FI.company.%s = %q, want a name ending in %q", path, got, suffix)
+					t.Fatalf("fi_FI.company.%s = %q, want a name ending in %q, or in no legal form where that is empty", path, got, suffix)
 				}
 			})
 		})
