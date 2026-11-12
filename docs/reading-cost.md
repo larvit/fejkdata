@@ -1613,3 +1613,20 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `internal/engine/fence/columnread.go` 1
 - `internal/engine/render/path_test.go` 1
+
+## Reading cost, chunk 6e496b5e2190, finished 2026-11-12T01:12:27Z
+
+87840 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/engine/fence/namefence.go` 8
+- `internal/engine/load/graph.go` 5
+- `internal/engine/render/render.go` 4
+- `README.md` 2
+- `compose.yaml` 2
+- `docs/decisions.md` 1
+- `internal/engine/fence/graph.go` 1
+- `internal/engine/fence/valueproof.go` 1
+- `internal/engine/load/path.go` 1
+- `internal/engine/tree/read.go` 1
