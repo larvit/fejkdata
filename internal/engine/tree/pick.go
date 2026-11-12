@@ -64,8 +64,8 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 	return keys
 }
 
-// LevelsUnder is the levels of a as a pick keys them, a being a fresh read in a template the pick
-// renders at at: each of a's levels, moved under at. It is the one rule that lines a fresh read's
+// LevelsUnder is the levels of a as a pick keys them: each of a's levels, moved under at. a is a
+// fresh read in a template the pick renders, and at is that template's key. It is the one rule that lines a fresh read's
 // keys up with a named read's, and load and render both call it.
 //
 // The two kinds of read share a key because of where their levels start. A named read starts at
@@ -87,7 +87,7 @@ func LevelsUnder(at PickKey, a Read) []PickKey {
 // renders, at is that template's key, and by is the spelling of the read of the name that addresses
 // a. Load and render both call it, so they agree on what a pick keeps. A reference draws afresh and
 // a read through a name reads its own name's pick, so the pick keeps neither. It keeps any other
-// read where a read of the name addresses the first of a's levels under at (LevelsUnder).
+// read where a read of the name addresses the first of LevelsUnder's keys, built here alone to spare the slice.
 func LandsInPick(addressed map[PickKey]string, at PickKey, a Read) (by string, lands bool) {
 	if grammar.IsRef(a.Head()) || a.Kind() == NamedRead {
 		return "", false

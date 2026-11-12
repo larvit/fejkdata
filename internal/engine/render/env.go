@@ -30,7 +30,7 @@ func (st *frameStack) push(f *pickFrame) int {
 func (st *frameStack) pop(mark int) { st.frames = st.frames[:mark] }
 
 // enter opens the frames of a read landing on n: one for each name scope around n, innermost
-// last. A frame comes from memo where memo is non-nil, and is made in it where it holds none, so
+// first. A frame comes from memo where memo is non-nil, and is made in it where it holds none, so
 // reads sharing memo read one pick of each name. It returns the frame count before it pushed any:
 // popping to that mark closes them all, and the read renders in env.entered(mark).
 func (st *frameStack) enter(n tree.Node, memo *drawMemo) (mark int) {
@@ -43,9 +43,9 @@ func (st *frameStack) enter(n tree.Node, memo *drawMemo) (mark int) {
 	return mark
 }
 
-// openOwn opens a fresh frame of t's scope, where t binds names and no frame from base up is that
-// scope's, which is where no read entering the category opened one. It returns the mark that
-// closes the frame, or -1.
+// openOwn opens a fresh frame of t's scope and returns the mark that closes it. It opens none,
+// and returns -1, where t binds no name, or where a frame from base up is already that scope's:
+// the read entering the category opened it.
 func (st *frameStack) openOwn(t *tree.Template, base int) (mark int) {
 	own := t.OwnScope()
 	if own == nil || st.frameOf(own, base) != nil {
@@ -65,8 +65,8 @@ func (st *frameStack) frameOf(scope *tree.NameScope, base int) *pickFrame {
 }
 
 // renderEnv is where a render reads: the frames of the name scopes rendering; and row, the row
-// of the table rendering, which its columns read. No method of it changes the frames or a memo:
-// a call that does is a method of *frameStack, written env.frames.enter, openOwn, push or pop.
+// of the table rendering, which its columns read. No method of it changes the frames: a call
+// that does is a method of *frameStack, written env.frames.enter, openOwn, push or pop.
 // It passes by value, and what is read from it
 // reaches a map key, an interface or a func value only as a copy; else env, and with it every
 // render's frames, moves to the heap.
@@ -106,7 +106,7 @@ func (env renderEnv) rowOf(t *tree.Table) int {
 	return env.row.Index
 }
 
-// entered is env as a read sees it that entered a category when the frames stood at mark: no
+// entered is env as seen by a read that entered a category when the frames stood at mark: no
 // frame below mark, and no pick.
 func (env renderEnv) entered(mark int) renderEnv {
 	env.base, env.pick = mark, nil
