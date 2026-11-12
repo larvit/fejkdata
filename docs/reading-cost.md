@@ -1581,3 +1581,20 @@ Read most (opens and searches):
 Read most (opens and searches):
 
 - `todo.md` 4
+
+## Reading cost, chunk dc3848868d0c, finished 2026-11-12T00:05:08Z
+
+98038 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `danish_test.go` 5
+- `finnish_test.go` 3
+- `todo.md` 3
+- `cpr_test.go` 2
+- `internal/builtinfunc/builtinfunc_test.go` 2
+- `internal/builtinfunc/builtins.go` 2
+- `CHANGELOG.md` 1
+- `compose.yaml` 1
+- `data/da_DK/cpr.json` 1
