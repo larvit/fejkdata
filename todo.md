@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 423 | 0.5.0 |  |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 301 | 0.5.0 |  |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 428 | 0.5.0 |  |  | **Give the README's Development section a heading that lists, in order, what a pull request adding a locale ships.** | 1 | 2 | 1 | 2 | 2 | 11 by 4 | 2.3 |
 | 303 | 0.5.0 |  |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
@@ -222,7 +221,7 @@
 | 435 | 2.0.0 | 434 |  | **Port internal/drawstate to Rust so a seed draws the same numbers as Go, and fail the gate where the Go and Rust CLIs print different bytes for a corpus of templates at a fixed seed and date.** | 3 | 1 | 2 | 4 | 4 | 9 by 5 | 10.4 |
 | 436 | 2.0.0 | 434 |  | **Port internal/datafiles, internal/rows and internal/jsonvalue to Rust, loading on first reach a source with an index, and embed the shipped data per locale behind a Cargo feature.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
 | 437 | 2.0.0 | 434 |  | **Port internal/grammar to Rust: templates, paths, selectors and where clauses.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
-| 438 | 2.0.0 | 423, 436, 437 |  | **Port internal/engine/tree and internal/engine/load to Rust: compile, bind, link and resolve.** | 4 | 2 | 3 | 7 | 9 | 1 by 3 | 0.1 |
+| 438 | 2.0.0 | 436, 437 |  | **Port internal/engine/tree and internal/engine/load to Rust: compile, bind, link and resolve.** | 4 | 2 | 3 | 7 | 9 | 1 by 3 | 0.1 |
 | 440 | 2.0.0 | 435, 438 |  | **Port internal/engine/render and internal/avoid to Rust: drawing, named picks and distinct draws.** | 4 | 1 | 3 | 6 | 8 | 1 by 3 | 0.1 |
 | 444 | 2.0.0 | 440 |  | **Fail the Rust gate where a render allocates more than its pinned count, as the Go performance gate asserts allocations.** | 2 | 1 | 1 | 2 | 3 | 12 by 5 | 15.6 |
 | 441 | 2.0.0 | 435, 437 |  | **Port internal/builtinfunc to Rust: every builtin, Go's reference-time date layouts such as '060102', the checksums, calc with its Inf, and reword.** | 3 | 1 | 3 | 5 | 8 | 1 by 3 | 0.1 |
@@ -238,19 +237,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 423. Shrink the state a reader holds to follow a named pick through render to what one function and its type show.
-
-The render half of the named-pick cluster that every seat of item 177's scoring run at 3f909f1 found hardest; item 421 takes the fence half first, since its rules call `LandsInPick` too. Behaviour does not change: every test keeps its expected values and seeded output.
-
-The places, each to make easier to read:
-
-- `render/pick.go:128` `readName` enters, marks and pops frames across `drawMemo` and a `renderEnv` passed by value, whose `frameStack` sits behind a pointer, so which of the env's fields a call changes can't be seen at the call site (junior, mid, maintainability senior).
-- `render/env.go:76` `enter`, with `renderFrame` and `frameOf` beside it, is where that sharing happens.
-- `tree/pick.go:80` `LandsInPick`: a named read keys its levels from `""` and a fresh one from its head moved under `at.Under`, and an off-by-one in `NamedLevels` or `FreshLevels` changes what a pick keeps at load and at render alike (junior, mid).
-- `render/path.go:26` `drawSteps`: seven parameters and three modes, with `climbed` carrying `..` across the loop and `memo.stepDownPins` across steps (junior).
-
-Afterwards a call that changes the frames says so in its signature, the key alignment is one rule both load and render call, and `drawSteps`' modes are named where its callers choose one.
 
 ### 301. Add `fi_FI.phone`, drawn from Finland's numbering plan.
 
@@ -311,7 +297,7 @@ The places the seats named, which this item restructures:
 - `internal/engine/fence/refusetwicedrawn.go:32` `readTwiceApart`: indexes `levels[common]`, safe only by an invariant no line states.
 - `internal/engine/tree/pick.go:80` `LandsInPick`: the one place load and render agree on a pick's levels, in another package than its four fence readers.
 
-Out of scope: `render/pick.go` `readName` and its memo, which item 423 takes, and `tree/loadfinds.go`'s two phases.
+Out of scope: `render/pick.go` `readName` and its memo, which item 423 took, and `tree/loadfinds.go`'s two phases.
 
 ### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
 
@@ -1089,7 +1075,7 @@ The data under `data/` stays as it is, JSON and TSV. A program that enables one 
 
 ### 438. Port internal/engine/tree and internal/engine/load to Rust: compile, bind, link and resolve.
 
-This is a milestone. Split it into two or three items before starting. It waits for items 421 and 423 because the places the comprehension seats find hardest sit in the code this item and items 439 and 440 port: `namefence.go`, `pick.go:87` `landsInPick`, `path.go` and `table.go:250` `route`. Lifting Locality, the lowest dimension at about 5.5, in Go first, where the Go tests check the change, lets this item translate the cleaner design rather than redesign and translate at once.
+This is a milestone. Split it into two or three items before starting. It waited for items 421 and 423, now shipped, because the places the comprehension seats find hardest sit in the code this item and items 439 and 440 port: `namefence.go`, `pick.go:87` `landsInPick`, `path.go` and `table.go:250` `route`. Lifting Locality, the lowest dimension at about 5.5, in Go first, where the Go tests check the change, let this item translate the cleaner design rather than redesign and translate at once.
 
 ### 444. Fail the Rust gate where a render allocates more than its pinned count, as the Go performance gate asserts allocations.
 
