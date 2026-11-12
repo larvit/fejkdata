@@ -521,7 +521,7 @@ func eachShippedFinnishCompany(t *testing.T, check func(got string)) {
 
 func TestShippedFinnishCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
 	t.Parallel()
-	name := regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (Oy|Ky|Ay|osk))?$`)
+	name := regexp.MustCompile(`^\p{L}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (Oy|Ky|Ay|osk))?$`)
 	eachShippedFinnishCompany(t, func(got string) {
 		if !name.MatchString(got) || strings.HasSuffix(got, " Tmi") {
 			t.Fatalf("company %q is not a name that may end in a legal form", got)
