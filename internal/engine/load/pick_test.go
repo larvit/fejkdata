@@ -1,6 +1,7 @@
 package load
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/larvit/fejkdata/internal/engine/tree"
@@ -32,4 +33,27 @@ func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T
 func freshRead(spelling string) tree.Read {
 	r := splitRead(spelling, nil)
 	return tree.NewRead(spelling, r.head, r.tail, tree.FreshLevels(r.head, r.tail), nil, nil)
+}
+
+func TestAFreshReadsLevelsUnderAKeySpellThePathANamedReadKeys(t *testing.T) {
+	for name, c := range map[string]struct {
+		at    tree.PickKey
+		a     tree.Read
+		named []string
+		want  []tree.PickKey
+	}{
+		"a field at the pick's start": {"", freshRead("first"), []string{"first"}, []tree.PickKey{"first"}},
+		"a path at the pick's start":  {"", freshRead("street.name"), []string{"street", "name"}, []tree.PickKey{"street", "street.name"}},
+		"a field under a key":         {"x", freshRead("first"), []string{"x", "first"}, []tree.PickKey{"x.first"}},
+		"a path under a key":          {"a.b", freshRead("street.name"), []string{"a", "b", "street", "name"}, []tree.PickKey{"a.b.street", "a.b.street.name"}},
+	} {
+		got := tree.LevelsUnder(c.at, c.a)
+		if !slices.Equal(got, c.want) {
+			t.Errorf("%s: LevelsUnder(%q) = %q, want %q", name, c.at, got, c.want)
+		}
+		named := tree.NamedLevels(c.named)
+		if tail := named[len(named)-len(c.want):]; !slices.Equal(tail, c.want) {
+			t.Errorf("%s: a named read of the same path keys its last levels %q, want %q", name, tail, c.want)
+		}
+	}
 }
