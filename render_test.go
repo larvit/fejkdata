@@ -107,7 +107,7 @@ func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 			tbl.Rows().DrawIn(s, &pins)
 			render.Pinned(s, n, &pins)
 		},
-		"RenderEdges": func(n tree.Node) { load.RenderEdges(n, nil) },
+		"RenderEdges": func(n tree.Node) { load.RenderEdges(n, tree.AfterFinish) },
 		"Prove":       func(n tree.Node) { fence.Prove(n) },
 	}
 }
@@ -143,7 +143,7 @@ func TestRenderEdgesListWhatRenderRecursesInto(t *testing.T) {
 	samples, _ := nodeSamples(t)
 	for kind, n := range samples {
 		recurses := kind != "NullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
-		if edges := load.RenderEdges(n, nil); recurses != (len(edges) > 0) {
+		if edges := load.RenderEdges(n, tree.AfterFinish); recurses != (len(edges) > 0) {
 			t.Errorf("%s: render recurses into it %v, RenderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
 		}
 	}
