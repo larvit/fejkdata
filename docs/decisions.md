@@ -1608,7 +1608,7 @@ bulk file of Danish company names replaces them, as Enhetsregisteret's names sha
 
 ## `fi_FI.company` weighs its legal forms by Statistics Finland's enterprises and draws its names from a language model's recall
 
-2026-11-12, Lilleman auf Larv. Goal 3.2. Applies the project principle on company categories, which the maintainer approved on 2026-11-12 on seeing that this decision and the Danish one apply one rule.
+2026-11-12, Lilleman auf Larv. Goal 3.2. Applies the project principle on company categories, approved 2026-11-12.
 
 Statistics Finland's table 13w6, "Yritykset toimialoittain ja oikeudellisen muodon mukaan", counts the
 legal units of 2024 by legal form: 295,203 natural persons (sole traders, `tmi`), 240,524 limited
