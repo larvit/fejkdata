@@ -1,0 +1,13 @@
+[
+  {
+    "format": "{.phone-mobile as a}{national}",
+    "weight": 10,
+    "national": "{a.area} {a.subscriber}",
+    "international": "+358 {a.ndc} {a.subscriber}"
+  },
+  {
+    "format": "{.phone-fixed as a}{national}",
+    "national": "{a.area} {a.subscriber}",
+    "international": "+358 {a.ndc} {a.subscriber}"
+  }
+]
