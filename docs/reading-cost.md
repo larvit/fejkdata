@@ -1598,3 +1598,18 @@ Read most (opens and searches):
 - `CHANGELOG.md` 1
 - `compose.yaml` 1
 - `data/da_DK/cpr.json` 1
+
+## Reading cost, chunk 33480608c498, finished 2026-11-12T00:31:14Z
+
+72349 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 5
+- `internal/engine/tree/node.go` 4
+- `internal/engine/tree/loadfinds.go` 3
+- `internal/engine/tree/name.go` 2
+- `README.md` 1
+- `compose.yaml` 1
+- `internal/engine/fence/columnread.go` 1
+- `internal/engine/render/path_test.go` 1
