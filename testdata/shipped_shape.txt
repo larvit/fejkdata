@@ -175,6 +175,21 @@ fi_FI.person.first	string
 fi_FI.person.last	string
 fi_FI.person.prefix	string null
 fi_FI.person.sex	string
+fi_FI.phone	reads fi_FI.phone-fixed fi_FI.phone-mobile
+fi_FI.phone-fixed	format "{area}"	key area	reads fi_FI.phone-subscriber
+fi_FI.phone-fixed.area	string
+fi_FI.phone-fixed.name	string
+fi_FI.phone-fixed.ndc	string
+fi_FI.phone-fixed.subscriber	string
+fi_FI.phone-mobile	format "{area}"	key area	reads fi_FI.phone-subscriber
+fi_FI.phone-mobile.area	string
+fi_FI.phone-mobile.ndc	string
+fi_FI.phone-mobile.subscriber	string
+fi_FI.phone-subscriber	format "{digits-6-8}"
+fi_FI.phone-subscriber.digits-5-7	string
+fi_FI.phone-subscriber.digits-6-8	string
+fi_FI.phone.international
+fi_FI.phone.national
 fi_FI.sex	format "{name}"	key code	name name	weight count
 fi_FI.sex.code	string
 fi_FI.sex.count	string
