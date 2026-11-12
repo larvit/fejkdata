@@ -1630,3 +1630,20 @@ Read most (opens and searches):
 - `internal/engine/fence/valueproof.go` 1
 - `internal/engine/load/path.go` 1
 - `internal/engine/tree/read.go` 1
+
+## Reading cost, chunk 32fb1e50c71d, finished 2026-11-12T01:50:31Z
+
+98977 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/engine/render/env.go` 6
+- `internal/engine/render/pick.go` 6
+- `internal/engine/tree/pick.go` 5
+- `internal/engine/render/path.go` 4
+- `internal/engine/load/pick_test.go` 3
+- `README.md` 2
+- `docs/score-anchors.md` 2
+- `internal/engine/fence/namefence.go` 2
+- `internal/engine/render/render.go` 2
+- `todo.md` 2
