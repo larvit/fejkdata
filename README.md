@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, and `fi_FI`'s names, persons, henkilötunnus and phone numbers, with names weighted by how common they are. Every Swedish postal town ships, and so
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
@@ -660,7 +660,7 @@ segments below that. It needs no index. Each shipped module carries one, so
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
-`fi_FI`, Finnish, carries `first-name`, `henkilotunnus`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex` and `title`, built like `nb_NO`'s.
+`fi_FI`, Finnish, carries `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex` and `title`, built like `nb_NO`'s.
 `fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
 2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
 and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
@@ -712,6 +712,20 @@ regulation gives, each length equally likely since the regulation publishes no f
 subscriber number begins with 2 to 8, the ranges section 11 reserves for it. A number is valid, not
 real: a real subscriber may hold it. The tables leave out the mobile codes the plan assigns as five
 digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
+
+`fi_FI.date` is a date from 1970 to 2029 in the Finnish spelling, day, month and year with dots and no zero before a
+one-digit day or month, such as `2.4.2019`; Kotus's Kielitoimiston ohjepankki, in "Ajanilmaukset: päiväys ja vuosiluku",
+says a number under ten needs no leading zero. `fi_FI.email` is built like `nb_NO.email`: half its local parts are a first and
+a last name from `fi_FI`'s names, with `ä`, `ö` and `å` folded to ASCII.
+
+`fi_FI.company` draws a legal form as often as Statistics Finland counted enterprises of it in 2024 (its table 13w6):
+sole trader (a natural person, `tmi`), limited company (`Oy`), limited partnership (`Ky`), general partnership (`Ay`) and
+co-operative (`osk`). A sole trader's name has no abbreviation after it, and the others end in theirs, such as
+`Pohjanniemi Rakennus Oy`. `fi_FI.company.tmi`, `.oy`, `.ky`, `.ay` and `.osk` each draw one form, and
+`{/fi_FI.company as c}{c.legal}` prints the abbreviation of the same pick. The table's other legal forms are not drawn.
+No open bulk file of Finnish company names was found, so the name's shapes and the words of `company-coined` and
+`company-word` are a language model's recall. Each name is made of those words and `fi_FI`'s names. A name is
+invented, and may also be a real company's. A program showing the counts credits "Lähde: Tilastokeskus".
 
 `da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
@@ -1048,7 +1062,7 @@ of `born(100,…)` carries the `+`.
 
 Skatteverket's test series is small: a personnummer is one of about 83,000 values, a day
 in the 114 years up to the given date against the two birth numbers, so a fixture past a few hundred rows repeats
-one and a `UNIQUE` column needs a category of your own. `sv_SE.date`, `en_US.date`, `nb_NO.date` and `da_DK.date`
+one and a `UNIQUE` column needs a category of your own. `sv_SE.date`, `en_US.date`, `nb_NO.date`, `da_DK.date` and `fi_FI.date`
 are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 What the two locales do not share: `en_US.address` carries a `region` column the Swedish
 one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
