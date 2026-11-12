@@ -1,0 +1,31 @@
+{
+  "format": "{registered as r}{r}",
+  "legal": "{r.legal}",
+  "registered": [
+    { "format": "{.company.tmi}", "legal": "", "weight": 295203 },
+    { "format": "{.company.oy}", "legal": "Oy", "weight": 240524 },
+    { "format": "{.company.ky}", "legal": "Ky", "weight": 13356 },
+    { "format": "{.company.ay}", "legal": "Ay", "weight": 4726 },
+    { "format": "{.company.osk}", "legal": "osk", "weight": 2811 }
+  ],
+  "tmi": {
+    "format": "{name}",
+    "name": ["{.first-name} {.last-name}", "{.first-name} {.last-name} {.company-word}", "{.last-name} {.company-word}", "{.company-coined} {.company-word}"]
+  },
+  "oy": {
+    "format": "{name} Oy",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{.first-name} {.last-name}", "{.company-coined} {.company-coined}"]
+  },
+  "ky": {
+    "format": "{name} Ky",
+    "name": ["{.last-name} & {.last-name}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{.company-coined}"]
+  },
+  "ay": {
+    "format": "{name} Ay",
+    "name": ["{.last-name} & {.last-name}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{.company-coined}"]
+  },
+  "osk": {
+    "format": "{name} osk",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}"]
+  }
+}

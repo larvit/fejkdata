@@ -1,5 +1,10 @@
 {
 	"index": {
+		"fi_FI.company": {"paths":["","ay","ay.name","ky","ky.name","legal","osk","osk.name","oy","oy.name","registered","registered.legal","tmi","tmi.name"]},
+		"fi_FI.company-coined": {"paths":["","a","b"]},
+		"fi_FI.company-word": {"paths":[""]},
+		"fi_FI.date": {"paths":[""]},
+		"fi_FI.email": {"paths":["","domain","local","local.n"]},
 		"fi_FI.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"fi_FI.henkilotunnus": {"paths":["","birth"]},
 		"fi_FI.individ": {"parent":"sex","paths":["","digit","sex"]},
