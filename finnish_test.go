@@ -339,29 +339,47 @@ func TestShippedFinnishPhoneIsAnAllocatedAreaCodeAndASubscriberNumberOfTheLength
 
 // Section 11 of the regulation reserves the number ranges beginning with 2 to 8 for subscriber
 // numbering in a telecommunications area, and assigns no new range beginning with 12 to 19.
-func TestShippedFinnishPhoneFixedSubscriberNumberBeginsWith2To8(t *testing.T) {
+func TestShippedFinnishPhoneFixedSubscriberNumberBeginsWith2To8AndEveryDigitOfThemIsDrawn(t *testing.T) {
+	first := map[byte]bool{}
 	eachShippedFinnishPhone(t, func(n string) {
 		m := finnishNationalPhone.FindStringSubmatch(n)
-		if _, fixed := finnishFixedAreas[m[1]]; fixed && (m[2][0] < '2' || m[2][0] > '8') {
+		if _, fixed := finnishFixedAreas[m[1]]; !fixed {
+			return
+		}
+		if m[2][0] < '2' || m[2][0] > '8' {
 			t.Fatalf("phone %q has a fixed subscriber number beginning with %c, not 2 to 8", n, m[2][0])
 		}
+		first[m[2][0]] = true
 	})
+	for d := byte('2'); d <= '8'; d++ {
+		if !first[d] {
+			t.Errorf("30000 phones drew no fixed subscriber number beginning with %c", d)
+		}
+	}
 }
 
-func TestShippedFinnishPhoneDrawsEveryLengthTheRegulationGives(t *testing.T) {
-	seen := map[string]map[int]bool{"fixed": {}, "mobile": {}}
+// Each kind and area code length has its own subscriber lengths, so each is counted apart.
+func TestShippedFinnishPhoneDrawsEveryLengthTheRegulationGivesForEachAreaCodeLength(t *testing.T) {
+	seen := map[string]map[int]bool{}
 	eachShippedFinnishPhone(t, func(n string) {
 		m := finnishNationalPhone.FindStringSubmatch(n)
 		kind := "mobile"
 		if _, fixed := finnishFixedAreas[m[1]]; fixed {
 			kind = "fixed"
 		}
-		seen[kind][len(m[1])-1+len(strings.ReplaceAll(m[2], " ", ""))] = true
+		key := kind + " " + strconv.Itoa(len(m[1])) + "-character area code"
+		if seen[key] == nil {
+			seen[key] = map[int]bool{}
+		}
+		seen[key][len(m[1])-1+len(strings.ReplaceAll(m[2], " ", ""))] = true
 	})
-	for kind, want := range map[string][]int{"fixed": {7, 8, 9}, "mobile": {8, 9, 10}} {
+	for key, want := range map[string][]int{
+		"fixed 2-character area code": {7, 8, 9}, "fixed 3-character area code": {7, 8, 9},
+		"mobile 3-character area code": {8, 9, 10}, "mobile 4-character area code": {8, 9, 10},
+	} {
 		for _, length := range want {
-			if !seen[kind][length] {
-				t.Errorf("30000 phones drew no %s number of %d digits after the 0", kind, length)
+			if !seen[key][length] {
+				t.Errorf("30000 phones drew no %s number of %d digits after the 0", key, length)
 			}
 		}
 	}
