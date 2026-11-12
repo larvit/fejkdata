@@ -599,6 +599,25 @@ func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 	}
 }
 
+func TestRecordPGCopyEscapesWhatCOPYTextReadsSpecially(t *testing.T) {
+	t.Parallel()
+	dir := writeData(t, map[string]string{"row": `{"format":"","age":{"format":"42","datatype":"integer"},"gone":null,"na":"\\N","name":"a\tb\r\nc\\d","nick":""}`})
+	f, err := New(WithDataPath(dir), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := f.FakeRecord("row")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := r.PGCopyHeader("my table"), `COPY "my table" ("age", "gone", "na", "name", "nick") FROM STDIN;`; got != want {
+		t.Errorf("PGCopyHeader = %q, want %q", got, want)
+	}
+	if got, want := r.PGCopyLine(), `42`+"\t"+`\N`+"\t"+`\\N`+"\t"+`a\tb\r\nc\\d`+"\t"; got != want {
+		t.Errorf("PGCopyLine = %q, want %q: a null column \\N, a backslash, tab, CR and LF escaped, an empty string an empty field", got, want)
+	}
+}
+
 func TestRecordSQLHeaderAndValuesJoinIntoAMultiRowInsert(t *testing.T) {
 	t.Parallel()
 	dir := writeData(t, map[string]string{"t": `{"format":"","age":{"format":"42","datatype":"integer"},"name":"O'Brien"}`})
