@@ -52,7 +52,7 @@ type NameBinding struct {
 // Finished says whether LoadFinds.Finish has written what b's load found.
 func (b *NameBinding) Finished() bool { return b.finds != nil }
 
-func (b *NameBinding) Addressed() map[PickKey]string { return b.finds.addressed }
+func (b *NameBinding) Addressed() map[PickKey]string { return b.found().addressed }
 
 func (b *NameBinding) Binder() *Template { return b.binder }
 
@@ -68,9 +68,9 @@ func (b *NameBinding) Ref() string { return b.ref }
 
 func (b *NameBinding) Scope() *NameScope { return b.scope }
 
-func (b *NameBinding) Target() NameTarget { return b.finds.target }
+func (b *NameBinding) Target() NameTarget { return b.found().target }
 
-func (b *NameBinding) Values() *ValueDraw { return b.finds.values }
+func (b *NameBinding) Values() *ValueDraw { return b.found().values }
 
 func (b *NameBinding) Where() string { return b.where }
 

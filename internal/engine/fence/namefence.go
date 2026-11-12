@@ -14,7 +14,7 @@ import (
 // checkNameReads refuses a read of a name that could disagree with another read of it, or that reads
 // a name of a choice's item it never renders.
 func checkNameReads(label string, t *tree.Template, names resolvedNames) error {
-	for _, r := range load.NamedReads(t, nil) {
+	for _, r := range load.NamedReads(t, tree.AfterFinish) {
 		if err := checkNameRead(t, r.Read, names); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", label, r.Op.Token().Body, err)
 		}
@@ -154,7 +154,7 @@ func walkRoutes(nodes []tree.Node, start tree.PickKey, addressed map[tree.PickKe
 				walk(item, at, inPick)
 			}
 		case *tree.Table, *tree.TableRow:
-			for _, e := range load.RenderEdges(n, nil) {
+			for _, e := range load.RenderEdges(n, tree.AfterFinish) {
 				walk(e.To, "", false)
 			}
 		case *tree.Template:

@@ -26,9 +26,9 @@ func CheckColumns(s NodeSet) error {
 		if len(items) == 0 {
 			return nil
 		}
-		first := ColumnDatatype(column, nil)
+		first := ColumnDatatype(column, tree.AfterFinish)
 		for _, it := range items[1:] {
-			if d := itemDatatype(it, nil); d != first {
+			if d := itemDatatype(it, tree.AfterFinish); d != first {
 				return fmt.Errorf("%s: field %q: %w", label, name, disagreement(items[0], first, it, d))
 			}
 		}
@@ -93,7 +93,7 @@ func kindOf(t *tree.Template) itemKind {
 	switch {
 	case t.DataType() != nil:
 		return kindDeclares
-	case itemDatatype(t, nil) != datatype.String:
+	case itemDatatype(t, tree.AfterFinish) != datatype.String:
 		return kindReads
 	}
 	return kindText

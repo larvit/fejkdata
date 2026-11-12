@@ -84,9 +84,9 @@ type Template struct {
 	finds  *TemplateFinds // written by LoadFinds.Finish, from what its load found
 }
 
-func (t *Template) Columns() []RecordColumn { return t.finds.columns }
+func (t *Template) Columns() []RecordColumn { return t.found().columns }
 
-func (t *Template) Compiled() FormatOps { return t.finds.compiled }
+func (t *Template) Compiled() FormatOps { return t.found().compiled }
 
 func (t *Template) DataType() *datatype.DataType { return t.syntax.DataType }
 
@@ -100,11 +100,11 @@ func (t *Template) IsRecord() bool { return t.syntax.IsRecord }
 
 func (t *Template) Lets() map[string]bool { return t.syntax.Lets }
 
-func (t *Template) NameScope() *NameScope { return t.finds.nameScope }
+func (t *Template) NameScope() *NameScope { return t.found().nameScope }
 
-func (t *Template) ReadsColumn() *ColumnRead { return t.finds.readsColumn }
+func (t *Template) ReadsColumn() *ColumnRead { return t.found().readsColumn }
 
-func (t *Template) Refs() TemplateRefs { return t.finds.refs }
+func (t *Template) Refs() TemplateRefs { return t.found().refs }
 
 func (t *Template) Repeat() int { return t.syntax.Repeat }
 
@@ -172,7 +172,7 @@ func (t *Template) FixedText() (string, bool) {
 // OwnScope is the scope t renders a frame of: a category's, once per render of its root, a
 // repeat's, once per iteration, or a choice item's, once per draw of the item. It is nil where t owns no scope, or its scope binds no name.
 func (t *Template) OwnScope() *NameScope {
-	if sc := t.finds.nameScope; sc != nil && sc.owner == Node(t) && len(sc.order) > 0 {
+	if sc := t.found().nameScope; sc != nil && sc.owner == Node(t) && len(sc.order) > 0 {
 		return sc
 	}
 	return nil

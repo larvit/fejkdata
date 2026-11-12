@@ -61,7 +61,7 @@ func Templates(ts []load.TemplateSite) error {
 }
 
 func namesOf(ts []load.TemplateSite) resolvedNames {
-	reads := load.ReadsOfNames(ts, nil)
+	reads := load.ReadsOfNames(ts, tree.AfterFinish)
 	names := resolvedNames{reads: reads, places: map[tree.Node]map[tree.Node][]string{}, fresh: map[*tree.NameBinding]map[tree.PickKey][]fieldRead{}}
 	for b, bound := range reads {
 		names.fresh[b] = freshFieldReads(bound, b.Addressed())
