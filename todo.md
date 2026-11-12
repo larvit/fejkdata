@@ -6,13 +6,12 @@
 
 `Bar = 0`
 
-`Next ID = 451`
+`Next ID = 452`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 302 | 0.5.0 |  |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 422 | 0.5.0 |  |  | **Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 421 | 0.5.0 |  | owner | **Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.** | 4 | 2 | 2 | 6 | 7 | code health by 8 | 2.3 |
 | 423 | 0.5.0 | 421 |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
@@ -30,6 +29,7 @@
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 328 | 0.6.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
+| 451 | 0.6.0 |  |  | **Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.1 |
 | 324 | 0.6.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
 | 325 | 0.6.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 334 | 0.7.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
@@ -239,10 +239,6 @@
 
 ## Details
 
-### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
-
 ### 422. Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.
 
 A Locality lift beside item 421, from item 177's scoring run at 3f909f1. Today a template's findings live in `tree/loadfinds.go:52` `LoadFinds.Of` until `:120` `Finish` writes them into the node, and the getters at `tree/name.go:55-73`, such as `Addressed`, `Target` and `Values`, dereference `finds` and panic when called early. Callers mix `l.Of(t)`, `t.Compiled()` and the nil form, so a reader must know where `pipeline.run` stands (mid). A stage reads through `l` before `Finish` and through the node after it (junior). Afterwards one of two holds: the before and after phases are separate types, so an early read does not compile; or each getter checks one named invariant and its failure names the phase. Make `LoadFinds.Of`, `Finish` and the getters easier to read; each caller reads findings one way.
@@ -316,6 +312,12 @@ Find the issuer's rules, and a test series if it publishes one, first.
 ### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
 
 Find the numbering plan and its licence first.
+
+### 451. Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.
+
+`fi_FI.henkilotunnus` draws numbers DVV issues to no one, as the decision "The Finnish id draws DVV's unissued 900 to 999" records, which names this variant as a later item. A checker that treats endings from 900 as synthetic ("keinohenkilötunnus", per the Vero API FAQ on testing) may refuse them, so a hand fixture for such a checker needs numbers of the issued range. Goal 3 asks the best category to offer more than one kind. A drawn number may be a living person's, so the README says so beside the variant, as it does for the Danish `cpr`, and the default stays 900 to 999 for goal 3.3.
+
+`{hetu(x)}` draws 900 to 999 only, so the item decides how the variant takes the range, records it in `docs/decisions.md` and revises the decision above. Recommended: a second argument to `{hetu(x)}` naming the range, beside a path such as `fi_FI.henkilotunnus-issued`, since the control character and century sign are the same and a second builtin adds a name for one meaning. Bench the path's and the argument's spelling with the README's audience before it ships. The individual number stays of the parity `x` reads, and 001 stays undrawn, as DVV issues from 002.
 
 ### 324. Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.
 
