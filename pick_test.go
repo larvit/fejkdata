@@ -381,3 +381,13 @@ func TestEveryReadKeysEachLevelFromItsHeadToItsLeaf(t *testing.T) {
 		}
 	}
 }
+
+func TestAReferenceReadInsideANamedPickKeepsNoneOfThePicksValues(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{
+		"x":     `{"format":"{p as q}{q.first}|{q}","p":{"format":"{first} {/other}","first":"mine"}}`,
+		"other": `{"format":"{first}","first":"theirs"}`,
+	}), WithSeed(1), onTestDay)
+	if got, err := f.Fake("x"); err != nil || got != "mine|mine theirs" {
+		t.Errorf(`Fake("x") = %q, %v, want "mine|mine theirs": the {first} of /other is not the pick's`, got, err)
+	}
+}
