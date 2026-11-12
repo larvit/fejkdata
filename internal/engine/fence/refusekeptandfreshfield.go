@@ -56,9 +56,9 @@ func refuseKeptAndFreshField(nr nameRead) error {
 	return nil
 }
 
-// drawnAfresh is the first of the name's fresh field reads, byLevel, that x, which the pick keeps,
-// could draw apart from, with the level the two share.
-func drawnAfresh(x route, byLevel map[tree.PickKey][]fieldRead) (u fieldRead, shared tree.PickKey, apart bool) {
+// drawnAfresh finds a read in byLevel, the name's fresh field reads, that could draw apart from x.
+// The pick keeps x. It returns the first such read and the level the two share.
+func drawnAfresh(x route, byLevel map[tree.PickKey][]fieldRead) (fieldRead, tree.PickKey, bool) {
 	for _, level := range x.levels {
 		for _, u := range byLevel[level] {
 			if shared, apart := readsFieldApart(x, u); apart {

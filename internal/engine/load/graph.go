@@ -68,7 +68,7 @@ func Contained(n tree.Node) []ContainedNode {
 		}
 		var out []ContainedNode
 		for r := 0; r < n.Table().Rows().Len(); r++ {
-			if cell := n.RenderedCell(r); cell != nil {
+			if cell := n.Table().CellTemplate(r, n.Index()); cell != nil {
 				out = append(out, ContainedNode{Node: cell, line: r + 2})
 			}
 		}
