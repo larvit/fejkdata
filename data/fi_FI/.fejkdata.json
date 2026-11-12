@@ -8,7 +8,7 @@
 		"fi_FI.phone": {"paths":["","international","national"]},
 		"fi_FI.phone-fixed": {"paths":["","area","name","ndc","subscriber"]},
 		"fi_FI.phone-mobile": {"paths":["","area","ndc","subscriber"]},
-		"fi_FI.phone-subscriber": {"paths":["","digits-5-7","digits-6-8"]},
+		"fi_FI.phone-subscriber": {"paths":["","digits-5-7","digits-6-8","fixed-5-7","fixed-6-8"]},
 		"fi_FI.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digit","individ.sex","name"]},
 		"fi_FI.title": {"paths":["","name","share"]}
 	},
