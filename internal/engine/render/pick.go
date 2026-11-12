@@ -19,11 +19,11 @@ func keptInPick(env renderEnv, a tree.Read) bool {
 
 // readUnder reads a, a read of t kept in env.pick, once per pick, keyed by a's key under env.pickAt.
 func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
-	levels := tree.LevelsUnder(env.pickAt, a)
-	p, key := env.pick, levels[len(levels)-1]
+	p, key := env.pick, env.pickAt.Under(a.Key()) // the last of LevelsUnder, alone: a hit needs no other
 	if r, done := p.memo.value[key]; done {
 		return r
 	}
+	levels := tree.LevelsUnder(env.pickAt, a)
 	leaf, pins := p.draw(s, t.StartOf(a.Head(), t.Refs()), a.Steps(), levels)
 	return p.renderAt(s, leaf, pins, key, env)
 }
@@ -115,9 +115,9 @@ func (m *drawMemo) enteredFrame(scope *tree.NameScope) *pickFrame {
 }
 
 // readName reads a from the pick of its name, held in the frame of the name's scope.
-// When the pick renders another category, env.frames.enter pushes that category's frames, kept
-// in the pick's memo, above mark, and openOwn finds them and opens no new one. Popping to mark
-// after the render leaves the frames as the read found them, and the memo keeps them.
+// When the pick renders another category, env.frames.enter pushes that category's frames above
+// mark. The pick's memo keeps those frames. openOwn finds them and opens no new one. Popping to
+// mark after the render leaves the frames as the read found them.
 // So every read through one pick sees one pick of each name the other category binds:
 // {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l
 // that geo.SE.address binds.
