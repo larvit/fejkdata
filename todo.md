@@ -12,8 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 421 | 0.5.0 |  | owner | **Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.** | 4 | 2 | 2 | 6 | 7 | code health by 8 | 2.3 |
-| 423 | 0.5.0 | 421 |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
+| 423 | 0.5.0 |  |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 301 | 0.5.0 |  |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 428 | 0.5.0 |  |  | **Give the README's Development section a heading that lists, in order, what a pull request adding a locale ships.** | 1 | 2 | 1 | 2 | 2 | 11 by 4 | 2.3 |
 | 303 | 0.5.0 |  |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
@@ -223,7 +222,7 @@
 | 435 | 2.0.0 | 434 |  | **Port internal/drawstate to Rust so a seed draws the same numbers as Go, and fail the gate where the Go and Rust CLIs print different bytes for a corpus of templates at a fixed seed and date.** | 3 | 1 | 2 | 4 | 4 | 9 by 5 | 10.4 |
 | 436 | 2.0.0 | 434 |  | **Port internal/datafiles, internal/rows and internal/jsonvalue to Rust, loading on first reach a source with an index, and embed the shipped data per locale behind a Cargo feature.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
 | 437 | 2.0.0 | 434 |  | **Port internal/grammar to Rust: templates, paths, selectors and where clauses.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
-| 438 | 2.0.0 | 421, 423, 436, 437 |  | **Port internal/engine/tree and internal/engine/load to Rust: compile, bind, link and resolve.** | 4 | 2 | 3 | 7 | 9 | 1 by 3 | 0.1 |
+| 438 | 2.0.0 | 423, 436, 437 |  | **Port internal/engine/tree and internal/engine/load to Rust: compile, bind, link and resolve.** | 4 | 2 | 3 | 7 | 9 | 1 by 3 | 0.1 |
 | 440 | 2.0.0 | 435, 438 |  | **Port internal/engine/render and internal/avoid to Rust: drawing, named picks and distinct draws.** | 4 | 1 | 3 | 6 | 8 | 1 by 3 | 0.1 |
 | 444 | 2.0.0 | 440 |  | **Fail the Rust gate where a render allocates more than its pinned count, as the Go performance gate asserts allocations.** | 2 | 1 | 1 | 2 | 3 | 12 by 5 | 15.6 |
 | 441 | 2.0.0 | 435, 437 |  | **Port internal/builtinfunc to Rust: every builtin, Go's reference-time date layouts such as '060102', the checksums, calc with its Inf, and reword.** | 3 | 1 | 3 | 5 | 8 | 1 by 3 | 0.1 |
@@ -239,17 +238,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 421. Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.
-
-The scoring run of item 177 at 3f909f1 measured Locality at 5.63, the lowest dimension and under the floor, and every seat found named picks and name fences the hardest cluster. This item takes the fence half of it; items filed beside it take the `LoadFinds` phase and the render half. Behaviour does not change: every test keeps its expected values.
-
-In scope, and only this:
-
-- One edge list. `render/render.go:32` `render` draws a node's children, `load/graph.go:99` `RenderEdges` lists them again, and `fence/namefence.go:137` `walkRoutes` walks them a third time, held in step by a comment and a render-time panic. The greenfield architect, the inherited architect, the extender senior and the maintainability senior each named it the most dangerous trap: a child drawn but not listed silently misses a fence. Afterwards the three read one list, so a child missing from it is missing from all three, and a test fails. The inherited architect of the 7d2b3a5 run also named `paths`, `valueProof.prove`, `compileItem` and `drawSteps` as lists of the same children; move each onto the list where it lists the same edges, and leave it where it walks something else.
-- Split `fence/namefence.go`, about 590 lines that hold the route walk (`checkNameReads` :16, `walkRoutes` :137) beside five refusal rules (`refuseTwiceDrawn` :267, `refuseDrawnApart` :338 with `sharedDraw` :366, `refuseSkippedItem` :397, `refuseFreshDraw` :430, `refuseKeptAndFreshField` :517). `checkNameRead` :39 then reads as the list of rules it applies, in order, and says why that order. Seats' places to make easier to read: `checkNameRead`, five refusals held in mind at once with route kinds, pick levels and addressed keys (junior, mid); `sharedDraw`, five ordered cases whose order is the logic, with nothing saying why (maintainability senior, and both 7d2b3a5 runs); `refuseFreshDraw`, the same key arithmetic as `readAddressing` and `rendersField` (maintainability senior), and the README's "Refused at `New`" list it implements, with neither linking the other; `refuseKeptAndFreshField`, three nested loops and a nine-argument error.
-
-Out of scope: `tree/pick.go:80` `LandsInPick` and the render side of a named pick, which the item on the named-pick state takes after this one.
 
 ### 423. Shrink the state a reader holds to follow a named pick through render to what one function and its type show.
 
