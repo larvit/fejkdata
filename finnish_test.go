@@ -1,6 +1,8 @@
 package fejkdata
 
 import (
+	"encoding/json"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -416,6 +418,206 @@ func TestShippedFinnishPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 		t.Run(path, func(t *testing.T) {
 			if got := fake(t, f, path); got != want {
 				t.Errorf("printed %q, want %q", got, want)
+			}
+		})
+	}
+}
+
+func eachShippedFinnishDate(t *testing.T, check func(got string)) {
+	t.Helper()
+	f := shipped(t, WithSeed(3))
+	eachDraw(500, func() string { return fake(t, f, "fi_FI.date") }, check)
+}
+
+func finnishDateYear(got string) int {
+	d, _ := time.Parse("2.1.2006", got)
+	return d.Year()
+}
+
+// Kotus's Kielitoimiston ohjepankki, "Ajanilmaukset: päiväys ja vuosiluku", writes the date 24.12.2014
+// and says a number under ten needs no leading zero.
+func TestShippedFinnishDateIsDayMonthYearWithDotsAndNoLeadingZeroFrom1970To2029(t *testing.T) {
+	date := regexp.MustCompile(`^([1-9]|[12]\d|3[01])\.([1-9]|1[0-2])\.\d{4}$`)
+	eachShippedFinnishDate(t, func(got string) {
+		d, err := time.Parse("2.1.2006", got)
+		if err != nil || !date.MatchString(got) || d.Year() < 1970 || d.Year() > 2029 {
+			t.Fatalf("date %q is not d.m.yyyy without leading zeros in 1970 to 2029: %v", got, err)
+		}
+	})
+}
+
+func TestShippedFinnishDateSpans1970To2029(t *testing.T) {
+	years := map[int]bool{}
+	eachShippedFinnishDate(t, func(got string) { years[finnishDateYear(got)] = true })
+	if !years[1970] || !years[2029] {
+		t.Errorf("500 dates drew the years %v, want 1970 and 2029 among them", years)
+	}
+}
+
+func TestShippedFinnishDatesIncludeADayOfOneDigit(t *testing.T) {
+	short := false
+	eachShippedFinnishDate(t, func(got string) { short = short || got[1] == '.' })
+	if !short {
+		t.Error("500 dates held no day of one digit, want one")
+	}
+}
+
+func TestShippedFinnishEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
+	f := shipped(t, WithSeed(4))
+	eachDraw(500, func() string { return fake(t, f, "fi_FI.email") }, func(got string) {
+		if !danishEmail.MatchString(got) {
+			t.Fatalf("email %q is not lower-case ASCII at example.com, example.org or example.net", got)
+		}
+	})
+}
+
+func TestShippedFinnishEmailsAreMostlyDistinct(t *testing.T) {
+	f := shipped(t, WithSeed(4))
+	seen := tallyDraws(500, func() string { return fake(t, f, "fi_FI.email") })
+	if len(seen) < 400 {
+		t.Errorf("500 emails drew %d distinct, want 400 or more", len(seen))
+	}
+}
+
+func finnishNameSlugs(t *testing.T, file string) map[string]bool {
+	t.Helper()
+	fold := strings.NewReplacer("ä", "a", "ö", "o", "å", "a")
+	out := map[string]bool{}
+	for _, row := range tsvRows(t, file) {
+		out[fold.Replace(strings.ToLower(row["name"]))] = true
+	}
+	return out
+}
+
+func TestShippedFinnishEmailHoldsAFirstAndALastNameInHalfItsAddresses(t *testing.T) {
+	firsts, lasts := finnishNameSlugs(t, "data/fi_FI/first-name.tsv"), finnishNameSlugs(t, "data/fi_FI/last-name.tsv")
+	trailingDigits := regexp.MustCompile(`\d+$`)
+	f := shipped(t, WithSeed(9))
+	seen := tallyDraws(5000, func() string {
+		local, _, _ := strings.Cut(fake(t, f, "fi_FI.email"), "@")
+		return lastNameInEmail(trailingDigits.ReplaceAllString(local, ""), firsts, lasts)
+	})
+	named := 5000 - seen[""]
+	delete(seen, "")
+	if named < 2000 || len(seen) < 40 {
+		t.Errorf("5000 emails held a first and a last name in %d, of %d distinct last names; want 2000 or more of 40 or more", named, len(seen))
+	}
+}
+
+var finnishLegalFormSuffix = regexp.MustCompile(` (Oy|Ky|Ay|osk)$`)
+
+func finnishLegalForm(company string) string {
+	if m := finnishLegalFormSuffix.FindStringSubmatch(company); m != nil {
+		return m[1]
+	}
+	return "Tmi"
+}
+
+func eachShippedFinnishCompany(t *testing.T, check func(got string)) {
+	t.Helper()
+	f := shipped(t, WithSeed(6))
+	eachDraw(shareDraws, func() string { return fake(t, f, "fi_FI.company") }, check)
+}
+
+func TestShippedFinnishCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
+	t.Parallel()
+	name := regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (Oy|Ky|Ay|osk))?$`)
+	eachShippedFinnishCompany(t, func(got string) {
+		if !name.MatchString(got) || strings.HasSuffix(got, " Tmi") {
+			t.Fatalf("company %q is not a name that may end in a legal form", got)
+		}
+	})
+}
+
+// Statistics Finland's table 13w6, "Yritykset toimialoittain ja oikeudellisen muodon mukaan", 2024:
+// 295,203 natural persons (sole traders), 240,524 limited companies, 13,356 limited partnerships,
+// 4,726 general partnerships and 2,811 co-operatives.
+func TestShippedFinnishCompanyEndsInALegalFormDrawnByStatisticsFinlandsEnterprises(t *testing.T) {
+	t.Parallel()
+	registered := map[string]int{"Tmi": 295203, "Oy": 240524, "Ky": 13356, "Ay": 4726, "osk": 2811}
+	var total int
+	for _, n := range registered {
+		total += n
+	}
+	form := map[string]int{}
+	eachShippedFinnishCompany(t, func(got string) { form[finnishLegalForm(got)]++ })
+	for code, n := range registered {
+		t.Run(code, func(t *testing.T) {
+			assertShare(t, code+" of the companies", form[code], shareDraws, float64(n)/float64(total))
+		})
+	}
+}
+
+func TestShippedFinnishCompanyPathsDrawOneFormEach(t *testing.T) {
+	f := shipped(t, WithSeed(7))
+	for path, suffix := range map[string]string{"tmi": "", "oy": " Oy", "ky": " Ky", "ay": " Ay", "osk": " osk"} {
+		t.Run(path, func(t *testing.T) {
+			eachDraw(100, func() string { return fake(t, f, "fi_FI.company."+path) }, func(got string) {
+				if suffix == "" && finnishLegalFormSuffix.MatchString(got) || !strings.HasSuffix(got, suffix) {
+					t.Fatalf("fi_FI.company.%s = %q, want a name ending in %q", path, got, suffix)
+				}
+			})
+		})
+	}
+}
+
+func TestShippedFinnishCompanyLegalIsItsAbbreviation(t *testing.T) {
+	f := shipped(t, WithSeed(7))
+	eachDraw(200, func() string { return fakeTemplate(t, f, "{/fi_FI.company as c}{c}|{c.legal}") }, func(got string) {
+		company, legal, _ := strings.Cut(got, "|")
+		want := finnishLegalForm(company)
+		if want == "Tmi" {
+			want = ""
+		}
+		if legal != want {
+			t.Fatalf("company %q has legal %q", company, legal)
+		}
+	})
+}
+
+func finnishCompanyShape(name string, words []string, firsts, lasts map[string]bool) []string {
+	var shapes []string
+	for _, w := range words {
+		if head, ok := strings.CutSuffix(name, " "+w); ok && lasts[head] {
+			shapes = append(shapes, "last name and trade word")
+		}
+	}
+	if first, last, ok := strings.Cut(name, " "); ok && firsts[first] && lasts[last] {
+		shapes = append(shapes, "first and last name")
+	}
+	return shapes
+}
+
+func TestShippedFinnishCompanyNamesAreBuiltOfNamesAndTradeWords(t *testing.T) {
+	t.Parallel()
+	src, err := os.ReadFile("data/fi_FI/company-word.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var words []string
+	if err := json.Unmarshal(src, &words); err != nil || len(words) < 20 {
+		t.Fatalf("company-word.json is %d words (%v), want an array of 20 or more", len(words), err)
+	}
+	set := func(file string) map[string]bool {
+		out := map[string]bool{}
+		for _, row := range tsvRows(t, file) {
+			out[row["name"]] = true
+		}
+		return out
+	}
+	firsts, lasts := set("data/fi_FI/first-name.tsv"), set("data/fi_FI/last-name.tsv")
+	f := shipped(t, WithSeed(8))
+	seen := map[string]int{}
+	const draws = 4000
+	eachDraw(draws, func() string { return fake(t, f, "fi_FI.company.tmi") }, func(name string) {
+		for _, shape := range finnishCompanyShape(name, words, firsts, lasts) {
+			seen[shape]++
+		}
+	})
+	for _, shape := range []string{"last name and trade word", "first and last name"} {
+		t.Run(shape, func(t *testing.T) {
+			if seen[shape] < draws/10 {
+				t.Errorf("%d sole traders drew a name of the shape %s %d times, want %d or more", draws, shape, seen[shape], draws/10)
 			}
 		})
 	}
