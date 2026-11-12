@@ -158,6 +158,29 @@ en_US.word.any	string
 en_US.word.noun	string
 en_US.word.verb	string
 en_US.word.verb.present
+fi_FI.company	format "{registered as r}{r}"	reads fi_FI.company fi_FI.company-coined fi_FI.company-word fi_FI.first-name fi_FI.last-name
+fi_FI.company-coined	format "{a}{b}"
+fi_FI.company-coined.a	string
+fi_FI.company-coined.b	string
+fi_FI.company-word
+fi_FI.company.ay	string
+fi_FI.company.ay.name
+fi_FI.company.ky	string
+fi_FI.company.ky.name
+fi_FI.company.legal	string
+fi_FI.company.osk	string
+fi_FI.company.osk.name
+fi_FI.company.oy	string
+fi_FI.company.oy.name
+fi_FI.company.registered	string
+fi_FI.company.registered.legal
+fi_FI.company.tmi	string
+fi_FI.company.tmi.name
+fi_FI.date	format "{date(1970-01-01,2029-12-31,'2.1.2006')}"
+fi_FI.email	format "{local}@{domain}"	reads fi_FI.first-name fi_FI.last-name
+fi_FI.email.domain	string
+fi_FI.email.local	string
+fi_FI.email.local.n
 fi_FI.first-name	format "{name}"	name name	weight count	parent sex
 fi_FI.first-name.count	string
 fi_FI.first-name.name	string
