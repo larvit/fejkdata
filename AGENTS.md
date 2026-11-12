@@ -16,6 +16,10 @@
 - A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one.
 - Cyclomatic complexity is gated at 14: split a function that would go over it. A table-shaped dispatch, a switch with one case per kind of its input, may sit at 14 and stays whole.
 
+## Project principles
+
+- A company category weighs its legal forms by the counts its country's statistics office publishes, and draws names that no open bulk file provides from a language model's recall, each weighing the same. Goal 3.2. Applied by `da_DK.company` and `fi_FI.company`.
+
 # Decisions
 
 In [docs/decisions.md](docs/decisions.md):
@@ -132,8 +136,6 @@ In [docs/decisions.md](docs/decisions.md):
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
 - `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall
-- `da_DK.company` weighs its legal forms by Statistics Denmark's enterprises and draws its names from a language model's recall
-- `fi_FI.company` weighs its legal forms by Statistics Finland's enterprises and draws its names from a language model's recall
 - A record's `let` fields write no column
 - No database or HTTP sink is built in
 - A date offset is `adddays(d,n)`, and its `d` reads `date` or `born` calls in one layout that reads back
