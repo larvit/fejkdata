@@ -68,7 +68,7 @@ func Contained(n tree.Node) []ContainedNode {
 		}
 		var out []ContainedNode
 		for r := 0; r < n.Table().Rows().Len(); r++ {
-			if cell := n.Table().CellTemplate(r, n.Index()); cell != nil {
+			if cell := n.RenderedCell(r); cell != nil {
 				out = append(out, ContainedNode{Node: cell, line: r + 2})
 			}
 		}
@@ -86,49 +86,6 @@ func containedByName(m map[string]tree.Node) []ContainedNode {
 		out = append(out, ContainedNode{name: name, Node: m[name]})
 	}
 	return out
-}
-
-// RenderEdge is a child a node renders into, labelled by what reaches it (a field
-// name, reference, or choice index) for a readable cycle report.
-type RenderEdge struct {
-	To    tree.Node
-	Label string
-}
-
-// RenderEdges lists the children rendering n recurses into, mirroring render.
-func RenderEdges(n tree.Node, l *tree.LoadFinds) []RenderEdge {
-	switch n := n.(type) {
-	case *tree.Choice:
-		es := make([]RenderEdge, len(n.Items()))
-		for i, it := range n.Items() {
-			es[i] = RenderEdge{To: it, Label: fmt.Sprintf("[%d]", i)}
-		}
-		return es
-	case *tree.Template:
-		var es []RenderEdge
-		for _, o := range l.Of(n).Compiled().Ops() {
-			for _, a := range o.AllReads() {
-				for _, leaf := range a.Leaves() {
-					es = append(es, RenderEdge{leaf, a.Spelling()})
-				}
-			}
-		}
-		return es
-	case *tree.Table:
-		return []RenderEdge{{To: n.FormatTemplate(), Label: "format"}}
-	case *tree.TableRow:
-		return []RenderEdge{{To: n.Table().FormatTemplate(), Label: "format"}}
-	case *tree.TableColumn:
-		var es []RenderEdge
-		for _, c := range Contained(n) {
-			es = append(es, RenderEdge{To: c.Node, Label: n.Name()})
-		}
-		return es
-	case *tree.Folder, *tree.NullItem:
-		return nil
-	default:
-		panic(invariant.Broken("RenderEdges has no case for node %T", n))
-	}
 }
 
 // MaxRepeat caps a repeat, and the renders nested repeats multiply to along any one path.

@@ -28,7 +28,8 @@ func Once(s *drawstate.State, n tree.Node) string {
 	return render(s, n, renderEnv{frames: &frames})
 }
 
-// A child this switch renders is one load.RenderEdges must list too, or the fences miss it.
+// render steps into a child only through the Rendered methods of tree/renderedge.go, which
+// tree.RenderEdges lists for the fences.
 func render(s *drawstate.State, n tree.Node, env renderEnv) string {
 	switch n := n.(type) {
 	case *tree.Choice:
@@ -37,12 +38,12 @@ func render(s *drawstate.State, n tree.Node, env renderEnv) string {
 		return ""
 	case *tree.Table:
 		env.row = Row{Table: n, Index: env.drawRowOf(s, n)}
-		return expand(s, n.FormatTemplate(), env)
+		return expand(s, n.RenderedFormat(), env)
 	case *tree.TableRow:
-		return expand(s, n.Table().FormatTemplate(), env)
+		return expand(s, n.RenderedFormat(), env)
 	case *tree.TableColumn:
 		row := env.rowOf(n.Table())
-		if cell := n.Table().CellTemplate(row, n.Index()); cell != nil {
+		if cell := n.RenderedCell(row); cell != nil {
 			return render(s, cell, env)
 		}
 		return n.Table().Rows().Cell(row, n.Index())
@@ -85,9 +86,9 @@ func renderRepeat(s *drawstate.State, t *tree.Template, env renderEnv) string {
 
 func drawItem(s *drawstate.State, c *tree.Choice) tree.Node {
 	if c.Cum() == nil {
-		return c.Items()[s.IntN(len(c.Items()))]
+		return c.RenderedItem(s.IntN(len(c.Items())))
 	}
-	return c.Items()[s.Weighted(c.Cum())]
+	return c.RenderedItem(s.Weighted(c.Cum()))
 }
 
 func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
