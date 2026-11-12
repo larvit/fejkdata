@@ -19,15 +19,11 @@ func keptInPick(env renderEnv, a tree.Read) bool {
 
 // readUnder reads a, a read of t kept in env.pick, once per pick, keyed by a's key under env.pickAt.
 func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
-	p, key := env.pick, env.pickAt.Under(a.Key())
+	levels := tree.LevelsUnder(env.pickAt, a)
+	p, key := env.pick, levels[len(levels)-1]
 	if r, done := p.memo.value[key]; done {
 		return r
 	}
-	levels := make([]tree.PickKey, len(a.Levels()))
-	for i, l := range a.Levels()[:len(levels)-1] {
-		levels[i] = env.pickAt.Under(l)
-	}
-	levels[len(levels)-1] = key // the leaf's level, already moved; moving it again allocates
 	leaf, pins := p.draw(s, t.StartOf(a.Head(), t.Refs()), a.Steps(), levels)
 	return p.renderAt(s, leaf, pins, key, env)
 }
@@ -61,14 +57,14 @@ type drawMemo struct {
 
 // stepDownPins is the pins a path steps down into after stepping up to t, drawn once per level
 // and kept in m, so every path of the pick stepping down at that level reads one draw.
-func (m *drawMemo) stepDownPins(pins *tree.PinSet, t *tree.RowsTable, levels []tree.PickKey, at int) *tree.PinSet {
-	p, ok := m.steppedDown[levels[at]]
+func (m *drawMemo) stepDownPins(pins *tree.PinSet, t *tree.RowsTable, level tree.PickKey) *tree.PinSet {
+	p, ok := m.steppedDown[level]
 	if !ok {
 		p = pins.Above(t)
 		if m.steppedDown == nil {
 			m.steppedDown = map[tree.PickKey]*tree.PinSet{}
 		}
-		m.steppedDown[levels[at]] = p
+		m.steppedDown[level] = p
 	}
 	return p
 }
@@ -119,9 +115,9 @@ func (m *drawMemo) enteredFrame(scope *tree.NameScope) *pickFrame {
 }
 
 // readName reads a from the pick of its name, held in the frame of the name's scope.
-// When the pick renders another category, enter takes that category's frames from the pick's
-// memo, and renderFrame finds them and opens no new one. enter pushes those frames above mark,
-// and popping to mark after the render leaves the frames as the read found them.
+// When the pick renders another category, env.frames.enter pushes that category's frames, kept
+// in the pick's memo, above mark, and openOwn finds them and opens no new one. Popping to mark
+// after the render leaves the frames as the read found them, and the memo keeps them.
 // So every read through one pick sees one pick of each name the other category binds:
 // {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l
 // that geo.SE.address binds.
@@ -147,8 +143,8 @@ func readName(s *drawstate.State, env renderEnv, a tree.Read) readValue {
 	if a.Named().BindsField() { // the read stays in the category, so its frames are already open
 		return p.renderAt(s, leaf, pins, a.Key(), env)
 	}
-	env, mark := env.enter(leaf, &p.memo)
-	r := p.renderAt(s, leaf, pins, a.Key(), env)
+	mark := env.frames.enter(leaf, &p.memo)
+	r := p.renderAt(s, leaf, pins, a.Key(), env.entered(mark))
 	env.frames.pop(mark)
 	return r
 }
@@ -156,7 +152,7 @@ func readName(s *drawstate.State, env renderEnv, a tree.Read) readValue {
 // draw draws the path from start under p, keeping the variant drawn at each of levels, whose last
 // is the leaf's key, and returns the leaf and the pins its row is in.
 func (p *namedPick) draw(s *drawstate.State, start tree.Node, steps []tree.PathStep, levels []tree.PickKey) (tree.Node, *tree.PinSet) {
-	leaf, pins := drawSteps(s, drawInPick, start, steps, &p.pins, &p.memo, levels)
+	leaf, pins := drawAcrossTables(s, start, steps, &p.pins, &keptDraws{memo: &p.memo, levels: levels})
 	if c, isChoice := leaf.(*tree.Choice); isChoice {
 		leaf = p.memo.variantOf(s, c, levels[len(levels)-1])
 	}

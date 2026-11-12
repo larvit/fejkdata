@@ -6,7 +6,7 @@ import "github.com/larvit/fejkdata/internal/grammar"
 //
 // A level is one prefix of a read's path, and a read has one for each node it passes; a choice
 // and the variant drawn from it, or a table and its row, share one. A level's key is its path from
-// where the read starts, and LandsInPick says where that is. A load gives each read one key per
+// where the read starts, and LevelsUnder says where that is. A load gives each read one key per
 // level, in NamedLevels or FreshLevels.
 //
 // A name's addressed keys are the keys some read of it lands on or passes, from the level its
@@ -64,11 +64,9 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 	return keys
 }
 
-// LandsInPick reports whether a pick keeps the value of a. a is a read in a template the pick
-// renders, at is that template's key, and by is the spelling of the read of the name that addresses
-// a. Load and render both call it, so they agree on what a pick keeps. A reference draws afresh and
-// a read through a name reads its own name's pick, so the pick keeps neither. It keeps any other
-// read where a read of the name addresses a's first level, moved under at.
+// LevelsUnder is the levels of a as a pick keys them, a being a fresh read in a template the pick
+// renders at at: each of a's levels, moved under at. It is the one rule that lines a fresh read's
+// keys up with a named read's, and load and render both call it.
 //
 // The two kinds of read share a key because of where their levels start. A named read starts at
 // the node its name's target starts at, and may draw a variant there, so its levels start at that
@@ -77,10 +75,23 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 // at is that template's path from the target's start, so moved under at, a fresh read's key spells
 // the path a named read's does. Where p binds a category whose format reads {first}, the {first}
 // that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
+func LevelsUnder(at PickKey, a Read) []PickKey {
+	levels := make([]PickKey, len(a.levels))
+	for i, l := range a.levels {
+		levels[i] = at.Under(l)
+	}
+	return levels
+}
+
+// LandsInPick reports whether a pick keeps the value of a. a is a read in a template the pick
+// renders, at is that template's key, and by is the spelling of the read of the name that addresses
+// a. Load and render both call it, so they agree on what a pick keeps. A reference draws afresh and
+// a read through a name reads its own name's pick, so the pick keeps neither. It keeps any other
+// read where a read of the name addresses the first of a's levels under at (LevelsUnder).
 func LandsInPick(addressed map[PickKey]string, at PickKey, a Read) (by string, lands bool) {
 	if grammar.IsRef(a.Head()) || a.Kind() == NamedRead {
 		return "", false
 	}
-	by, lands = addressed[at.Under(a.Levels()[0])]
+	by, lands = addressed[at.Under(a.levels[0])]
 	return by, lands
 }
