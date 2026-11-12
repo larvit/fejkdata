@@ -19,7 +19,7 @@
 | 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 4 | 2 | 1 | 5 | 7 | code health by 2 | 0.6 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
-| 453 | 0.6.0 |  | owner | **Lift Locality to the comprehension floor: a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
+| 453 | 0.6.0 |  | owner | **Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 328 | 0.6.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 451 | 0.6.0 |  |  | **Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.1 |
@@ -261,7 +261,7 @@ Scored L 4: the change spans S 7 and about ten packages, two of L level 3's cond
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
-### 453. Lift Locality to the comprehension floor: a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.
+### 453. Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.
 
 The scoring run on PR #362 at 60f8482 left Locality at 5.75, Shape at 6.50, Self-sufficiency at 6.63 and the overall at 6.38, under the floor of 7.0. Item 421 gave each name rule a file; what the seats still found hard is what the rules share. Every rule reads the routes `walkRoutes` emits, and decides by index arithmetic over a route's `levels`, a read's tail and `pickReads.bound`, whose layout `placedAt` and `tree.PickKey` fix elsewhere. A reader holds that layout in every rule file.
 
