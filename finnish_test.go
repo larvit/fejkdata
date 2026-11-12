@@ -296,8 +296,15 @@ func TestShippedFinnishPhoneFixedAreaNamesItsTelecommunicationsArea(t *testing.T
 		if want := finnishFixedAreas[row["area"]]; row["name"] != want {
 			t.Errorf("area %q is named %q, the plan names it %q", row["area"], row["name"], want)
 		}
-		if row["ndc"] != strings.TrimPrefix(row["area"], "0") {
-			t.Errorf("area %q has ndc %q, want the code without the trunk 0", row["area"], row["ndc"])
+	}
+}
+
+func TestShippedFinnishPhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
+	for _, kind := range []string{"fixed", "mobile"} {
+		for _, row := range tsvRows(t, "data/fi_FI/phone-"+kind+".tsv") {
+			if row["ndc"] != strings.TrimPrefix(row["area"], "0") {
+				t.Errorf("phone-%s area %q has ndc %q, want the code without the trunk 0", kind, row["area"], row["ndc"])
+			}
 		}
 	}
 }
@@ -332,6 +339,36 @@ func TestShippedFinnishPhoneIsAnAllocatedAreaCodeAndASubscriberNumberOfTheLength
 	})
 }
 
+// Section 11 of the regulation reserves the number ranges beginning with 2 to 8 for subscriber
+// numbering in a telecommunications area, and assigns no new range beginning with 12 to 19.
+func TestShippedFinnishPhoneFixedSubscriberNumberBeginsWith2To8(t *testing.T) {
+	eachShippedFinnishPhone(t, func(n string) {
+		m := finnishNationalPhone.FindStringSubmatch(n)
+		if _, fixed := finnishFixedAreas[m[1]]; fixed && (m[2][0] < '2' || m[2][0] > '8') {
+			t.Fatalf("phone %q has a fixed subscriber number beginning with %c, not 2 to 8", n, m[2][0])
+		}
+	})
+}
+
+func TestShippedFinnishPhoneDrawsEveryLengthTheRegulationGives(t *testing.T) {
+	seen := map[string]map[int]bool{"fixed": {}, "mobile": {}}
+	eachShippedFinnishPhone(t, func(n string) {
+		m := finnishNationalPhone.FindStringSubmatch(n)
+		kind := "mobile"
+		if _, fixed := finnishFixedAreas[m[1]]; fixed {
+			kind = "fixed"
+		}
+		seen[kind][len(m[1])-1+len(strings.ReplaceAll(m[2], " ", ""))] = true
+	})
+	for kind, want := range map[string][]int{"fixed": {7, 8, 9}, "mobile": {8, 9, 10}} {
+		for _, length := range want {
+			if !seen[kind][length] {
+				t.Errorf("30000 phones drew no %s number of %d digits after the 0", kind, length)
+			}
+		}
+	}
+}
+
 func TestShippedFinnishPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
 	var nFixed int
 	eachShippedFinnishPhone(t, func(n string) {
@@ -360,8 +397,10 @@ func TestShippedFinnishPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 		"fi_FI.phone-fixed[09].name": "Uusimaa I", "fi_FI.phone-fixed[013].name": "North Karelia",
 		"fi_FI.phone-mobile[040].ndc": "40", "fi_FI.phone-mobile[0451].ndc": "451",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("%s printed %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("printed %q, want %q", got, want)
+			}
+		})
 	}
 }
