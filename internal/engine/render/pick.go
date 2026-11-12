@@ -19,11 +19,11 @@ func keptInPick(env renderEnv, a tree.Read) bool {
 
 // readUnder reads a, a read of t kept in env.pick, once per pick, keyed by a's key under env.pickAt.
 func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
-	p, key := env.pick, env.pickAt.Under(a.Key()) // the last of LevelsUnder, alone: a hit needs no other
+	p, key := env.pick, tree.KeyUnder(env.pickAt, a)
 	if r, done := p.memo.value[key]; done {
 		return r
 	}
-	levels := tree.LevelsUnder(env.pickAt, a)
+	levels := tree.LevelsUnder(env.pickAt, a, key)
 	leaf, pins := p.draw(s, t.StartOf(a.Head(), t.Refs()), a.Steps(), levels)
 	return p.renderAt(s, leaf, pins, key, env)
 }
