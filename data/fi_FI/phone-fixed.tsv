@@ -1,14 +1,14 @@
 area	ndc	name	subscriber
-02	2	Turku and Pori	{.phone-subscriber.digits-6-8}
-03	3	Häme	{.phone-subscriber.digits-6-8}
-05	5	Kymi	{.phone-subscriber.digits-6-8}
-06	6	Vaasa	{.phone-subscriber.digits-6-8}
-08	8	Oulu	{.phone-subscriber.digits-6-8}
-09	9	Uusimaa I	{.phone-subscriber.digits-6-8}
-013	13	North Karelia	{.phone-subscriber.digits-5-7}
-014	14	Central Finland	{.phone-subscriber.digits-5-7}
-015	15	Mikkeli	{.phone-subscriber.digits-5-7}
-016	16	Lapland	{.phone-subscriber.digits-5-7}
-017	17	Kuopio	{.phone-subscriber.digits-5-7}
-018	18	Åland	{.phone-subscriber.digits-5-7}
-019	19	Uusimaa II	{.phone-subscriber.digits-5-7}
+02	2	Turku and Pori	{.phone-subscriber.fixed-6-8}
+03	3	Häme	{.phone-subscriber.fixed-6-8}
+05	5	Kymi	{.phone-subscriber.fixed-6-8}
+06	6	Vaasa	{.phone-subscriber.fixed-6-8}
+08	8	Oulu	{.phone-subscriber.fixed-6-8}
+09	9	Uusimaa I	{.phone-subscriber.fixed-6-8}
+013	13	North Karelia	{.phone-subscriber.fixed-5-7}
+014	14	Central Finland	{.phone-subscriber.fixed-5-7}
+015	15	Mikkeli	{.phone-subscriber.fixed-5-7}
+016	16	Lapland	{.phone-subscriber.fixed-5-7}
+017	17	Kuopio	{.phone-subscriber.fixed-5-7}
+018	18	Åland	{.phone-subscriber.fixed-5-7}
+019	19	Uusimaa II	{.phone-subscriber.fixed-5-7}
