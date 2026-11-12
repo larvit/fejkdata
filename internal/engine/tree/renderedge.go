@@ -6,12 +6,12 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// A render steps from a node into a child through this file only. It draws one child with the
-// Rendered method of the node's kind, or lands on a leaf of a read of a template's ops, and
-// RenderEdges lists every child those can give. So a child missing here is one a render cannot
-// draw, and no fence walks a list of its own.
+// render takes a node's child from the Rendered method of its kind, and RenderEdges is built
+// from the same methods, so a child one of them gives is listed. A template's children are the
+// leaves of its ops' reads. A child render takes any other way is listed nowhere, and the cycle
+// check, the repeat cap and the name fence miss it.
 
-// RenderedItem is item i of c, which a render of c draws one of.
+// RenderedItem is item i of c. A render of c draws one item.
 func (c *Choice) RenderedItem(i int) Node { return c.items[i] }
 
 // RenderedFormat is the template a render of t expands, in the row it draws.
@@ -20,7 +20,7 @@ func (t *Table) RenderedFormat() *Template { return t.formatTemplate }
 // RenderedFormat is the template a render of r expands, in the row r selects.
 func (r *TableRow) RenderedFormat() *Template { return r.t.formatTemplate }
 
-// RenderedCell is the template c's cell in row renders, or nil where the cell is plain text.
+// RenderedCell is the template that renders the cell of c in row, or nil where that cell is plain text.
 func (c *TableColumn) RenderedCell(row int) *Template { return c.t.CellTemplate(row, c.i) }
 
 // RenderEdge is a child a node renders into, labelled by what reaches it (a field name,

@@ -28,8 +28,8 @@ func Once(s *drawstate.State, n tree.Node) string {
 	return render(s, n, renderEnv{frames: &frames})
 }
 
-// render steps into a child only through the Rendered methods of tree/renderedge.go, which
-// tree.RenderEdges lists for the fences.
+// Take a child this switch renders from a Rendered method of tree/renderedge.go, or
+// tree.RenderEdges doesn't list it and the fences miss it.
 func render(s *drawstate.State, n tree.Node, env renderEnv) string {
 	switch n := n.(type) {
 	case *tree.Choice:
