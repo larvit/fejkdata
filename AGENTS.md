@@ -18,7 +18,7 @@
 
 ## Project principles
 
-- A company category weighs its legal forms by the counts its country's statistics office publishes, and draws names that no open bulk file provides from a language model's recall, each weighing the same. Goal 3.2. Applied by `da_DK.company` and `fi_FI.company`.
+- A company category whose country has no open bulk file of company names weighs its legal forms by the counts the country's statistics office publishes, and draws its names from a language model's recall. Each name shape and word weighs the same. Goal 3.2. Applied by `da_DK.company` and `fi_FI.company`.
 
 # Decisions
 
