@@ -379,6 +379,9 @@ func TestReadsOfANameLoadWhereTheirSharedLevelsDrawNothingThatCouldDiffer(t *tes
 		"a plain template's field bound to a name": {
 			`{"format":"{a.b as r}{r}","a":{"format":"{b}","b":["x"],"z":["m","n"]}}`,
 			`"{/cat as n}{n}|{n.a.z}"`, "x"},
+		"a field bound to a name, beside a sibling that draws": {
+			`{"format":"{a.b as r}{r}","a":{"format":"{b}","b":["x","x"],"c":["p","q"]}}`,
+			`"{/cat as n}{n}|{n.a.c}"`, "x"},
 	} {
 		t.Run(label, func(t *testing.T) {
 			f, err := loadFence(t, map[string]string{"cat": c.cat, "card": c.card})
@@ -410,6 +413,12 @@ func TestReadsOfANameAreRefusedWhereASharedChoiceCouldDrawApart(t *testing.T) {
 		"a plain template whose leaf draws, bound to a name": {
 			`{"format":"{a.b as r}{r}","a":{"format":"{b}","b":{"format":"{q}","q":["x","y"]}}}`,
 			`"{/cat as n}{n}|{n.a}"`, `through name "r"`},
+		"a field read twice inside a choice's item": {
+			`{"format":"{w}","w":[{"format":"{a}-{a}","a":["x","y"]},{"format":"{a}-{a}","a":["x","y"]}]}`,
+			`"{/cat as n}{n}|{n.w.a}"`, `renders field "a" twice`},
+		"a field read twice, where a reference draws it afresh too": {
+			`{"format":"{w}-{w} {/cat.w}","w":["x","y"]}`,
+			`"{/cat as n}{n}|{n.w}"`, `renders field "w" twice`},
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := loadFence(t, map[string]string{"cat": c.cat, "card": c.card})
