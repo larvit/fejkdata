@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   changes:
-    name: Relevant changes, and the changelog entry for data changes
+    name: Relevant changes, and the changelog entry and headings
     if: github.event_name != 'schedule'
     runs-on: ubuntu-26.04
     outputs:
@@ -47,6 +47,8 @@ jobs:
             echo "::error::the shipped data changed without a CHANGELOG.md entry (see the README's Versioning)"
             exit 1
           fi
+      - name: CHANGELOG headings
+        run: python3 release-tooling/publish_release.py check
 
   test:
     name: docker build --target ${{ matrix.target }}
