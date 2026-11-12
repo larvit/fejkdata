@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 303 | 0.5.0 |  |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.8 |
 | 395 | 0.5.0 |  |  | **Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time, and let `date()` take bounds relative to the caller's date.** | 2 | 1 | 1 | 2 | 4 | 1 by 4 | 1.6 |
 | 299 | 0.5.0 |  |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |

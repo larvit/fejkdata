@@ -50,6 +50,16 @@ with its replacement, and each removed path, column or flag.
 - `fi_FI.phone-fixed`, keyed by the area code of each telecommunications area, and `fi_FI.phone-mobile`,
   keyed by the mobile codes the regulation's Annex 1 shows as fully assigned, as in
   `fi_FI.phone-fixed[09]`. `fi_FI.phone-subscriber` holds the subscriber numbers they draw.
+- `fi_FI.date`, a date from 1970 to 2029 such as `2.4.2019`, with no zero before a one-digit day or month.
+- `fi_FI.email`, a lower-case ASCII address at `example.com`, `example.org` or `example.net`, or a
+  subdomain of one. Half of its local parts are a first and a last name drawn from `fi_FI.first-name`
+  and `fi_FI.last-name`.
+- `fi_FI.company`, an invented name and a legal form, a sole trader (whose name has no abbreviation),
+  Oy, Ky, Ay or osk, such as `Pohjanniemi Rakennus Oy`. Each form is drawn as often as Statistics
+  Finland counted enterprises of it in 2024. `fi_FI.company.tmi`, `.oy`, `.ky`, `.ay` and `.osk` each
+  draw one form, and `{/fi_FI.company as c}{c.legal}` prints the abbreviation of the same pick. The name
+  reads `fi_FI.company-coined`, `fi_FI.company-word` and `fi_FI`'s names. Statistics Finland's counts are
+  CC BY 4.0, so a program showing them credits "Lähde: Tilastokeskus".
 - The builtin `{hetu(x)}` completes a henkilötunnus. It reads the last six digits emitted, the date,
   and adds the century sign of that date's year, an individual number from 900 to 999 with the
   parity of the digit `x` reads, and the control character. The year is the latest one not after the date of
