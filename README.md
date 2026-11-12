@@ -697,18 +697,21 @@ that `individ` gives:
 
 Renders e.g. `Eila Kirjavainen, 260163-9405`.
 
-`fi_FI.phone` is a mobile number ten times as often as a fixed one: `040 123 4567`, or `09 123 4567`
-where it is fixed, and `+358 40 123 4567` with the country code, as Traficom writes its own number,
-`+358 29 534 5000`. The subscriber number is split in two groups near its middle, a choice of
-fejkdata's: the plan fixes only the digits.
+`fi_FI.phone` is a mobile number ten times as often as a fixed one: `040 234 5678`, or `09 234 5678`
+where it is fixed. Its `national` field is that form, and its `international` field is
+`+358 40 234 5678`, with the country code and without the 0 dialled before an area code. The
+subscriber number is split in two groups near its middle, as Traficom writes its own number,
+`+358 29 534 5000`; the regulation fixes only the digits.
 
-`fi_FI.phone-fixed` holds the 13 area codes of Traficom's Regulation 32 V/2025 M, such as `09` for
-Uusimaa I, each with its `name`, and `fi_FI.phone-mobile` the mobile area codes whose row in Annex 1
-says `No` under Available ranges, such as `040` and `0451`. A row is selected by its code,
-`phone-fixed[09]`. The digits after the trunk 0 number 7 to 9 for a fixed number and 8 to 10 for a
-mobile one, as Table 1 of the regulation gives, each length equally likely since the regulation
-publishes no frequency. A number is valid, not real: a real subscriber may hold it. Left out are the
-five-digit mobile codes, such as `04300`, the machine-to-machine codes `049` and the `059` codes.
+`fi_FI.phone-fixed` holds the area codes of the telecommunications areas in Traficom's Regulation
+32 V/2025 M, such as `09` for Uusimaa I, each with its `name`, its `ndc` (the code without the 0)
+and its `subscriber`. `fi_FI.phone-mobile` holds the mobile codes whose row in Annex 1 says `No`
+under Available ranges, such as `040` and `0451`. A row is selected by its code, `phone-fixed[09]`.
+A fixed number has 7 to 9 digits after the 0 and a mobile number 8 to 10, as Table 1 of the
+regulation gives, each length equally likely since the regulation publishes no frequency. A fixed
+subscriber number begins with 2 to 8, the ranges section 11 reserves for it. A number is valid, not
+real: a real subscriber may hold it. The tables leave out the mobile codes the plan assigns as five
+digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
 
 `da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
@@ -1055,8 +1058,9 @@ one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
 number is the day, the month plus 80 and the year of birth, three individ digits and two check
 digits. The individ digits give the century. Skatteetaten assigns 000 to 499 to 1900 to 1999,
 500 to 749 to 1854 to 1899, 900 to 999 to 1940 to 1999 and 500 to 999 to 2000 to 2039; fejkdata
-draws 000 to 499 for 1940 to 1999 and 500 to 999 for 2000 to 2025, never on 29 February. Each
-band weighs its count of years, so every year from 1940 to 2025 is equally likely. The
+draws 000 to 499 for 1940 to 1999 and 500 to 999 for 2000 to 2025, never on 29 February. Its
+`birth` draws three bands, 1940 to 1999, 2000 to 2019 and 2020 to 2025, each weighing its count of
+years, so every year from 1940 to 2025 is equally likely. The
 last individ digit is even for a woman and odd for a man. No real person holds a number from
 this series, and a checker that requires a month of 1 to 12 refuses it. A number is one of
 about 13 million, so a fixture of a few thousand rows starts to repeat one, and a `UNIQUE`
@@ -2334,10 +2338,14 @@ cannot read it and the release holds no Delete scope.
 A pull request that adds a locale ships, in this order:
 
 1. The locale's package, added to [`data/modules.go`](data/modules.go).
-2. Its `.fejkdata.json`, from `generate`, and the re-pin of `testdata/shipped_shape.txt` in a commit
-   of its own, as the paragraph on a change to the shipped data says above.
-3. A `CHANGELOG.md` entry under `Unreleased`.
-4. A [`DATA-LICENSES.md`](DATA-LICENSES.md) entry for each table the locale adds.
+2. Its `.fejkdata.json`, from `generate`, committed with the data.
+3. The re-pin of `testdata/shipped_shape.txt` in a commit of its own, both as
+   [the paragraph on a change to the shipped data](#development) says.
+4. A raised `base` in `TestNoNewAllocRegression` (`perf_test.go`), where the new manifest paths
+   take `New` past its 10% slack.
+5. Its README text: a paragraph under Data, and its name in the "Data built in" bullet.
+6. A `CHANGELOG.md` entry under `Unreleased`.
+7. A [`DATA-LICENSES.md`](DATA-LICENSES.md) entry for each dataset the locale adds.
 
 ## License
 

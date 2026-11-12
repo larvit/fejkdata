@@ -237,8 +237,8 @@ func TestFinnishHenkilotunnusAgreesWithABoundSexAndDrawsBoth(t *testing.T) {
 	}
 }
 
-// Traficom's Regulation 32 V/2025 M, Annex 1: the area codes of the telecommunications areas and the
-// mobile area codes whose row says "No" under Available ranges, so every number behind them is assigned.
+// Traficom's Regulation 32 V/2025 M, Annex 1: the telecommunications areas' area codes and the mobile
+// codes whose row says "No" under Available ranges.
 var (
 	finnishFixedAreas = map[string]string{
 		"02": "Turku and Pori", "03": "Häme", "05": "Kymi", "06": "Vaasa", "08": "Oulu", "09": "Uusimaa I",
@@ -271,7 +271,7 @@ func finnishPhoneAreas(t *testing.T, kind string) map[string]bool {
 	return got
 }
 
-func TestShippedFinnishPhoneTablesHoldExactlyTheAreaCodesTheNumberingPlanAllocates(t *testing.T) {
+func TestShippedFinnishPhoneTablesHoldExactlyTheCodesAnnex1Lists(t *testing.T) {
 	fixed := make([]string, 0, len(finnishFixedAreas))
 	for code := range finnishFixedAreas {
 		fixed = append(fixed, code)
@@ -280,7 +280,7 @@ func TestShippedFinnishPhoneTablesHoldExactlyTheAreaCodesTheNumberingPlanAllocat
 		t.Run(kind, func(t *testing.T) {
 			got, wantSet := finnishPhoneAreas(t, kind), finnishAreaSet(want...)
 			if len(got) != len(wantSet) {
-				t.Errorf("phone-%s holds %d area codes, the plan allocates %d", kind, len(got), len(wantSet))
+				t.Errorf("phone-%s holds %d area codes, Annex 1 lists %d", kind, len(got), len(wantSet))
 			}
 			for code := range wantSet {
 				if !got[code] {
@@ -317,8 +317,6 @@ func eachShippedFinnishPhone(t *testing.T, check func(n string)) {
 	eachDraw(30000, func() string { return fake(t, f, "fi_FI.phone") }, check)
 }
 
-// Table 1 of the regulation: the national number, without the trunk 0, is 7 to 9 digits behind a
-// telecommunications area's code and 8 to 10 behind a mobile network's.
 func TestShippedFinnishPhoneIsAnAllocatedAreaCodeAndASubscriberNumberOfTheLengthTheRegulationGives(t *testing.T) {
 	fixed, mobile := finnishAreaSet(), finnishAreaSet(finnishMobileAreas...)
 	for code := range finnishFixedAreas {

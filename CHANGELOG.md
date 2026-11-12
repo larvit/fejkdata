@@ -44,11 +44,12 @@ with its replacement, and each removed path, column or flag.
   numbers 002 to 899, so a drawn code is no living person's, but a checker may refuse it as
   synthetic. The share of dates aged 65 or over is Statistics Finland's. Its `birth` field is the
   date, and `fi_FI.individ` holds a digit of each `fi_FI.sex`'s parity.
-- `fi_FI.phone`, a Finnish phone number such as `040 123 4567` or `09 123 4567`, with its `national` and
-  `international` (`+358 40 123 4567`) forms: ten times as often a mobile number as a fixed one, in an
-  area code and a subscriber number of the lengths Traficom's Regulation 32 V/2025 M allows. The tables
-  `fi_FI.phone-fixed`, keyed by its 13 area codes, and `fi_FI.phone-mobile`, keyed by the mobile codes the
-  plan has assigned, are selected by code, as in `fi_FI.phone-fixed[09]`.
+- `fi_FI.phone`, a Finnish phone number such as `040 234 5678` or `09 234 5678`, ten times as often
+  mobile as fixed. Its `national` and `international` (`+358 40 234 5678`) fields spell it, and its
+  area code and length follow Traficom's Regulation 32 V/2025 M.
+- `fi_FI.phone-fixed`, keyed by the area code of each telecommunications area, and `fi_FI.phone-mobile`,
+  keyed by the mobile codes the regulation's Annex 1 shows as fully assigned, as in
+  `fi_FI.phone-fixed[09]`. `fi_FI.phone-subscriber` holds the subscriber numbers they draw.
 - The builtin `{hetu(x)}` completes a henkilötunnus. It reads the last six digits emitted, the date,
   and adds the century sign of that date's year, an individual number from 900 to 999 with the
   parity of the digit `x` reads, and the control character. The year is the latest one not after the date of
