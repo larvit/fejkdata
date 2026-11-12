@@ -1,5 +1,5 @@
 {
   "format": "{a}{b}",
-  "a": ["Alfa", "Aqua", "Arctic", "Aurora", "Delta", "Eko", "Euro", "Fenno", "Finn", "Future", "Kaleva", "Karjala", "Koivu", "Kuusi", "Kymi", "Lappi", "Meri", "Metsä", "Nordic", "Nova", "Pirkan", "Pohjan", "Pro", "Pyry", "Savo", "Sisu", "Smart", "Sol", "Suomen", "Top", "Tähti", "Uusi", "Vesi", "Vihre"],
+  "a": ["Alfa", "Aqua", "Arctic", "Aurora", "Delta", "Eko", "Euro", "Fenno", "Finn", "Future", "Kaleva", "Karjala", "Koivu", "Kuusi", "Kymi", "Lappi", "Meri", "Metsä", "Nordic", "Nova", "Pirkan", "Pohjan", "Pro", "Pyry", "Savo", "Sisu", "Smart", "Sol", "Suomen", "Top", "Tähti", "Uusi", "Vesi", "Viher"],
   "b": ["järvi", "kallio", "koski", "lahti", "lehto", "mäki", "niemi", "ranta", "saari", "salo", "tuuli", "vuori"]
 }
