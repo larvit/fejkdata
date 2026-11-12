@@ -743,6 +743,7 @@ func TestRunRepeatOfZeroWritesNoRecord(t *testing.T) {
 		{[]string{"--format", "json"}, "[]\n"},
 		{[]string{"--format", "ndjson"}, ""},
 		{[]string{"--format", "csv"}, "first,last\n"},
+		{[]string{"--format", "pgcopy"}, ""},
 		{[]string{"--format", "sql"}, ""},
 		{[]string{"--format", "tsv"}, "first\tlast\n"},
 	} {
@@ -968,6 +969,23 @@ func TestRunRecordSQLStartsANewStatementEveryThousandRows(t *testing.T) {
 	}
 }
 
+func TestRunRecordPGCopyIsOneCopyBlockFedFromStdin(t *testing.T) {
+	code, out, errb := runOut("{/users}", "--seed", "1", "--format", "pgcopy", "--repeat", "2", "--table", "people", "--data-path", recordDir(t))
+	if code != 0 {
+		t.Fatalf("run = %d, stderr=%q", code, errb)
+	}
+	if !regexp.MustCompile(`^COPY "people" \("first", "last"\) FROM STDIN;\n[^\t\n]+\t[^\t\n]+\n[^\t\n]+\t[^\t\n]+\n\\\.\n$`).MatchString(out) {
+		t.Fatalf("pgcopy output = %q, want a COPY line, two tab-separated rows and the \\. terminator", out)
+	}
+}
+
+func TestRunRecordPGCopyDefaultsItsTableToTheReferencesLastSegment(t *testing.T) {
+	code, out, errb := runOut("{/users}", "--seed", "1", "--format", "pgcopy", "--data-path", recordDir(t))
+	if code != 0 || !strings.HasPrefix(out, `COPY "users" (`) {
+		t.Fatalf("default table = %d, %q, want the reference's last segment; stderr %q", code, out, errb)
+	}
+}
+
 func TestRunRecordDefaultTable(t *testing.T) {
 	code, out, errb := runOut("{/users}", "--seed", "1", "--format", "sql", "--data-path", recordDir(t))
 	if code != 0 || !strings.HasPrefix(out, `INSERT INTO "users" (`) {
@@ -1002,8 +1020,10 @@ func TestRunRecordMisuse(t *testing.T) {
 		args []string
 		want string
 	}{
-		{[]string{"--format", "yaml"}, "--format takes csv, json, ndjson, sql, text or tsv"},
+		{[]string{"--format", "yaml"}, "--format takes csv, json, ndjson, pgcopy, sql, text or tsv"},
 		{[]string{"--format", "sql", "--table", ""}, "--table names the INSERT target"},
+		{[]string{"--format", "pgcopy", "--table", ""}, "--table names the COPY target"},
+		{[]string{"--format", "pgcopy", "--separator", ","}, "--separator joins text renders; --format pgcopy always separates fields with a tab"},
 		{[]string{"--format", "csv", "--separator", ";"}, `--separator joins text renders; --format csv always separates fields with ","`},
 		{[]string{"--format", "tsv", "--separator", ","}, "--separator joins text renders; --format tsv always separates fields with a tab"},
 		{[]string{"--format", "json", "--separator", ","}, "--separator joins text renders"},
@@ -1216,7 +1236,7 @@ func TestReadmeLoadIntoADatabaseLeftSidesRun(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "users.json"), []byte(block[1]), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	starts := map[string]string{"sql": "INSERT INTO", "csv": "id,name\n", "ndjson": `{"id":`}
+	starts := map[string]string{"pgcopy": "COPY ", "sql": "INSERT INTO", "csv": "id,name\n", "ndjson": `{"id":`}
 	tools := map[string]bool{}
 	for _, line := range strings.Split(section, "\n") {
 		stages := strings.Split(line, " | ")
