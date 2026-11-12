@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 422 | 0.5.0 |  |  | **Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.** | 3 | 1 | 2 | 4 | 5 | code health by 4 | 3.9 |
 | 421 | 0.5.0 |  | owner | **Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.** | 4 | 2 | 2 | 6 | 7 | code health by 8 | 2.3 |
 | 423 | 0.5.0 | 421 |  | **Shrink the state a reader holds to follow a named pick through render to what one function and its type show.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 301 | 0.5.0 |  |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
@@ -24,7 +23,7 @@
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 429 | 0.5.0 |  |  | **State in the README's Functions section that a builtin receives the output its template has rendered so far.** | 1 | 2 | 1 | 2 | 1 | 11 by 2 | 1.4 |
 | 430 | 0.5.0 |  |  | **Say in the README's `nb_NO.fodselsnummer` paragraph that each `birth` band's weight is its count of years, so every year from 1940 to 2025 is equally likely.** | 1 | 2 | 1 | 2 | 1 | 11 by 1 | 0.7 |
-| 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 3 | 2 | 1 | 4 | 7 | code health by 2 | 0.6 |
+| 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 4 | 2 | 1 | 5 | 7 | code health by 2 | 0.6 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
@@ -239,10 +238,6 @@
 
 ## Details
 
-### 422. Make reading a load finding before `LoadFinds.Finish` has written it fail to compile, or fail by a check that names the phase, instead of a nil dereference.
-
-A Locality lift beside item 421, from item 177's scoring run at 3f909f1. Today a template's findings live in `tree/loadfinds.go:52` `LoadFinds.Of` until `:120` `Finish` writes them into the node, and the getters at `tree/name.go:55-73`, such as `Addressed`, `Target` and `Values`, dereference `finds` and panic when called early. Callers mix `l.Of(t)`, `t.Compiled()` and the nil form, so a reader must know where `pipeline.run` stands (mid). A stage reads through `l` before `Finish` and through the node after it (junior). Afterwards one of two holds: the before and after phases are separate types, so an early read does not compile; or each getter checks one named invariant and its failure names the phase. Make `LoadFinds.Of`, `Finish` and the getters easier to read; each caller reads findings one way.
-
 ### 421. Lift Locality to the comprehension floor: `render`, `load.RenderEdges` and the name fence walk one edge list per node kind, and `fence/namefence.go` holds only the route walk, with each refusal rule in a file of its own.
 
 The scoring run of item 177 at 3f909f1 measured Locality at 5.63, the lowest dimension and under the floor, and every seat found named picks and name fences the hardest cluster. This item takes the fence half of it; items filed beside it take the `LoadFinds` phase and the render half. Behaviour does not change: every test keeps its expected values.
@@ -304,6 +299,8 @@ Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus 
 ### 402. Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.
 
 The principles pass of the release review of 0.4.0 found that the test files hold 876 `for` lines in test bodies and 22 `t.Run` calls, against the technical principle "One behaviour per test, named for it … No loops or branches in a test body; parametrize the cases." A failing case can't be rerun alone with `go test -run`, and a `t.Fatalf` inside a loop hides every case after it. The release review reshaped the test files this release added; this item takes the rest, keeping every expected value, seed and draw count.
+
+Scored L 4: the change spans S 7 and about ten packages, two of L level 3's conditions. A worker at L 4 runs a rung above an L 3 item's, so the item ships in a chunk of its own.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
