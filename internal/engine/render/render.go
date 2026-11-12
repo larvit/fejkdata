@@ -12,14 +12,14 @@ import (
 // Walk draws steps from root, starting from the rows pins holds, and returns the node they
 // reach with the rows it renders in.
 func Walk(s *drawstate.State, root tree.Node, steps []tree.PathStep, pins *tree.PinSet) (tree.Node, *tree.PinSet) {
-	return drawSteps(s, drawFresh, root, steps, pins, nil, nil)
+	return drawFresh(s, root, steps, pins)
 }
 
 // Pinned renders n once, in the rows pins holds.
 func Pinned(s *drawstate.State, n tree.Node, pins *tree.PinSet) string {
 	var frames frameStack
-	env, _ := renderEnv{frames: &frames}.at(n, pins).enter(n, nil)
-	return render(s, n, env)
+	frames.enter(n, nil)
+	return render(s, n, renderEnv{frames: &frames}.at(n, pins))
 }
 
 // Once renders n once, outside any row.
@@ -49,7 +49,7 @@ func render(s *drawstate.State, n tree.Node, env renderEnv) string {
 		return n.Table().Rows().Cell(row, n.Index())
 	case *tree.Template:
 		if n.Repeat() == 1 {
-			if mark := env.renderFrame(n); mark >= 0 {
+			if mark := env.frames.openOwn(n, env.base); mark >= 0 {
 				defer env.frames.pop(mark)
 			}
 			if lit, fixed := n.FixedText(); fixed {
@@ -123,7 +123,7 @@ func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 // a level that a read of the name being rendered addresses; every other read draws afresh, so
 // {word} {word} draws twice and {p.a} {p.b} reads two draws of p.
 // A fresh read clears env.pick, which stops a read nested in it from keying the pick's memo under
-// env.pickAt and sharing a value with another node at that key; a reference's read clears it in enter.
+// env.pickAt and sharing a value with another node at that key; a reference's read clears it in entered.
 func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
 	switch {
 	case a.Kind() == tree.NamedRead:
@@ -133,13 +133,13 @@ func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read)
 	}
 	if !grammar.IsRef(a.Head()) {
 		env.pick = nil
-		leaf, _ := drawSteps(s, drawSibling, t.StartOf(a.Head(), t.Refs()), a.Steps(), nil, nil, nil)
+		leaf := drawSibling(s, t.StartOf(a.Head(), t.Refs()), a.Steps())
 		return renderLeaf(s, leaf, env)
 	}
 	var pins tree.PinSet
-	leaf, leafPins := drawSteps(s, drawFresh, t.StartOf(a.Head(), t.Refs()), a.Steps(), &pins, nil, nil)
-	env, mark := env.at(leaf, leafPins).enter(leaf, nil)
-	r := renderLeaf(s, leaf, env)
+	leaf, leafPins := drawFresh(s, t.StartOf(a.Head(), t.Refs()), a.Steps(), &pins)
+	mark := env.frames.enter(leaf, nil)
+	r := renderLeaf(s, leaf, env.at(leaf, leafPins).entered(mark))
 	env.frames.pop(mark)
 	return r
 }

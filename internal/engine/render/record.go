@@ -11,7 +11,7 @@ import (
 func Record(s *drawstate.State, t *tree.Template, row Row, emit func(i int, text string, null bool)) {
 	var frames frameStack
 	env := renderEnv{frames: &frames, row: row}
-	if mark := env.renderFrame(t); mark >= 0 {
+	if mark := env.frames.openOwn(t, env.base); mark >= 0 {
 		defer env.frames.pop(mark)
 	}
 	for i, c := range t.Columns() {

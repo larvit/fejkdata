@@ -167,10 +167,7 @@ func (r route) placedAt(at tree.PickKey, addressed map[tree.PickKey]string) rout
 	if by, kept := tree.LandsInPick(addressed, at, *r.a); kept {
 		r.kind, r.by = routeKept, by
 	}
-	r.levels = make([]tree.PickKey, len(r.a.Levels()))
-	for i, l := range r.a.Levels() {
-		r.levels[i] = at.Under(l)
-	}
+	r.levels = tree.LevelsUnder(at, *r.a)
 	return r
 }
 

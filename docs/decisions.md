@@ -528,7 +528,7 @@ renders `Stockholm / Helsinki`, and two items of one choice may select different
 
 - `..` names the parent table next, `city..country`, as a folder path names the folder it
   enters. `.country` after a row stays the link column's cell.
-- A step down after a `..` draws afresh inside the row stepped up to (`drawSteps`). Under a
+- A step down after a `..` draws afresh inside the row stepped up to (`drawAcrossTables`). Under a
   name, the paths stepping down from one `..` share that draw through the pick's memo
   (`drawMemo.stepDownPins`), as every level a name's reads pass is shared, so two reads of
   one step down describe one row.
@@ -1019,13 +1019,13 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
 replaces "The path walks are separate loops".
-Code health and goal 12: `drawSteps` draws every path from its steps, compiled when templates resolve, by
+Code health and goal 12: `drawAcrossTables` draws every path that may cross a table from its steps, compiled when templates resolve, by
 `compiledPath` or, for a caller's path, by `callerPathSteps` into a stack buffer. Both take each
 step through `compileStep`, and differ only at a choice: `compiledPath` walks every variant,
 `callerPathSteps` the first. On 2026-09-29 one loop over all three walks, switching on a mode field,
 leaked `compiledPath`'s leaves and errors with the draw's pins, arm and memo, since Go tracks a
 struct's fields as one, and a repeat of a reference path rose from 66 to 106 allocations.
-`drawSteps` and `compileStep` take their state as parameters and a step holds no node, so no
+`drawAcrossTables` and `compileStep` take their state as parameters and a step holds no node, so no
 benchmark gained an allocation. Valid while Go's escape analysis tracks a struct's fields
 as one.
 
