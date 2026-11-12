@@ -1630,3 +1630,85 @@ Inherited architect, decided by:
 - Locality: `fejkdata.go:118` `New`: each root entry point adds the `fejkdata: ` prefix exactly once
 - Locality, Shape: `internal/engine/inline.go:103` `LoadStruct`: owns compile, load and the field checks, leaving `compileShape` only the reflect side
 - Shape: `internal/engine/record.go:17` `Column`: duplicates the root's `Column` field for field, tied only by a conversion
+
+## 2026-11-12T01:07:08Z, PR #362 at 60f8482, against 3f909f1
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | better | better |
+| Inherited architect | better | better | better | better | better |
+
+Mid A, decided by:
+
+- Navigation, Shape: `internal/engine/fence/namefence.go:52` `nameRules`: the five rules sit in one table, each in a file named after it, where the base held them in one 590-line file behind a chain of ifs
+- Locality: `internal/engine/tree/renderedge.go:9` `RenderEdges`: render and the edge list take a child through the same Rendered methods, where the base mirrored render by hand
+- Locality, Self-sufficiency: `internal/engine/tree/loadfinds.go:50` `AfterFinish`: the phase has a name, and a read before Finish panics naming it
+- Shape: `internal/engine/tree/read.go:11` `Read`: the type says what it holds, where `Arm` also named operands and clause reads
+- Self-sufficiency: `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: each case says why it comes before the next
+- Navigation: `internal/engine/lazy.go:17` `placeIndex`: lazy loading has its own file
+- Self-sufficiency: `internal/engine/fence/namefence.go:148` `walkRoutes`: a small step back, the table column case cites only an item number
+
+Inherited architect, decided by:
+
+- Navigation, Locality: `internal/engine/fence/namefence.go:52` `nameRules`: one table of five rules in order, each in its own file taking one `nameRead`; an error message leads to its file
+- Locality, Navigation: `internal/engine/tree/renderedge.go:35` `RenderEdges`: render takes its children through the accessors the list is built from, where the base tied them by a comment
+- Locality: `internal/engine/tree/loadfinds.go:50` `AfterFinish`: a read before Finish panics naming the template, where the base returned nil
+- Shape: `internal/engine/tree/read.go:11` `Read`: says what it holds; `route.a` and `grammar.Token.Arms` still carry the old name
+- Self-sufficiency: `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: the reason for each case's place sits on the case
+- Self-sufficiency, Navigation: `internal/engine/fence/namefence.go:105` `walkRoutes`: the comment says which edges the walk follows; the table column case shows a gap the base hid, citing only an item number
+- Navigation: `internal/engine/lazy.go:107` `loadReached`: lazy loading sits in a file named for it
+- Navigation, Shape: `internal/builtinfunc/fnr.go:64` `lastSixDigits`: a small step back, shared date helpers sit in a file that never calls them
+
+## 2026-11-12T01:07:12Z, PR #362 at 60f8482
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7 | 5.5 | 6 | 6.5 | 6 |
+| Maintainability senior | 7.5 | 6 | 7 | 6.5 | 6.5 |
+| Inherited architect | 7.5 | 6 | 6.5 | 7.5 | 7 |
+| Mean | 7.25 | 5.75 | 6.50 | 6.63 | 6.38 |
+
+Junior A, hardest first:
+
+- `internal/engine/fence/refusefreshdraw.go:90` `rendersField`: three conditions, a walk across categories and an index slice at `p.bound` to hold at once
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: a recursive closure whose node cases treat the pick differently, and a table column case that cites only an item number
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: level slicing against `tail[:j]` that stayed half-opaque
+- `internal/engine/render/pick.go:128` `readName`: frames and a memo mutated inside `enter`, out of the caller's sight
+- `internal/engine/tree/pick.go:80` `LandsInPick`: the one function where load and render must agree on a pick's levels
+- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: order-dependent cases, simulated level by level
+- `internal/engine/load/table.go:210` `routeThrough`: the `climbed` logic for `..` and the step down after it
+- `internal/engine/pipeline.go:59` `pipeline.run`: stage order decides what each helper's `l` means
+
+Mid A, hardest first:
+
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: needs `route`, `placedAt`, `PickKey.Under` and `drawsAlong` open at once
+- `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: three conditions across categories, and `p.bound` explained only in `pickReads`
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: `(at, inPick)` state whose meaning is decided in `placedAt` and `below`
+- `internal/engine/render/pick.go:121` `readName`: the value a later read sees depends on which earlier read entered a frame
+- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: load-bearing case order
+- `internal/engine/fence/refusetwicedrawn.go:32` `readTwiceApart`: indexes `levels[common]`, safe only by an invariant no line states
+- `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: two phases, hidden ordering
+- `internal/engine/fence/where.go:134` `proveEveryDrawPasses`: crossing bounds and five error spellings
+
+Maintainability senior, hardest first:
+
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: three facts ride one recursive closure, and its keys mean nothing before `tree/pick.go` is read
+- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: an order-dependent case ladder with a landing check outside the switch
+- `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: a slice test ORed with a sub-walk, three levels of traversal
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: index arithmetic between two routes' levels
+- `internal/engine/render/pick.go:128` `readName`: stack marks mutated through a pointer behind a value-passed env
+- `internal/engine/tree/pick.go:80` `LandsInPick`: the semantic core of four fence files, in another package
+- `internal/engine/render/path.go:26` `drawSteps`: the parameters it reads depend on `drawMode`
+- `internal/engine/load/table.go:210` `routeThrough`: two flags computed in one pass that must hold together
+
+Inherited architect, would restructure first:
+
+- `internal/engine/fence/namefence.go:61` `checkNameRead`: seven of the fence's sixteen files are variants of one concern, told apart only by their doc comments
+- `internal/engine/render/pick.go:128` `readName`: render's named pick has a static twin in the fence, kept in agreement by `LandsInPick`, `RenderEdges` and a comment
+- `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: reads depend on the phase, and `AfterFinish` is a nil that reads like a value
+- `internal/engine/tree/pick.go:20` `PickKey`: level, key and addressed key are one idea under several names
+- `internal/engine/render/render.go:19` `Pinned`: one name over a lookup in `rows` and a render here
+- `cli/cli.go:124` `flagDefs`: one 776-line file holds flags, record writers, input and version
