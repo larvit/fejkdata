@@ -242,20 +242,19 @@ Find the issuer's rules, and a test series if it publishes one, first.
 
 ### 453. Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.
 
-The two scoring runs on PR #372 at 5a00a5c left Locality at 5.63 both times, Shape at 6.50 and 6.38, Self-sufficiency at 6.63 and 6.13 and the overall at 6.38 and 6.13, under the floor of 7.0. Item 421 gave each name rule a file; what the seats still found hard is what the rules share. Every rule reads the routes `walkRoutes` emits, and decides by index arithmetic over a route's `levels`, a read's tail and `pickReads.bound`, whose layout `placedAt` and `tree.PickKey` fix elsewhere. A reader holds that layout in every rule file.
+The two scoring runs on PR #377 at 34b284d0 left Locality at 5.75 and 5.88, Shape at 6.50 both times, Self-sufficiency at 6.63 both times and the overall at 6.63 both times, under the floor of 7.0. Item 421 gave each name rule a file; what the seats still found hard is what the rules share. Every rule reads the routes `routeWalk.walk` emits, and decides by index arithmetic over a route's `levels`, a read's tail and `pickReads.bound`, whose layout `placedAt` and `tree.PickKey` fix elsewhere. A reader holds that layout in every rule file.
 
-Give the route a type that answers the rules' questions by name: what it keeps, where it draws afresh, which level it addresses, where two routes part. The index conventions then live in that one type, beside the invariant that `levels` is one longer than the tail, and a rule reads without `namefence.go` and `tree/pick.go` open beside it. Give the walk's `(at, inPick)` state one named value too, so the three node cases of `walkRoutes` say what each does to it. No refusal, error text or rule order changes.
+Give the route a type that answers the rules' questions by name: what it keeps, where it draws afresh, which level it addresses, where two routes part. The index conventions then live in that one type, beside the invariant that `levels` is one longer than the tail, and a rule reads without `namefence.go` and `tree/pick.go` open beside it. Give the walk's `(at, inPick)` state one named value too, so the node cases of `routeWalk.walk` say what each does to it. No refusal, error text or rule order changes.
 
 The places the seats named, which this item restructures:
 
-- `internal/engine/fence/namefence.go:112` `walkRoutes`: seven of the eight seats of the two runs; a recursive closure whose node cases treat `(at, inPick)` differently, with the meaning decided in `placedAt` and `below`.
-- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: five seats; level slicing against `tail[:j]`.
-- `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw` with `:78` `readAddressing` and `:90` `rendersField`: three seats; `r.Levels()[p.bound:]` explained only at `pickReads`.
-- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: three seats; order-dependent cases with a landing check outside the switch.
-- `internal/engine/fence/refusetwicedrawn.go:32` `readTwiceApart`: indexes `levels[common]`, safe only by an invariant no line states.
-- `internal/engine/tree/pick.go:83` `LevelsUnder` with `:97` `LandsInPick`: all eight seats; the one place load and render agree on a pick's levels, in another package than its four fence readers.
+- `internal/engine/fence/namefence.go:134` `routeWalk.walk`: five of the eight seats of the two runs; route kinds, the in-pick flag and the `seen` key held at once, with the meaning decided in `placedAt`, and the table-cell gap explained only by an item number.
+- `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw` with `:78` `readAddressing` and `:90` `rendersField`: five seats; a queue across categories, a selector special case and `p.bound` slicing explained only at `pickReads`.
+- `internal/engine/tree/pick.go:83` `LevelsUnder` with `:97` `LandsInPick`: six seats; the one keying rule load, fence and render share, in another package than its fence readers.
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: four seats; level slicing against `tail[:j]`, resting on an index identity one comment states.
+- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: three seats; each case holds only because the cases above it returned.
 
-Out of scope: `render/pick.go` `readName` and its memo, which item 423 took, and `tree/loadfinds.go`'s two phases.
+Out of scope: `tree/loadfinds.go`'s two phases, and `render/pick.go:151` `namedPick.readPath` with `render/env.go`'s frame stack. Seven of the eight seats named `readPath` under Locality although item 423 reworked its memo; it is the next floor item's, since this one already changes every name rule.
 
 The architecture pass of 0.5.0's release review added two parts. Make `sharedDraw` return a named case, so its cases no longer depend on their order. Move the name rules, `drawsalong.go`, `namefence.go`, `readinsidefield.go` and the five `refuse*.go` files, into a package `internal/engine/fence/names`, and revise the decision that places every fence in `internal/engine/fence`. Items 452 and 164 wait for this one, since each would change every rule again.
 

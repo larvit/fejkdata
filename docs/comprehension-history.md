@@ -1841,3 +1841,92 @@ Inherited architect, decided by:
 - Shape: `internal/engine/render/render.go:125` `readField`: readField and readName become flat dispatches to named helpers
 - Shape: `internal/rows/rows.go:419` `DrawIn`: the ancestor loop becomes one recursive call into the parent's DrawIn
 - Self-sufficiency: `README.md:2235` "Development": the vulnerability-filing and waiting-patch accounts now point at docs/decisions.md, which a maintainer with a stalled release job must open
+
+## 2026-11-13T23:43:00Z, PR #377 at 34b284d0
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6.5 | 6.5 |
+| Mid A | 7 | 5.5 | 6.5 | 6 | 6.5 |
+| Maintainability senior | 7 | 5.5 | 6.5 | 6.5 | 6.5 |
+| Inherited architect | 7.5 | 6.5 | 6.5 | 7.5 | 7 |
+| Mean | 7.13 | 5.75 | 6.50 | 6.63 | 6.63 |
+
+Junior A, hardest first:
+
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frame stack, base, pick and the memo's entered frames held at once
+- Shape: `internal/engine/tree/pick.go:83` `LevelsUnder`: level, addressed key, fresh and named levels layered on strings
+- Locality: `internal/engine/fence/namefence.go:134` `routeWalk.walk`: mirrors render's pick logic with nothing tying the two together
+- Self-sufficiency: `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: why the rule is sound needs the README's Names section
+- Locality: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: a nil sentinel splits state in time
+
+Mid A, hardest first:
+
+- Locality: `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: each case holds only because the cases above it ran
+- Locality: `internal/engine/render/pick.go:151` `readPath`: renderEnv copies share frameStack, so the owner of a write is unclear
+- Shape: `internal/engine/tree/pick.go:97` `LandsInPick`: dense key rules, three rereads
+- Shape: `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: index arithmetic over levels
+- Locality: `internal/engine/pipeline.go:57` `pipeline.run`: the stage order is load-bearing and only comments state it
+- Self-sufficiency: `internal/engine/fence/namefence.go:134` `routeWalk.walk`: cites a plan item the reader cannot open
+
+Maintainability senior, hardest first:
+
+- Locality: `internal/engine/fence/namefence.go:134` `routeWalk.walk`: its correctness is defined by render/pick.go
+- Shape: `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: the meaning of index j is only implied
+- Self-sufficiency: `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: p.bound slicing traced back to the binding
+- Locality: `internal/engine/render/env.go:49` `openOwn`: -1 means no frame, and frame marks sit on a shared stack
+- Locality: `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: case order is unsafe to change and unenforced
+- Shape: `internal/grammar/where.go:58` `cutWord`: a closure toggles quote state while cutting keywords
+
+Inherited architect, would restructure first:
+
+- Locality: `internal/engine/render/render.go:31` `render`: its type switch agrees with tree.RenderEdges only by a comment
+- Shape: `internal/engine/fence/graph.go:34` `RepeatCheck`: a load-time check goes by four verbs: fence, refuse, prove, check
+- Shape: `internal/engine/tree/table.go:29` `RowsTable`: Table names both the category node and its TSV rows
+- Locality: `internal/engine/tree/loadfinds.go:50` `LoadFinds`: use before Finish is prevented by convention, not by type
+- Self-sufficiency: `internal/engine/render/render.go:1` `render`: load and render have no package doc
+
+## 2026-11-13T23:46:34Z, PR #377 rerun at 34b284d0
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6.5 |
+| Mid A | 7 | 5.5 | 6 | 6 | 6 |
+| Maintainability senior | 7.5 | 6 | 7 | 7 | 7 |
+| Inherited architect | 7.5 | 6.5 | 6.5 | 7.5 | 7 |
+| Mean | 7.25 | 5.88 | 6.50 | 6.63 | 6.63 |
+
+Junior A, hardest first:
+
+- Self-sufficiency: `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: why the algorithm decides the rule needs the README's Names list
+- Shape: `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: the index mapping over levels had to be checked by hand
+- Shape: `internal/engine/tree/pick.go:83` `LevelsUnder`: fresh and named keys line up only on the third read
+- Locality: `internal/engine/fence/namefence.go:134` `routeWalk.walk`: route kinds, inPick and seen keys held at once
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames kept in another pick's memo, mutated out of sight
+- Locality: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: a nil LoadFinds means read from the nodes
+
+Mid A, hardest first:
+
+- Locality: `internal/engine/tree/pick.go:83` `LevelsUnder`: three key spaces, called by load, fence and render
+- Self-sufficiency: `internal/engine/fence/refusefreshdraw.go:90` `rendersField`: a fourth, negative condition followed only through the example
+- Shape: `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: rests on an index identity one comment states
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: a shared frame stack mutated by mark and pop across four functions
+- Shape: `internal/engine/load/name.go:16` `bindNames`: where a scope opens hangs on a flag set from the parent
+- Locality: `internal/engine/lazy.go:107` `loadReached`: a worklist grows inside the loop from three sources
+
+Maintainability senior, hardest first:
+
+- Locality: `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: a cross-category queue, a cached path index and a selector special case
+- Locality: `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: each case is valid only because the earlier ones failed
+- Locality: `internal/engine/tree/pick.go:83` `LevelsUnder`: one keying rule binds three packages, and takes a key to spare an allocation
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: base, mark and memo identity work together across three functions
+- Self-sufficiency: `internal/engine/fence/namefence.go:134` `routeWalk.walk`: the table-cell gap is explained only by a plan item
+- Shape: `internal/engine/load/path.go:460` `compiledPath.walkEvery`: relies on full-slice-expression aliasing
+
+Inherited architect, would restructure first:
+
+- Shape: `internal/engine/render/pick.go:39` `namedPick`: the name-pick machinery spans render, tree and seven fences with two naming axes
+- Locality: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: the load phases are a nil sentinel, not types
+- Shape: `internal/builtinfunc/reword.go:11` `reword`: says package fejkdata renders it, where internal/engine does
+- Shape: `internal/engine/tree/table.go:30` `RowsTable`: t.Rows().Parent().Owner() reads as a table of rows of a table
+- Navigation: `internal/engine/fence/fence.go:28` `fence`: fence imports load, so it is not a leaf
