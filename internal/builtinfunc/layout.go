@@ -68,18 +68,10 @@ func dateArgs(a []string) error {
 	if err := layoutArity("date", 3, a); err != nil {
 		return err
 	}
-	from, err := time.Parse(dayLayout, a[0])
-	if err != nil {
-		return fmt.Errorf("date(from,to,layout): from %q is not a YYYY-MM-DD date", a[0])
+	if _, _, err := dayBounds(a); err != nil {
+		return err
 	}
-	to, err := time.Parse(dayLayout, a[1])
-	if err != nil {
-		return fmt.Errorf("date(from,to,layout): to %q is not a YYYY-MM-DD date", a[1])
-	}
-	if to.Before(from) {
-		return fmt.Errorf("date(from,to,layout): from %s is after to %s", a[0], a[1])
-	}
-	_, err = layoutArg(a[2])
+	_, err := layoutArg(a[2])
 	return err
 }
 func bornArgs(a []string) error {
@@ -126,16 +118,14 @@ func namesADateField(layout string) bool {
 // datePrep draws a second in [from 00:00:00, to 23:59:59] UTC; the span is counted
 // in seconds, since a Duration overflows past 292 years.
 func datePrep(a []string) Call {
-	from, err := time.Parse(dayLayout, a[0])
+	from, to, err := dayBounds(a)
 	if err != nil {
-		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", a[0], err))
+		panic(invariant.Broken("builtin args %q reached prep unvalidated: %v", a[:2], err))
 	}
-	to, err := time.Parse(dayLayout, a[1])
-	if err != nil {
-		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", a[1], err))
-	}
-	layout, start, span := layoutOf(a[2]), from.Unix(), int(to.Unix()-from.Unix())+86400
+	layout := layoutOf(a[2])
 	return func(s *drawstate.State, _ string, _ []string) string {
+		start := from.on(s.Today()).Unix()
+		span := int(to.on(s.Today()).Unix()-start) + 86400
 		return time.Unix(start+int64(s.IntN(span)), 0).UTC().Format(layout)
 	}
 }
