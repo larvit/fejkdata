@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"slices"
 	"strings"
 	"testing"
 )
@@ -8,6 +9,24 @@ import (
 func loadFence(t *testing.T, files map[string]string) (*Generator, error) {
 	t.Helper()
 	return New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files)))
+}
+
+func refusedNamingEach(t *testing.T, err error, wants []string) {
+	t.Helper()
+	if err == nil {
+		t.Fatal("New() loaded, want it refused")
+	}
+	for _, want := range wants {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("New() = %v, want an error naming %s", err, want)
+		}
+	}
+}
+
+func eachNumberedDraw(n int, draw func() string, check func(i int, got string)) {
+	for i := 0; i < n; i++ {
+		check(i, draw())
+	}
 }
 
 func TestAReadThroughAFieldBoundNameIsRefusedWhereItsFieldReadsANameTheItemBinds(t *testing.T) {
@@ -25,14 +44,7 @@ func TestAReadThroughAFieldBoundNameIsRefusedWhereItsFieldReadsANameTheItemBinds
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := loadFence(t, map[string]string{"ab": ab, "co": c.co})
-			if err == nil {
-				t.Fatal("New() loaded, want it refused")
-			}
-			for _, want := range c.want {
-				if !strings.Contains(err.Error(), want) {
-					t.Errorf("New() = %v, want an error naming %s", err, want)
-				}
-			}
+			refusedNamingEach(t, err, c.want)
 		})
 	}
 }
@@ -48,9 +60,7 @@ func TestAReadThroughAFieldBoundNameLoadsWhereNoNameOfTheItemIsRead(t *testing.T
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			for i := 0; i < 20; i++ {
-				fake(t, f, "co.legal")
-			}
+			eachDraw(20, func() string { return fake(t, f, "co.legal") }, func(string) {})
 		})
 	}
 }
@@ -66,9 +76,7 @@ func TestANameReadInsideTheItemThatBindsItLoads(t *testing.T) {
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			for i := 0; i < 20; i++ {
-				fake(t, f, "co")
-			}
+			eachDraw(20, func() string { return fake(t, f, "co") }, func(string) {})
 		})
 	}
 }
@@ -86,13 +94,11 @@ func TestAChoiceItemThatReadsOnlyANameItBindsDraws(t *testing.T) {
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			for i := 0; i < 40; i++ {
-				switch got := fake(t, f, c.path); got {
-				case "L", "M", "L!", "M!":
-				default:
+			eachNumberedDraw(40, func() string { return fake(t, f, c.path) }, func(i int, got string) {
+				if !slices.Contains([]string{"L", "M", "L!", "M!"}, got) {
 					t.Fatalf("draw %d = %q, want L, M, L! or M!", i, got)
 				}
-			}
+			})
 		})
 	}
 }
@@ -126,14 +132,7 @@ func TestAReadOfANameIsRefusedBesideAReferenceItsFormatMakesToThatPath(t *testin
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := loadFence(t, c.files)
-			if err == nil {
-				t.Fatal("New() loaded, want it refused")
-			}
-			for _, want := range c.want {
-				if !strings.Contains(err.Error(), want) {
-					t.Errorf("New() = %v, want an error naming %s", err, want)
-				}
-			}
+			refusedNamingEach(t, err, c.want)
 		})
 	}
 }
@@ -166,14 +165,7 @@ func TestAReadOfANameIsRefusedBesideAReadThatDrawsAfreshAFieldItReadsFromThePick
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := loadFence(t, c.files)
-			if err == nil {
-				t.Fatal("New() loaded, want it refused")
-			}
-			for _, want := range c.want {
-				if !strings.Contains(err.Error(), want) {
-					t.Errorf("New() = %v, want an error naming %s", err, want)
-				}
-			}
+			refusedNamingEach(t, err, c.want)
 		})
 	}
 }
@@ -191,11 +183,11 @@ func TestAReadOfANameLoadsBesideAReadWhoseFormatReadsOneFieldOneWay(t *testing.T
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			for i := 0; i < 40; i++ {
-				if got := strings.Split(fake(t, f, "card"), "|"); got[0] != got[1] {
+			eachNumberedDraw(40, func() string { return fake(t, f, "card") }, func(i int, card string) {
+				if got := strings.Split(card, "|"); got[0] != got[1] {
 					t.Fatalf("draw %d = %q, want every read to print one value", i, got)
 				}
-			}
+			})
 		})
 	}
 }
@@ -221,24 +213,21 @@ func TestAReadOfATableRowIsRefusedBesideAReferenceItsFormatMakesToALinkedTable(t
 	for label, c := range map[string]struct{ card, want string }{
 		"the row and its linked table are read": {`"{/region as r}{r} {r.municipality.name}"`, "{/region.municipality.name}"},
 		"a selected row and its linked table":   {`"{/region[01] as r}{r}|{r.municipality.name}"`, "{/region.municipality.name}"},
-		"only the row is read":                  {`"{/region as r}{r}"`, ""},
 	} {
 		t.Run(label, func(t *testing.T) {
 			files["card.json"] = c.card
 			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files)))
-			switch {
-			case c.want == "" && err != nil:
-				t.Fatalf("New() = %v, want it to load", err)
-			case c.want != "" && err == nil:
-				t.Fatal("New() loaded, want it refused")
-			case c.want != "":
-				for _, want := range []string{"{r}", c.want, "{r.municipality.name}"} {
-					if !strings.Contains(err.Error(), want) {
-						t.Errorf("New() = %v, want an error naming %s", err, want)
-					}
-				}
-			}
+			refusedNamingEach(t, err, []string{"{r}", c.want, "{r.municipality.name}"})
 		})
+	}
+}
+
+func TestAReadOfATableRowAloneLoadsWhereItsFormatMakesAReferenceToALinkedTable(t *testing.T) {
+	files := nameTables()
+	files["region.json"] = `{"format":"{/region.municipality.name}","rows":"region.tsv","key":"code"}`
+	files["card.json"] = `"{/region as r}{r}"`
+	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files))); err != nil {
+		t.Fatalf("New() = %v, want it to load", err)
 	}
 }
 
@@ -282,14 +271,7 @@ func TestAReadLandingAboveAReferenceIsRefusedWhereRenderingItsLevelReadsTheRefer
 		t.Run(label, func(t *testing.T) {
 			c.files["card.json"] = c.card
 			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, c.files)))
-			if err == nil {
-				t.Fatal("New() loaded, want it refused")
-			}
-			for _, want := range c.want {
-				if !strings.Contains(err.Error(), want) {
-					t.Errorf("New() = %v, want an error naming %s", err, want)
-				}
-			}
+			refusedNamingEach(t, err, c.want)
 		})
 	}
 }
@@ -438,10 +420,9 @@ func TestATableFormatReadingAColumnTwiceLoadsBesideAReadOfThatColumn(t *testing.
 	if err != nil {
 		t.Fatalf("New() = %v, want it loaded", err)
 	}
-	for range 20 {
-		got := fake(t, f, "co")
+	eachDraw(20, func() string { return fake(t, f, "co") }, func(got string) {
 		if got != "x-x x" && got != "y-y y" {
 			t.Fatalf("co = %q, want one row's name throughout", got)
 		}
-	}
+	})
 }
