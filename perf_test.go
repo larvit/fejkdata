@@ -44,14 +44,16 @@ func TestNoRenderAllocRegression(t *testing.T) {
 			{"format":"y","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J"}]}`, 3},
 	}
 	for _, s := range shapes {
-		f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
-		if err != nil {
-			t.Fatalf("New(%s): %v", s.name, err)
-		}
-		allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") })
-		if allocs > s.base*1.10 {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); bump the baseline only as a deliberate change", s.name, allocs, s.base*1.10, s.base)
-		}
+		t.Run(s.name, func(t *testing.T) {
+			f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
+			if err != nil {
+				t.Fatalf("New(%s): %v", s.name, err)
+			}
+			allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") })
+			if allocs > s.base*1.10 {
+				t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); bump the baseline only as a deliberate change", s.name, allocs, s.base*1.10, s.base)
+			}
+		})
 	}
 }
 
@@ -66,16 +68,18 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 162, 1.10},
 		{"a read two levels under a pick", `{"format":"{place.geo as g}{g} {g.town.zip}","place":{"format":"{geo}","geo":{"format":"{town.zip}","town":{"format":"{zip}","zip":"1"}}}}`, 12, 1},
 	} {
-		f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{
-			"word.json": {Data: []byte(word)},
-			"x.json":    {Data: []byte(s.json)},
-		}))
-		if err != nil {
-			t.Fatalf("New(%s): %v", s.name, err)
-		}
-		if allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") }); allocs > s.base*s.slack {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f × %.2f); a render's env reaching the heap is the usual cause", s.name, allocs, s.base*s.slack, s.base, s.slack)
-		}
+		t.Run(s.name, func(t *testing.T) {
+			f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{
+				"word.json": {Data: []byte(word)},
+				"x.json":    {Data: []byte(s.json)},
+			}))
+			if err != nil {
+				t.Fatalf("New(%s): %v", s.name, err)
+			}
+			if allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") }); allocs > s.base*s.slack {
+				t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f × %.2f); a render's env reaching the heap is the usual cause", s.name, allocs, s.base*s.slack, s.base, s.slack)
+			}
+		})
 	}
 }
 
@@ -98,9 +102,11 @@ func TestNoTableAllocRegression(t *testing.T) {
 		{"a row selected", "region[12]", 2},
 		{"two columns, each drawn", "x", 3},
 	} {
-		if allocs := testing.AllocsPerRun(10000, func() { f.Fake(s.path) }); allocs > s.base*1.10 {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a row lookup built per draw is the usual cause", s.name, allocs, s.base*1.10, s.base)
-		}
+		t.Run(s.name, func(t *testing.T) {
+			if allocs := testing.AllocsPerRun(10000, func() { f.Fake(s.path) }); allocs > s.base*1.10 {
+				t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a row lookup built per draw is the usual cause", s.name, allocs, s.base*1.10, s.base)
+			}
+		})
 	}
 }
 
@@ -136,21 +142,23 @@ func TestNoRecordAllocRegression(t *testing.T) {
 		{"record 3 columns", `{"format":"","a":"x","b":"y","c":"z"}`},
 		{"record 50 columns", wideTokenJSON(50)},
 	} {
-		f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
-		if err != nil {
-			t.Fatalf("New(%s): %v", s.name, err)
-		}
-		if _, err := f.FakeRecord("x"); err != nil {
-			t.Fatalf("FakeRecord(%s): %v", s.name, err) // else the gate would measure the error path
-		}
-		const base = 3.0
-		if allocs := testing.AllocsPerRun(10000, func() { f.FakeRecord("x") }); allocs > base*1.10 {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a record fence running per draw is the usual cause", s.name, allocs, base*1.10, base)
-		}
-		r, _ := f.FakeRecord("x")
-		if allocs := testing.AllocsPerRun(10000, func() { _ = r.CSVLine() }); allocs > 2 {
-			t.Errorf("%s: CSVLine() makes %.1f allocs/op, want 2: the fields slice and the joined line", s.name, allocs)
-		}
+		t.Run(s.name, func(t *testing.T) {
+			f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
+			if err != nil {
+				t.Fatalf("New(%s): %v", s.name, err)
+			}
+			if _, err := f.FakeRecord("x"); err != nil {
+				t.Fatalf("FakeRecord(%s): %v", s.name, err) // else the gate would measure the error path
+			}
+			const base = 3.0
+			if allocs := testing.AllocsPerRun(10000, func() { f.FakeRecord("x") }); allocs > base*1.10 {
+				t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a record fence running per draw is the usual cause", s.name, allocs, base*1.10, base)
+			}
+			r, _ := f.FakeRecord("x")
+			if allocs := testing.AllocsPerRun(10000, func() { _ = r.CSVLine() }); allocs > 2 {
+				t.Errorf("%s: CSVLine() makes %.1f allocs/op, want 2: the fields slice and the joined line", s.name, allocs)
+			}
+		})
 	}
 }
 
