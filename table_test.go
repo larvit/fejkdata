@@ -618,7 +618,7 @@ func geoAndARecordInsideRegion12() map[string]string {
 	})
 }
 
-func TestTableSelectorInAReference(t *testing.T) {
+func TestTableSelectorInAReferenceDrawsInsideTheSelectedRow(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geoAndARecordInsideRegion12()), WithSeed(1))
 	eachDraw(100, func() string { return fake(t, f, "x") }, func(got string) {
 		parts := strings.Fields(got)

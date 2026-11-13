@@ -88,9 +88,8 @@ func legalFormOfALowerCaseSwedishCompany(v string) string {
 	return "E"
 }
 
-// The wordings of a legal form and the one-word names are drawn as often as the register's active companies
-// carry them. The counts are those data-import/company-se.py wrote into company.json from the register: a
-// wording's over the names not in capitals, and oneWord's the names of one coined word against all of a form's.
+// The counts are those data-import/company-se.py wrote into company.json from the register, over the names
+// not in capitals.
 func TestSwedishCompanyWordingsFollowTheRegister(t *testing.T) {
 	t.Parallel()
 	drawn := drawnSwedishCompanyTally(t)
@@ -101,6 +100,7 @@ func TestSwedishCompanyWordingsFollowTheRegister(t *testing.T) {
 	}
 }
 
+// Each pair is the register's names of one coined word, against all the names of that form.
 func TestSwedishCompanyOneWordNamesFollowTheRegister(t *testing.T) {
 	t.Parallel()
 	drawn := drawnSwedishCompanyTally(t)
@@ -1197,7 +1197,7 @@ func TestACompanysRegisteredBesideTheCompanyIsRefused(t *testing.T) {
 	}
 }
 
-func TestACompanysRegisteredLoadsWhereItIsTheOnlyReadOfTheCompany(t *testing.T) {
+func TestACompanyLoadsWhereItsRegisteredIsNotReadBesideIt(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, WithSeed(3))
 	for _, locale := range []string{"sv_SE", "nb_NO"} {

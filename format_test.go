@@ -176,13 +176,13 @@ func TestAReadOfAFieldBesideItsTemplateNamesTheRuleAndTheFix(t *testing.T) {
 	}
 }
 
-func TestAReadOfAFieldNowhereNamesNoFieldBeside(t *testing.T) {
+func TestAReadOfANameNoFieldHoldsIsRefusedWithoutTheFieldBesideRule(t *testing.T) {
 	if _, err := resolved(t, `{"format":"{a}","a":"x{zzz}","b":"y"}`); err == nil || strings.Contains(err.Error(), fieldBesideItsTemplateRule) {
 		t.Errorf("compile(a read of a field nowhere) = %v, want a refusal that names no field beside", err)
 	}
 }
 
-func TestTheFixARefusedReadOfAFieldNamesPrintsTheRead(t *testing.T) {
+func TestTheFixNamedByARefusedReadOfAFieldRenders(t *testing.T) {
 	for _, src := range []string{
 		`{"format":"{a}","a":{"format":"x{b}","b":"y"}}`,
 		`{"format":"{b as n}{a}","a":"x{n}","b":"y"}`,

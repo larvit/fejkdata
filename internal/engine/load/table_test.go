@@ -33,7 +33,7 @@ func TestRouteStepsRoutesOntoATablesNodes(t *testing.T) {
 	}
 }
 
-func TestRouteStepsPanicsOntoANodeThatIsNotATables(t *testing.T) {
+func TestRouteStepsPanicsOnANodeThatIsNotATables(t *testing.T) {
 	_, route := tableAndItsRoute(t)
 	for kind, n := range map[string]tree.Node{
 		"choice":    compiled(t, `["a","b"]`),

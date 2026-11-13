@@ -99,17 +99,17 @@ func TestPathThroughAChoiceDrawsWhatEveryVariantCarries(t *testing.T) {
 	})
 }
 
-func TestPathOnlySomeVariantsCarryNamesWhatAllCarry(t *testing.T) {
+func TestAPathOnlySomeVariantsCarryIsRefusedNamingWhatAllCarry(t *testing.T) {
 	f := generatorOfChoicesUnderAPath(t)
 	if _, err := f.Fake("some.extra"); err == nil || !strings.Contains(err.Error(), "all carry [f]") {
 		t.Errorf("Fake(some.extra) = %v, want it to name what every variant carries", err)
 	}
 }
 
-// TestPathNotEveryVariantCarriesFailsTheSameOnEveryCall pins the rule that keeps a
+// TestAPathNotEveryVariantCarriesFailsTheSameOnEveryCall pins the rule that keeps a
 // dotted path from rendering on one call and failing on the next: every variant
 // must carry the rest of the path.
-func TestPathNotEveryVariantCarriesFailsTheSameOnEveryCall(t *testing.T) {
+func TestAPathNotEveryVariantCarriesFailsTheSameOnEveryCall(t *testing.T) {
 	f := generatorOfChoicesUnderAPath(t)
 	failures := tallyDraws(200, func() string {
 		_, err := f.Fake("notall.f")
