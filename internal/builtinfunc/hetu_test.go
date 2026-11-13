@@ -12,10 +12,12 @@ const dvvControlCharacters = "0123456789ABCDEFHJKLMNPRSTUVWXY"
 
 func TestHetuCheckIsTheRemainderOfTheNineDigitsDividedBy31InDVVsTable(t *testing.T) {
 	for remainder := range 31 {
-		digits := fmt.Sprintf("%09d", remainder+31*3_000_000)
-		if got, want := hetuCheck(digits), dvvControlCharacters[remainder]; got != want {
-			t.Errorf("hetuCheck(%s) = %c, want %c for the remainder %d", digits, got, want, remainder)
-		}
+		t.Run(strconv.Itoa(remainder), func(t *testing.T) {
+			digits := fmt.Sprintf("%09d", remainder+31*3_000_000)
+			if got, want := hetuCheck(digits), dvvControlCharacters[remainder]; got != want {
+				t.Errorf("hetuCheck(%s) = %c, want %c for the remainder %d", digits, got, want, remainder)
+			}
+		})
 	}
 }
 
@@ -37,34 +39,52 @@ func TestHetuSignNamesTheCenturyOfTheLatestYearNotAfterToday(t *testing.T) {
 		{2000, 0, 'A'}, {1999, 0, '-'}, {1990, 90, '-'}, {1990, 91, '+'}, {1990, 99, '+'},
 		{1899, 0, '+'}, {1800, 0, '+'}, {1799, 99, 0}, {2099, 0, 'A'}, {2099, 99, 'A'}, {2100, 0, 0},
 	} {
-		if got := hetuSign(c.today, c.yy); got != c.want {
-			t.Errorf("hetuSign(%d, %d) = %q, want %q", c.today, c.yy, got, c.want)
-		}
+		t.Run(fmt.Sprintf("%02d in %d", c.yy, c.today), func(t *testing.T) {
+			if got := hetuSign(c.today, c.yy); got != c.want {
+				t.Errorf("hetuSign(%d, %d) = %q, want %q", c.today, c.yy, got, c.want)
+			}
+		})
 	}
 }
 
 // DVV: odd individual numbers go to men, even to women, and all issued are 002 to 899, so 900 to 999
 // is the range it issues no one and its test table draws from.
 func TestHetuTailGivesAnIndividualNumberOfTheParityFrom900To999AndItsCheck(t *testing.T) {
-	for _, parity := range []byte{'0', '1', '2', '3', '9'} {
-		seen := map[string]bool{}
-		for pick := range 50 {
-			tail := hetuTail("131052", '-', parity, pick)
-			if len(tail) != 5 || tail[0] != '-' {
-				t.Fatalf("hetuTail(131052, -, %c, %d) = %q, want a sign, three digits and a character", parity, pick, tail)
+	for _, parity := range hetuParities {
+		t.Run(string(parity), func(t *testing.T) {
+			eachHetuTailAfter131052(parity, func(pick int, tail string) {
+				if len(tail) != 5 || tail[0] != '-' {
+					t.Fatalf("hetuTail(131052, -, %c, %d) = %q, want a sign, three digits and a character", parity, pick, tail)
+				}
+				number := int(tail[1]-'0')*100 + int(tail[2]-'0')*10 + int(tail[3]-'0')
+				if number < 900 || number > 999 || number%2 != int(parity-'0')%2 {
+					t.Errorf("hetuTail(131052, -, %c, %d) = %q, want an individual number of that parity from 900 to 999", parity, pick, tail)
+				}
+				whole, _ := strconv.Atoi("131052" + tail[1:4])
+				if want := dvvControlCharacters[whole%31]; tail[4] != want {
+					t.Errorf("hetuTail(131052, -, %c, %d) = %q, want the check character %c", parity, pick, tail, want)
+				}
+			})
+		})
+	}
+}
+
+func TestHetuTailGivesEachOfThe50IndividualNumbersOfAParity(t *testing.T) {
+	for _, parity := range hetuParities {
+		t.Run(string(parity), func(t *testing.T) {
+			seen := map[string]bool{}
+			eachHetuTailAfter131052(parity, func(_ int, tail string) { seen[tail] = true })
+			if len(seen) != 50 {
+				t.Errorf("50 picks of parity %c gave %d individual numbers, want each of the 50", parity, len(seen))
 			}
-			number := int(tail[1]-'0')*100 + int(tail[2]-'0')*10 + int(tail[3]-'0')
-			if number < 900 || number > 999 || number%2 != int(parity-'0')%2 {
-				t.Errorf("hetuTail(131052, -, %c, %d) = %q, want an individual number of that parity from 900 to 999", parity, pick, tail)
-			}
-			whole, _ := strconv.Atoi("131052" + tail[1:4])
-			if want := dvvControlCharacters[whole%31]; tail[4] != want {
-				t.Errorf("hetuTail(131052, -, %c, %d) = %q, want the check character %c", parity, pick, tail, want)
-			}
-			seen[tail] = true
-		}
-		if len(seen) != 50 {
-			t.Errorf("50 picks of parity %c gave %d individual numbers, want each of the 50", parity, len(seen))
-		}
+		})
+	}
+}
+
+var hetuParities = []byte{'0', '1', '2', '3', '9'}
+
+func eachHetuTailAfter131052(parity byte, check func(pick int, tail string)) {
+	for pick := range 50 {
+		check(pick, hetuTail("131052", '-', parity, pick))
 	}
 }
