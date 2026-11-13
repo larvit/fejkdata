@@ -7,6 +7,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestAnOptionOfTheWrongKindIsNamedByItsJSONKind(t *testing.T) {
@@ -50,7 +51,7 @@ func TestAnOptionOfZeroWrittenAsZeroLoads(t *testing.T) {
 
 func TestWeightSkewsDistribution(t *testing.T) {
 	f := emptyGenerator(9)
-	heavy := tallyDraws(1000, func() string {
+	heavy := fejktest.TallyDraws(1000, func() string {
 		return mustRender(t, f, `[{"format":"H","weight":10},"L"]`)
 	})["H"]
 	if heavy < 800 { // expected ~909
@@ -73,7 +74,7 @@ func TestRepeatJoinsItsRendersWithTheSeparator(t *testing.T) {
 func TestRepeatDrawsEachRenderAfresh(t *testing.T) {
 	f, re := emptyGenerator(7), regexp.MustCompile(`^[0-9]{4}$`)
 	seen := map[string]bool{}
-	eachDraw(50, func() string {
+	fejktest.EachDraw(50, func() string {
 		return mustRender(t, f, `{"format":"{digits(1)}","repeat":4}`)
 	}, func(got string) {
 		if !re.MatchString(got) {

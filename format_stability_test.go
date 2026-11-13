@@ -2,12 +2,14 @@ package fejkdata
 
 import (
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func checkDrawsInOrder(t *testing.T, f *Generator, path string, want []string) {
 	t.Helper()
 	for i, expect := range want {
-		if got := fake(t, f, path); got != expect {
+		if got := fejktest.Fake(t, f, path); got != expect {
 			t.Errorf("%s draw %d = %q, want %q", path, i, got, expect)
 		}
 	}

@@ -31,6 +31,7 @@ import (
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // withoutManifest is fsys with its manifest hidden, so it loads whole in New.
@@ -290,7 +291,7 @@ func TestALocaleAloneLoadsItsCategoriesThatReadNoGeo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New(WithDataFS(svse.FS)) = %v", err)
 	}
-	if got := fake(t, f, "sv_SE.person"); got == "" {
+	if got := fejktest.Fake(t, f, "sv_SE.person"); got == "" {
 		t.Error("sv_SE.person rendered empty, want the locale's other categories to load alone")
 	}
 }
@@ -335,7 +336,7 @@ func TestANamespaceMountsAModuleUnderIt(t *testing.T) {
 			}
 			for _, p := range []string{"my.data.word", "my.data.sub.word"} {
 				t.Run(p, func(t *testing.T) {
-					if got := fake(t, f, p); got != "hej" {
+					if got := fejktest.Fake(t, f, p); got != "hej" {
 						t.Errorf("%s: %s = %q, want hej", name, p, got)
 					}
 				})
@@ -472,7 +473,7 @@ func TestAnIndexedSourceLoadsOnFirstReachLikeTheShippedOne(t *testing.T) {
 	if got, want := f.List(), []string{"a", "b", "sub.c", "sub.c.d"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("List() = %v, want %v", got, want)
 	}
-	if got := fake(t, f, "a"); got != "x!" {
+	if got := fejktest.Fake(t, f, "a"); got != "x!" {
 		t.Fatalf(`Fake("a") = %q, want "x!"`, got)
 	}
 	if got, want := loadedCategories(f), []string{"a", "b"}; !reflect.DeepEqual(got, want) {
@@ -499,7 +500,7 @@ func TestAnIndexedCategoryFailsAtFirstReachAndEveryReachAfter(t *testing.T) {
 	if _, again := f.Fake("bad"); again == nil || again.Error() != first.Error() {
 		t.Fatalf(`Fake("bad") again = %v, want %v`, again, first)
 	}
-	if got := fake(t, f, "good"); got != "fine" {
+	if got := fejktest.Fake(t, f, "good"); got != "fine" {
 		t.Fatalf(`Fake("good") = %q`, got)
 	}
 }
@@ -662,10 +663,10 @@ func TestADataPathTableUnderAShippedTableLoads(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
-	if got := fake(t, f, "sv_SE.sex[m].nickname"); got != "Kalle" {
+	if got := fejktest.Fake(t, f, "sv_SE.sex[m].nickname"); got != "Kalle" {
 		t.Fatalf("sv_SE.sex[m].nickname = %q, want Kalle", got)
 	}
-	if got := fake(t, f, "sv_SE.person"); got == "" {
+	if got := fejktest.Fake(t, f, "sv_SE.person"); got == "" {
 		t.Fatal("sv_SE.person rendered empty")
 	}
 }

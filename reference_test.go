@@ -3,6 +3,8 @@ package fejkdata
 import (
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // TestRootReferenceAcrossFolders is the headline case: a category in one folder
@@ -13,7 +15,7 @@ func TestRootReferenceAcrossFolders(t *testing.T) {
 		"sv_SE/greeting": `"Hej, {/en_US.person}!"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "sv_SE.greeting"); got != "Hej, Pat Smith!" {
+	if got := fejktest.Fake(t, f, "sv_SE.greeting"); got != "Hej, Pat Smith!" {
 		t.Fatalf("greeting = %q, want \"Hej, Pat Smith!\"", got)
 	}
 }
@@ -25,7 +27,7 @@ func TestReferenceIntoAField(t *testing.T) {
 		"card": `"signed {/who.last}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "card"); got != "signed Byron" {
+	if got := fejktest.Fake(t, f, "card"); got != "signed Byron" {
 		t.Fatalf("card = %q, want \"signed Byron\"", got)
 	}
 }
@@ -38,7 +40,7 @@ func TestReferenceInAlternation(t *testing.T) {
 		"near": `{"format":"{here|/far}","here":"H"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(2))
-	seen := tallyDraws(100, func() string { return fake(t, f, "near") })
+	seen := fejktest.TallyDraws(100, func() string { return fejktest.Fake(t, f, "near") })
 	if seen["H"] == 0 || seen["X"] == 0 || len(seen) != 2 {
 		t.Fatalf("alternation produced %v, want both H and X", seen)
 	}
@@ -50,7 +52,7 @@ func TestReferenceCombinesLoadedPaths(t *testing.T) {
 	a := writeData(t, map[string]string{"en_US/word": `"river"`})
 	b := writeData(t, map[string]string{"mine/slug": `"the-{/en_US.word}"`})
 	f := newGeneratorN(t, []string{a, b}, WithSeed(1))
-	if got := fake(t, f, "mine.slug"); got != "the-river" {
+	if got := fejktest.Fake(t, f, "mine.slug"); got != "the-river" {
 		t.Fatalf("slug = %q, want the-river", got)
 	}
 }
@@ -64,7 +66,7 @@ func TestReferenceChain(t *testing.T) {
 		"c": `"deep"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "a"); got != "deep" {
+	if got := fejktest.Fake(t, f, "a"); got != "deep" {
 		t.Fatalf("a = %q, want deep", got)
 	}
 }
@@ -130,7 +132,7 @@ func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 
 func TestAReferenceIntoItsOwnCategoryIsAFreshDraw(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"cat": `{"format":"{y} {x}","x":"{/cat.y}","y":["1","2"]}`}), WithSeed(1))
-	seen := tallyDraws(50, func() string { return fake(t, f, "cat") })
+	seen := fejktest.TallyDraws(50, func() string { return fejktest.Fake(t, f, "cat") })
 	if seen["1 2"] == 0 && seen["2 1"] == 0 {
 		t.Errorf("cat drew %v in 50 renders, want x a draw apart from y", seen)
 	}
@@ -175,7 +177,7 @@ func TestNewErrorIsDeterministic(t *testing.T) {
 	for name, files := range cases {
 		t.Run(name, func(t *testing.T) {
 			dir := writeData(t, files)
-			failures := tallyDraws(50, func() string {
+			failures := fejktest.TallyDraws(50, func() string {
 				_, err := New(WithSeed(1), onTestDay, WithDataPath(dir))
 				if err == nil {
 					t.Fatalf("%s: New = nil error, want a load error", name)
@@ -241,7 +243,7 @@ func TestBareReferenceDrawsEachTime(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	differ := false
-	eachDraw(50, func() string { return fake(t, f, "roll") }, func(got string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "roll") }, func(got string) {
 		differ = differ || got[0] != got[2]
 	})
 	if !differ {
@@ -273,7 +275,7 @@ func TestReferencesIntoOneLevelLoad(t *testing.T) {
 func fakeEachDataFile(t *testing.T, f *Generator, files map[string]string) {
 	t.Helper()
 	for path := range files {
-		fake(t, f, strings.ReplaceAll(path, "/", "."))
+		fejktest.Fake(t, f, strings.ReplaceAll(path, "/", "."))
 	}
 }
 
@@ -291,7 +293,7 @@ func TestFieldsReadOneNameTheirCategoryBinds(t *testing.T) {
 		"person":  drawPeople,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	eachDraw(100, func() string { return fake(t, f, "contact") }, func(got string) {
+	fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "contact") }, func(got string) {
 		name, email, _ := strings.Cut(got, " <")
 		first, last, _ := strings.Cut(name, " ")
 		if !onePerson(name) || email != strings.ToLower(first)+"."+strings.ToLower(last)+"@example.com>" {
@@ -322,7 +324,7 @@ func TestRelativeReferences(t *testing.T) {
 		"top":             "bob",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("%s = %q, want %q", path, got, want)
 			}
 		})

@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strconv"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 var (
@@ -23,7 +25,7 @@ func replayPrintedFakes(t *testing.T, name string, f *Generator, lines []string)
 		if err != nil {
 			t.Fatalf("%s prints %s: %v", name, c[2], err)
 		}
-		if got := fake(t, f, c[1]); got != want {
+		if got := fejktest.Fake(t, f, c[1]); got != want {
 			t.Errorf("%s prints Fake(%q) = %q for seed 42, it renders %q", name, c[1], want, got)
 		}
 	}

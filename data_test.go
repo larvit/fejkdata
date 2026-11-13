@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // TestShippedDataCategories asserts every shipped locale emits only well-formed
@@ -53,14 +55,14 @@ func TestShippedDataCategories(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.path, func(t *testing.T) {
 			t.Run("en_US", func(t *testing.T) {
-				eachDraw(200, func() string { return fake(t, f, "en_US."+c.path) }, func(v string) {
+				fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "en_US."+c.path) }, func(v string) {
 					if !c.en.MatchString(v) {
 						t.Fatalf("en_US %s = %q, want %s", c.path, v, c.en)
 					}
 				})
 			})
 			t.Run("sv_SE", func(t *testing.T) {
-				eachDraw(200, func() string { return fake(t, f, "sv_SE."+c.path) }, func(v string) {
+				fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "sv_SE."+c.path) }, func(v string) {
 					if !c.sv.MatchString(v) {
 						t.Fatalf("sv_SE %s = %q, want %s", c.path, v, c.sv)
 					}
@@ -80,36 +82,36 @@ func TestShippedMiscCategories(t *testing.T) {
 	objectid := regexp.MustCompile(`^[0-9a-f]{24}$`)
 	datetime := regexp.MustCompile(`^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$`)
 	t.Run("datetime", func(t *testing.T) {
-		eachDraw(200, func() string { return fake(t, f, "datetime") }, func(v string) {
+		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "datetime") }, func(v string) {
 			if !datetime.MatchString(v) {
 				t.Fatalf("misc datetime %q is not an RFC 3339 UTC instant", v)
 			}
 		})
 	})
 	t.Run("objectid", func(t *testing.T) {
-		eachDraw(200, func() string { return fake(t, f, "objectid") }, func(v string) {
+		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "objectid") }, func(v string) {
 			if !objectid.MatchString(v) {
 				t.Fatalf("misc objectid %q is not 24 hex chars", v)
 			}
 		})
 	})
 	t.Run("uuid", func(t *testing.T) {
-		eachDraw(200, func() string { return fake(t, f, "uuid") }, func(v string) {
+		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "uuid") }, func(v string) {
 			if !v4.MatchString(v) {
 				t.Fatalf("misc uuid %q is not a valid v4", v)
 			}
 		})
 	})
 	t.Run("mac", func(t *testing.T) {
-		eachDraw(200, func() string { return fake(t, f, "mac") }, func(v string) {
+		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "mac") }, func(v string) {
 			if !mac.MatchString(v) {
 				t.Fatalf("misc mac %q is not a MAC address", v)
 			}
 		})
 	})
 	t.Run("creditcard", func(t *testing.T) {
-		eachDraw(200, func() string { return fake(t, f, "creditcard") }, func(v string) {
-			if len(v) < 15 || len(v) > 16 || !luhnValid(v) {
+		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "creditcard") }, func(v string) {
+			if len(v) < 15 || len(v) > 16 || !fejktest.LuhnValid(v) {
 				t.Fatalf("creditcard %q is not a 15-16 digit Luhn-valid number", v)
 			}
 		})
@@ -120,7 +122,7 @@ func eachMiscTestNumberOf300Draws(t *testing.T, f *Generator, check func(path, v
 	t.Helper()
 	for i := 0; i < 300; i++ {
 		for _, path := range []string{"creditcard-test", "iban-test"} {
-			check(path, fake(t, f, path))
+			check(path, fejktest.Fake(t, f, path))
 		}
 	}
 }
@@ -150,10 +152,10 @@ func TestShippedMiscTestNumbers(t *testing.T) {
 	t.Run("creditcard-test", func(t *testing.T) {
 		for brand, number := range cards {
 			t.Run(brand, func(t *testing.T) {
-				if got := fake(t, f, "creditcard-test["+brand+"]"); got != number {
+				if got := fejktest.Fake(t, f, "creditcard-test["+brand+"]"); got != number {
 					t.Fatalf("creditcard-test[%s] = %q, want %q", brand, got, number)
 				}
-				if !luhnValid(number) {
+				if !fejktest.LuhnValid(number) {
 					t.Fatalf("test card %q is not Luhn-valid", number)
 				}
 			})
@@ -162,7 +164,7 @@ func TestShippedMiscTestNumbers(t *testing.T) {
 	t.Run("iban-test", func(t *testing.T) {
 		for cc, number := range ibans {
 			t.Run(cc, func(t *testing.T) {
-				if got := fake(t, f, "iban-test["+cc+"]"); got != number {
+				if got := fejktest.Fake(t, f, "iban-test["+cc+"]"); got != number {
 					t.Fatalf("iban-test[%s] = %q, want %q", cc, got, number)
 				}
 				if !ibanValid(number) {
@@ -234,7 +236,7 @@ func TestShippedMiscReferenceData(t *testing.T) {
 	t.Run("shape", func(t *testing.T) {
 		for p, rx := range re {
 			t.Run(p, func(t *testing.T) {
-				eachDraw(100, func() string { return fake(t, f, p) }, func(v string) {
+				fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, p) }, func(v string) {
 					if !rx.MatchString(v) {
 						t.Fatalf("misc %s = %q, want %s", p, v, rx)
 					}
@@ -243,14 +245,14 @@ func TestShippedMiscReferenceData(t *testing.T) {
 		}
 	})
 	t.Run("emoji", func(t *testing.T) {
-		eachDraw(100, func() string { return fake(t, f, "emoji") }, func(e string) {
+		fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "emoji") }, func(e string) {
 			if e == "" || []rune(e)[0] < 128 {
 				t.Fatalf("emoji %q is not a non-ASCII glyph", e)
 			}
 		})
 	})
 	t.Run("coordinate", func(t *testing.T) {
-		eachDraw(100, func() string { return fake(t, f, "coordinate") }, func(c string) {
+		fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "coordinate") }, func(c string) {
 			parts := strings.SplitN(c, ", ", 2)
 			lat, err1 := strconv.ParseFloat(parts[0], 64)
 			lon, err2 := strconv.ParseFloat(parts[len(parts)-1], 64)
@@ -279,7 +281,7 @@ func TestShippedPersonNames(t *testing.T) {
 			"en_US.last-name[Smith]":              "Smith",
 		} {
 			t.Run(path, func(t *testing.T) {
-				if got := fake(t, f, path); got != want {
+				if got := fejktest.Fake(t, f, path); got != want {
 					t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 				}
 			})
@@ -287,7 +289,7 @@ func TestShippedPersonNames(t *testing.T) {
 	})
 	t.Run("a last name carries its count", func(t *testing.T) {
 		path := "sv_SE.last-name[Andersson].count"
-		if got := fake(t, f, path); !regexp.MustCompile(`^[1-9]\d*$`).MatchString(got) {
+		if got := fejktest.Fake(t, f, path); !regexp.MustCompile(`^[1-9]\d*$`).MatchString(got) {
 			t.Errorf("Fake(%q) = %q, want a count", path, got)
 		}
 	})
@@ -312,10 +314,10 @@ func femaleFirstNamesDrawnBesidePeopleOfTheirSex(t *testing.T, f *Generator, loc
 	t.Helper()
 	seen := map[string]bool{}
 	for i := 0; i < 2000; i++ {
-		seen[fake(t, f, locale+".sex[f].first-name")] = true
-		got := fakeTemplate(t, f, `{/`+locale+`.person as p}{p.first}|{p.sex}`)
+		seen[fejktest.Fake(t, f, locale+".sex[f].first-name")] = true
+		got := fejktest.FakeTemplate(t, f, `{/`+locale+`.person as p}{p.first}|{p.sex}`)
 		first, sex, _ := strings.Cut(got, "|")
-		fake(t, f, locale+".sex["+sex+"].first-name["+first+"]")
+		fejktest.Fake(t, f, locale+".sex["+sex+"].first-name["+first+"]")
 	}
 	return seen
 }
@@ -337,13 +339,13 @@ func twoPeopleOf300RendersDrawApart(t *testing.T, f *Generator, locale string) b
 	t.Helper()
 	apart := false
 	for i := 0; i < 300; i++ {
-		got := fakeTemplate(t, f, `{/`+locale+`.person as a}{/`+locale+`.person as b}{a.first}|{a.sex}|{a.prefix}|{b.first}|{b.sex}`)
+		got := fejktest.FakeTemplate(t, f, `{/`+locale+`.person as a}{/`+locale+`.person as b}{a.first}|{a.sex}|{a.prefix}|{b.first}|{b.sex}`)
 		parts := strings.Split(got, "|")
 		for _, p := range [][2]string{{parts[0], parts[1]}, {parts[3], parts[4]}} {
-			fake(t, f, locale+".sex["+p[1]+"].first-name["+p[0]+"]")
+			fejktest.Fake(t, f, locale+".sex["+p[1]+"].first-name["+p[0]+"]")
 		}
 		if title := strings.TrimSpace(parts[2]); title != "" && locale == "en_US" {
-			fake(t, f, "en_US.sex["+parts[1]+"].title["+title+"]")
+			fejktest.Fake(t, f, "en_US.sex["+parts[1]+"].title["+title+"]")
 		}
 		apart = apart || parts[0] != parts[3]
 	}
@@ -354,7 +356,7 @@ func TestShippedPersonHasParts(t *testing.T) {
 	f := shipped(t, WithSeed(7))
 	for _, path := range []string{"sv_SE.person", "en_US.person"} {
 		t.Run(path, func(t *testing.T) {
-			eachDraw(30, func() string { return fake(t, f, path) }, func(name string) {
+			fejktest.EachDraw(30, func() string { return fejktest.Fake(t, f, path) }, func(name string) {
 				if len(name) < 3 || !regexp.MustCompile(`\S \S`).MatchString(name) {
 					t.Fatalf("%s %q lacks first and last name", path, name)
 				}
@@ -397,7 +399,7 @@ func TestShippedNamespacedTree(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	for _, path := range []string{"sv_SE.person", "en_US.person", "sv_SE.address.locality"} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got == "" {
+			if got := fejktest.Fake(t, f, path); got == "" {
 				t.Fatalf("Fake(%q) returned empty", path)
 			}
 		})
@@ -411,38 +413,11 @@ func TestShippedCategoryIsNotReachedWithoutItsNamespace(t *testing.T) {
 	}
 }
 
-func digitsOnly(s string) string {
-	var b strings.Builder
-	for _, r := range s {
-		if r >= '0' && r <= '9' {
-			b.WriteRune(r)
-		}
-	}
-	return b.String()
-}
-
-// luhnValid verifies a full number (payload + trailing check digit). It doubles
-// from the second-from-right, independent of the builtin's own Luhn code.
-func luhnValid(s string) bool {
-	sum, double := 0, false
-	for i := len(s) - 1; i >= 0; i-- {
-		n := int(s[i] - '0')
-		if double {
-			if n *= 2; n > 9 {
-				n -= 9
-			}
-		}
-		double = !double
-		sum += n
-	}
-	return sum%10 == 0
-}
-
 func TestShippedStreetNumberFormats(t *testing.T) {
 	// Reachable via a hyphenated path; covers all five weighted number variants.
 	f := shipped(t, WithSeed(8))
 	re := regexp.MustCompile(`^[1-9]\d{0,2}[A-Z]?$`)
-	eachDraw(300, func() string { return fake(t, f, "sv_SE.address.street-number") }, func(n string) {
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, f, "sv_SE.address.street-number") }, func(n string) {
 		if !re.MatchString(n) {
 			t.Fatalf("street-number %q does not match %s", n, re)
 		}
@@ -464,7 +439,7 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 		"en_US.sex[m].count": "168337882",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})

@@ -5,11 +5,9 @@ import (
 	"strings"
 	"testing"
 	"time"
-)
 
-func dayOf(year int, month time.Month, day int) time.Time {
-	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-}
+	"github.com/larvit/fejkdata/internal/fejktest"
+)
 
 func readOn(t *testing.T, today time.Time) *Generator {
 	t.Helper()
@@ -46,7 +44,7 @@ func TestNewWithoutADateFailsNamingWithToday(t *testing.T) {
 func TestNewRefusesADateOutsideYears1000To9999(t *testing.T) {
 	for _, year := range []int{-1, 0, 1, 999, 10000} {
 		t.Run(strconv.Itoa(year), func(t *testing.T) {
-			_, err := New(WithDataFS(), WithSeed(1), WithToday(dayOf(year, 6, 15)))
+			_, err := New(WithDataFS(), WithSeed(1), WithToday(fejktest.DayOf(year, 6, 15)))
 			if err == nil || !strings.Contains(err.Error(), "WithToday") {
 				t.Errorf("New(WithToday in year %d) = %v, want it refused, naming WithToday", year, err)
 			}
@@ -57,7 +55,7 @@ func TestNewRefusesADateOutsideYears1000To9999(t *testing.T) {
 func TestNewTakesADateInYears1000To9999(t *testing.T) {
 	for _, year := range []int{1000, 9999} {
 		t.Run(strconv.Itoa(year), func(t *testing.T) {
-			if _, err := New(WithDataFS(), WithSeed(1), WithToday(dayOf(year, 6, 15))); err != nil {
+			if _, err := New(WithDataFS(), WithSeed(1), WithToday(fejktest.DayOf(year, 6, 15))); err != nil {
 				t.Errorf("New(WithToday in year %d) = %v, want it taken", year, err)
 			}
 		})
@@ -66,7 +64,7 @@ func TestNewTakesADateInYears1000To9999(t *testing.T) {
 
 // A range of ages counts by calendar year, as the law's "the year a person turns 100" does.
 func TestBornDrawsTheBirthYearsOfTheAges(t *testing.T) {
-	f := readOn(t, dayOf(2026, 11, 4))
+	f := readOn(t, fejktest.DayOf(2026, 11, 4))
 	t.Run("ages 100 to 113", func(t *testing.T) {
 		first, last := firstAndLastOfDraws(3000, func() string { return mustRender(t, f, `"{born(100,113,'2006-01-02')}"`) })
 		if first < "1913-01-01" || first[:4] != "1913" || last > "1926-12-31" || last[:4] != "1926" {
@@ -82,8 +80,8 @@ func TestBornDrawsTheBirthYearsOfTheAges(t *testing.T) {
 }
 
 func TestBornAtItsOldestPrintsNoYearBeforeOne(t *testing.T) {
-	f := readOn(t, dayOf(1000, 6, 15))
-	eachDraw(3000, func() string { return mustRender(t, f, `"{born(0,999,'2006-01-02')}"`) }, func(got string) {
+	f := readOn(t, fejktest.DayOf(1000, 6, 15))
+	fejktest.EachDraw(3000, func() string { return mustRender(t, f, `"{born(0,999,'2006-01-02')}"`) }, func(got string) {
 		if got < "0001-01-01" || got > "1000-06-15" {
 			t.Fatalf("born(0,999) read on 1000-06-15 = %s, want a day from 0001-01-01 to 1000-06-15", got)
 		}
@@ -91,9 +89,9 @@ func TestBornAtItsOldestPrintsNoYearBeforeOne(t *testing.T) {
 }
 
 func TestBornDrawsNoDayAfterToday(t *testing.T) {
-	f := readOn(t, dayOf(2026, 11, 4))
+	f := readOn(t, fejktest.DayOf(2026, 11, 4))
 	seen := map[string]bool{}
-	eachDraw(5000, func() string { return mustRender(t, f, `"{born(0,0,'2006-01-02')}"`) }, func(got string) {
+	fejktest.EachDraw(5000, func() string { return mustRender(t, f, `"{born(0,0,'2006-01-02')}"`) }, func(got string) {
 		if got < "2026-01-01" || got > "2026-11-04" {
 			t.Fatalf("born(0,0) read on 2026-11-04 = %s, want a day from 2026-01-01 to 2026-11-04", got)
 		}
@@ -105,8 +103,8 @@ func TestBornDrawsNoDayAfterToday(t *testing.T) {
 }
 
 func TestBornOnJanuaryFirstDrawsThatDay(t *testing.T) {
-	jan1 := readOn(t, dayOf(2026, 1, 1))
-	eachDraw(50, func() string { return mustRender(t, jan1, `"{born(0,0,'2006-01-02')}"`) }, func(got string) {
+	jan1 := readOn(t, fejktest.DayOf(2026, 1, 1))
+	fejktest.EachDraw(50, func() string { return mustRender(t, jan1, `"{born(0,0,'2006-01-02')}"`) }, func(got string) {
 		if got != "2026-01-01" {
 			t.Fatalf("born(0,0) read on 2026-01-01 = %s, want that day", got)
 		}
@@ -116,7 +114,7 @@ func TestBornOnJanuaryFirstDrawsThatDay(t *testing.T) {
 // The date is the calendar day as written in its own location, whatever UTC says it is then.
 func TestWithTodayReadsTheDayAsWrittenAheadOfUTC(t *testing.T) {
 	ahead := readOn(t, time.Date(2027, 1, 1, 0, 30, 0, 0, time.FixedZone("", 3600)))
-	eachDraw(50, func() string { return mustRender(t, ahead, `"{born(0,0,'2006-01-02')}"`) }, func(got string) {
+	fejktest.EachDraw(50, func() string { return mustRender(t, ahead, `"{born(0,0,'2006-01-02')}"`) }, func(got string) {
 		if got != "2027-01-01" {
 			t.Fatalf("born(0,0) read on 2027-01-01 at 00:30 +01:00 = %s, want 2027-01-01", got)
 		}
@@ -132,8 +130,8 @@ func TestWithTodayReadsTheDayAsWrittenBehindUTC(t *testing.T) {
 }
 
 func TestWithTodaysTimeOfDayChangesNoDraw(t *testing.T) {
-	noon, midnight := readOn(t, time.Date(2026, 11, 4, 12, 0, 0, 0, time.UTC)), readOn(t, dayOf(2026, 11, 4))
-	eachDraw(50, func() string { return mustRender(t, noon, `"{born(0,99,'2006-01-02T15:04:05')}"`) }, func(a string) {
+	noon, midnight := readOn(t, time.Date(2026, 11, 4, 12, 0, 0, 0, time.UTC)), readOn(t, fejktest.DayOf(2026, 11, 4))
+	fejktest.EachDraw(50, func() string { return mustRender(t, noon, `"{born(0,99,'2006-01-02T15:04:05')}"`) }, func(a string) {
 		if b := mustRender(t, midnight, `"{born(0,99,'2006-01-02T15:04:05')}"`); a != b {
 			t.Fatalf("read at noon %s, read at midnight %s, want the time of day to change nothing", a, b)
 		}
@@ -142,9 +140,9 @@ func TestWithTodaysTimeOfDayChangesNoDraw(t *testing.T) {
 
 func TestTheDateRepeatsARunAndOnlyMovesWhatReadsIt(t *testing.T) {
 	const template = `"{born(0,99,'2006-01-02')} {int(1,1000000)}"`
-	a, again, later := readOn(t, dayOf(2026, 11, 4)), readOn(t, dayOf(2026, 11, 4)), readOn(t, dayOf(2040, 11, 4))
+	a, again, later := readOn(t, fejktest.DayOf(2026, 11, 4)), readOn(t, fejktest.DayOf(2026, 11, 4)), readOn(t, fejktest.DayOf(2040, 11, 4))
 	moved := false
-	eachDraw(50, func() string { return mustRender(t, a, template) }, func(x string) {
+	fejktest.EachDraw(50, func() string { return mustRender(t, a, template) }, func(x string) {
 		y, z := mustRender(t, again, template), mustRender(t, later, template)
 		if x != y {
 			t.Fatalf("one seed and date drew %q and %q", x, y)
@@ -160,7 +158,7 @@ func TestTheDateRepeatsARunAndOnlyMovesWhatReadsIt(t *testing.T) {
 }
 
 func TestBornRefusesItsMistakes(t *testing.T) {
-	f := readOn(t, dayOf(2026, 11, 4))
+	f := readOn(t, fejktest.DayOf(2026, 11, 4))
 	for tmpl, want := range map[string]string{
 		`"{born(5,1,'06')}"`:      "min 5",
 		`"{born(-1,5,'06')}"`:     "negative",
@@ -181,7 +179,7 @@ func TestBornRefusesItsMistakes(t *testing.T) {
 }
 
 func TestBornTakesItsOldestAge(t *testing.T) {
-	f := readOn(t, dayOf(2026, 11, 4))
+	f := readOn(t, fejktest.DayOf(2026, 11, 4))
 	if _, err := f.FakeTemplate(`"{born(0,999,'06')}"`); err != nil {
 		t.Errorf("born(0,999) = %v, want it taken", err)
 	}

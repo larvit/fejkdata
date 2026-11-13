@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestBuiltinHetuRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
@@ -29,8 +31,8 @@ func TestBuiltinHetuReadsTheLastSixDigitsEmitted(t *testing.T) {
 				t.Fatalf("hetu after %q = %q, want a sign, three digits and a control character", pre, tail)
 			}
 			whole, _ := strconv.Atoi(six + tail[1:4])
-			if tail[4] != dvvControlTable[whole%31] {
-				t.Errorf("hetu after %q = %q, want the control character %c for %s", pre, tail, dvvControlTable[whole%31], six+tail[1:4])
+			if tail[4] != fejktest.DVVControlTable[whole%31] {
+				t.Errorf("hetu after %q = %q, want the control character %c for %s", pre, tail, fejktest.DVVControlTable[whole%31], six+tail[1:4])
 			}
 			if individual, _ := strconv.Atoi(tail[1:4]); individual%2 != 1 {
 				t.Errorf("hetu after %q = %q, want an odd individual number for the operand 3", pre, tail)
@@ -68,7 +70,7 @@ func TestBuiltinHetuGivesEachDigitTheParityOfItsOperand(t *testing.T) {
 func hetuIndividualNumbersOverSeeds(t *testing.T, seeds int, parity int) map[string]int {
 	t.Helper()
 	seed := uint64(0)
-	return tallyDraws(seeds, func() string {
+	return fejktest.TallyDraws(seeds, func() string {
 		got := mustRender(t, emptyGenerator(seed), fmt.Sprintf(`{"format":"131052{hetu(last)}","last":"%d"}`, parity))
 		seed++
 		return got[7:10]

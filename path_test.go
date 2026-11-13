@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestDeepDottedPath(t *testing.T) {
@@ -92,7 +93,7 @@ func generatorOfChoicesUnderAPath(t *testing.T) *Generator {
 
 func TestPathThroughAChoiceDrawsWhatEveryVariantCarries(t *testing.T) {
 	f := generatorOfChoicesUnderAPath(t)
-	eachDraw(200, func() string { return fake(t, f, "every.f") }, func(got string) {
+	fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "every.f") }, func(got string) {
 		if got != "1" && got != "2" {
 			t.Fatalf("every.f = %q, want 1 or 2", got)
 		}
@@ -111,7 +112,7 @@ func TestAPathOnlySomeVariantsCarryIsRefusedNamingWhatAllCarry(t *testing.T) {
 // must carry the rest of the path.
 func TestAPathNotEveryVariantCarriesFailsTheSameOnEveryCall(t *testing.T) {
 	f := generatorOfChoicesUnderAPath(t)
-	failures := tallyDraws(200, func() string {
+	failures := fejktest.TallyDraws(200, func() string {
 		_, err := f.Fake("notall.f")
 		if err == nil {
 			t.Fatal("notall.f = nil error, want the same failure every call")
@@ -142,7 +143,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 	if !slices.Contains(f.List(), "cat.a.b") {
 		t.Error("List() omits cat.a.b, which the data carries")
 	}
-	if got := fake(t, f, "cat"); got != "2" {
+	if got := fejktest.Fake(t, f, "cat"); got != "2" {
 		t.Fatalf("cat = %q, want 2", got)
 	}
 }
@@ -193,7 +194,7 @@ func TestFakePathNavigation(t *testing.T) {
 
 func TestALeadingSlashIsThePath(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"person": `{"format":"{first}","first":"Ada"}`}), WithSeed(1))
-	if v := fake(t, f, "/person"); v != "Ada" {
+	if v := fejktest.Fake(t, f, "/person"); v != "Ada" {
 		t.Errorf("Fake(/person) = %q, want Ada", v)
 	}
 	if _, err := f.Fake("//person"); err == nil || !strings.Contains(err.Error(), "write /person") {

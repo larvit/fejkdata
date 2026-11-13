@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/larvit/fejkdata/data/sv_SE"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 var (
@@ -153,7 +154,7 @@ func TestReadmeSQLExampleOutput(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := fake(t, f, "sql"); got != want[1] {
+	if got := fejktest.Fake(t, f, "sql"); got != want[1] {
 		t.Errorf("README SQL example with seed 1 = %q, README prints %q", got, want[1])
 	}
 }
@@ -233,7 +234,7 @@ func TestReadmeTableExampleSelectsARowByKeyOrName(t *testing.T) {
 	f := readmeTableExample(t)
 	for path, want := range map[string]string{"example[SE]": "Sweden (SE)", "example[Norway].alpha2": "NO"} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("README table example: Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -361,26 +362,6 @@ func readmeSection(t *testing.T, src, heading string) string {
 	return section
 }
 
-func tsvRows(t *testing.T, path string) []map[string]string {
-	t.Helper()
-	src, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	lines := strings.Split(strings.TrimSpace(string(src)), "\n")
-	head := strings.Split(lines[0], "\t")
-	rows := make([]map[string]string, 0, len(lines)-1)
-	for _, line := range lines[1:] {
-		cells := strings.Split(line, "\t")
-		row := make(map[string]string, len(head))
-		for i, name := range head {
-			row[name] = cells[i]
-		}
-		rows = append(rows, row)
-	}
-	return rows
-}
-
 // quickStartPerson is one person as a quick start's columns or fields name it.
 type quickStartPerson struct {
 	sex, first, last, personnummer, email, street, postalCode, locality string
@@ -403,16 +384,16 @@ func emailSlug(name string) string {
 	return strings.Trim(slugRun.ReplaceAllString(asciiFold.Replace(strings.ToLower(name)), "-"), "-")
 }
 
-// quickStartShipped holds what a quick start's person must agree with: the first names shipped per sex code, and the geo tables geoPlaces reads.
+// quickStartShipped holds what a quick start's person must agree with: the first names shipped per sex code, and the geo tables fejktest.GeoPlaces reads.
 type quickStartShipped struct {
 	firstNames map[string]map[string]bool
-	places     geoPlaceSet
+	places     fejktest.GeoPlaceSet
 }
 
 func loadQuickStartShipped(t *testing.T) quickStartShipped {
 	t.Helper()
-	s := quickStartShipped{firstNames: map[string]map[string]bool{}, places: geoPlaces(t, "SE")}
-	for _, row := range tsvRows(t, "data/sv_SE/first-name.tsv") {
+	s := quickStartShipped{firstNames: map[string]map[string]bool{}, places: fejktest.GeoPlaces(t, "data/geo/SE")}
+	for _, row := range fejktest.TSVRows(t, "data/sv_SE/first-name.tsv") {
 		if s.firstNames[row["sex"]] == nil {
 			s.firstNames[row["sex"]] = map[string]bool{}
 		}
@@ -449,14 +430,14 @@ func (s quickStartShipped) checkPerson(p quickStartPerson) error {
 	if err != nil || day.Before(time.Date(1940, 1, 1, 0, 0, 0, 0, time.UTC)) || day.After(time.Date(2006, 12, 31, 0, 0, 0, 0, time.UTC)) {
 		return fmt.Errorf("personnummer %q has a birth date outside 1940-01-01 to 2006-12-31", p.personnummer)
 	}
-	if !luhnValid(pnr[1] + pnr[2] + pnr[3]) {
+	if !fejktest.LuhnValid(pnr[1] + pnr[2] + pnr[3]) {
 		return fmt.Errorf("personnummer %q fails the Luhn check", p.personnummer)
 	}
 	number := strings.LastIndex(p.street, " ")
 	if number < 0 {
 		return fmt.Errorf("street %q has no number", p.street)
 	}
-	if !s.places.has(p.street[:number], p.postalCode, p.locality, "") {
+	if !s.places.Has(p.street[:number], p.postalCode, p.locality, "") {
 		return fmt.Errorf("street %q, postal code %q and locality %q do not belong together", p.street, p.postalCode, p.locality)
 	}
 	return nil
@@ -822,7 +803,7 @@ func TestReadmeRatiosAndRulesSaysTheWordsAReaderSearchesFor(t *testing.T) {
 
 func TestReadmeRatioExamplePrintsOnlyActiveOrInactive(t *testing.T) {
 	_, ratio, _ := readmeRatioAndRuleExamples(t)
-	eachDraw(5000, readmeExampleDraw(t, ratio), func(s string) {
+	fejktest.EachDraw(5000, readmeExampleDraw(t, ratio), func(s string) {
 		if s != "active" && s != "inactive" {
 			t.Fatalf("the ratio example prints %q, want active or inactive", s)
 		}
@@ -831,7 +812,7 @@ func TestReadmeRatioExamplePrintsOnlyActiveOrInactive(t *testing.T) {
 
 func TestReadmeRatioExamplePrintsActiveFourTimesInFive(t *testing.T) {
 	_, ratio, _ := readmeRatioAndRuleExamples(t)
-	active := tallyDraws(5000, readmeExampleDraw(t, ratio))["active"]
+	active := fejktest.TallyDraws(5000, readmeExampleDraw(t, ratio))["active"]
 	if share := float64(active) / 5000; share < 0.77 || share > 0.83 {
 		t.Errorf("the ratio example prints active %.3f of the time, want about 0.80", share)
 	}
@@ -842,7 +823,7 @@ func TestReadmeRuleExamplePrintsACountryBesideItsOwnCurrency(t *testing.T) {
 	currency := map[string]string{"SE": "SEK", "NO": "NOK", "DK": "DKK"}
 	const draws = 3000
 	seen := map[string]int{}
-	eachDraw(draws, readmeExampleDraw(t, rule), func(s string) {
+	fejktest.EachDraw(draws, readmeExampleDraw(t, rule), func(s string) {
 		var country, code string
 		if n, _ := fmt.Sscanf(s, "%s pays in %s", &country, &code); n != 2 || currency[country] != code {
 			t.Fatalf("the rule example prints %q, want a country beside its own currency", s)

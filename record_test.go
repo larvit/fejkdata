@@ -12,6 +12,7 @@ import (
 	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func recordCat(t *testing.T) *Generator {
@@ -416,7 +417,7 @@ func TestRecordColumnsReadOneName(t *testing.T) {
 		if symbol, known := symbols[m["code"]]; !known || m["symbol"] != symbol {
 			t.Fatalf("record %s, want one currency draw across columns", r.JSON())
 		}
-		v := fake(t, f, "price")
+		v := fejktest.Fake(t, f, "price")
 		if code, symbol, _ := strings.Cut(v, " "); symbol == "" || symbols[code] != symbol {
 			t.Fatalf("Fake(price) = %q, want its fields one currency draw, as the record's columns are", v)
 		}
@@ -448,7 +449,7 @@ func TestRepeatIterationsPickNamesAnew(t *testing.T) {
 	eachRecordOf(t, f, "party", 100, func(r *Record) {
 		guests, host := r.Columns()[0].Value, r.Columns()[1].Value
 		notePartyNamesThatDiffer(t, differed, "FakeRecord", append([]string{host}, strings.Split(guests, ", ")...))
-		host, guests, _ = strings.Cut(fake(t, f, "party"), ": ")
+		host, guests, _ = strings.Cut(fejktest.Fake(t, f, "party"), ": ")
 		notePartyNamesThatDiffer(t, differed, "Fake", append([]string{host}, strings.Split(guests, ", ")...))
 	})
 	for pair, ok := range differed {
@@ -477,7 +478,7 @@ func TestRecordNamesDrawApart(t *testing.T) {
 	apart := map[string]bool{}
 	eachRecordOf(t, f, "transfer", 100, func(r *Record) {
 		m := valuesByColumn(r)
-		from, to, _ := strings.Cut(fake(t, f, "transfer"), " to ")
+		from, to, _ := strings.Cut(fejktest.Fake(t, f, "transfer"), " to ")
 		noteNamesDrawnApart(t, apart, "FakeRecord", m["from_first"]+" "+m["from_last"], m["to_first"]+" "+m["to_last"])
 		noteNamesDrawnApart(t, apart, "Fake", from, to)
 	})

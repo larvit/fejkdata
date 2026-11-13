@@ -9,6 +9,8 @@ import (
 	"sync"
 	"testing"
 	"testing/fstest"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestABareNewFailsNamingWithDataFS(t *testing.T) {
@@ -62,7 +64,7 @@ func TestAShippedCategoryRenders(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
-	if got := fake(t, f, "sv_SE.person"); got == "" {
+	if got := fejktest.Fake(t, f, "sv_SE.person"); got == "" {
 		t.Error("sv_SE.person rendered empty")
 	}
 }
@@ -73,13 +75,13 @@ func TestWithDataPathLayersOverShipped(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}
-	if got := fake(t, f, "sv_SE.word"); got != "only-mine" {
+	if got := fejktest.Fake(t, f, "sv_SE.word"); got != "only-mine" {
 		t.Errorf("sv_SE.word = %q, want the layered file to win", got)
 	}
-	if got := fake(t, f, "sv_SE.person"); got == "" {
+	if got := fejktest.Fake(t, f, "sv_SE.person"); got == "" {
 		t.Error("sv_SE.person should still come from the shipped data")
 	}
-	if got := fake(t, f, "greeting"); got != "hej" {
+	if got := fejktest.Fake(t, f, "greeting"); got != "hej" {
 		t.Errorf("greeting = %q, want hej", got)
 	}
 }
@@ -90,7 +92,7 @@ func TestUserDataMayReferenceShipped(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}
-	if got := fake(t, f, "greeting"); !strings.HasPrefix(got, "Hej ") || !strings.HasSuffix(got, "!") {
+	if got := fejktest.Fake(t, f, "greeting"); !strings.HasPrefix(got, "Hej ") || !strings.HasSuffix(got, "!") {
 		t.Errorf("greeting = %q", got)
 	}
 }
@@ -171,10 +173,10 @@ func TestWithDataFS(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New(WithDataFS) = %v", err)
 	}
-	if got := fake(t, f, "greeting"); got != "hej" {
+	if got := fejktest.Fake(t, f, "greeting"); got != "hej" {
 		t.Errorf("greeting = %q, want hej", got)
 	}
-	if got := fake(t, f, "nested.x.y"); got != "z" {
+	if got := fejktest.Fake(t, f, "nested.x.y"); got != "z" {
 		t.Errorf("nested.x.y = %q, want z", got)
 	}
 }
@@ -193,7 +195,7 @@ func TestWithDataFSLayersEachModuleOverTheOneBefore(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New(WithDataFS(a, b)) = %v", err)
 	}
-	if got := fake(t, f, "x") + fake(t, f, "y"); got != "ba" {
+	if got := fejktest.Fake(t, f, "x") + fejktest.Fake(t, f, "y"); got != "ba" {
 		t.Errorf("x and y = %q, want b's x and a's y", got)
 	}
 }

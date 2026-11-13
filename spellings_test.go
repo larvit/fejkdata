@@ -7,6 +7,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // sameRenders holds long to render as short does, draw for draw under one seed.
@@ -120,10 +121,10 @@ func TestAJSONNumberOrBooleanIsItsText(t *testing.T) {
 		"n": `{"format":"{x}","x":{"format":"{a} {b} {c} {d}","a":5,"b":1.50,"c":12345678901234567890,"d":true}}`,
 		"l": `[1e3]`,
 	}), WithSeed(1), onTestDay)
-	if v := fake(t, f, "n"); v != "5 1.50 12345678901234567890 true" {
+	if v := fejktest.Fake(t, f, "n"); v != "5 1.50 12345678901234567890 true" {
 		t.Errorf("n = %q, want each number and boolean as written", v)
 	}
-	if v := fake(t, f, "l"); v != "1e3" {
+	if v := fejktest.Fake(t, f, "l"); v != "1e3" {
 		t.Errorf("l = %q, want 1e3 as written", v)
 	}
 	for in, want := range map[string]string{"42": "42", " false ": " false ", "42\n": "42\n", "[7]": "7"} {
@@ -139,7 +140,7 @@ func TestARepeatedItemCountsAsWritten(t *testing.T) {
 	for _, src := range []string{`["a", "a", "b"]`, `{"format":"{x|x|y}","x":"a","y":"b"}`} {
 		t.Run(src, func(t *testing.T) {
 			f, n := emptyGenerator(1), compiled(t, src)
-			as := tallyDraws(600, func() string { return render.Once(f.drawState, n) })["a"]
+			as := fejktest.TallyDraws(600, func() string { return render.Once(f.drawState, n) })["a"]
 			if as < 340 || as > 460 {
 				t.Errorf("%s drew a %d times in 600, want about 400", src, as)
 			}

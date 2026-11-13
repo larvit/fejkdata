@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // swedishPlaces is a two-variant sibling whose variants pair a locality with the
@@ -66,7 +67,7 @@ func halvesOfATemplateDrawApartIn400(t *testing.T, f *Generator, src string) boo
 	t.Helper()
 	differ := false
 	for i := 0; i < 400 && !differ; i++ {
-		p := strings.Split(fakeTemplate(t, f, src), "|")
+		p := strings.Split(fejktest.FakeTemplate(t, f, src), "|")
 		differ = p[0] != p[1]
 	}
 	return differ
@@ -114,7 +115,7 @@ func TestANamedFieldInARepeatPicksEachLine(t *testing.T) {
 	f := emptyGenerator(5)
 	tmpl := `{"format":"{lines}","lines":` + strings.Replace(places("{place as p}{p.postal-code} {p.locality}"), `"format":`, `"repeat":6,"separator":"\n","format":`, 1) + `}`
 	varied := false
-	eachDraw(40, func() string { return mustRender(t, f, tmpl) }, func(got string) {
+	fejktest.EachDraw(40, func() string { return mustRender(t, f, tmpl) }, func(got string) {
 		lines := strings.Split(got, "\n")
 		if len(lines) != 6 {
 			t.Fatalf("repeat 6 produced %d lines", len(lines))
@@ -161,8 +162,8 @@ func TestANameReadOnceIsWhatItBinds(t *testing.T) {
 func TestANameReadOnceThroughAStepUpIsItsPath(t *testing.T) {
 	files := with(nameTables(), map[string]string{"long.json": `"{/municipality as m}{m..region.name}"`, "short.json": `"{/municipality..region.name}"`})
 	a, b := newGenerator(t, writeFiles(t, files), WithSeed(1)), newGenerator(t, writeFiles(t, files), WithSeed(1))
-	eachDraw(20, func() string { return fake(t, a, "long") }, func(x string) {
-		if y := fake(t, b, "short"); x != y {
+	fejktest.EachDraw(20, func() string { return fejktest.Fake(t, a, "long") }, func(x string) {
+		if y := fejktest.Fake(t, b, "short"); x != y {
 			t.Fatalf("a name read once through a step up rendered %q where its path rendered %q", x, y)
 		}
 	})
@@ -222,7 +223,7 @@ func TestADeepDiamondChainLoads(t *testing.T) {
 func TestNestedChoiceDrawsOneVariant(t *testing.T) {
 	// A choice item may itself be a choice, so a path unwraps until it reaches a value.
 	f := emptyGenerator(21)
-	seen := tallyDraws(200, func() string {
+	seen := fejktest.TallyDraws(200, func() string {
 		return mustRender(t, f, `{"format":"{p.x}","p":[{"format":"{x}","x":"1"},{"format":"{x}","x":"2"}]}`)
 	})
 	if seen["1"] == 0 || seen["2"] == 0 || len(seen) != 2 {

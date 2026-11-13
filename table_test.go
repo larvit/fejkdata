@@ -13,6 +13,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
@@ -79,14 +80,14 @@ var geoRegionNames = map[string]bool{"Stockholms län": true, "Skåne län": tru
 
 func TestTableRendersARowsFormatAndColumns(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
-	eachDraw(50, func() string { return fake(t, f, "region") }, func(v string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "region") }, func(v string) {
 		if !geoRegionNames[v] {
 			t.Fatalf("region = %q, want a row's format", v)
 		}
-		if v := fake(t, f, "region.timezone"); v != "Europe/Stockholm" {
+		if v := fejktest.Fake(t, f, "region.timezone"); v != "Europe/Stockholm" {
 			t.Fatalf("region.timezone = %q", v)
 		}
-		if v := fake(t, f, "region.code"); v != "01" && v != "12" && v != "14" {
+		if v := fejktest.Fake(t, f, "region.code"); v != "01" && v != "12" && v != "14" {
 			t.Fatalf("region.code = %q", v)
 		}
 	})
@@ -130,14 +131,14 @@ func TestTableFormatCalculatesFromAColumn(t *testing.T) {
 		"r.tsv":  "code\tname\tpopulation\n01\tA\t10\n02\tB\t4\n",
 		"w.json": `"{/r}"`,
 	}))
-	eachDraw(20, func() string { return fake(t, calc, "r") }, func(got string) {
+	fejktest.EachDraw(20, func() string { return fejktest.Fake(t, calc, "r") }, func(got string) {
 		if got != "A 20" && got != "B 8" {
 			t.Fatalf("r = %q, want a row doubling its population", got)
 		}
-		if got := fake(t, calc, "r[01]"); got != "A 20" {
+		if got := fejktest.Fake(t, calc, "r[01]"); got != "A 20" {
 			t.Fatalf("r[01] = %q, want A 20", got)
 		}
-		if got := fake(t, calc, "w"); got != "A 20" && got != "B 8" {
+		if got := fejktest.Fake(t, calc, "w"); got != "A 20" && got != "B 8" {
 			t.Fatalf("w = %q, want a row doubling its population", got)
 		}
 	})
@@ -146,13 +147,13 @@ func TestTableFormatCalculatesFromAColumn(t *testing.T) {
 func TestTableWeightSkewsTheDraw(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(3))
 	t.Run("across the table", func(t *testing.T) {
-		count := tallyDraws(3000, func() string { return fake(t, f, "region.code") })
+		count := fejktest.TallyDraws(3000, func() string { return fejktest.Fake(t, f, "region.code") })
 		if count["01"] < 1200 || count["12"] > 900 {
 			t.Fatalf("region draws %v, want weighted by population (01 ≈ 43%%, 12 ≈ 25%%)", count)
 		}
 	})
 	t.Run("inside a selected parent row", func(t *testing.T) {
-		count := tallyDraws(3000, func() string { return fake(t, f, "region[01].municipality.code") })
+		count := fejktest.TallyDraws(3000, func() string { return fejktest.Fake(t, f, "region[01].municipality.code") })
 		if count["0180"] < 2500 || count["0184"] == 0 || len(count) != 2 {
 			t.Fatalf("municipality draws inside 01 %v, want Stockholm ≈ 92%% and Solna the rest", count)
 		}
@@ -172,7 +173,7 @@ func generatorOfPlaceCells(t *testing.T) *Generator {
 func TestATableCellExpandsItsTokens(t *testing.T) {
 	f := generatorOfPlaceCells(t)
 	zip := regexp.MustCompile(`^(1\d\d \d\d Stockholm|573 \d\d Tranås)$`)
-	eachDraw(50, func() string { return fake(t, f, "place") }, func(v string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "place") }, func(v string) {
 		if !zip.MatchString(v) {
 			t.Fatalf("place = %q, want the cell's tokens expanded", v)
 		}
@@ -181,7 +182,7 @@ func TestATableCellExpandsItsTokens(t *testing.T) {
 
 func TestATableCellRendersItsReference(t *testing.T) {
 	f := generatorOfPlaceCells(t)
-	if v := fake(t, f, "place[Stockholm].tag"); v != "x" {
+	if v := fejktest.Fake(t, f, "place[Stockholm].tag"); v != "x" {
 		t.Fatalf("place[Stockholm].tag = %q, want the reference rendered", v)
 	}
 }
@@ -216,7 +217,7 @@ func TestTableSelectsARowByKeyOrName(t *testing.T) {
 		"city[St. Louis].code":                     "STL",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -243,7 +244,7 @@ func TestTableRefusesASelectorThatSelectsNoRowOfItsOwn(t *testing.T) {
 
 func TestTableReadsALinkColumnAsItsCell(t *testing.T) {
 	f := generatorOfGeoAndCities(t)
-	if v := fake(t, f, "municipality[0180].region"); v != "01" {
+	if v := fejktest.Fake(t, f, "municipality[0180].region"); v != "01" {
 		t.Fatalf("municipality[0180].region = %q, want the link column's cell", v)
 	}
 }
@@ -257,17 +258,17 @@ func TestTableWithoutAKeyRefusesASelector(t *testing.T) {
 
 func TestTableDescendsToALinkedTable(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(2))
-	eachDraw(200, func() string { return fake(t, f, "region[12].municipality.code") }, func(m string) {
+	fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "region[12].municipality.code") }, func(m string) {
 		if regionOf[m] != "12" {
 			t.Fatalf("region[12].municipality.code = %q, outside 12", m)
 		}
-		if l := fake(t, f, "region[12].locality.code"); regionOf[municipalityOf[l]] != "12" {
+		if l := fejktest.Fake(t, f, "region[12].locality.code"); regionOf[municipalityOf[l]] != "12" {
 			t.Fatalf("region[12].locality.code = %q, outside 12", l)
 		}
-		if l := fake(t, f, "municipality[1480].locality"); l != "Göteborg" && l != "Hisingen" {
+		if l := fejktest.Fake(t, f, "municipality[1480].locality"); l != "Göteborg" && l != "Hisingen" {
 			t.Fatalf("municipality[1480].locality = %q", l)
 		}
-		if l := fake(t, f, "region.municipality.locality.name"); l == "" {
+		if l := fejktest.Fake(t, f, "region.municipality.locality.name"); l == "" {
 			t.Fatal("region.municipality.locality.name rendered empty")
 		}
 	})
@@ -307,7 +308,7 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 		"locality[L4].municipality":                                     "1281",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -316,7 +317,7 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 
 func TestATemplateStepsUpToTheRowATableLinksTo(t *testing.T) {
 	f := generatorOfStepUpTemplates(t)
-	if got := fakeTemplate(t, f, "{/locality[L4]..municipality.name}"); got != "Lund" {
+	if got := fejktest.FakeTemplate(t, f, "{/locality[L4]..municipality.name}"); got != "Lund" {
 		t.Errorf("{/locality[L4]..municipality.name} = %q, want Lund", got)
 	}
 }
@@ -331,12 +332,12 @@ func eachRoundOfStepUpDraws(t *testing.T, check func(d stepUpDraws)) {
 	f := generatorOfStepUpTemplates(t)
 	for i := 0; i < 200; i++ {
 		var d stepUpDraws
-		d.named = fake(t, f, "named")
-		d.down = fake(t, f, "locality[L4]..municipality.locality.code")
-		d.twoUpDown = fake(t, f, "locality[L4]..municipality..region.municipality.code")
-		d.namedDown = fake(t, f, "named-down")
-		d.namedTwoDown = fake(t, f, "named-two-down")
-		d.namedTwice = fake(t, f, "named-twice")
+		d.named = fejktest.Fake(t, f, "named")
+		d.down = fejktest.Fake(t, f, "locality[L4]..municipality.locality.code")
+		d.twoUpDown = fejktest.Fake(t, f, "locality[L4]..municipality..region.municipality.code")
+		d.namedDown = fejktest.Fake(t, f, "named-down")
+		d.namedTwoDown = fejktest.Fake(t, f, "named-two-down")
+		d.namedTwice = fejktest.Fake(t, f, "named-twice")
 		d.downRecord = recordDraw(t, f, "locality[L4]..municipality.locality")().Columns()
 		d.record = recordDraw(t, f, "record")().Columns()
 		check(d)
@@ -492,7 +493,7 @@ func localityMunicipalityAndRegionAmong(codes []string) (l, m, r string) {
 func drawsOneConsistentLocalityMunicipalityAndRegion(t *testing.T, name string, draw func() string) {
 	t.Helper()
 	seen := map[string]bool{}
-	eachDraw(300, draw, func(got string) {
+	fejktest.EachDraw(300, draw, func(got string) {
 		parts := strings.Split(got, "|")
 		l, m, r := localityMunicipalityAndRegionAmong(parts)
 		if municipalityOf[l] != m || regionOf[m] != r {
@@ -515,7 +516,7 @@ func TestLinkedTablesDrawConsistently(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"addr.json": addr})), WithSeed(5))
-			drawsOneConsistentLocalityMunicipalityAndRegion(t, name, func() string { return fake(t, f, "addr") })
+			drawsOneConsistentLocalityMunicipalityAndRegion(t, name, func() string { return fejktest.Fake(t, f, "addr") })
 		})
 	}
 }
@@ -549,7 +550,7 @@ func TestLinkedTablesDrawApartAcrossReadsAndRepeats(t *testing.T) {
 	for _, path := range []string{"groups", "many"} {
 		t.Run(path, func(t *testing.T) {
 			differ := false
-			eachDraw(100, func() string { return fake(t, f, path) }, func(got string) {
+			fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, path) }, func(got string) {
 				differ = differ || aPartDiffersFromTheFirst(strings.Split(got, "|"))
 			})
 			if !differ {
@@ -570,7 +571,7 @@ func generatorOfSiblingTablesAndAnAddress(t *testing.T) *Generator {
 func TestSiblingTablesDrawInsideOneAncestor(t *testing.T) {
 	f := generatorOfSiblingTablesAndAnAddress(t)
 	seen := map[string]bool{}
-	eachDraw(300, func() string { return fake(t, f, "addr") }, func(got string) {
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, f, "addr") }, func(got string) {
 		parts := strings.Split(got, "|")
 		if s, p, l := parts[0], parts[1], parts[2]; !slices.Contains(localityOfStreet[s], l) || localityOfCode[p] != l {
 			t.Fatalf("addr = %v, want the street and the postal code inside the locality", parts)
@@ -584,11 +585,11 @@ func TestSiblingTablesDrawInsideOneAncestor(t *testing.T) {
 
 func TestASiblingTableDrawsInsideASelectedAncestor(t *testing.T) {
 	f := generatorOfSiblingTablesAndAnAddress(t)
-	eachDraw(100, func() string { return fake(t, f, "locality[L4].street.name") }, func(s string) {
+	fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "locality[L4].street.name") }, func(s string) {
 		if s != "Stora Södergatan" && s != "Klostergatan" {
 			t.Fatalf("locality[L4].street.name = %q, outside L4", s)
 		}
-		if p := fake(t, f, "region[01].postal-code"); localityOfCode[p] != "L1" && localityOfCode[p] != "L2" && localityOfCode[p] != "L8" {
+		if p := fejktest.Fake(t, f, "region[01].postal-code"); localityOfCode[p] != "L1" && localityOfCode[p] != "L2" && localityOfCode[p] != "L8" {
 			t.Fatalf("region[01].postal-code = %q, outside region 01", p)
 		}
 	})
@@ -620,10 +621,10 @@ func geoAndARecordInsideRegion12() map[string]string {
 
 func TestTableSelectorInAReferenceDrawsInsideTheSelectedRow(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geoAndARecordInsideRegion12()), WithSeed(1))
-	eachDraw(100, func() string { return fake(t, f, "x") }, func(got string) {
+	fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "x") }, func(got string) {
 		parts := strings.Fields(got)
 		m, l := parts[len(parts)-2], parts[len(parts)-1]
-		if !strings.HasPrefix(fake(t, f, "x"), "Skåne län") || regionOf[m] != "12" || municipalityOf[l] != m {
+		if !strings.HasPrefix(fejktest.Fake(t, f, "x"), "Skåne län") || regionOf[m] != "12" || municipalityOf[l] != m {
 			t.Fatalf("x = %v, want one draw inside region 12", parts)
 		}
 	})
@@ -666,7 +667,7 @@ func TestTableReadsBesideEachOtherLoad(t *testing.T) {
 				t.Errorf("%s: New = %v, want each read a draw of its own", json, err)
 				return
 			}
-			fake(t, f, "x")
+			fejktest.Fake(t, f, "x")
 		})
 	}
 }
@@ -688,7 +689,7 @@ func TestSelectedRowsAgreeAcrossSpellings(t *testing.T) {
 				t.Errorf("%s: New = %v, want it accepted", name, err)
 				return
 			}
-			eachDraw(50, func() string { return fake(t, f, "x") }, func(v string) {
+			fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "x") }, func(v string) {
 				if strings.Contains(v, "Sandby") || strings.Contains(v, "Malmö") || strings.Contains(v, "1280") || !strings.Contains(v, "Lund") && !strings.Contains(v, "Skåne") {
 					t.Fatalf("%s: x = %q, want every part inside region 12 and Lund", name, v)
 				}
@@ -702,17 +703,17 @@ func TestATableOfOneRowOrNamedByItsKeyLoads(t *testing.T) {
 		"one.json": `{"format":"{a}","rows":"one.tsv"}`, "one.tsv": "a\nx\n",
 		"kn.json": `{"format":"{a}","rows":"kn.tsv","key":"a","name":"a"}`, "kn.tsv": "a\nx\ny\n",
 	}), WithSeed(1), onTestDay)
-	if v := fake(t, f, "one"); v != "x" {
+	if v := fejktest.Fake(t, f, "one"); v != "x" {
 		t.Errorf("one = %q, want its one row", v)
 	}
-	if v := fake(t, f, "kn[y]"); v != "y" {
+	if v := fejktest.Fake(t, f, "kn[y]"); v != "y" {
 		t.Errorf("kn[y] = %q, want the row keyed y", v)
 	}
 }
 
 func TestARowOfWeightZeroIsNeverDrawn(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t0\ny\t2\n"}), WithSeed(1))
-	eachDraw(50, func() string { return fake(t, f, "t") }, func(v string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "t") }, func(v string) {
 		if v != "y" {
 			t.Fatalf("t = %q, want only the row of a positive weight", v)
 		}
@@ -840,14 +841,14 @@ func TestTableIsRefusedInline(t *testing.T) {
 
 func TestTableHeaderDropsAByteOrderMark(t *testing.T) {
 	bom := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "\xEF\xBB\xBFa\tb\nx\t1\ny\t2\n"}), WithSeed(1))
-	if v := fake(t, bom, "t[x].b"); v != "1" {
+	if v := fejktest.Fake(t, bom, "t[x].b"); v != "1" {
 		t.Fatalf("t[x].b under a BOM header = %q, want the mark stripped", v)
 	}
 }
 
 func TestTableRowsDropACarriageReturn(t *testing.T) {
 	crlf := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\r\nx\t1\r\ny\t2\r\n"}), WithSeed(1))
-	if v := fake(t, crlf, "t[y].b"); v != "2" {
+	if v := fejktest.Fake(t, crlf, "t[y].b"); v != "2" {
 		t.Fatalf("t[y].b in a CRLF file = %q, want the carriage return stripped", v)
 	}
 }
@@ -864,24 +865,24 @@ func TestAFailedFakeLeavesTheSeededStreamWhereItWas(t *testing.T) {
 			}
 		})
 	}
-	if x, y := fake(t, a, "region.locality.name"), fake(t, b, "region.locality.name"); x != y {
+	if x, y := fejktest.Fake(t, a, "region.locality.name"), fejktest.Fake(t, b, "region.locality.name"); x != y {
 		t.Fatalf("a failed Fake shifted the seeded stream: %q != %q", x, y)
 	}
 }
 
 func TestTwoCategoriesReadOneTSV(t *testing.T) {
 	two := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"capital.json": `{"format":"{timezone}","rows":"region.tsv","key":"code"}`})), WithSeed(1))
-	if v := fake(t, two, "capital[12]"); v != "Europe/Stockholm" {
+	if v := fejktest.Fake(t, two, "capital[12]"); v != "Europe/Stockholm" {
 		t.Fatalf("capital[12] over region.tsv = %q, want a second category over one file", v)
 	}
 }
 
 func TestATableOfAnEmptyFormatRendersEmptyAndKeepsItsColumns(t *testing.T) {
 	empty := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\nx\t1\ny\t2\n"}), WithSeed(1))
-	if v := fake(t, empty, "t"); v != "" {
+	if v := fejktest.Fake(t, empty, "t"); v != "" {
 		t.Fatalf("a record-only table renders %q, want \"\"", v)
 	}
-	if v := fake(t, empty, "t[y].b"); v != "2" {
+	if v := fejktest.Fake(t, empty, "t[y].b"); v != "2" {
 		t.Fatalf("t[y].b = %q", v)
 	}
 }
@@ -923,7 +924,7 @@ func eachDrawOfEachPath(t *testing.T, g *Generator, n int, paths []string, check
 	t.Helper()
 	for i := 0; i < n; i++ {
 		for _, path := range paths {
-			check(path, fake(t, g, path))
+			check(path, fejktest.Fake(t, g, path))
 		}
 	}
 }
@@ -938,10 +939,10 @@ func distinctMatches(re *regexp.Regexp, v string) int {
 
 func TestACellSelectingARowRendersItsCell(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, currencyTables()), WithSeed(1))
-	if v := fake(t, f, "country[SE]"); v != "Sweden kr" {
+	if v := fejktest.Fake(t, f, "country[SE]"); v != "Sweden kr" {
 		t.Fatalf("country[SE] = %q", v)
 	}
-	if v := fake(t, f, "country[FI].money"); v != "€" {
+	if v := fejktest.Fake(t, f, "country[FI].money"); v != "€" {
 		t.Fatalf("country[FI].money = %q", v)
 	}
 }
@@ -1008,7 +1009,7 @@ func TestTableOverridesByLayering(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if v := fake(t, f, "misc.language[xx]"); v != "Nowhere" {
+	if v := fejktest.Fake(t, f, "misc.language[xx]"); v != "Nowhere" {
 		t.Fatalf("misc.language[xx] = %q, want the layered table", v)
 	}
 	if paths := f.List(); slices.Contains(paths, "misc.language.code3") {
@@ -1092,7 +1093,7 @@ func TestShippedTablesSelectARowByKeyOrName(t *testing.T) {
 		"loglevel[6].severity":                  "Informational",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -1114,7 +1115,7 @@ func TestShippedTableColumnsAreWellFormed(t *testing.T) {
 		"currency.decimals":      regexp.MustCompile(`^[0-4]$`),
 	} {
 		t.Run(p, func(t *testing.T) {
-			eachDraw(100, func() string { return fake(t, f, p) }, func(v string) {
+			fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, p) }, func(v string) {
 				if !rx.MatchString(v) {
 					t.Fatalf("misc %s = %q, want %s", p, v, rx)
 				}
@@ -1125,7 +1126,7 @@ func TestShippedTableColumnsAreWellFormed(t *testing.T) {
 
 func TestTerritoryDrawsItsWholeRegister(t *testing.T) {
 	f := newBareModule(t, "misc", WithSeed(1))
-	count := tallyDraws(5000, func() string { return fake(t, f, "territory.alpha2") })
+	count := fejktest.TallyDraws(5000, func() string { return fejktest.Fake(t, f, "territory.alpha2") })
 	if len(count) < 200 {
 		t.Fatalf("territory draws %d distinct rows in 5000, want the full register", len(count))
 	}
@@ -1133,8 +1134,8 @@ func TestTerritoryDrawsItsWholeRegister(t *testing.T) {
 
 func TestATimezoneAgreesWithTheTerritoryItStepsUpTo(t *testing.T) {
 	f := newBareModule(t, "misc", WithSeed(1))
-	eachDraw(200, func() string {
-		return fakeTemplate(t, f, `{/timezone as z}{z..territory.alpha2} {z.territory}`)
+	fejktest.EachDraw(200, func() string {
+		return fejktest.FakeTemplate(t, f, `{/timezone as z}{z..territory.alpha2} {z.territory}`)
 	}, func(got string) {
 		if drawn, zone, _ := strings.Cut(got, " "); drawn != zone {
 			t.Fatalf("%q: a timezone and the territory it steps up to disagree", got)
@@ -1163,7 +1164,7 @@ func TestHTTPMethodFlagsShipAsBooleans(t *testing.T) {
 
 func TestUSTimezonesWeighByThePeopleLivingInThem(t *testing.T) {
 	f := newBareModule(t, "misc", WithSeed(1))
-	zones := tallyDraws(2000, func() string { return fake(t, f, "territory[US].timezone") })
+	zones := fejktest.TallyDraws(2000, func() string { return fejktest.Fake(t, f, "territory[US].timezone") })
 	if peopled := zones["America/New_York"] + zones["America/Chicago"] + zones["America/Los_Angeles"] + zones["America/Denver"]; peopled < 1600 {
 		t.Fatalf("the four zones most Americans live in take %d of 2000 US draws, want the population weight to favour them", peopled)
 	}
@@ -1310,7 +1311,7 @@ func TestNamedTableWithoutAKeyResolvesInsideItsParent(t *testing.T) {
 		"municipality[0184].locality[Sandby].street[Sandbyvägen].locality": "L8",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -1334,7 +1335,7 @@ func TestNamedTableWithoutAKeyRefusesANameItsParentDoesNotSettle(t *testing.T) {
 
 func TestATemplateSelectsANameInsideAPinnedParent(t *testing.T) {
 	f := generatorOfStreetsNamedInsideTheirLocality(t)
-	if got := fakeTemplate(t, f, `{/locality[L8].name}: {/locality[L8].street[Sandbyvägen].name}`); got != "Sandby: Sandbyvägen" {
+	if got := fejktest.FakeTemplate(t, f, `{/locality[L8].name}: {/locality[L8].street[Sandbyvägen].name}`); got != "Sandby: Sandbyvägen" {
 		t.Fatalf("a name selected inside a pinned parent = %q", got)
 	}
 }
@@ -1362,7 +1363,7 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 			if !strings.Contains(err.Error(), want) {
 				t.Errorf("%v does not name %s", err, want)
 			}
-			if got := fake(t, f, want); got != "Sandbyvägen" {
+			if got := fejktest.Fake(t, f, want); got != "Sandbyvägen" {
 				t.Errorf("Fake(%q) = %q, want the named path to run", want, got)
 			}
 		})
@@ -1432,7 +1433,7 @@ func TestCellReadsLoadAndRender(t *testing.T) {
 			if err != nil {
 				t.Fatalf("New(%s) = %v, want the cells accepted", x, err)
 			}
-			eachDraw(50, func() string { return fake(t, f, "x") }, func(string) {})
+			fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "x") }, func(string) {})
 		})
 	}
 }

@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestStringIsAFormat(t *testing.T) {
@@ -80,7 +82,7 @@ func TestTokenSubstitution(t *testing.T) {
 
 func TestAlternationDrawsOneField(t *testing.T) {
 	f := emptyGenerator(3)
-	seen := tallyDraws(100, func() string { return mustRender(t, f, `{"format":"{a|b}","a":"A","b":"B"}`) })
+	seen := fejktest.TallyDraws(100, func() string { return mustRender(t, f, `{"format":"{a|b}","a":"A","b":"B"}`) })
 	if seen["A"] == 0 || seen["B"] == 0 || len(seen) != 2 {
 		t.Fatalf("alternation produced %v, want both A and B", seen)
 	}
@@ -88,7 +90,7 @@ func TestAlternationDrawsOneField(t *testing.T) {
 
 func TestAlternationThreeWay(t *testing.T) {
 	f := emptyGenerator(4)
-	seen := tallyDraws(200, func() string { return mustRender(t, f, `{"format":"{a|b|c}","a":"A","b":"B","c":"C"}`) })
+	seen := fejktest.TallyDraws(200, func() string { return mustRender(t, f, `{"format":"{a|b|c}","a":"A","b":"B","c":"C"}`) })
 	if seen["A"] == 0 || seen["B"] == 0 || seen["C"] == 0 || len(seen) != 3 {
 		t.Fatalf("3-way alternation produced %v, want A, B and C", seen)
 	}

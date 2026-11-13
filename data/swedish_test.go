@@ -1,4 +1,4 @@
-package fejkdata
+package data_test
 
 import (
 	"encoding/json"
@@ -11,15 +11,18 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/larvit/fejkdata"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // TestSwedishPersonNamesHaveNoTripleLetter pins an orthographic rule the shape
 // regexes miss: no generated name repeats a character three times over.
 func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
-	f := shipped(t, WithSeed(11))
+	f := shipped(t, fejkdata.WithSeed(11))
 	for _, path := range []string{"sv_SE.person", "sv_SE.person.last"} {
 		t.Run(path, func(t *testing.T) {
-			eachDraw(20000, func() string { return fake(t, f, path) }, func(name string) {
+			fejktest.EachDraw(20000, func() string { return fejktest.Fake(t, f, path) }, func(name string) {
 				if letter, tripled := letterWrittenThreeTimesOver(name); tripled {
 					t.Fatalf("%s = %q, which triples %q", path, name, string(letter))
 				}
@@ -41,11 +44,11 @@ func letterWrittenThreeTimesOver(s string) (rune, bool) {
 // Bolagsverket's group digits are 5 for aktiebolag, 9 for handelsbolag and kommanditbolag and 7 and 8
 // for föreningar; digits three and four of 20 or more tell an organisationsnummer from a personnummer.
 func TestSwedishOrganisationsnummer(t *testing.T) {
-	sv := shipped(t, WithSeed(1))
+	sv := shipped(t, fejkdata.WithSeed(1))
 	re := regexp.MustCompile(`^[5789]\d[2-9]\d{3}-\d{4}$`)
 	group := map[byte]int{}
-	eachDraw(5000, func() string { return fake(t, sv, "sv_SE.organisationsnummer") }, func(v string) {
-		if !re.MatchString(v) || !luhnValid(digitsOnly(v)) {
+	fejktest.EachDraw(5000, func() string { return fejktest.Fake(t, sv, "sv_SE.organisationsnummer") }, func(v string) {
+		if !re.MatchString(v) || !fejktest.LuhnValid(fejktest.DigitsOnly(v)) {
 			t.Fatalf("organisationsnummer %q, want a group digit 5, 7, 8 or 9, a digit 2 to 9 third, and a Luhn check digit", v)
 		}
 		group[v[0]]++
@@ -60,10 +63,10 @@ func TestSwedishOrganisationsnummer(t *testing.T) {
 // expected share comes from those counts, and each bound is five standard deviations of a draw.
 func TestSwedishCompanyLegalFormsFollowBolagsverketsRegistrations(t *testing.T) {
 	t.Parallel()
-	sv := shipped(t, WithSeed(1))
-	const draws = shareDraws
-	form := tallyDraws(draws, func() string {
-		return legalFormOfALowerCaseSwedishCompany(strings.ToLower(fake(t, sv, "sv_SE.company")))
+	sv := shipped(t, fejkdata.WithSeed(1))
+	const draws = fejktest.ShareDraws
+	form := fejktest.TallyDraws(draws, func() string {
+		return legalFormOfALowerCaseSwedishCompany(strings.ToLower(fejktest.Fake(t, sv, "sv_SE.company")))
 	})
 	for f, registered := range map[string]int{"AB": 50859, "E": 8468, "HB": 1557, "BRF": 398, "EK": 319, "KB": 176} {
 		t.Run(f, func(t *testing.T) {
@@ -160,9 +163,9 @@ func (c swedishCompanyTally) add(v string) {
 
 func drawnSwedishCompanyTally(t *testing.T) swedishCompanyTally {
 	t.Helper()
-	sv := shipped(t, WithSeed(2))
+	sv := shipped(t, fejkdata.WithSeed(2))
 	c := swedishCompanyTally{map[string]int{}, map[string]int{}, map[string]int{}}
-	eachDraw(shareDraws, func() string { return fake(t, sv, "sv_SE.company") }, c.add)
+	fejktest.EachDraw(fejktest.ShareDraws, func() string { return fejktest.Fake(t, sv, "sv_SE.company") }, c.add)
 	return c
 }
 
@@ -192,7 +195,7 @@ func TestSwedishCompanyWordsHoldTheWordsManyRegisterNamesCarry(t *testing.T) {
 
 func swedishCompanyWordRows(t *testing.T) []string {
 	t.Helper()
-	b, err := os.ReadFile("data/sv_SE/company-word.tsv")
+	b, err := os.ReadFile("sv_SE/company-word.tsv")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,13 +218,13 @@ func errorOnCompanyWordRowsTheRegisterDoesNotRepeat(t *testing.T, rows []string)
 }
 
 func TestSwedishVat(t *testing.T) {
-	sv := shipped(t, WithSeed(1))
+	sv := shipped(t, fejkdata.WithSeed(1))
 	vat := regexp.MustCompile(`^SE([5789]\d[2-9]\d{7})01$`)
-	eachDraw(2000, func() string { return fake(t, sv, "sv_SE.vat") }, func(n string) {
-		if m := vat.FindStringSubmatch(n); m == nil || !luhnValid(m[1]) {
+	fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, sv, "sv_SE.vat") }, func(n string) {
+		if m := vat.FindStringSubmatch(n); m == nil || !fejktest.LuhnValid(m[1]) {
 			t.Fatalf("sv_SE.vat %q, want SE + a Luhn-valid organisationsnummer + 01", n)
 		}
-		pair := fakeTemplate(t, sv, "{/sv_SE.organisationsnummer as o}{o}|{o.vat}")
+		pair := fejktest.FakeTemplate(t, sv, "{/sv_SE.organisationsnummer as o}{o}|{o.vat}")
 		nr, v, _ := strings.Cut(pair, "|")
 		if v != "SE"+strings.ReplaceAll(nr, "-", "")+"01" {
 			t.Fatalf("a bound organisationsnummer %q has the VAT number %q, want SE + its digits + 01", nr, v)
@@ -233,7 +236,7 @@ func TestSwedishVat(t *testing.T) {
 const blockedPlates = "APA ARG ASS BAJ BSS CUC CUK CUM DUM ETA ETT FAG FAN FEG FEL FEM FES FET FNL FUC FUK FUL GAM GAY GEJ GEY GHB GUD GYN HAT HBT HKH HOR HOT KGB KKK KUC KUF KUG KUK KYK LAM LAT LEM LOJ LSD LUS MAD MAO MEN MES MLB MUS NAZ NRP NSF NYP OND OOO ORM PAJ PKK PLO PMS PUB RAP RAS ROM RPS RUS SEG SEX SJU SOS SPY SUG SUP SUR TBC TOA TOK TRE TYP UFO USA WAM WAR WWW XTC XTZ XUK XXL XXX ZEX ZOG ZPY ZUG ZUP ZOO"
 
 func TestSwedishLicensePlateLettersAreEveryCombinationButTheBlocked(t *testing.T) {
-	b, err := os.ReadFile("data/sv_SE/licenseplate-letters.tsv")
+	b, err := os.ReadFile("sv_SE/licenseplate-letters.tsv")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -276,11 +279,11 @@ func licensePlateLetterRowsEachSeenOnce(t *testing.T, rows []string, alphabet st
 }
 
 func TestSwedishLicensePlate(t *testing.T) {
-	sv := shipped(t, WithSeed(1))
+	sv := shipped(t, fejkdata.WithSeed(1))
 	plate := regexp.MustCompile(`^([A-HJ-PR-UW-Z]{3}) (?:(\d{3})|(\d{2})([A-HJ-NPR-UW-Z]))$`)
 	blocked := strings.Fields(blockedPlates)
 	endsInThreeDigits := map[bool]int{}
-	eachDraw(5000, func() string { return fake(t, sv, "sv_SE.licenseplate") }, func(v string) {
+	fejktest.EachDraw(5000, func() string { return fejktest.Fake(t, sv, "sv_SE.licenseplate") }, func(v string) {
 		m := plate.FindStringSubmatch(v)
 		if m == nil || slices.Contains(blocked, m[1]) || m[2] == "000" {
 			t.Fatalf("sv_SE.licenseplate %q, want ABC 123 or ABC 12A: no I, Q or V, no O in the last place, no blocked combination and no 000", v)
@@ -335,12 +338,12 @@ const swedishLicensePlatePartDraws = 30000
 
 func drawnSwedishLicensePlateParts(t *testing.T) (old, current, last map[string]int) {
 	t.Helper()
-	sv := shipped(t, WithSeed(1))
+	sv := shipped(t, fejkdata.WithSeed(1))
 	old, current, last = map[string]int{}, map[string]int{}, map[string]int{}
-	eachDraw(swedishLicensePlatePartDraws, func() string { return fake(t, sv, "sv_SE.licenseplate.old-number") }, func(number string) {
+	fejktest.EachDraw(swedishLicensePlatePartDraws, func() string { return fejktest.Fake(t, sv, "sv_SE.licenseplate.old-number") }, func(number string) {
 		old[number]++
-		current[fake(t, sv, "sv_SE.licenseplate.current-number")]++
-		last[fake(t, sv, "sv_SE.licenseplate.last")]++
+		current[fejktest.Fake(t, sv, "sv_SE.licenseplate.current-number")]++
+		last[fejktest.Fake(t, sv, "sv_SE.licenseplate.last")]++
 	})
 	return old, current, last
 }
@@ -367,27 +370,27 @@ func sortedNamesDrawn(seen map[string]int) []string {
 // male), the trailing digit is a Luhn checksum over the other nine, and a
 // samordningsnummer is the same with 60 added to the day.
 func TestSwedishPersonnummer(t *testing.T) {
-	sv := shipped(t, WithSeed(1))
+	sv := shipped(t, fejkdata.WithSeed(1))
 	re := regexp.MustCompile(`^\d{6}-23[89]\d$`)
 	reShort := regexp.MustCompile(`^\d{6}[-+]23[89]\d$`)
 	sawLongMonthEnd, birth := false, map[string]bool{}
-	eachDraw(2000, func() string { return fake(t, sv, "sv_SE.personnummer") }, func(v string) {
-		d := digitsOnly(v)
+	fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, sv, "sv_SE.personnummer") }, func(v string) {
+		d := fejktest.DigitsOnly(v)
 		if !reShort.MatchString(v) {
 			t.Fatalf("personnummer %q, want YYMMDD-238C or YYMMDD-239C, or + for -", v)
 		}
 		if _, err := time.Parse("060102", d[:6]); err != nil {
 			t.Fatalf("personnummer %q is not a valid calendar date: %v", v, err)
 		}
-		if !luhnValid(d) {
+		if !fejktest.LuhnValid(d) {
 			t.Fatalf("personnummer %q fails the Luhn check", v)
 		}
 		sawLongMonthEnd = sawLongMonthEnd || d[4:6] == "31"
 		birth[d[6:9]] = true
-		s := fake(t, sv, "sv_SE.samordningsnummer")
-		sd := digitsOnly(s)
+		s := fejktest.Fake(t, sv, "sv_SE.samordningsnummer")
+		sd := fejktest.DigitsOnly(s)
 		day, err := strconv.Atoi(sd[4:6])
-		if !re.MatchString(s) || err != nil || day < 61 || day > 88 || !luhnValid(sd) {
+		if !re.MatchString(s) || err != nil || day < 61 || day > 88 || !fejktest.LuhnValid(sd) {
 			t.Fatalf("samordningsnummer %q, want YYMM(61-88)-23[89]C, Luhn-valid", s)
 		}
 		if _, err := time.Parse("0601", sd[:4]); err != nil {
@@ -422,10 +425,10 @@ var swedishPhoneGrouped = map[int]*regexp.Regexp{
 }
 
 func TestShippedSwedishPhoneMobile(t *testing.T) {
-	f := shipped(t, WithSeed(11))
+	f := shipped(t, fejkdata.WithSeed(11))
 	re := regexp.MustCompile(`^0(70|72|73|76|79)-\d{3} \d{2} \d{2}$`)
 	seen := map[string]bool{}
-	eachDraw(3000, func() string { return fake(t, f, "sv_SE.phone") }, func(n string) {
+	fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, f, "sv_SE.phone") }, func(n string) {
 		if m := re.FindStringSubmatch(n); m != nil {
 			seen[m[1]] = true
 		}
@@ -436,10 +439,10 @@ func TestShippedSwedishPhoneMobile(t *testing.T) {
 }
 
 func TestShippedSwedishPhoneFixedIsGroupedAndLongEnough(t *testing.T) {
-	f := shipped(t, WithSeed(11))
+	f := shipped(t, fejkdata.WithSeed(11))
 	mobile := regexp.MustCompile(`^0(70|72|73|76|79)-`)
 	fixed := regexp.MustCompile(`^0(\d{1,3})-(\d[\d ]+)$`)
-	eachDraw(6000, func() string { return fake(t, f, "sv_SE.phone") }, func(n string) {
+	fejktest.EachDraw(6000, func() string { return fejktest.Fake(t, f, "sv_SE.phone") }, func(n string) {
 		if mobile.MatchString(n) {
 			return
 		}
@@ -459,7 +462,7 @@ func TestShippedSwedishPhoneFixedIsGroupedAndLongEnough(t *testing.T) {
 }
 
 func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {
-	f := shipped(t, WithSeed(11))
+	f := shipped(t, fejkdata.WithSeed(11))
 	for _, c := range []struct {
 		area    string
 		lengths []int
@@ -467,7 +470,7 @@ func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {
 		t.Run(c.area, func(t *testing.T) {
 			got := map[int]bool{}
 			eight := map[bool]bool{}
-			eachDraw(400, func() string { return fake(t, f, "sv_SE.phone-area["+c.area+"].subscriber") }, func(subscriber string) {
+			fejktest.EachDraw(400, func() string { return fejktest.Fake(t, f, "sv_SE.phone-area["+c.area+"].subscriber") }, func(subscriber string) {
 				digits := len(strings.ReplaceAll(subscriber, " ", ""))
 				if re := swedishPhoneGrouped[digits]; re == nil || !re.MatchString(subscriber) {
 					t.Fatalf("subscriber %q is not grouped as Språkrådet writes it, or starts with the trunk 0", subscriber)
@@ -492,9 +495,9 @@ func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {
 }
 
 func TestShippedSwedishPhoneInternational(t *testing.T) {
-	f := shipped(t, WithSeed(5))
+	f := shipped(t, fejkdata.WithSeed(5))
 	t.Run("a bound phone's international form is its national one after +46", func(t *testing.T) {
-		eachDraw(300, func() string { return fakeTemplate(t, f, "{/sv_SE.phone as p}{p}|{p.international}") }, func(got string) {
+		fejktest.EachDraw(300, func() string { return fejktest.FakeTemplate(t, f, "{/sv_SE.phone as p}{p}|{p.international}") }, func(got string) {
 			national, international, _ := strings.Cut(got, "|")
 			code, subscriber, _ := strings.Cut(strings.TrimPrefix(national, "0"), "-")
 			if want := "+46 " + code + " " + subscriber; international != want {
@@ -503,7 +506,7 @@ func TestShippedSwedishPhoneInternational(t *testing.T) {
 		})
 	})
 	t.Run("the international form read alone opens with +46 and an area code", func(t *testing.T) {
-		eachDraw(20, func() string { return fake(t, f, "sv_SE.phone.international") }, func(got string) {
+		fejktest.EachDraw(20, func() string { return fejktest.Fake(t, f, "sv_SE.phone.international") }, func(got string) {
 			if !regexp.MustCompile(`^\+46 \d{1,3} \d`).MatchString(got) {
 				t.Fatalf("sv_SE.phone.international = %q", got)
 			}
@@ -540,7 +543,7 @@ func distinctFirstCells(rows [][]string) int {
 
 func swedishPhoneAreaRows(t *testing.T) [][]string {
 	t.Helper()
-	b, err := os.ReadFile("data/sv_SE/phone-area.tsv")
+	b, err := os.ReadFile("sv_SE/phone-area.tsv")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -552,18 +555,18 @@ func swedishPhoneAreaRows(t *testing.T) [][]string {
 }
 
 func TestShippedSwedishPhoneAreaDrawsReachEveryAreaCode(t *testing.T) {
-	f := shipped(t, WithSeed(2))
-	drawn := tallyDraws(6000, func() string { return fake(t, f, "sv_SE.phone-area") })
+	f := shipped(t, fejkdata.WithSeed(2))
+	drawn := fejktest.TallyDraws(6000, func() string { return fejktest.Fake(t, f, "sv_SE.phone-area") })
 	if len(drawn) != 264 {
 		t.Fatalf("6000 draws reached %d of the 264 area codes", len(drawn))
 	}
 }
 
 func TestShippedSwedishPhoneAreaNamesItsPlace(t *testing.T) {
-	f := shipped(t, WithSeed(2))
+	f := shipped(t, fejkdata.WithSeed(2))
 	for area, name := range map[string]string{"08": "Stockholm", "0480": "Kalmar"} {
 		t.Run(area, func(t *testing.T) {
-			if got := fake(t, f, "sv_SE.phone-area["+area+"].name"); got != name {
+			if got := fejktest.Fake(t, f, "sv_SE.phone-area["+area+"].name"); got != name {
 				t.Errorf("area code %s is %q, want %q", area, got, name)
 			}
 		})
@@ -571,10 +574,10 @@ func TestShippedSwedishPhoneAreaNamesItsPlace(t *testing.T) {
 }
 
 func TestShippedSwedishAddress(t *testing.T) {
-	f := shipped(t, WithSeed(3))
+	f := shipped(t, fejkdata.WithSeed(3))
 	t.Run("an address is several lines with a number", func(t *testing.T) {
 		digit := regexp.MustCompile(`\d`)
-		eachDraw(30, func() string { return fake(t, f, "sv_SE.address") }, func(a string) {
+		fejktest.EachDraw(30, func() string { return fejktest.Fake(t, f, "sv_SE.address") }, func(a string) {
 			if !regexp.MustCompile(`\n`).MatchString(a) || !digit.MatchString(a) {
 				t.Fatalf("address %q is not a multi-line address with a number", a)
 			}
@@ -582,7 +585,7 @@ func TestShippedSwedishAddress(t *testing.T) {
 	})
 	t.Run("a locality is a place name", func(t *testing.T) {
 		locality := regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
-		eachDraw(30, func() string { return fake(t, f, "sv_SE.address.locality") }, func(c string) {
+		fejktest.EachDraw(30, func() string { return fejktest.Fake(t, f, "sv_SE.address.locality") }, func(c string) {
 			if !locality.MatchString(c) {
 				t.Fatalf("locality %q is not a Swedish place name", c)
 			}
@@ -669,9 +672,9 @@ func geoSEStreetLocalities(t *testing.T) map[string]string {
 var swedishName = regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
 
 func TestShippedStreetIsARegisteredName(t *testing.T) {
-	f := shipped(t, WithSeed(5))
+	f := shipped(t, fejkdata.WithSeed(5))
 	street := regexp.MustCompile(`^\p{L}[\p{L}\d:.-]*([ -][\p{L}\d:.-]+)*$`)
-	eachDraw(300, func() string { return fake(t, f, "sv_SE.address.street") }, func(s string) {
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, f, "sv_SE.address.street") }, func(s string) {
 		if !street.MatchString(s) {
 			t.Fatalf("street %q is not a Swedish street name", s)
 		}
@@ -681,8 +684,8 @@ func TestShippedStreetIsARegisteredName(t *testing.T) {
 func TestShippedLastNameComposition(t *testing.T) {
 	// last is a choice of patronymic {first}sson templates, compound
 	// {first}{last} templates and literal surnames.
-	f := shipped(t, WithSeed(6))
-	eachDraw(300, func() string { return fake(t, f, "sv_SE.person.last") }, func(s string) {
+	f := shipped(t, fejkdata.WithSeed(6))
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, f, "sv_SE.person.last") }, func(s string) {
 		if !swedishName.MatchString(s) {
 			t.Fatalf("last name %q is not a Swedish surname", s)
 		}
@@ -696,10 +699,10 @@ func TestSwedishBirthDatesWeighAgesByPopulation(t *testing.T) {
 	for path, layout := range map[string]string{"sv_SE.personnummer-12": "20060102", "sv_SE.person.birthdate": "2006-01-02"} {
 		t.Run(path, func(t *testing.T) {
 			const draws = 200000
-			sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
+			sv := shipped(t, fejkdata.WithToday(fejktest.DayOf(2026, 11, 4)))
 			bands := [4]int{}
 			oldest, youngest := [4]int{9999, 9999, 9999, 9999}, [4]int{}
-			eachDraw(draws, func() string { return fake(t, sv, path) }, func(v string) {
+			fejktest.EachDraw(draws, func() string { return fejktest.Fake(t, sv, path) }, func(v string) {
 				born, err := time.Parse(layout, v[:min(len(v), len(layout))])
 				if err != nil {
 					t.Fatalf("%s %q holds no calendar date: %v", path, v, err)
@@ -743,17 +746,17 @@ func ageBandOfABirthYearReadIn2026(year int) int {
 // The law sets the + from the year the holder turns 100. Read on 2026-11-04, that is
 // everyone born in 1926 or before, back to 1913, age 113 being the oldest validated Swede's.
 func TestSwedishPersonnummerSpellsThePlusFromTheYearTheHolderTurns100(t *testing.T) {
-	today := dayOf(2026, 11, 4)
-	sv := shipped(t, WithToday(today))
+	today := fejktest.DayOf(2026, 11, 4)
+	sv := shipped(t, fejkdata.WithToday(today))
 	pluses := 0
-	eachDraw(200000, func() string { return fake(t, sv, "sv_SE.personnummer") }, func(v string) {
+	fejktest.EachDraw(200000, func() string { return fejktest.Fake(t, sv, "sv_SE.personnummer") }, func(v string) {
 		day, err := time.Parse("060102", v[:6])
 		if err != nil {
 			t.Fatalf("personnummer %q holds no calendar date: %v", v, err)
 		}
 		yy := day.Year() % 100
 		if v[6] == '-' {
-			if holder := dayOf(birthYearOfAHyphenPersonnummerReadIn2026(yy), day.Month(), day.Day()); holder.After(today) || holder.Year() < 1927 {
+			if holder := fejktest.DayOf(birthYearOfAHyphenPersonnummerReadIn2026(yy), day.Month(), day.Day()); holder.After(today) || holder.Year() < 1927 {
 				t.Fatalf("personnummer %q read on %s, want - for a birth in 1927 or later, and none after the date", v, today.Format(time.DateOnly))
 			}
 			return
@@ -777,10 +780,10 @@ func birthYearOfAHyphenPersonnummerReadIn2026(yy int) int {
 
 // Both forms draw one date from one set of bands, so a seed gives one person in both spellings.
 func TestSwedishPersonnummerFormsSpellOneNumber(t *testing.T) {
-	short, long := shipped(t, WithToday(dayOf(2026, 11, 4))), shipped(t, WithToday(dayOf(2026, 11, 4)))
+	short, long := shipped(t, fejkdata.WithToday(fejktest.DayOf(2026, 11, 4))), shipped(t, fejkdata.WithToday(fejktest.DayOf(2026, 11, 4)))
 	saw := map[byte]bool{}
-	eachDraw(100000, func() string { return fake(t, short, "sv_SE.personnummer") }, func(a string) {
-		b := fake(t, long, "sv_SE.personnummer-12")
+	fejktest.EachDraw(100000, func() string { return fejktest.Fake(t, short, "sv_SE.personnummer") }, func(a string) {
+		b := fejktest.Fake(t, long, "sv_SE.personnummer-12")
 		if a[:6]+a[7:] != b[2:] {
 			t.Fatalf("personnummer %q and personnummer-12 %q, want the short form's digits after the century", a, b)
 		}
@@ -797,11 +800,11 @@ func TestSwedishPersonnummerFormsSpellOneNumber(t *testing.T) {
 // The 12-digit form is the century and the ten digits of the short form without its separator, and
 // the Luhn check stays over those ten digits, since weighing the century too would change it.
 func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
-	today := dayOf(2026, 11, 4)
-	sv := shipped(t, WithToday(today))
+	today := fejktest.DayOf(2026, 11, 4)
+	sv := shipped(t, fejkdata.WithToday(today))
 	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
 	first, last := time.Date(9999, 1, 1, 0, 0, 0, 0, time.UTC), time.Time{}
-	eachDraw(20000, func() string { return fake(t, sv, "sv_SE.personnummer-12") }, func(v string) {
+	fejktest.EachDraw(20000, func() string { return fejktest.Fake(t, sv, "sv_SE.personnummer-12") }, func(v string) {
 		if !re.MatchString(v) {
 			t.Fatalf("personnummer-12 %q, want YYYYMMDD23[89]C", v)
 		}
@@ -809,7 +812,7 @@ func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
 		if err != nil || born.After(today) {
 			t.Fatalf("personnummer-12 %q holds no calendar date up to %s: %v", v, today.Format(time.DateOnly), err)
 		}
-		if !luhnValid(v[2:]) {
+		if !fejktest.LuhnValid(v[2:]) {
 			t.Fatalf("personnummer-12 %q fails the Luhn check over its last ten digits", v)
 		}
 		if born.Before(first) {
@@ -825,10 +828,10 @@ func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
 }
 
 func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
-	sv := shipped(t, WithSeed(1))
+	sv := shipped(t, fejkdata.WithSeed(1))
 	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
 	centuries := map[string]int{}
-	eachDraw(3000, func() string { return fake(t, sv, "sv_SE.samordningsnummer-12") }, func(v string) {
+	fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, sv, "sv_SE.samordningsnummer-12") }, func(v string) {
 		if !re.MatchString(v) {
 			t.Fatalf("samordningsnummer-12 %q, want YYYYMM(61-88)23[89]C", v)
 		}
@@ -839,7 +842,7 @@ func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 		if _, err := time.Parse("200601", v[:6]); err != nil {
 			t.Fatalf("samordningsnummer-12 %q is not a valid year and month: %v", v, err)
 		}
-		if !luhnValid(v[2:]) {
+		if !fejktest.LuhnValid(v[2:]) {
 			t.Fatalf("samordningsnummer-12 %q fails the Luhn check over its last ten digits", v)
 		}
 		if year, _ := strconv.Atoi(v[:4]); year < 1930 || year > 2025 {
@@ -855,9 +858,9 @@ func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 // The 12-digit form holds the short form's range of birth years in its own file, so each
 // draws the same first and last year.
 func TestSwedishSamordningsnummerFormsSpanOneRangeOfYears(t *testing.T) {
-	sv := shipped(t, WithSeed(1))
-	a := firstAndLastYearDrawn(20000, func() string { return fake(t, sv, "sv_SE.samordningsnummer") }, yearOfASamordningsnummer)
-	b := firstAndLastYearDrawn(20000, func() string { return fake(t, sv, "sv_SE.samordningsnummer-12") }, yearOfASamordningsnummer12)
+	sv := shipped(t, fejkdata.WithSeed(1))
+	a := firstAndLastYearDrawn(20000, func() string { return fejktest.Fake(t, sv, "sv_SE.samordningsnummer") }, yearOfASamordningsnummer)
+	b := firstAndLastYearDrawn(20000, func() string { return fejktest.Fake(t, sv, "sv_SE.samordningsnummer-12") }, yearOfASamordningsnummer12)
 	if a != b || a[0] > 1931 || a[1] < 2024 {
 		t.Errorf("samordningsnummer draws years %v, samordningsnummer-12 %v, want the same range, 1930 to 2025 at its ends", a, b)
 	}
@@ -865,7 +868,7 @@ func TestSwedishSamordningsnummerFormsSpanOneRangeOfYears(t *testing.T) {
 
 func firstAndLastYearDrawn(n int, draw func() string, year func(string) int) [2]int {
 	first, last := 9999, 0
-	eachDraw(n, draw, func(v string) {
+	fejktest.EachDraw(n, draw, func(v string) {
 		y := year(v)
 		first, last = min(first, y), max(last, y)
 	})
@@ -886,7 +889,7 @@ func yearOfASamordningsnummer12(v string) int {
 }
 
 func TestShippedSwedishCalendar(t *testing.T) {
-	f := shipped(t, WithSeed(3))
+	f := shipped(t, fejkdata.WithSeed(3))
 	for path, want := range map[string]string{
 		"sv_SE.month[1]":                        "januari",
 		"sv_SE.month[2]":                        "februari",
@@ -922,7 +925,7 @@ func TestShippedSwedishCalendar(t *testing.T) {
 		"sv_SE.holiday[annandag-jul]":           "annandag jul",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -933,7 +936,7 @@ func TestShippedSwedishCalendar(t *testing.T) {
 		"sv_SE.holiday": {"nyårsdagen", "trettondedag jul", "långfredagen", "påskdagen", "annandag påsk", "första maj", "Kristi himmelsfärdsdag", "pingstdagen", "nationaldagen", "midsommardagen", "alla helgons dag", "juldagen", "annandag jul"},
 	} {
 		t.Run(path, func(t *testing.T) {
-			got := sortedNamesDrawn(tallyDraws(2000, func() string { return fake(t, f, path) }))
+			got := sortedNamesDrawn(fejktest.TallyDraws(2000, func() string { return fejktest.Fake(t, f, path) }))
 			slices.Sort(want)
 			if !slices.Equal(got, want) {
 				t.Errorf("%s drew %v in 2000 draws, want exactly %v", path, got, want)
@@ -943,7 +946,7 @@ func TestShippedSwedishCalendar(t *testing.T) {
 }
 
 func TestShippedSwedishTerritoryNamesEveryMiscTerritory(t *testing.T) {
-	if got, want := sortedKeysOfATSV(t, "data/sv_SE/territory.tsv"), sortedKeysOfATSV(t, "data/misc/territory.tsv"); !slices.Equal(got, want) {
+	if got, want := sortedKeysOfATSV(t, "sv_SE/territory.tsv"), sortedKeysOfATSV(t, "misc/territory.tsv"); !slices.Equal(got, want) {
 		t.Errorf("sv_SE/territory.tsv has %d rows, misc/territory.tsv %d: want the same alpha-2 codes", len(got), len(want))
 	}
 }
@@ -964,7 +967,7 @@ func sortedKeysOfATSV(t *testing.T, file string) []string {
 }
 
 func TestShippedSwedishTerritoryIsSelectedByItsAlpha2Code(t *testing.T) {
-	f := shipped(t, WithSeed(3))
+	f := shipped(t, fejkdata.WithSeed(3))
 	for path, want := range map[string]string{
 		"sv_SE.territory[SE]": "Sverige",
 		"sv_SE.territory[US]": "USA",
@@ -973,7 +976,7 @@ func TestShippedSwedishTerritoryIsSelectedByItsAlpha2Code(t *testing.T) {
 		"sv_SE.territory[GL]": "Grönland",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -981,9 +984,9 @@ func TestShippedSwedishTerritoryIsSelectedByItsAlpha2Code(t *testing.T) {
 }
 
 func TestShippedSwedishBloodTypeFollowsItsShares(t *testing.T) {
-	f := shipped(t, WithSeed(11))
+	f := shipped(t, fejkdata.WithSeed(11))
 	const draws = 40000
-	counts := tallyDraws(draws, func() string { return fake(t, f, "sv_SE.bloodtype") })
+	counts := fejktest.TallyDraws(draws, func() string { return fejktest.Fake(t, f, "sv_SE.bloodtype") })
 	want := map[string]float64{"A+": 37, "0+": 32, "B+": 10, "A-": 7, "0-": 6, "AB+": 5, "B-": 2, "AB-": 1}
 	if len(counts) != len(want) {
 		t.Errorf("drew %v, want exactly the types %v", counts, want)
@@ -999,17 +1002,17 @@ func TestShippedSwedishBloodTypeFollowsItsShares(t *testing.T) {
 
 // A personnummer spells + from the year the holder turns 100: with today at 2026-11-04, a birth in 1926 or before.
 func TestSwedishPersonNumbersSpellItsBirthdateAndSex(t *testing.T) {
-	sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
+	sv := shipped(t, fejkdata.WithToday(fejktest.DayOf(2026, 11, 4)))
 	person, err := sv.NewTemplate(`{/sv_SE.person as p}{p.birthdate}|{p.personnummer}|{p.samordningsnummer}|{p.sex}`)
 	if err != nil {
 		t.Fatal(err)
 	}
 	birthNumber := map[string]string{"kvinna": "238", "man": "239"}
 	pluses, days := 0, map[int]bool{}
-	eachDraw(200000, person.Fake, func(v string) {
+	fejktest.EachDraw(200000, person.Fake, func(v string) {
 		f := strings.Split(v, "|")
 		born, err := time.Parse(time.DateOnly, f[0])
-		if err != nil || born.Year() < 1913 || born.After(dayOf(2026, 11, 4)) {
+		if err != nil || born.Year() < 1913 || born.After(fejktest.DayOf(2026, 11, 4)) {
 			t.Fatalf("person %q, want a birthdate from 1913-01-01 to 2026-11-04", v)
 		}
 		sign := "-"
@@ -1017,11 +1020,11 @@ func TestSwedishPersonNumbersSpellItsBirthdateAndSex(t *testing.T) {
 			sign, pluses = "+", pluses+1
 		}
 		pnr := born.Format("060102") + sign + birthNumber[f[3]]
-		if len(f[1]) != 11 || f[1][:10] != pnr || !luhnValid(digitsOnly(f[1])) {
+		if len(f[1]) != 11 || f[1][:10] != pnr || !fejktest.LuhnValid(fejktest.DigitsOnly(f[1])) {
 			t.Fatalf("person %q, want a Luhn-valid personnummer starting %s", v, pnr)
 		}
 		sam := born.Format("0601") + strconv.Itoa(born.Day()+60) + "-" + birthNumber[f[3]]
-		if len(f[2]) != 11 || f[2][:10] != sam || !luhnValid(digitsOnly(f[2])) {
+		if len(f[2]) != 11 || f[2][:10] != sam || !fejktest.LuhnValid(fejktest.DigitsOnly(f[2])) {
 			t.Fatalf("person %q, want a Luhn-valid samordningsnummer starting %s", v, sam)
 		}
 		days[born.Day()+60] = true
@@ -1041,7 +1044,7 @@ func TestSwedishPersonNumbersSpellItsBirthdateAndSex(t *testing.T) {
 // sv_SE.sni is SCB's SNI 2025 detaljgrupper: 835 five-digit codes, each selected by its code and
 // drawn as the code and its Swedish label.
 func TestShippedSwedishSNI(t *testing.T) {
-	f := shipped(t, WithSeed(3))
+	f := shipped(t, fejkdata.WithSeed(3))
 	for path, want := range map[string]string{
 		"sv_SE.sni[01.110]":      "01.110 Odling av spannmål (utom ris), baljväxter och oljeväxter",
 		"sv_SE.sni[62.100].name": "Dataprogrammering",
@@ -1049,7 +1052,7 @@ func TestShippedSwedishSNI(t *testing.T) {
 		"sv_SE.sni[99.000].code": "99.000",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -1057,7 +1060,7 @@ func TestShippedSwedishSNI(t *testing.T) {
 }
 
 func TestShippedSwedishSNITableHoldsSCBs835Codes(t *testing.T) {
-	rows := tsvRows(t, "data/sv_SE/sni.tsv")
+	rows := fejktest.TSVRows(t, "sv_SE/sni.tsv")
 	if len(rows) != 835 {
 		t.Fatalf("sni.tsv has %d rows, want 835", len(rows))
 	}
@@ -1075,7 +1078,7 @@ func errorOnRowsWithoutACodeAndATrimmedLabel(t *testing.T, file string, rows []m
 
 // sv_SE.ssyk is SCB's SSYK 2012 at four digits: 429 occupation groups, each selected by its code.
 func TestShippedSwedishSSYK(t *testing.T) {
-	f := shipped(t, WithSeed(3))
+	f := shipped(t, fejkdata.WithSeed(3))
 	for path, want := range map[string]string{
 		"sv_SE.ssyk[2512]":      "2512 Mjukvaru- och systemutvecklare m.fl.",
 		"sv_SE.ssyk[1111].name": "Politiker",
@@ -1084,7 +1087,7 @@ func TestShippedSwedishSSYK(t *testing.T) {
 		"sv_SE.ssyk[5120].code": "5120",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 			}
 		})
@@ -1092,7 +1095,7 @@ func TestShippedSwedishSSYK(t *testing.T) {
 }
 
 func TestShippedSwedishSSYKTableHoldsSCBs429Groups(t *testing.T) {
-	rows := tsvRows(t, "data/sv_SE/ssyk.tsv")
+	rows := fejktest.TSVRows(t, "sv_SE/ssyk.tsv")
 	if len(rows) != 429 {
 		t.Fatalf("ssyk.tsv has %d rows, want 429", len(rows))
 	}
@@ -1102,7 +1105,7 @@ func TestShippedSwedishSSYKTableHoldsSCBs429Groups(t *testing.T) {
 // sv_SE.car holds each model that Mobility Sweden's December 2025 report counts 500 or more new
 // passenger cars of in 2025, less its "Övriga" rows, weighted by those registrations.
 func TestShippedSwedishCar(t *testing.T) {
-	rows := tsvRows(t, "data/sv_SE/car.tsv")
+	rows := fejktest.TSVRows(t, "sv_SE/car.tsv")
 	if len(rows) != 119 {
 		t.Fatalf("car.tsv has %d rows, want 119", len(rows))
 	}
@@ -1124,7 +1127,7 @@ func errorOnCarRowsMobilitySwedenDoesNotCount(t *testing.T, rows []map[string]st
 func swedishCarRegistrations(t *testing.T) (total int, registrations map[string]int) {
 	t.Helper()
 	registrations = map[string]int{}
-	for _, row := range tsvRows(t, "data/sv_SE/car.tsv") {
+	for _, row := range fejktest.TSVRows(t, "sv_SE/car.tsv") {
 		n, _ := strconv.Atoi(row["registrations"])
 		total += n
 		registrations[row["make"]+" "+row["model"]] = n
@@ -1165,9 +1168,9 @@ func TestShippedSwedishCarHoldsMobilitySwedensRegistrations(t *testing.T) {
 
 func TestShippedSwedishCarWeighsAModelByItsRegistrations(t *testing.T) {
 	total, _ := swedishCarRegistrations(t)
-	f := shipped(t, WithSeed(7))
+	f := shipped(t, fejkdata.WithSeed(7))
 	const draws = 60000
-	xc60 := tallyDraws(draws, func() string { return fake(t, f, "sv_SE.car") })["Volvo XC60"]
+	xc60 := fejktest.TallyDraws(draws, func() string { return fejktest.Fake(t, f, "sv_SE.car") })["Volvo XC60"]
 	want := 17933 * 100 / float64(total)
 	if got := float64(xc60) * 100 / draws; math.Abs(got-want) > 0.5 {
 		t.Errorf("Volvo XC60 drew %.2f%%, want %.2f%% within half a point", got, want)
@@ -1178,7 +1181,7 @@ func TestShippedSwedishCarWeighsAModelByItsRegistrations(t *testing.T) {
 // second company, and the load says how to write each meaning.
 func TestACompanysRegisteredBesideTheCompanyIsRefused(t *testing.T) {
 	t.Parallel()
-	f := shipped(t, WithSeed(3))
+	f := shipped(t, fejkdata.WithSeed(3))
 	for _, locale := range []string{"sv_SE", "nb_NO"} {
 		t.Run(locale, func(t *testing.T) {
 			company := "/" + locale + ".company"
@@ -1199,7 +1202,7 @@ func TestACompanysRegisteredBesideTheCompanyIsRefused(t *testing.T) {
 
 func TestACompanyLoadsWhereItsRegisteredIsNotReadBesideIt(t *testing.T) {
 	t.Parallel()
-	f := shipped(t, WithSeed(3))
+	f := shipped(t, fejkdata.WithSeed(3))
 	for _, locale := range []string{"sv_SE", "nb_NO"} {
 		t.Run(locale, func(t *testing.T) {
 			company := "/" + locale + ".company"
@@ -1218,10 +1221,10 @@ func TestACompanyLoadsWhereItsRegisteredIsNotReadBesideIt(t *testing.T) {
 // enskild näringsidkare carries none.
 func TestSwedishCompanyLegalIsTheWordOfTheBoundCompany(t *testing.T) {
 	t.Parallel()
-	sv := shipped(t, WithSeed(3))
+	sv := shipped(t, fejkdata.WithSeed(3))
 	seen := map[string]int{}
-	const draws = shareDraws / 10
-	eachDraw(draws, func() string { return fakeTemplate(t, sv, "{/sv_SE.company as c}{c}|{c.legal}") }, func(got string) {
+	const draws = fejktest.ShareDraws / 10
+	fejktest.EachDraw(draws, func() string { return fejktest.FakeTemplate(t, sv, "{/sv_SE.company as c}{c}|{c.legal}") }, func(got string) {
 		company, legal, _ := strings.Cut(got, "|")
 		seen[legal]++
 		fatalUnlessASwedishCompanyCarriesItsLegal(t, company, legal)
@@ -1265,7 +1268,7 @@ type swedishRegisteredCompanyForm struct{ Format, Legal string }
 
 func swedishRegisteredCompanyForms(t *testing.T) []swedishRegisteredCompanyForm {
 	t.Helper()
-	raw, err := os.ReadFile("data/sv_SE/company.json")
+	raw, err := os.ReadFile("sv_SE/company.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1312,7 +1315,7 @@ func TestSwedishCompanyRegisteredFormsCarryEveryLegalWord(t *testing.T) {
 
 func swedishWordForms(t *testing.T, table string) map[string]string {
 	t.Helper()
-	raw, err := os.ReadFile("data/sv_SE/" + table + ".tsv")
+	raw, err := os.ReadFile("sv_SE/" + table + ".tsv")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1368,7 +1371,7 @@ func swedishWordFormSet(t *testing.T, table string) map[string]bool {
 
 func TestSwedishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 	t.Parallel()
-	sv := shipped(t, WithSeed(5))
+	sv := shipped(t, fejkdata.WithSeed(5))
 	for _, c := range []struct {
 		path string
 		held map[string]bool
@@ -1381,7 +1384,7 @@ func TestSwedishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 		{"sv_SE.word.adv", swedishWordSet(t, "word-adv")},
 	} {
 		t.Run(c.path, func(t *testing.T) {
-			eachDraw(2000, func() string { return fake(t, sv, c.path) }, func(got string) {
+			fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, sv, c.path) }, func(got string) {
 				if !c.held[got] {
 					t.Fatalf("%s = %q, which its table does not hold", c.path, got)
 				}
@@ -1392,10 +1395,10 @@ func TestSwedishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 
 func TestSwedishWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
 	t.Parallel()
-	sv := shipped(t, WithSeed(5))
+	sv := shipped(t, fejkdata.WithSeed(5))
 	nouns := swedishWordSet(t, "word-noun")
-	seen := tallyDraws(2000, func() string {
-		if nouns[fake(t, sv, "sv_SE.word")] {
+	seen := fejktest.TallyDraws(2000, func() string {
+		if nouns[fejktest.Fake(t, sv, "sv_SE.word")] {
 			return "noun"
 		}
 		return "other"
@@ -1407,7 +1410,7 @@ func TestSwedishWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
 
 func TestSwedishBoundWordReadsItsOwnForm(t *testing.T) {
 	t.Parallel()
-	sv := shipped(t, WithSeed(6))
+	sv := shipped(t, fejkdata.WithSeed(6))
 	for _, c := range []struct{ path, form, table string }{
 		{"sv_SE.word.noun", "definite", "word-noun"},
 		{"sv_SE.word.verb", "present", "word-verb"},
@@ -1415,7 +1418,7 @@ func TestSwedishBoundWordReadsItsOwnForm(t *testing.T) {
 	} {
 		t.Run(c.path, func(t *testing.T) {
 			forms := swedishWordForms(t, c.table)
-			eachDraw(200, func() string { return fakeTemplate(t, sv, "{/"+c.path+" as w}{w}|{w."+c.form+"}") }, func(got string) {
+			fejktest.EachDraw(200, func() string { return fejktest.FakeTemplate(t, sv, "{/"+c.path+" as w}{w}|{w."+c.form+"}") }, func(got string) {
 				word, form, _ := strings.Cut(got, "|")
 				if forms[word] != form {
 					t.Fatalf("%s %q printed %s %q, want its own, %q", c.path, word, c.form, form, forms[word])
@@ -1427,7 +1430,7 @@ func TestSwedishBoundWordReadsItsOwnForm(t *testing.T) {
 
 func TestSwedishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 	t.Parallel()
-	raw, err := os.ReadFile("data/sv_SE/word.json")
+	raw, err := os.ReadFile("sv_SE/word.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1455,10 +1458,10 @@ func TestSwedishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 
 func TestSwedishSentenceDrawsTheFormsItsPatternNeeds(t *testing.T) {
 	t.Parallel()
-	sv := shipped(t, WithSeed(7))
+	sv := shipped(t, fejkdata.WithSeed(7))
 	adj, noun := swedishWordFormSet(t, "word-adj"), swedishWordFormSet(t, "word-noun")
 	verbOfAQuestion := map[bool]map[string]bool{true: swedishWordSet(t, "word-verb"), false: swedishWordFormSet(t, "word-verb")}
-	eachDraw(200, func() string { return fake(t, sv, "sv_SE.sentence") }, func(sentence string) {
+	fejktest.EachDraw(200, func() string { return fejktest.Fake(t, sv, "sv_SE.sentence") }, func(sentence string) {
 		adjs, nouns, verb, question := partsOfASwedishSentence(sentence)
 		if !verbOfAQuestion[question][verb] {
 			t.Errorf("sentence %q holds a verb form its pattern doesn't read", sentence)
@@ -1553,11 +1556,11 @@ func bankgirotMod11Valid(digits string) bool {
 // the last four, eight with it in the middle, the final digit Luhn's check digit as Bankgirot's
 // 10-modul sheet has it.
 func TestSwedishBankgiro(t *testing.T) {
-	f := shipped(t, WithSeed(1))
+	f := shipped(t, fejkdata.WithSeed(1))
 	form := regexp.MustCompile(`^([1-9]\d{2}-\d{4}|[1-9]\d{3}-\d{4})$`)
 	sevenDigits := map[bool]int{}
-	eachDraw(2000, func() string { return fake(t, f, "sv_SE.bankgiro") }, func(v string) {
-		if !form.MatchString(v) || !luhnValid(digitsOnly(v)) {
+	fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, f, "sv_SE.bankgiro") }, func(v string) {
+		if !form.MatchString(v) || !fejktest.LuhnValid(fejktest.DigitsOnly(v)) {
 			t.Fatalf("sv_SE.bankgiro %q, want 991-2346 or 5555-5551's form with a Luhn check digit", v)
 		}
 		sevenDigits[len(v) == 8]++
@@ -1568,7 +1571,7 @@ func TestSwedishBankgiro(t *testing.T) {
 }
 
 func TestSwedishBankgiroOracleAcceptsBankgirotsExamples(t *testing.T) {
-	if !luhnValid("9912346") || !luhnValid("55555551") {
+	if !fejktest.LuhnValid("9912346") || !fejktest.LuhnValid("55555551") {
 		t.Fatal("Bankgirot's two examples, 991-2346 and 5555-5551, must pass the Luhn oracle")
 	}
 }
@@ -1576,12 +1579,12 @@ func TestSwedishBankgiroOracleAcceptsBankgirotsExamples(t *testing.T) {
 // TestSwedishPlusgiro draws two to eight digits, the hyphen before the check digit and the rest in
 // pairs from the right, with a Luhn check digit.
 func TestSwedishPlusgiro(t *testing.T) {
-	f := shipped(t, WithSeed(1))
+	f := shipped(t, fejkdata.WithSeed(1))
 	form := regexp.MustCompile(`^[1-9]\d?( \d{2})*-\d$`)
 	lengths := map[int]int{}
-	eachDraw(3500, func() string { return fake(t, f, "sv_SE.plusgiro") }, func(v string) {
-		d := digitsOnly(v)
-		if !form.MatchString(v) || !luhnValid(d) || len(d) < 2 || len(d) > 8 {
+	fejktest.EachDraw(3500, func() string { return fejktest.Fake(t, f, "sv_SE.plusgiro") }, func(v string) {
+		d := fejktest.DigitsOnly(v)
+		if !form.MatchString(v) || !fejktest.LuhnValid(d) || len(d) < 2 || len(d) > 8 {
 			t.Fatalf("sv_SE.plusgiro %q, want 2 to 8 digits, the hyphen before the last, a Luhn check digit", v)
 		}
 		if strings.Index(v, "-") != len(v)-2 {
@@ -1693,7 +1696,7 @@ func checkBankAccount(t *testing.T, v string) {
 		case r.typ == 2 && r.rule == 2:
 			ok = len(account) == 9 && bankgirotMod11Valid(account)
 		default:
-			ok = len(account) == 10 && luhnValid(account)
+			ok = len(account) == 10 && fejktest.LuhnValid(account)
 		}
 		if !ok {
 			t.Errorf("sv_SE.bankaccount %q is not valid under %s's type %d, comment %d", v, r.bank, r.typ, r.rule)
@@ -1711,7 +1714,7 @@ func TestSwedishBankAccountOracleAcceptsBankgirotsExample(t *testing.T) {
 }
 
 func TestSwedishBankAccountHasOneRowPerClearingNumber(t *testing.T) {
-	b, err := os.ReadFile("data/sv_SE/bankaccount.tsv")
+	b, err := os.ReadFile("sv_SE/bankaccount.tsv")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1746,16 +1749,16 @@ func fatalOnARowNotOpeningWith(t *testing.T, rows, want []string) {
 }
 
 func TestSwedishBankAccountOfEveryClearingNumberChecks(t *testing.T) {
-	f := shipped(t, WithSeed(1))
+	f := shipped(t, fejkdata.WithSeed(1))
 	for _, r := range clearingRanges {
 		t.Run(fmt.Sprintf("%d-%d", r.first, r.last), func(t *testing.T) {
 			eachClearingNumberFrom(r.first, r.last, func(c int) {
-				v := fakeTemplate(t, f, fmt.Sprintf("{/sv_SE.bankaccount[%d]}", c))
+				v := fejktest.FakeTemplate(t, f, fmt.Sprintf("{/sv_SE.bankaccount[%d]}", c))
 				if !strings.HasPrefix(v, strconv.Itoa(c)+"-") {
 					t.Fatalf("sv_SE.bankaccount[%d] = %q, want it to open with its clearing number", c, v)
 				}
 				checkBankAccount(t, v)
-				if bank := fakeTemplate(t, f, fmt.Sprintf("{/sv_SE.bankaccount[%d].bank}", c)); bank != r.bank {
+				if bank := fejktest.FakeTemplate(t, f, fmt.Sprintf("{/sv_SE.bankaccount[%d].bank}", c)); bank != r.bank {
 					t.Fatalf("sv_SE.bankaccount[%d].bank = %q, want %q", c, bank, r.bank)
 				}
 			})
@@ -1770,9 +1773,9 @@ func eachClearingNumberFrom(first, last int, check func(c int)) {
 }
 
 func TestSwedishBankAccount(t *testing.T) {
-	f := shipped(t, WithSeed(2))
+	f := shipped(t, fejkdata.WithSeed(2))
 	banks := map[string]bool{}
-	eachDraw(3000, func() string { return fakeTemplate(t, f, "{/sv_SE.bankaccount as a}{a.bank}={a}") }, func(got string) {
+	fejktest.EachDraw(3000, func() string { return fejktest.FakeTemplate(t, f, "{/sv_SE.bankaccount as a}{a.bank}={a}") }, func(got string) {
 		bank, v, _ := strings.Cut(got, "=")
 		checkBankAccount(t, v)
 		banks[bank] = true

@@ -1,4 +1,4 @@
-package fejkdata
+package data_test
 
 import (
 	"encoding/json"
@@ -8,12 +8,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/larvit/fejkdata"
 	"github.com/larvit/fejkdata/data/en_US"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func englishWordForms(t *testing.T, table string) map[string]string {
 	t.Helper()
-	raw, err := os.ReadFile("data/en_US/" + table + ".tsv")
+	raw, err := os.ReadFile("en_US/" + table + ".tsv")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,7 +128,7 @@ func TestEnglishWordTablesHoldLowerCaseLettersAlone(t *testing.T) {
 
 func TestEnglishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 	t.Parallel()
-	en := shipped(t, WithSeed(5))
+	en := shipped(t, fejkdata.WithSeed(5))
 	nouns, verbs, adjs, advs, present := englishWordSet(t, "word-noun"), englishWordSet(t, "word-verb"), englishWordSet(t, "word-adj"), englishWordSet(t, "word-adv"), englishPresentForms(t)
 	for _, c := range []struct {
 		path string
@@ -139,7 +141,7 @@ func TestEnglishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 		{"en_US.word.adv", advs},
 	} {
 		t.Run(c.path, func(t *testing.T) {
-			eachDraw(2000, func() string { return fake(t, en, c.path) }, func(got string) {
+			fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, en, c.path) }, func(got string) {
 				if !c.held[got] {
 					t.Fatalf("%s = %q, which its table does not hold", c.path, got)
 				}
@@ -150,10 +152,10 @@ func TestEnglishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 
 func TestEnglishWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
 	t.Parallel()
-	en := shipped(t, WithSeed(5))
+	en := shipped(t, fejkdata.WithSeed(5))
 	nouns := englishWordSet(t, "word-noun")
-	seen := tallyDraws(2000, func() string {
-		if nouns[fake(t, en, "en_US.word")] {
+	seen := fejktest.TallyDraws(2000, func() string {
+		if nouns[fejktest.Fake(t, en, "en_US.word")] {
 			return "noun"
 		}
 		return "other"
@@ -165,9 +167,9 @@ func TestEnglishWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
 
 func TestEnglishBoundVerbReadsItsOwnPresent(t *testing.T) {
 	t.Parallel()
-	en := shipped(t, WithSeed(6))
+	en := shipped(t, fejkdata.WithSeed(6))
 	forms := englishWordForms(t, "word-verb")
-	eachDraw(200, func() string { return fakeTemplate(t, en, "{/en_US.word.verb as w}{w}|{w.present}") }, func(got string) {
+	fejktest.EachDraw(200, func() string { return fejktest.FakeTemplate(t, en, "{/en_US.word.verb as w}{w}|{w.present}") }, func(got string) {
 		word, form, _ := strings.Cut(got, "|")
 		if forms[word] != form {
 			t.Fatalf("en_US.word.verb %q printed present %q, want its own, %q", word, form, forms[word])
@@ -177,7 +179,7 @@ func TestEnglishBoundVerbReadsItsOwnPresent(t *testing.T) {
 
 func TestEnglishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 	t.Parallel()
-	raw, err := os.ReadFile("data/en_US/word.json")
+	raw, err := os.ReadFile("en_US/word.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -205,8 +207,8 @@ func TestEnglishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 
 func TestEnglishWordDrawsAWideSpreadOfWords(t *testing.T) {
 	t.Parallel()
-	en := shipped(t, WithSeed(8))
-	distinct := tallyDraws(5000, func() string { return fake(t, en, "en_US.word") })
+	en := shipped(t, fejkdata.WithSeed(8))
+	distinct := fejktest.TallyDraws(5000, func() string { return fejktest.Fake(t, en, "en_US.word") })
 	if len(distinct) < 3000 {
 		t.Errorf("5000 draws of en_US.word gave %d distinct words, want a dictionary's spread", len(distinct))
 	}
@@ -214,9 +216,9 @@ func TestEnglishWordDrawsAWideSpreadOfWords(t *testing.T) {
 
 func TestEnglishSentenceDrawsTheWordsItsPatternNeeds(t *testing.T) {
 	t.Parallel()
-	en := shipped(t, WithSeed(7))
+	en := shipped(t, fejkdata.WithSeed(7))
 	adj, noun, adv, verb, present := englishWordSet(t, "word-adj"), englishWordSet(t, "word-noun"), englishWordSet(t, "word-adv"), englishWordSet(t, "word-verb"), englishPresentForms(t)
-	eachDraw(300, func() string { return fake(t, en, "en_US.sentence") }, func(sentence string) {
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, en, "en_US.sentence") }, func(sentence string) {
 		w := strings.Fields(strings.ToLower(strings.TrimRight(sentence, ".!?")))
 		last := len(w) - 1
 		ok := noun[w[last]] && adj[w[last-1]]
@@ -233,9 +235,9 @@ func TestEnglishSentenceDrawsTheWordsItsPatternNeeds(t *testing.T) {
 
 func TestEnglishParagraphIsThreeToSixSentences(t *testing.T) {
 	t.Parallel()
-	en := shipped(t, WithSeed(9))
+	en := shipped(t, fejkdata.WithSeed(9))
 	paragraph := regexp.MustCompile(`^[A-Z][^.!?]*[.!?]( [A-Z][^.!?]*[.!?]){2,5}$`)
-	eachDraw(300, func() string { return fake(t, en, "en_US.paragraph") }, func(p string) {
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, en, "en_US.paragraph") }, func(p string) {
 		if !paragraph.MatchString(p) {
 			t.Fatalf("en_US.paragraph = %q, want three to six sentences", p)
 		}
@@ -244,10 +246,10 @@ func TestEnglishParagraphIsThreeToSixSentences(t *testing.T) {
 
 func TestEnglishParagraphDrawsEachSentenceCountFromThreeToSix(t *testing.T) {
 	t.Parallel()
-	en := shipped(t, WithSeed(9))
+	en := shipped(t, fejkdata.WithSeed(9))
 	terminators := regexp.MustCompile(`[.!?]`)
-	counts := tallyDraws(300, func() string {
-		return strconv.Itoa(len(terminators.FindAllString(fake(t, en, "en_US.paragraph"), -1)))
+	counts := fejktest.TallyDraws(300, func() string {
+		return strconv.Itoa(len(terminators.FindAllString(fejktest.Fake(t, en, "en_US.paragraph"), -1)))
 	})
 	for _, n := range []int{3, 4, 5, 6} {
 		t.Run(strconv.Itoa(n), func(t *testing.T) {

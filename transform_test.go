@@ -2,6 +2,8 @@ package fejkdata
 
 import (
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestTransforms(t *testing.T) {
@@ -52,7 +54,7 @@ func TestSlugify(t *testing.T) {
 func TestTransformReadsTheNamedDraw(t *testing.T) {
 	f := emptyGenerator(2)
 	src := `{"format":"{p as q}{q.first}={lowercase(q.first)}","p":[{"format":"{first}","first":"Anna"},{"format":"{first}","first":"Bo"}]}`
-	eachDraw(50, func() string { return mustRender(t, f, src) }, func(got string) {
+	fejktest.EachDraw(50, func() string { return mustRender(t, f, src) }, func(got string) {
 		if got != "Anna=anna" && got != "Bo=bo" {
 			t.Fatalf("render = %q, want the transform over the same draw", got)
 		}
@@ -65,7 +67,7 @@ func TestTransformOverAReference(t *testing.T) {
 		"email":  `"{/person as p}{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>"`,
 	})
 	f := newGenerator(t, dir, WithSeed(5))
-	eachDraw(50, func() string { return fake(t, f, "email") }, func(got string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "email") }, func(got string) {
 		if got != "Åsa Öberg <asa.oberg@example.com>" && got != "Bo Ek <bo.ek@example.com>" {
 			t.Fatalf("email = %q, want a record from one draw", got)
 		}

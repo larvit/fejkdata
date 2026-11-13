@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestRewordReplacesEachWordKeepingPunctuationDigitsAndCase(t *testing.T) {
@@ -43,7 +45,7 @@ func TestRewordDrawsTheNearestLengthTheWordsHold(t *testing.T) {
 func TestRewordKeepsOneFakePerWordWithinARender(t *testing.T) {
 	f := emptyGenerator(1)
 	src := `{"format":"{reword(t,w)}|{reword(t,w)}","t":"cat Cat CAT dog","w":["abc","xyz"]}`
-	eachDraw(400, func() string { return mustRender(t, f, src) }, func(got string) {
+	fejktest.EachDraw(400, func() string { return mustRender(t, f, src) }, func(got string) {
 		halves := strings.Split(got, "|")
 		words := strings.Fields(halves[0])
 		if halves[0] != halves[1] || len(words) != 4 || strings.ToLower(words[1]) != words[0] || strings.ToUpper(words[2]) != words[2] || strings.ToLower(words[2]) != words[0] {
@@ -55,7 +57,7 @@ func TestRewordKeepsOneFakePerWordWithinARender(t *testing.T) {
 func TestRewordDrawsEachWordAfreshPerRender(t *testing.T) {
 	f := emptyGenerator(1)
 	src := `{"format":"{reword(t,w)}|{reword(t,w)}","t":"cat Cat CAT dog","w":["abc","xyz"]}`
-	seen := tallyDraws(400, func() string {
+	seen := fejktest.TallyDraws(400, func() string {
 		words := strings.Fields(strings.Split(mustRender(t, f, src), "|")[0])
 		return words[0] + " " + words[3]
 	})
@@ -73,7 +75,7 @@ func TestRewordKeepsOneFakePerWordAcrossATemplateAndTheCategoryItReads(t *testin
 	if err != nil {
 		t.Fatalf("NewTemplate: %v", err)
 	}
-	eachDraw(20, tp.Fake, func(got string) {
+	fejktest.EachDraw(20, tp.Fake, func(got string) {
 		if halves := strings.Split(got, "|"); halves[0] != halves[1] {
 			t.Fatalf("render = %q, want Ann one fake in the template and in the category it reads", got)
 		}
@@ -83,7 +85,7 @@ func TestRewordKeepsOneFakePerWordAcrossATemplateAndTheCategoryItReads(t *testin
 func TestRewordDrawsWithTheWordsWeights(t *testing.T) {
 	f := emptyGenerator(3)
 	src := `{"format":"{reword(t,w)}","t":"cat","w":[{"format":"abc","weight":3},{"format":"xyz","weight":1}]}`
-	a := tallyDraws(4000, func() string { return mustRender(t, f, src) })["abc"]
+	a := fejktest.TallyDraws(4000, func() string { return mustRender(t, f, src) })["abc"]
 	if a < 2800 || a > 3200 {
 		t.Errorf("abc drew %d of 4000, want about 3000: weight 3 against xyz's 1", a)
 	}
@@ -118,7 +120,7 @@ func TestRewordDrawsTheShippedWords(t *testing.T) {
 		t.Fatal(err)
 	}
 	shape := regexp.MustCompile(`^\p{Lu}\p{Ll}{4}, \p{Lu}\p{Ll}{4} 2024!$`)
-	eachDraw(50, tp.Fake, func(got string) {
+	fejktest.EachDraw(50, tp.Fake, func(got string) {
 		if !shape.MatchString(got) {
 			t.Fatalf("Fake() = %q, want two capitalized five-letter words around the kept punctuation and digits", got)
 		}
