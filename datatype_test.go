@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"maps"
 	"regexp"
 	"slices"
 	"strconv"
@@ -18,25 +19,33 @@ func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
 		`{"format":"","age":[null,{"format":"{int(18,99)}","datatype":"integer","weight":9}]}`,
 		`{"format":"","pick":[[null,"a"],"b"]}`,
 	} {
-		if _, err := resolved(t, src); err != nil {
-			t.Errorf("compile(%s) = %v, want a column to take a datatype and null", src, err)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := resolved(t, src); err != nil {
+				t.Errorf("compile(%s) = %v, want a column to take a datatype and null", src, err)
+			}
+		})
 	}
+}
+
+func TestDatatypeNamesTheTypesItTakes(t *testing.T) {
 	for src, want := range map[string]string{
 		`{"format":"","n":{"format":"1","datatype":"int"}}`: `datatype takes "string", "integer", "number" or "boolean", got "int"`,
 		`{"format":"","n":{"format":"1","datatype":1}}`:     "datatype must be a string, not a number",
 	} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want an error containing %q", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("compile(%s) = %v, want an error containing %q", src, err, want)
+			}
+		})
 	}
 }
 
+var datatypeRejectionData = map[string]string{
+	"cat": `[{"format":"{code}","code":"200"},{"format":"{code}","code":"2x","note":"n"}]`,
+	"src": `{"format":"","code":[null,"200","2x"],"flag":{"format":"{b}","b":["true","false"],"datatype":"boolean"},"ratio":{"format":"{float(0,9,0)}","datatype":"number"},"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
+}
+
 func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
-	tree := map[string]string{
-		"cat": `[{"format":"{code}","code":"200"},{"format":"{code}","code":"2x","note":"n"}]`,
-		"src": `{"format":"","code":[null,"200","2x"],"flag":{"format":"{b}","b":["true","false"],"datatype":"boolean"},"ratio":{"format":"{float(0,9,0)}","datatype":"number"},"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
-	}
 	for _, c := range []struct{ name, column, want string }{
 		{"an item beside a typed one", `[{"format":"1","datatype":"integer"},"x"]`, `write it as {"format":"x","datatype":"integer"}`},
 		{"a weighted item beside a typed one", `[{"format":"1","datatype":"integer"},{"format":"2","weight":3}]`, `give it "datatype": "integer"`},
@@ -87,32 +96,40 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a path's empty default, by a string it contains", `{"format":"{calc(a + 1)}","a":{"format":"{v as t}{w where not containing t}","v":"1","w":["1","2"]},"datatype":"integer"}`, "may print its fallback"},
 		{"a name holding a path's draw", `{"format":"{v as t}{w where not t as d}{calc(d + 1)}","v":"1","w":["1","2"],"datatype":"integer"}`, "may print its fallback"},
 	} {
-		row := `{"format":"","col":` + c.column + `}`
-		files := map[string]string{"row": row}
-		for name, body := range tree {
-			files[name] = body
-		}
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files)))
-		if err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: New = %v, want an error containing %q", c.name, err, c.want)
-		}
-		f := newGenerator(t, writeData(t, tree))
-		if _, err := f.NewTemplate(row); err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: NewTemplate = %v, want the inline template refused the same way", c.name, err)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			row := `{"format":"","col":` + c.column + `}`
+			files := maps.Clone(datatypeRejectionData)
+			files["row"] = row
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files)))
+			if err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("%s: New = %v, want an error containing %q", c.name, err, c.want)
+			}
+			f := newGenerator(t, writeData(t, datatypeRejectionData))
+			if _, err := f.NewTemplate(row); err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("%s: NewTemplate = %v, want the inline template refused the same way", c.name, err)
+			}
+		})
 	}
+}
+
+func TestDatatypeRejectsItemsOfTwoDeclaredDatatypes(t *testing.T) {
 	for column, want := range map[string]string{
 		`[{"format":"1","datatype":"integer"},{"format":"true","datatype":"boolean"}]`: "its items hold integer and boolean; a column holds one datatype",
 		`[{"format":"1","datatype":"integer"},{"format":"1.5","datatype":"number"}]`:   "its items hold integer and number; a column holds one datatype",
 	} {
-		row := `{"format":"","col":` + column + `}`
-		if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"row": row}))); err == nil || !strings.HasSuffix(err.Error(), want) {
-			t.Errorf("items of two declared datatypes %s: New = %v, want an error ending %q", column, err, want)
-		}
-		if _, err := newGenerator(t, writeData(t, tree)).NewTemplate(row); err == nil || !strings.HasSuffix(err.Error(), want) {
-			t.Errorf("items of two declared datatypes %s: NewTemplate = %v, want an error ending %q", column, err, want)
-		}
+		t.Run(column, func(t *testing.T) {
+			row := `{"format":"","col":` + column + `}`
+			if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"row": row}))); err == nil || !strings.HasSuffix(err.Error(), want) {
+				t.Errorf("items of two declared datatypes %s: New = %v, want an error ending %q", column, err, want)
+			}
+			if _, err := newGenerator(t, writeData(t, datatypeRejectionData)).NewTemplate(row); err == nil || !strings.HasSuffix(err.Error(), want) {
+				t.Errorf("items of two declared datatypes %s: NewTemplate = %v, want an error ending %q", column, err, want)
+			}
+		})
 	}
+}
+
+func TestAColumnReadingOneWhoseItemsDisagreeReportsTheColumnReadFirst(t *testing.T) {
 	_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{
 		"a": `{"format":"","c":["{/b.x}",{"format":"1","datatype":"integer"}]}`,
 		"b": `{"format":"","x":["2",{"format":"1","datatype":"integer"}]}`,
@@ -123,6 +140,29 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 }
 
 var jsonInteger = regexp.MustCompile(`^(0|-?[1-9][0-9]*)$`)
+
+func checkEachRecordWritesItsColumnAsItsDatatype(t *testing.T, f *Generator, column string) {
+	t.Helper()
+	for i := 0; i < 200; i++ {
+		r, err := f.FakeRecord("row")
+		if err != nil {
+			t.Fatal(err)
+		}
+		var m map[string]any
+		if err := json.Unmarshal([]byte(r.JSON()), &m); err != nil {
+			t.Errorf("%s: JSON() = %s is not JSON: %v", column, r.JSON(), err)
+			break
+		}
+		c := r.Columns()[0]
+		_, isBool := m["col"].(bool)
+		_, isNumber := m["col"].(float64)
+		_, int64Err := strconv.ParseInt(c.Value, 10, 64)
+		if c.DataType == DataTypeBoolean && !isBool || c.DataType != DataTypeBoolean && !isNumber || c.DataType == DataTypeInteger && (!jsonInteger.MatchString(c.Value) || int64Err != nil) {
+			t.Errorf("%s: column %+v written as %s, want its datatype", column, c, r.JSON())
+			break
+		}
+	}
+}
 
 func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 	cat := `[{"format":"{code}","code":"200"},{"format":"{code}","code":"404","reason":"Not Found"}]`
@@ -154,46 +194,29 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 		`{"format":"{/src.code}","datatype":"integer"}`,
 		`{"format":"{/src.n}","datatype":"number"}`,
 	} {
-		row := `{"format":"","col":` + column + `}`
-		src := `{"format":"","code":["200","404"],"n":{"format":"{int(1,9)}","datatype":"integer"}}`
-		f, err := New(WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row, "src": src})), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Errorf("%s: New = %v, want it loaded", column, err)
-			continue
-		}
-		for i := 0; i < 200; i++ {
-			r, err := f.FakeRecord("row")
+		t.Run(column, func(t *testing.T) {
+			row := `{"format":"","col":` + column + `}`
+			src := `{"format":"","code":["200","404"],"n":{"format":"{int(1,9)}","datatype":"integer"}}`
+			f, err := New(WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row, "src": src})), WithSeed(1), onTestDay)
 			if err != nil {
-				t.Fatal(err)
+				t.Errorf("%s: New = %v, want it loaded", column, err)
+				return
 			}
-			var m map[string]any
-			if err := json.Unmarshal([]byte(r.JSON()), &m); err != nil {
-				t.Errorf("%s: JSON() = %s is not JSON: %v", column, r.JSON(), err)
-				break
-			}
-			c := r.Columns()[0]
-			_, isBool := m["col"].(bool)
-			_, isNumber := m["col"].(float64)
-			_, int64Err := strconv.ParseInt(c.Value, 10, 64)
-			if c.DataType == DataTypeBoolean && !isBool || c.DataType != DataTypeBoolean && !isNumber || c.DataType == DataTypeInteger && (!jsonInteger.MatchString(c.Value) || int64Err != nil) {
-				t.Errorf("%s: column %+v written as %s, want its datatype", column, c, r.JSON())
-				break
-			}
-		}
+			checkEachRecordWritesItsColumnAsItsDatatype(t, f, column)
+		})
 	}
 }
 
-func TestNullColumn(t *testing.T) {
+func nullColumns(t *testing.T) *Generator {
+	t.Helper()
 	dir := writeData(t, map[string]string{
 		"row": `{"format":"[{middle}]","gone":null,"middle":[null,"Ann"],"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 	})
-	f := newGenerator(t, dir, WithSeed(1))
-	drew := map[bool]bool{}
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
-		}
+	return newGenerator(t, dir, WithSeed(1))
+}
+
+func TestNullColumn(t *testing.T) {
+	eachRecordOf(t, nullColumns(t), "row", 100, func(r *Record) {
 		gone, middle, score := r.Columns()[0], r.Columns()[1], r.Columns()[2]
 		if !gone.Null || gone.Value != "" || gone.DataType != DataTypeString {
 			t.Fatalf("gone = %+v, want a null string column every draw", gone)
@@ -204,17 +227,31 @@ func TestNullColumn(t *testing.T) {
 		if score.DataType != DataTypeInteger {
 			t.Fatalf("score = %+v, want the integer its non-null item declares, null or not", score)
 		}
-		drew[middle.Null] = true
-	}
+	})
+}
+
+func TestNullableColumnDrawsNullAndAValue(t *testing.T) {
+	drew := map[bool]bool{}
+	eachRecordOf(t, nullColumns(t), "row", 100, func(r *Record) {
+		drew[r.Columns()[1].Null] = true
+	})
 	if len(drew) != 2 {
 		t.Errorf("middle drew only null=%v in 100 records, want both", drew)
 	}
+}
+
+func TestNullRendersAsNoText(t *testing.T) {
+	f := nullColumns(t)
 	if v := fake(t, f, "row"); v != "[]" && v != "[Ann]" {
 		t.Errorf("Fake(row) = %q, want a null to render as \"\"", v)
 	}
 	if v := fake(t, f, "row.gone"); v != "" {
 		t.Errorf("Fake(row.gone) = %q, want \"\"", v)
 	}
+}
+
+func TestListNamesANullColumn(t *testing.T) {
+	f := nullColumns(t)
 	if !slices.Contains(f.List(), "row.gone") {
 		t.Errorf("List() = %v, want the null column row.gone, which Fake accepts", f.List())
 	}
@@ -225,14 +262,16 @@ func TestAReadOfAPathIntoAColumnIsNotThatColumn(t *testing.T) {
 		`{"format":"{w.x as p}{p}","w":{"format":"{int(1,9)}","datatype":"integer","x":"abc"},"c":"{p}"}`,
 		`{"format":"{w as p}{p}","w":{"format":"{int(1,9)}","datatype":"integer","x":"abc"},"c":"{p.x}"}`,
 	} {
-		f := newGenerator(t, writeData(t, map[string]string{"row": src}), WithSeed(1))
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if c := r.Columns()[0]; c.Name != "c" || c.DataType != DataTypeString || c.Value != "abc" {
-			t.Errorf("%s: columns = %+v, want c the string abc", src, r.Columns())
-		}
+		t.Run(src, func(t *testing.T) {
+			f := newGenerator(t, writeData(t, map[string]string{"row": src}), WithSeed(1))
+			r, err := f.FakeRecord("row")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if c := r.Columns()[0]; c.Name != "c" || c.DataType != DataTypeString || c.Value != "abc" {
+				t.Errorf("%s: columns = %+v, want c the string abc", src, r.Columns())
+			}
+		})
 	}
 }
 
@@ -262,11 +301,7 @@ func TestADeclaredDatatypeOverAColumnRead(t *testing.T) {
 		"row": `{"format":"","same":{"format":"{/src.score}","datatype":"integer"},"text":{"format":"{/src.score}","datatype":"string"}}`,
 	}), WithSeed(1), onTestDay)
 	empty := 0
-	for i := 0; i < 50; i++ {
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
-		}
+	eachRecordOf(t, f, "row", 50, func(r *Record) {
 		same, text := r.Columns()[0], r.Columns()[1]
 		if same.DataType != DataTypeInteger || text.DataType != DataTypeString || text.Null {
 			t.Fatalf("columns = %+v, want an integer column restated and a string column never null", r.Columns())
@@ -274,7 +309,7 @@ func TestADeclaredDatatypeOverAColumnRead(t *testing.T) {
 		if text.Value == "" {
 			empty++
 		}
-	}
+	})
 	if empty == 0 {
 		t.Error(`50 records never read a null as "", want the string column to render one so`)
 	}
