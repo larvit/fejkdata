@@ -14,7 +14,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
-  does every Danish and Norwegian one holding a street address, every Finnish one off Åland, beside a sample of US places. Each address takes its street and
+  does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
@@ -1122,12 +1122,12 @@ as `København K` holds many postnumre. A kommune's `code` is four digits, `0101
 writes it, and a region's is `1084`, as DAGI, the register of Denmark's divisions, writes it. Christiansø ships no place: its addresses lie in the
 postdistrikt Gudhjem, on Bornholm. A Danish street sits under each postdistrikt where it has an address.
 
-`fi_FI.address` prints `geo.FI.address`, such as `Huvilakatu 34\n00700 Helsinki`, with a delivery
-letter in lower case, `12a`. Posti's files hold no street on Åland, so Åland ships no place. Posti
+`fi_FI.address` prints `geo.FI.address`, such as `Huvilakatu 34\n00700 Helsinki`. A delivery letter
+is written in lower case, as in `12a`. Posti's files hold no street on Åland, so Åland ships no place. Posti
 writes a postitoimipaikka in capitals, `HEINOLA KK`, and `geo.FI` writes it as a place name, `Heinola kk`.
 A kunta's `code` is three digits, `091`, and a maakunta's two, `01`, as Statistics Finland writes them.
-A street carries its Swedish name under `swedish-name`, `Nylandsvägen` beside `Uudenmaantie`, and its
-Finnish name where Posti gives no Swedish one. A Finnish street sits under each postitoimipaikka where
+A street's `swedish-name` is the Swedish name Posti gives it most often in its postitoimipaikka, such as
+`Nylandsvägen` for `Uudenmaantie`. Where Posti gives none, `swedish-name` holds the Finnish name. A Finnish street sits under each postitoimipaikka where
 Posti lists it.
 
 `nb_NO.address` prints `geo.NO.address`, such as `Thorstein Stenbeks vei 65\n3613 Kongsberg`.

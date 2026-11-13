@@ -1620,8 +1620,8 @@ Danish ENK's has none.
 No open bulk file of Finnish company names was found. So the name shapes and the words of
 `company-coined` and `company-word` are a language model's recall of how Finnish companies are named,
 each shape and word weighing the same. An open bulk file of Finnish company names replaces them. The names
-don't read a place, since `geo/FI` didn't exist when they shipped. A later change may add a place and a
-trade word as a name's shape, as `da_DK.company` has.
+don't read a place. A later change may add a place from `geo/FI` and a trade word as a name's shape, as
+`da_DK.company` has.
 
 ## A record's `let` fields write no column
 
@@ -1792,10 +1792,14 @@ Item 393 builds it. Valid while the README's Audience names bulk fixture authors
 
 ## `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
 
-Posti's basic address file names every street under its postinumero, in Finnish and, where Posti has one, in Swedish. Digiroad names the streets too, but only as road links, which a street must then be placed in a postinumero from. Posti's file comes under the terms its postcode file already does, so `geo.FI` takes both from Posti. Those terms let anyone download the files and pass them on, if the recipient learns the terms and the day each file was downloaded; DATA-LICENSES.md names both, and ships in every package.
+2026-11-13, in the chunk that added `geo.FI`. Serves goal 3.2.
 
-The file holds no street on Åland, so Åland's maakunta and kunnat ship no place. A postinumero weighs its residents in Statistics Finland's Paavo, and a street its ranges in Posti's file, since neither source counts addresses. Goal 3.2. Valid while Posti's files are free to download and hold no street on Åland.
+Posti's basic address file names every street under its postinumero, in Finnish and, where Posti has one, in Swedish. Digiroad names the streets too, but as road links without a postinumero, so each link would have to be placed in one. Both of Posti's files come under one set of terms, so `geo.FI` takes its postinumerot and its streets from Posti. The terms let anyone download the files and pass them on, provided the recipient is "aware of the terms of use for the service as well as the download date". DATA-LICENSES.md links the terms and names both days, and the archives, the packages and the image all carry it.
 
-## A Finnish street's Swedish name is `swedish-name`, and its Finnish one where Posti gives none
+The file holds no street on Åland, so Åland's maakunta and kunnat ship no place. A postinumero weighs its residents in Statistics Finland's Paavo, and a street its ranges in Posti's file, since neither source counts addresses. Valid while Posti's files are free to download and hold no street on Åland.
 
-A street carries the Swedish name Posti gives it most often in a postinumero, or else its Finnish name. A TSV cell can't be empty, and a Swedish address writes the Finnish name of a street that has no Swedish one. Two readers benched the column's spelling and both chose `swedish-name` over `name-sv`. Goal 2.1. Valid while a street table names one language per column.
+## A Finnish street's `swedish-name` holds its Finnish name where Posti gives no Swedish one
+
+2026-11-13, in the chunk that added `geo.FI`, from a bench of two readers. Serves goal 2.1.
+
+A street's `swedish-name` is the Swedish name Posti gives it most often in its postitoimipaikka, the first in the alphabet winning a tie. Where Posti gives none, it is the Finnish name: a TSV cell can't be empty, and a Swedish address writes the Finnish name of a street that has no Swedish one. Both readers chose the spelling `swedish-name` over `name-sv`. Valid while a street table names one language per column.

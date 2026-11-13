@@ -145,7 +145,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A where clause also filters a call drawing from an alphabet, reads a name unquoted, and may end in `else` and a fallback
 - One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`
 - `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
-- A Finnish street's Swedish name is `swedish-name`, and its Finnish one where Posti gives none
+- A Finnish street's `swedish-name` holds its Finnish name where Posti gives no Swedish one
 
 # Scoring run
 

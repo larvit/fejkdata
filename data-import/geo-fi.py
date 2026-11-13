@@ -8,13 +8,13 @@ every street under its postinumero, in Finnish and, where Posti has one, in Swed
 house number range. A postitoimipaikka is a locality. Its postinumerot are the normal ones under which BAF lists a
 street, each weighted by its residents in Statistics Finland's Paavo; one without residents is dropped. A
 locality's population is its postinumerot's residents summed, and its kunta is the one BAF places most of its
-ranges in. A street is weighted by its ranges, and its Swedish name is the one Posti gives most often, or its
-Finnish name where Posti gives none.
+ranges in. A street is weighted by its ranges in the locality. Its Swedish name is the one Posti gives it most
+often there, or its Finnish name where Posti gives none.
 
 Statistics Finland's classification names each kunta and places it in its maakunta, and its table 11ra gives
 both their populations. Posti's files hold no street on Åland, so its maakunta ships no place. Posti writes a
-postitoimipaikka in capitals, and `recased` writes it as a place name. address.json draws a house number as often
-as the ends of BAF's ranges carry one of its length, with a delivery letter or without.
+postitoimipaikka in capitals, and `recased` writes it as a place name. address.json weighs each length of house
+number, with a delivery letter or without, by how many ends of BAF's ranges carry one.
 """
 import collections
 import io
@@ -56,9 +56,10 @@ def field(line, start, length):
 
 
 def recased(name, kunnat):
-    """A postitoimipaikka written as a place name: HEINOLA KK to Heinola kk, INHAN TEHTAAT to Inhan tehtaat, after
-    a genitive, KUOPPA-AHO to Kuoppa-aho, a part opening with the vowel the part before it ends in, and YLI-II to
-    Yli-Ii, since Ii is a kunta. kunnat holds the kunnat's names in capitals."""
+    """A postitoimipaikka written as a place name, each word and hyphenated part capitalised, with three exceptions.
+    An abbreviation stays lower case: HEINOLA KK is Heinola kk. A word after a genitive does too: INHAN TEHTAAT is
+    Inhan tehtaat. So does a part opening with the vowel the part before it ends in, KUOPPA-AHO is Kuoppa-aho, unless
+    the part is a kunta: YLI-II is Yli-Ii. kunnat holds the kunnat's names in capitals."""
     words = []
     for word in name.lower().split(" "):
         parts = []
@@ -104,8 +105,8 @@ def mainland(region_names, municipality_of, people):
 
 
 def street_name(name):
-    """Whether a BAF name is a street's, not a highway's such as Valtatie 23, a postinumero or an island's such as
-    Mustalampi, Lammassaari or Makkarasaari/Lapinsaari."""
+    """Whether a BAF name is a street's, not a highway's such as `Valtatie 23`, a postinumero, or an island's or a
+    lake's such as `Mustalampi, Lammassaari` or `Makkarasaari/Lapinsaari`."""
     return bool(name) and not NOT_A_STREET.search(name)
 
 
@@ -127,8 +128,8 @@ def house_numbers(line):
 
 
 def tally(baf, codes):
-    """Per locality, the ranges of each street and kunta, each street's Swedish names, the postinumerot, and the
-    house numbers at the ranges' ends, from BAF's ranges under a normal postinumero."""
+    """From BAF's ranges under a normal postinumero: per locality, the ranges of each street and kunta, each
+    street's Swedish names and the postinumerot; and over them all, the house numbers at the ranges' ends."""
     streets, swedish, in_municipality = collections.Counter(), collections.defaultdict(collections.Counter), collections.Counter()
     postal_codes, numbers = collections.defaultdict(set), collections.Counter()
     for line in baf:
