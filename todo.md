@@ -6,14 +6,12 @@
 
 `Bar = 0`
 
-`Next ID = 454`
+`Next ID = 455`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 299 | 0.5.0 |  |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
-| 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 4 | 2 | 1 | 5 | 7 | code health by 2 | 0.6 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
@@ -98,6 +96,7 @@
 | 264 | 0.8.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.7 |
 | 268 | 0.8.0 |  |  | **Add `misc.lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword` and `quote`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.7 |
 | 387 | 0.8.0 |  |  | **Let a template draw a number from a bounded normal distribution, so durations and start times cluster without weighted ranges.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.7 |
+| 454 | 0.8.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
 | 91 | 0.8.0 |  |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 4 | 1.6 |
 | 109 | 0.8.0 |  | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 1 | 2 | 1 | 2 | 4 | code health by 1 | 1.6 |
 | 23 | 0.8.0 |  |  | **Give every other shipped category that could reach something real a path that never does.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.3 by 6 | 1.6 |
@@ -230,14 +229,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 299. Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.
-
-Posti's free postal code file names each postinumeroalue.
-
-### 300. Give `geo/FI`'s places their streets.
-
-Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus a Swedish-name column where the municipality is bilingual.
 
 ### 402. Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.
 
@@ -577,6 +568,10 @@ Tables or choices, from lorem ipsum and lists an LLM writes.
 ### 387. Let a template draw a number from a bounded normal distribution, so durations and start times cluster without weighted ranges.
 
 From a real-world use case, a scheduler's fixtures: durations cluster around 2 hours and starts around 08:00. A weighted choice of `{int()}` ranges fills a typed column today, coarsely. Bounds are required, so a typed column's proof and `calc`'s still hold. A writer panel picks the spelling, between a third argument to `{int()}` and a function of its own, and what a draw outside the bounds does.
+
+### 454. Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.
+
+Posti's postcode file names each postitoimipaikka in Swedish too (field 49, 30 characters), and Statistics Finland's classification names each kunta in Swedish. Add a `swedish-name` column to the locality and municipality tables, as the street table has, falling back to the Finnish name where no Swedish one exists, and recase Posti's Swedish names as `recased` does the Finnish ones.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
