@@ -413,25 +413,17 @@ func (t *Table[O]) drawUnder(s *drawstate.State, pr int) int {
 	return rows[s.Weighted(lookup.childCum[k])]
 }
 
-// DrawIn returns the row of t that p pins. Where p pins none, it draws one inside the nearest
-// ancestor p pins, drawing t's parent there first when that ancestor is higher up; with no
-// ancestor pinned, it draws over the whole table. It pins the row drawn and its ancestors' rows in p.
+// DrawIn returns the row of t that p pins. Where p pins none but pins an ancestor, it draws t's
+// parent row inside that ancestor, the same way, and t's row under it; with no ancestor pinned, it
+// draws over the whole table. It pins the row drawn and its ancestors' rows in p.
 func (t *Table[O]) DrawIn(s *drawstate.State, p *Pins[O]) int {
 	if r, ok := p.Pinned(t); ok {
 		return r
 	}
-	r := -1
-	for a := t.parent; a != nil && r < 0; a = a.parent {
-		if _, ok := p.Pinned(a); !ok {
-			continue
-		}
-		if t.parent != a {
-			t.parent.DrawIn(s, p)
-		}
-		pr, _ := p.Pinned(t.parent)
-		r = t.drawUnder(s, pr)
-	}
-	if r < 0 {
+	var r int
+	if p.nearestPinned(t.parent) != nil {
+		r = t.drawUnder(s, t.parent.DrawIn(s, p))
+	} else {
 		r = t.Draw(s)
 	}
 	p.pin(t, r)
