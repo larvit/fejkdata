@@ -1,0 +1,11 @@
+{
+	"index": {
+		"geo.FI.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"geo.FI.locality": {"parent":"municipality","paths":["","lat","lon","municipality","name","population","postal-code","postal-code.code","postal-code.locality","postal-code.population","street","street.addresses","street.locality","street.name","street.swedish-name"]},
+		"geo.FI.municipality": {"parent":"region","paths":["","code","locality","locality.lat","locality.lon","locality.municipality","locality.name","locality.population","locality.postal-code","locality.postal-code.code","locality.postal-code.locality","locality.postal-code.population","locality.street","locality.street.addresses","locality.street.locality","locality.street.name","locality.street.swedish-name","name","population","region"]},
+		"geo.FI.postal-code": {"parent":"locality","paths":["","code","locality","population"]},
+		"geo.FI.region": {"paths":["","code","municipality","municipality.code","municipality.locality","municipality.locality.lat","municipality.locality.lon","municipality.locality.municipality","municipality.locality.name","municipality.locality.population","municipality.locality.postal-code","municipality.locality.postal-code.code","municipality.locality.postal-code.locality","municipality.locality.postal-code.population","municipality.locality.street","municipality.locality.street.addresses","municipality.locality.street.locality","municipality.locality.street.name","municipality.locality.street.swedish-name","municipality.name","municipality.population","municipality.region","name","population","timezone"]},
+		"geo.FI.street": {"parent":"locality","paths":["","addresses","locality","name","swedish-name"]}
+	},
+	"namespace": "geo.FI"
+}
