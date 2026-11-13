@@ -14,6 +14,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
+from typing import Any
 
 SECTION = re.compile(r"^## \[?(?P<name>[^\]\s]+)\]?[^\n]*\n?(?P<body>.*?)(?=^## |\Z)", re.M | re.S)
 """A changelog section: its heading's name, Unreleased or a version, and its body."""
@@ -23,7 +24,7 @@ HEADING = re.compile(r" {0,3}##(?=[ \t]|$)")
 READABLE = re.compile(rf"## (?:\[(?:Unreleased|{VERSION.pattern})\]|Unreleased|{VERSION.pattern})(?: - \d{{4}}-\d{{2}}-\d{{2}})?[ \t]*")
 
 
-def request(path: str, data: dict | None = None):
+def request(path: str, data: dict[str, Any] | None = None) -> Any:
 	req = urllib.request.Request(
 		f"{os.environ['FORGE_API_URL']}/repos/{os.environ['FORGE_REPOSITORY']}/{path}",
 		data=json.dumps(data).encode() if data else None,

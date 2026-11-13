@@ -38,7 +38,7 @@ def section(version: str, date: str, breaking: list[str], changed: list[str], la
 	return text
 
 
-def releases(changelog: str) -> list[re.Match]:
+def releases(changelog: str) -> list[re.Match[str]]:
 	"""The changelog's release sections, newest first."""
 	return [m for m in publish_release.SECTION.finditer(changelog) if publish_release.VERSION.fullmatch(m["name"])]
 
@@ -50,11 +50,11 @@ def insert_section(changelog: str, text: str) -> str:
 	return changelog[:at] + text + changelog[at:]
 
 
-def unreleased(changelog: str) -> re.Match | None:
+def unreleased(changelog: str) -> re.Match[str] | None:
 	return next((m for m in publish_release.SECTION.finditer(changelog) if m["name"] == "Unreleased"), None)
 
 
-def under_unreleased(changelog: str, heading: str) -> re.Match | None:
+def under_unreleased(changelog: str, heading: str) -> re.Match[str] | None:
 	"""Unreleased's subsection under the heading, with what it holds and the blank lines after them."""
 	section = unreleased(changelog)
 	subsection = re.compile(rf"^### {heading}\n(?P<held>.*?)(?=^### |\Z)", re.M | re.S)
@@ -109,7 +109,7 @@ def add(changelog: str, heading: str, lines: list[str], first: bool) -> str:
 	return join_subsection(changelog, found, bullets) if found else new_subsection(changelog, heading, bullets, first)
 
 
-def join_subsection(changelog: str, found: re.Match, bullets: str) -> str:
+def join_subsection(changelog: str, found: re.Match[str], bullets: str) -> str:
 	"""The changelog with the bullets after the subsection's last bullet, or after its text where it holds none."""
 	inside = list(BULLET.finditer(changelog, found.start("held"), found.end()))
 	if inside:

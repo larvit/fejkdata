@@ -58,5 +58,6 @@ SECTION = (
 )
 
 
-def carrying(go="1.27.1", goreleaser="v2.18.3", go_mod=GO_MOD.format("1.22", "v0.29.0"), go_sum=""):
-	return carried.Carried(tuple(map(int, go.split("."))), goreleaser, go_mod, go_sum)
+def carrying(go: str = "1.27.1", goreleaser: str | None = "v2.18.3", go_mod: str = GO_MOD.format("1.22", "v0.29.0"), go_sum: str = "") -> carried.Carried:
+	major, minor, patch = map(int, go.split("."))
+	return carried.Carried((major, minor, patch), goreleaser, go_mod, go_sum)

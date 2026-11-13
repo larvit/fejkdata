@@ -38,6 +38,7 @@ import sys
 import tempfile
 import urllib.error
 import urllib.parse
+from collections.abc import Iterator
 from typing import Callable, NamedTuple
 
 import carried
@@ -85,7 +86,7 @@ def write(path: str, text: str) -> None:
 		f.write(text)
 
 
-def run(*argv: str, cwd: str | None = None, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess:
+def run(*argv: str, cwd: str | None = None, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess[str]:
 	done = subprocess.run(argv, cwd=cwd, capture_output=True, text=True)
 	if done.returncode not in ok:
 		raise ValueError(f"`{' '.join(argv[:2])}` failed: {(done.stderr or done.stdout).strip()}")
@@ -98,7 +99,8 @@ def out(*argv: str, cwd: str | None = None) -> str:
 
 def last_release() -> str:
 	try:
-		return publish_release.request("releases/latest")["tag_name"]
+		tag: str = publish_release.request("releases/latest")["tag_name"]
+		return tag
 	except (urllib.error.URLError, KeyError) as err:
 		raise ValueError(f"cannot read the last release from the forge: {err}") from err
 
@@ -126,7 +128,7 @@ def build_and_push(tree: str, version: str) -> str:
 
 
 @contextlib.contextmanager
-def worktree(root: str, tag: str, path: str):
+def worktree(root: str, tag: str, path: str) -> Iterator[str]:
 	out("git", "worktree", "add", "-q", "--detach", path, tag, cwd=root)
 	try:
 		yield path
@@ -230,7 +232,7 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 		path = os.path.join(tree, "CHANGELOG.md")
 		write(path, changelog.insert_section(read(path), text))
 		carry_workflows(root, tree)
-		if patch.goreleaser != released.goreleaser:
+		if patch.goreleaser and patch.goreleaser != released.goreleaser:
 			carry_goreleaser(root, tree, patch.goreleaser)
 		code, tag = effects.publish(read(path), effects.build_and_push(tree, next_patch(last)))
 	if tag:
