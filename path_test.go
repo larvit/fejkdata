@@ -33,63 +33,93 @@ func TestDescendIntoStringErrors(t *testing.T) {
 	}
 }
 
-func TestPathRefusesALevelCarryingARepeat(t *testing.T) {
+func generatorOfLevelsCarryingARepeat(t *testing.T) *Generator {
+	t.Helper()
 	dir := writeData(t, map[string]string{
 		"outer": `{"format":"{inner}","inner":{"format":"{a}","a":"v","repeat":3,"separator":","}}`,
 		"x":     `{"format":"{a}","a":"v","repeat":3,"separator":","}`,
 		"y":     `{"format":"{p}","p":[{"format":"{a}","a":"v","repeat":3,"separator":","},{"format":"{a}","a":"w"}]}`,
 	})
-	f := newGenerator(t, dir, WithSeed(1))
+	return newGenerator(t, dir, WithSeed(1))
+}
+
+func TestPathRefusesALevelCarryingARepeat(t *testing.T) {
+	f := generatorOfLevelsCarryingARepeat(t)
 	for path, level := range map[string]string{"x.a": "x", "outer.inner.a": "outer.inner"} {
-		want := fmt.Sprintf("the level %q carries a repeat", level)
-		if got, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("Fake(%s) = %q, %v, want %s", path, got, err, want)
-		}
-		if _, err := f.NewTemplate("{/" + path + "}"); err == nil || !strings.Contains(err.Error(), fmt.Sprintf("the level %q carries a repeat", "/"+level)) {
-			t.Errorf("NewTemplate({/%s}) = %v, want the level /%s named", path, err, level)
-		}
-	}
-	for _, p := range f.List() {
-		if _, err := f.Fake(p); err != nil {
-			t.Errorf("Fake(%q) = %v, but List() advertises it", p, err)
-		}
-	}
-	for tmpl, level := range map[string]string{"{/outer.inner as p}{p.a}": "p", "{/outer as o}{o.inner.a}": "o.inner"} {
-		if _, err := f.NewTemplate(tmpl); err == nil || !strings.Contains(err.Error(), fmt.Sprintf("the level %q carries a repeat", level)) {
-			t.Errorf("NewTemplate(%s) = %v, want the level %s named", tmpl, err, level)
-		}
+		t.Run(path, func(t *testing.T) {
+			want := fmt.Sprintf("the level %q carries a repeat", level)
+			if got, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("Fake(%s) = %q, %v, want %s", path, got, err, want)
+			}
+			if _, err := f.NewTemplate("{/" + path + "}"); err == nil || !strings.Contains(err.Error(), fmt.Sprintf("the level %q carries a repeat", "/"+level)) {
+				t.Errorf("NewTemplate({/%s}) = %v, want the level /%s named", path, err, level)
+			}
+		})
 	}
 }
 
-// TestPathThroughChoice pins the rule that keeps a dotted path from rendering on
-// one call and failing on the next: every variant must carry the rest of the path.
-func TestPathThroughChoice(t *testing.T) {
+func TestListAdvertisesNoPathThroughALevelCarryingARepeat(t *testing.T) {
+	f := generatorOfLevelsCarryingARepeat(t)
+	for _, p := range f.List() {
+		t.Run(p, func(t *testing.T) {
+			if _, err := f.Fake(p); err != nil {
+				t.Errorf("Fake(%q) = %v, but List() advertises it", p, err)
+			}
+		})
+	}
+}
+
+func TestPathThroughANameRefusesALevelCarryingARepeat(t *testing.T) {
+	f := generatorOfLevelsCarryingARepeat(t)
+	for tmpl, level := range map[string]string{"{/outer.inner as p}{p.a}": "p", "{/outer as o}{o.inner.a}": "o.inner"} {
+		t.Run(tmpl, func(t *testing.T) {
+			if _, err := f.NewTemplate(tmpl); err == nil || !strings.Contains(err.Error(), fmt.Sprintf("the level %q carries a repeat", level)) {
+				t.Errorf("NewTemplate(%s) = %v, want the level %s named", tmpl, err, level)
+			}
+		})
+	}
+}
+
+func generatorOfChoicesUnderAPath(t *testing.T) *Generator {
+	t.Helper()
 	dir := writeData(t, map[string]string{
 		"every":  `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2","g":"x"}]`,
 		"notall": `[{"format":"{f}","f":"1"},"plain"]`,
 		"some":   `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2","extra":"x"}]`,
 	})
-	f := newGenerator(t, dir, WithSeed(1))
-	for i := 0; i < 200; i++ {
-		if got := fake(t, f, "every.f"); got != "1" && got != "2" {
+	return newGenerator(t, dir, WithSeed(1))
+}
+
+func TestPathThroughAChoiceDrawsWhatEveryVariantCarries(t *testing.T) {
+	f := generatorOfChoicesUnderAPath(t)
+	eachDraw(200, func() string { return fake(t, f, "every.f") }, func(got string) {
+		if got != "1" && got != "2" {
 			t.Fatalf("every.f = %q, want 1 or 2", got)
 		}
-	}
-	// A path only some variants carry is reported against what all of them carry.
+	})
+}
+
+func TestPathOnlySomeVariantsCarryNamesWhatAllCarry(t *testing.T) {
+	f := generatorOfChoicesUnderAPath(t)
 	if _, err := f.Fake("some.extra"); err == nil || !strings.Contains(err.Error(), "all carry [f]") {
 		t.Errorf("Fake(some.extra) = %v, want it to name what every variant carries", err)
 	}
-	var first string
-	for i := 0; i < 200; i++ {
+}
+
+// TestPathNotEveryVariantCarriesFailsTheSameOnEveryCall pins the rule that keeps a
+// dotted path from rendering on one call and failing on the next: every variant
+// must carry the rest of the path.
+func TestPathNotEveryVariantCarriesFailsTheSameOnEveryCall(t *testing.T) {
+	f := generatorOfChoicesUnderAPath(t)
+	failures := tallyDraws(200, func() string {
 		_, err := f.Fake("notall.f")
 		if err == nil {
 			t.Fatal("notall.f = nil error, want the same failure every call")
 		}
-		if i == 0 {
-			first = err.Error()
-		} else if err.Error() != first {
-			t.Fatalf("notall.f error varies between calls:\n  %s\n  %s", first, err.Error())
-		}
+		return err.Error()
+	})
+	if len(failures) != 1 {
+		t.Fatalf("notall.f error varies between calls: %v", failures)
 	}
 }
 
