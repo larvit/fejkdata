@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -25,13 +26,13 @@ func TestANameIsOnePickOfEverythingUnderIt(t *testing.T) {
 	files := nameTables()
 	files["card.json"] = `"{/region as r}{r.name}|{r.municipality.name}|{r.municipality.code}|{r}"`
 	f := newGenerator(t, writeFiles(t, files), WithSeed(3))
-	for i := 0; i < 200; i++ {
-		got := strings.Split(fake(t, f, "card"), "|")
+	eachDraw(200, func() string { return fake(t, f, "card") }, func(card string) {
+		got := strings.Split(card, "|")
 		region, municipality, code, whole := got[0], got[1], got[2], got[3]
 		if municipalityCode[municipality] != code || municipalityRegion[municipality] != region || whole != region {
 			t.Fatalf("card = %q, want one region, and one municipality inside it", got)
 		}
-	}
+	})
 }
 
 func TestANameReadWholeAgreesWithItsPaths(t *testing.T) {
@@ -40,12 +41,12 @@ func TestANameReadWholeAgreesWithItsPaths(t *testing.T) {
 		"card":   `"{/person as p}{p}|{p.last}|{p.first}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(5))
-	for i := 0; i < 200; i++ {
-		got := strings.Split(fake(t, f, "card"), "|")
+	eachDraw(200, func() string { return fake(t, f, "card") }, func(card string) {
+		got := strings.Split(card, "|")
 		if got[0] != got[2]+" "+got[1] {
 			t.Fatalf("card = %q, want the whole person to match its parts", got)
 		}
-	}
+	})
 }
 
 func TestANameKeepsWhatItsPathsAddress(t *testing.T) {
@@ -55,13 +56,13 @@ func TestANameKeepsWhatItsPathsAddress(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(7))
 	differ := false
-	for i := 0; i < 100; i++ {
-		got := strings.Split(fake(t, f, "card"), "|")
+	eachDraw(100, func() string { return fake(t, f, "card") }, func(card string) {
+		got := strings.Split(card, "|")
 		if got[0] != got[1] {
 			t.Fatalf("card = %q, want one pick of n", got)
 		}
 		differ = differ || got[0][0] != got[0][2]
-	}
+	})
 	if !differ {
 		t.Fatal("{w}-{w} under a name drew w once in 100 renders, want each {w} a draw of its own")
 	}
@@ -78,17 +79,24 @@ func TestABindingPrintsNothing(t *testing.T) {
 	}
 }
 
+func eachRecordOf(t *testing.T, f *Generator, n int, path string, check func(r *Record)) {
+	t.Helper()
+	for i := 0; i < n; i++ {
+		r, err := f.FakeRecord(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		check(r)
+	}
+}
+
 func TestSiblingFieldsAndColumnsReadOneName(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person": `{"format":"{first} {last}","first":["Ada","Bo","Cy"],"last":["Byron","Ek","Lind"]}`,
 		"row":    `{"format":"{first} {last}","first":"{/person as p}{p.first}","last":"{p.last}","whole":"{p}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(9))
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
-		}
+	eachRecordOf(t, f, 100, "row", func(r *Record) {
 		c := r.Columns()
 		if c[2].Value != c[0].Value+" "+c[1].Value {
 			t.Fatalf("columns = %v, want one person across them", c)
@@ -96,7 +104,7 @@ func TestSiblingFieldsAndColumnsReadOneName(t *testing.T) {
 		if got := strings.Fields(fake(t, f, "row")); len(got) != 2 {
 			t.Fatalf("row = %q, want a first and a last name", got)
 		}
-	}
+	})
 }
 
 func TestAFieldReadsTheNameItsCategoryBinds(t *testing.T) {
@@ -110,6 +118,12 @@ func TestAFieldReadsTheNameItsCategoryBinds(t *testing.T) {
 	}
 }
 
+func eachWordOf(s string, check func(w string)) {
+	for _, w := range strings.Fields(s) {
+		check(w)
+	}
+}
+
 func TestANameInsideARepeatPicksEachIteration(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"word": `["a","b","c","d","e","f","g","h"]`,
@@ -117,12 +131,12 @@ func TestANameInsideARepeatPicksEachIteration(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(11))
 	seen := map[string]bool{}
-	for _, pair := range strings.Fields(fake(t, f, "line")) {
+	eachWordOf(fake(t, f, "line"), func(pair string) {
 		if pair[0] != pair[1] {
 			t.Fatalf("pair %q, want one pick per iteration", pair)
 		}
 		seen[pair] = true
-	}
+	})
 	if len(seen) < 2 {
 		t.Fatalf("pairs %v, want each iteration to pick anew", seen)
 	}
@@ -134,12 +148,13 @@ func TestANameOutsideARepeatKeepsItsPick(t *testing.T) {
 		"line": `{"format":"{/word as w}{each}","each":{"format":"{w}","repeat":40,"separator":" "}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(13))
-	got := strings.Fields(fake(t, f, "line"))
-	for _, w := range got {
+	line := fake(t, f, "line")
+	got := strings.Fields(line)
+	eachWordOf(line, func(w string) {
 		if w != got[0] {
 			t.Fatalf("line = %q, want one pick on every line", got)
 		}
-	}
+	})
 }
 
 func TestTwoRendersPickTwice(t *testing.T) {
@@ -160,29 +175,37 @@ func TestANameInAnInlineTemplate(t *testing.T) {
 		"person": `{"format":"{first} {last}","first":["Ada","Bo","Cy"],"last":["Byron","Ek","Lind"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(19))
-	for i := 0; i < 50; i++ {
-		got := strings.Split(fakeTemplate(t, f, "{/person as p}{p}|{p.first} {p.last}"), "|")
+	eachDraw(50, func() string { return fakeTemplate(t, f, "{/person as p}{p}|{p.first} {p.last}") }, func(card string) {
+		got := strings.Split(card, "|")
 		if got[0] != got[1] {
 			t.Fatalf("template = %q, want one person", got)
 		}
-	}
+	})
 }
 
 func TestAChoiceItemKeepsTheNamesItBinds(t *testing.T) {
 	f, n, apart := emptyGenerator(1), compiled(t, `{"format":"{x}|{x}","x":[{"format":"{v as w}{w}{w}","v":["a","b"]},"c"]}`), false
-	for i := 0; i < 100; i++ {
-		got := render.Once(f.drawState, n)
+	eachDraw(100, func() string { return render.Once(f.drawState, n) }, func(got string) {
 		halves := strings.Split(got, "|")
-		for _, h := range halves {
-			if h != "aa" && h != "bb" && h != "c" {
-				t.Fatalf("render %q holds %q, want each draw of the item to read one pick twice", got, h)
-			}
+		if i := slices.IndexFunc(halves, func(h string) bool { return h != "aa" && h != "bb" && h != "c" }); i >= 0 {
+			t.Fatalf("render %q holds %q, want each draw of the item to read one pick twice", got, halves[i])
 		}
 		apart = apart || halves[0] != "c" && halves[1] != "c" && halves[0] != halves[1]
-	}
+	})
 	if !apart {
 		t.Error("100 renders of {x}|{x} never drew two different halves, want a pick per draw of the item")
 	}
+}
+
+func withJSONOnBareNames(files map[string]string) map[string]string {
+	out := map[string]string{}
+	for name, body := range files {
+		if !strings.Contains(name, ".") {
+			name += ".json"
+		}
+		out[name] = body
+	}
+	return out
 }
 
 func TestNameErrors(t *testing.T) {
@@ -211,14 +234,10 @@ func TestNameErrors(t *testing.T) {
 			`no field "zz"`},
 		{"read once through a field path that does not resolve", map[string]string{"card": `{"format":"{place as p}{p.zz}","place":{"format":"{x}","x":["a","b"]}}`},
 			`no field "zz"`},
-		{"one arm read twice in an alternation", map[string]string{"cat": `{"format":"{w|w}","w":["a","b"]}`, "card": `"{/cat as n}{n} {n.w}"`},
-			""},
 		{"a field and a path into it in one alternation, the path read from the pick and the field drawing it afresh", map[string]string{"cat": `{"format":"{w|w.x}","w":{"format":"{x}","x":["a","b"]}}`, "card": `"{/cat as n}{n} {n.w}"`},
 			"{w.x}"},
 		{"one field read in two alternations", map[string]string{"cat": `{"format":"{w|v}{w|v}","w":["a","b"],"v":["c","d"]}`, "card": `"{/cat as n}{n} {n.w}"`},
 			`renders field "w" twice`},
-		{"read in a repeat", map[string]string{"nm.json": `{"format":"{first}","rows":"nm.tsv"}`, "nm.tsv": "first\tlast\nAda\tByron\nBo\tEk\n", "person": `{"format":"{first} {last}","first":"{/nm.first}","last":"{/nm.last}"}`, "card": `{"format":"{/person as p}{each}","each":{"format":"{p.first}","repeat":2}}`},
-			""},
 		{"a misspelt name", map[string]string{"word": `["a","b"]`, "card": `"{/word as p}{p}{p}{pp}"`},
 			`no field or name "pp"; the names bound here are "p"`},
 		{"read outside a repeat in the root choice", map[string]string{"word": `["a","b"]`, "card": `[{"format":"{/word as p}{p}{p}","repeat":2},"{p}"]`},
@@ -250,22 +269,26 @@ func TestNameErrors(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			files := map[string]string{}
-			for name, body := range c.files {
-				if !strings.Contains(name, ".") {
-					name += ".json"
-				}
-				files[name] = body
-			}
-			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files)))
-			if c.want == "" {
-				if err != nil {
-					t.Fatalf("New() = %v, want it to load", err)
-				}
-				return
-			}
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, withJSONOnBareNames(c.files))))
 			if err == nil || !strings.Contains(err.Error(), c.want) {
 				t.Fatalf("New() = %v, want an error holding %q", err, c.want)
+			}
+		})
+	}
+}
+
+func TestANameReadTwiceInOneAlternationOrInARepeatLoads(t *testing.T) {
+	cases := []struct {
+		name  string
+		files map[string]string
+	}{
+		{"one arm read twice in an alternation", map[string]string{"cat": `{"format":"{w|w}","w":["a","b"]}`, "card": `"{/cat as n}{n} {n.w}"`}},
+		{"read in a repeat", map[string]string{"nm.json": `{"format":"{first}","rows":"nm.tsv"}`, "nm.tsv": "first\tlast\nAda\tByron\nBo\tEk\n", "person": `{"format":"{first} {last}","first":"{/nm.first}","last":"{/nm.last}"}`, "card": `{"format":"{/person as p}{each}","each":{"format":"{p.first}","repeat":2}}`}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, withJSONOnBareNames(c.files)))); err != nil {
+				t.Fatalf("New() = %v, want it to load", err)
 			}
 		})
 	}
@@ -277,11 +300,11 @@ func TestANameBindsAReferenceFromItsFolder(t *testing.T) {
 		"sv/card": `"{.word as w}{w}{w}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(23))
-	for i := 0; i < 50; i++ {
-		if got := fake(t, f, "sv.card"); got[0] != got[1] {
+	eachDraw(50, func() string { return fake(t, f, "sv.card") }, func(got string) {
+		if got[0] != got[1] {
 			t.Fatalf("sv.card = %q, want one pick", got)
 		}
-	}
+	})
 }
 
 func TestANameBindsAReferencePath(t *testing.T) {
@@ -290,12 +313,12 @@ func TestANameBindsAReferencePath(t *testing.T) {
 		"card":   `"{/person.first as f}{f}|{f}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(29))
-	for i := 0; i < 50; i++ {
-		got := strings.Split(fake(t, f, "card"), "|")
+	eachDraw(50, func() string { return fake(t, f, "card") }, func(card string) {
+		got := strings.Split(card, "|")
 		if got[0] != got[1] {
 			t.Fatalf("card = %q, want one pick", got)
 		}
-	}
+	})
 }
 
 type namedPerson struct {
@@ -303,20 +326,27 @@ type namedPerson struct {
 	Whole string `fake:"{p}"`
 }
 
+func eachNamedPerson(t *testing.T, f *Generator, n int, check func(p namedPerson)) {
+	t.Helper()
+	for i := 0; i < n; i++ {
+		var p namedPerson
+		if err := f.FakeStruct(&p); err != nil {
+			t.Fatal(err)
+		}
+		check(p)
+	}
+}
+
 func TestStructTagsReadOneName(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person": `{"format":"{first} {last}","first":["Ada","Bo","Cy"],"last":["Byron","Ek","Lind"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(31))
-	for i := 0; i < 50; i++ {
-		var p namedPerson
-		if err := f.FakeStruct(&p); err != nil {
-			t.Fatal(err)
-		}
+	eachNamedPerson(t, f, 50, func(p namedPerson) {
 		if !strings.HasPrefix(p.Whole, p.First+" ") {
 			t.Fatalf("struct = %+v, want one person", p)
 		}
-	}
+	})
 }
 
 func TestANameEnteredPastItsCategoryAgreesWithItsWhole(t *testing.T) {
@@ -326,12 +356,12 @@ func TestANameEnteredPastItsCategoryAgreesWithItsWhole(t *testing.T) {
 		"card":   `"{/person as p}{p}|{p.first}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(37))
-	for i := 0; i < 100; i++ {
-		got := strings.Split(fake(t, f, "card"), "|")
+	eachDraw(100, func() string { return fake(t, f, "card") }, func(card string) {
+		got := strings.Split(card, "|")
 		if got[0] != got[1] {
 			t.Fatalf("card = %q, want {p} and {p.first} to read one pick of g", got)
 		}
-	}
+	})
 }
 
 func TestANameKeepsItsPickInARepeatReachedByPath(t *testing.T) {
@@ -342,12 +372,15 @@ func TestANameKeepsItsPickInARepeatReachedByPath(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(41))
 	for _, path := range []string{"line.each", "far"} {
-		got := strings.Fields(fake(t, f, path))
-		for _, w := range got {
-			if w != got[0] {
-				t.Fatalf("%s = %q, want one pick on every line", path, got)
-			}
-		}
+		t.Run(path, func(t *testing.T) {
+			line := fake(t, f, path)
+			got := strings.Fields(line)
+			eachWordOf(line, func(w string) {
+				if w != got[0] {
+					t.Fatalf("%s = %q, want one pick on every line", path, got)
+				}
+			})
+		})
 	}
 }
 
@@ -359,11 +392,11 @@ func TestAHeldPathReadsTheNameItsFieldReads(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(43))
 	people := map[string]bool{"Ada Byron": true, "Bo Ek": true, "Cy Lind": true}
-	for i := 0; i < 100; i++ {
-		if got := fake(t, f, "cat.field"); !people[got] {
+	eachDraw(100, func() string { return fake(t, f, "cat.field") }, func(got string) {
+		if !people[got] {
 			t.Fatalf("cat.field = %q, want one person read through n", got)
 		}
-	}
+	})
 }
 
 func TestANameIsATransformOperand(t *testing.T) {
@@ -373,11 +406,11 @@ func TestANameIsATransformOperand(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(47))
 	want := map[string]bool{"Åsa <asa>": true, "Bo <bo>": true, "Cy <cy>": true}
-	for i := 0; i < 50; i++ {
-		if got := fake(t, f, "card"); !want[got] {
+	eachDraw(50, func() string { return fake(t, f, "card") }, func(got string) {
+		if !want[got] {
 			t.Fatalf("card = %q, want the operand to read the pick", got)
 		}
-	}
+	})
 }
 
 func TestOneRenderReadsOneNameAcrossNestedTemplates(t *testing.T) {
@@ -387,11 +420,11 @@ func TestOneRenderReadsOneNameAcrossNestedTemplates(t *testing.T) {
 		"cat":   `{"format":"{/word as w}{a}","a":{"format":"{w}|{b}","b":"{w}{/other.x}"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(59))
-	for i := 0; i < 50; i++ {
-		if got := fake(t, f, "cat.a"); got[0] != got[2] {
+	eachDraw(50, func() string { return fake(t, f, "cat.a") }, func(got string) {
+		if got[0] != got[2] {
 			t.Fatalf("cat.a = %q, want one pick of w in both templates", got)
 		}
-	}
+	})
 }
 
 func TestAFieldBindingReadInsideItsFieldIsRefused(t *testing.T) {
@@ -402,9 +435,11 @@ func TestAFieldBindingReadInsideItsFieldIsRefused(t *testing.T) {
 		`{"format":"{x as n}{n.a}{n.a}","x":{"format":"{a}","a":"{n}"}}`: `name "n" is read inside "x", the field bound to it`,
 		`{"format":"{x as n}{y as m}{n}{n}{m}{m}","x":"{m}","y":"{n}"}`:  "cycle",
 	} {
-		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("NewTemplate(%s) = %v, want it refused naming %s", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("NewTemplate(%s) = %v, want it refused naming %s", src, err, want)
+			}
+		})
 	}
 }
 
@@ -442,14 +477,7 @@ func TestAReadOfAFieldItsCategoryReadsThroughANameIsRefused(t *testing.T) {
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, c.files)))
-			if err == nil {
-				t.Fatal("New() loaded, want it refused")
-			}
-			for _, want := range c.want {
-				if !strings.Contains(err.Error(), want) {
-					t.Errorf("New() = %v, want an error naming %s", err, want)
-				}
-			}
+			refusedNamingEach(t, err, c.want)
 		})
 	}
 }
@@ -463,14 +491,18 @@ func TestReadsOfACategoryReadingAFieldThroughANameThatAgreeLoad(t *testing.T) {
 	} {
 		t.Run(label, func(t *testing.T) {
 			f := newGenerator(t, writeData(t, map[string]string{"co": companyLike, "card": read}), WithSeed(7))
-			for i := 0; i < draws; i++ {
-				got := strings.Split(fake(t, f, "card"), "|")
+			eachDraw(draws, func() string { return fake(t, f, "card") }, func(card string) {
+				got := strings.Split(card, "|")
 				if word[got[0]] != got[1] {
 					t.Fatalf("card = %q, want both reads from one pick", got)
 				}
-			}
+			})
 		})
 	}
+}
+
+func TestReadsOfACategoryReadingAFieldThroughANameThatShareNoPickLoad(t *testing.T) {
+	const draws = 100
 	for label, c := range map[string]struct{ co, card, wantHolds string }{
 		"the field read alone":             {companyLike, `"{/co as c}{c.registered}"`, "ABCD"},
 		"the field read twice":             {companyLike, `"{/co as c}{c.registered}{c.registered}"`, "ABCD"},
@@ -480,29 +512,28 @@ func TestReadsOfACategoryReadingAFieldThroughANameThatAgreeLoad(t *testing.T) {
 	} {
 		t.Run(label, func(t *testing.T) {
 			f := newGenerator(t, writeData(t, map[string]string{"co": c.co, "card": c.card}), WithSeed(7))
-			for i := 0; i < draws; i++ {
-				for _, r := range fake(t, f, "card") {
-					if !strings.ContainsRune(c.wantHolds, r) {
-						t.Fatalf("card holds %q, want only letters of %q", r, c.wantHolds)
-					}
+			eachDraw(draws, func() string { return fake(t, f, "card") }, func(got string) {
+				if rest := []rune(strings.TrimLeft(got, c.wantHolds)); len(rest) > 0 {
+					t.Fatalf("card holds %q, want only letters of %q", rest[0], c.wantHolds)
 				}
-			}
+			})
 		})
 	}
 }
 
-func TestANameReadAloneIsTheRecordColumnItReads(t *testing.T) {
+func nameReadAloneData(t *testing.T) *Generator {
+	t.Helper()
 	dir := writeData(t, map[string]string{
 		"src": `{"format":"","score":[null,{"format":"{int(1,9)}","datatype":"integer"}],"code":["1","2"]}`,
 		"row": `{"format":"","a":"{/src.score as s}{s}","b":"{s}","c":"{/src as r}{r.score}","d":"{r.code}"}`,
 	})
-	f := newGenerator(t, dir, WithSeed(3))
+	return newGenerator(t, dir, WithSeed(3))
+}
+
+func TestANameReadAloneIsTheRecordColumnItReads(t *testing.T) {
+	f := nameReadAloneData(t)
 	nulls := 0
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
-		}
+	eachRecordOf(t, f, 100, "row", func(r *Record) {
 		c := r.Columns()
 		if c[0].DataType != DataTypeInteger || c[2].DataType != DataTypeInteger || c[0].Value != c[1].Value || c[0].Null != c[1].Null {
 			t.Fatalf("%s: want a, b and c integer columns of src.score, a and b one pick", r.JSON())
@@ -510,10 +541,14 @@ func TestANameReadAloneIsTheRecordColumnItReads(t *testing.T) {
 		if c[0].Null {
 			nulls++
 		}
-	}
+	})
 	if nulls == 0 || nulls == 100 {
 		t.Errorf("a was null %d times in 100 records, want both outcomes", nulls)
 	}
+}
+
+func TestANameReadAloneIsAcceptedAsAnInlineRecordColumn(t *testing.T) {
+	f := nameReadAloneData(t)
 	if _, err := f.NewRecordTemplate(`{"format":"","a":"{/src.score as s}{s}","b":"{s}"}`); err != nil {
 		t.Errorf("NewRecordTemplate = %v, want a name-read column accepted inline", err)
 	}
@@ -531,23 +566,28 @@ func TestANameReadBeforeItsBinderKeepsOnePick(t *testing.T) {
 		"row":    `{"format":"{a}|{b}","a":"{p}","b":"{/person as p}{p.first} {p.last}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(2))
-	for i := 0; i < 100; i++ {
-		if a, b, _ := strings.Cut(fake(t, f, "row"), "|"); a != b {
+	eachDraw(100, func() string { return fake(t, f, "row") }, func(got string) {
+		if a, b, _ := strings.Cut(got, "|"); a != b {
 			t.Fatalf("a = %q, b = %q, want one pick of p", a, b)
 		}
-	}
+	})
 }
 
 func TestARowThroughANameHintsAPathThatLoads(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, nameTables()), WithSeed(1))
 	for tmpl, hint := range map[string]string{"{/region as r}{r[01]}": "{/region[01]}", "{/region as r}{r[01].municipality}": "{/region[01].municipality}"} {
-		if _, err := f.NewTemplate(tmpl); err == nil || !strings.Contains(err.Error(), "read the row without the name, "+hint+",") {
-			t.Errorf("NewTemplate(%s) = %v, want the hint %s", tmpl, err, hint)
-		}
-		if _, err := f.NewTemplate(hint); err != nil {
-			t.Errorf("NewTemplate(%s), the hint, = %v", hint, err)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if _, err := f.NewTemplate(tmpl); err == nil || !strings.Contains(err.Error(), "read the row without the name, "+hint+",") {
+				t.Errorf("NewTemplate(%s) = %v, want the hint %s", tmpl, err, hint)
+			}
+			if _, err := f.NewTemplate(hint); err != nil {
+				t.Errorf("NewTemplate(%s), the hint, = %v", hint, err)
+			}
+		})
 	}
+}
+
+func TestAFieldBoundNameSelectingARowIsRefused(t *testing.T) {
 	files := nameTables()
 	files["card.json"] = `{"format":"{x as r}{r[01]}","x":"{/region}"}`
 	want := `a path through name "r" may not select a row; bind the row to a name of its own`
