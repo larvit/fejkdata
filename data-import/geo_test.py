@@ -8,6 +8,9 @@ import geo
 spec = importlib.util.spec_from_file_location("geo_dk", Path(__file__).with_name("geo-dk.py"))
 geo_dk = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(geo_dk)
+spec = importlib.util.spec_from_file_location("geo_fi", Path(__file__).with_name("geo-fi.py"))
+geo_fi = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(geo_fi)
 
 
 class Homes(unittest.TestCase):
@@ -63,3 +66,36 @@ class Parsed(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Recased(unittest.TestCase):
+    def test_a_postitoimipaikka_is_written_as_a_place_name(self):
+        for posti, want in [("HELSINKI", "Helsinki"), ("HEINOLA KK", "Heinola kk"), ("ALAVUS AS", "Alavus as"), ("KOSKI TL", "Koski Tl"), ("INHAN TEHTAAT", "Inhan tehtaat"), ("ALA-HONKAJOKI", "Ala-Honkajoki"), ("KUOPPA-AHO", "Kuoppa-aho"), ("YLI-II", "Yli-Ii")]:
+            with self.subTest(posti=posti):
+                self.assertEqual(geo_fi.recased(posti, {"II"}), want)
+
+
+class HouseNumbers(unittest.TestCase):
+    def baf(self, low, low_letter, high, high_letter):
+        return " " * 187 + f"{low:>5}{low_letter:1}" + " " * 7 + f"{high:>5}{high_letter:1}" + " " * 7 + "091"
+
+    def test_a_range_counts_its_two_ends_with_their_letters(self):
+        self.assertEqual(sorted(geo_fi.house_numbers(self.baf("2", "a", "40", ""))), [(2, "a"), (40, "")])
+
+    def test_a_range_of_one_building_counts_it_once(self):
+        self.assertEqual(geo_fi.house_numbers(self.baf("7", "", "7", "")), [(7, "")])
+
+    def test_a_street_without_numbers_counts_none(self):
+        self.assertEqual(geo_fi.house_numbers(self.baf("", "", "", "")), [])
+
+
+class StreetName(unittest.TestCase):
+    def test_a_highway_a_postinumero_and_an_island_are_no_street(self):
+        for name in ["Valtatie 23", "41520", "Mustalampi, Lammassaari", "Haapasaari (Vuosaari)", ""]:
+            with self.subTest(name=name):
+                self.assertFalse(geo_fi.street_name(name))
+
+    def test_a_street_may_hold_a_dot_a_colon_and_an_apostrophe(self):
+        for name in ["J.A. Palménin tie", "VPK:n kuja", "Uudenmaantie"]:
+            with self.subTest(name=name):
+                self.assertTrue(geo_fi.street_name(name))
