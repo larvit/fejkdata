@@ -77,8 +77,8 @@ func atWord(body string, i int, word string) bool {
 	return found && (after == "" || after[0] == ' ') && !strings.HasSuffix(body[:i+1], AsWord)
 }
 
-// lastAsOutsideQuotes cuts clause around its last " as " outside a quote and a selector.
-func lastAsOutsideQuotes(clause string) (before, name string, found bool) {
+// lastAsOutside cuts clause around its last " as " outside a quote and a selector.
+func lastAsOutside(clause string) (before, name string, found bool) {
 	at := -1
 	(&scanner{quotes: true}).find(clause, func(i int) bool {
 		if strings.HasPrefix(clause[i:], AsWord) {
@@ -111,7 +111,7 @@ func cutClauses(body string) (c clauses, found bool) {
 	if c.picks {
 		last = &c.distinct
 	}
-	*last, c.name, c.binds = lastAsOutsideQuotes(*last)
+	*last, c.name, c.binds = lastAsOutside(*last)
 	return c, c.filters || c.picks
 }
 
