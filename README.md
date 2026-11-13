@@ -1294,10 +1294,10 @@ operands with no `/`, while its bounds stay within int64.
 
 ### Null
 
-A `null` item draws a record column as null: `json` writes `null`, `sql` `NULL`, and
+A `null` item draws a record column as null: `json` writes `null`, `sql` `NULL`, `pgcopy` `\N`, and
 `csv` an empty field, with an empty string written `""` — the convention PostgreSQL's
 `COPY … CSV` reads. A record of one null column is a blank line, which `COPY` reads as
-null but most CSV readers skip, so write such a record as `json` or `sql`. `Fake`
+null but most CSV readers skip, so write such a record as `json`, `sql` or `pgcopy`. `Fake`
 renders a null as `""`. The other items' weights skew its odds:
 
 ```json
