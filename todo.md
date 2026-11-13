@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 456`
+`Next ID = 457`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 456 | 0.5.0 |  | question | **Choose the cyclomatic complexity gate: lower it to the principle's ceiling of 7 with an allow-list of table-shaped dispatches, or record why 14 holds.** | 3 | 1 | 1 | 3 | 8 | code health by 5 | 0.7 |
 | 455 | 0.5.0 |  |  | **Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.** | 3 | 1 | 1 | 3 | 7 | code health by 3 | 0.9 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
@@ -229,6 +230,17 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
+
+### 456. Choose the cyclomatic complexity gate: lower it to the principle's ceiling of 7 with an allow-list of table-shaped dispatches, or record why 14 holds.
+
+The principles pass of the release review of 0.5.0 found that `AGENTS.md` gates cyclomatic complexity at 14, twice the ceiling of seven that technical-principles.md ("About seven things per level") sets, and that nothing records why. The one exception AGENTS.md states, a table-shaped dispatch, is such a reason; any other function may carry 8 to 14 branches and pass. That band is where the comprehension panel scores Locality about 5.6, under the 7.0 floor.
+
+`gocyclo -over 7 -ignore _test .` lists 83 functions today, and `-over 10` lists 25, more than the review's rounds could restructure. The gate is a rule in `AGENTS.md`, so the choice is the maintainer's:
+
+- Gate non-test functions at 7, and keep the dispatch exception as a short allow-list beside the Dockerfile's gocyclo line, each entry with its reason. gocyclo cannot exempt one function, so the allow-list filters its output. The 83 functions are then split, or listed with their reason. Item 453 restructures some of the same code.
+- Keep 14, and record in `docs/decisions.md` why it holds for this code base.
+
+Recommendation: the first, in steps: gate at 10 first, which lists 25 functions, and lower it as item 453 and later chunks split them.
 
 ### 455. Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.
 

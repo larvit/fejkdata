@@ -1133,8 +1133,8 @@ methods, never an interface, and `tree.TokenDraw` is a closed sum that `render`
 switches on. `perf_test.go` stays in the root and uses only the public API; a cut that raises
 an allocation count is fixed, not re-pinned.
 
-Each cut merged only where its paired ruling read no worse. `internal/` holds eleven
-directories, over the principle's about seven per level, since a reader finds the leaf libraries
+Each cut merged only where its paired ruling read no worse. `internal/` holds more
+directories than the principle's about seven per level, since a reader finds the leaf libraries
 by name. Valid while the root holds no stage.
 
 ## Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
