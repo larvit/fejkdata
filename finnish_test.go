@@ -644,13 +644,14 @@ func TestShippedFinnishHouseNumbersWriteTheirDeliveryLetterInLowerCase(t *testin
 }
 
 // Posti writes a postitoimipaikka in capitals, such as HEINOLA KK; geo.FI writes it as a place
-// name, keeping the abbreviations kk and as in lower case, and a noun after a genitive too.
+// name, keeping the abbreviations kk and as in lower case, a noun after a genitive too, and a
+// compound's part that opens with the vowel the part before it ends in, unless it names a kunta.
 func TestShippedFinnishPlacesAreWrittenAsPlaceNames(t *testing.T) {
 	places := map[string]bool{}
 	for _, r := range geoRows(t, "FI", "locality") {
 		places[r[0]] = true
 	}
-	for _, name := range []string{"Helsinki", "Espoo", "Tampere", "Turku", "Oulu", "Jyväskylä", "Heinola kk", "Alavus as", "Inhan tehtaat", "Yli-Ii"} {
+	for _, name := range []string{"Helsinki", "Espoo", "Tampere", "Turku", "Oulu", "Jyväskylä", "Heinola kk", "Alavus as", "Inhan tehtaat", "Kuoppa-aho", "Yli-Ii"} {
 		t.Run(name, func(t *testing.T) {
 			if !places[name] {
 				t.Errorf("geo.FI: no postitoimipaikka %q", name)
@@ -697,5 +698,13 @@ func TestShippedFinnishStreetCarriesPostisSwedishName(t *testing.T) {
 func TestShippedFinnishStreetWithoutASwedishNameCarriesItsFinnishOne(t *testing.T) {
 	if i := slices.IndexFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool { return r["swedish-name"] == "" }); i >= 0 {
 		t.Errorf("geo.FI street row %d has no swedish-name, want its Finnish name where Posti gives no Swedish one", i+1)
+	}
+}
+
+// Posti lists a highway such as Valtatie 23, a postinumero and an island such as Mustalampi,
+// Lammassaari beside the streets.
+func TestShippedFinnishStreetNamesHoldNoDigitCommaOrBracket(t *testing.T) {
+	if i := slices.IndexFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool { return strings.ContainsAny(r["name"], "0123456789,()") }); i >= 0 {
+		t.Errorf("geo.FI street row %d holds a digit, comma or bracket, want a street name", i+1)
 	}
 }
