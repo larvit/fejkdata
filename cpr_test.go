@@ -223,6 +223,15 @@ func eachCprOfTheYearDigits(t *testing.T, c cprYearCase, check func(got string))
 	}, check)
 }
 
+func sortedBytesOf(seen map[byte]bool) []byte {
+	var out []byte
+	for b := range seen {
+		out = append(out, b)
+	}
+	slices.Sort(out)
+	return out
+}
+
 // The year digits name the latest year not after today that bears them, so a date drawn from
 // the last hundred years has one century, and the seventh digit is one the table gives that year.
 func TestBuiltinCprDrawsANumberOfTheYearItsDigitsName(t *testing.T) {
@@ -243,11 +252,7 @@ func TestBuiltinCprDrawsEverySeventhDigitTheTableGivesTheYear(t *testing.T) {
 		t.Run(c.name(), func(t *testing.T) {
 			seen := map[byte]bool{}
 			eachCprOfTheYearDigits(t, c, func(got string) { seen[got[6]] = true })
-			var digits []byte
-			for d := range seen {
-				digits = append(digits, d)
-			}
-			slices.Sort(digits)
+			digits := sortedBytesOf(seen)
 			if string(digits) != c.want {
 				t.Errorf("on %s, 0101%s drew the seventh digits %s, want %s", c.today.Format("2006-01-02"), c.yy, digits, c.want)
 			}
