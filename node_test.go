@@ -16,9 +16,11 @@ func TestAnOptionOfTheWrongKindIsNamedByItsJSONKind(t *testing.T) {
 		`{"format":"x","repeat":2,"separator":{}}`: "separator must be a string, not an object",
 		`[{"format":"a","weight":-1}]`:             "weight must be a finite number of 0 or more",
 	} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want %q", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("compile(%s) = %v, want %q", src, err, want)
+			}
+		})
 	}
 	_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":5}`, "t.tsv": "a\nx\n"})))
 	if err == nil || !strings.Contains(err.Error(), "key must be a string, not a number") {
@@ -28,49 +30,57 @@ func TestAnOptionOfTheWrongKindIsNamedByItsJSONKind(t *testing.T) {
 
 func TestAnOptionTooCloseToZeroIsRefused(t *testing.T) {
 	for _, src := range []string{`[{"format":"a","weight":1e-400},"b"]`, `{"format":"{x}","x":"a","repeat":1e-400}`} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), "1e-400") {
-			t.Errorf("compile(%s) = %v, want the number too close to 0 named", src, err)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), "1e-400") {
+				t.Errorf("compile(%s) = %v, want the number too close to 0 named", src, err)
+			}
+		})
 	}
+}
+
+func TestAnOptionOfZeroWrittenAsZeroLoads(t *testing.T) {
 	for _, src := range []string{`[{"format":"a","weight":0.0},"b"]`, `{"format":"x","repeat":0e5}`} {
-		if _, err := resolved(t, src); err != nil {
-			t.Errorf("compile(%s) = %v, want a zero written as zero loaded", src, err)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := resolved(t, src); err != nil {
+				t.Errorf("compile(%s) = %v, want a zero written as zero loaded", src, err)
+			}
+		})
 	}
 }
 
 func TestWeightSkewsDistribution(t *testing.T) {
 	f := emptyGenerator(9)
-	heavy := 0
-	for i := 0; i < 1000; i++ {
-		if mustRender(t, f, `[{"format":"H","weight":10},"L"]`) == "H" {
-			heavy++
-		}
-	}
+	heavy := tallyDraws(1000, func() string {
+		return mustRender(t, f, `[{"format":"H","weight":10},"L"]`)
+	})["H"]
 	if heavy < 800 { // expected ~909
 		t.Fatalf("heavy variant chosen %d/1000, want a clear majority", heavy)
 	}
 }
 
 func TestRepeatRendersFormatNTimes(t *testing.T) {
-	// repeat N concatenates N independent renders of the format ('x','y' are
-	// literal, not character classes).
 	if got := mustRender(t, emptyGenerator(1), `{"format":"xy","repeat":3}`); got != "xyxyxy" {
 		t.Fatalf("repeat literal = %q, want xyxyxy", got)
 	}
-	// separator joins renders (N-1 of them, no trailing one).
+}
+
+func TestRepeatJoinsItsRendersWithTheSeparator(t *testing.T) {
 	if got := mustRender(t, emptyGenerator(1), `{"format":"xy","repeat":3,"separator":"-"}`); got != "xy-xy-xy" {
 		t.Fatalf("repeat with separator = %q, want xy-xy-xy", got)
 	}
+}
+
+func TestRepeatDrawsEachRenderAfresh(t *testing.T) {
 	f, re := emptyGenerator(7), regexp.MustCompile(`^[0-9]{4}$`)
 	seen := map[string]bool{}
-	for i := 0; i < 50; i++ {
-		got := mustRender(t, f, `{"format":"{digits(1)}","repeat":4}`)
+	eachDraw(50, func() string {
+		return mustRender(t, f, `{"format":"{digits(1)}","repeat":4}`)
+	}, func(got string) {
 		if !re.MatchString(got) {
 			t.Fatalf("repeat-4 = %q, want 4 digits", got)
 		}
 		seen[got] = true
-	}
+	})
 	if len(seen) < 2 {
 		t.Fatalf("repeat never varied across renders: %v", seen)
 	}
@@ -92,9 +102,11 @@ func TestNodeCompileErrors(t *testing.T) {
 		`{"format":"x","repeat":"two"}`,                                 // non-numeric repeat
 		`{"format":"x","repeat":2,"separator":5}`,                       // non-string separator
 	} {
-		if _, err := resolved(t, bad); err == nil {
-			t.Errorf("compile(%s) = nil error, want error", bad)
-		}
+		t.Run(bad, func(t *testing.T) {
+			if _, err := resolved(t, bad); err == nil {
+				t.Errorf("compile(%s) = nil error, want error", bad)
+			}
+		})
 	}
 }
 
@@ -105,30 +117,30 @@ func TestEveryFormatCompilesAtResolve(t *testing.T) {
 		t.Fatal(err)
 	}
 	w := compiled(t, `["p","q"]`)
-	compiledByPath := func() map[string]bool {
-		compiled := map[string]bool{}
-		if err := load.EachNode(n, "t", func(label string, m tree.Node) error {
-			if tm, ok := m.(*tree.Template); ok {
-				tl := l.Of(tm)
-				compiled[label+" "+tm.Format()] = tl != nil && tl.Compiled().Ops() != nil
-			}
-			return nil
-		}); err != nil {
-			t.Fatal(err)
-		}
-		return compiled
-	}
-	for format, has := range compiledByPath() {
+	eachTemplateFormatUnder(t, n, l, func(format string, has bool) {
 		if has {
 			t.Errorf("%s compiled before resolve", format)
 		}
-	}
+	})
 	if _, err := load.ResolveInlineTemplates(n, "t", map[string]tree.Node{"w": w}, l); err != nil {
 		t.Fatal(err)
 	}
-	for format, has := range compiledByPath() {
+	eachTemplateFormatUnder(t, n, l, func(format string, has bool) {
 		if !has {
 			t.Errorf("%s not compiled at resolve", format)
 		}
+	})
+}
+
+func eachTemplateFormatUnder(t *testing.T, n tree.Node, l *tree.LoadFinds, check func(format string, compiled bool)) {
+	t.Helper()
+	if err := load.EachNode(n, "t", func(label string, m tree.Node) error {
+		if tm, ok := m.(*tree.Template); ok {
+			tl := l.Of(tm)
+			check(label+" "+tm.Format(), tl != nil && tl.Compiled().Ops() != nil)
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
 	}
 }
