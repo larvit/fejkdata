@@ -33,21 +33,15 @@ func TestFakeTemplateFormatString(t *testing.T) {
 
 func TestFakeTemplateJSONObject(t *testing.T) {
 	f := shipped(t)
-	seen := map[string]bool{}
-	for i := 0; i < 50; i++ {
-		seen[tmpl(t, f, `{"format":"name: {x}","x":["bosse","lina"]}`)] = true
-	}
-	if !seen["name: bosse"] || !seen["name: lina"] || len(seen) != 2 {
+	seen := tallyDraws(50, func() string { return tmpl(t, f, `{"format":"name: {x}","x":["bosse","lina"]}`) })
+	if seen["name: bosse"] == 0 || seen["name: lina"] == 0 || len(seen) != 2 {
 		t.Fatalf("JSON template produced %v, want both names", seen)
 	}
 }
 
 func TestFakeTemplateJSONArray(t *testing.T) {
 	f := shipped(t)
-	seen := map[string]bool{}
-	for i := 0; i < 50; i++ {
-		seen[tmpl(t, f, `["foo","bar","baz"]`)] = true
-	}
+	seen := tallyDraws(50, func() string { return tmpl(t, f, `["foo","bar","baz"]`) })
 	if len(seen) != 3 {
 		t.Fatalf("JSON array choice produced %v, want three items", seen)
 	}
@@ -58,22 +52,21 @@ func TestFakeTemplateNamedReference(t *testing.T) {
 		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1990"}]`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	for i := 0; i < 100; i++ {
-		got := tmpl(t, f, "{/person as p}{p.first} {p.last}")
+	eachDraw(100, func() string { return tmpl(t, f, "{/person as p}{p.first} {p.last}") }, func(got string) {
 		if got != "Ada Lovelace" && got != "Bo Ek" {
 			t.Fatalf("correlated references = %q, want one person's first and last", got)
 		}
-	}
+	})
 }
 
 func TestFakeTemplateDeterministic(t *testing.T) {
 	a, b := shipped(t), shipped(t)
-	for i := 0; i < 20; i++ {
-		in := "row: {/misc.uuid} {digits(3)}"
-		if x, y := tmpl(t, a, in), tmpl(t, b, in); x != y {
+	in := "row: {/misc.uuid} {digits(3)}"
+	eachDraw(20, func() string { return tmpl(t, a, in) }, func(x string) {
+		if y := tmpl(t, b, in); x != y {
 			t.Fatalf("same seed diverged: %q != %q", x, y)
 		}
-	}
+	})
 }
 
 func TestFieldlessTokenHint(t *testing.T) {
@@ -82,17 +75,26 @@ func TestFieldlessTokenHint(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "write {/sv_SE.person.last}") {
 		t.Fatalf("FakeTemplate(bare token) = %v, want a hint naming {/sv_SE.person.last}", err)
 	}
-	_, err = f.FakeTemplate(`{"format":"{x}","repeat":2}`)
+}
+
+func TestFieldlessObjectHintDoesNotCallItABareString(t *testing.T) {
+	_, err := shipped(t).FakeTemplate(`{"format":"{x}","repeat":2}`)
 	if err == nil || !strings.Contains(err.Error(), `this template has none — write {/x}`) {
 		t.Errorf("FakeTemplate(fieldless object) = %v, want the hint without calling it a bare string", err)
 	}
+}
+
+func TestFieldlessTokenHintIsOfferedOnlyWhereTheNameIsTheWholeToken(t *testing.T) {
+	f := shipped(t)
 	// A hint is only a drop-in where the name is the whole token: {/x} inside a
 	// transform or an alternation renders a different value, so none is offered.
 	for _, input := range []string{`{ /sv_SE.person.last }`, "{lowercase(x)}", "{x|y}"} {
-		_, err := f.FakeTemplate(input)
-		if err == nil || strings.Contains(err.Error(), "write {") {
-			t.Errorf("FakeTemplate(%q) = %v, want no hint naming a spelling that means something else", input, err)
-		}
+		t.Run(input, func(t *testing.T) {
+			_, err := f.FakeTemplate(input)
+			if err == nil || strings.Contains(err.Error(), "write {") {
+				t.Errorf("FakeTemplate(%q) = %v, want no hint naming a spelling that means something else", input, err)
+			}
+		})
 	}
 }
 
@@ -108,10 +110,12 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`name: {/no.such.path}`, "no entry"},
 		{`name: {..nope}`, "write {/nope}"},
 	} {
-		_, err := f.FakeTemplate(c.input)
-		if err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("FakeTemplate(%q) = %v, want an error containing %q", c.input, err, c.want)
-		}
+		t.Run(c.input, func(t *testing.T) {
+			_, err := f.FakeTemplate(c.input)
+			if err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("FakeTemplate(%q) = %v, want an error containing %q", c.input, err, c.want)
+			}
+		})
 	}
 }
 
@@ -141,10 +145,7 @@ func TestNewTemplateReusable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewTemplate: %v", err)
 	}
-	seen := map[string]bool{}
-	for i := 0; i < 50; i++ {
-		seen[reusable.Fake()] = true
-	}
+	seen := tallyDraws(50, reusable.Fake)
 	if len(seen) < 2 {
 		t.Fatalf("Template.Fake() repeated %v, want varied draws from one compile", seen)
 	}
@@ -176,10 +177,15 @@ func TestIsTemplate(t *testing.T) {
 		"{/misc.currency[US Dollar (Next day)]}": true,
 		"/sv_SE.person":                          false,
 	} {
-		if got, err := IsTemplate(arg); err != nil || got != want {
-			t.Errorf("IsTemplate(%q) = %v, %v; want %v", arg, got, err, want)
-		}
+		t.Run(arg, func(t *testing.T) {
+			if got, err := IsTemplate(arg); err != nil || got != want {
+				t.Errorf("IsTemplate(%q) = %v, %v; want %v", arg, got, err, want)
+			}
+		})
 	}
+}
+
+func TestIsTemplateRejectsAMalformedArgument(t *testing.T) {
 	for arg, want := range map[string]string{
 		"[abc]":          `starts with "["`,
 		"[abc].field":    `starts with "["`,
@@ -192,9 +198,11 @@ func TestIsTemplate(t *testing.T) {
 		`"abc`:           `holds a "\""`,
 		`"a]b`:           `holds a "\""`, // the opener the reader typed, not the bracket behind it
 	} {
-		if _, err := IsTemplate(arg); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("IsTemplate(%q) = %v; want it rejected naming %s", arg, err, want)
-		}
+		t.Run(arg, func(t *testing.T) {
+			if _, err := IsTemplate(arg); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("IsTemplate(%q) = %v; want it rejected naming %s", arg, err, want)
+			}
+		})
 	}
 }
 
@@ -228,8 +236,10 @@ func TestIsLonePath(t *testing.T) {
 		"x}}":                                 false,
 		"x} {/y":                              false,
 	} {
-		if got := IsLonePath(body); got != want {
-			t.Errorf("IsLonePath(%q) = %v, want %v", body, got, want)
-		}
+		t.Run(body, func(t *testing.T) {
+			if got := IsLonePath(body); got != want {
+				t.Errorf("IsLonePath(%q) = %v, want %v", body, got, want)
+			}
+		})
 	}
 }
