@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -53,27 +54,41 @@ func TestEveryReferenceDrawsAfresh(t *testing.T) {
 		`"{/person}|{/person.first} {/person.last}"`,
 		`{"format":"{a}|{b}","a":"{/person.last}","b":"{/person.last}"}`,
 	} {
-		differ := false
-		for i := 0; i < 400 && !differ; i++ {
-			p := strings.Split(fakeTemplate(t, f, src), "|")
-			differ = p[0] != p[1]
-		}
-		if !differ {
-			t.Errorf("400 renders of %s never drew apart, want each reference a draw of its own", src)
-		}
+		t.Run(src, func(t *testing.T) {
+			if !halvesOfATemplateDrawApartIn400(t, f, src) {
+				t.Errorf("400 renders of %s never drew apart, want each reference a draw of its own", src)
+			}
+		})
+	}
+}
+
+func halvesOfATemplateDrawApartIn400(t *testing.T, f *Generator, src string) bool {
+	t.Helper()
+	differ := false
+	for i := 0; i < 400 && !differ; i++ {
+		p := strings.Split(fakeTemplate(t, f, src), "|")
+		differ = p[0] != p[1]
+	}
+	return differ
+}
+
+func eachNumberedDraw(n int, draw func() string, check func(i int, got string)) {
+	for i := 0; i < n; i++ {
+		check(i, draw())
 	}
 }
 
 func TestANamedFieldCorrelatesItsReads(t *testing.T) {
 	f := emptyGenerator(1)
 	seen := map[string]bool{}
-	for i := 0; i < 500; i++ {
-		got := mustRender(t, f, places("{place as p}{p.postal-code} {p.locality}"))
+	eachNumberedDraw(500, func() string {
+		return mustRender(t, f, places("{place as p}{p.postal-code} {p.locality}"))
+	}, func(i int, got string) {
 		if !agree.MatchString(got) {
 			t.Fatalf("draw %d = %q, want a postcode and locality that pair", i, got)
 		}
 		seen[got[len(got)-4:]] = true
-	}
+	})
 	if len(seen) < 2 {
 		t.Fatalf("500 draws produced only %v, want both localities", seen)
 	}
@@ -88,30 +103,27 @@ func TestANamedFieldReadsItsVariantsWhole(t *testing.T) {
 		{"format":"{addr}","addr":[
 			{"format":"{city}","city":"Malmö","zip":"21100"},
 			{"format":"{city}","city":"Lund","zip":"22100"}]}]}`
-	for i := 0; i < 400; i++ {
-		got := mustRender(t, f, tmpl)
+	eachNumberedDraw(400, func() string { return mustRender(t, f, tmpl) }, func(i int, got string) {
 		if got != "Kiruna/98100" && got != "Malmö/21100" && got != "Lund/22100" {
 			t.Fatalf("draw %d = %q, want a city with its own zip", i, got)
 		}
-	}
+	})
 }
 
 func TestANamedFieldInARepeatPicksEachLine(t *testing.T) {
 	f := emptyGenerator(5)
 	tmpl := `{"format":"{lines}","lines":` + strings.Replace(places("{place as p}{p.postal-code} {p.locality}"), `"format":`, `"repeat":6,"separator":"\n","format":`, 1) + `}`
 	varied := false
-	for i := 0; i < 40; i++ {
-		lines := strings.Split(mustRender(t, f, tmpl), "\n")
+	eachDraw(40, func() string { return mustRender(t, f, tmpl) }, func(got string) {
+		lines := strings.Split(got, "\n")
 		if len(lines) != 6 {
 			t.Fatalf("repeat 6 produced %d lines", len(lines))
 		}
-		for _, line := range lines {
-			if !agree.MatchString(line) {
-				t.Fatalf("line %q does not pair", line)
-			}
+		if i := slices.IndexFunc(lines, func(line string) bool { return !agree.MatchString(line) }); i >= 0 {
+			t.Fatalf("line %q does not pair", lines[i])
 		}
 		varied = varied || lines[0] != lines[1] || lines[1] != lines[2]
-	}
+	})
 	if !varied {
 		t.Fatal("40 renders of repeat 6 never varied within a render, want a pick per line")
 	}
@@ -122,9 +134,11 @@ func TestAFieldBindingIsRefusedWhereNoFieldIs(t *testing.T) {
 		`{"format":"{nope as p}{p}{p}","place":"x"}`:                    `no field "nope"`,
 		`{"format":"{place as place}{place}{place}","place":["x","y"]}`: `name "place" is a field of the root template too`,
 	} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("%s = %v, want it refused naming %s", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("%s = %v, want it refused naming %s", src, err, want)
+			}
+		})
 	}
 }
 
@@ -140,15 +154,18 @@ func TestANameReadOnceIsWhatItBinds(t *testing.T) {
 		`{"format":"{word.w as c}{c} {word.w}",` + word + `}`:                   `{"format":"{word.w} {word.w}",` + word + `}`,
 		`{"format":"{n}|{x}","x":{"format":"{a as n}{a}","a":["1","2"]}}`:       `{"format":"{x.a}|{x}","x":{"format":"{a}","a":["1","2"]}}`,
 	} {
-		sameRenders(t, long, short)
+		t.Run(long, func(t *testing.T) { sameRenders(t, long, short) })
 	}
+}
+
+func TestANameReadOnceThroughAStepUpIsItsPath(t *testing.T) {
 	files := with(nameTables(), map[string]string{"long.json": `"{/municipality as m}{m..region.name}"`, "short.json": `"{/municipality..region.name}"`})
 	a, b := newGenerator(t, writeFiles(t, files), WithSeed(1)), newGenerator(t, writeFiles(t, files), WithSeed(1))
-	for i := 0; i < 20; i++ {
-		if x, y := fake(t, a, "long"), fake(t, b, "short"); x != y {
+	eachDraw(20, func() string { return fake(t, a, "long") }, func(x string) {
+		if y := fake(t, b, "short"); x != y {
 			t.Fatalf("a name read once through a step up rendered %q where its path rendered %q", x, y)
 		}
-	}
+	})
 }
 
 func TestCycleReachedOnlyByAPathTokenIsRejected(t *testing.T) {
@@ -183,14 +200,19 @@ func TestCycleThroughAPathTokenIsRejected(t *testing.T) {
 	}
 }
 
-func TestADeepDiamondChainLoads(t *testing.T) {
-	// A diamond chain is 2^n routes through n nodes, so every load walk must visit each
-	// node once, not once per route.
+func diamondChainOf30() map[string]string {
 	files := map[string]string{"l0": `"x"`}
 	for i := 1; i <= 30; i++ {
 		files[fmt.Sprintf("l%d", i)] = fmt.Sprintf(
 			`{"format":"{a}{b}","a":"{/l%d}","b":"{/l%d}"}`, i-1, i-1)
 	}
+	return files
+}
+
+func TestADeepDiamondChainLoads(t *testing.T) {
+	// A diamond chain is 2^n routes through n nodes, so every load walk must visit each
+	// node once, not once per route.
+	files := diamondChainOf30()
 	files["thing"] = `{"format":"{p.first} {/l30}","p":{"format":"x","first":["A","B"]}}`
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files))); err != nil {
 		t.Fatalf("New = %v, want a deep diamond chain to load", err)
@@ -200,11 +222,10 @@ func TestADeepDiamondChainLoads(t *testing.T) {
 func TestNestedChoiceDrawsOneVariant(t *testing.T) {
 	// A choice item may itself be a choice, so a path unwraps until it reaches a value.
 	f := emptyGenerator(21)
-	seen := map[string]bool{}
-	for i := 0; i < 200; i++ {
-		seen[mustRender(t, f, `{"format":"{p.x}","p":[{"format":"{x}","x":"1"},{"format":"{x}","x":"2"}]}`)] = true
-	}
-	if !seen["1"] || !seen["2"] || len(seen) != 2 {
+	seen := tallyDraws(200, func() string {
+		return mustRender(t, f, `{"format":"{p.x}","p":[{"format":"{x}","x":"1"},{"format":"{x}","x":"2"}]}`)
+	})
+	if seen["1"] == 0 || seen["2"] == 0 || len(seen) != 2 {
 		t.Fatalf("200 draws produced %v, want 1 and 2", seen)
 	}
 }
@@ -225,10 +246,12 @@ func TestPathIntoARepeatingLevelIsRejected(t *testing.T) {
 		`{"format":"[{p.a}]","p":{"format":"{a}","repeat":3,"separator":",","a":"z"}}`,
 		`{"format":"[{p.a}]","p":[{"format":"{a}","repeat":3,"separator":",","a":"x"},{"format":"{a}","a":"y"}]}`,
 	} {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"cat": cat})))
-		if err == nil || !strings.Contains(err.Error(), "repeat") {
-			t.Errorf("New(%s) = %v, want a path into a repeating level rejected", cat, err)
-		}
+		t.Run(cat, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"cat": cat})))
+			if err == nil || !strings.Contains(err.Error(), "repeat") {
+				t.Errorf("New(%s) = %v, want a path into a repeating level rejected", cat, err)
+			}
+		})
 	}
 }
 
@@ -275,10 +298,12 @@ func TestDottedTokenErrors(t *testing.T) {
 		},
 	}
 	for name, c := range rejected {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"cat": c.file})))
-		if err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
-		}
+		t.Run(name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"cat": c.file})))
+			if err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
+			}
+		})
 	}
 }
 
@@ -287,10 +312,12 @@ func TestEmptyPathSegmentIsRejected(t *testing.T) {
 		"trailing dot": `{"format":"[{a.}]","a":"x"}`,
 		"triple dot":   `{"format":"[{a...b}]","a":"x"}`,
 	} {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"cat": file})))
-		if err == nil || !strings.Contains(err.Error(), "empty segment") {
-			t.Errorf("%s: New = %v, want it to name the empty segment", name, err)
-		}
+		t.Run(name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"cat": file})))
+			if err == nil || !strings.Contains(err.Error(), "empty segment") {
+				t.Errorf("%s: New = %v, want it to name the empty segment", name, err)
+			}
+		})
 	}
 }
 
@@ -301,9 +328,22 @@ func TestASubFieldIsReachableByFake(t *testing.T) {
 		t.Fatalf("New = %v", err)
 	}
 	for _, path := range []string{"address", "address.place", "address.place.locality", "address.place.postal-code"} {
-		if _, err := f.Fake(path); err != nil {
-			t.Errorf("Fake(%q) = %v, want it to render", path, err)
+		t.Run(path, func(t *testing.T) {
+			if _, err := f.Fake(path); err != nil {
+				t.Errorf("Fake(%q) = %v, want it to render", path, err)
+			}
+		})
+	}
+}
+
+func eachOf100RecordsOfRow(t *testing.T, f *Generator, check func(r *Record)) {
+	t.Helper()
+	for i := 0; i < 100; i++ {
+		r, err := f.FakeRecord("row")
+		if err != nil {
+			t.Fatal(err)
 		}
+		check(r)
 	}
 }
 
@@ -313,17 +353,13 @@ func TestAFieldBoundWholeIsItsPickAsAColumn(t *testing.T) {
 	}), WithSeed(1), onTestDay)
 	zips := map[string]string{"Stockholm": "1", "Tranås": "5"}
 	seen := map[string]bool{}
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
-		}
+	eachOf100RecordsOfRow(t, f, func(r *Record) {
 		c := r.Columns()
 		if zips[c[0].Value] != c[1].Value {
 			t.Fatalf("%s: want the place column and the zip read through p one place", r.JSON())
 		}
 		seen[c[0].Value] = true
-	}
+	})
 	if len(seen) != 2 {
 		t.Errorf("place drew only %v in 100 records, want both", seen)
 	}
@@ -334,21 +370,17 @@ func TestAColumnReadingABoundColumnIsThatColumn(t *testing.T) {
 		"row": `{"format":"{place as p}","place":[null,{"format":"{int(1,9)}","datatype":"integer"}],"a":"{p}","z":"{p}"}`,
 	}), WithSeed(1), onTestDay)
 	nulls := 0
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
-		}
+	eachOf100RecordsOfRow(t, f, func(r *Record) {
 		c := r.Columns()
-		for _, col := range c {
-			if col.DataType != DataTypeInteger || col.Null != c[0].Null || col.Value != c[0].Value {
-				t.Fatalf("%s: want a, place and z one integer pick, null alike", r.JSON())
-			}
+		if slices.ContainsFunc(c, func(col Column) bool {
+			return col.DataType != DataTypeInteger || col.Null != c[0].Null || col.Value != c[0].Value
+		}) {
+			t.Fatalf("%s: want a, place and z one integer pick, null alike", r.JSON())
 		}
 		if c[0].Null {
 			nulls++
 		}
-	}
+	})
 	if nulls == 0 || nulls == 100 {
 		t.Errorf("the pick was null %d times in 100 records, want both outcomes", nulls)
 	}
@@ -358,12 +390,21 @@ func TestAFreshReadInsideANamedPickSharesNoValueWithIt(t *testing.T) {
 	f := emptyGenerator(5)
 	src := `{"format":"{w as p}{p.a}|{p.a.b}","w":{"format":"{a}","a":{"format":"{c}|{b}","b":["1","2","3"],"c":{"format":"{b}","b":["x","y","z"]}}}}`
 	want := regexp.MustCompile(`^[xyz]\|([123])\|([123])$`)
-	for i := 0; i < 100; i++ {
-		got := mustRender(t, f, src)
+	eachNumberedDraw(100, func() string { return mustRender(t, f, src) }, func(i int, got string) {
 		if m := want.FindStringSubmatch(got); m == nil || m[1] != m[2] {
 			t.Fatalf("draw %d = %q, want c's b from x, y or z, and p.a's b equal to {p.a.b}", i, got)
 		}
+	})
+}
+
+func levelsOfEachReadBySpelling(root *tree.Template) map[string]string {
+	levels := map[string]string{}
+	for _, o := range root.Compiled().Ops() {
+		for _, a := range o.Alternatives() {
+			levels[a.Spelling()] = fmt.Sprint(a.Levels())
+		}
 	}
+	return levels
 }
 
 func TestEveryReadKeysEachLevelFromItsHeadToItsLeaf(t *testing.T) {
@@ -373,12 +414,12 @@ func TestEveryReadKeysEachLevelFromItsHeadToItsLeaf(t *testing.T) {
 		"g.town":     "[ geo geo.town]",
 		"x.y.z":      "[x x.y x.y.z]",
 	}
-	for _, o := range root.Compiled().Ops() {
-		for _, a := range o.Alternatives() {
-			if got := fmt.Sprint(a.Levels()); got != want[a.Spelling()] {
-				t.Errorf("{%s} keys its levels %s, want %s", a.Spelling(), got, want[a.Spelling()])
+	for spelling, got := range levelsOfEachReadBySpelling(root) {
+		t.Run(spelling, func(t *testing.T) {
+			if got != want[spelling] {
+				t.Errorf("{%s} keys its levels %s, want %s", spelling, got, want[spelling])
 			}
-		}
+		})
 	}
 }
 
