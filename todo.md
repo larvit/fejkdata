@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 4 | 2 | 1 | 5 | 7 | code health by 2 | 0.6 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 453 | 0.6.0 |  | owner | **Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
@@ -229,12 +228,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 402. Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.
-
-The principles pass of the release review of 0.4.0 found that the test files hold 876 `for` lines in test bodies and 22 `t.Run` calls, against the technical principle "One behaviour per test, named for it … No loops or branches in a test body; parametrize the cases." A failing case can't be rerun alone with `go test -run`, and a `t.Fatalf` inside a loop hides every case after it. The release review reshaped the test files this release added; this item takes the rest, keeping every expected value, seed and draw count.
-
-Scored L 4: the change spans S 7 and about ten packages, two of L level 3's conditions.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
