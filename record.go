@@ -105,8 +105,8 @@ func tsvCell(s string) string { return tsvCellEscapes.Replace(s) }
 
 var tsvCellEscapes = strings.NewReplacer("{", "{{", "}", "}}", "\t", " ", "\r", " ", "\n", " ")
 
-// PGCopyHeader renders the statement that starts a COPY of the records' text into table, columns
-// in double quotes. Follow it with each record's PGCopyLine on a line of its own, then a line of \.
+// PGCopyHeader renders the statement that starts a COPY of the records' rows into table, with the
+// columns in double quotes. Follow it with each record's PGCopyLine on a line of its own, then a line of \.
 func (r *Record) PGCopyHeader(table string) string {
 	cols := make([]string, len(r.columns))
 	for i, c := range r.columns {
