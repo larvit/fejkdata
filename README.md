@@ -2170,7 +2170,7 @@ internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one i
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
-data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
+data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the modules they import, which none runs
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ the release CI publishes from the changelog heading or as a patch of the last release for an update to main's Go, modules or GoReleaser, and the binaries, packages, image and package repositories built for it
