@@ -79,6 +79,12 @@ with its replacement, and each removed path, column or flag.
 - `IsLonePath` reports whether the text after a reference's `/` is one path and
   nothing else, so `{/users}` is a lone reference, and `{/users as u}` is not.
 
+## 0.4.3 - 2026-11-12
+
+### Changed
+
+- The binaries, packages and image are built with GoReleaser v2.20.2.
+
 ## [0.4.2] - 2026-11-11
 
 ### Changed
