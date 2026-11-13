@@ -104,10 +104,12 @@ func TestWalkLabelsWhatACategoryFileGetsWrong(t *testing.T) {
 		{"its name", fstest.MapFS{"a.b.json": {Data: []byte(`"x"`)}}, nil, "lbl/a.b.json: category "},
 		{"its folder's name", fstest.MapFS{"a.b/c.json": {Data: []byte(`"x"`)}}, nil, "lbl/a.b: folder "},
 	} {
-		err := Source{fsys: c.fs, label: "lbl"}.Walk(func(Category) error { return c.compile })
-		if err == nil || !strings.HasPrefix(err.Error(), c.want) {
-			t.Errorf("%s: Walk = %v, want it to start %q", c.name, err, c.want)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			err := Source{fsys: c.fs, label: "lbl"}.Walk(func(Category) error { return c.compile })
+			if err == nil || !strings.HasPrefix(err.Error(), c.want) {
+				t.Errorf("%s: Walk = %v, want it to start %q", c.name, err, c.want)
+			}
+		})
 	}
 }
 
@@ -119,14 +121,16 @@ func TestWalkChecksAFolderNameOnlyWhenItHoldsData(t *testing.T) {
 
 func TestWalkRefusesADiskPathThatIsNoDirectory(t *testing.T) {
 	dir := t.TempDir()
-	for _, c := range []struct{ path, want string }{
-		{"", "a data path is empty"},
-		{filepath.Join(dir, "none"), "data path " + filepath.Join(dir, "none") + ": no such directory"},
+	for _, c := range []struct{ name, path, want string }{
+		{"an empty path", "", "a data path is empty"},
+		{"a path to no file", filepath.Join(dir, "none"), "data path " + filepath.Join(dir, "none") + ": no such directory"},
 	} {
-		_, err := walk(t, Dir(c.path))
-		if err == nil || err.Error() != c.want {
-			t.Errorf("Walk(%q) = %v, want %q", c.path, err, c.want)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			_, err := walk(t, Dir(c.path))
+			if err == nil || err.Error() != c.want {
+				t.Errorf("Walk(%q) = %v, want %q", c.path, err, c.want)
+			}
+		})
 	}
 }
 
@@ -157,6 +161,13 @@ func TestDirReadsTheDirectoryAndLabelsItsErrorsWithIt(t *testing.T) {
 	_, err := walk(t, Dir(dir))
 	if err == nil || !strings.HasPrefix(err.Error(), filepath.ToSlash(filepath.Join(dir, "a.json"))+": ") {
 		t.Errorf("Walk = %v, want the error labelled with the directory", err)
+	}
+}
+
+func TestWalkRefusesADiskPathThatIsAFile(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "a.json"), []byte(`{`), 0o600); err != nil {
+		t.Fatal(err)
 	}
 	if _, err := walk(t, Dir(filepath.Join(dir, "a.json"))); err == nil || err.Error() != "data path "+filepath.Join(dir, "a.json")+": not a directory" {
 		t.Errorf("Walk = %v, want a file refused as no directory", err)
@@ -234,6 +245,10 @@ func TestAMountedTreeHandsItsCategoriesUnderItsNamespace(t *testing.T) {
 	if err != nil {
 		t.Errorf("Load = %v", err)
 	}
+}
+
+func TestAMountedTreeLoadsNoCategoryItDoesNotHold(t *testing.T) {
+	src := FS(fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "sub/b.json": {Data: []byte(`{"rows":"b.tsv"}`)}, "sub/b.tsv": {Data: []byte("r\n")}}).Mounted("my.data")
 	if err := src.Load([]string{"my", "data"}, "gone", func(Category) error { return nil }); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("Load of no file = %v, want it not to exist", err)
 	}
@@ -248,10 +263,15 @@ func TestAMountedSourceNamesItsManifestBesideItsFiles(t *testing.T) {
 		"an fs.FS":    {FS(fstest.MapFS{}).Mounted("my.data"), "my/data/.fejkdata.json"},
 		"a data path": {Dir(dir).Mounted("my.data"), filepath.ToSlash(filepath.Join(dir, ".fejkdata.json"))},
 	} {
-		if got := c.src.ManifestPath(); got != c.want {
-			t.Errorf("%s: ManifestPath() = %q, want %q", name, got, c.want)
-		}
+		t.Run(name, func(t *testing.T) {
+			if got := c.src.ManifestPath(); got != c.want {
+				t.Errorf("%s: ManifestPath() = %q, want %q", name, got, c.want)
+			}
+		})
 	}
+}
+
+func TestAMountedSourceReadsItsManifestFromBesideItsFiles(t *testing.T) {
 	m, err := FS(fstest.MapFS{ManifestFile: {Data: []byte(`{"namespace": "my.data"}`)}}).Mounted("my.data").Manifest()
 	if err != nil || m.Namespace != "my.data" {
 		t.Errorf("Manifest() after Mounted = %+v, %v, want the manifest read from beside the files", m, err)
