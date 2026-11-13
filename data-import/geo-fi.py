@@ -111,7 +111,8 @@ def street_name(name):
 
 
 def capitalised(name):
-    """A BAF name with its first letter in upper case and the rest as Posti writes it."""
+    """A BAF name with its first letter in upper case and the rest as Posti writes it. Posti itself writes a leading
+    particle in upper case, as in Von Daehnin katu, so this changes only names Posti wrote wholly in lower case."""
     return name[:1].upper() + name[1:]
 
 
