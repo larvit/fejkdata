@@ -432,3 +432,13 @@ func TestAReferenceReadInsideANamedPickKeepsNoneOfThePicksValues(t *testing.T) {
 		t.Errorf(`Fake("x") = %q, %v, want "mine|mine theirs": the {first} of /other is not the pick's`, got, err)
 	}
 }
+
+func TestTwoRecordColumnsReadingEachOtherAreACycle(t *testing.T) {
+	_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{
+		"a": `{"format":"{x}","x":"{/b.y}"}`,
+		"b": `{"format":"{y}","y":"{/a.x}"}`,
+	})))
+	if err == nil || !strings.Contains(err.Error(), "reference cycle") {
+		t.Fatalf("New = %v, want the cycle between the columns rejected", err)
+	}
+}
