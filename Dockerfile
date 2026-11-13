@@ -50,11 +50,15 @@ COPY data-import/ /data-import/
 COPY data/ /data/
 RUN python3 -m unittest discover -s /data-import -p '*_test.py' && touch /tested
 
-FROM ghcr.io/astral-sh/ruff:0.14.5-alpine AS python-lint
+FROM python:3.15.2-slim AS python-lint
+COPY --from=ghcr.io/astral-sh/ruff:0.14.5-alpine /usr/local/bin/ruff /usr/local/bin/ruff
+RUN pip install --no-cache-dir mypy==2.4.1
 COPY data-import/ /python/data-import/
 COPY release-tooling/ /python/release-tooling/
 COPY vulnerability-filing/ /python/vulnerability-filing/
-RUN ruff check --no-cache /python && touch /tested
+RUN ruff check --no-cache /python
+# Each folder is checked from inside it, as its scripts run, so one folder's module never shadows another's.
+RUN for folder in data-import release-tooling vulnerability-filing; do (cd /python/$folder && mypy --strict --cache-dir /dev/null .) || exit 1; done && touch /tested
 
 FROM goreleaser/goreleaser:v2.20.2 AS packaging
 WORKDIR /check
