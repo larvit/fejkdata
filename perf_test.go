@@ -102,7 +102,9 @@ func TestNoTableAllocRegression(t *testing.T) {
 			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a row lookup built per draw is the usual cause", s.name, allocs, s.base*1.10, s.base)
 		}
 	}
-	// Five linked tables, the depth a country's geo tree has: every pin must stay inline.
+}
+
+func fiveLinkedTablesFS() fstest.MapFS {
 	deep := fstest.MapFS{"addr.json": {Data: []byte(`"{/e.v} {/d.v} {/c.v} {/b.v} {/a.v}"`)}}
 	for i, name := range []string{"a", "b", "c", "d", "e"} {
 		rows, category := "k\tv\n1\tx\n2\ty\n", `{"format":"{v}","rows":"`+name+`.tsv","key":"k"}`
@@ -113,7 +115,12 @@ func TestNoTableAllocRegression(t *testing.T) {
 		}
 		deep[name+".json"], deep[name+".tsv"] = &fstest.MapFile{Data: []byte(category)}, &fstest.MapFile{Data: []byte(rows)}
 	}
-	f, err = New(WithSeed(1), onTestDay, WithDataFS(deep))
+	return deep
+}
+
+// Five linked tables, the depth a country's geo tree has: every pin must stay inline.
+func TestNoLinkedTablesAllocRegression(t *testing.T) {
+	f, err := New(WithSeed(1), onTestDay, WithDataFS(fiveLinkedTablesFS()))
 	if err != nil {
 		t.Fatal(err)
 	}
