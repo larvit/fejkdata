@@ -44,9 +44,11 @@ func TestParseRefuses(t *testing.T) {
 		{"a key a selector cannot spell", "k\nx\ny|z\n", Options{Key: "k"}, `contains "|"`},
 		{"an option naming no column", "k\nx\ny\n", Options{Key: "nope"}, `key names no column "nope"`},
 	} {
-		if _, err := Parse("o", "t", "g.t", "t.tsv", c.data, c.o); err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: Parse = %v, want %q", c.name, err, c.want)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			if _, err := Parse("o", "t", "g.t", "t.tsv", c.data, c.o); err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("%s: Parse = %v, want %q", c.name, err, c.want)
+			}
+		})
 	}
 }
 
@@ -96,10 +98,16 @@ func TestPinRowRefusesARowOutsideThePinnedParent(t *testing.T) {
 	}
 }
 
-func TestDrawInDrawsInsideThePinnedParentAndPinsItsAncestors(t *testing.T) {
+func fiftyTimes(draw func()) {
+	for i := 0; i < 50; i++ {
+		draw()
+	}
+}
+
+func TestDrawInDrawsInsideThePinnedParent(t *testing.T) {
 	country, city := family(t)
 	s := drawstate.New(1, time.Time{})
-	for i := 0; i < 50; i++ {
+	fiftyTimes(func() {
 		var p Pins[string]
 		if err := p.PinRow(country, 0); err != nil {
 			t.Fatal(err)
@@ -107,25 +115,45 @@ func TestDrawInDrawsInsideThePinnedParentAndPinsItsAncestors(t *testing.T) {
 		if r := city.DrawIn(s, &p); city.Cell(r, 0) != "SE" {
 			t.Fatalf("DrawIn inside SE drew a city of %s", city.Cell(r, 0))
 		}
+	})
+}
+
+func TestDrawInPinsTheAncestorsOfTheRowItDraws(t *testing.T) {
+	country, city := family(t)
+	s := drawstate.New(1, time.Time{})
+	fiftyTimes(func() {
 		var q Pins[string]
 		r := city.DrawIn(s, &q)
 		if pr := q.MustRow(country); country.Cell(pr, 0) != city.Cell(r, 0) {
 			t.Fatalf("DrawIn pinned country %s above a city of %s", country.Cell(pr, 0), city.Cell(r, 0))
 		}
+	})
+}
+
+func TestAboveDropsThePinsBelowATable(t *testing.T) {
+	country, city := family(t)
+	s := drawstate.New(1, time.Time{})
+	fiftyTimes(func() {
+		var q Pins[string]
+		city.DrawIn(s, &q)
 		if _, ok := q.Above(country).Pinned(city); ok {
 			t.Fatal("Above(country) kept the city's pin")
 		}
-	}
+	})
 }
 
 func TestProveStepUpNamesTheParent(t *testing.T) {
-	country, city := family(t)
+	_, city := family(t)
 	if err := city.ProveStepUp([]string{"country", "name"}); err != nil {
 		t.Errorf("ProveStepUp(country.name) = %v", err)
 	}
 	if err := city.ProveStepUp([]string{"name"}); err == nil || !strings.Contains(err.Error(), "..country") {
 		t.Errorf("ProveStepUp(name) = %v, want ..country named", err)
 	}
+}
+
+func TestProveStepUpRefusesATableWithNoParent(t *testing.T) {
+	country, _ := family(t)
 	if err := country.ProveStepUp([]string{"x"}); err == nil {
 		t.Error("ProveStepUp from a table with no parent passed")
 	}
