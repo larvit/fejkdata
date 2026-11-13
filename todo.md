@@ -23,7 +23,7 @@
 | 334 | 0.7.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
 | 169 | 0.8.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
-| 452 | 0.8.0 |  | defect | **Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.** | 2 | 2 | 2 | 4 | 3 | 3.1 by 2, 4.6 by 2 | 12.5 |
+| 452 | 0.8.0 | 453 | defect | **Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.** | 2 | 2 | 2 | 4 | 3 | 3.1 by 2, 4.6 by 2 | 12.5 |
 | 343 | 0.8.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 9.4 |
 | 354 | 0.8.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
@@ -34,7 +34,7 @@
 | 350 | 0.8.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.9 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.8 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 4.3 |
-| 27 | 0.8.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.7 |
+| 27 | 0.8.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip` into one `misc.ip`, and `en_US.version` and `sv_SE.version` into one `misc.version`, each pair today byte-identical.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.7 |
 | 15 | 0.8.0 | 27 |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 4.1 |
 | 22 | 0.8.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 4.1 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.7 |
@@ -52,7 +52,7 @@
 | 406 | 0.8.0 |  |  | **Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.** | 2 | 1 | 1 | 2 | 2 | 1 by 2, 4 by 2 | 2.8 |
 | 260 | 0.8.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.7 |
 | 261 | 0.8.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.7 |
-| 164 | 0.8.0 |  |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 4 by 3 | 2.7 |
+| 164 | 0.8.0 | 453 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 4 by 3 | 2.7 |
 | 262 | 0.8.0 |  |  | **Add `misc.bloodtype`, weighted by its global distribution.** | 1 | 2 | 1 | 2 | 1 | 1 by 1, 2 by 1, 3.2 by 1 | 2.6 |
 | 50 | 0.8.0 |  |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.6 |
 | 52 | 0.8.0 |  |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.6 |
@@ -208,7 +208,8 @@
 | 285 | 1.3.0 | 284 |  | **Give `geo/BR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 432 | 2.0.0 |  | question | **Reword goals 2.2, 7, 8.1, 8.5, 8.6, 9.2 and 10, and the README's Versioning table, for a Rust core that a native Go library and the npm package both serve.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.8 |
-| 434 | 2.0.0 | 432 |  | **Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 14, the tests, and cargo-mutants for the stability pass.** | 3 | 1 | 1 | 3 | 4 | 1 by 1 | 0.4 |
+| 433 | 2.0.0 |  |  | **Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.** | 2 | 1 | 1 | 2 | 2 | 1 by 1 | 0.8 |
+| 434 | 2.0.0 | 432, 433 |  | **Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 14, the tests, and cargo-mutants for the stability pass.** | 3 | 1 | 1 | 3 | 4 | 1 by 1 | 0.4 |
 | 435 | 2.0.0 | 434 |  | **Port internal/drawstate to Rust so a seed draws the same numbers as Go, and fail the gate where the Go and Rust CLIs print different bytes for a corpus of templates at a fixed seed and date.** | 3 | 1 | 2 | 4 | 4 | 9 by 5 | 10.4 |
 | 436 | 2.0.0 | 434 |  | **Port internal/datafiles, internal/rows and internal/jsonvalue to Rust, loading on first reach a source with an index, and embed the shipped data per locale behind a Cargo feature.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
 | 437 | 2.0.0 | 434 |  | **Port internal/grammar to Rust: templates, paths, selectors and where clauses.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
@@ -218,7 +219,6 @@
 | 441 | 2.0.0 | 435, 437 |  | **Port internal/builtinfunc to Rust: every builtin, Go's reference-time date layouts such as '060102', the checksums, calc with its Inf, and reword.** | 3 | 1 | 3 | 5 | 8 | 1 by 3 | 0.1 |
 | 442 | 2.0.0 | 440, 441 |  | **Port records and their serializers to Rust: JSON, NDJSON, CSV and SQL, typed columns, linked templates through --emit, streamed.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
 | 443 | 2.0.0 | 442 |  | **Port the CLI to Rust, with its getopt_long flags, exit codes, --list and --data-path.** | 3 | 1 | 3 | 5 | 6 | 1 by 3 | 0.4 |
-| 433 | 2.0.0 |  |  | **Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.** | 2 | 1 | 1 | 2 | 2 | 1 by 1 | 0.8 |
 | 446 | 2.0.0 | 433, 442 |  | **Serve the Go library from the Rust core through cgo, under the module path github.com/larvit/fejkdata/v2, keeping New, its options, Fake, the templates, records and FakeStruct.** | 4 | 3 | 3 | 8 | 8 | 1 by 3 | 0.1 |
 | 445 | 2.0.0 | 443 |  | **Build and publish the Rust CLI on every channel the Go one reaches: the binaries for six targets, deb, rpm and apk, Homebrew, Scoop and the image, with cargo-audit in place of govulncheck.** | 4 | 3 | 3 | 8 | 8 | 1.1 by 3 | 0.1 |
 | 447 | 2.0.0 | 443, 445, 446 |  | **Delete the Go engine, keep the Go tests that check the Go library's API, and revise each decision in docs/decisions.md that names Go.** | 3 | 2 | 3 | 6 | 6 | code health by 3 | 1.6 |
@@ -249,6 +249,8 @@ The places the seats named, which this item restructures:
 - `internal/engine/tree/pick.go:83` `LevelsUnder` with `:97` `LandsInPick`: all eight seats; the one place load and render agree on a pick's levels, in another package than its four fence readers.
 
 Out of scope: `render/pick.go` `readName` and its memo, which item 423 took, and `tree/loadfinds.go`'s two phases.
+
+The architecture pass of 0.5.0's release review asked for two more parts, and items 452 and 164 wait for this one, since each would change every rule again: make `sharedDraw` return a named case, so its cases no longer depend on their order; and move the name rules, `namefence.go`, the five `refuse*.go` files, `drawsalong.go` and `readinsidefield.go`, into a package `internal/engine/fence/names`, revising the decision that places every fence in `internal/engine/fence`.
 
 ### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
 
@@ -1016,6 +1018,12 @@ Each Land publishes its own address data. Where open registers cover every Land,
 
 The owner decided on 2026-11-11 that fejkdata moves to Rust as a whole and keeps Go as a native library. Today those goals name Go as the one language: Go packages as modules, a CLI of your own in a few lines of Go, functions in Go, the JavaScript package matching the Go library, and the lowest supported Go in the Versioning table. The wording is the owner's; every other item of 2.0.0 waits for it.
 
+The architecture pass of 0.5.0's release review asked the owner to weigh, while rewording, two things: item 446 serves the Go library through cgo, which breaks `go install` without a C toolchain, against goals 8.6 and 10 as they read today; and item 359, the Go library built to WebAssembly, already serves goals 1.2 and 9.2 with one engine.
+
+### 433. Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.
+
+The owner accepts a Go library that runs the Rust core as WebAssembly only where it costs no more than a few percent against native Go. Expect 1.5 to 3 times slower before the cost of copying strings across the boundary. Where it does come within a few percent, item 446 binds through wazero instead of cgo, and Go users keep `CGO_ENABLED=0`.
+
 ### 434. Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 14, the tests, and cargo-mutants for the stability pass.
 
 Rust runs through `docker compose run --rm`, as Go does. Clippy's cognitive-complexity lint stands in for the Go gate's cyclomatic limit. cargo-mutants on the changed lines will be slower than Go's mutation run, since Rust compiles more slowly; measure one run and say so in the Development section.
@@ -1039,10 +1047,6 @@ A counting global allocator in the test binary stands in for Go's `testing.Alloc
 ### 441. Port internal/builtinfunc to Rust: every builtin, Go's reference-time date layouts such as '060102', the checksums, calc with its Inf, and reword.
 
 The date layouts are template syntax users write, so they keep Go's spelling.
-
-### 433. Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.
-
-The owner accepts a Go library that runs the Rust core as WebAssembly only where it costs no more than a few percent against native Go. Expect 1.5 to 3 times slower before the cost of copying strings across the boundary. Where it does come within a few percent, item 446 binds through wazero instead of cgo, and Go users keep `CGO_ENABLED=0`.
 
 ### 446. Serve the Go library from the Rust core through cgo, under the module path github.com/larvit/fejkdata/v2, keeping New, its options, Fake, the templates, records and FakeStruct.
 
