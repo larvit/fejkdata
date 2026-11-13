@@ -2232,12 +2232,11 @@ GO_VERSION=1.22.12 docker compose run --rm test  # the tests on the lowest Go, w
 ```
 
 A known vulnerability in the Go version the gate builds with, or in a module fejkdata
-requires, holds the release and no merge. CI checks on every pull request, every push to
-`main`, and daily. On `main` and in the daily run, CI files each module's new
-vulnerabilities as one `security` item in `todo.md`, under the patch after the last
-release; it moves an item whose vulnerabilities are gone into `CHANGELOG.md`. A pull
-request from the branch `security-plan` carries both to `main` and merges itself once the
-tests pass, which needs "Allow auto-merge" on in the repository's settings. When the step
+requires, holds the release and no merge. The decision "A known vulnerability in the Go
+version or a required module blocks a release, even in code fejkdata never calls, and
+blocks no merge", in [docs/decisions.md](docs/decisions.md), says when CI checks and how
+it files what it finds in `todo.md`. The pull request it opens from `security-plan` merges
+itself, which needs "Allow auto-merge" on in the repository's settings. When the step
 "Fetch govulncheck's report from vuln.go.dev" fails, vuln.go.dev did not answer: rerun
 it. When GitHub pauses the daily run after 60 days with no activity, re-enable it under
 Actions. The same check:
@@ -2368,30 +2367,13 @@ Renovate merges an update itself once `gate` passes. These wait for a human:
   check.
 
 An update to a tool, such as Python or `govulncheck`, isn't released. An update to what a
-release carries is released: Go, a Go minor included, a module `go.mod` requires, or
-GoReleaser. When `main` carries a newer one than the last release, CI cuts a patch of that
-release.
-
-A patch waits for you, to cut a release or fix the cause, while:
-
-- the patched tree carries a known vulnerability or fails `docker build .`;
-- `main`'s `goreleaser.yaml` builds for other targets than the last release;
-- the release job cannot read what a Go minor's release notes say about a built-for
-  system. The plan job then records no Breaking line for that minor: write what the notes
-  require under Breaking yourself before you cut a release.
-
-Each of these fails the release job, cutting nothing. Modules also wait for a release you
-cut while `main`'s `go.mod` changes more than their versions, such as its `go` line; the
-release job then fails only where the last release carries a known vulnerability.
-
-A patch applies its Go, modules and GoReleaser, `main`'s `.github/` and its
-`CHANGELOG.md` section to the last release's tree, builds it through `docker build .`,
-then commits it to a branch `release/X.Y.Z` and pushes that branch. It then publishes it
-and its packages, and adds the section to `main` through `security-plan`. The section
-names, under Breaking, each requirement a new Go minor's release notes set on a system the
-binaries are built for, such as a newer macOS. Until a release ships a Go minor, the plan
-job records the minor's Breaking lines under `Unreleased`, so a release you cut names them
-too.
+release carries is, as a patch of the last release, cut by CI. The decision "CI releases
+each update to what a release carries at once, as a fejkdata patch cut from the last
+release's tag", in [docs/decisions.md](docs/decisions.md), says what a release carries,
+how a patch is built, and when one waits for you. A patch that waits fails the release
+job, cutting nothing, until you cut a release or fix the cause. Where the release job
+could not read a Go minor's release notes, write what they require under Breaking yourself
+before you cut a release.
 
 Renovate leaves the Dockerfile's `LOWEST_GO_VERSION` alone: raising it is a major.
 
