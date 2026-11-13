@@ -2164,12 +2164,13 @@ internal/engine/fence/ the proofs and fences a finished tree passes at load: no 
 internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, and the paths List advertises
 internal/engine/render/ drawing a compiled tree: choices, format strings, expansions, paths and table steps, named picks and the frames they render in, where and reword draws, and a record's columns
 internal/engine/tree/ the node types of the template tree, what a load found for them, and the methods every other package reads or sets a node through
+internal/fejktest/ what the root's tests and the locale tests share: draw loops, the ids' checksums, a TSV's rows and a country's geo tables
 internal/grammar/ how the template language is written: format tokens, where and distinct clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one input a template compiles from, and the kind an error names it by
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
-data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
+data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; Modules, which lists them; and the tests of each locale's data
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the modules they import, which none runs
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read

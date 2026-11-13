@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/larvit/fejkdata/internal/engine/render"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // nameTables is a region table linked to by a municipality table.
@@ -26,7 +27,7 @@ func TestANameIsOnePickOfEverythingUnderIt(t *testing.T) {
 	files := nameTables()
 	files["card.json"] = `"{/region as r}{r.name}|{r.municipality.name}|{r.municipality.code}|{r}"`
 	f := newGenerator(t, writeFiles(t, files), WithSeed(3))
-	eachDraw(200, func() string { return fake(t, f, "card") }, func(card string) {
+	fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "card") }, func(card string) {
 		got := strings.Split(card, "|")
 		region, municipality, code, whole := got[0], got[1], got[2], got[3]
 		if municipalityCode[municipality] != code || municipalityRegion[municipality] != region || whole != region {
@@ -41,7 +42,7 @@ func TestANameReadWholeAgreesWithItsPaths(t *testing.T) {
 		"card":   `"{/person as p}{p}|{p.last}|{p.first}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(5))
-	eachDraw(200, func() string { return fake(t, f, "card") }, func(card string) {
+	fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "card") }, func(card string) {
 		got := strings.Split(card, "|")
 		if got[0] != got[2]+" "+got[1] {
 			t.Fatalf("card = %q, want the whole person to match its parts", got)
@@ -56,7 +57,7 @@ func TestANameKeepsWhatItsPathsAddress(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(7))
 	differ := false
-	eachDraw(100, func() string { return fake(t, f, "card") }, func(card string) {
+	fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "card") }, func(card string) {
 		got := strings.Split(card, "|")
 		if got[0] != got[1] {
 			t.Fatalf("card = %q, want one pick of n", got)
@@ -74,7 +75,7 @@ func TestABindingPrintsNothing(t *testing.T) {
 		"card": `"<{/word as w}>{w}{w}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "card"); got != "<>aa" && got != "<>bb" {
+	if got := fejktest.Fake(t, f, "card"); got != "<>aa" && got != "<>bb" {
 		t.Fatalf("card = %q, want the binding to print nothing", got)
 	}
 }
@@ -90,7 +91,7 @@ func TestSiblingFieldsAndColumnsReadOneName(t *testing.T) {
 		if c[2].Value != c[0].Value+" "+c[1].Value {
 			t.Fatalf("columns = %v, want one person across them", c)
 		}
-		if got := strings.Fields(fake(t, f, "row")); len(got) != 2 {
+		if got := strings.Fields(fejktest.Fake(t, f, "row")); len(got) != 2 {
 			t.Fatalf("row = %q, want a first and a last name", got)
 		}
 	})
@@ -102,7 +103,7 @@ func TestAFieldReadsTheNameItsCategoryBinds(t *testing.T) {
 		"row":    `{"format":"{first}","first":"{/person as p}{p.first}","last":"{p.last}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "row.last"); got != "Byron" {
+	if got := fejktest.Fake(t, f, "row.last"); got != "Byron" {
 		t.Fatalf("row.last = %q, want Byron", got)
 	}
 }
@@ -120,7 +121,7 @@ func TestANameInsideARepeatPicksEachIteration(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(11))
 	seen := map[string]bool{}
-	eachWordOf(fake(t, f, "line"), func(pair string) {
+	eachWordOf(fejktest.Fake(t, f, "line"), func(pair string) {
 		if pair[0] != pair[1] {
 			t.Fatalf("pair %q, want one pick per iteration", pair)
 		}
@@ -137,7 +138,7 @@ func TestANameOutsideARepeatKeepsItsPick(t *testing.T) {
 		"line": `{"format":"{/word as w}{each}","each":{"format":"{w}","repeat":40,"separator":" "}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(13))
-	line := fake(t, f, "line")
+	line := fejktest.Fake(t, f, "line")
 	got := strings.Fields(line)
 	eachWordOf(line, func(w string) {
 		if w != got[0] {
@@ -153,7 +154,7 @@ func TestTwoRendersPickTwice(t *testing.T) {
 		"two":  `"{/one}{/one}{/one}{/one}{/one}{/one}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(17))
-	got := fake(t, f, "two")
+	got := fejktest.Fake(t, f, "two")
 	if strings.Count(got, got[:1]) == len(got) || got[0] != got[1] {
 		t.Fatalf("two = %q, want each bare reference to its own pick", got)
 	}
@@ -164,7 +165,7 @@ func TestANameInAnInlineTemplate(t *testing.T) {
 		"person": `{"format":"{first} {last}","first":["Ada","Bo","Cy"],"last":["Byron","Ek","Lind"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(19))
-	eachDraw(50, func() string { return fakeTemplate(t, f, "{/person as p}{p}|{p.first} {p.last}") }, func(card string) {
+	fejktest.EachDraw(50, func() string { return fejktest.FakeTemplate(t, f, "{/person as p}{p}|{p.first} {p.last}") }, func(card string) {
 		got := strings.Split(card, "|")
 		if got[0] != got[1] {
 			t.Fatalf("template = %q, want one person", got)
@@ -174,7 +175,7 @@ func TestANameInAnInlineTemplate(t *testing.T) {
 
 func TestAChoiceItemKeepsTheNamesItBinds(t *testing.T) {
 	f, n, apart := emptyGenerator(1), compiled(t, `{"format":"{x}|{x}","x":[{"format":"{v as w}{w}{w}","v":["a","b"]},"c"]}`), false
-	eachDraw(100, func() string { return render.Once(f.drawState, n) }, func(got string) {
+	fejktest.EachDraw(100, func() string { return render.Once(f.drawState, n) }, func(got string) {
 		halves := strings.Split(got, "|")
 		if i := slices.IndexFunc(halves, func(h string) bool { return h != "aa" && h != "bb" && h != "c" }); i >= 0 {
 			t.Fatalf("render %q holds %q, want each draw of the item to read one pick twice", got, halves[i])
@@ -289,7 +290,7 @@ func TestANameBindsAReferenceFromItsFolder(t *testing.T) {
 		"sv/card": `"{.word as w}{w}{w}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(23))
-	eachDraw(50, func() string { return fake(t, f, "sv.card") }, func(got string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "sv.card") }, func(got string) {
 		if got[0] != got[1] {
 			t.Fatalf("sv.card = %q, want one pick", got)
 		}
@@ -302,7 +303,7 @@ func TestANameBindsAReferencePath(t *testing.T) {
 		"card":   `"{/person.first as f}{f}|{f}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(29))
-	eachDraw(50, func() string { return fake(t, f, "card") }, func(card string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "card") }, func(card string) {
 		got := strings.Split(card, "|")
 		if got[0] != got[1] {
 			t.Fatalf("card = %q, want one pick", got)
@@ -345,7 +346,7 @@ func TestANameEnteredPastItsCategoryAgreesWithItsWhole(t *testing.T) {
 		"card":   `"{/person as p}{p}|{p.first}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(37))
-	eachDraw(100, func() string { return fake(t, f, "card") }, func(card string) {
+	fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "card") }, func(card string) {
 		got := strings.Split(card, "|")
 		if got[0] != got[1] {
 			t.Fatalf("card = %q, want {p} and {p.first} to read one pick of g", got)
@@ -362,7 +363,7 @@ func TestANameKeepsItsPickInARepeatReachedByPath(t *testing.T) {
 	f := newGenerator(t, dir, WithSeed(41))
 	for _, path := range []string{"line.each", "far"} {
 		t.Run(path, func(t *testing.T) {
-			line := fake(t, f, path)
+			line := fejktest.Fake(t, f, path)
 			got := strings.Fields(line)
 			eachWordOf(line, func(w string) {
 				if w != got[0] {
@@ -381,7 +382,7 @@ func TestAHeldPathReadsTheNameItsFieldReads(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(43))
 	people := map[string]bool{"Ada Byron": true, "Bo Ek": true, "Cy Lind": true}
-	eachDraw(100, func() string { return fake(t, f, "cat.field") }, func(got string) {
+	fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "cat.field") }, func(got string) {
 		if !people[got] {
 			t.Fatalf("cat.field = %q, want one person read through n", got)
 		}
@@ -395,7 +396,7 @@ func TestANameIsATransformOperand(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(47))
 	want := map[string]bool{"Åsa <asa>": true, "Bo <bo>": true, "Cy <cy>": true}
-	eachDraw(50, func() string { return fake(t, f, "card") }, func(got string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "card") }, func(got string) {
 		if !want[got] {
 			t.Fatalf("card = %q, want the operand to read the pick", got)
 		}
@@ -409,7 +410,7 @@ func TestOneRenderReadsOneNameAcrossNestedTemplates(t *testing.T) {
 		"cat":   `{"format":"{/word as w}{a}","a":{"format":"{w}|{b}","b":"{w}{/other.x}"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(59))
-	eachDraw(50, func() string { return fake(t, f, "cat.a") }, func(got string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "cat.a") }, func(got string) {
 		if got[0] != got[2] {
 			t.Fatalf("cat.a = %q, want one pick of w in both templates", got)
 		}
@@ -480,7 +481,7 @@ func TestReadsOfACategoryReadingAFieldThroughANameThatAgreeLoad(t *testing.T) {
 	} {
 		t.Run(label, func(t *testing.T) {
 			f := newGenerator(t, writeData(t, map[string]string{"co": companyLike, "card": read}), WithSeed(7))
-			eachDraw(draws, func() string { return fake(t, f, "card") }, func(card string) {
+			fejktest.EachDraw(draws, func() string { return fejktest.Fake(t, f, "card") }, func(card string) {
 				got := strings.Split(card, "|")
 				if word[got[0]] != got[1] {
 					t.Fatalf("card = %q, want both reads from one pick", got)
@@ -501,7 +502,7 @@ func TestReadsOfACategoryReadingAFieldThroughANameThatShareNoPickLoad(t *testing
 	} {
 		t.Run(label, func(t *testing.T) {
 			f := newGenerator(t, writeData(t, map[string]string{"co": c.co, "card": c.card}), WithSeed(7))
-			eachDraw(draws, func() string { return fake(t, f, "card") }, func(got string) {
+			fejktest.EachDraw(draws, func() string { return fejktest.Fake(t, f, "card") }, func(got string) {
 				if rest := []rune(strings.TrimLeft(got, c.wantHolds)); len(rest) > 0 {
 					t.Fatalf("card holds %q, want only letters of %q", rest[0], c.wantHolds)
 				}
@@ -555,7 +556,7 @@ func TestANameReadBeforeItsBinderKeepsOnePick(t *testing.T) {
 		"row":    `{"format":"{a}|{b}","a":"{p}","b":"{/person as p}{p.first} {p.last}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(2))
-	eachDraw(100, func() string { return fake(t, f, "row") }, func(got string) {
+	fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "row") }, func(got string) {
 		if a, b, _ := strings.Cut(got, "|"); a != b {
 			t.Fatalf("a = %q, b = %q, want one pick of p", a, b)
 		}

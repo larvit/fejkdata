@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 const tickLayout = "2006-01-02T15:04:05Z"
@@ -39,7 +41,7 @@ func ticksMustAscend(t *testing.T, ticks []time.Time) {
 
 func TestTickPrintsRowNAtTheStartPlusNStepsAndWithinTheJitter(t *testing.T) {
 	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	eachTick(drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 200), func(i int, at time.Time) {
+	eachTick(drawTicks(t, readOn(t, fejktest.TestDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 200), func(i int, at time.Time) {
 		if low := start.Add(time.Duration(i) * 30 * time.Second); at.Before(low) || at.After(low.Add(5*time.Second)) {
 			t.Fatalf("row %d = %s, want %s to %s", i+1, at.Format(tickLayout), low.Format(tickLayout), low.Add(5*time.Second).Format(tickLayout))
 		}
@@ -47,13 +49,13 @@ func TestTickPrintsRowNAtTheStartPlusNStepsAndWithinTheJitter(t *testing.T) {
 }
 
 func TestTickRowsAscendWhenTheJitterIsOneBelowTheStep(t *testing.T) {
-	ticksMustAscend(t, drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,29,'2006-01-02T15:04:05Z')}"`, 5000))
+	ticksMustAscend(t, drawTicks(t, readOn(t, fejktest.TestDay), `"{tick(2026-01-01T00:00:00Z,30,29,'2006-01-02T15:04:05Z')}"`, 5000))
 }
 
 func TestTickDrawsTheJittersFirstAndLastSecond(t *testing.T) {
 	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	seen := map[time.Duration]bool{}
-	eachTick(drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 600), func(i int, at time.Time) {
+	eachTick(drawTicks(t, readOn(t, fejktest.TestDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 600), func(i int, at time.Time) {
 		seen[at.Sub(start)-time.Duration(i)*30*time.Second] = true
 	})
 	if !seen[0] || !seen[5*time.Second] || len(seen) != 6 {
@@ -62,13 +64,13 @@ func TestTickDrawsTheJittersFirstAndLastSecond(t *testing.T) {
 }
 
 func TestTickRowsKeepAscendingPastTwoHundredNinetyTwoYears(t *testing.T) {
-	ticksMustAscend(t, drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01,86400,0,'2006-01-02T15:04:05Z')}"`, 107000))
+	ticksMustAscend(t, drawTicks(t, readOn(t, fejktest.TestDay), `"{tick(2026-01-01,86400,0,'2006-01-02T15:04:05Z')}"`, 107000))
 }
 
 func TestTickKeepsAFractionOfASecondInItsStart(t *testing.T) {
-	f := readOn(t, testDay)
+	f := readOn(t, fejktest.TestDay)
 	want := []string{"2026-01-01T00:00:00.500Z", "2026-01-01T00:01:00.500Z"}
-	if got := drawsInTurn(2, func() string {
+	if got := fejktest.DrawsInTurn(2, func() string {
 		return mustRender(t, f, `"{tick(2026-01-01T00:00:00.5Z,60,0,'2006-01-02T15:04:05.000Z')}"`)
 	}); !slices.Equal(got, want) {
 		t.Fatalf("ticks = %q, want %q", got, want)
@@ -76,31 +78,31 @@ func TestTickKeepsAFractionOfASecondInItsStart(t *testing.T) {
 }
 
 func TestTickWithNoJitterPrintsExactSteps(t *testing.T) {
-	f := readOn(t, testDay)
+	f := readOn(t, fejktest.TestDay)
 	want := []string{"2026-01-01 00:00:00", "2026-01-01 00:01:00", "2026-01-01 00:02:00"}
-	if got := drawsInTurn(3, func() string { return mustRender(t, f, `"{tick(2026-01-01,60,0,'2006-01-02 15:04:05')}"`) }); !slices.Equal(got, want) {
+	if got := fejktest.DrawsInTurn(3, func() string { return mustRender(t, f, `"{tick(2026-01-01,60,0,'2006-01-02 15:04:05')}"`) }); !slices.Equal(got, want) {
 		t.Fatalf("ticks = %q, want %q: a day is read as its midnight, UTC", got, want)
 	}
 }
 
 func TestTickRepeatsForTheSameSeed(t *testing.T) {
 	const tmpl = `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`
-	a := drawTicks(t, readOn(t, testDay), tmpl, 50)
-	b := drawTicks(t, readOn(t, testDay), tmpl, 50)
+	a := drawTicks(t, readOn(t, fejktest.TestDay), tmpl, 50)
+	b := drawTicks(t, readOn(t, fejktest.TestDay), tmpl, 50)
 	if !slices.Equal(a, b) {
 		t.Fatalf("two generators on one seed drew %v and %v", a, b)
 	}
 }
 
 func TestTickCallsWithTheSameArgumentsStepOneCounter(t *testing.T) {
-	got := mustRender(t, readOn(t, testDay), `"{tick(2026-01-01,60,0,'15:04')} {tick(2026-01-01,60,0,'15:04')}"`)
+	got := mustRender(t, readOn(t, fejktest.TestDay), `"{tick(2026-01-01,60,0,'15:04')} {tick(2026-01-01,60,0,'15:04')}"`)
 	if got != "00:00 00:01" {
 		t.Fatalf("two equal calls = %q, want them to step one counter", got)
 	}
 }
 
 func TestTickCallsWithOtherArgumentsStepApart(t *testing.T) {
-	got := mustRender(t, readOn(t, testDay), `"{tick(2026-01-01,60,0,'15:04')} {tick(2026-01-01,30,0,'15:04')}"`)
+	got := mustRender(t, readOn(t, fejktest.TestDay), `"{tick(2026-01-01,60,0,'15:04')} {tick(2026-01-01,30,0,'15:04')}"`)
 	if got != "00:00 00:00" {
 		t.Fatalf("two calls of other steps = %q, want each to start at its first row", got)
 	}
@@ -128,9 +130,9 @@ func TestTickRefusesWhatCouldSwapRowsOrIsNoTime(t *testing.T) {
 }
 
 func TestDateDrawsBetweenDaysRelativeToTheCallersToday(t *testing.T) {
-	f := readOn(t, dayOf(2026, 11, 12))
+	f := readOn(t, fejktest.DayOf(2026, 11, 12))
 	first, last := "9999-12-31", "0000-01-01"
-	eachDraw(3000, func() string { return mustRender(t, f, `"{date(today-30,today+14,'2006-01-02')}"`) }, func(got string) {
+	fejktest.EachDraw(3000, func() string { return mustRender(t, f, `"{date(today-30,today+14,'2006-01-02')}"`) }, func(got string) {
 		first, last = min(first, got), max(last, got)
 	})
 	if first != "2026-10-13" || last != "2026-11-26" {
@@ -157,8 +159,8 @@ func TestDateKeepsARelativeBoundInsideYears0000To9999(t *testing.T) {
 		today      time.Time
 		tmpl, want string
 	}{
-		"far past":   {dayOf(2026, 11, 12), `"{date(today-1000000,today-1000000,'2006-01-02')}"`, "0000-01-01"},
-		"far future": {dayOf(9999, 12, 31), `"{date(today+1,today+1,'2006-01-02')}"`, "9999-12-31"},
+		"far past":   {fejktest.DayOf(2026, 11, 12), `"{date(today-1000000,today-1000000,'2006-01-02')}"`, "0000-01-01"},
+		"far future": {fejktest.DayOf(9999, 12, 31), `"{date(today+1,today+1,'2006-01-02')}"`, "9999-12-31"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if got := mustRender(t, readOn(t, c.today), c.tmpl); got != c.want {
@@ -175,7 +177,7 @@ func TestDateAcceptsARelativeOffsetOfAMillionDays(t *testing.T) {
 }
 
 func TestAddDaysReadsADateRelativeToToday(t *testing.T) {
-	got := mustRender(t, readOn(t, dayOf(2026, 11, 12)), `{"format":"{x as s}{adddays(s,1)}","x":"{date(today-1,today-1,'2006-01-02')}"}`)
+	got := mustRender(t, readOn(t, fejktest.DayOf(2026, 11, 12)), `{"format":"{x as s}{adddays(s,1)}","x":"{date(today-1,today-1,'2006-01-02')}"}`)
 	if got != "2026-11-12" {
 		t.Errorf("adddays over date(today-1,today-1) on 2026-11-12 = %q, want 2026-11-12", got)
 	}

@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
@@ -242,10 +244,10 @@ func TestNullableColumnDrawsNullAndAValue(t *testing.T) {
 
 func TestNullRendersAsNoText(t *testing.T) {
 	f := nullColumns(t)
-	if v := fake(t, f, "row"); v != "[]" && v != "[Ann]" {
+	if v := fejktest.Fake(t, f, "row"); v != "[]" && v != "[Ann]" {
 		t.Errorf("Fake(row) = %q, want a null to render as \"\"", v)
 	}
-	if v := fake(t, f, "row.gone"); v != "" {
+	if v := fejktest.Fake(t, f, "row.gone"); v != "" {
 		t.Errorf("Fake(row.gone) = %q, want \"\"", v)
 	}
 }

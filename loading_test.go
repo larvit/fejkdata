@@ -10,6 +10,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // TestList pins the discoverable paths: every category, its dotted fields, and
@@ -54,7 +56,7 @@ func TestNewLoadsAnyDirName(t *testing.T) {
 	// No locale tag required: a directory named anything loads fine.
 	dir := writeData(t, map[string]string{"greeting": `["hej", "hallå"]`})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "greeting"); got != "hej" && got != "hallå" {
+	if got := fejktest.Fake(t, f, "greeting"); got != "hej" && got != "hallå" {
 		t.Fatalf("greeting = %q, want hej or hallå", got)
 	}
 }
@@ -67,10 +69,10 @@ func TestFoldersBecomeDotPaths(t *testing.T) {
 		"en_US/greeting": `"hi"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "sv_SE.greeting"); got != "hej" {
+	if got := fejktest.Fake(t, f, "sv_SE.greeting"); got != "hej" {
 		t.Fatalf("sv_SE.greeting = %q, want hej", got)
 	}
-	if got := fake(t, f, "en_US.greeting"); got != "hi" {
+	if got := fejktest.Fake(t, f, "en_US.greeting"); got != "hi" {
 		t.Fatalf("en_US.greeting = %q, want hi", got)
 	}
 }
@@ -83,11 +85,11 @@ func TestNestedFoldersAndJSON(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	// Folders a.b.c, file thing, then JSON fields x.y.z — one continuous path.
-	if got := fake(t, f, "a.b.c.thing.x.y.z"); got != "leaf" {
+	if got := fejktest.Fake(t, f, "a.b.c.thing.x.y.z"); got != "leaf" {
 		t.Fatalf("a.b.c.thing.x.y.z = %q, want leaf", got)
 	}
 	// Rendering the file resolves the same chain top-down.
-	if got := fake(t, f, "a.b.c.thing"); got != "leaf" {
+	if got := fejktest.Fake(t, f, "a.b.c.thing"); got != "leaf" {
 		t.Fatalf("a.b.c.thing = %q, want leaf", got)
 	}
 }
@@ -106,13 +108,13 @@ func TestMultiPathLastWins(t *testing.T) {
 	a := writeData(t, map[string]string{"greeting": `"from-a"`, "only-a": `"a"`})
 	b := writeData(t, map[string]string{"greeting": `"from-b"`, "only-b": `"b"`})
 	f := newGeneratorN(t, []string{a, b}, WithSeed(1))
-	if got := fake(t, f, "greeting"); got != "from-b" {
+	if got := fejktest.Fake(t, f, "greeting"); got != "from-b" {
 		t.Fatalf("greeting = %q, want from-b (last loaded wins)", got)
 	}
-	if got := fake(t, f, "only-a"); got != "a" {
+	if got := fejktest.Fake(t, f, "only-a"); got != "a" {
 		t.Fatalf("only-a = %q, want a", got)
 	}
-	if got := fake(t, f, "only-b"); got != "b" {
+	if got := fejktest.Fake(t, f, "only-b"); got != "b" {
 		t.Fatalf("only-b = %q, want b", got)
 	}
 }
@@ -124,13 +126,13 @@ func TestMultiPathMergesFolders(t *testing.T) {
 	a := writeData(t, map[string]string{"sv_SE/person": `"from-a"`, "sv_SE/shared": `"a"`})
 	b := writeData(t, map[string]string{"sv_SE/company": `"from-b"`, "sv_SE/shared": `"b"`})
 	f := newGeneratorN(t, []string{a, b}, WithSeed(1))
-	if got := fake(t, f, "sv_SE.person"); got != "from-a" {
+	if got := fejktest.Fake(t, f, "sv_SE.person"); got != "from-a" {
 		t.Fatalf("sv_SE.person = %q, want from-a (folder merged, not replaced)", got)
 	}
-	if got := fake(t, f, "sv_SE.company"); got != "from-b" {
+	if got := fejktest.Fake(t, f, "sv_SE.company"); got != "from-b" {
 		t.Fatalf("sv_SE.company = %q, want from-b", got)
 	}
-	if got := fake(t, f, "sv_SE.shared"); got != "b" {
+	if got := fejktest.Fake(t, f, "sv_SE.shared"); got != "b" {
 		t.Fatalf("sv_SE.shared = %q, want b (last loaded wins)", got)
 	}
 }
@@ -141,7 +143,7 @@ func TestListedPathsAllRender(t *testing.T) {
 	f := shipped(t, WithSeed(4))
 	for _, p := range f.List() {
 		t.Run(p, func(t *testing.T) {
-			eachDraw(20, func() string {
+			fejktest.EachDraw(20, func() string {
 				got, err := f.Fake(p)
 				if err != nil {
 					t.Fatalf("Fake(%q) = %v, but List() advertises it", p, err)
@@ -177,7 +179,7 @@ func TestHiddenEntriesAreSkipped(t *testing.T) {
 		t.Fatal(err)
 	}
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "cat"); got != "V" {
+	if got := fejktest.Fake(t, f, "cat"); got != "V" {
 		t.Fatalf("cat = %q, want V", got)
 	}
 	notData := slices.DeleteFunc(slices.Clone(f.List()), func(p string) bool {
@@ -367,10 +369,10 @@ func TestCategoryRootShapes(t *testing.T) {
 		"lit": `"hello"`,       // bare-string root
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "obj"); !regexp.MustCompile(`^\d\d$`).MatchString(got) {
+	if got := fejktest.Fake(t, f, "obj"); !regexp.MustCompile(`^\d\d$`).MatchString(got) {
 		t.Errorf("object-root category = %q, want two digits", got)
 	}
-	if got := fake(t, f, "lit"); got != "hello" {
+	if got := fejktest.Fake(t, f, "lit"); got != "hello" {
 		t.Errorf("string-root category = %q, want hello", got)
 	}
 }
@@ -393,7 +395,7 @@ func TestLongStringList(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"name": string(list)}), WithSeed(1))
 
 	seen := map[string]bool{}
-	eachDraw(20000, func() string { return fake(t, f, "name") }, func(v string) {
+	fejktest.EachDraw(20000, func() string { return fejktest.Fake(t, f, "name") }, func(v string) {
 		if _, valid := slices.BinarySearch(names, v); !valid {
 			t.Fatalf("got %q, not in the list", v)
 		}

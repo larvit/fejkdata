@@ -15,6 +15,7 @@ import (
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestRecursionHasNoDepthLimit(t *testing.T) {
@@ -47,7 +48,7 @@ func TestGrowIsALowerBound(t *testing.T) {
 			if !ok {
 				t.Fatalf("format %q did not compile to a template", format)
 			}
-			eachDraw(50, func() string { return render.Once(f.drawState, tmpl) }, func(rendered string) {
+			fejktest.EachDraw(50, func() string { return render.Once(f.drawState, tmpl) }, func(rendered string) {
 				if got := len(rendered); got < tmpl.Compiled().Grow() {
 					t.Errorf("format %q: a render emitted %d bytes, below grow %d", format, got, tmpl.Compiled().Grow())
 				}

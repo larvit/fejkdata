@@ -4,6 +4,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func loadFence(t *testing.T, files map[string]string) (*Generator, error) {
@@ -54,7 +56,7 @@ func TestAReadThroughAFieldBoundNameLoadsWhereNoNameOfTheItemIsRead(t *testing.T
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			eachDraw(20, func() string { return fake(t, f, "co.legal") }, func(string) {})
+			fejktest.EachDraw(20, func() string { return fejktest.Fake(t, f, "co.legal") }, func(string) {})
 		})
 	}
 }
@@ -70,7 +72,7 @@ func TestANameReadInsideTheItemThatBindsItLoads(t *testing.T) {
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			eachDraw(20, func() string { return fake(t, f, "co") }, func(string) {})
+			fejktest.EachDraw(20, func() string { return fejktest.Fake(t, f, "co") }, func(string) {})
 		})
 	}
 }
@@ -88,7 +90,7 @@ func TestAChoiceItemThatReadsOnlyANameItBindsDraws(t *testing.T) {
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			eachNumberedDraw(40, func() string { return fake(t, f, c.path) }, func(i int, got string) {
+			eachNumberedDraw(40, func() string { return fejktest.Fake(t, f, c.path) }, func(i int, got string) {
 				if !slices.Contains([]string{"L", "M", "L!", "M!"}, got) {
 					t.Fatalf("draw %d = %q, want L, M, L! or M!", i, got)
 				}
@@ -177,7 +179,7 @@ func TestAReadOfANameLoadsBesideAReadWhoseFormatReadsOneFieldOneWay(t *testing.T
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			eachNumberedDraw(40, func() string { return fake(t, f, "card") }, func(i int, card string) {
+			eachNumberedDraw(40, func() string { return fejktest.Fake(t, f, "card") }, func(i int, card string) {
 				if got := strings.Split(card, "|"); got[0] != got[1] {
 					t.Fatalf("draw %d = %q, want every read to print one value", i, got)
 				}
@@ -299,7 +301,7 @@ func TestAReadLandingAboveAReferenceLoadsWhereRenderingItsLevelDoesNotReadTheRef
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			got := strings.SplitN(fake(t, f, "card"), "|", 2)
+			got := strings.SplitN(fejktest.Fake(t, f, "card"), "|", 2)
 			if c.want == "=" && got[0] != got[1] || c.want != "" && c.want != "=" && got[1] != c.want {
 				t.Errorf("card = %q, want it to end %q, or both reads to agree where that is =", got, c.want)
 			}
@@ -331,7 +333,7 @@ func TestAReadOfANameLoadsBesideAReferenceThatReachesNoDrawOfItsPath(t *testing.
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			if got := fake(t, f, "card"); c.want != "" && got != c.want {
+			if got := fejktest.Fake(t, f, "card"); c.want != "" && got != c.want {
 				t.Errorf("card = %q, want %q", got, c.want)
 			}
 		})
@@ -364,7 +366,7 @@ func TestReadsOfANameLoadWhereTheirSharedLevelsDrawNothingThatCouldDiffer(t *tes
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			if got, _, _ := strings.Cut(fake(t, f, "card"), "|"); got != c.wantFirst {
+			if got, _, _ := strings.Cut(fejktest.Fake(t, f, "card"), "|"); got != c.wantFirst {
 				t.Errorf("card = %q, want it to start %q", got, c.wantFirst)
 			}
 		})
@@ -414,7 +416,7 @@ func TestATableFormatReadingAColumnTwiceLoadsBesideAReadOfThatColumn(t *testing.
 	if err != nil {
 		t.Fatalf("New() = %v, want it loaded", err)
 	}
-	eachDraw(20, func() string { return fake(t, f, "co") }, func(got string) {
+	fejktest.EachDraw(20, func() string { return fejktest.Fake(t, f, "co") }, func(got string) {
 		if got != "x-x x" && got != "y-y y" {
 			t.Fatalf("co = %q, want one row's name throughout", got)
 		}

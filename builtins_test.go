@@ -12,6 +12,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
@@ -30,7 +31,7 @@ func TestBuiltinIDGenerators(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			seen := map[string]bool{}
-			eachDraw(200, func() string { return mustRender(t, f, c.tmpl) }, func(got string) {
+			fejktest.EachDraw(200, func() string { return mustRender(t, f, c.tmpl) }, func(got string) {
 				if !c.re.MatchString(got) {
 					t.Fatalf("%s = %q, want %s", c.name, got, c.re)
 				}
@@ -63,7 +64,7 @@ func TestBuiltinSamplesReproducible(t *testing.T) {
 func TestBuiltinIntInclusiveRange(t *testing.T) {
 	f := emptyGenerator(1)
 	lo, hi := false, false
-	eachDraw(1000, func() string { return mustRender(t, f, `"{int(3,7)}"`) }, func(got string) {
+	fejktest.EachDraw(1000, func() string { return mustRender(t, f, `"{int(3,7)}"`) }, func(got string) {
 		n, err := strconv.Atoi(got)
 		if err != nil || n < 3 || n > 7 {
 			t.Fatalf("int(3,7) = %d (err %v), out of range", n, err)
@@ -78,14 +79,14 @@ func TestBuiltinIntInclusiveRange(t *testing.T) {
 func TestBuiltinFloat(t *testing.T) {
 	f, re := emptyGenerator(1), regexp.MustCompile(`^[12]\.\d{3}$`)
 	t.Run("draws within its bounds at its decimals", func(t *testing.T) {
-		eachDraw(200, func() string { return mustRender(t, f, `"{float(1,2,3)}"`) }, func(got string) {
+		fejktest.EachDraw(200, func() string { return mustRender(t, f, `"{float(1,2,3)}"`) }, func(got string) {
 			if !re.MatchString(got) {
 				t.Fatalf("float(1,2,3) = %q, want d.ddd in [1,2]", got)
 			}
 		})
 	})
 	t.Run("prints a zero unsigned", func(t *testing.T) {
-		eachDraw(200, func() string { return mustRender(t, f, `"{float(-1,1,0)}"`) }, func(got string) {
+		fejktest.EachDraw(200, func() string { return mustRender(t, f, `"{float(-1,1,0)}"`) }, func(got string) {
 			if got == "-0" {
 				t.Fatalf("float(-1,1,0) = %q, want a zero printed unsigned", got)
 			}
@@ -121,10 +122,10 @@ func TestBuiltinChecksums(t *testing.T) {
 func TestBuiltinFnr(t *testing.T) {
 	f := emptyGenerator(1)
 	seen := map[string]bool{}
-	eachDraw(300, func() string {
+	fejktest.EachDraw(300, func() string {
 		return mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"7"}`)
 	}, func(got string) {
-		if len(got) != 11 || got[:7] != "0181804" || got[8] != '7' || !validFnr(got) {
+		if len(got) != 11 || got[:7] != "0181804" || got[8] != '7' || !fejktest.ValidFnr(got) {
 			t.Fatalf("fnr = %q, want 0181804, an individ digit, 7, and valid check digits", got)
 		}
 		seen[got] = true
@@ -136,10 +137,10 @@ func TestBuiltinFnr(t *testing.T) {
 
 func TestBuiltinFnrReadsItsOperandFromAPath(t *testing.T) {
 	f := emptyGenerator(2)
-	eachDraw(50, func() string {
+	fejktest.EachDraw(50, func() string {
 		return mustRender(t, f, `{"format":"{pre}{fnr(sex.last)}","pre":"3181804","sex":{"format":"{last}","last":"4"}}`)
 	}, func(got string) {
-		if !validFnr(got) || got[8] != '4' {
+		if !fejktest.ValidFnr(got) || got[8] != '4' {
 			t.Fatalf("fnr = %q, want a valid number whose individ ends in 4", got)
 		}
 	})
@@ -162,7 +163,7 @@ func TestBuiltinFnrReadsTheLastSevenDigitsEmitted(t *testing.T) {
 	for pre, seven := range map[string]string{"x-0181804": "0181804", "9990181804": "0181804", "181804": "0181804", "a1b2c3d4e5f6g7h8": "2345678"} {
 		t.Run(pre, func(t *testing.T) {
 			got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"`+pre+`","last":"3"}`)
-			if tail := got[len(pre):]; !validFnr(seven + tail) {
+			if tail := got[len(pre):]; !fejktest.ValidFnr(seven + tail) {
 				t.Errorf("fnr after %q = %q, want check digits valid for %s", pre, tail, seven)
 			}
 		})
@@ -170,7 +171,7 @@ func TestBuiltinFnrReadsTheLastSevenDigitsEmitted(t *testing.T) {
 }
 
 func TestValidFnrAcceptsAPublishedTestNumber(t *testing.T) {
-	if !validFnr("10108000398") {
+	if !fejktest.ValidFnr("10108000398") {
 		t.Error("10108000398 is a published test number, want it valid")
 	}
 }
@@ -178,33 +179,11 @@ func TestValidFnrAcceptsAPublishedTestNumber(t *testing.T) {
 func TestValidFnrRejectsAWrongCheckDigitOrLength(t *testing.T) {
 	for _, bad := range []string{"10108000399", "10108000388", "1010800039", "10108000398x"} {
 		t.Run(bad, func(t *testing.T) {
-			if validFnr(bad) {
+			if fejktest.ValidFnr(bad) {
 				t.Errorf("%s is no valid fødselsnummer", bad)
 			}
 		})
 	}
-}
-
-func validFnr(s string) bool {
-	if len(s) != 11 {
-		return false
-	}
-	var d [11]int
-	for i := range d {
-		if s[i] < '0' || s[i] > '9' {
-			return false
-		}
-		d[i] = int(s[i] - '0')
-	}
-	check := func(weights []int, want int) bool {
-		sum := 0
-		for i, w := range weights {
-			sum += w * d[i]
-		}
-		k := 11 - sum%11
-		return k != 10 && k%11 == want
-	}
-	return check([]int{3, 7, 6, 1, 8, 9, 4, 5, 2}, d[9]) && check([]int{5, 4, 3, 2, 7, 6, 5, 4, 3, 2}, d[10])
 }
 
 // TestBuiltinSeqPerGenerator pins seq's contract: a counter from 1, advancing on
@@ -212,7 +191,7 @@ func validFnr(s string) bool {
 // draw state so a fresh Generator restarts at 1.
 func TestBuiltinSeqPerGenerator(t *testing.T) {
 	f := emptyGenerator(1)
-	if got, want := drawsInTurn(5, func() string { return mustRender(t, f, `"{seq()}"`) }), []string{"1", "2", "3", "4", "5"}; !slices.Equal(got, want) {
+	if got, want := fejktest.DrawsInTurn(5, func() string { return mustRender(t, f, `"{seq()}"`) }), []string{"1", "2", "3", "4", "5"}; !slices.Equal(got, want) {
 		t.Fatalf("five seq calls = %q, want %q", got, want)
 	}
 	if got := mustRender(t, f, `"{seq(orders)}"`); got != "1" {
@@ -270,7 +249,7 @@ func TestBuiltinIBAN(t *testing.T) {
 	for cc, n := range wantLen {
 		t.Run(cc, func(t *testing.T) {
 			tmpl := `"{iban(` + cc + `)}"`
-			eachDraw(100, func() string { return mustRender(t, f, tmpl) }, func(got string) {
+			fejktest.EachDraw(100, func() string { return mustRender(t, f, tmpl) }, func(got string) {
 				if got[:2] != cc || len(got) != n {
 					t.Fatalf("iban(%s) = %q, want %d chars prefixed %s", cc, got, n, cc)
 				}
@@ -339,7 +318,7 @@ func TestBuiltinDateAndTime(t *testing.T) {
 	f := emptyGenerator(1)
 	t.Run("date spreads over its range", func(t *testing.T) {
 		seen := map[string]bool{}
-		eachDraw(500, func() string { return mustRender(t, f, `"{date(1990-01-01,1990-12-31,'2006-01-02')}"`) }, func(got string) {
+		fejktest.EachDraw(500, func() string { return mustRender(t, f, `"{date(1990-01-01,1990-12-31,'2006-01-02')}"`) }, func(got string) {
 			if d, err := time.Parse("2006-01-02", got); err != nil || d.Year() != 1990 {
 				t.Fatalf("date = %q, want a 1990 calendar date (err %v)", got, err)
 			}
@@ -351,7 +330,7 @@ func TestBuiltinDateAndTime(t *testing.T) {
 	})
 	t.Run("date bounds are inclusive", func(t *testing.T) {
 		lo, hi := false, false
-		eachDraw(200, func() string { return mustRender(t, f, `"{date(2020-02-28,2020-02-29,'2006-01-02')}"`) }, func(got string) {
+		fejktest.EachDraw(200, func() string { return mustRender(t, f, `"{date(2020-02-28,2020-02-29,'2006-01-02')}"`) }, func(got string) {
 			if got != "2020-02-28" && got != "2020-02-29" {
 				t.Fatalf("date(2020-02-28,2020-02-29) = %q, out of range", got)
 			}
@@ -369,7 +348,7 @@ func TestBuiltinDateAndTime(t *testing.T) {
 	t.Run("date draws every second of a day", func(t *testing.T) {
 		rfc := regexp.MustCompile(`^2021-\d\d-\d\dT\d\d:\d\d:\d\dZ$`)
 		seconds := map[string]bool{}
-		eachDraw(300, func() string {
+		fejktest.EachDraw(300, func() string {
 			return mustRender(t, f, `"{date(2021-01-01,2021-12-31,'2006-01-02T15:04:05Z07:00')}"`)
 		}, func(got string) {
 			if !rfc.MatchString(got) {
@@ -383,7 +362,7 @@ func TestBuiltinDateAndTime(t *testing.T) {
 	})
 	t.Run("time renders a 24-hour layout", func(t *testing.T) {
 		clock := regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d$`)
-		eachDraw(300, func() string { return mustRender(t, f, `"{time('15:04')}"`) }, func(got string) {
+		fejktest.EachDraw(300, func() string { return mustRender(t, f, `"{time('15:04')}"`) }, func(got string) {
 			if !clock.MatchString(got) {
 				t.Fatalf("time('15:04') = %q, want %s", got, clock)
 			}
@@ -391,17 +370,17 @@ func TestBuiltinDateAndTime(t *testing.T) {
 	})
 	t.Run("time renders a 12-hour layout", func(t *testing.T) {
 		ampm := regexp.MustCompile(`^(1[0-2]|[1-9]):[0-5]\d (AM|PM)$`)
-		eachDraw(300, func() string { return mustRender(t, f, `"{time('3:04 PM')}"`) }, func(got string) {
+		fejktest.EachDraw(300, func() string { return mustRender(t, f, `"{time('3:04 PM')}"`) }, func(got string) {
 			if !ampm.MatchString(got) {
 				t.Fatalf("time('3:04 PM') = %q, want %s", got, ampm)
 			}
 		})
 	})
 	t.Run("luhn checks the digits of a date", func(t *testing.T) {
-		eachDraw(300, func() string {
+		fejktest.EachDraw(300, func() string {
 			return mustRender(t, f, `"{date(1950-01-01,2000-12-31,'060102')}-238{luhn()}"`)
 		}, func(got string) {
-			if d := digitsOnly(got); len(d) != 10 || !luhnValid(d) {
+			if d := fejktest.DigitsOnly(got); len(d) != 10 || !fejktest.LuhnValid(d) {
 				t.Fatalf("a personnummer over date() = %q, want ten Luhn-valid digits", got)
 			}
 		})
@@ -468,7 +447,7 @@ func TestBuiltinDateSpansOneDay(t *testing.T) {
 	f := emptyGenerator(1)
 	t.Run("a clock layout draws the whole day", func(t *testing.T) {
 		seen := map[string]bool{}
-		eachDraw(500, func() string {
+		fejktest.EachDraw(500, func() string {
 			return mustRender(t, f, `"{date(2026-01-01,2026-01-01,'2006-01-02 15:04:05')}"`)
 		}, func(got string) {
 			if !strings.HasPrefix(got, "2026-01-01 ") {
@@ -499,7 +478,7 @@ func TestClassBuiltins(t *testing.T) {
 	f := emptyGenerator(7)
 	for tmpl, re := range cases {
 		t.Run(tmpl, func(t *testing.T) {
-			eachDraw(100, func() string { return mustRender(t, f, tmpl) }, func(got string) {
+			fejktest.EachDraw(100, func() string { return mustRender(t, f, tmpl) }, func(got string) {
 				if !re.MatchString(got) {
 					t.Fatalf("%s produced %q, want %s", tmpl, got, re)
 				}

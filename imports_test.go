@@ -25,6 +25,7 @@ var allowedImports = map[string][]string{
 	"internal/engine/load":   {"internal/avoid", "internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/engine/tree", "internal/grammar", "internal/invariant", "internal/jsonvalue", "internal/proven", "internal/rows"},
 	"internal/engine/render": {"internal/avoid", "internal/drawstate", "internal/engine/tree", "internal/grammar", "internal/invariant"},
 	"internal/engine/tree":   {"internal/avoid", "internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/grammar", "internal/invariant", "internal/rows"},
+	"internal/fejktest":      nil,
 	"internal/grammar":       nil,
 	"internal/invariant":     nil,
 	"internal/jsonvalue":     nil,
@@ -33,8 +34,9 @@ var allowedImports = map[string][]string{
 }
 
 var allowedTestImports = map[string][]string{
-	".":                     {"internal/engine/fence", "internal/engine/load", "internal/engine/render"},
+	".":                     {"internal/engine/fence", "internal/engine/load", "internal/engine/render", "internal/fejktest"},
 	"cli":                   {"internal/grammar"},
+	"data":                  {".", "internal/fejktest"},
 	"internal/engine/fence": {"internal/jsonvalue"},
 }
 

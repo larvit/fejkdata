@@ -5,12 +5,14 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestAddDaysFallsNDaysAfterTheDateItReads(t *testing.T) {
 	f := emptyGenerator(1)
 	tmpl := `{"format":"{start as s}{len as n}{s},{n},{adddays(s,n)}","start":"{date(2026-01-01,2026-12-31,'2006-01-02')}","len":"{int(1,30)}"}`
-	eachDraw(200, func() string { return mustRender(t, f, tmpl) }, func(render string) {
+	fejktest.EachDraw(200, func() string { return mustRender(t, f, tmpl) }, func(render string) {
 		got := strings.Split(render, ",")
 		start, err := time.Parse("2006-01-02", got[0])
 		if err != nil || len(got) != 3 {
@@ -27,7 +29,7 @@ const addDaysFromATimestamp = `{"format":"{created as c}{c},{adddays(c,gap)},{ad
 
 func TestAddDaysKeepsTheTimeOfDay(t *testing.T) {
 	f := emptyGenerator(2)
-	eachDraw(200, func() string { return mustRender(t, f, addDaysFromATimestamp) }, func(render string) {
+	fejktest.EachDraw(200, func() string { return mustRender(t, f, addDaysFromATimestamp) }, func(render string) {
 		got := strings.Split(render, ",")
 		created, err := time.Parse(time.RFC3339, got[0])
 		if err != nil || len(got) != 4 {
@@ -42,7 +44,7 @@ func TestAddDaysKeepsTheTimeOfDay(t *testing.T) {
 
 func TestAddDaysPrintsInTheLayoutGiven(t *testing.T) {
 	f := emptyGenerator(2)
-	eachDraw(200, func() string { return mustRender(t, f, addDaysFromATimestamp) }, func(render string) {
+	fejktest.EachDraw(200, func() string { return mustRender(t, f, addDaysFromATimestamp) }, func(render string) {
 		got := strings.Split(render, ",")
 		created, err := time.Parse(time.RFC3339, got[0])
 		if err != nil || len(got) != 4 {

@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"unicode/utf8"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func TestDistinctDrawsDistinctItems(t *testing.T) {
@@ -57,7 +59,7 @@ func TestDistinctFillsARecordsColumnsFromOnePick(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewRecordTemplate: %v", err)
 	}
-	eachDraw(200, func() string { return strings.Join(columnValues(rt.Fake()), "|") }, func(joined string) {
+	fejktest.EachDraw(200, func() string { return strings.Join(columnValues(rt.Fake()), "|") }, func(joined string) {
 		got := strings.Split(joined, "|")
 		sorted := slices.Clone(got)
 		slices.Sort(sorted)
@@ -100,7 +102,7 @@ func TestDistinctDrawsDistinctRowsWhateverTheyPrint(t *testing.T) {
 func TestDistinctWeighsEachMemberAmongTheItemsLeft(t *testing.T) {
 	f := emptyGenerator(3)
 	src := `{"format":"{w distinct 2 joined ','}","w":[{"format":"a","weight":6},{"format":"b","weight":3},{"format":"c","weight":1}]}`
-	seen := tallyDraws(6000, func() string { return mustRender(t, f, src) })
+	seen := fejktest.TallyDraws(6000, func() string { return mustRender(t, f, src) })
 	if n := seen["a,b"]; n < 2550 || n > 2850 {
 		t.Errorf("a,b drew %d of 6000, want about 2700: %v", n, seen)
 	}
@@ -191,7 +193,7 @@ func TestDistinctJoinedIsNoTypedValue(t *testing.T) {
 func TestDistinctDrawsTheShippedWords(t *testing.T) {
 	t.Parallel()
 	f := shipped(t)
-	eachDraw(50, func() string {
+	fejktest.EachDraw(50, func() string {
 		return tmpl(t, f, "{/en_US.word where length 5 distinct 3 as w}{w[1]} {w[2]} {w[3]}")
 	}, func(got string) {
 		words := strings.Fields(got)
@@ -204,7 +206,7 @@ func TestDistinctDrawsTheShippedWords(t *testing.T) {
 func TestDistinctDrawsTheShippedWeekdays(t *testing.T) {
 	t.Parallel()
 	f := shipped(t)
-	eachDraw(50, func() string {
+	fejktest.EachDraw(50, func() string {
 		return tmpl(t, f, "{/sv_SE.weekday.code distinct 2 joined ','}")
 	}, func(got string) {
 		days := strings.Split(got, ",")
@@ -223,7 +225,7 @@ func TestDistinctDrawCostsItsCountNotTheTable(t *testing.T) {
 	tp.Fake()
 	var before, after runtime.MemStats
 	runtime.ReadMemStats(&before)
-	eachDraw(100, tp.Fake, func(string) {})
+	fejktest.EachDraw(100, tp.Fake, func(string) {})
 	runtime.ReadMemStats(&after)
 	if per := (after.TotalAlloc - before.TotalAlloc) / 100; per > 4096 {
 		t.Errorf("a draw of 3 distinct words allocates %d bytes, want 4096 or fewer whatever the table's size", per)

@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func tmpl(t *testing.T, f *Generator, input string) string {
@@ -34,7 +36,7 @@ func TestFakeTemplateFormatString(t *testing.T) {
 
 func TestFakeTemplateJSONObject(t *testing.T) {
 	f := shipped(t)
-	seen := tallyDraws(50, func() string { return tmpl(t, f, `{"format":"name: {x}","x":["bosse","lina"]}`) })
+	seen := fejktest.TallyDraws(50, func() string { return tmpl(t, f, `{"format":"name: {x}","x":["bosse","lina"]}`) })
 	if seen["name: bosse"] == 0 || seen["name: lina"] == 0 || len(seen) != 2 {
 		t.Fatalf("JSON template produced %v, want both names", seen)
 	}
@@ -42,7 +44,7 @@ func TestFakeTemplateJSONObject(t *testing.T) {
 
 func TestFakeTemplateJSONArray(t *testing.T) {
 	f := shipped(t)
-	seen := tallyDraws(50, func() string { return tmpl(t, f, `["foo","bar","baz"]`) })
+	seen := fejktest.TallyDraws(50, func() string { return tmpl(t, f, `["foo","bar","baz"]`) })
 	if len(seen) != 3 {
 		t.Fatalf("JSON array choice produced %v, want three items", seen)
 	}
@@ -53,7 +55,7 @@ func TestFakeTemplateNamedReference(t *testing.T) {
 		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1990"}]`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	eachDraw(100, func() string { return tmpl(t, f, "{/person as p}{p.first} {p.last}") }, func(got string) {
+	fejktest.EachDraw(100, func() string { return tmpl(t, f, "{/person as p}{p.first} {p.last}") }, func(got string) {
 		if got != "Ada Lovelace" && got != "Bo Ek" {
 			t.Fatalf("correlated references = %q, want one person's first and last", got)
 		}
@@ -63,7 +65,7 @@ func TestFakeTemplateNamedReference(t *testing.T) {
 func TestFakeTemplateDeterministic(t *testing.T) {
 	a, b := shipped(t), shipped(t)
 	in := "row: {/misc.uuid} {digits(3)}"
-	eachDraw(20, func() string { return tmpl(t, a, in) }, func(x string) {
+	fejktest.EachDraw(20, func() string { return tmpl(t, a, in) }, func(x string) {
 		if y := tmpl(t, b, in); x != y {
 			t.Fatalf("same seed diverged: %q != %q", x, y)
 		}
@@ -146,7 +148,7 @@ func TestNewTemplateReusable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewTemplate: %v", err)
 	}
-	seen := tallyDraws(50, reusable.Fake)
+	seen := fejktest.TallyDraws(50, reusable.Fake)
 	if len(seen) < 2 {
 		t.Fatalf("Template.Fake() repeated %v, want varied draws from one compile", seen)
 	}

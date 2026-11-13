@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // TestCalcArithmetic pins the operators, precedence, parentheses and unary minus
@@ -89,7 +91,7 @@ func TestCalcFields(t *testing.T) {
 // not render to a number becomes NaN then, which propagates and prints visibly.
 func TestCalcNonNumericIsNaN(t *testing.T) {
 	f := emptyGenerator(1)
-	seen := tallyDraws(50, func() string { return mustRender(t, f, `{"format":"{calc(x * 2)}","x":["abc","1"]}`) })
+	seen := fejktest.TallyDraws(50, func() string { return mustRender(t, f, `{"format":"{calc(x * 2)}","x":["abc","1"]}`) })
 	if seen["NaN"] == 0 {
 		t.Fatal("calc over a sometimes non-numeric field never printed NaN in 50 draws")
 	}
@@ -112,7 +114,7 @@ func TestANamedCalcOperandIsTheOneShown(t *testing.T) {
 		"inv": `{"format":"{net as n}{qty as q}{n} x {q} = {calc(n * q, 2)}","net":["19.99","5.00","100.00"],"qty":["2","3","7"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(3))
-	eachDraw(300, func() string { return fake(t, f, "inv") }, func(got string) {
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, f, "inv") }, func(got string) {
 		var net, qty, want float64
 		if _, err := fmt.Sscanf(got, "%g x %g = %g", &net, &qty, &want); err != nil {
 			t.Fatalf("inv = %q, unparseable: %v", got, err)
@@ -128,7 +130,7 @@ func TestACalcOperandDrawsAfresh(t *testing.T) {
 	dir := writeData(t, map[string]string{"same": `{"format":"{w} {calc(w)}","w":["1","2","3","4","5"]}`})
 	f := newGenerator(t, dir, WithSeed(5))
 	differed := false
-	eachDraw(200, func() string { return fake(t, f, "same") }, func(got string) {
+	fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "same") }, func(got string) {
 		p := strings.Fields(got)
 		differed = differed || p[0] != p[1]
 	})
@@ -150,7 +152,7 @@ func TestANamedCalcOperandPicksEachIteration(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(11))
 	varied := false
-	eachDraw(50, func() string { return fake(t, f, "rep") }, func(got string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "rep") }, func(got string) {
 		pairs := strings.Fields(got)
 		if i := slices.IndexFunc(pairs, shownIsNotWhatCalcComputed); i >= 0 {
 			t.Fatalf("rep = %q: %q disagrees within one iteration", got, pairs[i])
@@ -172,7 +174,7 @@ func TestTwoNamesPickApart(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(13))
 	differed := false
-	eachDraw(200, func() string { return fake(t, f, "nest") }, func(got string) {
+	fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "nest") }, func(got string) {
 		outer, inner, ok := strings.Cut(got, " ")
 		if !ok {
 			t.Fatalf("nest = %q, want two pairs", got)
@@ -247,7 +249,7 @@ func TestCalcDivisorThatVariesIsAccepted(t *testing.T) {
 
 func TestCalcSometimesZeroDivisorPrintsInf(t *testing.T) {
 	f := emptyGenerator(1)
-	seen := tallyDraws(50, func() string { return mustRender(t, f, `{"format":"{calc(x/y)}","x":"1","y":["0","1"]}`) })
+	seen := fejktest.TallyDraws(50, func() string { return mustRender(t, f, `{"format":"{calc(x/y)}","x":"1","y":["0","1"]}`) })
 	if seen["+Inf"] == 0 {
 		t.Fatal("a sometimes-zero divisor never printed +Inf in 50 draws")
 	}
@@ -280,7 +282,7 @@ func TestCalcReadsAName(t *testing.T) {
 		"card": `"{/n as k}{k} x 2 = {calc(k * 2)}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	eachDraw(50, func() string { return fake(t, f, "card") }, func(got string) {
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "card") }, func(got string) {
 		var k, double int
 		if _, err := fmt.Sscanf(got, "%d x 2 = %d", &k, &double); err != nil || double != k*2 {
 			t.Fatalf("card = %q, want the calc to compute from the pick {k} prints", got)
@@ -294,7 +296,7 @@ func TestCalcReadsANameItReadsNowhereElse(t *testing.T) {
 		"card": `"{/n as k}{calc(k * 2)}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "card"); got != "4" && got != "6" {
+	if got := fejktest.Fake(t, f, "card"); got != "4" && got != "6" {
 		t.Fatalf("card = %q, want 4 or 6", got)
 	}
 }

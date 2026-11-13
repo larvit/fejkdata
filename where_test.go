@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"unicode/utf8"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 func drawsExactly(t *testing.T, label string, render func() string, want ...string) {
@@ -23,24 +25,6 @@ func drawsExactly(t *testing.T, label string, render func() string, want ...stri
 			t.Errorf("%s never drew %q in 400 renders: %v", label, w, seen)
 		}
 	}
-}
-
-func eachDraw(n int, draw func() string, check func(got string)) {
-	for i := 0; i < n; i++ {
-		check(draw())
-	}
-}
-
-func drawsInTurn(n int, draw func() string) []string {
-	drawn := make([]string, 0, n)
-	eachDraw(n, draw, func(got string) { drawn = append(drawn, got) })
-	return drawn
-}
-
-func tallyDraws(n int, draw func() string) map[string]int {
-	seen := map[string]int{}
-	eachDraw(n, draw, func(got string) { seen[got]++ })
-	return seen
 }
 
 func TestWhereDrawsOnlyTheItemsThatPass(t *testing.T) {
@@ -65,7 +49,7 @@ func TestWhereDrawsOnlyTheItemsThatPass(t *testing.T) {
 func TestWhereKeepsTheWeightsOfTheItemsThatPass(t *testing.T) {
 	f := emptyGenerator(3)
 	src := `{"format":"{w where length 2}","w":[{"format":"a1","weight":3},{"format":"b1","weight":1},{"format":"ccc","weight":100}]}`
-	seen := tallyDraws(4000, func() string { return mustRender(t, f, src) })
+	seen := fejktest.TallyDraws(4000, func() string { return mustRender(t, f, src) })
 	if seen["a1"]+seen["b1"] != 4000 {
 		t.Fatalf("renders = %v, want a1 or b1 alone", seen)
 	}
@@ -77,7 +61,7 @@ func TestWhereKeepsTheWeightsOfTheItemsThatPass(t *testing.T) {
 func TestWhereSplitsTheWeightOfAnItemEvenlyBetweenItsAlternatives(t *testing.T) {
 	f := emptyGenerator(3)
 	src := `{"format":"{w where length 1}","w":[{"format":"{a|b}","a":"x","b":"y"},"c"]}`
-	seen := tallyDraws(4000, func() string { return mustRender(t, f, src) })
+	seen := fejktest.TallyDraws(4000, func() string { return mustRender(t, f, src) })
 	for value, want := range map[string]int{"c": 2000, "x": 1000, "y": 1000} {
 		t.Run(value, func(t *testing.T) {
 			if got := seen[value]; got < want*9/10 || got > want*11/10 {
@@ -253,7 +237,7 @@ func TestWhereFiltersTheShippedWords(t *testing.T) {
 	f := shipped(t)
 	for _, src := range []string{"{/en_US.word where length 5}", "{/en_US.word.verb where length 5}", "{/en_US.word where length 5 as w}{uppercase(w)}"} {
 		t.Run(src, func(t *testing.T) {
-			eachDraw(50, func() string { return tmpl(t, f, src) }, func(got string) {
+			fejktest.EachDraw(50, func() string { return tmpl(t, f, src) }, func(got string) {
 				if utf8.RuneCountInString(got) != 5 || strings.ToLower(got) != got && strings.ToUpper(got) != got {
 					t.Fatalf("FakeTemplate(%q) = %q, want a word of five letters", src, got)
 				}
@@ -302,7 +286,7 @@ func TestWhereOnACallDrawsOnlyValuesOfItsKindHoldingNoneOfTheStrings(t *testing.
 	} {
 		t.Run(src, func(t *testing.T) {
 			re := regexp.MustCompile(pattern)
-			eachDraw(400, func() string { return mustRender(t, f, src) }, func(got string) {
+			fejktest.EachDraw(400, func() string { return mustRender(t, f, src) }, func(got string) {
 				if !re.MatchString(got) {
 					t.Fatalf("render(%s) = %q, want it to match %s", src, got, pattern)
 				}
@@ -356,7 +340,7 @@ func TestWherePrintsTheFallbackWhereNoValuePasses(t *testing.T) {
 		`{"format":"{v as t}{u as r}{w where not t, r else 'none' distinct 2 joined ','}","v":"a","u":"b","w":["a","b"]}`: "none,none",
 	} {
 		t.Run(src, func(t *testing.T) {
-			eachDraw(20, func() string { return mustRender(t, f, src) }, func(got string) {
+			fejktest.EachDraw(20, func() string { return mustRender(t, f, src) }, func(got string) {
 				if got != want {
 					t.Fatalf("render(%s) = %q, want %q", src, got, want)
 				}
@@ -418,7 +402,7 @@ func TestWhereOnACallOrReadingANameRefusesAtLoad(t *testing.T) {
 func TestWhereFiltersEveryClauseAfterAFilteredCall(t *testing.T) {
 	f := emptyGenerator(1)
 	src := `{"format":"{hex(2) where not containing 'a'}:{w where not 'x'}","w":["x","y"]}`
-	eachDraw(50, func() string { return mustRender(t, f, src) }, func(got string) {
+	fejktest.EachDraw(50, func() string { return mustRender(t, f, src) }, func(got string) {
 		if !strings.HasSuffix(got, ":y") {
 			t.Fatalf("render(%s) = %q, want it to end in :y", src, got)
 		}

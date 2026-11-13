@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/larvit/fejkdata/data"
 	"github.com/larvit/fejkdata/internal/drawstate"
@@ -15,14 +14,14 @@ import (
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/render"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/fejktest"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 func withShipped() Option { return WithDataFS(data.Modules()...) }
 
 var (
-	testDay   = time.Date(2026, 1, 15, 0, 0, 0, 0, time.UTC)
-	onTestDay = WithToday(testDay)
+	onTestDay = WithToday(fejktest.TestDay)
 )
 
 // newGenerator creates a generator over a single data directory, failing on
@@ -55,16 +54,6 @@ func newBareModule(t *testing.T, module string, opts ...Option) *Generator {
 		t.Fatalf("New(%s without its manifest): %v", module, err)
 	}
 	return f
-}
-
-// fake generates a value, failing the test on error.
-func fake(t *testing.T, f *Generator, path string) string {
-	t.Helper()
-	s, err := f.Fake(path)
-	if err != nil {
-		t.Fatalf("Fake(%q): %v", path, err)
-	}
-	return s
 }
 
 func TestNewMissingDirectory(t *testing.T) {
@@ -108,7 +97,7 @@ func firstDifferingDraw(n int, drawA, drawB func() string) (i int, x, y string, 
 
 func TestWithSeedIsDeterministic(t *testing.T) {
 	a, b := shipped(t, WithSeed(42)), shipped(t, WithSeed(42))
-	i, x, y, differ := firstDifferingDraw(50, func() string { return fake(t, a, "sv_SE.person") }, func() string { return fake(t, b, "sv_SE.person") })
+	i, x, y, differ := firstDifferingDraw(50, func() string { return fejktest.Fake(t, a, "sv_SE.person") }, func() string { return fejktest.Fake(t, b, "sv_SE.person") })
 	if differ {
 		t.Fatalf("same seed diverged at %d: %q != %q", i, x, y)
 	}
@@ -116,26 +105,15 @@ func TestWithSeedIsDeterministic(t *testing.T) {
 
 func TestDifferentSeedsDiffer(t *testing.T) {
 	a, b := shipped(t, WithSeed(1)), shipped(t, WithSeed(2))
-	_, _, _, differ := firstDifferingDraw(50, func() string { return fake(t, a, "en_US.person") }, func() string { return fake(t, b, "en_US.person") })
+	_, _, _, differ := firstDifferingDraw(50, func() string { return fejktest.Fake(t, a, "en_US.person") }, func() string { return fejktest.Fake(t, b, "en_US.person") })
 	if !differ {
 		t.Fatal("seeds 1 and 2 produced identical sequences")
 	}
 }
 
-// fakeTemplate renders an inline template against a loaded generator, so its
-// references resolve.
-func fakeTemplate(t *testing.T, f *Generator, s string) string {
-	t.Helper()
-	got, err := f.FakeTemplate(s)
-	if err != nil {
-		t.Fatalf("FakeTemplate(%s) = %v", s, err)
-	}
-	return got
-}
-
 // emptyGenerator builds a seeded generator with no loaded categories, for rendering tests.
 func emptyGenerator(seed uint64) *Generator {
-	return &Generator{drawState: drawstate.New(seed, testDay)}
+	return &Generator{drawState: drawstate.New(seed, fejktest.TestDay)}
 }
 
 // parse unmarshals a JSON template fragment into its dynamic form.

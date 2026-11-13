@@ -1,13 +1,15 @@
-package fejkdata
+package data_test
 
 import (
-	"cmp"
 	"encoding/json"
 	"os"
 	"slices"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 var shippedAddressLocales = []struct{ locale, country, template, largest string }{
@@ -20,9 +22,9 @@ var shippedAddressLocales = []struct{ locale, country, template, largest string 
 
 func eachNamedAddressBesideAStreet(t *testing.T, locale, template string, check func(got string, parts []string)) {
 	t.Helper()
-	f := shipped(t, WithSeed(3))
-	eachDraw(2000, func() string {
-		return fakeTemplate(t, f, `{/`+locale+`.address as a}`+template+`|{/`+locale+`.address.street}`)
+	f := shipped(t, fejkdata.WithSeed(3))
+	fejktest.EachDraw(2000, func() string {
+		return fejktest.FakeTemplate(t, f, `{/`+locale+`.address as a}`+template+`|{/`+locale+`.address.street}`)
 	}, func(got string) { check(got, strings.Split(got, "|")) })
 }
 
@@ -33,9 +35,9 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	for _, c := range shippedAddressLocales {
 		t.Run(c.locale, func(t *testing.T) {
 			t.Parallel()
-			places := geoPlaces(t, c.country)
+			places := fejktest.GeoPlaces(t, "geo/"+c.country)
 			eachNamedAddressBesideAStreet(t, c.locale, c.template, func(got string, parts []string) {
-				if !places.has(parts[0], parts[1], parts[2], parts[3]) {
+				if !places.Has(parts[0], parts[1], parts[2], parts[3]) {
 					t.Fatalf("%s.address: %q is no street, postal code, locality and region of one place", c.locale, got)
 				}
 			})
@@ -84,20 +86,20 @@ func TestShippedAddressDrawsItsLargestLocalityMost(t *testing.T) {
 
 func TestShippedAddressStructTagsReadOneName(t *testing.T) {
 	t.Parallel()
-	f := shipped(t, WithSeed(3))
-	places := geoPlaces(t, "SE")
+	f := shipped(t, fejkdata.WithSeed(3))
+	places := fejktest.GeoPlaces(t, "geo/SE")
 	var row struct {
 		Street     string `fake:"{/sv_SE.address as a}{a.street}"`
 		PostalCode string `fake:"{a.postal-code}"`
 		Locality   string `fake:"{a.locality}"`
 	}
-	eachDraw(200, func() string {
+	fejktest.EachDraw(200, func() string {
 		if err := f.FakeStruct(&row); err != nil {
 			t.Fatal(err)
 		}
 		return row.Street
 	}, func(string) {
-		if !places.has(row.Street, row.PostalCode, row.Locality, "") {
+		if !places.Has(row.Street, row.PostalCode, row.Locality, "") {
 			t.Fatalf("sv_SE.address: struct tags reading one name, %q, %q and %q, are not the street, postal code and locality of one place", row.Street, row.PostalCode, row.Locality)
 		}
 	})
@@ -185,7 +187,7 @@ func TestShippedCapitalsAndBigPlaces(t *testing.T) {
 }
 
 func geoTSV(t *testing.T, country, table string) string {
-	b, err := os.ReadFile("data/geo/" + country + "/" + table + ".tsv")
+	b, err := os.ReadFile("geo/" + country + "/" + table + ".tsv")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,76 +202,16 @@ func geoRows(t *testing.T, country, table string) [][]string {
 	return out
 }
 
-// geoPlaceSet says whether a street, postal code, locality and region belong to one locality of a
-// country's geo tables; pass an empty region where the address prints none.
-type geoPlaceSet struct {
-	name, region map[string]string
-	locality     map[string]string
-	streets      map[[2]string]bool
-}
-
-// geoPlaces keys a locality by its code where its table has one, else by its name.
-func geoPlaces(t *testing.T, country string) geoPlaceSet {
-	rows := func(table string) []map[string]string { return tsvRows(t, "data/geo/"+country+"/"+table+".tsv") }
-	s := geoPlaceSet{name: map[string]string{}, region: map[string]string{}, locality: map[string]string{}, streets: map[[2]string]bool{}}
-	region := map[string]string{}
-	for _, r := range rows("municipality") {
-		region[r["code"]] = r["region"]
-	}
-	for _, r := range rows("locality") {
-		key := cmp.Or(r["code"], r["name"])
-		s.name[key], s.region[key] = r["name"], region[r["municipality"]]
-	}
-	for _, r := range rows("postal-code") {
-		s.locality[r["code"]] = r["locality"]
-	}
-	for _, r := range rows("street") {
-		s.streets[[2]string{r["name"], r["locality"]}] = true
-	}
-	return s
-}
-
-func (s geoPlaceSet) has(street, postalCode, locality, region string) bool {
-	l, ok := s.locality[postalCode]
-	return ok && s.name[l] == locality && (region == "" || s.region[l] == region) && s.streets[[2]string{street, l}]
-}
-
-func TestGeoPlacesHoldOnlyOneLocalitysStreetPostalCodeNameAndRegion(t *testing.T) {
-	s := geoPlaceSet{
-		name:     map[string]string{"a": "Alby", "b": "Borg"},
-		region:   map[string]string{"a": "Norr", "b": "Söder"},
-		locality: map[string]string{"111": "a", "222": "b"},
-		streets:  map[[2]string]bool{{"Storgatan", "a"}: true, {"Kyrkvägen", "b"}: true},
-	}
-	for _, c := range []struct {
-		name                                 string
-		street, postalCode, locality, region string
-		want                                 bool
-	}{
-		{"one locality", "Storgatan", "111", "Alby", "Norr", true},
-		{"the postal code, name and region of another locality", "Storgatan", "222", "Borg", "Söder", false},
-		{"the street of another locality", "Kyrkvägen", "111", "Alby", "Norr", false},
-		{"the name of another locality", "Storgatan", "111", "Borg", "Norr", false},
-		{"the region of another locality", "Storgatan", "111", "Alby", "Söder", false},
-	} {
-		t.Run(c.name, func(t *testing.T) {
-			if got := s.has(c.street, c.postalCode, c.locality, c.region); got != c.want {
-				t.Errorf("has(%q, %q, %q, %q) = %v, want %v", c.street, c.postalCode, c.locality, c.region, got, c.want)
-			}
-		})
-	}
-}
-
 func geoCountryFolders(t *testing.T) []string {
 	t.Helper()
-	entries, err := os.ReadDir("data/geo")
+	entries, err := os.ReadDir("geo")
 	if err != nil {
 		t.Fatal(err)
 	}
 	var dirs []string
 	for _, e := range entries {
 		if e.IsDir() {
-			dirs = append(dirs, "data/geo/"+e.Name())
+			dirs = append(dirs, "geo/"+e.Name())
 		}
 	}
 	return dirs

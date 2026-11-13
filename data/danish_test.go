@@ -1,4 +1,4 @@
-package fejkdata
+package data_test
 
 import (
 	"encoding/json"
@@ -9,6 +9,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/larvit/fejkdata"
+	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
 // Statistics Denmark's top 20 of the names that people living in Denmark bore on 1 January 2026,
@@ -38,7 +41,7 @@ var (
 func danishNames(t *testing.T, file string) map[string]map[string]int {
 	t.Helper()
 	out := map[string]map[string]int{}
-	for _, row := range tsvRows(t, "data/da_DK/"+file+".tsv") {
+	for _, row := range fejktest.TSVRows(t, "da_DK/"+file+".tsv") {
 		n, err := strconv.Atoi(row["count"])
 		if err != nil || n < 1 {
 			t.Fatalf("%s row %v has no count", file, row)
@@ -113,7 +116,7 @@ func TestDanishOtherNamesAreRarerThanTheTwentieth(t *testing.T) {
 func eachRowIsALetteredName(t *testing.T, file string) {
 	t.Helper()
 	name := regexp.MustCompile(`^[\pL]{2,}([ '-][\pL]{2,})*$`)
-	for _, row := range tsvRows(t, "data/da_DK/"+file+".tsv") {
+	for _, row := range fejktest.TSVRows(t, "da_DK/"+file+".tsv") {
 		if !name.MatchString(row["name"]) {
 			t.Errorf("%s row %v is not a name in letters", file, row)
 		}
@@ -156,11 +159,11 @@ type danishPerson struct{ raw, sex, prefix, first, last, whole string }
 
 func eachDanishPerson(t *testing.T, check func(p danishPerson)) {
 	t.Helper()
-	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	eachDraw(2000, func() string {
+	fejktest.EachDraw(2000, func() string {
 		got, err := f.FakeTemplate("{/da_DK.person as p}{p.sex}|{p.prefix}|{p.first}|{p.last}|{p}")
 		if err != nil {
 			t.Fatal(err)
@@ -211,18 +214,18 @@ func TestDanishPersonMostlyBearsNoTitle(t *testing.T) {
 }
 
 func TestDanishNamesFollowTheirCounts(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(5), onTestDay)
+	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(5), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	seen := tallyDraws(20000, func() string { return fakeTemplate(t, f, "{/da_DK.last-name}") })
+	seen := fejktest.TallyDraws(20000, func() string { return fejktest.FakeTemplate(t, f, "{/da_DK.last-name}") })
 	if seen["Nielsen"] < 3*seen["Olsen"] || seen["Jensen"] < 3*seen["Olsen"] || seen["Nielsen"] == 0 {
 		t.Errorf("Nielsen, Jensen and Olsen drawn %d, %d and %d times in 20000, want Nielsen and Jensen about five times Olsen", seen["Nielsen"], seen["Jensen"], seen["Olsen"])
 	}
 }
 
 func TestDanishSexAndTitleAreSelectable(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -242,9 +245,9 @@ func TestDanishSexAndTitleAreSelectable(t *testing.T) {
 }
 
 func TestShippedDanishAddressIsAStreetANumberAPostnummerAndAPostdistrikt(t *testing.T) {
-	f := shipped(t, WithSeed(3))
+	f := shipped(t, fejkdata.WithSeed(3))
 	address := regexp.MustCompile(`^[\pL\d].* [1-9]\d{0,3}[A-Z]?\n\d{4} \pL.*$`)
-	eachDraw(300, func() string { return fake(t, f, "da_DK.address") }, func(a string) {
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, f, "da_DK.address") }, func(a string) {
 		if !address.MatchString(a) {
 			t.Fatalf("da_DK.address = %q, want a street and a number, then a postnummer and a postdistrikt", a)
 		}
@@ -265,7 +268,7 @@ func TestShippedDanishPlacesAreNamedAsDARWritesThem(t *testing.T) {
 // Statistics Denmark's kommune 101 is numbered 0101, as DAR writes it, and its region 084 is
 // numbered 1084, as DAGI writes it.
 func TestShippedDanishPlacesAreNumberedAsTheRegistersWriteThem(t *testing.T) {
-	f := shipped(t, WithSeed(1))
+	f := shipped(t, fejkdata.WithSeed(1))
 	for path, want := range map[string]string{
 		"geo.DK.municipality[København].code":    "0101",
 		"geo.DK.municipality[Odense].code":       "0461",
@@ -276,7 +279,7 @@ func TestShippedDanishPlacesAreNumberedAsTheRegistersWriteThem(t *testing.T) {
 		"geo.DK.postal-code[5000].locality":      "Odense C",
 	} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("%s = %q, want %q", path, got, want)
 			}
 		})
@@ -293,7 +296,7 @@ type houseNumberShares struct{ lettered, oneDigit, fourDigits int }
 
 func houseNumberSharesOf(n int, draw func() string) houseNumberShares {
 	var shares houseNumberShares
-	eachDraw(n, draw, func(n string) {
+	fejktest.EachDraw(n, draw, func(n string) {
 		digits := strings.TrimRight(n, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 		if digits != n {
 			shares.lettered++
@@ -312,8 +315,8 @@ const danishHouseNumberDraws = 40000
 
 func danishHouseNumbers(t *testing.T) houseNumberShares {
 	t.Helper()
-	f := shipped(t, WithSeed(11))
-	return houseNumberSharesOf(danishHouseNumberDraws, func() string { return fake(t, f, "da_DK.address.street-number") })
+	f := shipped(t, fejkdata.WithSeed(11))
+	return houseNumberSharesOf(danishHouseNumberDraws, func() string { return fejktest.Fake(t, f, "da_DK.address.street-number") })
 }
 
 // Of DAR's 2.62 million house numbers in force, 14.4% carry a letter after the number, 29.3% have
@@ -333,13 +336,13 @@ func TestShippedDanishHouseNumbersNeverHaveFourDigits(t *testing.T) {
 }
 
 func TestDanishIndividHoldsOneRowPerSex(t *testing.T) {
-	if rows := tsvRows(t, "data/da_DK/individ.tsv"); len(rows) != 2 {
+	if rows := fejktest.TSVRows(t, "da_DK/individ.tsv"); len(rows) != 2 {
 		t.Errorf("individ.tsv holds %d rows, want one per sex", len(rows))
 	}
 }
 
 func TestDanishIndividHoldsOneDigitOfEachSexsParity(t *testing.T) {
-	for _, row := range tsvRows(t, "data/da_DK/individ.tsv") {
+	for _, row := range fejktest.TSVRows(t, "da_DK/individ.tsv") {
 		t.Run(row["sex"], func(t *testing.T) {
 			digit, err := strconv.Atoi(row["digit"])
 			if err != nil || digit < 0 || digit > 9 || (digit%2 == 1) != (row["sex"] == "m") {
@@ -359,10 +362,10 @@ func birthOfDanishCpr(got string) danishCprBirth {
 	dd, _ := strconv.Atoi(got[0:2])
 	mm, _ := strconv.Atoi(got[2:4])
 	yy, _ := strconv.Atoi(got[4:6])
-	year := cprYear(yy, int(got[7]-'0'))
+	year := fejktest.CprYear(yy, int(got[7]-'0'))
 	born := time.Date(year, time.Month(mm), dd, 0, 0, 0, 0, time.UTC)
-	age := testDay.Year() - year
-	if born.AddDate(age, 0, 0).After(testDay) {
+	age := fejktest.TestDay.Year() - year
+	if born.AddDate(age, 0, 0).After(fejktest.TestDay) {
 		age--
 	}
 	return danishCprBirth{born, dd, mm, year, age}
@@ -372,16 +375,16 @@ const danishCprDraws = 20000
 
 func eachDanishCpr(t *testing.T, check func(got string)) {
 	t.Helper()
-	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	eachDraw(danishCprDraws, func() string { return fake(t, f, "da_DK.cpr") }, check)
+	fejktest.EachDraw(danishCprDraws, func() string { return fejktest.Fake(t, f, "da_DK.cpr") }, check)
 }
 
 func TestDanishCprIsDdmmyyAndFourDigitsWithAValidCheckDigit(t *testing.T) {
 	eachDanishCpr(t, func(got string) {
-		if len(got) != 11 || got[6] != '-' || !validCpr(got) {
+		if len(got) != 11 || got[6] != '-' || !fejktest.ValidCpr(got) {
 			t.Fatalf("%q is not ddmmyy-ssss with a valid check digit", got)
 		}
 	})
@@ -390,8 +393,8 @@ func TestDanishCprIsDdmmyyAndFourDigitsWithAValidCheckDigit(t *testing.T) {
 func TestDanishCprIsBornOnADayOfTheCalendarNotAfterToday(t *testing.T) {
 	eachDanishCpr(t, func(got string) {
 		b := birthOfDanishCpr(got)
-		if b.born.Day() != b.day || int(b.born.Month()) != b.mon || b.born.After(testDay) {
-			t.Fatalf("%q is born on %s, want a day of the calendar not after %s", got, b.born.Format("2006-01-02"), testDay.Format("2006-01-02"))
+		if b.born.Day() != b.day || int(b.born.Month()) != b.mon || b.born.After(fejktest.TestDay) {
+			t.Fatalf("%q is born on %s, want a day of the calendar not after %s", got, b.born.Format("2006-01-02"), fejktest.TestDay.Format("2006-01-02"))
 		}
 	})
 }
@@ -448,11 +451,11 @@ func TestDanishCprFollowsTheAgeBandsOfStatisticsDenmarksPopulation(t *testing.T)
 
 func eachDanishCprWithASex(t *testing.T, check func(got string)) {
 	t.Helper()
-	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	eachDraw(500, func() string {
+	fejktest.EachDraw(500, func() string {
 		got, err := f.FakeTemplate("{/da_DK.sex as s}{s.name}|{/da_DK.cpr.birth}-{cpr(s.individ.digit)}")
 		if err != nil {
 			t.Fatal(err)
@@ -464,7 +467,7 @@ func eachDanishCprWithASex(t *testing.T, check func(got string)) {
 func TestDanishCprAgreesWithABoundSex(t *testing.T) {
 	eachDanishCprWithASex(t, func(got string) {
 		sex, number, _ := strings.Cut(got, "|")
-		if odd := (number[10]-'0')%2 == 1; !validCpr(number) || odd != (sex == "mand") {
+		if odd := (number[10]-'0')%2 == 1; !fejktest.ValidCpr(number) || odd != (sex == "mand") {
 			t.Fatalf("%q: want a valid number, odd for a mand and even for a kvinde", got)
 		}
 	})
@@ -541,7 +544,7 @@ func danishSeries(t *testing.T, mobile bool) map[string]bool {
 func phoneSeriesOf(t *testing.T, kind string) (got map[string]bool, repeated []string) {
 	t.Helper()
 	got = map[string]bool{}
-	for _, row := range tsvRows(t, "data/da_DK/phone-"+kind+".tsv") {
+	for _, row := range fejktest.TSVRows(t, "da_DK/phone-"+kind+".tsv") {
 		if got[row["prefix"]] {
 			repeated = append(repeated, row["prefix"])
 		}
@@ -596,10 +599,10 @@ func TestShippedDanishPhoneTablesHoldNoSeriesTheNumberingPlanDoesNotAllocate(t *
 }
 
 func TestShippedDanishPhoneSeriesIsARowOfItsKind(t *testing.T) {
-	f := shipped(t, WithSeed(2))
+	f := shipped(t, fejkdata.WithSeed(2))
 	for path, want := range map[string]string{"da_DK.phone-mobile[34 2]": "34 2", "da_DK.phone-mobile[21 1]": "21 1", "da_DK.phone-fixed[34 3]": "34 3", "da_DK.phone-fixed[75 1]": "75 1"} {
 		t.Run(path, func(t *testing.T) {
-			if got := fake(t, f, path); got != want {
+			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("%s = %q, want %q", path, got, want)
 			}
 		})
@@ -607,7 +610,7 @@ func TestShippedDanishPhoneSeriesIsARowOfItsKind(t *testing.T) {
 }
 
 func TestShippedDanishPhoneSeriesIsNoRowOfAnotherKind(t *testing.T) {
-	f := shipped(t, WithSeed(2))
+	f := shipped(t, fejkdata.WithSeed(2))
 	for _, path := range []string{"da_DK.phone-fixed[34 2]", "da_DK.phone-mobile[34 3]", "da_DK.phone-mobile[20 0]", "da_DK.phone-fixed[37 1]", "da_DK.phone-fixed[67 1]", "da_DK.phone-mobile[90 1]", "da_DK.phone-fixed[80 1]", "da_DK.phone-fixed[30 0]"} {
 		t.Run(path, func(t *testing.T) {
 			if got, err := f.Fake(path); err == nil {
@@ -621,8 +624,8 @@ var danishNationalPhone = regexp.MustCompile(`^(\d\d) (\d)\d( \d\d){2}$`)
 
 func eachShippedDanishPhone(t *testing.T, check func(n string)) {
 	t.Helper()
-	f := shipped(t, WithSeed(11))
-	eachDraw(30000, func() string { return fake(t, f, "da_DK.phone") }, check)
+	f := shipped(t, fejkdata.WithSeed(11))
+	fejktest.EachDraw(30000, func() string { return fejktest.Fake(t, f, "da_DK.phone") }, check)
 }
 
 func danishPhoneSeries(n string) string {
@@ -664,8 +667,10 @@ func TestShippedDanishPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
 }
 
 func TestShippedDanishPhoneInternational(t *testing.T) {
-	f := shipped(t, WithSeed(5))
-	eachDraw(300, func() string { return fakeTemplate(t, f, "{/da_DK.phone as p}{p}|{p.national}|{p.international}") }, func(got string) {
+	f := shipped(t, fejkdata.WithSeed(5))
+	fejktest.EachDraw(300, func() string {
+		return fejktest.FakeTemplate(t, f, "{/da_DK.phone as p}{p}|{p.national}|{p.international}")
+	}, func(got string) {
 		parts := strings.Split(got, "|")
 		if len(parts) != 3 || parts[0] != parts[1] || parts[2] != "+45 "+parts[0] {
 			t.Fatalf("%q: want the national form twice, then +45 and the national form", got)
@@ -675,8 +680,8 @@ func TestShippedDanishPhoneInternational(t *testing.T) {
 
 func eachShippedDanishDate(t *testing.T, check func(got string)) {
 	t.Helper()
-	f := shipped(t, WithSeed(3))
-	eachDraw(500, func() string { return fake(t, f, "da_DK.date") }, check)
+	f := shipped(t, fejkdata.WithSeed(3))
+	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, "da_DK.date") }, check)
 }
 
 func danishDateYear(got string) int {
@@ -714,8 +719,8 @@ func TestShippedDanishDatesIncludeADayOfOneDigit(t *testing.T) {
 var exampleEmail = regexp.MustCompile(`^[a-z0-9]+([._-][a-z0-9]+)*@([a-z0-9-]+\.)*example\.(com|org|net)$`)
 
 func TestShippedDanishEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
-	f := shipped(t, WithSeed(4))
-	eachDraw(500, func() string { return fake(t, f, "da_DK.email") }, func(got string) {
+	f := shipped(t, fejkdata.WithSeed(4))
+	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, "da_DK.email") }, func(got string) {
 		if !exampleEmail.MatchString(got) {
 			t.Fatalf("email %q is not lower-case ASCII at example.com, example.org or example.net", got)
 		}
@@ -723,8 +728,8 @@ func TestShippedDanishEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 }
 
 func TestShippedDanishEmailsAreMostlyDistinct(t *testing.T) {
-	f := shipped(t, WithSeed(4))
-	seen := tallyDraws(500, func() string { return fake(t, f, "da_DK.email") })
+	f := shipped(t, fejkdata.WithSeed(4))
+	seen := fejktest.TallyDraws(500, func() string { return fejktest.Fake(t, f, "da_DK.email") })
 	if len(seen) < 400 {
 		t.Errorf("500 emails drew %d distinct, want 400 or more", len(seen))
 	}
@@ -734,7 +739,7 @@ func danishNameSlugs(t *testing.T, file string) map[string]bool {
 	t.Helper()
 	fold := strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
 	out := map[string]bool{}
-	for _, row := range tsvRows(t, file) {
+	for _, row := range fejktest.TSVRows(t, file) {
 		out[fold.Replace(strings.ToLower(row["name"]))] = true
 	}
 	return out
@@ -752,11 +757,11 @@ func lastNameInEmail(local string, firsts, lasts map[string]bool) string {
 }
 
 func TestShippedDanishEmailHoldsAFirstAndALastNameInHalfItsAddresses(t *testing.T) {
-	firsts, lasts := danishNameSlugs(t, "data/da_DK/first-name.tsv"), danishNameSlugs(t, "data/da_DK/last-name.tsv")
+	firsts, lasts := danishNameSlugs(t, "da_DK/first-name.tsv"), danishNameSlugs(t, "da_DK/last-name.tsv")
 	trailingDigits := regexp.MustCompile(`\d+$`)
-	f := shipped(t, WithSeed(9))
-	seen := tallyDraws(5000, func() string {
-		local, _, _ := strings.Cut(fake(t, f, "da_DK.email"), "@")
+	f := shipped(t, fejkdata.WithSeed(9))
+	seen := fejktest.TallyDraws(5000, func() string {
+		local, _, _ := strings.Cut(fejktest.Fake(t, f, "da_DK.email"), "@")
 		return lastNameInEmail(trailingDigits.ReplaceAllString(local, ""), firsts, lasts)
 	})
 	named := 5000 - seen[""]
@@ -777,8 +782,8 @@ func danishLegalForm(company string) string {
 
 func eachShippedDanishCompany(t *testing.T, check func(got string)) {
 	t.Helper()
-	f := shipped(t, WithSeed(6))
-	eachDraw(shareDraws, func() string { return fake(t, f, "da_DK.company") }, check)
+	f := shipped(t, fejkdata.WithSeed(6))
+	fejktest.EachDraw(fejktest.ShareDraws, func() string { return fejktest.Fake(t, f, "da_DK.company") }, check)
 }
 
 func TestShippedDanishCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
@@ -801,16 +806,16 @@ func TestShippedDanishCompanyEndsInALegalFormDrawnByStatisticsDenmarksEnterprise
 	eachShippedDanishCompany(t, func(got string) { form[danishLegalForm(got)]++ })
 	for code, n := range registered {
 		t.Run(code, func(t *testing.T) {
-			assertShare(t, code+" of the companies", form[code], shareDraws, float64(n)/float64(total))
+			assertShare(t, code+" of the companies", form[code], fejktest.ShareDraws, float64(n)/float64(total))
 		})
 	}
 }
 
 func TestShippedDanishCompanyPathsDrawOneFormEach(t *testing.T) {
-	f := shipped(t, WithSeed(7))
+	f := shipped(t, fejkdata.WithSeed(7))
 	for path, suffix := range map[string]string{"enk": "", "aps": " ApS", "as": " A/S", "is": " I/S", "ks": " K/S"} {
 		t.Run(path, func(t *testing.T) {
-			eachDraw(100, func() string { return fake(t, f, "da_DK.company."+path) }, func(got string) {
+			fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "da_DK.company."+path) }, func(got string) {
 				if suffix == "" && danishLegalFormSuffix.MatchString(got) || !strings.HasSuffix(got, suffix) {
 					t.Fatalf("da_DK.company.%s = %q, want a name ending in %q", path, got, suffix)
 				}
@@ -820,8 +825,8 @@ func TestShippedDanishCompanyPathsDrawOneFormEach(t *testing.T) {
 }
 
 func TestShippedDanishCompanyLegalIsItsAbbreviation(t *testing.T) {
-	f := shipped(t, WithSeed(7))
-	eachDraw(200, func() string { return fakeTemplate(t, f, "{/da_DK.company as c}{c}|{c.legal}") }, func(got string) {
+	f := shipped(t, fejkdata.WithSeed(7))
+	fejktest.EachDraw(200, func() string { return fejktest.FakeTemplate(t, f, "{/da_DK.company as c}{c}|{c.legal}") }, func(got string) {
 		company, legal, _ := strings.Cut(got, "|")
 		if legal != "" && !strings.HasSuffix(company, " "+legal) || legal == "" && strings.Contains(company, "/") {
 			t.Fatalf("company %q has legal %q", company, legal)
@@ -849,7 +854,7 @@ func geoNameSet(t *testing.T, country, table string) map[string]bool {
 func nameColumnSet(t *testing.T, file string) map[string]bool {
 	t.Helper()
 	out := map[string]bool{}
-	for _, row := range tsvRows(t, file) {
+	for _, row := range fejktest.TSVRows(t, file) {
 		out[row["name"]] = true
 	}
 	return out
@@ -875,10 +880,10 @@ func danishCompanyShape(name string, words []string, places, firsts, lasts map[s
 
 func danishSoleProprietorshipShapes(t *testing.T, words []string, draws int) map[string]int {
 	t.Helper()
-	places, firsts, lasts := nameColumnSet(t, "data/geo/DK/locality.tsv"), nameColumnSet(t, "data/da_DK/first-name.tsv"), nameColumnSet(t, "data/da_DK/last-name.tsv")
-	f := shipped(t, WithSeed(8))
+	places, firsts, lasts := nameColumnSet(t, "geo/DK/locality.tsv"), nameColumnSet(t, "da_DK/first-name.tsv"), nameColumnSet(t, "da_DK/last-name.tsv")
+	f := shipped(t, fejkdata.WithSeed(8))
 	seen := map[string]int{}
-	eachDraw(draws, func() string { return fake(t, f, "da_DK.company.enk") }, func(name string) {
+	fejktest.EachDraw(draws, func() string { return fejktest.Fake(t, f, "da_DK.company.enk") }, func(name string) {
 		for _, shape := range danishCompanyShape(name, words, places, firsts, lasts) {
 			seen[shape]++
 		}
@@ -888,7 +893,7 @@ func danishSoleProprietorshipShapes(t *testing.T, words []string, draws int) map
 
 func TestShippedDanishCompanyNamesAreBuiltOfNamesPlacesAndTradeWords(t *testing.T) {
 	t.Parallel()
-	src, err := os.ReadFile("data/da_DK/company-word.json")
+	src, err := os.ReadFile("da_DK/company-word.json")
 	if err != nil {
 		t.Fatal(err)
 	}
