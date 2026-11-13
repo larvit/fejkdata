@@ -229,7 +229,7 @@ func readmeTableExample(t *testing.T) *Generator {
 	return f
 }
 
-func TestReadmeTableExample(t *testing.T) {
+func TestReadmeTableExampleSelectsARowByKeyOrName(t *testing.T) {
 	f := readmeTableExample(t)
 	for path, want := range map[string]string{"example[SE]": "Sweden (SE)", "example[Norway].alpha2": "NO"} {
 		t.Run(path, func(t *testing.T) {
@@ -640,7 +640,7 @@ func TestReadmeGoQuickStart(t *testing.T) {
 	block, printed := readmeGoQuickStart(t)
 	typ := readmeStruct(t, block)
 	f := readmeGoQuickStartGenerator(t)
-	t.Run("output", func(t *testing.T) {
+	t.Run("prints what the README prints for seed 1", func(t *testing.T) {
 		first := reflect.New(typ)
 		if err := f.FakeStruct(first.Interface()); err != nil {
 			t.Fatal(err)
@@ -649,7 +649,7 @@ func TestReadmeGoQuickStart(t *testing.T) {
 			t.Errorf("README prints %s for seed 1, it renders %s", printed, got)
 		}
 	})
-	t.Run("valid", func(t *testing.T) {
+	t.Run("fills 300 people the shipped data holds", func(t *testing.T) {
 		shipped := loadQuickStartShipped(t)
 		eachReadmePersonFilled(t, f, typ, 300, func(p quickStartPerson) {
 			if err := shipped.checkPerson(p); err != nil {
@@ -809,7 +809,7 @@ func readmeExampleDraw(t *testing.T, block string) func() string {
 	}
 }
 
-func TestReadmeRatiosAndRules(t *testing.T) {
+func TestReadmeRatiosAndRulesSaysTheWordsAReaderSearchesFor(t *testing.T) {
 	section, _, _ := readmeRatioAndRuleExamples(t)
 	for _, word := range []string{"ratio", "percent", "`if`"} {
 		t.Run(word, func(t *testing.T) {

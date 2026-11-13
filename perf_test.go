@@ -124,8 +124,8 @@ func fiveLinkedTablesFS() fstest.MapFS {
 	return deep
 }
 
-// Five linked tables, the depth a country's geo tree has: every pin must stay inline.
-func TestNoLinkedTablesAllocRegression(t *testing.T) {
+// The depth a country's geo tree has: every pin must stay inline.
+func TestNoAllocRegressionAcrossFiveLinkedTables(t *testing.T) {
 	f, err := New(WithSeed(1), onTestDay, WithDataFS(fiveLinkedTablesFS()))
 	if err != nil {
 		t.Fatal(err)

@@ -215,7 +215,7 @@ func nullColumns(t *testing.T) *Generator {
 	return newGenerator(t, dir, WithSeed(1))
 }
 
-func TestNullColumn(t *testing.T) {
+func TestANullColumnIsNullEveryDrawAndKeepsItsDatatype(t *testing.T) {
 	eachRecordOf(t, nullColumns(t), "row", 100, func(r *Record) {
 		gone, middle, score := r.Columns()[0], r.Columns()[1], r.Columns()[2]
 		if !gone.Null || gone.Value != "" || gone.DataType != DataTypeString {

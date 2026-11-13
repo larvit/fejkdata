@@ -229,8 +229,6 @@ func TestNewRefusesInvalidJSONInACategoryFile(t *testing.T) {
 	}
 }
 
-// An option that cannot take effect, and a category or folder no dot path can
-// reach, are mistakes New must name rather than accept and ignore.
 func TestNewNamesAnOptionWithNoEffectAndANameNoPathCanReach(t *testing.T) {
 	rejected := map[string]struct {
 		files map[string]string
@@ -331,7 +329,6 @@ func TestNewNamesAnOptionWithNoEffectAndANameNoPathCanReach(t *testing.T) {
 	}
 }
 
-// Data that works today must keep working, and stay reachable.
 func TestNewAcceptsANameThatOnlyResemblesAnOptionOrRepeatsAnArm(t *testing.T) {
 	accepted := map[string]struct {
 		files map[string]string
