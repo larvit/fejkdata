@@ -109,11 +109,10 @@ type invocation struct {
 	version      bool
 }
 
-type flagDef struct {
-	long  string
-	short string
-	value bool
-	set   func(*invocation, string) error
+// system holds what the machine gives where no flag does.
+type system struct {
+	seed  uint64
+	today time.Time
 }
 
 func (in invocation) options(modules []fs.FS, sys system) []fejkdata.Option {
