@@ -1733,3 +1733,13 @@ Read most (opens and searches):
 Read most (opens and searches):
 
 - `todo.md` 2
+
+## Reading cost, chunk 1f6c5aac5c7b, finished 2026-11-13T22:57:00Z
+
+88945 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 3
+- `README.md` 2
+- `compose.yaml` 2

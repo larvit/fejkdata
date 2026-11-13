@@ -6,13 +6,12 @@
 
 `Bar = 0`
 
-`Next ID = 458`
+`Next ID = 459`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 456 | 0.5.0 |  |  | **Gate cyclomatic complexity at 10 in both gocyclo lines, with every function over it split or listed, with its reason, as a table-shaped dispatch.** | 3 | 1 | 1 | 3 | 8 | code health by 5 | 0.7 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 453 | 0.6.0 |  | owner | **Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
@@ -21,6 +20,7 @@
 | 451 | 0.6.0 |  |  | **Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.1 |
 | 324 | 0.6.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
 | 325 | 0.6.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
+| 458 | 0.6.0 | 453 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
 | 334 | 0.7.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
 | 169 | 0.8.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
@@ -231,12 +231,6 @@
 
 ## Details
 
-### 456. Gate cyclomatic complexity at 10 in both gocyclo lines, with every function over it split or listed, with its reason, as a table-shaped dispatch.
-
-`AGENTS.md` gates cyclomatic complexity at 14, twice the ceiling of seven that technical-principles.md ("About seven things per level") sets, and nothing records why. Functions of 8 to 14 branches are where the comprehension panel scores Locality about 5.6, under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 83 functions today, and `-over 10` lists 25.
-
-Chosen: lower the gate in steps, to 10 first, because 25 functions fit one chunk and 83 do not. The gate is applied by both gocyclo lines, the Dockerfile's and compose.yaml's `cyclo`. Split each of the 25, or list it in a short allow-list beside those lines with its reason, where it is a table-shaped dispatch: a switch with one case per kind of its input. gocyclo cannot exempt one function, so the allow-list filters its output. Change `AGENTS.md`'s rule to 10 and the allow-list. When this item ships, file the next step, to 7, as item 453 and later chunks split the rest.
-
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
@@ -277,6 +271,12 @@ Read them from the register the streets item names, Staðfangaskrá, where it ho
 ### 325. Give `geo/IS`'s places their streets.
 
 Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
+
+### 458. Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.
+
+`AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 74 functions.
+
+74 functions do not fit one chunk: split this item into steps, by package, before starting it. It waits for item 453, which reworks the name fence's functions this would split. Change both gocyclo lines, the Dockerfile's and compose.yaml's `cyclo`, the README's Development line and `AGENTS.md`'s rule to 7 in the last step.
 
 ### 334. Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.
 
