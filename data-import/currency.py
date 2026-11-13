@@ -9,6 +9,7 @@ import argparse
 import csv
 import io
 import xml.etree.ElementTree as ET
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 
 import source
@@ -24,19 +25,20 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "decimals", "name", "numeric", "symbol"]
 
 
-def symbols(xml_texts):
+def symbols(xml_texts: Iterable[str]) -> dict[str, str]:
     """CLDR's symbol per code: the first locale's narrow symbol, else the first locale's wide one."""
-    narrow, wide = {}, {}
+    narrow: dict[str, str] = {}
+    wide: dict[str, str] = {}
     for text in xml_texts:
         for c in ET.fromstring(text).iter("currency"):
             for s in c.findall("symbol"):
                 into = narrow if s.get("alt") == "narrow" else wide if s.get("alt") is None else None
                 if into is not None:
-                    into.setdefault(c.get("type"), s.text)
+                    into.setdefault(c.attrib["type"], s.text or "")
     return {**wide, **narrow}
 
 
-def rows(text, symbol):
+def rows(text: str, symbol: Mapping[str, str]) -> Iterator[dict[str, str]]:
     seen = set()
     for r in csv.DictReader(io.StringIO(text)):
         code = r["AlphabeticCode"]
@@ -52,7 +54,7 @@ def rows(text, symbol):
         }
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

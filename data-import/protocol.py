@@ -11,6 +11,7 @@ import argparse
 import csv
 import io
 import sys
+from collections.abc import Collection, Iterator, Mapping
 from pathlib import Path
 
 import source
@@ -23,7 +24,7 @@ COLUMNS = ["keyword", "name", "number"]
 SKIP = ("Reserved", "deprecated")
 
 
-def rows(text):
+def rows(text: str) -> Iterator[dict[str, str]]:
     for r in csv.DictReader(io.StringIO(text)):
         number, keyword = (r["Decimal"] or "").strip(), (r["Keyword"] or "").strip()
         if not number.isdigit() or not keyword or any(s in keyword for s in SKIP):
@@ -33,9 +34,10 @@ def rows(text):
         yield {"keyword": keyword, "name": " ".join((r["Protocol"] or "").split()) or keyword, "number": number}
 
 
-def refuse_an_unselectable_row(table):
+def refuse_an_unselectable_row(table: Collection[Mapping[str, str]]) -> None:
     """What the loader refuses at New, and a name that names two rows rather than one."""
-    keywords, names = {}, {}
+    keywords: dict[str, str] = {}
+    names: dict[str, str] = {}
     for r in table:
         for column in ("keyword", "name"):
             if set(r[column]) & set(tsv.SELECTOR):
@@ -51,7 +53,7 @@ def refuse_an_unselectable_row(table):
         names[r["name"]] = r["keyword"]
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

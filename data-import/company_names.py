@@ -8,6 +8,7 @@ at most the vocabulary's acronym_max letters, or no vowel.
 """
 import re
 from collections import Counter, defaultdict
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,51 +22,52 @@ VOWELS = "aeiouyåäöæøéü"
 class Vocabulary:
     """What a register's language makes of a name's words."""
 
-    word: re.Pattern
-    function_words: frozenset
-    legal_words: frozenset
-    word_forms: frozenset
+    word: re.Pattern[str]
+    function_words: frozenset[str]
+    legal_words: frozenset[str]
+    word_forms: frozenset[str]
     acronym_max: int
 
 
 class Usage:
     """How the names of the register use one word."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.names, self.begins, self.ends = 0, 0, 0
-        self.forms, self.spellings = Counter(), Counter()
+        self.forms: Counter[str] = Counter()
+        self.spellings: Counter[str] = Counter()
 
 
-def column(path):
+def column(path: str | Path) -> set[str]:
     """The first column of a shipped table, lower case."""
     return {line.split("\t")[0].lower() for line in Path(path).read_text(encoding="utf-8").splitlines()[1:]}
 
 
-def split(name):
+def split(name: str) -> list[str]:
     return [w for w in re.split(r"[\s,]+", name) if w]
 
 
-def common(counts):
+def common[K](counts: Mapping[K, int]) -> list[tuple[K, int]]:
     """The keys with at least SHARE_MIN of the total, by count then key."""
     total = sum(counts.values())
     return [(k, c) for k, c in sorted(counts.items(), key=lambda kc: (-kc[1], kc[0])) if c >= SHARE_MIN * total]
 
 
-def quoted(s):
+def quoted(s: str) -> str:
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def weighted(fmt, weight):
+def weighted(fmt: str, weight: float) -> str:
     return "{ " + f'"format": {quoted(fmt)}, "weight": {weight}' + " }"
 
 
-def legal_item(fmt, legal, weight):
+def legal_item(fmt: str, legal: str, weight: float) -> str:
     return "{ " + f'"format": {quoted(fmt)}, "legal": {quoted(legal)}, "weight": {weight}' + " }"
 
 
-def word_usage(names, named, vocabulary):
+def word_usage(names: Iterable[tuple[str, str]], named: Callable[[str], object], vocabulary: Vocabulary) -> dict[str, Usage]:
     """The Usage of each word of the vocabulary's letters that is no name, place, legal or function word, by lower case."""
-    usage = defaultdict(Usage)
+    usage: dict[str, Usage] = defaultdict(Usage)
     for form, name in names:
         words = [w for w in split(name) if w.lower() not in vocabulary.legal_words]
         for i, w in enumerate(words):
@@ -81,7 +83,7 @@ def word_usage(names, named, vocabulary):
     return usage
 
 
-def trade_words(usage, vocabulary):
+def trade_words(usage: Mapping[str, Usage], vocabulary: Vocabulary) -> dict[str, tuple[str, int]]:
     """The trade words, each with its spelling most names use and its count, by the rule in the module docstring."""
     return {
         w: (u.spellings.most_common(1)[0][0] if u.spellings else w.capitalize(), u.names)

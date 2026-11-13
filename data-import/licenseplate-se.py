@@ -24,7 +24,7 @@ TRE TYP UFO USA WAM WAR WWW XTC XTZ XUK XXL XXX ZEX ZOG ZPY ZUG ZUP ZOO
 EXPECTED = 99
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()

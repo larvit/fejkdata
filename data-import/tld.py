@@ -13,6 +13,7 @@ import argparse
 import html
 import re
 import sys
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 
 import source
@@ -28,7 +29,7 @@ BIDI = {0x200E: None, 0x200F: None}
 ROW = re.compile(r'<a href="/domains/root/db/([^"]+)\.html">([^<]+)</a>.*?</td>\s*<td>([^<]*)</td>\s*<td>(.*?)</td>', re.S)
 
 
-def rows(page):
+def rows(page: str) -> Iterator[dict[str, str]]:
     for a_label, shown, kind, manager in ROW.findall(page):
         if "Not assigned" in manager:
             continue
@@ -38,7 +39,7 @@ def rows(page):
         yield {"tld": "." + a_label, "type": kind, "unicode": html.unescape(shown).strip().translate(BIDI)}
 
 
-def prove_each_unicode_form_is_its_key(table):
+def prove_each_unicode_form_is_its_key(table: Iterable[Mapping[str, str]]) -> None:
     """The displayed form is the key's own spelling, which punycode encodes back to."""
     for r in table:
         label = r["unicode"][1:]
@@ -47,7 +48,7 @@ def prove_each_unicode_form_is_its_key(table):
             sys.exit(f"{r['tld']}: the database displays {r['unicode']!r}, which is no spelling of it")
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

@@ -18,16 +18,16 @@ class TheRepositorysPackagesYml(unittest.TestCase):
 		self.assertIsNotNone(match, f"{pattern.pattern} finds no GoReleaser version in .github/workflows/packages.yml")
 		self.assertRegex(match[1], r"^v\d+\.\d+\.\d+$")
 
-	def test_names_a_goreleaser_version_carried_reads(self):
+	def test_names_a_goreleaser_version_carried_reads(self) -> None:
 		self.assert_names_a_goreleaser_version(carried.GORELEASER)
 
-	def test_names_a_goreleaser_version_renovate_reads(self):
+	def test_names_a_goreleaser_version_renovate_reads(self) -> None:
 		managers = json.loads(repository_file("renovate.json"))["customManagers"]
 		(manager,) = [m for m in managers if m.get("depNameTemplate") == "goreleaser/goreleaser"]
 		javascript_named_group = r"\(\?<(\w+)>"
 		self.assert_names_a_goreleaser_version(re.compile(re.sub(javascript_named_group, r"(?P<\1>", manager["matchStrings"][0])))
 
-	def test_names_the_goreleaser_both_dockerfiles_build_with(self):
+	def test_names_the_goreleaser_both_dockerfiles_build_with(self) -> None:
 		(version,) = carried.GORELEASER.findall(repository_file(".github/workflows/packages.yml"))
 		image = re.compile(r"^FROM goreleaser/goreleaser:(\S+) ", re.M)
 		for dockerfile in ["Dockerfile", "release-tooling/package-repos.Dockerfile"]:
@@ -35,7 +35,7 @@ class TheRepositorysPackagesYml(unittest.TestCase):
 
 
 class TheRepositorysComposeFile(unittest.TestCase):
-	def test_runs_the_go_and_the_tools_the_dockerfile_gates_with(self):
+	def test_runs_the_go_and_the_tools_the_dockerfile_gates_with(self) -> None:
 		compose, dockerfile = repository_file("compose.yaml"), repository_file("Dockerfile")
 		go = re.search(r"golang:\$\{GO_VERSION:-(\S+)\}", compose)[1]
 		self.assertEqual(carried.dotted(carried.go_of(dockerfile)), go)
@@ -43,7 +43,7 @@ class TheRepositorysComposeFile(unittest.TestCase):
 			(gated,) = re.findall(tool, dockerfile)
 			self.assertEqual(re.findall(tool, compose), [gated])
 
-	def test_gives_every_service_a_memory_limit_and_the_same_swap_limit(self):
+	def test_gives_every_service_a_memory_limit_and_the_same_swap_limit(self) -> None:
 		services = re.search(r"^services:\n(.*?)^volumes:", repository_file("compose.yaml"), re.M | re.S)[1]
 		blocks = re.split(r"^  (?=[\w-]+:\n)", services, flags=re.M)[1:]
 		self.assertGreater(len(blocks), 0)
@@ -56,97 +56,97 @@ class TheRepositorysComposeFile(unittest.TestCase):
 
 
 class Of(unittest.TestCase):
-	def test_reads_go_goreleaser_and_the_modules_from_a_tree(self):
+	def test_reads_go_goreleaser_and_the_modules_from_a_tree(self) -> None:
 		files = {
 			"Dockerfile": DOCKERFILE.format("1.27.1"), ".github/workflows/packages.yml": PACKAGES.format("v2.18.3"),
 			"go.mod": GO_MOD.format("1.22", "v0.29.0"), "go.sum": "sum\n",
 		}
 		self.assertEqual(carried.of(lambda path: files.get(path, "")), carrying(go_sum="sum\n"))
 
-	def test_a_tree_whose_packages_yml_names_no_goreleaser_carries_none(self):
+	def test_a_tree_whose_packages_yml_names_no_goreleaser_carries_none(self) -> None:
 		self.assertIsNone(carried.of(lambda path: DOCKERFILE.format("1.27.1") if path == "Dockerfile" else "").goreleaser)
 
-	def test_a_dockerfile_with_no_go_version_is_refused(self):
+	def test_a_dockerfile_with_no_go_version_is_refused(self) -> None:
 		with self.assertRaises(ValueError):
 			carried.of(lambda path: "FROM scratch\n")
 
 
 class Due(unittest.TestCase):
-	def test_main_s_go_a_patch_above_the_last_release_s_is_carried(self):
+	def test_main_s_go_a_patch_above_the_last_release_s_is_carried(self) -> None:
 		self.assertEqual(carried.due(carrying("1.27.1"), carrying("1.27.2")), carrying("1.27.2"))
 
-	def test_main_s_go_a_minor_above_the_last_release_s_is_carried(self):
+	def test_main_s_go_a_minor_above_the_last_release_s_is_carried(self) -> None:
 		self.assertEqual(carried.due(carrying("1.27.2"), carrying("1.28.0")), carrying("1.28.0"))
 
-	def test_main_carrying_what_the_release_does_calls_for_nothing(self):
+	def test_main_carrying_what_the_release_does_calls_for_nothing(self) -> None:
 		self.assertIsNone(carried.due(carrying(), carrying()))
 
-	def test_an_older_go_calls_for_nothing(self):
+	def test_an_older_go_calls_for_nothing(self) -> None:
 		self.assertIsNone(carried.due(carrying("1.27.10"), carrying("1.27.9")))
 
-	def test_main_s_goreleaser_is_carried(self):
+	def test_main_s_goreleaser_is_carried(self) -> None:
 		self.assertEqual(carried.due(carrying(), carrying(goreleaser="v2.19.0")), carrying(goreleaser="v2.19.0"))
 
-	def test_a_release_whose_tree_names_no_goreleaser_takes_main_s(self):
+	def test_a_release_whose_tree_names_no_goreleaser_takes_main_s(self) -> None:
 		self.assertEqual(carried.due(carrying(goreleaser=None), carrying()), carrying())
 
-	def test_main_naming_no_goreleaser_is_refused(self):
+	def test_main_naming_no_goreleaser_is_refused(self) -> None:
 		with self.assertRaisesRegex(ValueError, "packages.yml names no GoReleaser"):
 			carried.due(carrying(), carrying(goreleaser=None))
 
-	def test_main_s_modules_are_carried_with_its_go_sum(self):
+	def test_main_s_modules_are_carried_with_its_go_sum(self) -> None:
 		main = carrying(go_mod=NEW_GO_MOD, go_sum="new sum\n")
 		self.assertEqual(carried.due(carrying(), main), main)
 
-	def test_modules_wait_while_main_raises_the_lowest_go(self):
+	def test_modules_wait_while_main_raises_the_lowest_go(self) -> None:
 		self.assertIsNone(carried.due(carrying(), carrying(go_mod=GO_MOD.format("1.23", "v0.30.0"))))
 
-	def test_a_go_sum_alone_calls_for_nothing(self):
+	def test_a_go_sum_alone_calls_for_nothing(self) -> None:
 		self.assertIsNone(carried.due(carrying(), carrying(go_sum="other sum\n")))
 
-	def test_modules_wait_while_main_requires_another_module_directly(self):
+	def test_modules_wait_while_main_requires_another_module_directly(self) -> None:
 		main = NEW_GO_MOD + "\nrequire example.com/feature v1.0.0\n"
 		self.assertIsNone(carried.due(carrying(), carrying(go_mod=main)))
 
-	def test_modules_wait_while_main_s_go_mod_changes_a_line_besides_its_requires(self):
+	def test_modules_wait_while_main_s_go_mod_changes_a_line_besides_its_requires(self) -> None:
 		main = NEW_GO_MOD + "\nreplace golang.org/x/text => example.com/text v0.30.1\n"
 		self.assertIsNone(carried.due(carrying(), carrying(go_mod=main)))
 
-	def test_modules_wait_while_main_s_go_mod_excludes_a_version(self):
+	def test_modules_wait_while_main_s_go_mod_excludes_a_version(self) -> None:
 		main = NEW_GO_MOD + "\nexclude golang.org/x/text v0.29.0\n"
 		self.assertIsNone(carried.due(carrying(), carrying(go_mod=main)))
 
-	def test_an_indirect_module_a_bump_adds_or_drops_is_carried(self):
+	def test_an_indirect_module_a_bump_adds_or_drops_is_carried(self) -> None:
 		self.assertEqual(carried.due(carrying(), carrying(go_mod=NEW_GO_MOD)).go_mod, NEW_GO_MOD)
 
 
 class Requires(unittest.TestCase):
-	def test_reads_a_require_block_and_single_lines(self):
+	def test_reads_a_require_block_and_single_lines(self) -> None:
 		self.assertEqual(
 			carried.requires(GO_MOD.format("1.22", "v0.29.0") + NEW_GO_MOD),
 			{"golang.org/x/text": "v0.30.0", "example.com/gone": "v1.0.0", "example.com/new": "v0.1.0"},
 		)
 
-	def test_a_go_mod_requiring_nothing(self):
+	def test_a_go_mod_requiring_nothing(self) -> None:
 		self.assertEqual(carried.requires("module example.com/m\n\ngo 1.22\n"), {})
 
 
 class SetGo(unittest.TestCase):
-	def test_sets_go_in_the_dockerfile_and_compose(self):
+	def test_sets_go_in_the_dockerfile_and_compose(self) -> None:
 		self.assertEqual(carried.set_go(DOCKERFILE.format("1.27.1"), "1.27.2"), DOCKERFILE.format("1.27.2"))
 		self.assertEqual(carried.set_go(COMPOSE.format("1.27.1"), "1.27.2"), COMPOSE.format("1.27.2"))
 
-	def test_a_file_naming_no_go_version_is_refused(self):
+	def test_a_file_naming_no_go_version_is_refused(self) -> None:
 		with self.assertRaises(ValueError):
 			carried.set_go("FROM scratch\n", "1.27.2")
 
-	def test_sets_goreleaser_in_a_dockerfile_and_leaves_its_other_images(self):
+	def test_sets_goreleaser_in_a_dockerfile_and_leaves_its_other_images(self) -> None:
 		self.assertEqual(
 			carried.set_goreleaser("FROM debian:13.1 AS a\nFROM goreleaser/goreleaser:v2.18.3 AS b\n", "v2.20.0"),
 			"FROM debian:13.1 AS a\nFROM goreleaser/goreleaser:v2.20.0 AS b\n",
 		)
 
-	def test_a_file_naming_no_goreleaser_is_refused(self):
+	def test_a_file_naming_no_goreleaser_is_refused(self) -> None:
 		with self.assertRaises(ValueError):
 			carried.set_goreleaser("FROM scratch\n", "v2.20.0")
 

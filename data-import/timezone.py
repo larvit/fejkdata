@@ -15,7 +15,9 @@ import re
 import sys
 import tarfile
 import zipfile
+from collections.abc import Collection, Iterator, Mapping
 from pathlib import Path
+from typing import Any
 
 import source
 import tsv
@@ -31,7 +33,7 @@ REGIONS = ["africa", "antarctica", "asia", "australasia", "backward", "etcetera"
 FLOOR = 15000
 
 
-def member(tar, name):
+def member(tar: tarfile.TarFile, name: str) -> str:
     try:
         f = tar.extractfile(name)
     except KeyError:
@@ -41,7 +43,7 @@ def member(tar, name):
     return f.read().decode("utf-8")
 
 
-def offsets(tar):
+def offsets(tar: tarfile.TarFile) -> tuple[dict[str, str], dict[str, str]]:
     """Every zone's standard offset, and every link's target."""
     std, links = {}, {}
     for name in REGIONS:
@@ -63,7 +65,7 @@ def offsets(tar):
     return std, links
 
 
-def resolve(zone, std, links):
+def resolve(zone: str, std: Mapping[str, str], links: Mapping[str, str]) -> str | None:
     for _ in range(10):
         if zone in std:
             return std[zone]
@@ -73,7 +75,7 @@ def resolve(zone, std, links):
     return None
 
 
-def utc_offset(raw):
+def utc_offset(raw: str) -> str | None:
     """±HH:MM from a tzdb STDOFF field, which writes the minutes and seconds only when it has them."""
     m = re.match(r"^(-)?(\d{1,2})(?::(\d{2})(?::(\d{2}))?)?$", raw)
     if not m or (m.group(4) or "00") != "00":
@@ -81,18 +83,18 @@ def utc_offset(raw):
     return f"{'-' if m.group(1) else '+'}{int(m.group(2)):02d}:{m.group(3) or '00'}"
 
 
-def population(body):
+def population(body: bytes) -> dict[str, int]:
     """The population GeoNames records per timezone, summed over its cities."""
     with zipfile.ZipFile(io.BytesIO(body)) as z:
         text = z.read("cities15000.txt").decode("utf-8")
-    per = {}
+    per: dict[str, int] = {}
     for city in csv.reader(io.StringIO(text), delimiter="\t", quoting=csv.QUOTE_NONE):
         if len(city) > 17 and city[17] and city[14].isdigit():
             per[city[17]] = per.get(city[17], 0) + int(city[14])
     return per
 
 
-def rows(tar, territories, pop):
+def rows(tar: tarfile.TarFile, territories: Collection[str], pop: Mapping[str, int]) -> Iterator[dict[str, Any]]:
     std, links = offsets(tar)
     for line in member(tar, "zone.tab").splitlines():
         if line.startswith("#") or not line.strip():
@@ -112,7 +114,7 @@ def rows(tar, territories, pop):
         yield {"offset": offset, "territory": territory, "weight": max(pop.get(zone, 0), FLOOR), "zone": zone}
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)
@@ -125,7 +127,7 @@ def main():
     body = source.fetch(a.source, a.cache, "tzdata-latest.tar.gz", magic=b"\x1f\x8b")
     with tarfile.open(fileobj=io.BytesIO(body)) as tar:
         table = sorted(rows(tar, shipped, pop), key=lambda r: r["zone"])
-        print(f"tzdb {tar.extractfile('version').read().decode('utf-8').strip()}", file=sys.stderr)
+        print(f"tzdb {member(tar, 'version').strip()}", file=sys.stderr)
     linked = {r["territory"] for r in table}
     if missing := shipped - linked:
         sys.exit(f"no zone for {sorted(missing)}; a parent row without a child is a load error")

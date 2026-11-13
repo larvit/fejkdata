@@ -14,6 +14,7 @@ A name that girls and boys both bear has a row under each sex.
 """
 import argparse
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 
 import tsv
@@ -149,7 +150,7 @@ Vang Weber Wilhelmsen Wittrup Østergaard
 """
 
 
-def ranked(top, recalled, what):
+def ranked(top: Mapping[str, int], recalled: str, what: str) -> list[tuple[str, int]]:
     """The rows (name, count) of a list: the top 20 as published, the recalled names in order, then the rarer ones, which share a count."""
     ordered, _, rarer = (part.split() for part in recalled.partition("\n=\n"))
     names = list(top) + ordered + rarer
@@ -167,7 +168,7 @@ def ranked(top, recalled, what):
     return rows
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()

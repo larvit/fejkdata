@@ -5,10 +5,17 @@ import io
 import math
 import sys
 import zipfile
+from collections.abc import Iterable, Mapping
 from pathlib import Path
+from typing import Any
 
 import source
 import tsv
+
+# A table's row, each column under its name; a country's script adds keys of its own.
+type Row = dict[str, Any]
+# fence's result: each table's rows under the table's name, by the row's key.
+type Tables = dict[str, dict[Any, Row]]
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "geo"
 CACHE = Path(__file__).resolve().parent / "cache"
@@ -23,17 +30,17 @@ COLUMNS = {
 }
 
 
-def parser(doc, country, street_share, **own):
+def parser(doc: str, country: str, street_share: float, **own: dict[str, Any]) -> argparse.ArgumentParser:
     """A parser for the options every country's import takes, plus the script's own: each keyword names one option, with
     "_" standing for "-"."""
-    options = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "min_streets": {"type": int, "default": 10}, "street_share": {"type": float, "default": street_share}, **own}
+    options: dict[str, dict[str, Any]] = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "min_streets": {"type": int, "default": 10}, "street_share": {"type": float, "default": street_share}, **own}
     p = argparse.ArgumentParser(description=doc.splitlines()[0])
     for name in sorted(options):
         p.add_argument("--" + name.replace("_", "-"), **options[name])
     return p
 
 
-def directories(args):
+def directories(args: argparse.Namespace) -> tuple[Path, Path]:
     """The cache and out directories of the parsed options, both created."""
     cache, out = Path(args.cache), Path(args.out)
     cache.mkdir(parents=True, exist_ok=True)
@@ -41,7 +48,7 @@ def directories(args):
     return cache, out
 
 
-def centroid(rows):
+def centroid(rows: Iterable[Row]) -> tuple[float, float] | None:
     """The mean lat and lon of the rows with a point, or None where no row has one."""
     points = [r for r in rows if r["lat"] is not None]
     if not points:
@@ -49,18 +56,19 @@ def centroid(rows):
     return sum(r["lat"] for r in points) / len(points), sum(r["lon"] for r in points) / len(points)
 
 
-class Nearest:
+class Nearest[T]:
     """Nearest point by an equirectangular distance, over a degree grid."""
 
-    def __init__(self, points, cell=0.05):
+    def __init__(self, points: Iterable[tuple[float, float, T]], cell: float = 0.05) -> None:
         self.cell = cell
-        self.grid = collections.defaultdict(list)
+        self.grid: dict[tuple[int, int], list[tuple[float, float, T]]] = collections.defaultdict(list)
         for lat, lon, value in points:
             self.grid[(int(lat // cell), int(lon // cell))].append((lat, lon, value))
 
-    def find(self, lat, lon):
+    def find(self, lat: float, lon: float) -> T | None:
         ci, cj = int(lat // self.cell), int(lon // self.cell)
-        best, best_d = None, math.inf
+        best: T | None = None
+        best_d = math.inf
         ring = 0
         while ring < 400:
             for i in range(ci - ring, ci + ring + 1):
@@ -77,7 +85,7 @@ class Nearest:
         return best
 
 
-def top_streets(count, share, minimum, column):
+def top_streets[K](count: Mapping[tuple[K, str], int], share: float, minimum: int, column: str) -> dict[K, list[Row]]:
     """count maps (locality, street name) to a count. Returns, per locality, rows for its most-counted names, share of
     them rounded up and at least minimum, ties broken by name; each row holds its count under column."""
     of = collections.defaultdict(list)
@@ -86,7 +94,7 @@ def top_streets(count, share, minimum, column):
     return {locality: [{"name": name, "locality": locality, column: n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:max(minimum, math.ceil(len(named) * share))]] for locality, named in of.items()}
 
 
-def fence(regions, municipalities, localities, streets, postal_codes):
+def fence[K](regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[K, Row], streets: Mapping[K, object], postal_codes: Mapping[K, object]) -> tuple[Tables, Tables]:
     """Meet the loader's fence that every parent row has a child row. Keeps each locality with entries in both streets
     and postal_codes, then each municipality and region left with a child.
 
@@ -95,36 +103,36 @@ def fence(regions, municipalities, localities, streets, postal_codes):
     name, municipality, population, lat and lon, plus its country's own keys.
 
     Returns kept, then dropped: each maps "locality", "municipality" and "region" to that table's rows."""
-    kept = {"locality": {k: loc for k, loc in localities.items() if streets.get(k) and postal_codes.get(k)}}
+    kept: Tables = {"locality": {k: loc for k, loc in localities.items() if streets.get(k) and postal_codes.get(k)}}
     municipality_codes = {loc["municipality"] for loc in kept["locality"].values()}
     kept["municipality"] = {c: m for c, m in municipalities.items() if c in municipality_codes}
     region_codes = {m["region"] for m in kept["municipality"].values()}
     kept["region"] = {c: r for c, r in regions.items() if c in region_codes}
-    every = {"locality": localities, "municipality": municipalities, "region": regions}
+    every: dict[str, Mapping[Any, Row]] = {"locality": localities, "municipality": municipalities, "region": regions}
     dropped = {table: {k: row for k, row in rows.items() if k not in kept[table]} for table, rows in every.items()}
     return kept, dropped
 
 
-def exit_on_dropped_parents(dropped):
+def exit_on_dropped_parents(dropped: Tables) -> None:
     """Exits where fence dropped a municipality or a region, naming each; a country whose every one must ship calls it."""
     if dropped["municipality"] or dropped["region"]:
         sys.exit(f"municipalities without a locality: {sorted(dropped['municipality'])}; regions without a municipality: {sorted(dropped['region'])}")
 
 
-def in_capitals(name):
+def in_capitals(name: str) -> bool:
     """Whether a word of name is five capitals or more, as in a street name a source writes in capitals. A shorter
     word in capitals is an acronym or a Roman numeral: IOGT-vägen, Karl XII gatan."""
     return any(len(w) >= 5 and w.isupper() for w in name.split())
 
 
-def log_dropped_localities(rows):
+def log_dropped_localities(rows: Mapping[Any, Row]) -> None:
     """Logs each locality row as dropped, by its key, plus its name where that differs."""
     for key, row in rows.items():
         label = key if key == row["name"] else f"{key} {row['name']}"
         print(f"{label}: no street or no postal code, dropped", file=sys.stderr)
 
 
-def geonames(cache, country):
+def geonames(cache: Path, country: str) -> list[Row]:
     """GeoNames' postal codes of a country (CC BY 4.0), each with its place name, municipality code and point."""
     z = zipfile.ZipFile(io.BytesIO(source.fetch(GEONAMES.format(country), cache, f"{country}.zip", magic=b"PK")))
     rows = []
@@ -135,25 +143,26 @@ def geonames(cache, country):
     return rows
 
 
-def most_addresses_first(in_municipality):
+def most_addresses_first[K](in_municipality: Mapping[tuple[K, str], int]) -> list[tuple[tuple[K, str], int]]:
     """in_municipality's items, the most addresses first, the lower municipality code first in a tie."""
     return sorted(in_municipality.items(), key=lambda kv: (-kv[1], kv[0][1]))
 
 
-def home_municipalities(in_municipality):
+def home_municipalities[K](in_municipality: Mapping[tuple[K, str], int]) -> dict[K, str]:
     """Each locality's municipality: the one holding most of its addresses, the lower code winning a tie.
     in_municipality maps (locality, municipality) to the addresses they share."""
-    home = {}
+    home: dict[K, str] = {}
     for (place, municipality), _ in most_addresses_first(in_municipality):
         home.setdefault(place, municipality)
     return home
 
 
-def homes(in_municipality, people):
+def homes[K](in_municipality: Mapping[tuple[K, str], int], people: Mapping[str, int]) -> dict[K, tuple[str, int]]:
     """Each locality's municipality and population. in_municipality maps (locality, municipality) to the addresses they
     share, and people maps a municipality to its population. A locality's municipality is home_municipalities'. Its
     population is each municipality's, shared out over that municipality's localities by their addresses there."""
-    of_municipality, share = collections.Counter(), collections.Counter()
+    of_municipality: collections.Counter[str] = collections.Counter()
+    share: dict[K, float] = collections.defaultdict(float)
     for (_, municipality), n in in_municipality.items():
         of_municipality[municipality] += n
     for (place, municipality), n in most_addresses_first(in_municipality):
@@ -161,12 +170,12 @@ def homes(in_municipality, people):
     return {place: (municipality, max(1, round(share[place]))) for place, municipality in home_municipalities(in_municipality).items()}
 
 
-def number_range(number, lettered):
+def number_range(number: int, lettered: bool) -> tuple[int, bool]:
     """The key address_json counts a house number under: its range's index in NUMBER_RANGES, and whether a letter follows."""
     return next(i for i, (_, top) in enumerate(NUMBER_RANGES) if number <= top), lettered
 
 
-def address_json(numbers, letter="{upper(1)}"):
+def address_json(numbers: Mapping[tuple[int, bool], int], letter: str = "{upper(1)}") -> str:
     """A country's address, its street-number choice weighted by numbers, which counts house numbers by number_range.
     letter is the template that draws a number's delivery letter."""
     items = ",\n".join(
@@ -180,7 +189,7 @@ def address_json(numbers, letter="{upper(1)}"):
     )
 
 
-def write_tables(out, kept, postal_codes, streets, **columns):
+def write_tables(out: Path, kept: Tables, postal_codes: Iterable[Row], streets: Mapping[Any, Iterable[Row]], **columns: list[str]) -> None:
     """Writes out's region, municipality, locality, postal-code and street TSVs: the rows fence kept, sorted by key,
     postal_codes' rows sorted by code, and streets' rows for each kept locality. Each table takes COLUMNS' columns,
     unless a keyword names the table, with "_" standing for "-"."""

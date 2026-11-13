@@ -6,6 +6,7 @@
 A tilltalsnamn goes under each sex that carries it, so a name both sexes carry has two rows.
 """
 import argparse
+from collections.abc import Iterable
 from pathlib import Path
 
 import source
@@ -20,19 +21,19 @@ SURNAMES = "Efternamn"
 PARTICLES = {"af", "av", "da", "de", "del", "den", "der", "di", "dos", "du", "la", "le", "van", "von"}
 
 
-def cased(name):
+def cased(name: str) -> str:
     """SCB's uppercase name as it is written: each part capitalised, a particle before another part lowercased."""
     parts = name.lower().split(" ")
     return " ".join(w if w in PARTICLES and len(parts) > 1 else w.title() for w in parts)
 
 
-def counted(rows, top):
+def counted(rows: Iterable[list[str]], top: int) -> list[tuple[str, int]]:
     """The top names of a sheet by bearers, initials and single letters dropped."""
     names = [(cells[0], int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
     return sorted(names, key=lambda n: (-n[1], n[0]))[:top]
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--first", type=int, default=2000, help="names per sex")

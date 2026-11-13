@@ -8,6 +8,7 @@ import csv
 import io
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 import source
@@ -23,20 +24,20 @@ STANDALONE = {"In contention", "International"}
 FIXUPS = {"TR": {"currency": "TRY"}}
 
 
-def flag(alpha2):
+def flag(alpha2: str) -> str:
     return "".join(chr(0x1F1E6 + ord(c) - ord("A")) for c in alpha2)
 
 
-def calling_code(dial):
+def calling_code(dial: str) -> str:
     first = re.sub(r"[^0-9-]", "", dial.split(",")[0])
     return first if re.match(r"^\d+-\d{3}$", first) else first.split("-")[0]
 
 
-def languages(field):
+def languages(field: str) -> str:
     return ",".join(p for p in field.split(",") if p)
 
 
-def sovereign(alpha2, independent):
+def sovereign(alpha2: str, independent: str) -> str:
     """The alpha-2 of the state `is_independent` names, or the territory's own where it names none."""
     m = SOVEREIGN.match(independent)
     if m:
@@ -46,7 +47,7 @@ def sovereign(alpha2, independent):
     sys.exit(f"{alpha2}: is_independent {independent!r} names no sovereign this script can read")
 
 
-def rows(text):
+def rows(text: str) -> Iterator[dict[str, str]]:
     for r in csv.DictReader(io.StringIO(text)):
         alpha2 = r["ISO3166-1-Alpha-2"]
         row = {
@@ -67,7 +68,7 @@ def rows(text):
             yield row
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

@@ -22,30 +22,28 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE" / "phone-area.ts
 CACHE = Path(__file__).resolve().parent / "cache"
 AREA_CODES = 264
 STREAM = re.compile(rb"(?<!end)stream\r?\n(.*?)endstream", re.S)
-PLACED_TEXT = re.compile(rb"[\d.-]+ ([\d.-]+) ?Tm(.*?)ET", re.S)
-PLACED_X = re.compile(rb"([\d.-]+) [\d.-]+ ?Tm")
+PLACED_TEXT = re.compile(rb"([\d.-]+) ([\d.-]+) ?Tm(.*?)ET", re.S)
 ARRAY = re.compile(rb"\[(.*?)\]\s*TJ", re.S)
 STRING = re.compile(rb"\(((?:\\.|[^\\)])*)\)", re.S)
 # A row's name runs up to the next row or the date heading the next page. One row, 586's, has no hyphen before "Area".
 ROW = re.compile(r"(\d+) \(NDC\) (\d+) (\d+) Geographic number(?: -)? Area code for (.+?)(?= \d+ \(NDC\)| \d{4}-\d{2}-\d{2} )")
 
 
-def unescaped(string):
+def unescaped(string: bytes) -> str:
     string = re.sub(rb"\\(\d{3})", lambda m: bytes([int(m[1], 8)]), string)
     return re.sub(rb"\\(.)", rb"\1", string, flags=re.S).decode("cp1252", "replace")
 
 
-def page_lines(content):
+def page_lines(content: bytes) -> list[str]:
     """A page's text, top line first, each line's runs left to right."""
     lines = collections.defaultdict(list)
     for placed in PLACED_TEXT.finditer(content):
-        text = "".join(unescaped(s) for array in ARRAY.findall(placed[2]) for s in STRING.findall(array))
-        x = float(PLACED_X.match(placed[0])[1])
-        lines[round(float(placed[1]))].append((x, text))
+        text = "".join(unescaped(s) for array in ARRAY.findall(placed[3]) for s in STRING.findall(array))
+        lines[round(float(placed[2]))].append((float(placed[1]), text))
     return ["".join(text for _, text in sorted(lines[y])) for y in sorted(lines, reverse=True)]
 
 
-def plan_text(pdf):
+def plan_text(pdf: bytes) -> str:
     lines = []
     for stream in STREAM.findall(pdf):
         try:
@@ -57,7 +55,7 @@ def plan_text(pdf):
     return re.sub(r"\s+", " ", " ".join(lines))
 
 
-def area_rows(text):
+def area_rows(text: str) -> list[dict[str, str]]:
     rows = []
     for ndc, longest, shortest, name in ROW.findall(text):
         rows.append({
@@ -71,7 +69,7 @@ def area_rows(text):
     return sorted(rows, key=lambda r: r["area"])
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--cache", default=str(CACHE))
     parser.add_argument("--source", default=SOURCE)

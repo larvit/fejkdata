@@ -22,6 +22,8 @@ import json
 import re
 import sys
 import zipfile
+from collections.abc import Collection, Iterable, Mapping
+from pathlib import Path
 
 import geo
 import source
@@ -40,29 +42,34 @@ LOWER = {"as", "kk"}
 VOWELS = "aeiouyäö"
 NOT_A_STREET = re.compile(r"[\d,()/]")
 
+type Tally = tuple[collections.Counter[tuple[str, str]], dict[tuple[str, str], collections.Counter[str]], collections.Counter[tuple[str, str]], dict[str, set[str]], collections.Counter[tuple[int, bool]]]
 
-def posti(cache, kind):
+
+def posti(cache: Path, kind: str) -> list[str]:
     """The lines of Posti's latest file of a kind, PCF or BAF, as text."""
     listing = source.download(POSTI).decode("utf-8")
-    name = re.search(rf'href="{re.escape(POSTI)}({kind}_\d{{8}}\.zip)"', listing)[1]
+    link = re.search(rf'href="{re.escape(POSTI)}({kind}_\d{{8}}\.zip)"', listing)
+    if not link:
+        sys.exit(f"{POSTI}: links no {kind} file")
+    name = link[1]
     print(f"Posti {name}", file=sys.stderr)
     z = zipfile.ZipFile(io.BytesIO(source.fetch(POSTI + name, cache, "posti-" + name, magic=b"PK")))
     return z.read(name.replace(".zip", ".dat")).decode("latin-1").splitlines()
 
 
-def field(line, start, length):
+def field(line: str, start: int, length: int) -> str:
     """A field of a Posti record, by the 1-based position and the length Posti's record description gives."""
     return line[start - 1 : start - 1 + length].strip()
 
 
-def recased(name, kunnat):
+def recased(name: str, kunnat: Collection[str]) -> str:
     """A postitoimipaikka written as a place name, each word and hyphenated part capitalised, with three exceptions.
     An abbreviation stays lower case: HEINOLA KK is Heinola kk. A word after a genitive does too: INHAN TEHTAAT is
     Inhan tehtaat. So does a part opening with the vowel the part before it ends in, KUOPPA-AHO is Kuoppa-aho, unless
     the part is a kunta: YLI-II is Yli-Ii. kunnat holds the kunnat's names in capitals."""
-    words = []
+    words: list[str] = []
     for word in name.lower().split(" "):
-        parts = []
+        parts: list[str] = []
         for part in word.split("-"):
             joined = parts and parts[-1][-1] == part[0] and part[0] in VOWELS and part.upper() not in kunnat
             parts.append(part if joined else part[:1].upper() + part[1:])
@@ -71,7 +78,7 @@ def recased(name, kunnat):
     return " ".join(words)
 
 
-def stat_fi(url, query, cache, name):
+def stat_fi(url: str, query: Mapping[str, list[str]], cache: Path, name: str) -> dict[str, int]:
     """A PxWeb table's values by the code of its first dimension, from a query mapping each dimension to its
     values, where a value ending in * selects every code it opens."""
     body = {"query": [{"code": d, "selection": {"filter": "all" if v[0].endswith("*") else "item", "values": v}} for d, v in query.items()], "response": {"format": "json-stat2"}}
@@ -80,9 +87,10 @@ def stat_fi(url, query, cache, name):
     return {code: table["value"][i] for code, i in index.items() if table["value"][i] is not None}
 
 
-def divisions(cache):
+def divisions(cache: Path) -> tuple[dict[str, dict[str, str]], dict[str, str]]:
     """Each kunta's name and maakunta, and each maakunta's name, by code."""
-    municipalities, regions = {}, {}
+    municipalities: dict[str, dict[str, str]] = {}
+    regions: dict[str, str] = {}
     for m in json.loads(source.fetch(CLASSIFICATION, cache, "statfi-kunta-maakunta.json")):
         s, r = m["sourceItem"], m["targetItem"]
         municipalities[s["code"]] = {"name": s["classificationItemNames"][0]["name"], "region": r["code"]}
@@ -90,49 +98,52 @@ def divisions(cache):
     return municipalities, regions
 
 
-def normal_codes(pcf, municipality_of):
+def normal_codes(pcf: Iterable[str], municipality_of: Mapping[str, Mapping[str, str]]) -> dict[str, str]:
     """Each normal postinumero among PCF's lines, mapped to its postitoimipaikka written as a place name."""
     towns = {field(line, 14, 5): field(line, 19, 30) for line in pcf if field(line, 111, 1) == NORMAL}
     kunnat = {m["name"].upper() for m in municipality_of.values()}
     return {code: recased(town, kunnat) for code, town in towns.items()}
 
 
-def mainland(region_names, municipality_of, people):
+def mainland(region_names: Mapping[str, str], municipality_of: Mapping[str, Mapping[str, str]], people: Mapping[str, int]) -> tuple[dict[str, geo.Row], dict[str, geo.Row]]:
     """The region and the municipality rows of every maakunta but Åland, each with its population in people."""
     regions = {c: {"code": c, "name": n, "population": people["MK" + c], "timezone": TIMEZONE} for c, n in region_names.items() if c != ALAND}
     municipalities = {c: {"code": c, "name": m["name"], "region": m["region"], "population": people["KU" + c]} for c, m in municipality_of.items() if m["region"] != ALAND}
     return regions, municipalities
 
 
-def street_name(name):
+def street_name(name: str) -> bool:
     """Whether a BAF name is a street's, not a highway's such as `Valtatie 23`, a postinumero, or an island's or a
     lake's such as `Mustalampi, Lammassaari` or `Makkarasaari/Lapinsaari`."""
     return bool(name) and not NOT_A_STREET.search(name)
 
 
-def capitalised(name):
+def capitalised(name: str) -> str:
     """A BAF name with its first letter in upper case and the rest as Posti writes it. Posti itself writes a leading
     particle in upper case, as in Von Daehnin katu, so this changes only names Posti wrote wholly in lower case."""
     return name[:1].upper() + name[1:]
 
 
-def swedish_name(names, finnish):
+def swedish_name(names: Mapping[str, int], finnish: str) -> str:
     """A street's Swedish name: the one names counts most often, the first in the alphabet winning a tie, or its
     Finnish name where names counts none."""
     return min(names, key=lambda name: (-names[name], name), default=finnish)
 
 
-def house_numbers(line):
+def house_numbers(line: str) -> list[tuple[int, str]]:
     """The house numbers at the ends of a BAF range, each as (number, letter)."""
     ends = {(field(line, at, 5), field(line, at + 5, 1)) for at in (188, 201) if field(line, at, 5)}
     return [(int(n), letter) for n, letter in ends]
 
 
-def tally(baf, codes):
+def tally(baf: Iterable[str], codes: Mapping[str, str]) -> Tally:
     """From BAF's ranges under a normal postinumero: per locality, the ranges of each street and kunta, each
     street's Swedish names and the postinumerot; and over them all, the house numbers at the ranges' ends."""
-    streets, swedish, in_municipality = collections.Counter(), collections.defaultdict(collections.Counter), collections.Counter()
-    postal_codes, numbers = collections.defaultdict(set), collections.Counter()
+    streets: collections.Counter[tuple[str, str]] = collections.Counter()
+    swedish: dict[tuple[str, str], collections.Counter[str]] = collections.defaultdict(collections.Counter)
+    in_municipality: collections.Counter[tuple[str, str]] = collections.Counter()
+    postal_codes: dict[str, set[str]] = collections.defaultdict(set)
+    numbers: collections.Counter[tuple[int, bool]] = collections.Counter()
     for line in baf:
         code, street, swedish_street = field(line, 14, 5), capitalised(field(line, 103, 30)), capitalised(field(line, 133, 30))
         if code not in codes or not street_name(street):
@@ -149,9 +160,10 @@ def tally(baf, codes):
     return streets, swedish, in_municipality, postal_codes, numbers
 
 
-def localities(codes_of, residents, home, points):
+def localities(codes_of: Mapping[str, Iterable[str]], residents: Mapping[str, int], home: Mapping[str, str], points: Mapping[str, geo.Row]) -> tuple[dict[str, geo.Row], dict[str, dict[str, int]]]:
     """Each locality with a postinumero holding residents and a point, and those postinumerot with their residents."""
-    out, postal_codes = {}, {}
+    out: dict[str, geo.Row] = {}
+    postal_codes: dict[str, dict[str, int]] = {}
     for place, codes in codes_of.items():
         kept = {c: residents[c] for c in sorted(codes) if c in residents}
         centre = geo.centroid([points[c] for c in kept if c in points])
@@ -163,7 +175,7 @@ def localities(codes_of, residents, home, points):
     return out, postal_codes
 
 
-def main():
+def main() -> None:
     a = geo.parser(__doc__, "FI", 1.0).parse_args()
     cache, out = geo.directories(a)
     municipality_of, region_names = divisions(cache)

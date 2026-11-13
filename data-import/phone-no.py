@@ -25,9 +25,9 @@ MOBILE, FIXED = "Mobilnummer", "Fastnettnummer"
 KINDS = {MOBILE: "phone-mobile.tsv", FIXED: "phone-fixed.tsv"}
 
 
-def assigned(register):
+def assigned(register: bytes) -> dict[str, list[int]]:
     """The four-digit prefixes whose ten thousand numbers are all assigned, per kind of number."""
-    thousands = {kind: set() for kind in KINDS}
+    thousands: dict[str, set[int]] = {kind: set() for kind in KINDS}
     for row in csv.DictReader(io.StringIO(register.decode("utf-8-sig"))):
         if row["Status"] != "Tildelt" or row["Kategori"] not in KINDS:
             continue
@@ -44,7 +44,7 @@ def assigned(register):
     }
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--cache", default=str(CACHE))
     parser.add_argument("--source", default=SOURCE)

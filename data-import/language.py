@@ -9,6 +9,7 @@ import argparse
 import csv
 import io
 import re
+from collections.abc import Iterator
 from pathlib import Path
 
 import source
@@ -20,18 +21,18 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "code3", "name"]
 
 
-def name(english):
+def name(english: str) -> str:
     """The register lists every synonym; the first, without its qualifier, is the one a selector spells."""
     return re.sub(r"\s*\([^)]*\)", "", english.split(";")[0]).strip()
 
 
-def rows(text):
+def rows(text: str) -> Iterator[dict[str, str]]:
     for r in csv.DictReader(io.StringIO(text)):
         if r["alpha2"]:
             yield {"code": r["alpha2"], "code3": r["alpha3-t"] or r["alpha3-b"], "name": name(r["English"])}
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

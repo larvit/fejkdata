@@ -28,21 +28,21 @@ MACRO = re.compile(r"\bLOG_([A-Z]+)\b")
 EXPECTED = 8
 
 
-def severities(text):
+def severities(text: str) -> list[tuple[str, str]]:
     table = TABLE.search(text)
     if not table:
         sys.exit("the RFC holds no text between the facility and the severity caption; its tables have moved")
     return ROW.findall(table.group(1))
 
 
-def keywords(page):
+def keywords(page: str) -> list[str]:
     section = SECTION.search(html.unescape(re.sub(r"<[^>]+>", "", page)))
     if not section:
         sys.exit("POSIX spells no severity list between its own caption and the function declarations; the page has moved")
     return [m.lower() for m in MACRO.findall(section.group(1))]
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)
