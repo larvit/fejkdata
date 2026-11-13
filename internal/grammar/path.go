@@ -42,8 +42,7 @@ func SplitPath(path string) ([]string, error) {
 	return withLastSegment(segs, path, start), nil
 }
 
-// withLastSegment appends the segment from start to the end of path, which is empty only where
-// path is or ends in a dot that does not close a "..".
+// withLastSegment appends path[start:], the last segment, unless it is empty and follows a "..".
 func withLastSegment(segs []string, path string, start int) []string {
 	if start < len(path) || start == len(path) && (len(segs) == 0 || segs[len(segs)-1] != "..") {
 		return append(segs, path[start:])

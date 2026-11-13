@@ -138,7 +138,7 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 	return p.proveOp(o)
 }
 
-// proveOp proves what the one op of a template that prints more than fixed text renders.
+// proveOp proves what o renders: the one op that prints, in a template that is not fixed text.
 func (p *valueProof) proveOp(o tree.Op) proven.Facts {
 	tok := o.Token()
 	body, name, args := tok.Body, tok.Fn, tok.Args

@@ -114,7 +114,6 @@ func (o *Op) AllReads() []*Read {
 
 func (o *Op) Alternatives() []Read { return o.alternatives }
 
-// AlternativeLeaves is every leaf of o's alternatives, in order.
 func (o *Op) AlternativeLeaves() []Node {
 	var leaves []Node
 	for _, a := range o.alternatives {

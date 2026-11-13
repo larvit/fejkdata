@@ -67,7 +67,7 @@ func templateEdges(t *Template) []RenderEdge {
 	return es
 }
 
-// cellEdges is an edge to each cell of the column c that reads a reference.
+// cellEdges is an edge to each cell of the column c that carries a token.
 func cellEdges(c *TableColumn) []RenderEdge {
 	if len(c.t.cellTemplates) == 0 {
 		return nil

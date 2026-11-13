@@ -137,8 +137,8 @@ func parseArgs(argv []string) (invocation, error) {
 	return in, nil
 }
 
-// setFlag sets fl on in, reading its value from the argument after argv[i] where fl carries none,
-// and returns the index of the last argument it read.
+// setFlag sets fl on in, reading the argument after argv[i] where fl takes a value and has none
+// inline, and returns the index of the last argument it read.
 func setFlag(in *invocation, fl flagArg, argv []string, i int) (int, error) {
 	if !fl.def.value {
 		if fl.inline {
