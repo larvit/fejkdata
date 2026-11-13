@@ -217,7 +217,7 @@ def main():
         print(f"{code} {places[code]['name']}: capital owns no ZCTA, dropped", file=sys.stderr)
     places = drawn(owners, a.place_share) | {code: p for code, p in owners.items() if code in capital_codes or p["population"] >= SHIPPED_POPULATION}
     locality_of_zcta = {zcta: p for zcta, p in owner_of_zcta.items() if p in places}
-    named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.street_share, a.min_streets)
+    named, addresses = streets(cache, sorted({p["municipality"] for p in places.values()}), locality_of_zcta, a.street_share, a.min_streets)
     zctas = collections.defaultdict(list)
     for zcta, locality in sorted(locality_of_zcta.items()):
         if addresses[zcta]:
@@ -225,7 +225,7 @@ def main():
     kept, dropped = geo.fence(regions, counties, places, named, zctas)
     geo.log_dropped_localities(dropped["locality"])
     print(f"counties without a place, dropped: {len(dropped['municipality'])}; states without a county, dropped: {sorted(dropped['region'])}", file=sys.stderr)
-    postal_codes = [{"code": z, "locality": l, "addresses": addresses[z]} for l in kept["locality"] for z in zctas[l]]
+    postal_codes = [{"code": z, "locality": loc, "addresses": addresses[z]} for loc in kept["locality"] for z in zctas[loc]]
     geo.write_tables(out, kept, postal_codes, named, region=["abbr", "code", "name", "population", "timezone"], locality=["code", "name", "municipality", "population", "lat", "lon"])
 
 

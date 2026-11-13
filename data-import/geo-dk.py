@@ -135,7 +135,7 @@ def main():
     kept, dropped = geo.fence(regions, municipalities, places, named, t.codes)
     geo.log_dropped_localities(dropped["locality"])
     geo.exit_on_dropped_parents(dropped)
-    geo.write_tables(out, kept, [{"code": c, "locality": l, "addresses": n} for l in kept["locality"] for c, n in t.codes[l].items()], named)
+    geo.write_tables(out, kept, [{"code": c, "locality": loc, "addresses": n} for loc in kept["locality"] for c, n in t.codes[loc].items()], named)
     (out / "address.json").write_text(geo.address_json(t.numbers), encoding="utf-8")
 
 

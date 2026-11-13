@@ -266,10 +266,10 @@ def main():
     named = streets(nvdb_segments(cache, key), codes, places, areas, a.street_share, a.min_streets)
     regions = {c: {"code": c, "name": n, "population": population[c], "timezone": TIMEZONE} for c, n in region_names.items()}
     municipalities = {c: {"code": c, "name": n, "region": c[:2], "population": population[c]} for c, n in municipality_names.items()}
-    kept, dropped = geo.fence(regions, municipalities, places, named, {k: l["codes"] for k, l in places.items()})
+    kept, dropped = geo.fence(regions, municipalities, places, named, {k: p["codes"] for k, p in places.items()})
     geo.log_dropped_localities(dropped["locality"])
     geo.exit_on_dropped_parents(dropped)
-    postal_codes = [{"code": f"{c[:3]} {c[3:]}", "locality": l["name"]} for l in kept["locality"].values() for c in l["codes"]]
+    postal_codes = [{"code": f"{c[:3]} {c[3:]}", "locality": loc["name"]} for loc in kept["locality"].values() for c in loc["codes"]]
     geo.write_tables(out, kept, postal_codes, named, postal_code=["code", "locality"], street=["name", "locality", "segments"])
 
 

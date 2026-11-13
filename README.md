@@ -2216,7 +2216,7 @@ workflow itself. Otherwise CI runs the build's two halves, the targets `latest` 
 check and the Go tests under the race detector, on the latest supported Go.
 `lowest-and-tooling` runs vet and the Go tests without the race detector, on the lowest
 Go, which the Dockerfile's `LOWEST_GO_VERSION` names. That target also runs the release
-tooling's tests, the vulnerability filer's tests, the geo imports' tests and the check of GoReleaser's config; the
+tooling's tests, the vulnerability filer's tests, the geo imports' tests, ruff over all three's Python and the check of GoReleaser's config; the
 filer's tests file an item into `todo.md` themselves, so a change to the plan's shape can
 fail them. The rest of the gate is the Packages dry run below and the changelog check, which
 CI runs against the PR base and which refuses a `## ` heading in `CHANGELOG.md` other than

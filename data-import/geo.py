@@ -95,8 +95,8 @@ def fence(regions, municipalities, localities, streets, postal_codes):
     name, municipality, population, lat and lon, plus its country's own keys.
 
     Returns kept, then dropped: each maps "locality", "municipality" and "region" to that table's rows."""
-    kept = {"locality": {k: l for k, l in localities.items() if streets.get(k) and postal_codes.get(k)}}
-    municipality_codes = {l["municipality"] for l in kept["locality"].values()}
+    kept = {"locality": {k: loc for k, loc in localities.items() if streets.get(k) and postal_codes.get(k)}}
+    municipality_codes = {loc["municipality"] for loc in kept["locality"].values()}
     kept["municipality"] = {c: m for c, m in municipalities.items() if c in municipality_codes}
     region_codes = {m["region"] for m in kept["municipality"].values()}
     kept["region"] = {c: r for c, r in regions.items() if c in region_codes}

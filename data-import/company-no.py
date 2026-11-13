@@ -179,7 +179,10 @@ def main():
     places = place_names()
     place_words = {w for p in places for w in split(p)}
     sets = Words(column(ROOT / "nb_NO/last-name.tsv"), column(ROOT / "nb_NO/first-name.tsv"), places)
-    named = lambda w: kind(w, sets, True) is not None or w in place_words or kind(w.removesuffix("s"), sets, True) == "S"
+
+    def named(w):
+        return kind(w, sets, True) is not None or w in place_words or kind(w.removesuffix("s"), sets, True) == "S"
+
     usage = word_usage(names, named, VOCABULARY)
     trade = trade_words(usage, VOCABULARY)
     out = Path(a.out)

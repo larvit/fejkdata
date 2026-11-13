@@ -92,7 +92,7 @@ def divisions(cache):
 
 def normal_codes(pcf, municipality_of):
     """Each normal postinumero among PCF's lines, mapped to its postitoimipaikka written as a place name."""
-    towns = {field(l, 14, 5): field(l, 19, 30) for l in pcf if field(l, 111, 1) == NORMAL}
+    towns = {field(line, 14, 5): field(line, 19, 30) for line in pcf if field(line, 111, 1) == NORMAL}
     kunnat = {m["name"].upper() for m in municipality_of.values()}
     return {code: recased(town, kunnat) for code, town in towns.items()}
 
@@ -180,7 +180,7 @@ def main():
     kept, dropped = geo.fence(regions, municipalities, places, named, postal_codes)
     geo.log_dropped_localities(dropped["locality"])
     geo.exit_on_dropped_parents(dropped)
-    rows = [{"code": c, "locality": l, "population": n} for l in kept["locality"] for c, n in postal_codes[l].items()]
+    rows = [{"code": c, "locality": loc, "population": n} for loc in kept["locality"] for c, n in postal_codes[loc].items()]
     geo.write_tables(out, kept, rows, named, postal_code=["code", "locality", "population"], street=["name", "locality", "swedish-name", "addresses"])
     (out / "address.json").write_text(geo.address_json(numbers, "{lower(1)}"), encoding="utf-8")
 
