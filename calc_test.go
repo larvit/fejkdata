@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -23,9 +24,11 @@ func TestCalcArithmetic(t *testing.T) {
 		`"{calc(1.5 * 2)}"`:     "3", // whole result drops the decimals
 	}
 	for tmpl, want := range cases {
-		if got := mustRender(t, f, tmpl); got != want {
-			t.Errorf("%s = %q, want %q", tmpl, got, want)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if got := mustRender(t, f, tmpl); got != want {
+				t.Errorf("%s = %q, want %q", tmpl, got, want)
+			}
+		})
 	}
 }
 
@@ -40,9 +43,11 @@ func TestCalcAuto(t *testing.T) {
 		`"{calc(0 * -1)}"`: "0",
 	}
 	for tmpl, want := range cases {
-		if got := mustRender(t, f, tmpl); got != want {
-			t.Errorf("%s = %q, want %q", tmpl, got, want)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if got := mustRender(t, f, tmpl); got != want {
+				t.Errorf("%s = %q, want %q", tmpl, got, want)
+			}
+		})
 	}
 }
 
@@ -57,9 +62,11 @@ func TestCalcDecimals(t *testing.T) {
 		`"{calc(-0.001, 2)}"`: "0.00",
 	}
 	for tmpl, want := range cases {
-		if got := mustRender(t, f, tmpl); got != want {
-			t.Errorf("%s = %q, want %q", tmpl, got, want)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if got := mustRender(t, f, tmpl); got != want {
+				t.Errorf("%s = %q, want %q", tmpl, got, want)
+			}
+		})
 	}
 }
 
@@ -82,12 +89,10 @@ func TestCalcFields(t *testing.T) {
 // not render to a number becomes NaN then, which propagates and prints visibly.
 func TestCalcNonNumericIsNaN(t *testing.T) {
 	f := emptyGenerator(1)
-	for i := 0; i < 50; i++ {
-		if got := mustRender(t, f, `{"format":"{calc(x * 2)}","x":["abc","1"]}`); got == "NaN" {
-			return
-		}
+	seen := tallyDraws(50, func() string { return mustRender(t, f, `{"format":"{calc(x * 2)}","x":["abc","1"]}`) })
+	if seen["NaN"] == 0 {
+		t.Fatal("calc over a sometimes non-numeric field never printed NaN in 50 draws")
 	}
-	t.Fatal("calc over a sometimes non-numeric field never printed NaN in 50 draws")
 }
 
 // TestCalcReproducible pins that a calc over a random operand stays seed-stable.
@@ -107,8 +112,7 @@ func TestANamedCalcOperandIsTheOneShown(t *testing.T) {
 		"inv": `{"format":"{net as n}{qty as q}{n} x {q} = {calc(n * q, 2)}","net":["19.99","5.00","100.00"],"qty":["2","3","7"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(3))
-	for i := 0; i < 300; i++ {
-		got := fake(t, f, "inv")
+	eachDraw(300, func() string { return fake(t, f, "inv") }, func(got string) {
 		var net, qty, want float64
 		if _, err := fmt.Sscanf(got, "%g x %g = %g", &net, &qty, &want); err != nil {
 			t.Fatalf("inv = %q, unparseable: %v", got, err)
@@ -116,19 +120,26 @@ func TestANamedCalcOperandIsTheOneShown(t *testing.T) {
 		if math.Abs(net*qty-want) > 1e-9 {
 			t.Fatalf("inv = %q: the shown %g x %g is not the computed %g", got, net, qty, want)
 		}
-	}
+	})
 }
 
 // TestACalcOperandDrawsAfresh pins that a calc reading a field draws it as any {…} does.
 func TestACalcOperandDrawsAfresh(t *testing.T) {
 	dir := writeData(t, map[string]string{"same": `{"format":"{w} {calc(w)}","w":["1","2","3","4","5"]}`})
 	f := newGenerator(t, dir, WithSeed(5))
-	for i := 0; i < 200; i++ {
-		if p := strings.Fields(fake(t, f, "same")); p[0] != p[1] {
-			return
-		}
+	differed := false
+	eachDraw(200, func() string { return fake(t, f, "same") }, func(got string) {
+		p := strings.Fields(got)
+		differed = differed || p[0] != p[1]
+	})
+	if !differed {
+		t.Fatal("{w} {calc(w)} never differed in 200 draws, want two independent draws")
 	}
-	t.Fatal("{w} {calc(w)} never differed in 200 draws, want two independent draws")
+}
+
+func shownIsNotWhatCalcComputed(pair string) bool {
+	shown, computed, ok := strings.Cut(pair, "=")
+	return !ok || shown != computed
 }
 
 // TestANamedCalcOperandPicksEachIteration pins that a name a repeat binds picks again on each
@@ -139,18 +150,14 @@ func TestANamedCalcOperandPicksEachIteration(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(11))
 	varied := false
-	for i := 0; i < 50; i++ {
-		got := fake(t, f, "rep")
-		seen := map[string]bool{}
-		for _, pair := range strings.Fields(got) {
-			shown, computed, ok := strings.Cut(pair, "=")
-			if !ok || shown != computed {
-				t.Fatalf("rep = %q: %q disagrees within one iteration", got, pair)
-			}
-			seen[shown] = true
+	eachDraw(50, func() string { return fake(t, f, "rep") }, func(got string) {
+		pairs := strings.Fields(got)
+		if i := slices.IndexFunc(pairs, shownIsNotWhatCalcComputed); i >= 0 {
+			t.Fatalf("rep = %q: %q disagrees within one iteration", got, pairs[i])
 		}
-		varied = varied || len(seen) > 1
-	}
+		slices.Sort(pairs)
+		varied = varied || len(slices.Compact(pairs)) > 1
+	})
 	if !varied {
 		t.Fatal("every repeat iteration drew alike, want an independent draw each")
 	}
@@ -165,19 +172,17 @@ func TestTwoNamesPickApart(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(13))
 	differed := false
-	for i := 0; i < 200; i++ {
-		got := fake(t, f, "nest")
+	eachDraw(200, func() string { return fake(t, f, "nest") }, func(got string) {
 		outer, inner, ok := strings.Cut(got, " ")
 		if !ok {
 			t.Fatalf("nest = %q, want two pairs", got)
 		}
-		for _, pair := range []string{outer, inner} {
-			if shown, computed, ok := strings.Cut(pair, "="); !ok || shown != computed {
-				t.Fatalf("nest = %q: %q disagrees within its own expansion", got, pair)
-			}
+		pairs := []string{outer, inner}
+		if i := slices.IndexFunc(pairs, shownIsNotWhatCalcComputed); i >= 0 {
+			t.Fatalf("nest = %q: %q disagrees within its own expansion", got, pairs[i])
 		}
 		differed = differed || outer != inner
-	}
+	})
 	if !differed {
 		t.Fatal("the nested template never differed from its parent, want its own draw")
 	}
@@ -189,11 +194,16 @@ func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
 		`{"format":"{calc(x * 2)}","x":["a","b"]}`:       `"x"`,
 		`{"format":"{calc(x + y)}","x":"1","y":"{{2}}"}`: `"{2}"`,
 	} {
-		_, err := resolved(t, src)
-		if err == nil || !strings.Contains(err.Error(), want) || !strings.Contains(err.Error(), "never a number") {
-			t.Errorf("compile(%s) = %v, want the operand rejected naming %s", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			_, err := resolved(t, src)
+			if err == nil || !strings.Contains(err.Error(), want) || !strings.Contains(err.Error(), "never a number") {
+				t.Errorf("compile(%s) = %v, want the operand rejected naming %s", src, err, want)
+			}
+		})
 	}
+}
+
+func TestCalcOverAnOperandThatMayBeANumberIsAccepted(t *testing.T) {
 	for _, ok := range []string{
 		`{"format":"{calc(x * 2)}","x":"3"}`,
 		`{"format":"{calc(x * 2)}","x":" 2.5 "}`,
@@ -202,9 +212,11 @@ func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
 		`{"format":"{calc(x * 0)}","x":"3"}`,
 		`{"format":"{calc(2 - 0)}"}`,
 	} {
-		if _, err := resolved(t, ok); err != nil {
-			t.Errorf("compile(%s) = %v, want it accepted", ok, err)
-		}
+		t.Run(ok, func(t *testing.T) {
+			if _, err := resolved(t, ok); err != nil {
+				t.Errorf("compile(%s) = %v, want it accepted", ok, err)
+			}
+		})
 	}
 }
 
@@ -219,20 +231,26 @@ func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 		`"{calc(-(1/0))}"`:                               "divides by 0",
 		`{"format":"{calc(b+a/0)}","a":"1","b":"2"}`:     "divides by 0",
 	} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected naming %q", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("compile(%s) = %v, want the constant zero divisor rejected naming %q", src, err, want)
+			}
+		})
 	}
+}
+
+func TestCalcDivisorThatVariesIsAccepted(t *testing.T) {
 	if _, err := resolved(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`); err != nil {
 		t.Errorf("compile(a/(b*c)) = %v, want a divisor that varies accepted", err)
 	}
+}
+
+func TestCalcSometimesZeroDivisorPrintsInf(t *testing.T) {
 	f := emptyGenerator(1)
-	for i := 0; i < 50; i++ {
-		if got := mustRender(t, f, `{"format":"{calc(x/y)}","x":"1","y":["0","1"]}`); got == "+Inf" {
-			return
-		}
+	seen := tallyDraws(50, func() string { return mustRender(t, f, `{"format":"{calc(x/y)}","x":"1","y":["0","1"]}`) })
+	if seen["+Inf"] == 0 {
+		t.Fatal("a sometimes-zero divisor never printed +Inf in 50 draws")
 	}
-	t.Fatal("a sometimes-zero divisor never printed +Inf in 50 draws")
 }
 
 func TestCalcCompileErrors(t *testing.T) {
@@ -248,9 +266,11 @@ func TestCalcCompileErrors(t *testing.T) {
 		`"{calc(1, x)}"`,    // decimals arg not an integer
 		`"{calc(1, -1)}"`,   // decimals negative
 	} {
-		if _, err := resolved(t, bad); err == nil {
-			t.Errorf("compile(%s) = nil error, want error", bad)
-		}
+		t.Run(bad, func(t *testing.T) {
+			if _, err := resolved(t, bad); err == nil {
+				t.Errorf("compile(%s) = nil error, want error", bad)
+			}
+		})
 	}
 }
 
@@ -260,13 +280,12 @@ func TestCalcReadsAName(t *testing.T) {
 		"card": `"{/n as k}{k} x 2 = {calc(k * 2)}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	for i := 0; i < 50; i++ {
+	eachDraw(50, func() string { return fake(t, f, "card") }, func(got string) {
 		var k, double int
-		got := fake(t, f, "card")
 		if _, err := fmt.Sscanf(got, "%d x 2 = %d", &k, &double); err != nil || double != k*2 {
 			t.Fatalf("card = %q, want the calc to compute from the pick {k} prints", got)
 		}
-	}
+	})
 }
 
 func TestCalcReadsANameItReadsNowhereElse(t *testing.T) {
@@ -293,14 +312,16 @@ func TestCalcRefusesABadOperand(t *testing.T) {
 		`{"format":"{calc(1 / x)}","x":"{/zero}"}`:       `divides by x, which is always zero`,
 		`{"format":"{calc(1 / (x - 0))}","x":["0","0"]}`: `divides by (x - 0), which is always zero`,
 	} {
-		dir := writeData(t, map[string]string{
-			"word": `["abc","def"]`,
-			"zero": `"0"`,
-			"card": card,
+		t.Run(card, func(t *testing.T) {
+			dir := writeData(t, map[string]string{
+				"word": `["abc","def"]`,
+				"zero": `"0"`,
+				"card": card,
+			})
+			if _, err := New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("New with card %s = %v, want an error containing %q", card, err, want)
+			}
 		})
-		if _, err := New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("New with card %s = %v, want an error containing %q", card, err, want)
-		}
 	}
 }
 
@@ -329,6 +350,9 @@ func TestATypedColumnProvesACalcOverAName(t *testing.T) {
 	if !strings.Contains(r.JSON(), `"double":`+r.Columns()[0].Value) {
 		t.Fatalf("JSON = %s, want double written as a number", r.JSON())
 	}
+}
+
+func TestATypedColumnRefusesACalcOverANameThatIsNotAlwaysANumber(t *testing.T) {
 	bad := writeData(t, map[string]string{
 		"word":  `["1","x"]`,
 		"order": `{"format":"{/word as w}{w}","double":{"format":"{calc(w * 2)}","datatype":"integer"}}`,
