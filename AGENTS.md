@@ -2,7 +2,7 @@
 
 - Go runs only through `docker compose run --rm <service>`, with the services `compose.yaml` names; the merge gate is what the README's Development section lists.
 - Tests first, in their own commit; the implementation follows in the next. A re-pin of seeded output or of `testdata/shipped_shape.txt` is its own commit.
-- A change under `data/` or to the shape pin adds its `CHANGELOG.md` entry under `Unreleased` in the same PR, and so does a change to a flag, an exit code, an exported name, a fence, a builtin or the lowest Go; what is major is the README's Versioning table.
+- A change to the shipped data under `data/`, its tests aside, or to the shape pin adds its `CHANGELOG.md` entry under `Unreleased` in the same PR, and so does a change to a flag, an exit code, an exported name, a fence, a builtin or the lowest Go; what is major is the README's Versioning table.
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.
 - GitHub is where the project lives, so `gh` is the tool: merges are fast-forward
   only, `gh pr merge --rebase` where the branch is already on top of main.
