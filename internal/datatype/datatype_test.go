@@ -9,9 +9,11 @@ func TestEachDatatypeIsSpelledAsDataWritesIt(t *testing.T) {
 		Number:  {"number", "a number"},
 		Boolean: {"boolean", "a boolean"},
 	} {
-		if d.String() != want[0] || Noun(d) != want[1] {
-			t.Errorf("%d: String = %q, Noun = %q, want %q", int(d), d.String(), Noun(d), want)
-		}
+		t.Run(want[0], func(t *testing.T) {
+			if d.String() != want[0] || Noun(d) != want[1] {
+				t.Errorf("%d: String = %q, Noun = %q, want %q", int(d), d.String(), Noun(d), want)
+			}
+		})
 	}
 }
 
