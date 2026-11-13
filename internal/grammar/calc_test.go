@@ -2,6 +2,7 @@ package grammar
 
 import (
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -24,8 +25,10 @@ func TestParseCalcPlacesEachOperandAtItsFirstReading(t *testing.T) {
 
 func TestParseCalcRefusesAnUnfinishedExpression(t *testing.T) {
 	for _, expr := range []string{"", " ", "1 +", "(1", "1 2", "a.b", "postal-code *"} {
-		if _, err := ParseCalc(expr); err == nil {
-			t.Errorf("ParseCalc(%q) = nil error, want one", expr)
-		}
+		t.Run(strconv.Quote(expr), func(t *testing.T) {
+			if _, err := ParseCalc(expr); err == nil {
+				t.Errorf("ParseCalc(%q) = nil error, want one", expr)
+			}
+		})
 	}
 }
