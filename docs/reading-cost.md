@@ -1664,3 +1664,20 @@ Read most (opens and searches):
 - `data/da_DK/phone-mobile.json` 1
 - `data/da_DK/phone-mobile.tsv` 1
 - `data/da_DK/phone.json` 1
+
+## Reading cost, chunk c6705be7548b, finished 2026-11-12T10:29:12Z
+
+95075 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 10
+- `DATA-LICENSES.md` 5
+- `todo.md` 5
+- `CHANGELOG.md` 3
+- `danish_test.go` 3
+- `data/da_DK/date.json` 2
+- `data/da_DK/email.json` 2
+- `data/nb_NO/date.json` 2
+- `data/nb_NO/email.json` 2
+- `docs/decisions.md` 2
