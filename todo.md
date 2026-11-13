@@ -211,7 +211,7 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 432 | 2.0.0 |  | question | **Reword goals 2.2, 7, 8.1, 8.5, 8.6, 9.2 and 10, and the README's Versioning table, for a Rust core that a native Go library and the npm package both serve.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.8 |
 | 433 | 2.0.0 |  |  | **Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.** | 2 | 1 | 1 | 2 | 2 | 1 by 1 | 0.8 |
-| 434 | 2.0.0 | 432, 433 |  | **Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 14, the tests, and cargo-mutants for the stability pass.** | 3 | 1 | 1 | 3 | 4 | 1 by 1 | 0.4 |
+| 434 | 2.0.0 | 432, 433 |  | **Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 10, the tests, and cargo-mutants for the stability pass.** | 3 | 1 | 1 | 3 | 4 | 1 by 1 | 0.4 |
 | 435 | 2.0.0 | 434 |  | **Port internal/drawstate to Rust so a seed draws the same numbers as Go, and fail the gate where the Go and Rust CLIs print different bytes for a corpus of templates at a fixed seed and date.** | 3 | 1 | 2 | 4 | 4 | 9 by 5 | 10.4 |
 | 436 | 2.0.0 | 434 |  | **Port internal/datafiles, internal/rows and internal/jsonvalue to Rust, loading on first reach a source with an index, and embed the shipped data per locale behind a Cargo feature.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
 | 437 | 2.0.0 | 434 |  | **Port internal/grammar to Rust: templates, paths, selectors and where clauses.** | 3 | 1 | 2 | 4 | 6 | 1 by 2 | 0.3 |
@@ -1036,7 +1036,7 @@ While rewording, weigh two points the architecture pass of 0.5.0's release revie
 
 The owner accepts a Go library that runs the Rust core as WebAssembly only where it costs no more than a few percent against native Go. Expect 1.5 to 3 times slower before the cost of copying strings across the boundary. Where it does come within a few percent, item 446 binds through wazero instead of cgo, and Go users keep `CGO_ENABLED=0`.
 
-### 434. Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 14, the tests, and cargo-mutants for the stability pass.
+### 434. Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy with a complexity limit of 10, the tests, and cargo-mutants for the stability pass.
 
 Rust runs through `docker compose run --rm`, as Go does. Clippy's cognitive-complexity lint stands in for the Go gate's cyclomatic limit. cargo-mutants on the changed lines will be slower than Go's mutation run, since Rust compiles more slowly; measure one run and say so in the Development section.
 
