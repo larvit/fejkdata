@@ -181,10 +181,13 @@ func visibleNames(seen *tree.NameScope) []string {
 	var visible []string
 	for sc := seen; sc != nil; sc = sc.Up() {
 		for _, b := range sc.Order() {
-			visible = append(visible, strconv.Quote(b.Name()))
+			visible = append(visible, b.Name())
 		}
 	}
 	sort.Strings(visible)
+	for i, name := range visible {
+		visible[i] = strconv.Quote(name)
+	}
 	return visible
 }
 
