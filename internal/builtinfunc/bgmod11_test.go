@@ -41,30 +41,41 @@ func TestBgmod11TailsCompleteBankgirotsExample(t *testing.T) {
 func TestBgmod11TailsAreEveryValidPair(t *testing.T) {
 	for n := range 1000 {
 		prefix := fmt.Sprintf("%03d", n)
-		tails := bgmod11Tails(prefix)
-		if len(tails) != 9 && len(tails) != 10 {
-			t.Fatalf("bgmod11Tails(%s) = %v, want 9 or 10 tails: each free digit but the one whose check digit would be 10", prefix, tails)
-		}
-		var want []string
-		for d := range 10 {
-			for c := range 10 {
-				if tail := fmt.Sprintf("%d%d", d, c); bankgirotMod11Valid(prefix + tail) {
-					want = append(want, tail)
-				}
+		t.Run(prefix, func(t *testing.T) {
+			tails := bgmod11Tails(prefix)
+			if len(tails) != 9 && len(tails) != 10 {
+				t.Fatalf("bgmod11Tails(%s) = %v, want 9 or 10 tails: each free digit but the one whose check digit would be 10", prefix, tails)
+			}
+			if want := pairsBankgirotMod11Accepts(prefix); !slices.Equal(tails, want) {
+				t.Fatalf("bgmod11Tails(%s) = %v, want %v", prefix, tails, want)
+			}
+		})
+	}
+}
+
+func pairsBankgirotMod11Accepts(prefix string) []string {
+	var pairs []string
+	for d := range 10 {
+		for c := range 10 {
+			if tail := fmt.Sprintf("%d%d", d, c); bankgirotMod11Valid(prefix + tail) {
+				pairs = append(pairs, tail)
 			}
 		}
-		if !slices.Equal(tails, want) {
-			t.Fatalf("bgmod11Tails(%s) = %v, want %v", prefix, tails, want)
-		}
 	}
+	return pairs
 }
 
 func TestBgmod11RefusesWhatIsNotDigits(t *testing.T) {
 	for _, arg := range []string{"1-2", "a", "1 2", "-1"} {
-		if err := Check("bgmod11", []string{arg}); err == nil {
-			t.Errorf("Check(bgmod11, %q) = nil, want an argument of digits only", arg)
-		}
+		t.Run(arg, func(t *testing.T) {
+			if err := Check("bgmod11", []string{arg}); err == nil {
+				t.Errorf("Check(bgmod11, %q) = nil, want an argument of digits only", arg)
+			}
+		})
 	}
+}
+
+func TestBgmod11AcceptsDigitsWithALeadingZero(t *testing.T) {
 	if err := Check("bgmod11", []string{"0100"}); err != nil {
 		t.Errorf("Check(bgmod11, 0100) = %v, want digits with a leading zero accepted", err)
 	}
@@ -73,17 +84,23 @@ func TestBgmod11RefusesWhatIsNotDigits(t *testing.T) {
 // The free digit is the rng's pick among the tails, and the digits emitted before the call count
 // by their digits alone.
 func TestBgmod11DrawsEveryTailAndSkipsWhatIsNotADigit(t *testing.T) {
+	seen := bgmod11TailsDrawnAfter5And1234(t, 400)
+	if want := len(bgmod11Tails("51234")); len(seen) != want {
+		t.Errorf("%d tails drawn in 400, want each of the %d valid ones", len(seen), want)
+	}
+}
+
+func bgmod11TailsDrawnAfter5And1234(t *testing.T, draws int) map[string]bool {
+	t.Helper()
 	call := Prep("bgmod11", []string{"5"})
 	s := drawstate.New(1, time.Time{})
 	seen := map[string]bool{}
-	for range 400 {
+	for range draws {
 		tail := call(s, "1 2-3 4", nil)
 		if !bankgirotMod11Valid("51234" + tail) {
 			t.Fatalf("5 and 1 2-3 4 completed by %q, which Bankgirot's 11-modul refuses", tail)
 		}
 		seen[tail] = true
 	}
-	if want := len(bgmod11Tails("51234")); len(seen) != want {
-		t.Errorf("%d tails drawn in 400, want each of the %d valid ones", len(seen), want)
-	}
+	return seen
 }
