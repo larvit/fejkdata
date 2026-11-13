@@ -38,11 +38,8 @@ func TestReferenceInAlternation(t *testing.T) {
 		"near": `{"format":"{here|/far}","here":"H"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(2))
-	seen := map[string]bool{}
-	for i := 0; i < 100; i++ {
-		seen[fake(t, f, "near")] = true
-	}
-	if !seen["H"] || !seen["X"] || len(seen) != 2 {
+	seen := tallyDraws(100, func() string { return fake(t, f, "near") })
+	if seen["H"] == 0 || seen["X"] == 0 || len(seen) != 2 {
 		t.Fatalf("alternation produced %v, want both H and X", seen)
 	}
 }
@@ -107,9 +104,11 @@ func TestReferenceErrors(t *testing.T) {
 		"field key using the reference prefix": {"cat": `{"format":"hi","..x":"{/nope}"}`},
 	}
 	for name, files := range cases {
-		if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files))); err == nil {
-			t.Errorf("%s: New = nil error, want a reference error", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files))); err == nil {
+				t.Errorf("%s: New = nil error, want a reference error", name)
+			}
+		})
 	}
 }
 
@@ -131,23 +130,27 @@ func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 
 func TestAReferenceIntoItsOwnCategoryIsAFreshDraw(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"cat": `{"format":"{y} {x}","x":"{/cat.y}","y":["1","2"]}`}), WithSeed(1))
-	seen := map[string]bool{}
-	for i := 0; i < 50; i++ {
-		seen[fake(t, f, "cat")] = true
-	}
-	if !seen["1 2"] && !seen["2 1"] {
+	seen := tallyDraws(50, func() string { return fake(t, f, "cat") })
+	if seen["1 2"] == 0 && seen["2 1"] == 0 {
 		t.Errorf("cat drew %v in 50 renders, want x a draw apart from y", seen)
 	}
+}
+
+func TestAReferenceCycleInsideOneCategoryIsRefused(t *testing.T) {
 	for name, file := range map[string]string{
 		"the category in its format": `{"format":"{/cat}"}`,
 		"a field reading itself":     `{"format":"{x}","x":"{/cat.x}"}`,
 	} {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"cat": file})))
-		if err == nil || !strings.Contains(err.Error(), "cycle") {
-			t.Errorf("%s: New = %v, want the cycle refused", name, err)
-		}
+		t.Run(name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"cat": file})))
+			if err == nil || !strings.Contains(err.Error(), "cycle") {
+				t.Errorf("%s: New = %v, want the cycle refused", name, err)
+			}
+		})
 	}
-	// Reading a sibling as a path is the spelling that stays.
+}
+
+func TestASiblingReadAsAPathIsAccepted(t *testing.T) {
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{y.v}","y":{"format":"{v}","v":["1","2"]}}`,
 	}))); err != nil {
@@ -170,22 +173,20 @@ func TestNewErrorIsDeterministic(t *testing.T) {
 		},
 	}
 	for name, files := range cases {
-		dir := writeData(t, files)
-		var first string
-		for i := 0; i < 50; i++ {
-			_, err := New(WithSeed(1), onTestDay, WithDataPath(dir))
-			if err == nil {
-				t.Fatalf("%s: New = nil error, want a load error", name)
+		t.Run(name, func(t *testing.T) {
+			dir := writeData(t, files)
+			failures := tallyDraws(50, func() string {
+				_, err := New(WithSeed(1), onTestDay, WithDataPath(dir))
+				if err == nil {
+					t.Fatalf("%s: New = nil error, want a load error", name)
+				}
+				return err.Error()
+			})
+			if len(failures) != 1 {
+				t.Fatalf("%s: New error varies between runs: %v", name, failures)
 			}
-			if i == 0 {
-				first = err.Error()
-				continue
-			}
-			if err.Error() != first {
-				t.Fatalf("%s: New error varies between runs:\n  %s\n  %s", name, first, err.Error())
-			}
-		}
-		t.Logf("%s -> %s", name, first)
+			t.Logf("%s -> %v", name, failures)
+		})
 	}
 }
 
@@ -210,14 +211,16 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, c.files)))
-		if err == nil {
-			t.Errorf("%s: New = nil error", c.name)
-			continue
-		}
-		if err.Error() != c.want {
-			t.Errorf("%s:\n  got  %s\n  want %s", c.name, err, c.want)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, c.files)))
+			if err == nil {
+				t.Errorf("%s: New = nil error", c.name)
+				return
+			}
+			if err.Error() != c.want {
+				t.Errorf("%s:\n  got  %s\n  want %s", c.name, err, c.want)
+			}
+		})
 	}
 }
 
@@ -237,32 +240,40 @@ func TestBareReferenceDrawsEachTime(t *testing.T) {
 		"roll": `"{/die} {/die}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	for i := 0; i < 50; i++ {
-		if got := fake(t, f, "roll"); got[0] != got[2] {
-			return
-		}
+	differ := false
+	eachDraw(50, func() string { return fake(t, f, "roll") }, func(got string) {
+		differ = differ || got[0] != got[2]
+	})
+	if !differ {
+		t.Fatal("two bare references always agreed; each should be its own draw")
 	}
-	t.Fatal("two bare references always agreed; each should be its own draw")
 }
 
 func TestReferencesIntoOneLevelLoad(t *testing.T) {
 	cat := `{"format":"x","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`
-	for _, files := range []map[string]string{
-		{"cat": cat, "row": `"{/cat.p} {/cat.p.first}"`},
-		{"cat": cat, "row": `{"format":"{a} {b}","a":"{/cat.p}","b":"{/cat.p.first}"}`},
-		{"cat": cat, "row": `{"format":"{x} {p}","x":"{/cat.p.first}","p":"{/cat.p}"}`},
-		{"cat": cat, "row": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`},
-		{"row": `{"format":"{p.first} {/hop}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`, "hop": `"{/row.p.last}"`},
-		{"sv_SE/person": cat, "sv_SE/mail": `"{.person} <{/sv_SE.person.p.first}>"`},
+	for name, files := range map[string]map[string]string{
+		"two reads in one format":                  {"cat": cat, "row": `"{/cat.p} {/cat.p.first}"`},
+		"a read in each of two fields":             {"cat": cat, "row": `{"format":"{a} {b}","a":"{/cat.p}","b":"{/cat.p.first}"}`},
+		"a field named as the level it reads":      {"cat": cat, "row": `{"format":"{x} {p}","x":"{/cat.p.first}","p":"{/cat.p}"}`},
+		"the category and a path into it":          {"cat": cat, "row": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`},
+		"a read back through another category":     {"row": `{"format":"{p.first} {/hop}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`, "hop": `"{/row.p.last}"`},
+		"a relative and a rooted read in a folder": {"sv_SE/person": cat, "sv_SE/mail": `"{.person} <{/sv_SE.person.p.first}>"`},
 	} {
-		f, err := New(WithDataPath(writeData(t, files)), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Errorf("New(%v) = %v, want each read a draw of its own", files, err)
-			continue
-		}
-		for path := range files {
-			fake(t, f, strings.ReplaceAll(path, "/", "."))
-		}
+		t.Run(name, func(t *testing.T) {
+			f, err := New(WithDataPath(writeData(t, files)), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Errorf("New(%v) = %v, want each read a draw of its own", files, err)
+				return
+			}
+			fakeEachDataFile(t, f, files)
+		})
+	}
+}
+
+func fakeEachDataFile(t *testing.T, f *Generator, files map[string]string) {
+	t.Helper()
+	for path := range files {
+		fake(t, f, strings.ReplaceAll(path, "/", "."))
 	}
 }
 
@@ -280,8 +291,8 @@ func TestFieldsReadOneNameTheirCategoryBinds(t *testing.T) {
 		"person":  drawPeople,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	for i := 0; i < 100; i++ {
-		name, email, _ := strings.Cut(fake(t, f, "contact"), " <")
+	eachDraw(100, func() string { return fake(t, f, "contact") }, func(got string) {
+		name, email, _ := strings.Cut(got, " <")
 		first, last, _ := strings.Cut(name, " ")
 		if !onePerson(name) || email != strings.ToLower(first)+"."+strings.ToLower(last)+"@example.com>" {
 			t.Fatalf("contact = %q <%s, want first, last and email one person", name, email)
@@ -294,7 +305,7 @@ func TestFieldsReadOneNameTheirCategoryBinds(t *testing.T) {
 		if !onePerson(c[1].Value+" "+c[2].Value) || c[0].Value != strings.ToLower(c[1].Value)+"."+strings.ToLower(c[2].Value)+"@example.com" {
 			t.Fatalf("contact record %s, want first, last and email one person", r.JSON())
 		}
-	}
+	})
 }
 
 func TestRelativeReferences(t *testing.T) {
@@ -310,9 +321,11 @@ func TestRelativeReferences(t *testing.T) {
 		"sv_SE.deep.card": "bob via bob",
 		"top":             "bob",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("%s = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("%s = %q, want %q", path, got, want)
+			}
+		})
 	}
 }
 
@@ -325,9 +338,11 @@ func TestReferenceSigilErrors(t *testing.T) {
 		"missing sibling":          {"sv_SE/a": `"{.nope}"`},
 		"slash in a field name":    {"a": `{"format":"{x}","x":"1","a/b":"2"}`},
 	} {
-		if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files))); err == nil {
-			t.Errorf("%s: New = nil error, want a reference error", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files))); err == nil {
+				t.Errorf("%s: New = nil error, want a reference error", name)
+			}
+		})
 	}
 }
 
@@ -336,10 +351,12 @@ func TestSlashAfterAReferenceSigilIsRejected(t *testing.T) {
 		"after ..": {"sv_SE/person": `"Ada"`, "sv_SE/deep/a": `"{../person}"`},
 		"after .":  {"sv_SE/person": `"Ada"`, "sv_SE/a": `"{./person}"`},
 	} {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files)))
-		if err == nil || !strings.Contains(err.Error(), "person}") || !strings.Contains(err.Error(), "write {") {
-			t.Errorf("%s: New = %v, want the slash rejected naming the spelling", name, err)
-		}
+		t.Run(name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files)))
+			if err == nil || !strings.Contains(err.Error(), "person}") || !strings.Contains(err.Error(), "write {") {
+				t.Errorf("%s: New = %v, want the slash rejected naming the spelling", name, err)
+			}
+		})
 	}
 }
 
