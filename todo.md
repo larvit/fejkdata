@@ -237,14 +237,14 @@ The principles pass of the release review of 0.5.0 found that `AGENTS.md` gates 
 
 `gocyclo -over 7 -ignore _test .` lists 83 functions today, and `-over 10` lists 25, more than the review's rounds could restructure. The gate is a rule in `AGENTS.md`, so the choice is the maintainer's:
 
-- Gate non-test functions at 7, and keep the dispatch exception as a short allow-list beside the Dockerfile's gocyclo line, each entry with its reason. gocyclo cannot exempt one function, so the allow-list filters its output. The 83 functions are then split, or listed with their reason. Item 453 restructures some of the same code.
+- Gate non-test functions at 7, applied by both gocyclo lines, the Dockerfile's and compose.yaml's `cyclo`, and keep the dispatch exception as a short allow-list beside them, each entry with its reason. gocyclo cannot exempt one function, so the allow-list filters its output. The 83 functions are then split, or listed with their reason. Item 453 restructures some of the same code.
 - Keep 14, and record in `docs/decisions.md` why it holds for this code base.
 
 Recommendation: the first, in steps: gate at 10 first, which lists 25 functions, and lower it as item 453 and later chunks split them.
 
 ### 455. Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.
 
-The release review of 0.5.0 found the Python tooling unchecked by any linter or type checker. It added ruff to the gate, in the Dockerfile's `python-lint` stage, and fixed what ruff found. `mypy --strict` reports 1,240 errors today: 725 in data-import, 417 in release-tooling and 98 in vulnerability-filing, more than the review's rounds could finish. Add mypy beside ruff in `python-lint`, and annotate each folder until it passes.
+`mypy --strict` reports 1,240 errors today: 725 in data-import, 417 in release-tooling and 98 in vulnerability-filing. Add mypy beside ruff in the Dockerfile's `python-lint` stage, and annotate each folder until it passes.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
@@ -267,7 +267,7 @@ The places the seats named, which this item restructures:
 
 Out of scope: `render/pick.go` `readName` and its memo, which item 423 took, and `tree/loadfinds.go`'s two phases.
 
-The architecture pass of 0.5.0's release review asked for two more parts, and items 452 and 164 wait for this one, since each would change every rule again: make `sharedDraw` return a named case, so its cases no longer depend on their order; and move the name rules, `namefence.go`, the five `refuse*.go` files, `drawsalong.go` and `readinsidefield.go`, into a package `internal/engine/fence/names`, revising the decision that places every fence in `internal/engine/fence`.
+The architecture pass of 0.5.0's release review added two parts. Make `sharedDraw` return a named case, so its cases no longer depend on their order. Move the name rules, `drawsalong.go`, `namefence.go`, `readinsidefield.go` and the five `refuse*.go` files, into a package `internal/engine/fence/names`, and revise the decision that places every fence in `internal/engine/fence`. Items 452 and 164 wait for this one, since each would change every rule again.
 
 ### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
 
@@ -1035,7 +1035,7 @@ Each Land publishes its own address data. Where open registers cover every Land,
 
 The owner decided on 2026-11-11 that fejkdata moves to Rust as a whole and keeps Go as a native library. Today those goals name Go as the one language: Go packages as modules, a CLI of your own in a few lines of Go, functions in Go, the JavaScript package matching the Go library, and the lowest supported Go in the Versioning table. The wording is the owner's; every other item of 2.0.0 waits for it.
 
-The architecture pass of 0.5.0's release review asked the owner to weigh, while rewording, two things: item 446 serves the Go library through cgo, which breaks `go install` without a C toolchain, against goals 8.6 and 10 as they read today; and item 359, the Go library built to WebAssembly, already serves goals 1.2 and 9.2 with one engine.
+While rewording, weigh two points the architecture pass of 0.5.0's release review raised. Item 446 serves the Go library through cgo, so `go install` fails without a C toolchain, which works against goals 8.6 and 10 as they read today. Item 359, the Go library built to WebAssembly, would serve goal 1.2 with one engine, without the Rust core.
 
 ### 433. Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.
 

@@ -22,7 +22,7 @@ func TestGeoPlacesHoldOnlyOneLocalitysStreetPostalCodeNameAndRegion(t *testing.T
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			if got := s.Has(c.street, c.postalCode, c.locality, c.region); got != c.want {
-				t.Errorf("has(%q, %q, %q, %q) = %v, want %v", c.street, c.postalCode, c.locality, c.region, got, c.want)
+				t.Errorf("Has(%q, %q, %q, %q) = %v, want %v", c.street, c.postalCode, c.locality, c.region, got, c.want)
 			}
 		})
 	}

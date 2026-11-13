@@ -5,10 +5,10 @@ package grammar
 // an apostrophe, as o'neil does.
 type scanner struct{ quotes bool }
 
-// find calls at with each index of s outside a selector and a quote, in order, and returns the first
-// index at reports true for, or -1. at may set sc.quotes, so a scan honours quotes from where a
+// find calls match with each index of s outside a selector and a quote, in order, and returns the
+// first index match reports true for, or -1. match may set sc.quotes, so quotes count from where a
 // clause opens.
-func (sc *scanner) find(s string, at func(i int) bool) int {
+func (sc *scanner) find(s string, match func(i int) bool) int {
 	depth, quoted := 0, false
 	for i := 0; i < len(s); i++ {
 		switch c := s[i]; {
@@ -21,7 +21,7 @@ func (sc *scanner) find(s string, at func(i int) bool) int {
 		case depth > 0:
 		case c == '\'' && sc.quotes:
 			quoted = true
-		case at(i):
+		case match(i):
 			return i
 		}
 	}

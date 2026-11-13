@@ -136,8 +136,8 @@ func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read)
 
 // readSibling draws afresh a read of a field of t's own category.
 func readSibling(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
-	// A fresh read is in no pick: a read nested in it would otherwise key the pick's memo under
-	// env.pickAt and share a value with another node at that key.
+	// A fresh read leaves the pick: otherwise a read nested in this one would key the pick's memo
+	// under env.pickAt and share a value with another node at that key.
 	env.pick = nil
 	leaf := drawSibling(s, t.StartOf(a.Head(), t.Refs()), a.Steps())
 	return renderLeaf(s, leaf, env)
