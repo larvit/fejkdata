@@ -46,11 +46,15 @@ func TestFinnishTopNamesAreDVVsCounts(t *testing.T) {
 		what      string
 		got, want map[string]int
 	}{{"women", first["f"], dvvWomen}, {"men", first["m"], dvvMen}, {"last names", last, dvvLast}} {
-		for name, want := range c.want {
-			if c.got[name] != want {
-				t.Errorf("%s: %q is borne by %d, want DVV's %d", c.what, name, c.got[name], want)
+		t.Run(c.what, func(t *testing.T) {
+			for name, want := range c.want {
+				t.Run(name, func(t *testing.T) {
+					if c.got[name] != want {
+						t.Errorf("%s: %q is borne by %d, want DVV's %d", c.what, name, c.got[name], want)
+					}
+				})
 			}
-		}
+		})
 	}
 }
 
@@ -72,17 +76,17 @@ func TestFinnishPersonIsATitleOrNoneAFirstNameOfItsSexAndALastName(t *testing.T)
 	if err != nil {
 		t.Fatal(err)
 	}
-	first := map[string]map[string]int{}
-	for sex, name := range map[string]string{"f": "nainen", "m": "mies"} {
-		first[name] = finnishCounts(t, "first-name")[sex]
-	}
+	bySex := finnishCounts(t, "first-name")
+	first := map[string]map[string]int{"nainen": bySex["f"], "mies": bySex["m"]}
 	last := finnishCounts(t, "last-name")[""]
 	titles := map[string]int{}
-	for i := 0; i < 2000; i++ {
+	eachDraw(2000, func() string {
 		got, err := f.FakeTemplate("{/fi_FI.person as p}{p.sex}|{p.prefix}|{p.first}|{p.last}|{p}")
 		if err != nil {
 			t.Fatal(err)
 		}
+		return got
+	}, func(got string) {
 		cells := strings.Split(got, "|")
 		if len(cells) != 5 {
 			t.Fatalf("%q does not hold five cells", got)
@@ -98,7 +102,7 @@ func TestFinnishPersonIsATitleOrNoneAFirstNameOfItsSexAndALastName(t *testing.T)
 			t.Fatalf("%q: the person is not its prefix, first name and last name", got)
 		}
 		titles[prefix]++
-	}
+	})
 	if titles["tohtori "] == 0 || titles["professori "] == 0 || titles[""] < 1800 || len(titles) != 3 {
 		t.Errorf("prefixes over 2000 persons = %q, want a few %q and %q beside many with none", titles, "tohtori ", "professori ")
 	}
@@ -115,14 +119,17 @@ func TestFinnishSexAndTitleAreSelectable(t *testing.T) {
 		"{/fi_FI.title[tohtori]}":    "tohtori",
 		"{/fi_FI.title[professori]}": "professori",
 	} {
-		got, err := f.FakeTemplate(tmpl)
-		if err != nil || got != want {
-			t.Errorf("FakeTemplate(%q) = %q, %v, want %q", tmpl, got, err, want)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			got, err := f.FakeTemplate(tmpl)
+			if err != nil || got != want {
+				t.Errorf("FakeTemplate(%q) = %q, %v, want %q", tmpl, got, err, want)
+			}
+		})
 	}
 }
 
-func TestFinnishSexesAreWeighedByStatisticsFinlandsPopulationOf2025(t *testing.T) {
+func finnishSexCounts(t *testing.T) map[string]int {
+	t.Helper()
 	counts := map[string]int{}
 	for _, row := range tsvRows(t, "data/fi_FI/sex.tsv") {
 		n, err := strconv.Atoi(row["count"])
@@ -131,6 +138,11 @@ func TestFinnishSexesAreWeighedByStatisticsFinlandsPopulationOf2025(t *testing.T
 		}
 		counts[row["code"]+" "+row["name"]] = n
 	}
+	return counts
+}
+
+func TestFinnishSexesAreWeighedByStatisticsFinlandsPopulationOf2025(t *testing.T) {
+	counts := finnishSexCounts(t)
 	want := map[string]int{"f nainen": 2853669, "m mies": 2799212}
 	if len(counts) != 2 || counts["f nainen"] != want["f nainen"] || counts["m mies"] != want["m mies"] {
 		t.Errorf("sex.tsv counts %v, want Statistics Finland's population of 31 December 2025, %v", counts, want)
@@ -256,6 +268,14 @@ var (
 	}
 )
 
+func finnishFixedAreaCodes() []string {
+	codes := make([]string, 0, len(finnishFixedAreas))
+	for code := range finnishFixedAreas {
+		codes = append(codes, code)
+	}
+	return codes
+}
+
 func finnishAreaSet(codes ...string) map[string]bool {
 	out := map[string]bool{}
 	for _, c := range codes {
@@ -277,10 +297,7 @@ func finnishPhoneAreas(t *testing.T, kind string) map[string]bool {
 }
 
 func TestShippedFinnishPhoneTablesHoldExactlyTheCodesAnnex1Lists(t *testing.T) {
-	fixed := make([]string, 0, len(finnishFixedAreas))
-	for code := range finnishFixedAreas {
-		fixed = append(fixed, code)
-	}
+	fixed := finnishFixedAreaCodes()
 	for kind, want := range map[string][]string{"fixed": fixed, "mobile": finnishMobileAreas} {
 		t.Run(kind, func(t *testing.T) {
 			got, wantSet := finnishPhoneAreas(t, kind), finnishAreaSet(want...)
@@ -288,9 +305,11 @@ func TestShippedFinnishPhoneTablesHoldExactlyTheCodesAnnex1Lists(t *testing.T) {
 				t.Errorf("phone-%s holds %d area codes, Annex 1 lists %d", kind, len(got), len(wantSet))
 			}
 			for code := range wantSet {
-				if !got[code] {
-					t.Errorf("phone-%s lacks %q", kind, code)
-				}
+				t.Run(code, func(t *testing.T) {
+					if !got[code] {
+						t.Errorf("phone-%s lacks %q", kind, code)
+					}
+				})
 			}
 		})
 	}
@@ -298,19 +317,25 @@ func TestShippedFinnishPhoneTablesHoldExactlyTheCodesAnnex1Lists(t *testing.T) {
 
 func TestShippedFinnishPhoneFixedAreaNamesItsTelecommunicationsArea(t *testing.T) {
 	for _, row := range tsvRows(t, "data/fi_FI/phone-fixed.tsv") {
-		if want := finnishFixedAreas[row["area"]]; row["name"] != want {
-			t.Errorf("area %q is named %q, the plan names it %q", row["area"], row["name"], want)
-		}
+		t.Run(row["area"], func(t *testing.T) {
+			if want := finnishFixedAreas[row["area"]]; row["name"] != want {
+				t.Errorf("area %q is named %q, the plan names it %q", row["area"], row["name"], want)
+			}
+		})
 	}
 }
 
 func TestShippedFinnishPhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
 	for _, kind := range []string{"fixed", "mobile"} {
-		for _, row := range tsvRows(t, "data/fi_FI/phone-"+kind+".tsv") {
-			if row["ndc"] != strings.TrimPrefix(row["area"], "0") {
-				t.Errorf("phone-%s area %q has ndc %q, want the code without the trunk 0", kind, row["area"], row["ndc"])
+		t.Run(kind, func(t *testing.T) {
+			for _, row := range tsvRows(t, "data/fi_FI/phone-"+kind+".tsv") {
+				t.Run(row["area"], func(t *testing.T) {
+					if row["ndc"] != strings.TrimPrefix(row["area"], "0") {
+						t.Errorf("phone-%s area %q has ndc %q, want the code without the trunk 0", kind, row["area"], row["ndc"])
+					}
+				})
 			}
-		}
+		})
 	}
 }
 
@@ -323,10 +348,7 @@ func eachShippedFinnishPhone(t *testing.T, check func(n string)) {
 }
 
 func TestShippedFinnishPhoneIsAnAllocatedAreaCodeAndASubscriberNumberOfTheLengthTheRegulationGives(t *testing.T) {
-	fixed, mobile := finnishAreaSet(), finnishAreaSet(finnishMobileAreas...)
-	for code := range finnishFixedAreas {
-		fixed[code] = true
-	}
+	fixed, mobile := finnishAreaSet(finnishFixedAreaCodes()...), finnishAreaSet(finnishMobileAreas...)
 	eachShippedFinnishPhone(t, func(n string) {
 		m := finnishNationalPhone.FindStringSubmatch(n)
 		if m == nil {
@@ -344,22 +366,33 @@ func TestShippedFinnishPhoneIsAnAllocatedAreaCodeAndASubscriberNumberOfTheLength
 
 // Section 11 of the regulation reserves the number ranges beginning with 2 to 8 for subscriber
 // numbering in a telecommunications area, and assigns no new range beginning with 12 to 19.
-func TestShippedFinnishPhoneFixedSubscriberNumberBeginsWith2To8AndEveryDigitOfThemIsDrawn(t *testing.T) {
-	first := map[byte]bool{}
+func eachShippedFinnishFixedSubscriberNumber(t *testing.T, check func(n, subscriber string)) {
+	t.Helper()
 	eachShippedFinnishPhone(t, func(n string) {
 		m := finnishNationalPhone.FindStringSubmatch(n)
-		if _, fixed := finnishFixedAreas[m[1]]; !fixed {
-			return
+		if _, fixed := finnishFixedAreas[m[1]]; fixed {
+			check(n, m[2])
 		}
-		if m[2][0] < '2' || m[2][0] > '8' {
-			t.Fatalf("phone %q has a fixed subscriber number beginning with %c, not 2 to 8", n, m[2][0])
-		}
-		first[m[2][0]] = true
 	})
-	for d := byte('2'); d <= '8'; d++ {
-		if !first[d] {
-			t.Errorf("30000 phones drew no fixed subscriber number beginning with %c", d)
+}
+
+func TestShippedFinnishPhoneFixedSubscriberNumberBeginsWith2To8(t *testing.T) {
+	eachShippedFinnishFixedSubscriberNumber(t, func(n, subscriber string) {
+		if subscriber[0] < '2' || subscriber[0] > '8' {
+			t.Fatalf("phone %q has a fixed subscriber number beginning with %c, not 2 to 8", n, subscriber[0])
 		}
+	})
+}
+
+func TestShippedFinnishPhoneDrawsAFixedSubscriberNumberBeginningWithEachDigitFrom2To8(t *testing.T) {
+	first := map[byte]bool{}
+	eachShippedFinnishFixedSubscriberNumber(t, func(_, subscriber string) { first[subscriber[0]] = true })
+	for _, d := range []byte("2345678") {
+		t.Run(string(d), func(t *testing.T) {
+			if !first[d] {
+				t.Errorf("30000 phones drew no fixed subscriber number beginning with %c", d)
+			}
+		})
 	}
 }
 
@@ -382,11 +415,15 @@ func TestShippedFinnishPhoneDrawsEveryLengthTheRegulationGivesForEachAreaCodeLen
 		"fixed 2-character area code": {7, 8, 9}, "fixed 3-character area code": {7, 8, 9},
 		"mobile 3-character area code": {8, 9, 10}, "mobile 4-character area code": {8, 9, 10},
 	} {
-		for _, length := range want {
-			if !seen[key][length] {
-				t.Errorf("30000 phones drew no %s number of %d digits after the 0", key, length)
+		t.Run(key, func(t *testing.T) {
+			for _, length := range want {
+				t.Run(strconv.Itoa(length), func(t *testing.T) {
+					if !seen[key][length] {
+						t.Errorf("30000 phones drew no %s number of %d digits after the 0", key, length)
+					}
+				})
 			}
-		}
+		})
 	}
 }
 
@@ -534,10 +571,7 @@ func TestShippedFinnishCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
 func TestShippedFinnishCompanyEndsInALegalFormDrawnByStatisticsFinlandsEnterprises(t *testing.T) {
 	t.Parallel()
 	registered := map[string]int{"Tmi": 295203, "Oy": 240524, "Ky": 13356, "Ay": 4726, "osk": 2811}
-	var total int
-	for _, n := range registered {
-		total += n
-	}
+	total := registered["Tmi"] + registered["Oy"] + registered["Ky"] + registered["Ay"] + registered["osk"]
 	form := map[string]int{}
 	eachShippedFinnishCompany(t, func(got string) { form[finnishLegalForm(got)]++ })
 	for code, n := range registered {
@@ -587,6 +621,26 @@ func finnishCompanyShape(name string, words []string, firsts, lasts map[string]b
 	return shapes
 }
 
+func finnishNames(t *testing.T, file string) map[string]bool {
+	t.Helper()
+	out := map[string]bool{}
+	for _, row := range tsvRows(t, file) {
+		out[row["name"]] = true
+	}
+	return out
+}
+
+func tallyFinnishSoleTraderShapes(t *testing.T, f *Generator, draws int, words []string, firsts, lasts map[string]bool) map[string]int {
+	t.Helper()
+	seen := map[string]int{}
+	eachDraw(draws, func() string { return fake(t, f, "fi_FI.company.tmi") }, func(name string) {
+		for _, shape := range finnishCompanyShape(name, words, firsts, lasts) {
+			seen[shape]++
+		}
+	})
+	return seen
+}
+
 func TestShippedFinnishCompanyNamesAreBuiltOfNamesAndTradeWords(t *testing.T) {
 	t.Parallel()
 	src, err := os.ReadFile("data/fi_FI/company-word.json")
@@ -597,22 +651,9 @@ func TestShippedFinnishCompanyNamesAreBuiltOfNamesAndTradeWords(t *testing.T) {
 	if err := json.Unmarshal(src, &words); err != nil || len(words) < 20 {
 		t.Fatalf("company-word.json is %d words (%v), want an array of 20 or more", len(words), err)
 	}
-	set := func(file string) map[string]bool {
-		out := map[string]bool{}
-		for _, row := range tsvRows(t, file) {
-			out[row["name"]] = true
-		}
-		return out
-	}
-	firsts, lasts := set("data/fi_FI/first-name.tsv"), set("data/fi_FI/last-name.tsv")
-	f := shipped(t, WithSeed(8))
-	seen := map[string]int{}
+	firsts, lasts := finnishNames(t, "data/fi_FI/first-name.tsv"), finnishNames(t, "data/fi_FI/last-name.tsv")
 	const draws = 4000
-	eachDraw(draws, func() string { return fake(t, f, "fi_FI.company.tmi") }, func(name string) {
-		for _, shape := range finnishCompanyShape(name, words, firsts, lasts) {
-			seen[shape]++
-		}
-	})
+	seen := tallyFinnishSoleTraderShapes(t, shipped(t, WithSeed(8)), draws, words, firsts, lasts)
 	for _, shape := range []string{"last name and trade word", "first and last name"} {
 		t.Run(shape, func(t *testing.T) {
 			if seen[shape] < draws/10 {
@@ -645,11 +686,17 @@ func TestShippedFinnishHouseNumbersWriteTheirDeliveryLetterInLowerCase(t *testin
 	}
 }
 
-func TestShippedFinnishPlacesAreWrittenAsPlaceNames(t *testing.T) {
+func finnishPostitoimipaikat(t *testing.T) map[string]bool {
+	t.Helper()
 	places := map[string]bool{}
 	for _, r := range geoRows(t, "FI", "locality") {
 		places[r[0]] = true
 	}
+	return places
+}
+
+func TestShippedFinnishPlacesAreWrittenAsPlaceNames(t *testing.T) {
+	places := finnishPostitoimipaikat(t)
 	for _, name := range []string{"Helsinki", "Espoo", "Tampere", "Turku", "Oulu", "Jyväskylä", "Heinola kk", "Alavus as", "Inhan tehtaat", "Kuoppa-aho", "Yli-Ii"} {
 		t.Run(name, func(t *testing.T) {
 			if !places[name] {
@@ -701,13 +748,22 @@ func TestShippedFinnishStreetCarriesTheSwedishNamePostiGivesOnOnlySomeOfItsRange
 	}
 }
 
-func TestShippedFinnishStreetNamesOpenWithNoLowerCaseLetter(t *testing.T) {
+func eachFinnishStreetRow(t *testing.T, check func(i int, r map[string]string)) {
+	t.Helper()
 	for i, r := range tsvRows(t, "data/geo/FI/street.tsv") {
-		for _, column := range []string{"name", "swedish-name"} {
-			if first, _ := utf8.DecodeRuneInString(r[column]); unicode.IsLower(first) {
-				t.Errorf("geo.FI street row %d has the %s %q, want its first letter in upper case", i+1, column, r[column])
-			}
-		}
+		check(i, r)
+	}
+}
+
+func TestShippedFinnishStreetNamesOpenWithNoLowerCaseLetter(t *testing.T) {
+	for _, column := range []string{"name", "swedish-name"} {
+		t.Run(column, func(t *testing.T) {
+			eachFinnishStreetRow(t, func(i int, r map[string]string) {
+				if first, _ := utf8.DecodeRuneInString(r[column]); unicode.IsLower(first) {
+					t.Errorf("geo.FI street row %d has the %s %q, want its first letter in upper case", i+1, column, r[column])
+				}
+			})
+		})
 	}
 }
 
