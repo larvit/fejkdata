@@ -1811,3 +1811,33 @@ Inherited architect, would restructure first:
 - `internal/engine/render/pick.go:124` `readName`: frame lifetime, memo and pins mix in one function
 - `internal/engine/fence/namefence.go:112` `walkRoutes`: seventeen files in one package, ungrouped by name fence, value proof and graph
 - `cli/cli.go:227` `parseArgs`: 794 lines hold flags and output writers in one file
+
+## 2026-11-13T22:11:03Z, PR #373 at 227aa33c, against 296b777a
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | same | better |
+| Inherited architect | better | better | better | same | better |
+
+Mid A, decided by:
+
+- Locality: `internal/engine/pipeline.go:57` `pipeline.run`: SettleRecords and Finish run before any fence, so a reader no longer tracks which side of Finish a fence sits on
+- Locality, Shape: `internal/engine/tree/renderedge.go:34` `RenderEdges`: the LoadFinds parameter is gone, and with it the hidden ordering state through the fence API
+- Navigation: `cli/cli.go:1` package `cli`: the 795-line cli.go is split into flags, input, records and report, so a symptom leads to one file by its name; versionLine and docsURL in report.go and pipeHint in flags.go are misplaced
+- Navigation, Locality: `internal/engine/load/record.go:49` `ColumnDatatype`: datatype settling moved beside SettleRecords, which computes it, at the price of a documented seen guard
+- Shape: `internal/grammar/scan.go:11` `scanner.find`: four bracket-and-quote loops share one walker; cutWord changing sc.quotes from its callback is less obvious
+- Shape: `internal/engine/render/render.go:125` `readField`: readField and readName split into named branches, each comment on the branch it explains
+- Navigation: `internal/fejktest/generator.go:1` package `fejktest`: locale tests sit beside their data and share helpers here; ShareDraws and ValidFnr have no doc comment
+
+Inherited architect, decided by:
+
+- Locality, Shape: `internal/engine/pipeline.go:57` `run`: every fence now reads finished nodes, removing the two-mode ordering trap
+- Locality: `internal/engine/tree/renderedge.go:34` `RenderEdges`: no LoadFinds parameter and no AfterFinish sentinel for callers to pass wrongly
+- Navigation, Shape: `cli/flags.go:115` `parseArgs`: cli.go split by concern, so a wrong --format csv row leads straight to records.go; versionLine, docsURL and pipeHint sit in the wrong file
+- Navigation, Locality: `internal/engine/load/record.go:49` `ColumnDatatype`: moved next to SettleRecords; a provisional String for a self-reading column relies on CheckNoCycles refusing it later, and SettleRecords spells out fence.NodeSet's raw function type
+- Shape: `internal/grammar/scan.go:11` `scanner.find`: one scanner for five loops; splitArgs and lastAsOutside use find as a for-each whose callback returns false, and cutWord changes sc.quotes mid-scan
+- Shape: `internal/engine/render/render.go:125` `readField`: readField and readName become flat dispatches to named helpers
+- Shape: `internal/rows/rows.go:419` `DrawIn`: the ancestor loop becomes one recursive call into the parent's DrawIn
+- Self-sufficiency: `README.md:2235` "Development": the vulnerability-filing and waiting-patch accounts now point at docs/decisions.md, which a maintainer with a stalled release job must open
