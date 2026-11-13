@@ -13,7 +13,9 @@ import csv
 import io
 import re
 import zipfile
+from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import source
 import tsv
@@ -26,7 +28,7 @@ MC = re.compile(r"^Mc([a-z])")
 PLACEHOLDERS = {"Baby", "Female", "Infant", "Male", "Notnamed", "Unknown", "Unnamed"}
 
 
-def csv_or_zip_rows(data, member):
+def csv_or_zip_rows(data: bytes, member: str) -> Iterator[list[str]]:
     """The rows of a CSV, or of every member of a zip named like member, name,sex,count[,year]."""
     if data.startswith(b"PK"):
         z = zipfile.ZipFile(io.BytesIO(data))
@@ -39,20 +41,20 @@ def csv_or_zip_rows(data, member):
     yield from csv.reader(io.StringIO(data.decode("utf-8-sig")))
 
 
-def given(data, from_year):
-    counts = collections.Counter()
+def given(data: bytes, from_year: int) -> collections.Counter[tuple[str, str]]:
+    counts: collections.Counter[tuple[str, str]] = collections.Counter()
     for r in csv_or_zip_rows(data, r"yob\d{4}\.txt"):
         if len(r) >= 4 and r[3].isdigit() and int(r[3]) >= from_year and r[0] not in PLACEHOLDERS:
             counts[(r[0], r[1].lower())] += int(r[2])
     return counts
 
 
-def surname(name):
+def surname(name: str) -> str:
     """A Census uppercase surname as it is written: capitalised, and Mc before a capital."""
     return MC.sub(lambda m: "Mc" + m.group(1).upper(), name.title())
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--first", type=int, default=2000, help="names per sex")
@@ -68,7 +70,7 @@ def main():
         top = sorted(((n, c) for (n, s), c in counts.items() if s == sex), key=lambda n: (-n[1], n[0]))[:a.first]
         first += [{"name": n, "sex": sex, "count": c} for n, c in top]
     rows = csv_or_zip_rows(source.fetch(a.surnames, a.cache, "census-surnames-2010.zip"), r"Names_2010Census\.csv")
-    last = [{"name": surname(r[0]), "count": int(r[2])} for r in rows if len(r) >= 3 and r[2].isdigit() and r[0].isalpha()]
+    last: list[dict[str, Any]] = [{"name": surname(r[0]), "count": int(r[2])} for r in rows if len(r) >= 3 and r[2].isdigit() and r[0].isalpha()]
     last = sorted(last, key=lambda r: (-r["count"], r["name"]))[:a.last]
     out = Path(a.out)
     tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))

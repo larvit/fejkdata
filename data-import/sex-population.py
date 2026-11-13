@@ -19,6 +19,7 @@ import io
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import source
 import tsv
@@ -34,11 +35,11 @@ JSON = {"Content-Type": "application/json"}
 NAMES = {"sv_SE": ("kvinna", "man"), "nb_NO": ("kvinne", "mann"), "da_DK": ("kvinde", "mand"), "fi_FI": ("nainen", "mies"), "en_US": ("female", "male")}
 
 
-def post(url, cache, name, query):
+def post(url: str, cache: str, name: str, query: object) -> Any:
     return json.loads(source.fetch(url, cache, name, magic=b"{", data=json.dumps(query).encode(), headers=JSON))
 
 
-def sweden(cache):
+def sweden(cache: str) -> tuple[int, int]:
     """(women, men) at the end of 2024."""
     query = {"query": [{"code": "Alder", "selection": {"filter": "item", "values": ["tot"]}}, {"code": "Kon", "selection": {"filter": "item", "values": ["1", "2"]}}, {"code": "Tid", "selection": {"filter": "item", "values": ["2024"]}}], "response": {"format": "json"}}
     meta = json.loads(source.fetch(SCB, cache, "scb-BefolkningR1860N-meta.json", magic=b"{"))
@@ -49,7 +50,7 @@ def sweden(cache):
     return counts["2"], counts["1"]
 
 
-def norway(cache):
+def norway(cache: str) -> tuple[int, int]:
     """(women, men) on 1 January 2026."""
     query = {"query": [{"code": "Region", "selection": {"filter": "item", "values": ["0"]}}, {"code": "Kjonn", "selection": {"filter": "item", "values": ["1", "2"]}}, {"code": "Alder", "selection": {"filter": "all", "values": ["*"]}}, {"code": "ContentsCode", "selection": {"filter": "item", "values": ["Personer1"]}}, {"code": "Tid", "selection": {"filter": "item", "values": ["2026"]}}], "response": {"format": "json-stat2"}}
     cube = post(SSB, cache, "ssb-07459-2026.json", query)
@@ -66,7 +67,7 @@ def norway(cache):
     return by["2"], by["1"]
 
 
-def denmark(cache):
+def denmark(cache: str) -> tuple[int, int]:
     """(women, men) on 1 January 2026."""
     query = {"table": "FOLK1A", "format": "CSV", "delimiter": "Semicolon", "variables": [{"code": "KØN", "values": ["1", "2"]}, {"code": "TID", "values": ["2026K1"]}]}
     text = source.fetch(DST, cache, "dst-FOLK1A-2026K1.csv", magic=b"\xef\xbb\xbfK", data=json.dumps(query).encode(), headers=JSON).decode("utf-8-sig")
@@ -77,7 +78,7 @@ def denmark(cache):
     return counts["Kvinder"], counts["Mænd"]
 
 
-def finland(cache):
+def finland(cache: str) -> tuple[int, int]:
     """(women, men) on 31 December 2025."""
     query = {"query": [{"code": "timeperiod_y", "selection": {"filter": "item", "values": ["2025"]}}, {"code": "sukupuoli_9_20180101", "selection": {"filter": "item", "values": ["1", "2"]}}, {"code": "contentscode", "selection": {"filter": "item", "values": ["vaerak-vaesto"]}}], "response": {"format": "json-stat2"}}
     cube = post(STATFIN, cache, "statfin-11rb-2025.json", query)
@@ -88,7 +89,7 @@ def finland(cache):
     return women, men
 
 
-def america(cache):
+def america(cache: str) -> tuple[int, int]:
     """(women, men) on 1 July 2024."""
     text = source.fetch(CENSUS, cache, "census-nc-est2024-agesex-res.csv").decode("utf-8")
     counts = {r["SEX"]: int(r["POPESTIMATE2024"]) for r in csv.DictReader(io.StringIO(text)) if r["AGE"] == "999"}
@@ -97,7 +98,7 @@ def america(cache):
     return counts["2"], counts["1"]
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--out-dir", default=str(ROOT))

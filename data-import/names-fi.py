@@ -8,6 +8,7 @@ of the Finnish citizens in the population register. The last names are the sheet
 that women and men both bear has two rows. A label that is not a name in letters, as `tsv.NAME` says, is dropped.
 """
 import argparse
+from collections.abc import Iterable
 from pathlib import Path
 
 import source
@@ -22,13 +23,13 @@ SHEETS = {"f": "Naiset ens", "m": "Miehet ens"}
 LAST_SHEET = "Nimet"
 
 
-def counted(rows, top):
+def counted(rows: Iterable[list[str]], top: int) -> list[tuple[str, int]]:
     """The top names of a sheet by bearers, whose header row and any label that is no name are dropped."""
     names = [(cells[0], int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
     return sorted(names, key=lambda n: (-n[1], n[0]))[:top]
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--etunimet", default=FIRST)

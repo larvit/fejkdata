@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import urllib.request
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from pathlib import Path
 
 import geo
@@ -45,9 +46,19 @@ UNMATCHED_POPULATION = 200
 NOT_A_STREET = re.compile(r"^(Europaväg|Länsväg|Riksväg) \d|^Färjeled |\b(GC|SMF|VSF)\b|^NN$|,")
 PARTICLES = {"af", "de", "von"}
 
+# A lon and lat, in that order.
+type Point = tuple[float, ...]
+# The rings of one area's polygons.
+type Rings = list[list[Point]]
+# Each tätort name's (kommun, population), one per kommun holding a tätort of that name.
+type Tatorter = Mapping[str, list[tuple[str, int]]]
+# Each kommun's småorter, as (population, rings).
+type Smaorter = Mapping[str, list[tuple[int, Rings]]]
 
-def scb_codes(cache):
-    regions, municipalities = {}, {}
+
+def scb_codes(cache: Path) -> tuple[dict[str, str], dict[str, str]]:
+    regions: dict[str, str] = {}
+    municipalities: dict[str, str] = {}
     for cells in xlsx.rows(source.fetch(CODES, cache, "kommunlankod.xlsx", magic=b"PK")):
         if len(cells) < 2 or not re.fullmatch(r"\d{2}|\d{4}", cells[0]):
             continue
@@ -55,39 +66,40 @@ def scb_codes(cache):
     return regions, municipalities
 
 
-def scb_population(cache):
+def scb_population(cache: Path) -> dict[str, str]:
     body = json.dumps(POPULATION_QUERY).encode()
     data = source.fetch(POPULATION, cache, "befolkning.json", data=body, headers={"Content-Type": "application/json"})
     return {row["key"][0]: row["values"][0] for row in json.loads(data.decode("utf-8-sig"))["data"]}
 
 
-def wkt_rings(wkt):
+def wkt_rings(wkt: str) -> Rings:
     """The rings of a WKT polygon, each a list of (lon, lat). A ring is any parenthesised run, so a hole is a ring too."""
     return [[tuple(map(float, p.split())) for p in ring.split(",")] for ring in re.findall(r"\(([^()]+)\)", wkt)]
 
 
-def scb_tatorter(cache):
+def scb_tatorter(cache: Path) -> tuple[dict[str, list[tuple[str, int]]], list[tuple[str, str, Rings]]]:
     """Each tätort name's (municipality, population) pairs, and every tätort as (name, municipality, rings)."""
     csv.field_size_limit(sys.maxsize)
     text = source.fetch(TATORTER, cache, "tatorter-areas.csv", magic=b"FID").decode("utf-8")
-    by_name, areas = collections.defaultdict(list), []
+    by_name: dict[str, list[tuple[str, int]]] = collections.defaultdict(list)
+    areas: list[tuple[str, str, Rings]] = []
     for r in csv.DictReader(io.StringIO(text)):
         by_name[r["tatort"]].append((r["kommun"], int(r["bef"])))
         areas.append((r["tatort"], r["kommun"], wkt_rings(r["sp_geometry"])))
     return by_name, areas
 
 
-def scb_smaorter(cache):
+def scb_smaorter(cache: Path) -> dict[str, list[tuple[int, Rings]]]:
     """Each municipality's småorter as (population, rings)."""
     csv.field_size_limit(sys.maxsize)
     text = source.fetch(SMAORTER, cache, "smaorter.csv", magic=b"FID").decode("utf-8")
-    by_municipality = collections.defaultdict(list)
+    by_municipality: dict[str, list[tuple[int, Rings]]] = collections.defaultdict(list)
     for r in csv.DictReader(io.StringIO(text)):
         by_municipality[r["kommun"]].append((int(r["bef"]), wkt_rings(r["sp_geometry"])))
     return by_municipality
 
 
-def inside(lon, lat, rings):
+def inside(lon: float, lat: float, rings: Iterable[Sequence[Point]]) -> bool:
     """Whether the point lies in the polygons made of rings: a ray running east from it crosses an odd number of their
     edges there, and a hole's ring, crossed too, puts the point back outside."""
     odd = False
@@ -98,15 +110,15 @@ def inside(lon, lat, rings):
     return odd
 
 
-class Areas:
+class Areas[T]:
     """Finds the area holding a point, each area's edges filed by latitude band, so checking a point reads only its own band."""
 
     BAND = 0.01
 
-    def __init__(self, areas):
-        self.at = collections.defaultdict(list)
+    def __init__(self, areas: Iterable[tuple[T, Rings]]) -> None:
+        self.at: dict[int, list[tuple[float, float, T, list[tuple[Point, Point]]]]] = collections.defaultdict(list)
         for value, rings in areas:
-            edges = collections.defaultdict(list)
+            edges: dict[int, list[tuple[Point, Point]]] = collections.defaultdict(list)
             for ring in rings:
                 for a, b in zip(ring, ring[1:]):
                     for band in range(int(min(a[1], b[1]) // self.BAND), int(max(a[1], b[1]) // self.BAND) + 1):
@@ -115,14 +127,14 @@ class Areas:
             for band, held in edges.items():
                 self.at[band].append((min(lons), max(lons), value, held))
 
-    def find(self, lon, lat):
+    def find(self, lon: float, lat: float) -> T | None:
         for west, east, value, edges in self.at[int(lat // self.BAND)]:
             if west <= lon <= east and inside(lon, lat, edges):
                 return value
         return None
 
 
-def nvdb_segments(cache, key):
+def nvdb_segments(cache: Path, key: str) -> Iterator[tuple[str, float, float]]:
     path = cache / "nvdb-gatunamn.tsv"
     if not path.exists():
         with open(path.with_suffix(".part"), "w", encoding="utf-8") as out:
@@ -152,7 +164,7 @@ def nvdb_segments(cache, key):
         yield name, float(lat), float(lon)
 
 
-def street_delivery(name, codes):
+def street_delivery(name: str, codes: list[str]) -> list[str]:
     """The codes delivered to a street. A postort's own prefix is three digits where one three-digit prefix starts at
     least half its codes, else two. Outside ONE_POSITION's cities, the digit after that prefix is 0 or 1 for boxes and 8
     for reply mail; inside them, a second digit 0 marks boxes. The box and reply-mail digits are per
@@ -164,7 +176,7 @@ def street_delivery(name, codes):
     return [c for c in codes if c[length] not in "018"]
 
 
-def municipality_of(name, rows, point, tatorter, municipalities, smaorter):
+def municipality_of(name: str, rows: Iterable[geo.Row], point: tuple[float, float] | None, tatorter: Tatorter, municipalities: Mapping[str, str], smaorter: Smaorter) -> tuple[str | None, str]:
     named = [code for code, n in municipalities.items() if n == name]
     if named:
         return named[0], "kommun"
@@ -181,7 +193,7 @@ def municipality_of(name, rows, point, tatorter, municipalities, smaorter):
     return None, "unplaced"
 
 
-def smaort_municipality(point, municipalities, smaorter):
+def smaort_municipality(point: tuple[float, float] | None, municipalities: Mapping[str, str], smaorter: Smaorter) -> str | None:
     """The kommun of the småort holding point, or None."""
     if point is None:
         return None
@@ -189,7 +201,7 @@ def smaort_municipality(point, municipalities, smaorter):
     return next((m for m, places in smaorter.items() if m in municipalities for _, rings in places if inside(lon, lat, rings)), None)
 
 
-def population_of(name, municipality, point, tatorter, municipalities, population, smaorter):
+def population_of(name: str, municipality: str, point: tuple[float, float], tatorter: Tatorter, municipalities: Mapping[str, str], population: Mapping[str, str], smaorter: Smaorter) -> str:
     matches = [m for m in tatorter.get(name, []) if m[0] == municipality]
     if matches:
         return str(max(m[1] for m in matches))
@@ -199,18 +211,19 @@ def population_of(name, municipality, point, tatorter, municipalities, populatio
     return str(next((n for n, rings in smaorter.get(municipality, []) if inside(lon, lat, rings)), UNMATCHED_POPULATION))
 
 
-def well_cased(name):
+def well_cased(name: str) -> bool:
     """Whether each word of name is capitalised: GeoNames also spells some postorter, such as STOCKHOLM and örebro, in
     capitals or lower case."""
     return all(part[:1].isupper() and (len(part) == 1 or not part.isupper()) for part in re.split(r"[ -]", name))
 
 
-def localities(codes, tatorter, municipalities, population, smaorter):
+def localities(codes: Iterable[geo.Row], tatorter: Tatorter, municipalities: Mapping[str, str], population: Mapping[str, str], smaorter: Smaorter) -> dict[str, geo.Row]:
     """Each postort with its municipality, weight, centroid and street-delivery codes."""
-    by_locality = collections.defaultdict(list)
+    by_locality: dict[str, list[geo.Row]] = collections.defaultdict(list)
     for r in codes:
         by_locality[r["locality"]].append(r)
-    out, how = {}, collections.Counter()
+    out: dict[str, geo.Row] = {}
+    how: collections.Counter[str] = collections.Counter()
     for name, rows in by_locality.items():
         point = geo.centroid(rows)
         municipality, method = municipality_of(name, rows, point, tatorter, municipalities, smaorter)
@@ -224,34 +237,36 @@ def localities(codes, tatorter, municipalities, population, smaorter):
     return out
 
 
-def street_name(name):
+def street_name(name: str) -> bool:
     opening = name[0].isupper() or name.split()[0] in PARTICLES
     return opening and not NOT_A_STREET.search(name) and not geo.in_capitals(name)
 
 
-def reach_distance(locality, lat, lon):
+def reach_distance(locality: geo.Row, lat: float, lon: float) -> float:
     """The distance to a postort's centre over its reach, the fourth root of its codes. docs/decisions.md says why
     the fourth root."""
     scale = math.cos(math.radians(lat))
-    return math.hypot(float(locality["lat"]) - lat, (float(locality["lon"]) - lon) * scale) / len(locality["codes"]) ** 0.25
+    return math.hypot(float(locality["lat"]) - lat, (float(locality["lon"]) - lon) * scale) / math.pow(len(locality["codes"]), 0.25)
 
 
-def streets(segments, codes, localities, tatorter, share, minimum):
+def streets(segments: Iterable[tuple[str, float, float]], codes: Iterable[geo.Row], localities: Mapping[str, geo.Row], tatorter: Iterable[tuple[str, str, Rings]], share: float, minimum: int) -> dict[str, list[geo.Row]]:
     """The names with most segments per locality. A segment goes to its nearest code centroid, unless it lies in a tätort
     named as a postort of the same kommun and that postort is nearer by reach_distance: GeoNames puts most of a big
     postort's codes on few points, so plain nearest leaves it only the streets around those points."""
     nearest = geo.Nearest((r["lat"], r["lon"], r["locality"]) for r in codes if r["lat"] is not None and r["locality"] in localities)
     namesakes = Areas((name, rings) for name, municipality, rings in tatorter if name in localities and localities[name]["municipality"] == municipality)
-    count = collections.Counter()
+    count: collections.Counter[tuple[str, str]] = collections.Counter()
     for name, lat, lon in segments:
         if street_name(name):
             near, own = nearest.find(lat, lon), namesakes.find(lon, lat)
-            wins = own and reach_distance(localities[own], lat, lon) <= reach_distance(localities[near], lat, lon)
-            count[(own if wins else near, name)] += 1
+            if near is None:
+                continue
+            place = own if own and reach_distance(localities[own], lat, lon) <= reach_distance(localities[near], lat, lon) else near
+            count[(place, name)] += 1
     return geo.top_streets(count, share, minimum, "segments")
 
 
-def main():
+def main() -> None:
     a = geo.parser(__doc__, "SE", 1.0, key_file={"help": "file holding the Trafikverket API key; TRAFIKVERKET_API_KEY otherwise"}).parse_args()
     key = Path(a.key_file).read_text().strip() if a.key_file else os.environ.get("TRAFIKVERKET_API_KEY")
     if not key:

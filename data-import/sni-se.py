@@ -24,7 +24,7 @@ HEADER = "SNI2025Detaljgrupp (Officiell kodstruktur)"
 EXPECTED = 835
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

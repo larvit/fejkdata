@@ -12,6 +12,7 @@ import csv
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import source
 import tsv
@@ -24,11 +25,11 @@ CACHE = Path(__file__).resolve().parent / "cache"
 WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 
 
-def load(path, cache, name):
+def load(path: str, cache: str, name: str) -> Any:
     return json.loads(source.fetch(path, cache, name).decode("utf-8"))["main"]["sv"]
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--dates", default=DATES)

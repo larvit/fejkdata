@@ -19,6 +19,7 @@ import io
 import re
 import zipfile
 from collections import Counter
+from collections.abc import Collection, Iterable, Iterator, Mapping
 from pathlib import Path
 
 import source
@@ -50,10 +51,15 @@ SLOTS = {
     "P": "{/geo.SE.locality}", "N": "{int(1,30)}", "i": "i", "&": "&", "och": "och",
 }
 
+# A name's kinds of word in order, each a key of SLOTS.
+type Shape = tuple[str, ...]
+# Where a name writes its legal form, "before" or "after", and the words it writes.
+type Wording = tuple[str, str]
 
-def registrations(data):
+
+def registrations(data: bytes) -> Counter[str]:
     """Each legal form's new registrations in STATISTICS_YEAR: handelse 1 of Bolagsverket's statistics."""
-    counts = Counter()
+    counts: Counter[str] = Counter()
     for row in csv.DictReader(io.StringIO(data.decode("latin-1"))):
         if row["ar"] == STATISTICS_YEAR and row["handelse"] == "1":
             for form in FORMS:
@@ -61,7 +67,7 @@ def registrations(data):
     return counts
 
 
-def register_names(data):
+def register_names(data: bytes) -> Iterator[tuple[str, str]]:
     """(legal form, company name) of every active company of FORMS: the first name of its register row."""
     z = zipfile.ZipFile(io.BytesIO(data))
     for row in csv.DictReader(io.TextIOWrapper(z.open(z.namelist()[0]), encoding="utf-8", newline=""), delimiter=";"):
@@ -74,7 +80,7 @@ def register_names(data):
                 break
 
 
-def kind(word, surnames, firsts, places):
+def kind(word: str, surnames: Collection[str], firsts: Collection[str], places: Collection[str]) -> str | None:
     """S, Ss, F or P for a surname, its genitive, a given name or a place; else None."""
     w = word.lower()
     if w in surnames:
@@ -88,7 +94,7 @@ def kind(word, surnames, firsts, places):
     return None
 
 
-def legal_wording(form, words):
+def legal_wording(form: str, words: list[str]) -> tuple[str, str, list[str]] | None:
     """(position, wording as written, the words left) of a name carrying its form's wording where the form's names put it, else None."""
     low = [w.lower() for w in words]
     if form == "E":
@@ -101,9 +107,9 @@ def legal_wording(form, words):
     return None
 
 
-def shape_of(words, surnames, firsts, places, trade):
+def shape_of(words: Iterable[str], surnames: Collection[str], firsts: Collection[str], places: Collection[str], trade: Collection[str]) -> Shape:
     """The kinds of the words, as SLOTS keys."""
-    shape = []
+    shape: list[str] = []
     for w in words:
         low = w.lower()
         if low.isdigit():
@@ -115,10 +121,10 @@ def shape_of(words, surnames, firsts, places, trade):
     return tuple(shape)
 
 
-def count_names(names, surnames, firsts, places, trade):
+def count_names(names: Iterable[tuple[str, str]], surnames: Collection[str], firsts: Collection[str], places: Collection[str], trade: Collection[str]) -> tuple[dict[str, Counter[Wording]], dict[str, Counter[Shape]]]:
     """Per form: the wordings counted over names not in capitals, and the shapes counted over every name."""
-    wordings = {f: Counter() for f in FORMS}
-    shapes = {f: Counter() for f in FORMS}
+    wordings: dict[str, Counter[Wording]] = {f: Counter() for f in FORMS}
+    shapes: dict[str, Counter[Shape]] = {f: Counter() for f in FORMS}
     for form, name in names:
         words = split(name)
         found = legal_wording(form, words) if words else None
@@ -129,16 +135,16 @@ def count_names(names, surnames, firsts, places, trade):
     return wordings, shapes
 
 
-def lines(key, items):
+def lines(key: str, items: Iterable[str]) -> list[str]:
     return [f'    "{key}": [', ",\n".join("      " + i for i in items), "    ]"]
 
 
-def written_format(form, where, wording):
+def written_format(form: str, where: str, wording: str) -> str:
     ref = "{.company.%s.name}" % form.lower()
     return f"{ref} {wording}" if where == "after" else f"{wording} {ref}"
 
 
-def registered_items(form, wordings, registered):
+def registered_items(form: str, wordings: Mapping[Wording, int] | None, registered: int) -> list[str]:
     """The items of `registered` for one form: its registrations split by how often each wording is written."""
     if not wordings:
         return [legal_item("{.company.%s}" % form.lower(), "", registered)]
@@ -147,7 +153,7 @@ def registered_items(form, wordings, registered):
     return [legal_item(written_format(form, where, w), w, round(registered * c / total, 2)) for (where, w), c in kept]
 
 
-def form_block(form, wordings, shapes):
+def form_block(form: str, wordings: Mapping[Wording, int] | None, shapes: Mapping[Shape, int]) -> str:
     """One form's object: its names by shape, and, when it has wordings, the company as written."""
     low = form.lower()
     names = lines("name", [weighted(" ".join(SLOTS[k] for k in shape), c) for shape, c in common(shapes)])
@@ -157,13 +163,13 @@ def form_block(form, wordings, shapes):
     return "\n".join([f'  "{low}": {{', '    "format": "{written}",', *names[:-1], names[-1] + ",", *written, "  }"])
 
 
-def company_json(registered, wordings, shapes):
+def company_json(registered: Mapping[str, int], wordings: Mapping[str, Mapping[Wording, int]], shapes: Mapping[str, Mapping[Shape, int]]) -> str:
     forms = [i for f in sorted(FORMS, key=lambda f: -registered[f]) for i in registered_items(f, wordings[f] if f != "E" else None, registered[f])]
     blocks = [form_block(f, wordings[f] if f != "E" else None, shapes[f]) for f in FORMS]
     return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--register", default=REGISTER)
     p.add_argument("--statistics", default=STATISTICS)

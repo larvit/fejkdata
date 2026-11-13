@@ -16,6 +16,7 @@ keep the sheet's spelling, except where `MAKES` or `SPELLINGS` gives the maker's
 import argparse
 import re
 import sys
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 import source
@@ -49,7 +50,7 @@ WORD = re.compile(r"[A-ZÅÄÖ]{4,}")
 HEADER = "Fabrikat (Antal reg. YTD↓ )"
 
 
-def models(sheet):
+def models(sheet: Iterable[list[str]]) -> Iterator[tuple[str, str, int]]:
     """The (make, model, registrations) of each model row, below the sheet's header, until its grand total."""
     make = None
     for r in sheet:
@@ -65,7 +66,7 @@ def models(sheet):
     sys.exit("the sheet has no row 'Totalt'; Mobility Sweden has changed it")
 
 
-def spelled(make, model):
+def spelled(make: str, model: str) -> str:
     """The model without its make's prefix, its long capital words in initial capitals."""
     for prefix in [make.upper(), make.upper().split("-")[0]] + PREFIXES.get(make, []):
         if model.startswith(prefix + " "):
@@ -73,7 +74,7 @@ def spelled(make, model):
     sys.exit(f"{model!r} does not start with the name of its make, {make}")
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

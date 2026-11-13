@@ -13,7 +13,9 @@ its words, so each word is drawn evenly, and `word` weighs a part of speech by i
 import argparse
 import io
 import re
+import sys
 import tarfile
+from collections.abc import Collection, Iterator, Mapping
 from pathlib import Path
 
 import source
@@ -31,7 +33,7 @@ IRREGULAR = {"be": "is", "have": "has", "quiz": "quizzes", "stomach": "stomachs"
 IRREGULAR.update({v: v + "s" for v in "bravo bunco crescendo decrescendo demo disco ditto kayo mambo solo tango velcro".split()})
 
 
-def present(verb):
+def present(verb: str) -> str:
     if verb in IRREGULAR:
         return IRREGULAR[verb]
     if re.search(r"[^aeiou]y$", verb):
@@ -41,10 +43,13 @@ def present(verb):
     return verb + "s"
 
 
-def synsets(tarball, part):
+def synsets(tarball: bytes, part: str) -> Iterator[tuple[str, list[str], set[str]]]:
     """Each synset of dict/data.<part> as its offset, its words and the offsets it points to as `;u`, a usage domain."""
     with tarfile.open(fileobj=io.BytesIO(tarball)) as archive:
-        text = archive.extractfile(f"dict/data.{part}").read().decode("utf-8")
+        data = archive.extractfile(f"dict/data.{part}")
+        if data is None:
+            sys.exit(f"dict/data.{part}: the tarball no longer holds it as a file")
+        text = data.read().decode("utf-8")
     for line in text.split("\n"):
         if not line or line.startswith("  "):
             continue
@@ -55,14 +60,14 @@ def synsets(tarball, part):
         yield field[0], words, domains
 
 
-def rude_domains(tarball):
+def rude_domains(tarball: bytes) -> set[str]:
     """The offsets of the usage domains RUDE_DOMAINS names, which are nouns."""
     return {offset for offset, words, _ in synsets(tarball, "noun") if RUDE_DOMAINS & set(words)}
 
 
-def tables(tarball, rude):
+def tables(tarball: bytes, rude: Collection[str]) -> dict[str, list[dict[str, str]]]:
     domains = rude_domains(tarball)
-    rows = {}
+    rows: dict[str, list[dict[str, str]]] = {}
     for part in PARTS:
         senses = [(w, d) for _, words, d in synsets(tarball, part) for w in words]
         kept = {w for w, d in senses if not d & domains}
@@ -71,7 +76,7 @@ def tables(tarball, rude):
     return rows
 
 
-def word_json(counts):
+def word_json(counts: Mapping[str, int]) -> str:
     items = ",\n".join(f'    {{ "format": "{{.word-{part}}}", "weight": {n} }}' for part, n in counts.items())
     fields = ",\n".join(
         '  "verb": { "format": "{.word-verb as verbword}{verbword}", "present": "{verbword.present}" }'
@@ -82,7 +87,7 @@ def word_json(counts):
     return '{\n  "format": "{any}",\n  "any": [\n' + items + "\n  ],\n" + fields + "\n}\n"
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--cache", default=str(CACHE))
     parser.add_argument("--wordnet", default=WORDNET)

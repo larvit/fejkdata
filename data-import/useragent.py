@@ -10,6 +10,7 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Collection, Iterable
 from pathlib import Path
 
 import source
@@ -26,15 +27,16 @@ SYSTEMS = [("iOS", r"iPhone|iPad|CPU OS "), ("Android", r"Android"), ("ChromeOS"
            ("Windows", r"Windows NT"), ("macOS", r"Macintosh|Mac OS X"), ("Linux", r"X11.*Linux|Ubuntu")]
 
 
-def named(table, ua):
+def named(table: Iterable[tuple[str, str]], ua: str) -> str:
     for name, pattern in table:
         if re.search(pattern, ua):
             return name
     return ""
 
 
-def rows(desktop, mobile):
-    seen, kept = set(), []
+def rows(desktop: Collection[str], mobile: Collection[str]) -> list[dict[str, str]]:
+    seen: set[str] = set()
+    kept: list[dict[str, str]] = []
     for device, uas in (("desktop", desktop), ("mobile", mobile)):
         for ua in uas:
             browser, os = named(BROWSERS, ua), named(SYSTEMS, ua)
@@ -50,7 +52,7 @@ def rows(desktop, mobile):
     return kept
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

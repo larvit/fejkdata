@@ -25,16 +25,16 @@ MOBILE_IN_FIXED = (
 )
 
 
-def numbers(spec):
+def numbers(spec: str) -> set[int]:
     """The integers a spec such as "20-29 71" names."""
-    out = set()
+    out: set[int] = set()
     for token in spec.split():
         first, _, last = token.partition("-")
         out.update(range(int(first), int(last or first) + 1))
     return out
 
 
-def series():
+def series() -> dict[str, set[int]]:
     """The series of each kind, as three-digit integers."""
     note = numbers(MOBILE_IN_FIXED)
     both = {
@@ -46,7 +46,7 @@ def series():
     return {"mobile": both["mobile"] | note, "fixed": both["fixed"] - note}
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--out-mobile", default=str(DATA / "phone-mobile.tsv"))
     parser.add_argument("--out-fixed", default=str(DATA / "phone-fixed.tsv"))

@@ -18,7 +18,9 @@ import io
 import json
 import re
 import sys
+from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import geo
 import source
@@ -31,18 +33,21 @@ TIMEZONE = "Europe/Copenhagen"
 NUMBER = re.compile(r"^(\d{1,4})([A-Z]?)$")
 CHRISTIANSOE = "411"
 
+# An address: its postal code, place, municipality, street, house number and house letter.
+type Address = tuple[str, str, str, str, int, str]
+
 
 @dataclass
 class Tally:
     """What DAR's addresses add up to."""
 
-    in_municipality: collections.Counter = field(default_factory=collections.Counter)
-    codes: collections.defaultdict = field(default_factory=lambda: collections.defaultdict(collections.Counter))
-    streets: collections.Counter = field(default_factory=collections.Counter)
-    numbers: collections.Counter = field(default_factory=collections.Counter)
+    in_municipality: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
+    codes: collections.defaultdict[str, collections.Counter[str]] = field(default_factory=lambda: collections.defaultdict(collections.Counter))
+    streets: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
+    numbers: collections.Counter[tuple[int, bool]] = field(default_factory=collections.Counter)
 
 
-def parsed(label, number, road):
+def parsed(label: str, number: str, road: str) -> Address | None:
     """An address as (postnummer, postdistrikt, kommune, street, number, letter), from DAR's label of it, such as
     "Dalsgårdsvej 7B, Dalsgård, 8963 Auning", its house number and its road's code, such as 0706-0287; None where the
     label does not open with a street and that number."""
@@ -53,7 +58,7 @@ def parsed(label, number, road):
     return code, place, road[:4], parts[0][: -len(number) - 1], int(match[1]), match[2]
 
 
-def tally(addresses):
+def tally(addresses: Iterable[Address]) -> Tally:
     t = Tally()
     for code, place, municipality, street, number, letter in addresses:
         t.in_municipality[(place, municipality)] += 1
@@ -63,7 +68,7 @@ def tally(addresses):
     return t
 
 
-def dar_pages(path):
+def dar_pages(path: Path) -> None:
     """Writes path as a TSV of each address's label, house number and road code, from DAR's pages of addresses."""
     with open(path.with_suffix(".part"), "w", encoding="utf-8") as out:
         page = 1
@@ -78,7 +83,7 @@ def dar_pages(path):
     path.with_suffix(".part").rename(path)
 
 
-def addresses(cache):
+def addresses(cache: Path) -> Iterator[Address]:
     path = cache / "dar-husnummer.tsv"
     if not path.exists():
         dar_pages(path)
@@ -89,10 +94,13 @@ def addresses(cache):
                 yield address
 
 
-def divisions(cache):
+def divisions(cache: Path) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
     """Danmarks Statistik's regions and kommuner, each code mapped to its name, and each kommune's code to its region's."""
     text = source.fetch(DIVISIONS, cache, "dst-nuts.csv").decode("utf-8-sig")
-    regions, municipalities, region_of, region = {}, {}, {}, None
+    regions: dict[str, str] = {}
+    municipalities: dict[str, str] = {}
+    region_of: dict[str, str] = {}
+    region = ""
     for r in sorted(csv.DictReader(io.StringIO(text), delimiter=";"), key=lambda r: int(r["SEKVENS"])):
         if r["NIVEAU"] == "1":
             region = r["KODE"]
@@ -103,14 +111,14 @@ def divisions(cache):
     return regions, municipalities, region_of
 
 
-def population(cache):
+def population(cache: Path) -> dict[str, int]:
     text = source.fetch(POPULATION, cache, "dst-folk1a.csv").decode("utf-8-sig")
     return {r["OMRÅDE"]: int(r["INDHOLD"]) for r in csv.DictReader(io.StringIO(text), delimiter=";")}
 
 
-def localities(t, people, points):
+def localities(t: Tally, people: Mapping[str, int], points: Mapping[str, geo.Row]) -> dict[str, geo.Row]:
     """Each postdistrikt, with its kommune and population by geo.homes, and the centre of its postnumre's points."""
-    out = {}
+    out: dict[str, geo.Row] = {}
     for place, (municipality, n) in geo.homes(t.in_municipality, people).items():
         centre = geo.centroid([points[c] for c in t.codes[place] if c in points])
         if not centre:
@@ -120,7 +128,7 @@ def localities(t, people, points):
     return out
 
 
-def main():
+def main() -> None:
     a = geo.parser(__doc__, "DK", 1.0).parse_args()
     cache, out = geo.directories(a)
     region_names, municipality_names, region_of = divisions(cache)

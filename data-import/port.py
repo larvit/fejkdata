@@ -23,7 +23,7 @@ COLUMNS = ["number", "service"]
 FLOOR = 4000
 
 
-def rows(text):
+def rows(text: str) -> list[dict[str, str]]:
     best, described = {}, set()
     for r in csv.DictReader(io.StringIO(text)):
         service, number = (r["Service Name"] or "").strip(), (r["Port Number"] or "").strip()
@@ -39,7 +39,7 @@ def rows(text):
     return sorted(best.values(), key=lambda r: int(r["number"]))
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

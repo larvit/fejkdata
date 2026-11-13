@@ -12,6 +12,7 @@ import argparse
 import io
 import re
 import xml.etree.ElementTree as ElementTree
+from collections.abc import Collection, Iterator, Mapping
 from pathlib import Path
 
 import source
@@ -27,21 +28,21 @@ PARTS = {
     "nn": ("noun", "definite", "sg def nom", "sg indef nom"),
     "vb": ("verb", "present", "pres ind aktiv", "inf aktiv"),
     "av": ("adj", "definite", "pos def pl nom", "pos indef sg u nom"),
-    "ab": ("adv", None, None, None),
+    "ab": ("adv", "", "", ""),
 }
 
 
-def feats(element):
-    return {f.get("att"): f.get("val") for f in element.findall("feat")}
+def feats(element: ElementTree.Element) -> dict[str, str]:
+    return {f.attrib["att"]: f.attrib["val"] for f in element.findall("feat")}
 
 
-def entries(saldo):
+def entries(saldo: bytes) -> Iterator[tuple[str, str, dict[str, str]]]:
     """Each entry as its lemma, part of speech and first written form per msd."""
     for _, entry in ElementTree.iterparse(io.BytesIO(saldo)):
         if entry.tag != "LexicalEntry":
             continue
-        lemma = feats(entry.find("Lemma/FormRepresentation"))
-        forms = {}
+        lemma = feats(entry.findall("Lemma/FormRepresentation")[0])
+        forms: dict[str, str] = {}
         for form in entry.findall("WordForm"):
             written = feats(form)
             forms.setdefault(written["msd"], written["writtenForm"])
@@ -49,20 +50,20 @@ def entries(saldo):
         entry.clear()
 
 
-def tables(saldo, rude):
-    rows = {part: {} for part, *_ in PARTS.values()}
+def tables(saldo: bytes, rude: Collection[str]) -> dict[str, list[dict[str, str]]]:
+    rows: dict[str, dict[str, dict[str, str]]] = {part: {} for part, *_ in PARTS.values()}
     for word, pos, forms in entries(saldo):
         if pos not in PARTS or not LETTERS.fullmatch(word) or word in rude:
             continue
         part, column, msd, own = PARTS[pos]
-        if column is None:
+        if not column:
             rows[part].setdefault(word, {"word": word})
         elif forms.get(own) == word and msd in forms and LETTERS.fullmatch(forms[msd]) and forms[msd] not in rude:
             rows[part].setdefault(word, {"word": word, column: forms[msd]})
     return {part: [held[w] for w in sorted(held)] for part, held in rows.items()}
 
 
-def word_json(counts):
+def word_json(counts: Mapping[str, int]) -> str:
     items = ",\n".join(f'    {{ "format": "{{.word-{part}}}", "weight": {n} }}' for part, n in counts.items())
     fields = []
     for part, column, *_ in PARTS.values():
@@ -71,7 +72,7 @@ def word_json(counts):
     return '{\n  "format": "{any}",\n  "any": [\n' + items + "\n  ],\n" + ",\n".join(fields) + "\n}\n"
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--cache", default=str(CACHE))
     parser.add_argument("--saldo", default=SALDO)

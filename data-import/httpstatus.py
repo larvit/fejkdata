@@ -8,6 +8,7 @@ What ships is the codes in use: a range, an unassigned code and a qualified reas
 import argparse
 import csv
 import io
+from collections.abc import Iterator
 from pathlib import Path
 
 import source
@@ -19,14 +20,14 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "reason"]
 
 
-def rows(text):
+def rows(text: str) -> Iterator[dict[str, str]]:
     for r in csv.DictReader(io.StringIO(text)):
         code, reason = r["Value"].strip(), r["Description"].strip()
         if code.isdigit() and reason and "(" not in reason and reason != "Unassigned":
             yield {"code": code, "reason": reason}
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

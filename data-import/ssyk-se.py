@@ -25,7 +25,7 @@ HEADER = ["SSYK 2012 kod", "Benämning"]
 EXPECTED = 429
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

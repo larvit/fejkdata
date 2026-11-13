@@ -12,6 +12,7 @@ import csv
 import io
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 import source
@@ -26,7 +27,7 @@ BOOLEAN = {"yes": "true", "no": "false"}
 EXPECTED = 9
 
 
-def rows(text):
+def rows(text: str) -> Iterator[dict[str, str]]:
     for r in csv.DictReader(io.StringIO(text)):
         method = (r["Method Name"] or "").strip()
         if not CORE.search(r["Reference"] or ""):
@@ -42,7 +43,7 @@ def rows(text):
         yield {"idempotent": answers["Idempotent"], "method": method, "safe": answers["Safe"]}
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

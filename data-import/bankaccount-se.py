@@ -18,6 +18,7 @@ import csv
 import io
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 import source
@@ -33,7 +34,7 @@ EXPECTED_RANGES = 58
 EXPECTED_ROWS = 7730
 
 
-def number(clearing, typ, comment):
+def number(clearing: str, typ: int, comment: int) -> str:
     if comment == 1 and typ == 1:
         return "{digits(5)}{bgmod11(" + clearing[1:] + ")}"
     if comment == 2 and typ == 1:
@@ -45,7 +46,7 @@ def number(clearing, typ, comment):
     sys.exit(f"{clearing}: type {typ}, comment {comment} has no rule here")
 
 
-def rows(text):
+def rows(text: str) -> Iterator[dict[str, str]]:
     ranges = 0
     for r in csv.reader(io.StringIO(text), delimiter=";"):
         m = RANGE.match(r[0].strip()) if r else None
@@ -62,7 +63,7 @@ def rows(text):
         sys.exit(f"{ranges} ranges, not {EXPECTED_RANGES}; the list has changed")
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)

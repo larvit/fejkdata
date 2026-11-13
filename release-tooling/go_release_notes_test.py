@@ -10,29 +10,29 @@ BUILT_FOR = {"darwin", "linux", "windows", "amd64", "arm64"}
 
 
 class Systems(unittest.TestCase):
-	def test_are_goreleaser_yaml_s_goos_and_goarch(self):
+	def test_are_goreleaser_yaml_s_goos_and_goarch(self) -> None:
 		self.assertEqual(go_release_notes.systems(GORELEASER), BUILT_FOR)
 
-	def test_read_the_shipped_goreleaser_yaml(self):
+	def test_read_the_shipped_goreleaser_yaml(self) -> None:
 		with open(os.path.join(os.path.dirname(__file__), "goreleaser.yaml")) as f:
 			self.assertLessEqual({"linux", "amd64"}, go_release_notes.systems(f.read()))
 
-	def test_a_goreleaser_yaml_naming_no_goos_is_refused(self):
+	def test_a_goreleaser_yaml_naming_no_goos_is_refused(self) -> None:
 		with self.assertRaisesRegex(ValueError, "goos"):
 			go_release_notes.systems("builds:\n  - goarch: [amd64]\n")
 
 
 class Requirements(unittest.TestCase):
-	def test_names_what_a_new_minor_requires_of_a_built_for_system(self):
+	def test_names_what_a_new_minor_requires_of_a_built_for_system(self) -> None:
 		self.assertEqual(
 			go_release_notes.requirements(NOTES, "1.28", BUILT_FOR),
 			["Go 1.28 requires macOS 14 Sonoma or later", "Go 1.28 now requires at least Windows 10.1 or Windows Server 2019"],
 		)
 
-	def test_notes_with_no_ports_section_name_nothing(self):
+	def test_notes_with_no_ports_section_name_nothing(self) -> None:
 		self.assertEqual(go_release_notes.requirements("# Go 1.28 Release Notes\n", "1.28", BUILT_FOR), [])
 
-	def test_a_requirement_in_another_shape_is_refused(self):
+	def test_a_requirement_in_another_shape_is_refused(self) -> None:
 		for sentence in (
 			"Go 1.28 drops the arm64 port on Windows.",
 			"Go 1.28 raises its minimum requirement to ARMv8.1.",
@@ -43,24 +43,24 @@ class Requirements(unittest.TestCase):
 				with self.assertRaisesRegex(ValueError, f"under ARM64: '{sentence}'"):
 					go_release_notes.requirements(notes, "1.28", BUILT_FOR)
 
-	def test_a_sentence_in_another_shape_after_a_last_release_one_is_refused(self):
+	def test_a_sentence_in_another_shape_after_a_last_release_one_is_refused(self) -> None:
 		notes = NOTES.replace("Go 1.29 will require Linux kernel version 4.4 or later.", "Go 1.28 no longer supports the 386 port.")
 		with self.assertRaisesRegex(ValueError, "under Linux: 'Go 1.28 no longer supports the 386 port.'"):
 			go_release_notes.requirements(notes, "1.28", BUILT_FOR)
 
-	def test_a_port_the_notes_add_is_no_requirement(self):
+	def test_a_port_the_notes_add_is_no_requirement(self) -> None:
 		notes = NOTES.replace("### FreeBSD", "### ARM64\n\nGo 1.28 adds support for a new arm64 feature.\n\n### FreeBSD")
 		self.assertEqual(
 			go_release_notes.requirements(notes, "1.28", BUILT_FOR),
 			["Go 1.28 requires macOS 14 Sonoma or later", "Go 1.28 now requires at least Windows 10.1 or Windows Server 2019"],
 		)
 
-	def test_a_heading_names_its_target_in_any_case(self):
+	def test_a_heading_names_its_target_in_any_case(self) -> None:
 		self.assertIn("Go 1.28 requires FreeBSD 14 or later", go_release_notes.requirements(NOTES, "1.28", BUILT_FOR | {"freebsd"}))
 
 
 class Plain(unittest.TestCase):
-	def test_drops_comments_and_link_targets_and_folds_whitespace(self):
+	def test_drops_comments_and_link_targets_and_folds_whitespace(self) -> None:
 		self.assertEqual(
 			go_release_notes.plain("<!-- go.dev/issue/1 -->\nAs [announced](go1.27#darwin) in\nthe notes."),
 			"As announced in the notes.",
@@ -68,7 +68,7 @@ class Plain(unittest.TestCase):
 
 
 class BreakingLines(unittest.TestCase):
-	def test_reads_the_notes_of_each_minor_above_the_released_go(self):
+	def test_reads_the_notes_of_each_minor_above_the_released_go(self) -> None:
 		read = []
 
 		def notes(minor):
@@ -84,12 +84,12 @@ class BreakingLines(unittest.TestCase):
 		)
 		self.assertEqual(read, ["1.28", "1.29"])
 
-	def test_a_go_patch_reads_no_notes(self):
+	def test_a_go_patch_reads_no_notes(self) -> None:
 		self.assertEqual(go_release_notes.breaking_lines((1, 27, 1), (1, 27, 2), BUILT_FOR, None), [])
 
 
 class Fetch(unittest.TestCase):
-	def test_a_connection_that_drops_or_stalls_raises_cannot_read_the_notes(self):
+	def test_a_connection_that_drops_or_stalls_raises_cannot_read_the_notes(self) -> None:
 		dropped = (
 			http.client.RemoteDisconnected("Remote end closed connection without response"),
 			http.client.IncompleteRead(b"<h2"),
@@ -100,7 +100,7 @@ class Fetch(unittest.TestCase):
 				with self.assertRaisesRegex(ValueError, "^cannot read Go 1.28's release notes: "):
 					go_release_notes.fetch("1.28")
 
-	def test_a_stalled_server_times_out(self):
+	def test_a_stalled_server_times_out(self) -> None:
 		with mock.patch("urllib.request.urlopen", side_effect=TimeoutError) as urlopen, self.assertRaises(ValueError):
 			go_release_notes.fetch("1.28")
 		self.assertGreater(urlopen.call_args.kwargs.get("timeout", 0), 0)

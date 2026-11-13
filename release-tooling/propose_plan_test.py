@@ -57,13 +57,13 @@ class Forge:
 
 
 class NoChange(unittest.TestCase):
-	def test_closes_a_pull_request_still_open(self):
+	def test_closes_a_pull_request_still_open(self) -> None:
 		forge = Forge(changed=False, open_prs=[{"number": 1}])
 		forge.propose()
 		self.assertEqual(forge.ran("gh", "pr", "close"), [("gh", "pr", "close", "security-plan", "--delete-branch", "--comment", "main already holds what this proposed.")])
 		self.assertEqual(forge.ran("git", "push"), [])
 
-	def test_does_nothing_with_no_pull_request_open(self):
+	def test_does_nothing_with_no_pull_request_open(self) -> None:
 		forge = Forge(changed=False)
 		forge.propose()
 		self.assertEqual(forge.ran("gh", "pr", "close"), [])
@@ -71,7 +71,7 @@ class NoChange(unittest.TestCase):
 
 
 class Change(unittest.TestCase):
-	def test_pushes_opens_approves_and_merges(self):
+	def test_pushes_opens_approves_and_merges(self) -> None:
 		forge = Forge()
 		forge.propose()
 		self.assertEqual(forge.ran("git", "push"), [("git", "push", "-qf", f"https://x-access-token:token@github.com/{REPOSITORY}.git", "security-plan")])
@@ -79,25 +79,25 @@ class Change(unittest.TestCase):
 		self.assertEqual(forge.ran("gh", "api", "-X"), [("gh", "api", "-X", "POST", f"repos/{REPOSITORY}/actions/runs/7/approve")])
 		self.assertEqual(forge.ran("gh", "pr", "merge"), [("gh", "pr", "merge", "security-plan", "--auto", "--rebase")])
 
-	def test_leaves_a_pull_request_already_open_and_refreshes_its_branch(self):
+	def test_leaves_a_pull_request_already_open_and_refreshes_its_branch(self) -> None:
 		forge = Forge(open_prs=[{"number": 1}])
 		forge.propose()
 		self.assertEqual(forge.ran("gh", "pr", "create"), [])
 		self.assertEqual(len(forge.ran("git", "push")), 1)
 
-	def test_approves_no_run_that_needs_no_approval(self):
+	def test_approves_no_run_that_needs_no_approval(self) -> None:
 		forge = Forge(runs=[[{**OURS, "conclusion": None}]])
 		forge.propose()
 		self.assertEqual(forge.ran("gh", "api", "-X"), [])
 		self.assertEqual(len(forge.ran("gh", "pr", "merge")), 1)
 
-	def test_asks_again_until_the_run_is_listed_and_ignores_a_forks(self):
+	def test_asks_again_until_the_run_is_listed_and_ignores_a_forks(self) -> None:
 		forge = Forge(runs=[[], [FORK], [FORK, DELETED_FORK, OURS]])
 		forge.propose()
 		self.assertEqual(forge.slept, [5, 5])
 		self.assertEqual(forge.ran("gh", "api", "-X"), [("gh", "api", "-X", "POST", f"repos/{REPOSITORY}/actions/runs/7/approve")])
 
-	def test_gives_up_when_no_run_is_ever_listed_and_merges_nothing(self):
+	def test_gives_up_when_no_run_is_ever_listed_and_merges_nothing(self) -> None:
 		forge = Forge(runs=[])
 		with self.assertRaisesRegex(ValueError, f"no pull_request run for {SHA}"):
 			forge.propose()
@@ -112,7 +112,7 @@ def git(*argv):
 class RealCheckout(unittest.TestCase):
 	"""Runs propose's git commands for real, in a checkout whose gh and push are stood in for."""
 
-	def setUp(self):
+	def setUp(self) -> None:
 		tmp = tempfile.TemporaryDirectory()
 		self.addCleanup(tmp.cleanup)
 		home = Path(tmp.name, "home")
@@ -157,13 +157,13 @@ class RealCheckout(unittest.TestCase):
 		self.assertEqual(git("log", "-1", "--format=%s|%an|%ae"), f"{propose_plan.TITLE}|github-actions[bot]|41898282+github-actions[bot]@users.noreply.github.com")
 		self.assertIn(("gh", "api", runs_path(git("rev-parse", "HEAD"))), self.stood_in)
 
-	def test_proposes_a_change_to_the_changelog_alone(self):
+	def test_proposes_a_change_to_the_changelog_alone(self) -> None:
 		self.assert_proposes("CHANGELOG.md")
 
-	def test_proposes_a_change_to_the_plan_alone(self):
+	def test_proposes_a_change_to_the_plan_alone(self) -> None:
 		self.assert_proposes("todo.md")
 
-	def test_a_change_to_any_other_file_proposes_nothing(self):
+	def test_a_change_to_any_other_file_proposes_nothing(self) -> None:
 		Path("other.md").write_text("second\n")
 		self.propose()
 		self.assertEqual(git("rev-parse", "HEAD"), self.first)
@@ -186,7 +186,7 @@ esac
 class Script(unittest.TestCase):
 	"""Runs the script itself, with stand-ins for git and gh first on PATH."""
 
-	def setUp(self):
+	def setUp(self) -> None:
 		tmp = tempfile.TemporaryDirectory()
 		self.addCleanup(tmp.cleanup)
 		self.log = Path(tmp.name, "log")
@@ -207,13 +207,13 @@ class Script(unittest.TestCase):
 	def script(self):
 		return subprocess.run([sys.executable, str(Path(__file__).with_name("propose_plan.py"))], env=self.env, capture_output=True, text=True)
 
-	def test_exits_0_after_proposing_with_the_repository_and_token_it_was_given(self):
+	def test_exits_0_after_proposing_with_the_repository_and_token_it_was_given(self) -> None:
 		done = self.script()
 		self.assertEqual(done.returncode, 0, done.stderr)
 		self.assertIn(f"push -qf https://x-access-token:secret@github.com/{REPOSITORY}.git security-plan", self.log.read_text())
 		self.assertIn("pr merge security-plan --auto --rebase", self.log.read_text())
 
-	def test_exits_2_naming_the_step_it_cannot_complete(self):
+	def test_exits_2_naming_the_step_it_cannot_complete(self) -> None:
 		self.env["GH_FAILS"] = "refused"
 		done = self.script()
 		self.assertEqual(done.returncode, 2)
