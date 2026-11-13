@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/larvit/fejkdata/internal/engine/fence"
@@ -13,11 +14,7 @@ import (
 )
 
 func TestRecursionHasNoDepthLimit(t *testing.T) {
-	// Build {format:{a}, a:[{format:{a}, a:[ ... "deep" ]]}} 50 levels deep.
-	tmpl := `"deep"`
-	for i := 0; i < 50; i++ {
-		tmpl = `{"format":"{a}","a":` + tmpl + `}`
-	}
+	tmpl := strings.Repeat(`{"format":"{a}","a":`, 50) + `"deep"` + strings.Repeat("}", 50)
 	if got := mustRender(t, emptyGenerator(1), tmpl); got != "deep" {
 		t.Fatalf("deep recursion = %q, want deep", got)
 	}
@@ -40,16 +37,18 @@ func TestGrowIsALowerBound(t *testing.T) {
 		"9{d}{luhn()}",
 		"{a|b} and {a|b}",
 	} {
-		src := `{"format":` + quote(format) + `,"x":"1","a":"A","b":"B","d":"012345678901234"}`
-		tmpl, ok := compiled(t, src).(*tree.Template)
-		if !ok {
-			t.Fatalf("format %q did not compile to a template", format)
-		}
-		for i := 0; i < 50; i++ {
-			if got := len(render.Once(f.drawState, tmpl)); got < tmpl.Compiled().Grow() {
-				t.Errorf("format %q: a render emitted %d bytes, below grow %d", format, got, tmpl.Compiled().Grow())
+		t.Run(format, func(t *testing.T) {
+			src := `{"format":` + quote(format) + `,"x":"1","a":"A","b":"B","d":"012345678901234"}`
+			tmpl, ok := compiled(t, src).(*tree.Template)
+			if !ok {
+				t.Fatalf("format %q did not compile to a template", format)
 			}
-		}
+			eachDraw(50, func() string { return render.Once(f.drawState, tmpl) }, func(rendered string) {
+				if got := len(rendered); got < tmpl.Compiled().Grow() {
+					t.Errorf("format %q: a render emitted %d bytes, below grow %d", format, got, tmpl.Compiled().Grow())
+				}
+			})
+		})
 	}
 }
 
@@ -115,36 +114,60 @@ func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 func TestNodeSwitchesPanicOnAnUnhandledNode(t *testing.T) {
 	_, tbl := nodeSamples(t)
 	for name, call := range nodeSwitches(tbl) {
-		mustPanic(t, name+" on an unhandled node", func() { call(&unhandledNode{}) })
+		t.Run(name, func(t *testing.T) {
+			mustPanic(t, name+" on an unhandled node", func() { call(&unhandledNode{}) })
+		})
 	}
 }
 
-func TestNodeSwitchesHandleEveryKind(t *testing.T) {
+type nodeSwitchCall struct {
+	name, kind string
+	call       func()
+}
+
+func nodeSwitchCalls(t *testing.T, skipped bool) []nodeSwitchCall {
+	t.Helper()
 	samples, tbl := nodeSamples(t)
+	var calls []nodeSwitchCall
 	for name, call := range nodeSwitches(tbl) {
 		for kind, n := range samples {
-			if slices.Contains(nodeSwitchSkips[name], kind) {
-				mustPanic(t, name+" on a skipped "+kind, func() { call(n) })
-				continue
+			if slices.Contains(nodeSwitchSkips[name], kind) == skipped {
+				calls = append(calls, nodeSwitchCall{name, kind, func() { call(n) }})
 			}
-			func() {
-				defer func() {
-					if r := recover(); r != nil {
-						t.Errorf("%s on %s: %v", name, kind, r)
-					}
-				}()
-				call(n)
-			}()
 		}
+	}
+	return calls
+}
+
+func TestNodeSwitchesHandleEveryKind(t *testing.T) {
+	for _, c := range nodeSwitchCalls(t, false) {
+		t.Run(c.name+" on "+c.kind, func(t *testing.T) {
+			defer func() {
+				if r := recover(); r != nil {
+					t.Errorf("%s on %s: %v", c.name, c.kind, r)
+				}
+			}()
+			c.call()
+		})
+	}
+}
+
+func TestNodeSwitchesPanicOnAKindTheyAreNeverHanded(t *testing.T) {
+	for _, c := range nodeSwitchCalls(t, true) {
+		t.Run(c.name+" on "+c.kind, func(t *testing.T) {
+			mustPanic(t, c.name+" on a skipped "+c.kind, c.call)
+		})
 	}
 }
 
 func TestRenderEdgesListWhatRenderRecursesInto(t *testing.T) {
 	samples, _ := nodeSamples(t)
 	for kind, n := range samples {
-		recurses := kind != "NullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
-		if edges := tree.RenderEdges(n, tree.AfterFinish); recurses != (len(edges) > 0) {
-			t.Errorf("%s: render recurses into it %v, RenderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
-		}
+		t.Run(kind, func(t *testing.T) {
+			recurses := kind != "NullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
+			if edges := tree.RenderEdges(n, tree.AfterFinish); recurses != (len(edges) > 0) {
+				t.Errorf("%s: render recurses into it %v, RenderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
+			}
+		})
 	}
 }
