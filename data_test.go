@@ -51,14 +51,22 @@ func TestShippedDataCategories(t *testing.T) {
 
 	f := shipped(t, WithSeed(1))
 	for _, c := range cases {
-		for i := 0; i < 200; i++ {
-			if v := fake(t, f, "en_US."+c.path); !c.en.MatchString(v) {
-				t.Fatalf("en_US %s = %q, want %s", c.path, v, c.en)
-			}
-			if v := fake(t, f, "sv_SE."+c.path); !c.sv.MatchString(v) {
-				t.Fatalf("sv_SE %s = %q, want %s", c.path, v, c.sv)
-			}
-		}
+		t.Run(c.path, func(t *testing.T) {
+			t.Run("en_US", func(t *testing.T) {
+				eachDraw(200, func() string { return fake(t, f, "en_US."+c.path) }, func(v string) {
+					if !c.en.MatchString(v) {
+						t.Fatalf("en_US %s = %q, want %s", c.path, v, c.en)
+					}
+				})
+			})
+			t.Run("sv_SE", func(t *testing.T) {
+				eachDraw(200, func() string { return fake(t, f, "sv_SE."+c.path) }, func(v string) {
+					if !c.sv.MatchString(v) {
+						t.Fatalf("sv_SE %s = %q, want %s", c.path, v, c.sv)
+					}
+				})
+			})
+		})
 	}
 }
 
@@ -71,23 +79,60 @@ func TestShippedMiscCategories(t *testing.T) {
 	mac := regexp.MustCompile(`^([0-9a-f]{2}:){5}[0-9a-f]{2}$`)
 	objectid := regexp.MustCompile(`^[0-9a-f]{24}$`)
 	datetime := regexp.MustCompile(`^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$`)
-	for i := 0; i < 200; i++ {
-		if v := fake(t, f, "datetime"); !datetime.MatchString(v) {
-			t.Fatalf("misc datetime %q is not an RFC 3339 UTC instant", v)
-		}
-		if v := fake(t, f, "objectid"); !objectid.MatchString(v) {
-			t.Fatalf("misc objectid %q is not 24 hex chars", v)
-		}
-		if v := fake(t, f, "uuid"); !v4.MatchString(v) {
-			t.Fatalf("misc uuid %q is not a valid v4", v)
-		}
-		if v := fake(t, f, "mac"); !mac.MatchString(v) {
-			t.Fatalf("misc mac %q is not a MAC address", v)
-		}
-		if v := fake(t, f, "creditcard"); len(v) < 15 || len(v) > 16 || !luhnValid(v) {
-			t.Fatalf("creditcard %q is not a 15-16 digit Luhn-valid number", v)
+	t.Run("datetime", func(t *testing.T) {
+		eachDraw(200, func() string { return fake(t, f, "datetime") }, func(v string) {
+			if !datetime.MatchString(v) {
+				t.Fatalf("misc datetime %q is not an RFC 3339 UTC instant", v)
+			}
+		})
+	})
+	t.Run("objectid", func(t *testing.T) {
+		eachDraw(200, func() string { return fake(t, f, "objectid") }, func(v string) {
+			if !objectid.MatchString(v) {
+				t.Fatalf("misc objectid %q is not 24 hex chars", v)
+			}
+		})
+	})
+	t.Run("uuid", func(t *testing.T) {
+		eachDraw(200, func() string { return fake(t, f, "uuid") }, func(v string) {
+			if !v4.MatchString(v) {
+				t.Fatalf("misc uuid %q is not a valid v4", v)
+			}
+		})
+	})
+	t.Run("mac", func(t *testing.T) {
+		eachDraw(200, func() string { return fake(t, f, "mac") }, func(v string) {
+			if !mac.MatchString(v) {
+				t.Fatalf("misc mac %q is not a MAC address", v)
+			}
+		})
+	})
+	t.Run("creditcard", func(t *testing.T) {
+		eachDraw(200, func() string { return fake(t, f, "creditcard") }, func(v string) {
+			if len(v) < 15 || len(v) > 16 || !luhnValid(v) {
+				t.Fatalf("creditcard %q is not a 15-16 digit Luhn-valid number", v)
+			}
+		})
+	})
+}
+
+func eachMiscTestNumberOf300Draws(t *testing.T, f *Generator, check func(path, v string)) {
+	t.Helper()
+	for i := 0; i < 300; i++ {
+		for _, path := range []string{"creditcard-test", "iban-test"} {
+			check(path, fake(t, f, path))
 		}
 	}
+}
+
+func valuesOfMiscTestNumbers(tables ...map[string]string) map[string]bool {
+	published := map[string]bool{}
+	for _, table := range tables {
+		for _, number := range table {
+			published[number] = true
+		}
+	}
+	return published
 }
 
 func TestShippedMiscTestNumbers(t *testing.T) {
@@ -102,38 +147,43 @@ func TestShippedMiscTestNumbers(t *testing.T) {
 		"ES": "ES0700120345030000067890", "FI": "FI2112345600000785", "NO": "NO9386011117947",
 		"SE": "SE3550000000054910000003",
 	}
-	published := map[string]bool{}
-	for brand, number := range cards {
-		if got := fake(t, f, "creditcard-test["+brand+"]"); got != number {
-			t.Fatalf("creditcard-test[%s] = %q, want %q", brand, got, number)
+	t.Run("creditcard-test", func(t *testing.T) {
+		for brand, number := range cards {
+			t.Run(brand, func(t *testing.T) {
+				if got := fake(t, f, "creditcard-test["+brand+"]"); got != number {
+					t.Fatalf("creditcard-test[%s] = %q, want %q", brand, got, number)
+				}
+				if !luhnValid(number) {
+					t.Fatalf("test card %q is not Luhn-valid", number)
+				}
+			})
 		}
-		if !luhnValid(number) {
-			t.Fatalf("test card %q is not Luhn-valid", number)
+	})
+	t.Run("iban-test", func(t *testing.T) {
+		for cc, number := range ibans {
+			t.Run(cc, func(t *testing.T) {
+				if got := fake(t, f, "iban-test["+cc+"]"); got != number {
+					t.Fatalf("iban-test[%s] = %q, want %q", cc, got, number)
+				}
+				if !ibanValid(number) {
+					t.Fatalf("test IBAN %q fails the mod-97 check", number)
+				}
+			})
 		}
-		published[number] = true
-	}
-	for cc, number := range ibans {
-		if got := fake(t, f, "iban-test["+cc+"]"); got != number {
-			t.Fatalf("iban-test[%s] = %q, want %q", cc, got, number)
-		}
-		if !ibanValid(number) {
-			t.Fatalf("test IBAN %q fails the mod-97 check", number)
-		}
-		published[number] = true
-	}
-	seen := map[string]bool{}
-	for i := 0; i < 300; i++ {
-		for _, path := range []string{"creditcard-test", "iban-test"} {
-			v := fake(t, f, path)
+	})
+	t.Run("a draw reaches every published number and no other", func(t *testing.T) {
+		published := valuesOfMiscTestNumbers(cards, ibans)
+		seen := map[string]bool{}
+		eachMiscTestNumberOf300Draws(t, f, func(path, v string) {
 			if !published[v] {
 				t.Fatalf("%s drew %q, which is no published test number", path, v)
 			}
 			seen[v] = true
+		})
+		if len(seen) != len(published) {
+			t.Fatalf("300 draws reached %d of %d test numbers", len(seen), len(published))
 		}
-	}
-	if len(seen) != len(published) {
-		t.Fatalf("300 draws reached %d of %d test numbers", len(seen), len(published))
-	}
+	})
 }
 
 // TestShippedMiscReferenceData covers the locale-neutral reference categories:
@@ -181,64 +231,93 @@ func TestShippedMiscReferenceData(t *testing.T) {
 		"car":                   regexp.MustCompile(`^\S.* \S`),
 		"car.make":              regexp.MustCompile(`^\S`),
 	}
-	for i := 0; i < 100; i++ {
+	t.Run("shape", func(t *testing.T) {
 		for p, rx := range re {
-			if v := fake(t, f, p); !rx.MatchString(v) {
-				t.Fatalf("misc %s = %q, want %s", p, v, rx)
+			t.Run(p, func(t *testing.T) {
+				eachDraw(100, func() string { return fake(t, f, p) }, func(v string) {
+					if !rx.MatchString(v) {
+						t.Fatalf("misc %s = %q, want %s", p, v, rx)
+					}
+				})
+			})
+		}
+	})
+	t.Run("emoji", func(t *testing.T) {
+		eachDraw(100, func() string { return fake(t, f, "emoji") }, func(e string) {
+			if e == "" || []rune(e)[0] < 128 {
+				t.Fatalf("emoji %q is not a non-ASCII glyph", e)
 			}
-		}
-		if e := fake(t, f, "emoji"); e == "" || []rune(e)[0] < 128 {
-			t.Fatalf("emoji %q is not a non-ASCII glyph", e)
-		}
-		c := fake(t, f, "coordinate")
-		parts := strings.SplitN(c, ", ", 2)
-		lat, err1 := strconv.ParseFloat(parts[0], 64)
-		lon, err2 := strconv.ParseFloat(parts[len(parts)-1], 64)
-		if len(parts) != 2 || err1 != nil || err2 != nil || lat < -90 || lat > 90 || lon < -180 || lon > 180 {
-			t.Fatalf("coordinate %q is not a 'lat, lon' point within bounds", c)
-		}
-	}
+		})
+	})
+	t.Run("coordinate", func(t *testing.T) {
+		eachDraw(100, func() string { return fake(t, f, "coordinate") }, func(c string) {
+			parts := strings.SplitN(c, ", ", 2)
+			lat, err1 := strconv.ParseFloat(parts[0], 64)
+			lon, err2 := strconv.ParseFloat(parts[len(parts)-1], 64)
+			if len(parts) != 2 || err1 != nil || err2 != nil || lat < -90 || lat > 90 || lon < -180 || lon > 180 {
+				t.Fatalf("coordinate %q is not a 'lat, lon' point within bounds", c)
+			}
+		})
+	})
 }
 
 // TestShippedPersonNames pins the name tables: a sex pins its first names, a name
 // both sexes carry appears under both, and the record's sex agrees with its name.
 func TestShippedPersonNames(t *testing.T) {
 	f := shipped(t, WithSeed(9))
-	for path, want := range map[string]string{
-		"sv_SE.sex[f]":                        "kvinna",
-		"sv_SE.sex[man].code":                 "m",
-		"en_US.sex[f]":                        "female",
-		"sv_SE.sex[f].first-name[Anna]":       "Anna",
-		"sv_SE.sex[m].first-name[Erik].sex":   "m",
-		"en_US.sex[m].first-name[James]":      "James",
-		"en_US.sex[f].first-name[Taylor].sex": "f",
-		"en_US.sex[m].first-name[Taylor].sex": "m",
-		"sv_SE.last-name[Andersson]":          "Andersson",
-		"sv_SE.last-name[Andersson].count":    "",
-		"en_US.last-name[Smith]":              "Smith",
-	} {
-		got := fake(t, f, path)
-		if want == "" && !regexp.MustCompile(`^[1-9]\d*$`).MatchString(got) {
+	t.Run("a selector reads its row", func(t *testing.T) {
+		for path, want := range map[string]string{
+			"sv_SE.sex[f]":                        "kvinna",
+			"sv_SE.sex[man].code":                 "m",
+			"en_US.sex[f]":                        "female",
+			"sv_SE.sex[f].first-name[Anna]":       "Anna",
+			"sv_SE.sex[m].first-name[Erik].sex":   "m",
+			"en_US.sex[m].first-name[James]":      "James",
+			"en_US.sex[f].first-name[Taylor].sex": "f",
+			"en_US.sex[m].first-name[Taylor].sex": "m",
+			"sv_SE.last-name[Andersson]":          "Andersson",
+			"en_US.last-name[Smith]":              "Smith",
+		} {
+			t.Run(path, func(t *testing.T) {
+				if got := fake(t, f, path); got != want {
+					t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+				}
+			})
+		}
+	})
+	t.Run("a last name carries its count", func(t *testing.T) {
+		path := "sv_SE.last-name[Andersson].count"
+		if got := fake(t, f, path); !regexp.MustCompile(`^[1-9]\d*$`).MatchString(got) {
 			t.Errorf("Fake(%q) = %q, want a count", path, got)
-		} else if want != "" && got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 		}
-	}
-	if _, err := f.Fake("en_US.first-name[Taylor]"); err == nil || !strings.Contains(err.Error(), "sex[f].first-name[Taylor]") {
-		t.Fatalf("Fake(en_US.first-name[Taylor]) = %v, want both sexes' rows listed", err)
-	}
-	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK"} {
-		seen := map[string]bool{}
-		for i := 0; i < 2000; i++ {
-			seen[fake(t, f, locale+".sex[f].first-name")] = true
-			got := fakeTemplate(t, f, `{/`+locale+`.person as p}{p.first}|{p.sex}`)
-			first, sex, _ := strings.Cut(got, "|")
-			fake(t, f, locale+".sex["+sex+"].first-name["+first+"]")
+	})
+	t.Run("a name both sexes carry is refused without its sex", func(t *testing.T) {
+		if _, err := f.Fake("en_US.first-name[Taylor]"); err == nil || !strings.Contains(err.Error(), "sex[f].first-name[Taylor]") {
+			t.Fatalf("Fake(en_US.first-name[Taylor]) = %v, want both sexes' rows listed", err)
 		}
-		if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" || !seen["Kari"] && locale == "nb_NO" || !seen["Mette"] && locale == "da_DK" {
-			t.Fatalf("%s female first names: %d distinct in 2000, want a weighted register", locale, len(seen))
+	})
+	t.Run("female first names are a weighted register", func(t *testing.T) {
+		for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK"} {
+			t.Run(locale, func(t *testing.T) {
+				seen := femaleFirstNamesDrawnBesidePeopleOfTheirSex(t, f, locale)
+				if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" || !seen["Kari"] && locale == "nb_NO" || !seen["Mette"] && locale == "da_DK" {
+					t.Fatalf("%s female first names: %d distinct in 2000, want a weighted register", locale, len(seen))
+				}
+			})
 		}
+	})
+}
+
+func femaleFirstNamesDrawnBesidePeopleOfTheirSex(t *testing.T, f *Generator, locale string) map[string]bool {
+	t.Helper()
+	seen := map[string]bool{}
+	for i := 0; i < 2000; i++ {
+		seen[fake(t, f, locale+".sex[f].first-name")] = true
+		got := fakeTemplate(t, f, `{/`+locale+`.person as p}{p.first}|{p.sex}`)
+		first, sex, _ := strings.Cut(got, "|")
+		fake(t, f, locale+".sex["+sex+"].first-name["+first+"]")
 	}
+	return seen
 }
 
 // TestShippedPersonIsOneNamedPick pins that a person's first name, sex and title come
@@ -246,30 +325,50 @@ func TestShippedPersonNames(t *testing.T) {
 func TestShippedPersonIsOneNamedPick(t *testing.T) {
 	f := shipped(t, WithSeed(9))
 	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK"} {
-		apart := false
-		for i := 0; i < 300; i++ {
-			got := fakeTemplate(t, f, `{/`+locale+`.person as a}{/`+locale+`.person as b}{a.first}|{a.sex}|{a.prefix}|{b.first}|{b.sex}`)
-			parts := strings.Split(got, "|")
-			for _, p := range [][2]string{{parts[0], parts[1]}, {parts[3], parts[4]}} {
-				fake(t, f, locale+".sex["+p[1]+"].first-name["+p[0]+"]")
+		t.Run(locale, func(t *testing.T) {
+			if !twoPeopleOf300RendersDrawApart(t, f, locale) {
+				t.Errorf("%s: two names bound to person drew one first name in 300 renders, want two people", locale)
 			}
-			if title := strings.TrimSpace(parts[2]); title != "" && locale == "en_US" {
-				fake(t, f, "en_US.sex["+parts[1]+"].title["+title+"]")
-			}
-			apart = apart || parts[0] != parts[3]
-		}
-		if !apart {
-			t.Errorf("%s: two names bound to person drew one first name in 300 renders, want two people", locale)
-		}
+		})
 	}
+}
+
+func twoPeopleOf300RendersDrawApart(t *testing.T, f *Generator, locale string) bool {
+	t.Helper()
+	apart := false
+	for i := 0; i < 300; i++ {
+		got := fakeTemplate(t, f, `{/`+locale+`.person as a}{/`+locale+`.person as b}{a.first}|{a.sex}|{a.prefix}|{b.first}|{b.sex}`)
+		parts := strings.Split(got, "|")
+		for _, p := range [][2]string{{parts[0], parts[1]}, {parts[3], parts[4]}} {
+			fake(t, f, locale+".sex["+p[1]+"].first-name["+p[0]+"]")
+		}
+		if title := strings.TrimSpace(parts[2]); title != "" && locale == "en_US" {
+			fake(t, f, "en_US.sex["+parts[1]+"].title["+title+"]")
+		}
+		apart = apart || parts[0] != parts[3]
+	}
+	return apart
 }
 
 func TestShippedPersonHasParts(t *testing.T) {
 	f := shipped(t, WithSeed(7))
 	for _, path := range []string{"sv_SE.person", "en_US.person"} {
-		for i := 0; i < 30; i++ {
-			if name := fake(t, f, path); len(name) < 3 || !regexp.MustCompile(`\S \S`).MatchString(name) {
-				t.Fatalf("%s %q lacks first and last name", path, name)
+		t.Run(path, func(t *testing.T) {
+			eachDraw(30, func() string { return fake(t, f, path) }, func(name string) {
+				if len(name) < 3 || !regexp.MustCompile(`\S \S`).MatchString(name) {
+					t.Fatalf("%s %q lacks first and last name", path, name)
+				}
+			})
+		})
+	}
+}
+
+func tsvCellsAreTrimmed(t *testing.T, path string, b []byte) {
+	t.Helper()
+	for i, line := range strings.Split(string(b), "\n") {
+		for _, cell := range strings.Split(line, "\t") {
+			if cell != strings.TrimSpace(cell) {
+				t.Errorf("data/%s:%d: cell %q is padded", path, i+1, cell)
 			}
 		}
 	}
@@ -284,13 +383,7 @@ func TestShippedTableCellsAreTrimmed(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		for i, line := range strings.Split(string(b), "\n") {
-			for _, cell := range strings.Split(line, "\t") {
-				if cell != strings.TrimSpace(cell) {
-					t.Errorf("data/%s:%d: cell %q is padded", path, i+1, cell)
-				}
-			}
-		}
+		tsvCellsAreTrimmed(t, path, b)
 		return nil
 	})
 	if err != nil {
@@ -303,10 +396,16 @@ func TestShippedTableCellsAreTrimmed(t *testing.T) {
 func TestShippedNamespacedTree(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	for _, path := range []string{"sv_SE.person", "en_US.person", "sv_SE.address.locality"} {
-		if got := fake(t, f, path); got == "" {
-			t.Fatalf("Fake(%q) returned empty", path)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got == "" {
+				t.Fatalf("Fake(%q) returned empty", path)
+			}
+		})
 	}
+}
+
+func TestShippedCategoryIsNotReachedWithoutItsNamespace(t *testing.T) {
+	f := shipped(t, WithSeed(1))
 	if _, err := f.Fake("person"); err == nil {
 		t.Fatal("Fake(person) = nil error; categories should be namespaced under the locale folder")
 	}
@@ -343,11 +442,11 @@ func TestShippedStreetNumberFormats(t *testing.T) {
 	// Reachable via a hyphenated path; covers all five weighted number variants.
 	f := shipped(t, WithSeed(8))
 	re := regexp.MustCompile(`^[1-9]\d{0,2}[A-Z]?$`)
-	for i := 0; i < 300; i++ {
-		if n := fake(t, f, "sv_SE.address.street-number"); !re.MatchString(n) {
+	eachDraw(300, func() string { return fake(t, f, "sv_SE.address.street-number") }, func(n string) {
+		if !re.MatchString(n) {
 			t.Fatalf("street-number %q does not match %s", n, re)
 		}
-	}
+	})
 }
 
 // The sex tables hold the people of each sex: SCB's population at the end of 2024, Statistics
@@ -364,8 +463,10 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 		"en_US.sex[f].count": "171773106",
 		"en_US.sex[m].count": "168337882",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
 }
