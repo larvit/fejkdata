@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -26,6 +27,75 @@ func recordCat(t *testing.T) *Generator {
 	return newGenerator(t, dir, WithSeed(1))
 }
 
+func eachRecordDrawn(n int, draw func() *Record, check func(r *Record)) {
+	for i := 0; i < n; i++ {
+		check(draw())
+	}
+}
+
+func someRecordDrawn(n int, draw func() *Record, found func(r *Record) bool) bool {
+	for i := 0; i < n; i++ {
+		if found(draw()) {
+			return true
+		}
+	}
+	return false
+}
+
+func recordDraw(t *testing.T, f *Generator, path string) func() *Record {
+	t.Helper()
+	return func() *Record {
+		r, err := f.FakeRecord(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return r
+	}
+}
+
+func eachRecordOf(t *testing.T, f *Generator, path string, n int, check func(r *Record)) {
+	t.Helper()
+	eachRecordDrawn(n, recordDraw(t, f, path), check)
+}
+
+func someRecordOf(t *testing.T, f *Generator, path string, n int, found func(r *Record) bool) bool {
+	t.Helper()
+	return someRecordDrawn(n, recordDraw(t, f, path), found)
+}
+
+func someDrawWithin(n int, draw func() string, found func(got string) bool) bool {
+	for i := 0; i < n; i++ {
+		if found(draw()) {
+			return true
+		}
+	}
+	return false
+}
+
+func columnsByName(r *Record) map[string]Column {
+	cols := map[string]Column{}
+	for _, c := range r.Columns() {
+		cols[c.Name] = c
+	}
+	return cols
+}
+
+func valuesByColumn(r *Record) map[string]string {
+	m := map[string]string{}
+	for _, c := range r.Columns() {
+		m[c.Name] = c.Value
+	}
+	return m
+}
+
+func countNullColumns(nulls map[string]int, cols map[string]Column) {
+	for name, c := range cols {
+		if c.Null {
+			nulls[name]++
+		}
+	}
+}
+
 func TestRecordProjectsFieldsAsColumns(t *testing.T) {
 	f := recordCat(t)
 	r, err := f.FakeRecord("users")
@@ -43,13 +113,12 @@ func TestRecordProjectsFieldsAsColumns(t *testing.T) {
 
 func TestRecordIsDeterministic(t *testing.T) {
 	a, b := recordCat(t), recordCat(t)
-	for i := 0; i < 20; i++ {
-		x, _ := a.FakeRecord("users")
+	eachRecordOf(t, a, "users", 20, func(x *Record) {
 		y, _ := b.FakeRecord("users")
 		if x.JSON() != y.JSON() {
 			t.Fatalf("same seed diverged: %s != %s", x.JSON(), y.JSON())
 		}
-	}
+	})
 }
 
 func TestRecordSkipsReferenceBindings(t *testing.T) {
@@ -84,9 +153,11 @@ func TestRecordErrors(t *testing.T) {
 		{"group", "names a folder"},
 		{"nope", "no entry"},
 	} {
-		if _, err := f.FakeRecord(c.path); err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("FakeRecord(%q) = %v, want an error containing %q", c.path, err, c.want)
-		}
+		t.Run(c.path, func(t *testing.T) {
+			if _, err := f.FakeRecord(c.path); err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("FakeRecord(%q) = %v, want an error containing %q", c.path, err, c.want)
+			}
+		})
 	}
 }
 
@@ -104,9 +175,11 @@ func TestRecordJSON(t *testing.T) {
 		t.Fatalf("Record.JSON() = %s, want two addressable columns", r.JSON())
 	}
 	for _, f := range r.Columns() {
-		if m[f.Name] != f.Value {
-			t.Fatalf("JSON column %q = %q, want %q", f.Name, m[f.Name], f.Value)
-		}
+		t.Run(f.Name, func(t *testing.T) {
+			if m[f.Name] != f.Value {
+				t.Fatalf("JSON column %q = %q, want %q", f.Name, m[f.Name], f.Value)
+			}
+		})
 	}
 }
 
@@ -116,11 +189,7 @@ func TestRecordCSV(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	seen := map[string]bool{}
-	for i := 0; i < 200 && len(seen) < 4; i++ {
-		r, err := f.FakeRecord("note")
-		if err != nil {
-			t.Fatal(err)
-		}
+	someRecordOf(t, f, "note", 200, func(r *Record) bool {
 		if got := r.CSVHeader(); got != "word" {
 			t.Fatalf("CSVHeader() = %q, want word", got)
 		}
@@ -133,19 +202,25 @@ func TestRecordCSV(t *testing.T) {
 			t.Fatalf("CSVLine() = %v, want the field value %q round-tripped", rec, want)
 		}
 		seen[want] = true
-	}
+		return len(seen) == 4
+	})
 	if len(seen) != 4 {
 		t.Fatalf("round-tripped %d of the 4 values; the comma, quote and newline shapes must each survive", len(seen))
 	}
+}
+
+func TestRecordCSVQuotesWhereEncodingCSVQuotes(t *testing.T) {
 	for value, want := range map[string]string{`\.`: `"\."`, " x": `" x"`, " x": "\" x\"", "a\rb": "\"a\rb\""} {
-		body, _ := json.Marshal(map[string]string{"format": "", "v": value})
-		r, err := newGenerator(t, writeData(t, map[string]string{"q": string(body)})).FakeRecord("q")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if got := r.CSVLine(); got != want {
-			t.Errorf("CSVLine() of %q = %q, want %q, quoted where encoding/csv quotes", value, got, want)
-		}
+		t.Run(value, func(t *testing.T) {
+			body, _ := json.Marshal(map[string]string{"format": "", "v": value})
+			r, err := newGenerator(t, writeData(t, map[string]string{"q": string(body)})).FakeRecord("q")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := r.CSVLine(); got != want {
+				t.Errorf("CSVLine() of %q = %q, want %q, quoted where encoding/csv quotes", value, got, want)
+			}
+		})
 	}
 }
 
@@ -241,25 +316,22 @@ func TestRecordColumnsReadingOneReferenceLoad(t *testing.T) {
 		`{"format":"","whole":"{/cat}","inner":"{/cat.a.b}"}`,
 		`{"format":"","whole":"{/mid}","inner":"{/cat.a.b}"}`,
 	} {
-		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "mid": mid, "row": row}), WithSeed(1))
-		if _, err := f.FakeRecord("row"); err != nil {
-			t.Errorf("%s: FakeRecord = %v, want it accepted", row, err)
-		}
+		t.Run(row, func(t *testing.T) {
+			f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "mid": mid, "row": row}), WithSeed(1))
+			if _, err := f.FakeRecord("row"); err != nil {
+				t.Errorf("%s: FakeRecord = %v, want it accepted", row, err)
+			}
+		})
 	}
 }
 
 func TestRecordColumnReadingItsOwnRecordIsAFreshDraw(t *testing.T) {
 	person := `{"format":"{first} {last}","first":["Ada","Bo"],"last":["Lovelace","Ek"],"other":"{/person.first}"}`
 	f := newGenerator(t, writeData(t, map[string]string{"person": person}), WithSeed(1))
-	apart := false
-	for i := 0; i < 50 && !apart; i++ {
-		r, err := f.FakeRecord("person")
-		if err != nil {
-			t.Fatal(err)
-		}
+	apart := someRecordOf(t, f, "person", 50, func(r *Record) bool {
 		c := r.Columns()
-		apart = c[0].Value != c[2].Value
-	}
+		return c[0].Value != c[2].Value
+	})
 	if !apart {
 		t.Error("other matched first in 50 records, want a draw of its own")
 	}
@@ -271,31 +343,30 @@ func TestRecordBareReferenceStaysIndependentAsAnOperand(t *testing.T) {
 		"row": `{"format":"","up":"{uppercase(/cur)}","low":"{lowercase(/cur)}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	sawMismatch := false
-	for i := 0; i < 200 && !sawMismatch; i++ {
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
+	t.Run("record columns", func(t *testing.T) {
+		sawMismatch := someRecordOf(t, f, "row", 200, func(r *Record) bool {
+			m := valuesByColumn(r)
+			return !strings.EqualFold(m["up"], m["low"])
+		})
+		if !sawMismatch {
+			t.Error("two bare-reference operand columns never disagreed; a bare reference draws on its own, as the plain spelling does")
 		}
-		m := map[string]string{}
-		for _, c := range r.Columns() {
-			m[c.Name] = c.Value
+	})
+	t.Run("template tokens", func(t *testing.T) {
+		sawMismatch := someDrawWithin(200, func() string {
+			v, err := f.FakeTemplate("{/cur}|{uppercase(/cur)}")
+			if err != nil {
+				t.Fatal(err)
+			}
+			return v
+		}, func(v string) bool {
+			parts := strings.Split(v, "|")
+			return !strings.EqualFold(parts[0], parts[1])
+		})
+		if !sawMismatch {
+			t.Error("{/cur}|{uppercase(/cur)} never disagreed in 200 renders; each reference draws on its own")
 		}
-		sawMismatch = !strings.EqualFold(m["up"], m["low"])
-	}
-	if !sawMismatch {
-		t.Error("two bare-reference operand columns never disagreed; a bare reference draws on its own, as the plain spelling does")
-	}
-	for i := 0; i < 200; i++ {
-		v, err := f.FakeTemplate("{/cur}|{uppercase(/cur)}")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if parts := strings.Split(v, "|"); !strings.EqualFold(parts[0], parts[1]) {
-			return
-		}
-	}
-	t.Error("{/cur}|{uppercase(/cur)} never disagreed in 200 renders; each reference draws on its own")
+	})
 }
 
 func TestRecordSQLInsert(t *testing.T) {
@@ -320,9 +391,11 @@ func TestRecordRejectsFieldDescent(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for _, path := range []string{"cat.sub", "row.x"} {
-		if _, err := f.FakeRecord(path); err == nil || !strings.Contains(err.Error(), "field") {
-			t.Errorf("FakeRecord(%q) = %v, want a 'descends into a field' error", path, err)
-		}
+		t.Run(path, func(t *testing.T) {
+			if _, err := f.FakeRecord(path); err == nil || !strings.Contains(err.Error(), "field") {
+				t.Errorf("FakeRecord(%q) = %v, want a 'descends into a field' error", path, err)
+			}
+		})
 	}
 }
 
@@ -333,21 +406,29 @@ func TestRecordColumnsReadOneName(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	symbols := map[string]string{"AUD": "$", "EUR": "€"}
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("price")
-		if err != nil {
-			t.Fatal(err)
-		}
-		m := map[string]string{}
-		for _, c := range r.Columns() {
-			m[c.Name] = c.Value
-		}
+	eachRecordOf(t, f, "price", 100, func(r *Record) {
+		m := valuesByColumn(r)
 		if symbol, known := symbols[m["code"]]; !known || m["symbol"] != symbol {
 			t.Fatalf("record %s, want one currency draw across columns", r.JSON())
 		}
 		v := fake(t, f, "price")
 		if code, symbol, _ := strings.Cut(v, " "); symbol == "" || symbols[code] != symbol {
 			t.Fatalf("Fake(price) = %q, want its fields one currency draw, as the record's columns are", v)
+		}
+	})
+}
+
+func notePartyNamesThatDiffer(t *testing.T, differed map[[2]int]bool, view string, names []string) {
+	t.Helper()
+	if len(names) != 4 {
+		t.Fatalf("%s rendered %q, want a host and three guests", view, names)
+	}
+	for i, name := range names {
+		if !onePerson(name) {
+			t.Fatalf("%s rendered %q, want each name one person", view, names)
+		}
+		for j := range names[:i] {
+			differed[[2]int{j, i}] = differed[[2]int{j, i}] || names[j] != name
 		}
 	}
 }
@@ -359,35 +440,27 @@ func TestRepeatIterationsPickNamesAnew(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	differed := map[[2]int]bool{}
-	check := func(view string, names []string) {
-		t.Helper()
-		if len(names) != 4 {
-			t.Fatalf("%s rendered %q, want a host and three guests", view, names)
-		}
-		for i, name := range names {
-			if !onePerson(name) {
-				t.Fatalf("%s rendered %q, want each name one person", view, names)
-			}
-			for j := range names[:i] {
-				differed[[2]int{j, i}] = differed[[2]int{j, i}] || names[j] != name
-			}
-		}
-	}
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("party")
-		if err != nil {
-			t.Fatal(err)
-		}
+	eachRecordOf(t, f, "party", 100, func(r *Record) {
 		guests, host := r.Columns()[0].Value, r.Columns()[1].Value
-		check("FakeRecord", append([]string{host}, strings.Split(guests, ", ")...))
+		notePartyNamesThatDiffer(t, differed, "FakeRecord", append([]string{host}, strings.Split(guests, ", ")...))
 		host, guests, _ = strings.Cut(fake(t, f, "party"), ": ")
-		check("Fake", append([]string{host}, strings.Split(guests, ", ")...))
-	}
+		notePartyNamesThatDiffer(t, differed, "Fake", append([]string{host}, strings.Split(guests, ", ")...))
+	})
 	for pair, ok := range differed {
-		if !ok {
-			t.Errorf("names %v never differed in 200 renders; the host and each repeat iteration are a draw of their own, so four people", pair)
-		}
+		t.Run(fmt.Sprint(pair), func(t *testing.T) {
+			if !ok {
+				t.Errorf("names %v never differed in 200 renders; the host and each repeat iteration are a draw of their own, so four people", pair)
+			}
+		})
 	}
+}
+
+func noteNamesDrawnApart(t *testing.T, apart map[string]bool, view, from, to string) {
+	t.Helper()
+	if !onePerson(from) || !onePerson(to) {
+		t.Fatalf("%s drew %q and %q, want each name one person", view, from, to)
+	}
+	apart[view] = apart[view] || from != to
 }
 
 func TestRecordNamesDrawApart(t *testing.T) {
@@ -397,27 +470,18 @@ func TestRecordNamesDrawApart(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	apart := map[string]bool{}
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("transfer")
-		if err != nil {
-			t.Fatal(err)
-		}
-		m := map[string]string{}
-		for _, c := range r.Columns() {
-			m[c.Name] = c.Value
-		}
+	eachRecordOf(t, f, "transfer", 100, func(r *Record) {
+		m := valuesByColumn(r)
 		from, to, _ := strings.Cut(fake(t, f, "transfer"), " to ")
-		for view, pair := range map[string][2]string{"FakeRecord": {m["from_first"] + " " + m["from_last"], m["to_first"] + " " + m["to_last"]}, "Fake": {from, to}} {
-			if !onePerson(pair[0]) || !onePerson(pair[1]) {
-				t.Fatalf("%s drew %q and %q, want each name one person", view, pair[0], pair[1])
-			}
-			apart[view] = apart[view] || pair[0] != pair[1]
-		}
-	}
+		noteNamesDrawnApart(t, apart, "FakeRecord", m["from_first"]+" "+m["from_last"], m["to_first"]+" "+m["to_last"])
+		noteNamesDrawnApart(t, apart, "Fake", from, to)
+	})
 	for _, view := range []string{"FakeRecord", "Fake"} {
-		if !apart[view] {
-			t.Errorf("%s: names from and to drew one person in 100 renders, want a pick each", view)
-		}
+		t.Run(view, func(t *testing.T) {
+			if !apart[view] {
+				t.Errorf("%s: names from and to drew one person in 100 renders, want a pick each", view)
+			}
+		})
 	}
 }
 
@@ -433,15 +497,8 @@ func TestRecordColumnOfOneReferenceIsTheColumnItReads(t *testing.T) {
 		t.Fatal(err)
 	}
 	nulls := map[string]int{}
-	for i := 0; i < 200; i++ {
-		r, err := f.FakeRecord("row")
-		if err != nil {
-			t.Fatal(err)
-		}
-		cols := map[string]Column{}
-		for _, c := range r.Columns() {
-			cols[c.Name] = c
-		}
+	eachRecordOf(t, f, "row", 200, func(r *Record) {
+		cols := columnsByName(r)
 		score, code := cols["score"], cols["code"]
 		digit := func(c Column) bool { return len(c.Value) == 1 && c.Value >= "1" && c.Value <= "9" }
 		isScore := func(name string) bool { return cols[name].Null != digit(cols[name]) }
@@ -467,16 +524,14 @@ func TestRecordColumnOfOneReferenceIsTheColumnItReads(t *testing.T) {
 		if ic.DataType != DataTypeInteger || ic.Null == (len(ic.Value) == 1) || ir.SQLInsert("t") != `INSERT INTO "t" ("score") VALUES (`+sqlValue+`);` || ir.CSVLine() != ic.Value {
 			t.Fatalf("inline score = %+v written %s and %q, want an integer column, NULL and an empty field or a bare digit", ic, ir.SQLInsert("t"), ir.CSVLine())
 		}
-		for name, c := range map[string]Column{"code": code, "inline": ic, "score": score} {
-			if c.Null {
-				nulls[name]++
-			}
-		}
-	}
+		countNullColumns(nulls, map[string]Column{"code": code, "inline": ic, "score": score})
+	})
 	for _, name := range []string{"code", "inline", "score"} {
-		if n := nulls[name]; n == 0 || n == 200 {
-			t.Errorf("%s drew null %d times in 200 records, want both outcomes", name, n)
-		}
+		t.Run(name, func(t *testing.T) {
+			if n := nulls[name]; n == 0 || n == 200 {
+				t.Errorf("%s drew null %d times in 200 records, want both outcomes", name, n)
+			}
+		})
 	}
 }
 
@@ -495,25 +550,28 @@ func TestRecordSQLQuotesIdentifiers(t *testing.T) {
 	}
 }
 
-func TestFakeRecordTemplateAndNewRecordTemplate(t *testing.T) {
-	f := recordCat(t)
-	in := `{"format":"{x} {y}","x":["1","2"],"y":["3","4"]}`
-	want, err := f.FakeRecordTemplate(in)
+const twoColumnRecord = `{"format":"{x} {y}","x":["1","2"],"y":["3","4"]}`
+
+func TestFakeRecordTemplateRendersARecord(t *testing.T) {
+	want, err := recordCat(t).FakeRecordTemplate(twoColumnRecord)
 	if err != nil {
 		t.Fatalf("FakeRecordTemplate: %v", err)
 	}
 	if len(want.Columns()) != 2 {
 		t.Fatalf("FakeRecordTemplate columns = %v, want two columns", want.Columns())
 	}
-	reusable, err := f.NewRecordTemplate(in)
+}
+
+func TestNewRecordTemplateIsReusable(t *testing.T) {
+	reusable, err := recordCat(t).NewRecordTemplate(twoColumnRecord)
 	if err != nil {
 		t.Fatalf("NewRecordTemplate: %v", err)
 	}
-	for i := 0; i < 20; i++ {
-		if got := reusable.Fake(); len(got.Columns()) != 2 {
+	eachRecordDrawn(20, reusable.Fake, func(got *Record) {
+		if len(got.Columns()) != 2 {
 			t.Fatalf("RecordTemplate.Fake() = %v, want two columns", got.Columns())
 		}
-	}
+	})
 }
 
 func TestInlineRecordErrors(t *testing.T) {
@@ -526,9 +584,11 @@ func TestInlineRecordErrors(t *testing.T) {
 		{`["a","b"]`, "a record is a template whose fields are its columns"},
 		{`{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`, "carries repeat 3"},
 	} {
-		if _, err := f.FakeRecordTemplate(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("FakeRecordTemplate(%q) = %v, want an error naming %q", c.input, err, c.want)
-		}
+		t.Run(c.input, func(t *testing.T) {
+			if _, err := f.FakeRecordTemplate(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("FakeRecordTemplate(%q) = %v, want an error naming %q", c.input, err, c.want)
+			}
+		})
 	}
 }
 
@@ -573,6 +633,15 @@ func TestRecordOfAChoiceNamesTheWrapper(t *testing.T) {
 	}
 }
 
+func checkEachColumnHoldsItsField(t *testing.T, label string, tm *tree.Template) {
+	t.Helper()
+	for _, c := range tm.Columns() {
+		if c.Field() != tm.Fields()[c.Name()] || c.DataType() != fence.ColumnDatatype(c.Field(), tree.AfterFinish) {
+			t.Errorf("%s: column %q holds field %v of datatype %s, want field %q's", label, c.Name(), c.Field(), c.DataType(), c.Name())
+		}
+	}
+}
+
 func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 	f := newShippedWhole(t, WithSeed(1), onTestDay)
 	records := 0
@@ -585,11 +654,7 @@ func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 		if want := len(tm.Fields()) - len(tm.Lets()); len(tm.Columns()) != want {
 			t.Errorf("%s: %d record columns, want one per field outside let, %d", label, len(tm.Columns()), want)
 		}
-		for _, c := range tm.Columns() {
-			if c.Field() != tm.Fields()[c.Name()] || c.DataType() != fence.ColumnDatatype(c.Field(), tree.AfterFinish) {
-				t.Errorf("%s: column %q holds field %v of datatype %s, want field %q's", label, c.Name(), c.Field(), c.DataType(), c.Name())
-			}
-		}
+		checkEachColumnHoldsItsField(t, label, tm)
 		return nil
 	}); err != nil {
 		t.Fatal(err)
@@ -637,23 +702,24 @@ func TestRecordSQLHeaderAndValuesJoinIntoAMultiRowInsert(t *testing.T) {
 	}
 }
 
-func TestRecordLetFieldsWriteNoColumn(t *testing.T) {
-	t.Parallel()
+func recordsWithLetFields(t *testing.T) *Generator {
+	t.Helper()
 	dir := writeData(t, map[string]string{
 		"sched": `{"format":"{weekday as d}","let":{"weekday":["MO","TU"],"helper":"x"},"day":"{d}","rrule":"BYDAY={d}"}`,
 		"copy":  `{"format":"","rrule":"{/sched.rrule}","weekday":"{/sched.weekday}"}`,
 	})
-	f := newGenerator(t, dir, WithSeed(1))
+	return newGenerator(t, dir, WithSeed(1))
+}
+
+func TestRecordLetFieldsWriteNoColumn(t *testing.T) {
+	t.Parallel()
+	f := recordsWithLetFields(t)
 	inline, err := f.NewRecordTemplate(`{"format":"{weekday as d}","let":{"weekday":["MO","TU"]},"day":"{d}"}`)
 	if err != nil {
 		t.Fatal(err)
 	}
 	seen := map[string]bool{}
-	for i := 0; i < 50; i++ {
-		r, err := f.FakeRecord("sched")
-		if err != nil {
-			t.Fatal(err)
-		}
+	eachRecordOf(t, f, "sched", 50, func(r *Record) {
 		cols := r.Columns()
 		if len(cols) != 2 || cols[0].Name != "day" || cols[1].Name != "rrule" || cols[1].Value != "BYDAY="+cols[0].Value || cols[0].Value != "MO" && cols[0].Value != "TU" {
 			t.Fatalf("Columns = %+v, want day and rrule only, rrule reading the day's pick", cols)
@@ -665,11 +731,15 @@ func TestRecordLetFieldsWriteNoColumn(t *testing.T) {
 		if c := inline.Fake().Columns(); len(c) != 1 || c[0].Name != "day" {
 			t.Fatalf("inline Columns = %+v, want day only", c)
 		}
-	}
+	})
 	if len(seen) != 2 {
 		t.Errorf("drew days %v in 50 records, want both", seen)
 	}
-	cp, err := f.FakeRecord("copy")
+}
+
+func TestRecordLetFieldIsReadableFromAnotherCategory(t *testing.T) {
+	t.Parallel()
+	cp, err := recordsWithLetFields(t).FakeRecord("copy")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -678,24 +748,39 @@ func TestRecordLetFieldsWriteNoColumn(t *testing.T) {
 	}
 }
 
+func generatorOfOneLiteral(t *testing.T) *Generator {
+	t.Helper()
+	return newGenerator(t, writeData(t, map[string]string{"x": `"x"`}), WithSeed(1))
+}
+
 func TestRecordLetErrors(t *testing.T) {
 	t.Parallel()
-	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}), WithSeed(1))
+	f := generatorOfOneLiteral(t)
 	for _, c := range []struct{ input, want string }{
 		{`{"format":"","let":"a","b":"y"}`, "let is an option and takes an object of fields, not a string"},
 		{`{"format":"","let":{"a":"x"},"a":"y"}`, `field "a" is in let and beside it`},
 		{`{"format":"","let":{"a.b":"x"},"c":"y"}`, "field"},
 		{`{"format":"","let":{"weight":"w"},"b":"y"}`, `"weight" is an option`},
 	} {
-		if _, err := f.NewRecordTemplate(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("NewRecordTemplate(%s) = %v, want an error containing %q", c.input, err, c.want)
-		}
+		t.Run(c.input, func(t *testing.T) {
+			if _, err := f.NewRecordTemplate(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("NewRecordTemplate(%s) = %v, want an error containing %q", c.input, err, c.want)
+			}
+		})
 	}
-	_, err := f.NewRecordTemplate(`{"format":"","let":{"a":"x"}}`)
+}
+
+func TestRecordOfOnlyLetFieldsHasNoColumns(t *testing.T) {
+	t.Parallel()
+	_, err := generatorOfOneLiteral(t).NewRecordTemplate(`{"format":"","let":{"a":"x"}}`)
 	if !errors.Is(err, ErrNoColumns) || !strings.Contains(err.Error(), `move one out of "let"`) {
 		t.Errorf("NewRecordTemplate(only let fields) = %v, want ErrNoColumns naming let", err)
 	}
-	if _, err := f.NewTemplate(`{"format":"{let}"}`); err == nil || !strings.Contains(err.Error(), "option") {
+}
+
+func TestLetIsAnOptionNeverAField(t *testing.T) {
+	t.Parallel()
+	if _, err := generatorOfOneLiteral(t).NewTemplate(`{"format":"{let}"}`); err == nil || !strings.Contains(err.Error(), "option") {
 		t.Errorf("NewTemplate reading let = %v, want let refused as an option, never a field", err)
 	}
 }
@@ -707,15 +792,8 @@ func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatypeAndNull(t *testing
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	nulls := map[string]int{}
-	for i := 0; i < 200; i++ {
-		r, err := f.FakeRecord("sched")
-		if err != nil {
-			t.Fatal(err)
-		}
-		cols := map[string]Column{}
-		for _, c := range r.Columns() {
-			cols[c.Name] = c
-		}
+	eachRecordOf(t, f, "sched", 200, func(r *Record) {
+		cols := columnsByName(r)
 		l, s, kind := cols["len"], cols["size"], cols["kind"].Value
 		digit := func(c Column) bool { return !c.Null && len(c.Value) == 1 && c.Value >= "1" && c.Value <= "9" }
 		switch {
@@ -728,16 +806,14 @@ func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatypeAndNull(t *testing
 		case strings.Contains(r.JSON(), `"len":null`) != l.Null || strings.Contains(r.JSON(), `"len":"`) || strings.Contains(r.JSON(), `"size":"`):
 			t.Fatalf("JSON() = %s, want a null written null and a digit written bare", r.JSON())
 		}
-		for name, c := range map[string]Column{"len": l, "size": s} {
-			if c.Null {
-				nulls[name]++
-			}
-		}
-	}
+		countNullColumns(nulls, map[string]Column{"len": l, "size": s})
+	})
 	for _, name := range []string{"len", "size"} {
-		if n := nulls[name]; n == 0 || n == 200 {
-			t.Errorf("%s drew null %d times in 200 records, want both outcomes", name, n)
-		}
+		t.Run(name, func(t *testing.T) {
+			if n := nulls[name]; n == 0 || n == 200 {
+				t.Errorf("%s drew null %d times in 200 records, want both outcomes", name, n)
+			}
+		})
 	}
 }
 
@@ -758,17 +834,13 @@ func TestRecordColumnReadingTwoFieldsDeepKeepsItsDatatypeAndNull(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	seen := map[bool]bool{}
-	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("deep")
-		if err != nil {
-			t.Fatal(err)
-		}
+	eachRecordOf(t, f, "deep", 100, func(r *Record) {
 		c := r.Columns()[0]
 		if c.DataType != DataTypeInteger || c.Null != (c.Value == "") {
 			t.Fatalf("column = %+v, want an integer column, null or a digit", c)
 		}
 		seen[c.Null] = true
-	}
+	})
 	if !seen[true] || !seen[false] {
 		t.Errorf("100 records drew null and digit as %v, want both", seen)
 	}
