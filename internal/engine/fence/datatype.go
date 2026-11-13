@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/larvit/fejkdata/internal/datatype"
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
@@ -19,16 +20,16 @@ func CheckColumns(s NodeSet) error {
 			return nil
 		}
 		checked[column] = true
-		items, _ := ColumnItems(column)
+		items, _ := load.ColumnItems(column)
 		if err := checkReadColumns(label, name, items, check); err != nil {
 			return err
 		}
 		if len(items) == 0 {
 			return nil
 		}
-		first := ColumnDatatype(column, tree.AfterFinish)
+		first := load.ColumnDatatype(column, tree.AfterFinish)
 		for _, it := range items[1:] {
-			if d := itemDatatype(it, tree.AfterFinish); d != first {
+			if d := load.ItemDatatype(it, tree.AfterFinish); d != first {
 				return fmt.Errorf("%s: field %q: %w", label, name, disagreement(items[0], first, it, d))
 			}
 		}
@@ -48,38 +49,6 @@ func CheckColumns(s NodeSet) error {
 	})
 }
 
-// ColumnDatatype is the datatype a column holds, which its first item decides: CheckColumns refuses
-// a column whose items disagree. A table's column, like one only ever null, has no item and is a string.
-func ColumnDatatype(n tree.Node, l *tree.LoadFinds) datatype.DataType {
-	items, _ := ColumnItems(n)
-	if len(items) == 0 {
-		return datatype.String
-	}
-	return itemDatatype(items[0], l)
-}
-
-// ColumnItems is a column's template items, its choices unwrapped, and whether one is null.
-func ColumnItems(n tree.Node) (items []*tree.Template, nullable bool) {
-	var collect func(tree.Node)
-	collect = func(n tree.Node) {
-		switch n := n.(type) {
-		case *tree.Choice:
-			for _, it := range n.Items() {
-				collect(it)
-			}
-		case *tree.Template:
-			items = append(items, n)
-		case *tree.NullItem:
-			nullable = true
-		case *tree.TableColumn:
-		default:
-			panic(invariant.Broken("ColumnItems has no case for node %T", n))
-		}
-	}
-	collect(n)
-	return items, nullable
-}
-
 // itemKind is how a column item comes by its datatype, ranked in this order: none, read from a typed column, or declared.
 type itemKind int
 
@@ -93,7 +62,7 @@ func kindOf(t *tree.Template) itemKind {
 	switch {
 	case t.DataType() != nil:
 		return kindDeclares
-	case itemDatatype(t, tree.AfterFinish) != datatype.String:
+	case load.ItemDatatype(t, tree.AfterFinish) != datatype.String:
 		return kindReads
 	}
 	return kindText

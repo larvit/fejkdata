@@ -80,7 +80,7 @@ func (r selfRead) reachesNode(n tree.Node) bool {
 	r.nodes[n] = true
 	t, ok := n.(*tree.Template)
 	if !ok {
-		return slices.ContainsFunc(tree.RenderEdges(n, tree.AfterFinish), func(e tree.RenderEdge) bool { return r.reachesNode(e.To) })
+		return slices.ContainsFunc(tree.RenderEdges(n), func(e tree.RenderEdge) bool { return r.reachesNode(e.To) })
 	}
 	for _, o := range t.Compiled().Ops() {
 		if slices.ContainsFunc(o.AllReads(), func(a *tree.Read) bool { return r.reaches(*a) }) {

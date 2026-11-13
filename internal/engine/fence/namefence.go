@@ -142,12 +142,12 @@ func walkRoutes(nodes []tree.Node, start tree.PickKey, addressed map[tree.PickKe
 				}
 			}
 		case *tree.Choice:
-			for _, e := range tree.RenderEdges(n, tree.AfterFinish) {
+			for _, e := range tree.RenderEdges(n) {
 				walk(e.To, at, inPick)
 			}
 		case *tree.TableColumn: // its cells are not walked, so no rule sees a read in a cell (item 452)
 		default:
-			for _, e := range tree.RenderEdges(n, tree.AfterFinish) {
+			for _, e := range tree.RenderEdges(n) {
 				walk(e.To, "", false)
 			}
 		}
