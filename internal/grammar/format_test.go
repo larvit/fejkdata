@@ -14,9 +14,11 @@ func TestSplitArgsQuotesOutsideSelectors(t *testing.T) {
 		"/geo.US.locality[O'Fallon].name, 2":      {"/geo.US.locality[O'Fallon].name", "2"},
 		"'[a,b]'":                                 {"'[a,b]'"},
 	} {
-		if got := splitArgs(in); !reflect.DeepEqual(got, want) {
-			t.Errorf("splitArgs(%q) = %q, want %q", in, got, want)
-		}
+		t.Run(in, func(t *testing.T) {
+			if got := splitArgs(in); !reflect.DeepEqual(got, want) {
+				t.Errorf("splitArgs(%q) = %q, want %q", in, got, want)
+			}
+		})
 	}
 }
 
@@ -38,8 +40,10 @@ func TestParseFormatReadsEachTokenKind(t *testing.T) {
 
 func TestParseFormatRefusesUnbalancedBraces(t *testing.T) {
 	for _, format := range []string{"{a", "a}", "{a{b}}", "{f(}"} {
-		if _, err := ParseFormat(format); err == nil {
-			t.Errorf("ParseFormat(%q) = nil error, want one", format)
-		}
+		t.Run(format, func(t *testing.T) {
+			if _, err := ParseFormat(format); err == nil {
+				t.Errorf("ParseFormat(%q) = nil error, want one", format)
+			}
+		})
 	}
 }
