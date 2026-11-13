@@ -1495,9 +1495,10 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{ulid()}` | sample | ULID, 26 Crockford base32 chars |
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
 | `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE, which a real account may hold; `misc.iban-test` draws published test IBANs |
-| `{date(from,to,'layout')}` | sample | a second between two `YYYY-MM-DD` days, both included, in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
+| `{date(from,to,'layout')}` | sample | a second between two days, both included, each `YYYY-MM-DD`, or both `today`, `today-30` or `today+14`, relative to `WithToday` or `--today` ([Dates around today](#dates-around-today)), in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
 | `{born(min,max,'layout')}` | sample | a second in the calendar years in which someone turns `min` to `max`, both included, counted from the year of `WithToday` or `--today`, and never after that date; the layout as in `date` |
 | `{adddays(d,n)}`, `{adddays(d,n,'layout')}` | computation | the date `d` reads plus `n` days, an integer, field, path or name, negative for earlier; the time of day stays, and the layout is `d`'s unless given ([Date offsets](#date-offsets)) |
+| `{tick(start,step,jitter,'layout')}` | counter | the next row's time: `start` plus `step` seconds per row and 0 to `jitter` seconds, below `step`, so rows ascend ([Time steps](#time-steps)) |
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
@@ -1559,6 +1560,37 @@ Refused at `New`: a `d` that may render anything but a `date` or `born` call, su
 does not read back as the day it printed, such as `'01-02'` with no year or `'060102'` with a
 two-digit one; an `n` that is not always a whole number; and an offset beyond a million days
 either way.
+
+### Dates around today
+
+`date`'s bounds are `YYYY-MM-DD` days, or both relative to the date the caller gives, `WithToday` or
+`--today`: `today`, `today-30` and `today+14`. A due date between a month ago and a fortnight ahead
+needs no re-pinning:
+
+```json
+{ "format": "{date(today-30,today+14,'2006-01-02')}" }
+```
+
+Renders e.g. `2026-11-03` on 2026-11-12. A day and a relative bound in one call, a `from` after `to`
+and an offset beyond a million days either way are refused at `New`.
+
+### Time steps
+
+`{tick(start,step,jitter,'layout')}` prints the time of the call's next row: row 1 at `start`, each
+later row `step` seconds after the one before, and 0 to `jitter` seconds more, drawn from the seed.
+`start` is a `YYYY-MM-DD` day, read as its midnight in UTC, or a UTC timestamp such as
+`2026-01-01T00:00:00Z`. A run's rows ascend in time:
+
+```json
+{ "format": "{seq()} {tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}" }
+```
+
+Renders e.g. `1 2026-01-01T00:00:03Z`, `2 2026-01-01T00:00:31Z` and `3 2026-01-01T00:01:02Z`.
+
+Calls with the same four arguments step one counter, so the second of two such calls in a record
+prints the next row. To print one instant twice, bind it: `{tick(…) as t}{t} {t}`. Calls with other arguments
+count apart. A `jitter` that is `step` or more could swap two rows, so it is refused at `New`, as is
+a `step` outside 1 to 86400 seconds.
 
 ### Computation
 
