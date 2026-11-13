@@ -136,22 +136,30 @@ func TestMultiPathMergesFolders(t *testing.T) {
 }
 
 // TestListedPathsAllRender is the contract between List and Fake over the shipped
-// tree: everything List advertises renders, every time, and the sub-fields the
-// README advertises are discoverable.
+// tree: everything List advertises renders, every time.
 func TestListedPathsAllRender(t *testing.T) {
 	f := shipped(t, WithSeed(4))
-	paths := f.List()
-	for _, p := range paths {
-		for i := 0; i < 20; i++ {
-			if _, err := f.Fake(p); err != nil {
-				t.Fatalf("Fake(%q) = %v, but List() advertises it", p, err)
-			}
-		}
+	for _, p := range f.List() {
+		t.Run(p, func(t *testing.T) {
+			eachDraw(20, func() string {
+				got, err := f.Fake(p)
+				if err != nil {
+					t.Fatalf("Fake(%q) = %v, but List() advertises it", p, err)
+				}
+				return got
+			}, func(string) {})
+		})
 	}
+}
+
+func TestListAdvertisesTheSubFieldsTheReadmeNames(t *testing.T) {
+	paths := shipped(t, WithSeed(4)).List()
 	for _, p := range []string{"misc.car.make", "misc.territory.alpha2", "misc.territory.numeric", "misc.currency.symbol", "misc.httpstatus.code", "misc.mimetype.ext"} {
-		if !slices.Contains(paths, p) {
-			t.Errorf("List() omits %q, which the README advertises and Fake renders", p)
-		}
+		t.Run(p, func(t *testing.T) {
+			if !slices.Contains(paths, p) {
+				t.Errorf("List() omits %q, which the README advertises and Fake renders", p)
+			}
+		})
 	}
 }
 
@@ -172,10 +180,11 @@ func TestHiddenEntriesAreSkipped(t *testing.T) {
 	if got := fake(t, f, "cat"); got != "V" {
 		t.Fatalf("cat = %q, want V", got)
 	}
-	for _, p := range f.List() {
-		if strings.HasPrefix(p, ".") || strings.Contains(p, "empty.folder") {
-			t.Errorf("List() advertises %q, which is not data", p)
-		}
+	notData := slices.DeleteFunc(slices.Clone(f.List()), func(p string) bool {
+		return !strings.HasPrefix(p, ".") && !strings.Contains(p, "empty.folder")
+	})
+	if len(notData) > 0 {
+		t.Errorf("List() advertises %q, which is not data", notData)
 	}
 }
 
@@ -187,11 +196,16 @@ func TestRepeatProductAlongAPathIsCapped(t *testing.T) {
 			"b": `{"format":"x","repeat":2048}`,
 		},
 	} {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files)))
-		if err == nil || !strings.Contains(err.Error(), "repeat") || !strings.Contains(err.Error(), "1048576") {
-			t.Errorf("%s: New = %v, want the repeat product rejected naming the maximum", name, err)
-		}
+		t.Run(name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files)))
+			if err == nil || !strings.Contains(err.Error(), "repeat") || !strings.Contains(err.Error(), "1048576") {
+				t.Errorf("%s: New = %v, want the repeat product rejected naming the maximum", name, err)
+			}
+		})
 	}
+}
+
+func TestRepeatProductOf1024By1024AlongOnePathIsAccepted(t *testing.T) {
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{a}{c}","repeat":1024,"a":{"format":"{b}","repeat":1024,"b":"x"},"c":{"format":"y","repeat":1024}}`,
 	}))); err != nil {
@@ -199,8 +213,7 @@ func TestRepeatProductAlongAPathIsCapped(t *testing.T) {
 	}
 }
 
-func TestNewErrors(t *testing.T) {
-	// Pointing New at a file (not a directory) fails.
+func TestNewRefusesAFileAsItsDataPath(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "xx_XX")
 	if err := os.WriteFile(file, []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
@@ -208,12 +221,17 @@ func TestNewErrors(t *testing.T) {
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(file)); err == nil || !strings.Contains(err.Error(), "xx_XX: not a directory") {
 		t.Errorf("New(file) = %v, want not-a-directory error", err)
 	}
-	// Invalid JSON in a category file fails.
+}
+
+func TestNewRefusesInvalidJSONInACategoryFile(t *testing.T) {
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, map[string]string{"broken": `{ not json`}))); err == nil {
 		t.Error("New(invalid JSON) = nil error")
 	}
-	// An option that cannot take effect, and a category or folder no dot path can
-	// reach, are mistakes New must name rather than accept and ignore.
+}
+
+// An option that cannot take effect, and a category or folder no dot path can
+// reach, are mistakes New must name rather than accept and ignore.
+func TestNewNamesAnOptionWithNoEffectAndANameNoPathCanReach(t *testing.T) {
 	rejected := map[string]struct {
 		files map[string]string
 		want  string
@@ -300,16 +318,21 @@ func TestNewErrors(t *testing.T) {
 		},
 	}
 	for name, c := range rejected {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, c.files)))
-		if err == nil {
-			t.Errorf("%s: New = nil error, want it rejected at load", name)
-			continue
-		}
-		if !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
-		}
+		t.Run(name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, c.files)))
+			if err == nil {
+				t.Errorf("%s: New = nil error, want it rejected at load", name)
+				return
+			}
+			if !strings.Contains(err.Error(), c.want) {
+				t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
+			}
+		})
 	}
-	// Data that works today must keep working, and stay reachable.
+}
+
+// Data that works today must keep working, and stay reachable.
+func TestNewAcceptsANameThatOnlyResemblesAnOptionOrRepeatsAnArm(t *testing.T) {
 	accepted := map[string]struct {
 		files map[string]string
 		path  string
@@ -328,14 +351,16 @@ func TestNewErrors(t *testing.T) {
 		"repeated reference arm":     {map[string]string{"a": `"x"`, "b": `"{/a|/a}"`}, "b", "x"},
 	}
 	for name, c := range accepted {
-		f, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, c.files)))
-		if err != nil {
-			t.Errorf("%s: New = %v, want it accepted", name, err)
-			continue
-		}
-		if got, err := f.Fake(c.path); err != nil || got != c.want {
-			t.Errorf("%s: Fake(%q) = %q, %v, want %q", name, c.path, got, err, c.want)
-		}
+		t.Run(name, func(t *testing.T) {
+			f, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, c.files)))
+			if err != nil {
+				t.Errorf("%s: New = %v, want it accepted", name, err)
+				return
+			}
+			if got, err := f.Fake(c.path); err != nil || got != c.want {
+				t.Errorf("%s: Fake(%q) = %q, %v, want %q", name, c.path, got, err, c.want)
+			}
+		})
 	}
 }
 
@@ -353,30 +378,30 @@ func TestCategoryRootShapes(t *testing.T) {
 	}
 }
 
-func TestLongStringList(t *testing.T) {
-	const n = 2000
+func numberedNames(n int) []string {
 	names := make([]string, n)
 	for i := range names {
 		names[i] = fmt.Sprintf("name-%04d", i)
 	}
+	return names
+}
+
+func TestLongStringList(t *testing.T) {
+	const n = 2000
+	names := numberedNames(n)
 	list, err := json.Marshal(names)
 	if err != nil {
 		t.Fatal(err)
 	}
 	f := newGenerator(t, writeData(t, map[string]string{"name": string(list)}), WithSeed(1))
 
-	valid := map[string]bool{}
-	for _, v := range names {
-		valid[v] = true
-	}
 	seen := map[string]bool{}
-	for i := 0; i < 20000; i++ {
-		v := fake(t, f, "name")
-		if !valid[v] {
+	eachDraw(20000, func() string { return fake(t, f, "name") }, func(v string) {
+		if _, valid := slices.BinarySearch(names, v); !valid {
 			t.Fatalf("got %q, not in the list", v)
 		}
 		seen[v] = true
-	}
+	})
 	if len(seen) < n*8/10 {
 		t.Fatalf("only %d/%d distinct values seen; selection looks skewed", len(seen), n)
 	}
