@@ -6,6 +6,8 @@ import tempfile
 import unittest
 import urllib.error
 from contextlib import redirect_stderr, redirect_stdout
+from email.message import Message
+from typing import Any, Callable
 from unittest import mock
 
 import publish_release
@@ -14,12 +16,12 @@ SHA = "a" * 40
 OTHER = "b" * 40
 
 
-def not_found(path):
-	return urllib.error.HTTPError(path, 404, "Not Found", None, None)
+def not_found(path: str) -> urllib.error.HTTPError:
+	return urllib.error.HTTPError(path, 404, "Not Found", Message(), None)
 
 
-def forge(responses, created):
-	def request(path, data=None):
+def forge(responses: dict[str, Any], created: list[dict[str, Any]]) -> Callable[..., Any]:
+	def request(path: str, data: dict[str, Any] | None = None) -> Any:
 		if data is not None:
 			created.append(data)
 			return {"html_url": "https://forge.example/release"}
@@ -44,8 +46,8 @@ class TagGuard(unittest.TestCase):
 		env.start()
 		self.addCleanup(env.stop)
 
-	def publish(self, responses):
-		created = []
+	def publish(self, responses: dict[str, Any]) -> tuple[int, list[dict[str, Any]]]:
+		created: list[dict[str, Any]] = []
 		with mock.patch.object(publish_release, "request", forge(responses, created)), \
 			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
 			with open("CHANGELOG.md", encoding="utf-8") as f:
@@ -125,7 +127,7 @@ class TagGuard(unittest.TestCase):
 				self.assertIn(error, stderr.getvalue())
 
 	def test_an_argument_other_than_check_publishes_nothing(self) -> None:
-		created = []
+		created: list[dict[str, Any]] = []
 		with mock.patch.object(publish_release, "request", forge({}, created)), redirect_stderr(io.StringIO()):
 			self.assertEqual(publish_release.main(["--dry-run"]), 2)
 		self.assertEqual(created, [])
@@ -145,7 +147,7 @@ class TagGuard(unittest.TestCase):
 			({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, 1, ""),
 		):
 			open("output", "w").close()
-			created = []
+			created: list[dict[str, Any]] = []
 			with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
 				mock.patch.object(publish_release, "request", forge(responses, created)), \
 				redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):

@@ -8,6 +8,7 @@ import tempfile
 import unittest
 import urllib.error
 from contextlib import redirect_stderr, redirect_stdout
+from typing import Any
 from unittest import mock
 
 import changelog
@@ -32,12 +33,12 @@ class Prepare(unittest.TestCase):
 		self.addCleanup(tmp.cleanup)
 		self.tree = tmp.name
 
-	def files(self, *files):
+	def files(self, *files: tuple[str, str]) -> None:
 		for name, text in files:
 			with open(os.path.join(self.tree, name), "w", encoding="utf-8") as f:
 				f.write(text)
 
-	def read(self, name):
+	def read(self, name: str) -> str:
 		with open(os.path.join(self.tree, name), encoding="utf-8") as f:
 			return f.read()
 
@@ -54,8 +55,8 @@ class Prepare(unittest.TestCase):
 		self.assertEqual(os.listdir(self.tree), ["go.mod"])
 
 
-def report(*ids, module="stdlib", version="v1.27.1"):
-	messages = [{"osv": {"id": i, "aliases": [f"CVE-{i[3:]}"], "summary": "A flaw"}} for i in ids]
+def report(*ids: str, module: str = "stdlib", version: str = "v1.27.1") -> str:
+	messages: list[dict[str, Any]] = [{"osv": {"id": i, "aliases": [f"CVE-{i[3:]}"], "summary": "A flaw"}} for i in ids]
 	messages += [{"finding": {"osv": i, "trace": [{"module": module, "version": version}]}} for i in ids]
 	return "\n".join(json.dumps(m) for m in messages)
 
@@ -84,7 +85,7 @@ Why.
 """
 
 
-def git(*argv):
+def git(*argv: str) -> str:
 	return subprocess.run(["git", *argv], check=True, capture_output=True, text=True).stdout.strip()
 
 
@@ -117,12 +118,12 @@ class Repository(unittest.TestCase):
 		git("add", "-A")
 		git("commit", "-qm", "Add a thing")
 
-	def write(self, *files):
+	def write(self, *files: tuple[str, str]) -> None:
 		for name, text in files:
 			with open(name, "w", encoding="utf-8") as f:
 				f.write(text)
 
-	def read(self, name):
+	def read(self, name: str) -> str:
 		with open(name, encoding="utf-8") as f:
 			return f.read()
 
@@ -131,12 +132,14 @@ class Cut(Repository):
 	def setUp(self) -> None:
 		super().setUp()
 		self.reports = {"1.27.1": report("GO-2026-0001", "GO-2026-0002"), "1.27.2": report(), "1.28.0": report()}
-		self.module_findings = {}
-		self.scanned, self.outputs, self.notes_read = [], [], []
+		self.module_findings: dict[str, str] = {}
+		self.scanned: list[tuple[str, str]] = []
+		self.outputs: list[str] = []
+		self.notes_read: list[str] = []
 		self.published = mock.Mock(return_value=(0, "v0.1.1"))
 		self.effects = patch_release.Effects(self.scan, self.build_and_push, self.published, self.outputs.append, self.notes)
 
-	def scan(self, tree, go, into):
+	def scan(self, tree: str, go: str, into: str) -> str:
 		go_mod = self.read(os.path.join(tree, "go.mod"))
 		self.scanned.append((go, go_mod))
 		os.makedirs(into)
@@ -144,7 +147,7 @@ class Cut(Repository):
 			f.write(self.reports[go] + "\n" + self.module_findings.get(go_mod, ""))
 		return os.path.join(into, "report.json")
 
-	def build_and_push(self, tree, version):
+	def build_and_push(self, tree: str, version: str) -> str:
 		self.version = version
 		self.changed = sorted(line.split(maxsplit=1)[1] for line in git("-C", tree, "status", "--porcelain").splitlines())
 		self.shipped = {
@@ -161,11 +164,11 @@ class Cut(Repository):
 		}
 		return "abc123"
 
-	def notes(self, minor):
+	def notes(self, minor: str) -> str:
 		self.notes_read.append(minor)
 		return NOTES
 
-	def cut(self, last="v0.1.0"):
+	def cut(self, last: str = "v0.1.0") -> tuple[int, str]:
 		status = git("status", "--porcelain")
 		with tempfile.TemporaryDirectory() as elsewhere, contextlib.chdir(elsewhere), redirect_stdout(io.StringIO()) as out:
 			code = patch_release.cut(self.root, last, "2026-10-14", self.effects)
@@ -173,7 +176,7 @@ class Cut(Repository):
 		self.assertEqual(git("status", "--porcelain"), status)
 		return code, out.getvalue()
 
-	def worktrees(self):
+	def worktrees(self) -> int:
 		return len(git("worktree", "list").splitlines())
 
 	def test_cuts_a_patch_of_the_last_release_on_main_s_go(self) -> None:
@@ -300,7 +303,7 @@ class Cut(Repository):
 		with self.assertRaisesRegex(ValueError, "^main's checkout holds no tag v0\\.9\\.0, the forge's latest release$"):
 			self.cut("v0.9.0")
 
-	def main_cut(self, go="1.27.2"):
+	def main_cut(self, go: str = "1.27.2") -> tuple[int, str, str]:
 		self.write(("Dockerfile", DOCKERFILE.format(go)), ("output", ""))
 		env = {"GITHUB_OUTPUT": os.path.abspath("output")}
 		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
@@ -311,7 +314,7 @@ class Cut(Repository):
 			code = patch_release.main(["cut"])
 		return code, err.getvalue(), self.read("output")
 
-	def scan_main(self, root, tree, go, into):
+	def scan_main(self, root: str, tree: str, go: str, into: str) -> str:
 		self.assertEqual(root, self.root)
 		return self.scan(tree, go, into)
 
@@ -397,7 +400,7 @@ class Plan(Repository):
 		git("checkout", "-q", "-")
 		self.write(("todo.md", TODO))
 
-	def plan(self, *ids, last="v0.1.1"):
+	def plan(self, *ids: str, last: str = "v0.1.1") -> int:
 		self.write(("report.json", report(*ids).replace("v1.27.1", "v1.27.2")))
 		with mock.patch.object(patch_release, "last_release", return_value=last), redirect_stderr(io.StringIO()):
 			return patch_release.main(["plan", "report.json", "todo.md", "CHANGELOG.md"])
@@ -457,11 +460,11 @@ FORGE = {"FORGE_SERVER_URL": "https://forge.example", "FORGE_REPOSITORY": "owner
 
 class Commands(unittest.TestCase):
 	def setUp(self) -> None:
-		self.calls = []
+		self.calls: list[tuple[tuple[str, ...], str | None]] = []
 		self.code = 0
-		self.codes = {}
+		self.codes: dict[str, int] = {}
 
-	def run_stub(self, *argv, cwd=None, ok=(0,)):
+	def run_stub(self, *argv: str, cwd: str | None = None, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess[str]:
 		self.calls.append((argv, cwd))
 		code = self.codes.get(argv[-1], self.code)
 		if code not in ok:

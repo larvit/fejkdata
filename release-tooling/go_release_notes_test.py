@@ -71,7 +71,7 @@ class BreakingLines(unittest.TestCase):
 	def test_reads_the_notes_of_each_minor_above_the_released_go(self) -> None:
 		read = []
 
-		def notes(minor):
+		def notes(minor: str) -> str:
 			read.append(minor)
 			return NOTES if minor == "1.28" else ""
 
@@ -85,7 +85,7 @@ class BreakingLines(unittest.TestCase):
 		self.assertEqual(read, ["1.28", "1.29"])
 
 	def test_a_go_patch_reads_no_notes(self) -> None:
-		self.assertEqual(go_release_notes.breaking_lines((1, 27, 1), (1, 27, 2), BUILT_FOR, None), [])
+		self.assertEqual(go_release_notes.breaking_lines((1, 27, 1), (1, 27, 2), BUILT_FOR, self.fail), [])
 
 
 class Fetch(unittest.TestCase):

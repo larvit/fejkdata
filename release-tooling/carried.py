@@ -27,7 +27,8 @@ def go_of(dockerfile: str) -> tuple[int, int, int]:
 	match = GO_VERSION.search(dockerfile)
 	if match is None:
 		raise ValueError("a Dockerfile has no `ARG GO_VERSION=X.Y.Z` line")
-	return tuple(map(int, match.groups()))
+	major, minor, patch = map(int, match.groups())
+	return major, minor, patch
 
 
 def dotted(go: tuple[int, int, int]) -> str:

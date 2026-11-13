@@ -5,7 +5,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 from unittest import mock
 
 import patch_release
@@ -19,19 +21,19 @@ DELETED_FORK = {"id": 8, "conclusion": "action_required", "head_repository": Non
 IS_OPEN = ("gh", "pr", "list", "--head", "security-plan", "--state", "open", "--json", "number")
 
 
-def runs_path(sha):
+def runs_path(sha: str) -> str:
 	return f"repos/{REPOSITORY}/actions/runs?event=pull_request&head_sha={sha}"
 
 
 class Forge:
 	"""Stands in for git and gh, recording each command and answering only the queries the script should ask."""
 
-	def __init__(self, changed=True, open_prs=(), runs=((OURS,),)):
+	def __init__(self, changed: bool = True, open_prs: Sequence[dict[str, Any]] = (), runs: Sequence[Sequence[dict[str, Any]]] = ((OURS,),)) -> None:
 		self.changed, self.open_prs, self.runs = changed, list(open_prs), list(runs)
-		self.commands = []
-		self.slept = []
+		self.commands: list[tuple[str, ...]] = []
+		self.slept: list[int] = []
 
-	def run(self, *argv, ok=(0,)):
+	def run(self, *argv: str, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess[str]:
 		self.commands.append(argv)
 		code, stdout = 0, ""
 		if argv[:2] == ("git", "diff"):
@@ -46,13 +48,13 @@ class Forge:
 			stdout = SHA + "\n"
 		return subprocess.CompletedProcess(argv, code, stdout, "")
 
-	def sleep(self, seconds):
+	def sleep(self, seconds: int) -> None:
 		self.slept.append(seconds)
 
-	def propose(self):
+	def propose(self) -> None:
 		propose_plan.propose(self.run, self.sleep, REPOSITORY, "token")
 
-	def ran(self, *prefix):
+	def ran(self, *prefix: str) -> list[tuple[str, ...]]:
 		return [c for c in self.commands if c[: len(prefix)] == prefix]
 
 
@@ -105,7 +107,7 @@ class Change(unittest.TestCase):
 		self.assertEqual(forge.ran("gh", "pr", "merge"), [])
 
 
-def git(*argv):
+def git(*argv: str) -> str:
 	return patch_release.run("git", *argv).stdout.strip()
 
 
@@ -132,9 +134,9 @@ class RealCheckout(unittest.TestCase):
 		git("-c", "user.name=Author", "-c", "user.email=author@example.com", "commit", "-qm", "first")
 		self.first = git("rev-parse", "HEAD")
 		self.first_branch = git("branch", "--show-current")
-		self.stood_in = []
+		self.stood_in: list[tuple[str, ...]] = []
 
-	def run_forge(self, *argv, ok=(0,)):
+	def run_forge(self, *argv: str, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess[str]:
 		if argv[0] != "gh" and argv[:2] != ("git", "push"):
 			return patch_release.run(*argv, ok=ok)
 		self.stood_in.append(argv)
@@ -145,10 +147,10 @@ class RealCheckout(unittest.TestCase):
 			stdout = json.dumps({"workflow_runs": [OURS]})
 		return subprocess.CompletedProcess(argv, 0, stdout, "")
 
-	def propose(self):
+	def propose(self) -> None:
 		propose_plan.propose(self.run_forge, lambda _seconds: None, REPOSITORY, "token")
 
-	def assert_proposes(self, changed):
+	def assert_proposes(self, changed: str) -> None:
 		Path(changed).write_text("second\n")
 		self.propose()
 		self.assertEqual(git("branch", "--show-current"), "security-plan")
@@ -204,7 +206,7 @@ class Script(unittest.TestCase):
 			stand_in.write_text(STAND_IN)
 			stand_in.chmod(stand_in.stat().st_mode | stat.S_IXUSR)
 
-	def script(self):
+	def script(self) -> subprocess.CompletedProcess[str]:
 		return subprocess.run([sys.executable, str(Path(__file__).with_name("propose_plan.py"))], env=self.env, capture_output=True, text=True)
 
 	def test_exits_0_after_proposing_with_the_repository_and_token_it_was_given(self) -> None:

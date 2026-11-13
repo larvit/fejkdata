@@ -13,9 +13,9 @@ def repository_file(path: str) -> str:
 
 
 class TheRepositorysPackagesYml(unittest.TestCase):
-	def assert_names_a_goreleaser_version(self, pattern: re.Pattern):
+	def assert_names_a_goreleaser_version(self, pattern: re.Pattern[str]) -> None:
 		match = pattern.search(repository_file(".github/workflows/packages.yml"))
-		self.assertIsNotNone(match, f"{pattern.pattern} finds no GoReleaser version in .github/workflows/packages.yml")
+		assert match, f"{pattern.pattern} finds no GoReleaser version in .github/workflows/packages.yml"
 		self.assertRegex(match[1], r"^v\d+\.\d+\.\d+$")
 
 	def test_names_a_goreleaser_version_carried_reads(self) -> None:
@@ -37,21 +37,21 @@ class TheRepositorysPackagesYml(unittest.TestCase):
 class TheRepositorysComposeFile(unittest.TestCase):
 	def test_runs_the_go_and_the_tools_the_dockerfile_gates_with(self) -> None:
 		compose, dockerfile = repository_file("compose.yaml"), repository_file("Dockerfile")
-		go = re.search(r"golang:\$\{GO_VERSION:-(\S+)\}", compose)[1]
+		(go,) = re.findall(r"golang:\$\{GO_VERSION:-(\S+)\}", compose)
 		self.assertEqual(carried.dotted(carried.go_of(dockerfile)), go)
 		for tool in [r"gocyclo@\S+ -over \d+ -ignore \S+", r"govulncheck@\S+ -scan \w+"]:
 			(gated,) = re.findall(tool, dockerfile)
 			self.assertEqual(re.findall(tool, compose), [gated])
 
 	def test_gives_every_service_a_memory_limit_and_the_same_swap_limit(self) -> None:
-		services = re.search(r"^services:\n(.*?)^volumes:", repository_file("compose.yaml"), re.M | re.S)[1]
+		(services,) = re.findall(r"^services:\n(.*?)^volumes:", repository_file("compose.yaml"), re.M | re.S)
 		blocks = re.split(r"^  (?=[\w-]+:\n)", services, flags=re.M)[1:]
 		self.assertGreater(len(blocks), 0)
 		for block in blocks:
 			name = block.split(":")[0]
 			memory, swap = re.search(r"^    mem_limit: (\S+)$", block, re.M), re.search(r"^    memswap_limit: (\S+)$", block, re.M)
-			self.assertIsNotNone(memory, f"{name} sets no mem_limit")
-			self.assertIsNotNone(swap, f"{name} sets no memswap_limit")
+			assert memory, f"{name} sets no mem_limit"
+			assert swap, f"{name} sets no memswap_limit"
 			self.assertEqual(memory[1], swap[1], f"{name} lets swap exceed its memory limit")
 
 
@@ -117,7 +117,9 @@ class Due(unittest.TestCase):
 		self.assertIsNone(carried.due(carrying(), carrying(go_mod=main)))
 
 	def test_an_indirect_module_a_bump_adds_or_drops_is_carried(self) -> None:
-		self.assertEqual(carried.due(carrying(), carrying(go_mod=NEW_GO_MOD)).go_mod, NEW_GO_MOD)
+		due = carried.due(carrying(), carrying(go_mod=NEW_GO_MOD))
+		assert due
+		self.assertEqual(due.go_mod, NEW_GO_MOD)
 
 
 class Requires(unittest.TestCase):

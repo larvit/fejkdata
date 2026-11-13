@@ -7,11 +7,15 @@ GH_TOKEN and GITHUB_REPOSITORY set. Exits 2 on a step it cannot complete, naming
 
 import json
 import os
+import subprocess
 import sys
 import time
-from typing import Callable
+from typing import Any, Callable
 
 import patch_release
+
+# patch_release.run, or a test's stand-in for it.
+type Run = Callable[..., subprocess.CompletedProcess[str]]
 
 BRANCH = "security-plan"
 TITLE = "Plan known vulnerabilities, and record fixed ones, the last release and new Go minors' Breaking lines"
@@ -24,23 +28,24 @@ RUN_ATTEMPTS = 24
 RUN_ATTEMPT_SECONDS = 5
 
 
-def is_open(run: Callable) -> bool:
+def is_open(run: Run) -> bool:
 	found = run("gh", "pr", "list", "--head", BRANCH, "--state", "open", "--json", "number").stdout
-	return json.loads(found) != []
+	return bool(json.loads(found) != [])
 
 
-def pull_request_run(run: Callable, sleep: Callable[[int], None], repository: str, sha: str) -> dict:
+def pull_request_run(run: Run, sleep: Callable[[int], None], repository: str, sha: str) -> dict[str, Any]:
 	"""The pull_request run of sha in this repository, which the forge may take a while to list."""
 	path = f"repos/{repository}/actions/runs?event=pull_request&head_sha={sha}"
 	for _ in range(RUN_ATTEMPTS):
-		for found in json.loads(run("gh", "api", path).stdout)["workflow_runs"]:
+		runs: list[dict[str, Any]] = json.loads(run("gh", "api", path).stdout)["workflow_runs"]
+		for found in runs:
 			if (found["head_repository"] or {}).get("full_name") == repository:
 				return found
 		sleep(RUN_ATTEMPT_SECONDS)
 	raise ValueError(f"no pull_request run for {sha}; its required check will never report")
 
 
-def propose(run: Callable, sleep: Callable[[int], None], repository: str, token: str) -> None:
+def propose(run: Run, sleep: Callable[[int], None], repository: str, token: str) -> None:
 	if run("git", "diff", "--quiet", "todo.md", "CHANGELOG.md", ok=(0, 1)).returncode == 0:
 		if is_open(run):
 			run("gh", "pr", "close", BRANCH, "--delete-branch", "--comment", "main already holds what this proposed.")

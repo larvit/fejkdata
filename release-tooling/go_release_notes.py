@@ -68,6 +68,7 @@ def breaking_lines(old: tuple[int, int, int], new: tuple[int, int, int], built_f
 def fetch(minor: str) -> str:
 	try:
 		with urllib.request.urlopen(URL.format(minor), timeout=60) as resp:
-			return resp.read().decode()
+			body: bytes = resp.read()
+			return body.decode()
 	except (OSError, http.client.HTTPException) as err:
 		raise ValueError(f"cannot read Go {minor}'s release notes: {err}") from err
