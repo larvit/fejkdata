@@ -1712,3 +1712,102 @@ Inherited architect, would restructure first:
 - `internal/engine/tree/pick.go:20` `PickKey`: level, key and addressed key are one idea under several names
 - `internal/engine/render/render.go:19` `Pinned`: one name over a lookup in `rows` and a render here
 - `cli/cli.go:124` `flagDefs`: one 776-line file holds flags, record writers, input and version
+
+## 2026-11-13T20:58:37Z, PR #372 at 5a00a5c
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7.5 | 5.5 | 6.5 | 6.5 | 6.5 |
+| Mid A | 7 | 5.5 | 6.5 | 6.5 | 6.5 |
+| Maintainability senior | 7 | 5.5 | 6.5 | 6.5 | 6 |
+| Inherited architect | 7.5 | 6 | 6.5 | 7 | 6.5 |
+| Mean | 7.25 | 5.63 | 6.50 | 6.63 | 6.38 |
+
+Junior A, hardest first:
+
+- `internal/engine/render/pick.go:124` `readName`: the frame stack, the mark, the base, the memo and the `BindsField` branch to hold at once
+- `internal/engine/tree/pick.go:83` `LevelsUnder`: fresh and named levels start at different nodes, and `key` is a parameter only to save an allocation
+- `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: three conditions, each delegating to another walk
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: a closure walk keyed by node, key and pick, whose `TableColumn` case cites a plan item
+- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: switch cases justified only by their order
+- `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: one accessor reads the side table or the finished node by phase
+- `internal/engine/render/render.go:127` `readField`: a fresh read clears `env.pick`, verified only in a second file
+- `internal/grammar/where.go:58` `cutWord`: a scanner whose `inClause` flips mid-scan
+
+Mid A, hardest first:
+
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: index arithmetic over two routes' levels, with no word on why each comparison proves the rule
+- `internal/engine/render/pick.go:124` `readName`: frames, the memo and the pins held together, changing out of view
+- `internal/engine/tree/pick.go:83` `LevelsUnder`: how fresh keys line up with named keys took three rereads
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: a recursive closure that walks a choice and a table differently, citing a plan item
+- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: the case order is the invariant
+- `internal/engine/pipeline.go:59` `run`: finds are read through `LoadFinds` before `Finish` and through the nodes after, and the wrong one panics
+- `internal/engine/render/render.go:33` `render`: its type switch must stay in step with `tree.RenderEdges`, and nothing enforces it
+- `internal/engine/load/node.go:193` `compileTemplate`: six positions decide whether a field becomes a column
+
+Maintainability senior, hardest first:
+
+- `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: three conditions whose sufficiency only the README states
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: index arithmetic over `u.levels[j]` beside two kinds of route
+- `internal/engine/render/pick.go:124` `readName`: frames pushed and popped by mark, and a memo keeping frames across categories
+- `internal/engine/tree/pick.go:83` `LevelsUnder`: the rule render and fence both depend on, behind a caller-built `key`
+- `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: the phase is chosen by a nil sentinel, and a wrong one shows only as a panic
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: a `TableColumn` special case whose reason is a plan item
+- `internal/engine/render/render.go:127` `readField`: four paths, one of which sets `env.pick` to nil
+- `internal/engine/load/name.go:81` `answerReads`: nested closures mix error building into the matching
+
+Inherited architect, would restructure first:
+
+- `internal/engine/tree/pick.go:83` `LevelsUnder`: the key rules load and render must agree on are spread over four files
+- `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: a nil `AfterFinish` switches the phase, checked only by a panic
+- `internal/engine/pipeline.go:153` `settleRecords`: `fence.ColumnDatatype` computes load output from a package of proofs
+- `perf_test.go:1` the root: 46 test files drown its 7 source files
+- `data-import/geo.py:1` the import modules: hyphen against underscore tells script from module, stated nowhere
+
+## 2026-11-13T21:00:19Z, PR #372 rerun at 5a00a5c
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Maintainability senior | 7.5 | 6 | 6.5 | 6.5 | 6.5 |
+| Inherited architect | 7 | 5.5 | 6 | 6 | 6 |
+| Mean | 7.13 | 5.63 | 6.38 | 6.13 | 6.13 |
+
+Junior A, hardest first:
+
+- `internal/engine/render/pick.go:124` `readName`: frame marks, entered frames, the memo and the `BindsField` early return to hold at once
+- `internal/engine/tree/pick.go:83` `LevelsUnder`: key arithmetic whose comment mixes heap-escape notes into the semantics
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: three route kinds, a `seen` keyed by node, key and pick, and a reason that is a plan item
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: index juggling over two routes' levels
+- `internal/engine/render/render.go:127` `readField`: a fresh read clears `env.pick`, a rule explained only by `env.go`
+- `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: a nil `*LoadFinds` means read from the nodes, and reading too early panics
+- `internal/grammar/where.go:58` `cutWord`: a scanner whose quote flag applies only inside a clause
+- `internal/rows/rows.go:419` `Table.DrawIn`: a recursive parent draw inside the loop
+
+Mid A, hardest first:
+
+- `internal/engine/tree/pick.go:83` `LevelsUnder`: a fresh read's keys must match a named read's, behind a 30-line comment
+- `internal/engine/render/pick.go:124` `readName`: state changes out of sight, spread over `env.go` and `pick.go`
+- `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw`: three conditions over four stacked helpers, readable only beside the README
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: when `inPick` carries over and when it resets sits in a bullet comment
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: index arithmetic resting on one easily missed sentence
+- `internal/engine/render/env.go:73` `renderEnv`: who clears `pick` is said in another file's comment
+- `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: a value read from the finds or the node by phase
+
+Maintainability senior, hardest first:
+
+- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: each case works only because those before it did not match
+- `internal/engine/tree/pick.go:83` `LevelsUnder`: level, key, at and addressed are four abstract terms layered on each other
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: an `inPick` flag that flips at table edges, and a skipped case whose reason is a plan item
+- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: index arithmetic with one comment as its only anchor
+- `internal/engine/render/pick.go:124` `readName`: frames entered into another pick's memo, then popped by mark
+- `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: the stage decides what a call returns, hidden from the call sites
+- `internal/engine/lazy.go:107` `loadReached`: the lock protecting the shared root sits in `fejkdata.go`
+
+Inherited architect, would restructure first:
+
+- `internal/engine/tree/pick.go:83` `LevelsUnder`: a string-keyed level algebra decides what a pick keeps, and cannot be checked locally
+- `internal/engine/render/pick.go:124` `readName`: frame lifetime, memo and pins mix in one function
+- `internal/engine/fence/namefence.go:112` `walkRoutes`: seventeen files in one package, ungrouped by name fence, value proof and graph
+- `cli/cli.go:227` `parseArgs`: 794 lines hold flags and output writers in one file
