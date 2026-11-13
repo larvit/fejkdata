@@ -70,12 +70,18 @@ func TestAPartWithNoEffectRendersAsWithoutIt(t *testing.T) {
 		`"{date(1990-01-01,1990-12-31,'x')}"`:          `"x"`,
 		`"{time('x')}"`:                                `"x"`,
 	} {
-		sameRenders(t, long, short)
+		t.Run(long, func(t *testing.T) { sameRenders(t, long, short) })
 	}
+}
+
+func TestAColumnOfDatatypeStringIsAStringColumn(t *testing.T) {
 	r, err := shipped(t).NewRecordTemplate(`{"format":"","n":{"format":"{x}","x":["1","2"],"datatype":"string"}}`)
 	if err != nil || r.Fake().Columns()[0].DataType != DataTypeString {
 		t.Errorf("a column of datatype string = %v, want a string column", err)
 	}
+}
+
+func TestDateWithAClockOnlyLayoutPrintsAClock(t *testing.T) {
 	if got := mustRender(t, emptyGenerator(1), `"{date(1990-01-01,1990-12-31,'15:04')}"`); !regexp.MustCompile(`^\d\d:\d\d$`).MatchString(got) {
 		t.Errorf("date with a clock-only layout = %q, want a clock", got)
 	}
@@ -89,12 +95,16 @@ func TestAJSONNumberOrBooleanInARecordColumnIsRefused(t *testing.T) {
 		`{"format":"","n":12345678901234567890}`: {`"12345678901234567890"`, `{"format":"12345678901234567890","datatype":"number"}`},
 		`{"format":"","n":[5,"x"]}`:              {`"5"`, `{"format":"5","datatype":"integer"}`},
 	} {
-		_, err := resolved(t, src)
-		for _, w := range want {
-			if err == nil || !strings.Contains(err.Error(), w) {
-				t.Errorf("compile(%s) = %v, want both spellings, %s among them", src, err, w)
+		t.Run(src, func(t *testing.T) {
+			_, err := resolved(t, src)
+			for _, w := range want {
+				t.Run(w, func(t *testing.T) {
+					if err == nil || !strings.Contains(err.Error(), w) {
+						t.Errorf("compile(%s) = %v, want both spellings, %s among them", src, err, w)
+					}
+				})
 			}
-		}
+		})
 	}
 }
 
@@ -117,32 +127,34 @@ func TestAJSONNumberOrBooleanIsItsText(t *testing.T) {
 		t.Errorf("l = %q, want 1e3 as written", v)
 	}
 	for in, want := range map[string]string{"42": "42", " false ": " false ", "42\n": "42\n", "[7]": "7"} {
-		if v, err := f.FakeTemplate(in); err != nil || v != want {
-			t.Errorf("FakeTemplate(%q) = %q, %v, want %q", in, v, err, want)
-		}
+		t.Run(in, func(t *testing.T) {
+			if v, err := f.FakeTemplate(in); err != nil || v != want {
+				t.Errorf("FakeTemplate(%q) = %q, %v, want %q", in, v, err, want)
+			}
+		})
 	}
 }
 
 func TestARepeatedItemCountsAsWritten(t *testing.T) {
 	for _, src := range []string{`["a", "a", "b"]`, `{"format":"{x|x|y}","x":"a","y":"b"}`} {
-		f, n, as := emptyGenerator(1), compiled(t, src), 0
-		for i := 0; i < 600; i++ {
-			if render.Once(f.drawState, n) == "a" {
-				as++
+		t.Run(src, func(t *testing.T) {
+			f, n := emptyGenerator(1), compiled(t, src)
+			as := tallyDraws(600, func() string { return render.Once(f.drawState, n) })["a"]
+			if as < 340 || as > 460 {
+				t.Errorf("%s drew a %d times in 600, want about 400", src, as)
 			}
-		}
-		if as < 340 || as > 460 {
-			t.Errorf("%s drew a %d times in 600, want about 400", src, as)
-		}
+		})
 	}
 }
 
 func TestInlineFolderSigilsAreRejected(t *testing.T) {
 	f := shipped(t)
 	for _, input := range []string{"{.sv_SE.person.last}", "{..sv_SE.person.last}"} {
-		_, err := f.NewTemplate(input)
-		if err == nil || !strings.Contains(err.Error(), "write {/sv_SE.person.last}") {
-			t.Errorf("NewTemplate(%q) = %v, want an error naming the root spelling", input, err)
-		}
+		t.Run(input, func(t *testing.T) {
+			_, err := f.NewTemplate(input)
+			if err == nil || !strings.Contains(err.Error(), "write {/sv_SE.person.last}") {
+				t.Errorf("NewTemplate(%q) = %v, want an error naming the root spelling", input, err)
+			}
+		})
 	}
 }
