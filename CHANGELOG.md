@@ -30,14 +30,14 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
-- `{tick(start,step,jitter,'layout')}` prints a time that steps with each row: `start` plus `step` seconds per
-  row and 0 to `jitter` seconds, below `step`, so a run's rows ascend in time. `start` is a day or a UTC
-  timestamp.
+- `{tick(start,step,jitter,'layout')}` prints a time that steps with each render: `start` plus `step` seconds
+  per render and 0 to `jitter` seconds, which must be below `step`, so renders ascend in time. `start` is a
+  day or a UTC timestamp.
 - `date` takes bounds relative to the caller's date, `{date(today-30,today+14,'2006-01-02')}`, with
   `WithToday` or `--today` as `today`.
 - `--format pgcopy` writes the records as PostgreSQL's `COPY` text for `psql`: a `COPY "table" (…) FROM STDIN;`
-  line, a tab-separated row per record with `\N` for null and a backslash, tab, CR or LF escaped, and
-  `\.`. `--table` names the target. The library gains `Record.PGCopyHeader(table)` and `Record.PGCopyLine()`.
+  line, a tab-separated row per record with `\N` for null and a backslash, tab, CR or LF escaped, then
+  a line of `\.`. `--table` names the target. The library gains `Record.PGCopyHeader(table)` and `Record.PGCopyLine()`.
   A million rows load in about a fifth of the time `--format sql` takes.
 - `fi_FI`, Finnish, with `fi_FI.person` and the tables it reads: `fi_FI.first-name`, `fi_FI.last-name`,
   `fi_FI.sex` (`nainen` and `mies`) and `fi_FI.title` (`tohtori` and `professori`). A first name that

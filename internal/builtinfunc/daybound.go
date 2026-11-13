@@ -78,7 +78,7 @@ func dayBounds(a []string) (from, to dayBound, err error) {
 	}
 	switch {
 	case from.relative != to.relative:
-		return from, to, fmt.Errorf("date(from,to,layout): from and to are both days or both relative to today, as today-30 and today+14")
+		return from, to, fmt.Errorf("date(from,to,layout): from %q and to %q are not both days or both relative to today, as today-30 and today+14", a[0], a[1])
 	case from.after(to):
 		return from, to, fmt.Errorf("date(from,to,layout): from %s is after to %s", a[0], a[1])
 	}

@@ -225,7 +225,7 @@ these paths; a template reads one as `{/path}`.
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, date, data and versions: identical output (default: a random seed) |
-| `--today DAY` | the date to treat as today, as `YYYY-MM-DD` from year 1000 on; ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer` and `sv_SE.person`, count from it (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
+| `--today DAY` | the date to treat as today, as `YYYY-MM-DD` from year 1000 on; ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer` and `sv_SE.person`, count from it, as does `today` in a [`{date(…)}`](#dates-around-today) bound (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` or `tsv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv`, `pgcopy` or `sql` — a record's columns, one record per row (json frames them as an array) |
@@ -325,9 +325,9 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --table people # IN
 ```
 
 `--repeat` streams that many records — `json` frames them as one array document,
-`ndjson` writes one object per line, `csv` and `tsv` a row after a header, `pgcopy` one `COPY … FROM STDIN;` line, a tab-separated row
-per record and a closing `\.`, `sql` one multi-row INSERT
-per line, each of up to 1000 rows. Only a category-level template is a record, or a one-item choice holding one; a
+`ndjson` writes one object per line; `csv` and `tsv` a header, then a row per record; `pgcopy` a
+`COPY … FROM STDIN;` line, a tab-separated row per record and a closing `\.`; `sql` one multi-row
+INSERT per line, each of up to 1000 rows. Only a category-level template is a record, or a one-item choice holding one; a
 field, a choice of more items or a folder errors, and so does a `repeat` on
 the template itself, which composes the format into one string rather than
 projecting columns — ask for more records with `--repeat`. A `repeat` on a column
@@ -451,7 +451,7 @@ endpoint for `curl`. `csv` writes the columns in name order, so the `\copy` list
 
 ```sh
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --repeat 1000 | psql mydb
-echo '{/users}' | fejkdata --seed 1 -d ./mydata --format pgcopy --repeat 1000 | psql mydb
+echo '{/users}' | fejkdata --seed 1 -d ./mydata --format pgcopy --repeat 1000 | psql -v ON_ERROR_STOP=1 mydb
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --repeat 1000 | sqlite3 app.db
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --repeat 1000 | mysql --init-command="SET SESSION sql_mode = CONCAT(@@sql_mode, ',ANSI_QUOTES,NO_BACKSLASH_ESCAPES')" mydb
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format csv --repeat 1000 | psql -c '\copy users (id, name) FROM pstdin WITH (FORMAT csv, HEADER)' mydb
@@ -461,10 +461,9 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format ndjson --repeat 1000 | 
 
 The `mysql` line sets the two modes the [SQL note](#records) names.
 
-`pgcopy` writes PostgreSQL's `COPY` text: the statement, a tab-separated row per record with `\N` for
-null and a backslash, tab, CR or LF in a value escaped, and `\.`. Loading a million rows into a table
-of `id bigint primary key, name text` on PostgreSQL 17 through `psql` took 1.3 s from `pgcopy` and
-6.5 s from `sql`; both generate in about a second.
+Loading a million rows from a file into a table of `id bigint primary key, name text` on PostgreSQL
+17 through `psql` took 1.4 s from `pgcopy` and 6.9 s from `sql`. Generating either file takes about 1.3 s.
+`-v ON_ERROR_STOP=1` makes `psql` stop at a missing table or column, rather than read every row as SQL.
 
 ## Library
 
@@ -503,7 +502,7 @@ calls := fejkdata.Builtins()              // each way to call a function, such a
 | Option | |
 |--------|--|
 | `WithSeed(n)` | required; the same seed, date, data and versions give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
-| `WithToday(day)` | required; the date to treat as today. Ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer` and `sv_SE.person`, count from it. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It uses the calendar day that `day` shows in its own location and ignores the time of day. `New` refuses a year outside 1000 to 9999 |
+| `WithToday(day)` | required; the date to treat as today. Ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer` and `sv_SE.person`, count from it, as does `today` in a [`{date(…)}`](#dates-around-today) bound. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It uses the calendar day that `day` shows in its own location and ignores the time of day. `New` refuses a year outside 1000 to 9999 |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
@@ -1297,7 +1296,7 @@ operands with no `/`, while its bounds stay within int64.
 A `null` item draws a record column as null: `json` writes `null`, `sql` `NULL`, `pgcopy` `\N`, and
 `csv` an empty field, with an empty string written `""` — the convention PostgreSQL's
 `COPY … CSV` reads. A record of one null column is a blank line, which `COPY` reads as
-null but most CSV readers skip, so write such a record as `json`, `sql` or `pgcopy`. `Fake`
+null in CSV mode but most CSV readers skip, so write such a record as `json`, `sql` or `pgcopy`. `Fake`
 renders a null as `""`. The other items' weights skew its odds:
 
 ```json
@@ -1474,7 +1473,7 @@ A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
 count, range, country or expression fails fast; an integer may carry a sign or leading
 zeros (`+5` and `05` are `5`); a count of `0` renders nothing, except in `luhn(n)`, which refuses it; bounds are finite; and a length, count or decimal place beyond a sane maximum is rejected, so a
 fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed, and a
-time-based id takes its timestamp from the rng, not the clock. A builtin also receives the output its template has rendered so far, which `{fnr(x)}` uses to complete a number from the digits before it. `born` also reads the date, as its row below says. The same seed and date repeat the output.
+time-based id takes its timestamp from the rng, not the clock. A builtin also receives the output its template has rendered so far, which `{fnr(x)}` uses to complete a number from the digits before it. `born` and a `date` bound relative to `today` also read the date, as their rows below say. The same seed and date repeat the output.
 
 | Function | Kind | Renders |
 |----------|------|---------|
@@ -1495,10 +1494,10 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{ulid()}` | sample | ULID, 26 Crockford base32 chars |
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
 | `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE, which a real account may hold; `misc.iban-test` draws published test IBANs |
-| `{date(from,to,'layout')}` | sample | a second between two days, both included, each `YYYY-MM-DD`, or both `today`, `today-30` or `today+14`, relative to `WithToday` or `--today` ([Dates around today](#dates-around-today)), in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
+| `{date(from,to,'layout')}` | sample | a second between two days, both included, each `YYYY-MM-DD`, or both `today` with a day count added or taken away, as `today-30` or `today+14`, from `WithToday` or `--today` ([Dates around today](#dates-around-today)), in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
 | `{born(min,max,'layout')}` | sample | a second in the calendar years in which someone turns `min` to `max`, both included, counted from the year of `WithToday` or `--today`, and never after that date; the layout as in `date` |
 | `{adddays(d,n)}`, `{adddays(d,n,'layout')}` | computation | the date `d` reads plus `n` days, an integer, field, path or name, negative for earlier; the time of day stays, and the layout is `d`'s unless given ([Date offsets](#date-offsets)) |
-| `{tick(start,step,jitter,'layout')}` | counter | the next row's time: `start` plus `step` seconds per row and 0 to `jitter` seconds, below `step`, so rows ascend ([Time steps](#time-steps)) |
+| `{tick(start,step,jitter,'layout')}` | counter | a time that steps with each render: `start` plus `step` seconds per render and 0 to `jitter` seconds, below `step`, so renders ascend ([Time steps](#time-steps)) |
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
@@ -1528,7 +1527,7 @@ The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
 argument stays a name. A layout naming no field prints itself, `date` with a clock-only
 layout prints the drawn instant's clock, and `date` over one day with no clock field prints
 that day.
-Rejected at `New`: a `date` bound that is no calendar date, or after the other; an unquoted
+Rejected at `New`: a `date` bound that is no calendar date or `today` form, or after the other; an unquoted
 or double-quoted layout, naming the single-quoted one; and `time` with a layout naming a
 date field, naming `date`, since `time` draws no date.
 
@@ -1563,23 +1562,24 @@ either way.
 
 ### Dates around today
 
-`date`'s bounds are `YYYY-MM-DD` days, or both relative to the date the caller gives, `WithToday` or
-`--today`: `today`, `today-30` and `today+14`. A due date between a month ago and a fortnight ahead
-needs no re-pinning:
+A `date` bound is a `YYYY-MM-DD` day, or `today` with a day count added or taken away, as `today-30`
+and `today+14`. `today` is the date the caller gives, `WithToday` or `--today`, and both bounds take
+one form. A due date between a month ago and a fortnight ahead stays current as the days pass:
 
 ```json
 { "format": "{date(today-30,today+14,'2006-01-02')}" }
 ```
 
 Renders e.g. `2026-11-03` on 2026-11-12. A day and a relative bound in one call, a `from` after `to`
-and an offset beyond a million days either way are refused at `New`.
+and an offset beyond a million days either way are refused at `New`. A bound stops at year 0000
+or 9999.
 
 ### Time steps
 
-`{tick(start,step,jitter,'layout')}` prints the time of the call's next row: row 1 at `start`, each
-later row `step` seconds after the one before, and 0 to `jitter` seconds more, drawn from the seed.
-`start` is a `YYYY-MM-DD` day, read as its midnight in UTC, or a UTC timestamp such as
-`2026-01-01T00:00:00Z`. A run's rows ascend in time:
+`{tick(start,step,jitter,'layout')}` prints a time that steps with each render of the call, so one
+per record in a `--repeat` run. Render n is `start` plus n−1 times `step` seconds, plus 0 to `jitter`
+seconds drawn from the seed. `start` is a `YYYY-MM-DD` day, read as its midnight in UTC, or a UTC timestamp such as
+`2026-01-01T00:00:00Z`. Renders ascend in time, `step` minus `jitter` to `step` plus `jitter` seconds apart:
 
 ```json
 { "format": "{seq()} {tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}" }
@@ -1588,9 +1588,15 @@ later row `step` seconds after the one before, and 0 to `jitter` seconds more, d
 Renders e.g. `1 2026-01-01T00:00:03Z`, `2 2026-01-01T00:00:31Z` and `3 2026-01-01T00:01:02Z`.
 
 Calls with the same four arguments step one counter, so the second of two such calls in a record
-prints the next row. To print one instant twice, bind it: `{tick(…) as t}{t} {t}`. Calls with other arguments
-count apart. A `jitter` that is `step` or more could swap two rows, so it is refused at `New`, as is
-a `step` outside 1 to 86400 seconds.
+prints the next render's time; calls with other arguments count apart. To print one instant twice,
+bind it from a field:
+
+```json
+{ "format": "{t as when}{when} {when}", "t": "{tick(2026-01-01,60,0,'15:04')}" }
+```
+
+A `jitter` of `step` or more could swap two renders, so it is refused at `New`, as is a `step`
+outside 1 to 86400 seconds.
 
 ### Computation
 

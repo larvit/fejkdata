@@ -55,7 +55,7 @@ func WithSeed(seed uint64) Option {
 }
 
 // WithToday gives the date to treat as today, as [New] requires. Ages in {born(min,max,layout)}
-// count from it. It uses the calendar day the value shows in its own location and ignores the time
+// count from it, as does `today` in a date(from,to,layout) bound. It uses the calendar day the value shows in its own location and ignores the time
 // of day; [New] refuses a year outside 1000 to 9999. Give time.Now() for the current date, or a
 // fixed day to repeat a run's output on a later day.
 func WithToday(today time.Time) Option {
