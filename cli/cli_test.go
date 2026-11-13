@@ -94,6 +94,26 @@ func runTerminal(args ...string) (int, string, string) {
 
 var testDay = time.Date(2026, 1, 15, 0, 0, 0, 0, time.UTC)
 
+var temporaryFolder = regexp.MustCompile(regexp.QuoteMeta(os.TempDir()) + `\S*/`)
+
+func argsName(args []string) string {
+	if len(args) == 0 {
+		return "no flags"
+	}
+	return temporaryFolder.ReplaceAllString(strings.Join(args, " "), "")
+}
+
+func writeDataFiles(t *testing.T, files map[string]string) string {
+	t.Helper()
+	dir := t.TempDir()
+	for name, content := range files {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return dir
+}
+
 func TestRunLoadsTheModulesItIsGiven(t *testing.T) {
 	module := fstest.MapFS{"pet.json": {Data: []byte(`{"format":"{name}","name":["Fido"]}`)}}
 	var out, errb bytes.Buffer
@@ -156,19 +176,23 @@ func TestRunWithoutTodayTakesTheSystemDate(t *testing.T) {
 
 func TestRunTodaySpellings(t *testing.T) {
 	for _, args := range [][]string{{"--today", "2030-06-15"}, {"--today=2030-06-15"}} {
-		code, out, errb := runOut("{born(0,0,'2006')}", args...)
-		if code != 0 || out != "2030" {
-			t.Errorf("run(%v) = %d, %q, %q; want 2030", args, code, out, errb)
-		}
+		t.Run(argsName(args), func(t *testing.T) {
+			code, out, errb := runOut("{born(0,0,'2006')}", args...)
+			if code != 0 || out != "2030" {
+				t.Errorf("run(%v) = %d, %q, %q; want 2030", args, code, out, errb)
+			}
+		})
 	}
 }
 
 func TestRunRefusesAMalformedToday(t *testing.T) {
 	for _, v := range []string{"tomorrow", "", "2030-6-15", "2030-02-30", "20300615", "2030-06-15T12:00:00Z", "0000-06-15", "0001-01-01", "0999-12-31", "10000-01-01"} {
-		code, out, errb := runOut("x", "--today", v)
-		if code != 2 || out != "" || !strings.Contains(errb, "--today") || !strings.Contains(errb, "YYYY-MM-DD") {
-			t.Errorf("run(--today %q) = %d, %q, %q; want misuse naming --today and YYYY-MM-DD", v, code, out, errb)
-		}
+		t.Run(fmt.Sprintf("%q", v), func(t *testing.T) {
+			code, out, errb := runOut("x", "--today", v)
+			if code != 2 || out != "" || !strings.Contains(errb, "--today") || !strings.Contains(errb, "YYYY-MM-DD") {
+				t.Errorf("run(--today %q) = %d, %q, %q; want misuse naming --today and YYYY-MM-DD", v, code, out, errb)
+			}
+		})
 	}
 }
 
@@ -179,13 +203,15 @@ func TestRunSeedSpellings(t *testing.T) {
 		{"-s", "42", "-d", svSE},
 		{"--data-path", svSE, "--seed", "42"},
 	} {
-		code, got, errb := runOut("{/address}", args...)
-		if code != 0 {
-			t.Fatalf("run(%v) = %d, stderr=%q", args, code, errb)
-		}
-		if got != want {
-			t.Errorf("run(%v) = %q, want %q", args, got, want)
-		}
+		t.Run(argsName(args), func(t *testing.T) {
+			code, got, errb := runOut("{/address}", args...)
+			if code != 0 {
+				t.Fatalf("run(%v) = %d, stderr=%q", args, code, errb)
+			}
+			if got != want {
+				t.Errorf("run(%v) = %q, want %q", args, got, want)
+			}
+		})
 	}
 }
 
@@ -196,18 +222,26 @@ func TestRunShortFlagValues(t *testing.T) {
 		{"-s", "42", "-d" + svSE},
 		{"-d", svSE, "-s42"},
 	} {
-		code, got, errb := runOut("{/address}", args...)
-		if code != 0 {
-			t.Fatalf("run(%v) = %d, stderr=%q", args, code, errb)
-		}
-		if got != want {
-			t.Errorf("run(%v) = %q, want %q", args, got, want)
-		}
+		t.Run(argsName(args), func(t *testing.T) {
+			code, got, errb := runOut("{/address}", args...)
+			if code != 0 {
+				t.Fatalf("run(%v) = %d, stderr=%q", args, code, errb)
+			}
+			if got != want {
+				t.Errorf("run(%v) = %q, want %q", args, got, want)
+			}
+		})
 	}
+}
+
+func TestRunShortRepeatTakesItsValueAttached(t *testing.T) {
 	_, three, _ := runOut("{/word}\n", "-s", "1", "-n3", "-d", svSE)
 	if lines := strings.Split(strings.TrimRight(three, "\n"), "\n"); len(lines) != 3 {
 		t.Errorf("-n3 gave %d lines: %q", len(lines), three)
 	}
+}
+
+func TestRunMalformedFlagValueIsMisuse(t *testing.T) {
 	for _, c := range []struct {
 		args []string
 		want string
@@ -218,14 +252,19 @@ func TestRunShortFlagValues(t *testing.T) {
 		{[]string{"-nd", "3", "-d", svSE}, `--repeat needs an integer in 0..1048576, got "d"`},
 		{[]string{"--seed=", "-d", svSE}, `--seed needs an unsigned integer, got ""`},
 	} {
-		code, out, errb := runOut("{/word}", c.args...)
-		if code != 2 || out != "" {
-			t.Errorf("run(%v) = %d, stdout %q, want misuse", c.args, code, out)
-		}
-		if !strings.Contains(errb, c.want) {
-			t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
-		}
+		t.Run(argsName(c.args)+": "+c.want, func(t *testing.T) {
+			code, out, errb := runOut("{/word}", c.args...)
+			if code != 2 || out != "" {
+				t.Errorf("run(%v) = %d, stdout %q, want misuse", c.args, code, out)
+			}
+			if !strings.Contains(errb, c.want) {
+				t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
+			}
+		})
 	}
+}
+
+func TestRunBundledShortHelpPrintsUsage(t *testing.T) {
 	code, out, _ := runOut("", "-hd", svSE)
 	if code != 0 || !strings.Contains(out, "Usage") {
 		t.Errorf("-hd (bundled help) = %d, %q, want usage", code, out)
@@ -255,13 +294,15 @@ func TestRunSingleDashLongIsRejected(t *testing.T) {
 		{[]string{"--nope", "-d", svSE}, "unknown flag --nope"},
 		{[]string{"-x", "-d", svSE}, "unknown flag -x"},
 	} {
-		code, _, errb := runOut("{/person}", c.args...)
-		if code != 2 {
-			t.Errorf("run(%v) = %d, want 2", c.args, code)
-		}
-		if !strings.Contains(errb, c.want) {
-			t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
-		}
+		t.Run(argsName(c.args), func(t *testing.T) {
+			code, _, errb := runOut("{/person}", c.args...)
+			if code != 2 {
+				t.Errorf("run(%v) = %d, want 2", c.args, code)
+			}
+			if !strings.Contains(errb, c.want) {
+				t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
+			}
+		})
 	}
 }
 
@@ -277,13 +318,15 @@ func TestRunFlagValues(t *testing.T) {
 		{[]string{"--repeat", "-1", "-d", svSE}, "--repeat"},
 		{[]string{"-n", "-1", "-d", svSE}, "--repeat"},
 	} {
-		code, _, errb := runOut("{/person}", c.args...)
-		if code != 2 {
-			t.Errorf("run(%v) = %d, want 2", c.args, code)
-		}
-		if !strings.Contains(errb, c.want) {
-			t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
-		}
+		t.Run(argsName(c.args), func(t *testing.T) {
+			code, _, errb := runOut("{/person}", c.args...)
+			if code != 2 {
+				t.Errorf("run(%v) = %d, want 2", c.args, code)
+			}
+			if !strings.Contains(errb, c.want) {
+				t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
+			}
+		})
 	}
 }
 
@@ -320,11 +363,9 @@ func TestRunRepeatAdvancesRNG(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
-	uniq := map[string]bool{}
-	for _, l := range strings.Split(strings.TrimRight(out, "\n"), "\n") {
-		uniq[l] = true
-	}
-	if len(uniq) < 2 {
+	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
+	slices.Sort(lines)
+	if len(slices.Compact(lines)) < 2 {
 		t.Errorf("repeat should vary output, all identical: %q", out)
 	}
 }
@@ -338,16 +379,18 @@ func TestRunMisuse(t *testing.T) {
 		{"", []string{"-d", svSE, "--list", "person"}},
 		{"{/sv_SE.person}", []string{"--no-shipped-data"}},
 	} {
-		code, out, errb := runOut(c.stdin, c.args...)
-		if code != 2 {
-			t.Errorf("run(%q, %v) = %d, want 2", c.stdin, c.args, code)
-		}
-		if !strings.Contains(errb, "try 'fejkdata --help'") {
-			t.Errorf("run(%q, %v) stderr = %q, want a pointer to --help", c.stdin, c.args, errb)
-		}
-		if out != "" {
-			t.Errorf("run(%q, %v) stdout = %q, want nothing", c.stdin, c.args, out)
-		}
+		t.Run(fmt.Sprintf("%q %s", c.stdin, argsName(c.args)), func(t *testing.T) {
+			code, out, errb := runOut(c.stdin, c.args...)
+			if code != 2 {
+				t.Errorf("run(%q, %v) = %d, want 2", c.stdin, c.args, code)
+			}
+			if !strings.Contains(errb, "try 'fejkdata --help'") {
+				t.Errorf("run(%q, %v) stderr = %q, want a pointer to --help", c.stdin, c.args, errb)
+			}
+			if out != "" {
+				t.Errorf("run(%q, %v) stdout = %q, want nothing", c.stdin, c.args, out)
+			}
+		})
 	}
 }
 
@@ -370,10 +413,12 @@ func TestRunTakesNoOperand(t *testing.T) {
 		{[]string{"-"}, "drop it"},
 		{[]string{file}, "fejkdata < " + file},
 	} {
-		code, out, errb := runOut("", c.args...)
-		if code != 2 || out != "" || !strings.Contains(errb, "unexpected argument") || !strings.Contains(errb, c.want) {
-			t.Errorf("run(%v) = %d, %q, %q; want misuse naming %q", c.args, code, out, errb, c.want)
-		}
+		t.Run(argsName(c.args), func(t *testing.T) {
+			code, out, errb := runOut("", c.args...)
+			if code != 2 || out != "" || !strings.Contains(errb, "unexpected argument") || !strings.Contains(errb, c.want) {
+				t.Errorf("run(%v) = %d, %q, %q; want misuse naming %q", c.args, code, out, errb, c.want)
+			}
+		})
 	}
 }
 
@@ -393,10 +438,15 @@ func TestRunTerminalStdinIsMisuse(t *testing.T) {
 	if code != 2 || out != "" || !strings.Contains(errb, "nothing is piped in: echo 'id: {int(1,999)}' | fejkdata; fejkdata --list prints the paths a {/path} reference reads\n") {
 		t.Errorf("run with nothing piped = %d, %q, %q; want misuse showing a template piped to fejkdata", code, out, errb)
 	}
+}
+
+func TestRunListHelpAndVersionReadNoStdin(t *testing.T) {
 	for _, args := range [][]string{{"--list"}, {"--help"}, {"--version"}} {
-		if code, out, errb := runTerminal(args...); code != 0 || out == "" {
-			t.Errorf("run(%v) with nothing piped = %d, %q, %q; want it to run, reading no stdin", args, code, out, errb)
-		}
+		t.Run(argsName(args), func(t *testing.T) {
+			if code, out, errb := runTerminal(args...); code != 0 || out == "" {
+				t.Errorf("run(%v) with nothing piped = %d, %q, %q; want it to run, reading no stdin", args, code, out, errb)
+			}
+		})
 	}
 }
 
@@ -412,14 +462,22 @@ func TestRunRendersExactlyWhatIsSent(t *testing.T) {
 		"{/misc.territory[SE].alpha2}":   "SE",
 		"{/misc.territory[SE].alpha2}\n": "SE\n",
 	} {
-		code, out, errb := runOut(stdin, "--seed", "1")
-		if code != 0 || out != want {
-			t.Errorf("run(%q) = %d, %q, %q; want %q", stdin, code, out, errb, want)
-		}
+		t.Run(fmt.Sprintf("%q", stdin), func(t *testing.T) {
+			code, out, errb := runOut(stdin, "--seed", "1")
+			if code != 0 || out != want {
+				t.Errorf("run(%q) = %d, %q, %q; want %q", stdin, code, out, errb, want)
+			}
+		})
 	}
+}
+
+func TestRunAddsNoNewlineToAJSONTemplatesFormat(t *testing.T) {
 	if code, out, errb := runOut("{\"format\":\"{x}\\n\",\"x\":[\"a\",\"b\"]}\n"); code != 0 || (out != "a\n" && out != "b\n") {
 		t.Errorf("a JSON template's format = %d, %q, %q; want its own newline only", code, out, errb)
 	}
+}
+
+func TestRunWritesTheSeparatorAfterEachRendersOwnNewline(t *testing.T) {
 	if code, out, errb := runOut("{/sv_SE.word}\n", "--seed", "1", "-n", "3", "--separator", ","); code != 0 || strings.Count(out, "\n,") != 2 || !strings.HasSuffix(out, "\n") {
 		t.Errorf("echo's newline and a separator = %d, %q, %q; want each render's newline, then the separator", code, out, errb)
 	}
@@ -427,18 +485,22 @@ func TestRunRendersExactlyWhatIsSent(t *testing.T) {
 
 func TestRunRendersBlankStdin(t *testing.T) {
 	for _, stdin := range []string{"", "\n", " \r\n\t"} {
-		if code, out, errb := runOut(stdin); code != 0 || out != stdin {
-			t.Errorf("run(%q) = %d, %q, %q; want the blank template rendered as it is", stdin, code, out, errb)
-		}
+		t.Run(fmt.Sprintf("%q", stdin), func(t *testing.T) {
+			if code, out, errb := runOut(stdin); code != 0 || out != stdin {
+				t.Errorf("run(%q) = %d, %q, %q; want the blank template rendered as it is", stdin, code, out, errb)
+			}
+		})
 	}
 }
 
 func TestRunTextPrintsAsWritten(t *testing.T) {
 	for _, stdin := range []string{"sv_SE.person", "[Skåne län]", "x[1]y", `say "hi"`} {
-		code, out, errb := runOut(stdin)
-		if code != 0 || out != stdin {
-			t.Errorf("run(%q) = %d, %q, %q; want the text as written", stdin, code, out, errb)
-		}
+		t.Run(stdin, func(t *testing.T) {
+			code, out, errb := runOut(stdin)
+			if code != 0 || out != stdin {
+				t.Errorf("run(%q) = %d, %q, %q; want the text as written", stdin, code, out, errb)
+			}
+		})
 	}
 }
 
@@ -493,21 +555,25 @@ func TestRunList(t *testing.T) {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
 	for _, want := range []string{"person", "person.last", "address"} {
-		if !strings.Contains(out, want) {
-			t.Errorf("list output missing %q:\n%s", want, out)
-		}
+		t.Run(want, func(t *testing.T) {
+			if !strings.Contains(out, want) {
+				t.Errorf("list output missing %q:\n%s", want, out)
+			}
+		})
 	}
 }
 
 func TestRunHelpOnStdout(t *testing.T) {
 	for _, h := range []string{"-h", "--help"} {
-		code, out, errb := runOut("", h)
-		if code != 0 {
-			t.Errorf("%s = %d, want 0", h, code)
-		}
-		if !strings.Contains(out, "Usage") || errb != "" {
-			t.Errorf("%s: stdout = %q, stderr = %q, want usage on stdout only", h, out, errb)
-		}
+		t.Run(h, func(t *testing.T) {
+			code, out, errb := runOut("", h)
+			if code != 0 {
+				t.Errorf("%s = %d, want 0", h, code)
+			}
+			if !strings.Contains(out, "Usage") || errb != "" {
+				t.Errorf("%s: stdout = %q, stderr = %q, want usage on stdout only", h, out, errb)
+			}
+		})
 	}
 }
 
@@ -517,20 +583,23 @@ func TestVersionLineNamesFejkdatasVersion(t *testing.T) {
 	}
 	mycli := debug.Module{Path: "example.com/mycli", Version: "v9.0.0"}
 	for _, c := range []struct {
+		name string
 		info *debug.BuildInfo
 		want string
 	}{
-		{&debug.BuildInfo{Main: *fejkdata("v0.1.0", nil)}, "fejkdata v0.1.0"},
-		{&debug.BuildInfo{Main: *fejkdata("(devel)", nil)}, "fejkdata devel"},
-		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", nil)}}, "mycli v9.0.0, fejkdata v0.1.0"},
-		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", &debug.Module{Path: "../fejkdata"})}}, "mycli v9.0.0, fejkdata devel"},
-		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", &debug.Module{Path: "example.com/fork", Version: "v0.1.1"})}}, "mycli v9.0.0, fejkdata v0.1.1"},
-		{&debug.BuildInfo{Main: mycli}, "mycli v9.0.0, fejkdata devel"},
-		{nil, "fejkdata devel"},
+		{"fejkdata at a release", &debug.BuildInfo{Main: *fejkdata("v0.1.0", nil)}, "fejkdata v0.1.0"},
+		{"fejkdata built from a checkout", &debug.BuildInfo{Main: *fejkdata("(devel)", nil)}, "fejkdata devel"},
+		{"a CLI requiring a release", &debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", nil)}}, "mycli v9.0.0, fejkdata v0.1.0"},
+		{"a CLI replacing fejkdata with a folder", &debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", &debug.Module{Path: "../fejkdata"})}}, "mycli v9.0.0, fejkdata devel"},
+		{"a CLI replacing fejkdata with a fork", &debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", &debug.Module{Path: "example.com/fork", Version: "v0.1.1"})}}, "mycli v9.0.0, fejkdata v0.1.1"},
+		{"a CLI whose modules lack fejkdata", &debug.BuildInfo{Main: mycli}, "mycli v9.0.0, fejkdata devel"},
+		{"no build info", nil, "fejkdata devel"},
 	} {
-		if got := versionLine("mycli", c.info); got != c.want {
-			t.Errorf("versionLine(mycli, %+v) = %q, want %q", c.info, got, c.want)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			if got := versionLine("mycli", c.info); got != c.want {
+				t.Errorf("versionLine(mycli, %+v) = %q, want %q", c.info, got, c.want)
+			}
+		})
 	}
 }
 
@@ -542,9 +611,11 @@ func TestCommandNameIsTheFileItRunsFrom(t *testing.T) {
 		"my.cli":               "my.cli",
 		"":                     "fejkdata",
 	} {
-		if got := commandName(arg0); got != want {
-			t.Errorf("commandName(%q) = %q, want %q", arg0, got, want)
-		}
+		t.Run(fmt.Sprintf("%q", arg0), func(t *testing.T) {
+			if got := commandName(arg0); got != want {
+				t.Errorf("commandName(%q) = %q, want %q", arg0, got, want)
+			}
+		})
 	}
 }
 
@@ -606,30 +677,38 @@ func TestRunShippedDataByDefault(t *testing.T) {
 	}
 }
 
-func TestRunSelectsATableRow(t *testing.T) {
-	dir := t.TempDir()
-	for name, content := range map[string]string{
+func regionDir(t *testing.T) string {
+	t.Helper()
+	return writeDataFiles(t, map[string]string{
 		"region.json": `{"format":"{name}","rows":"region.tsv","key":"code","name":"name"}`,
 		"region.tsv":  "code\tname\n01\tStockholms län\n12\tSkåne län\n",
-	} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	})
+}
+
+func TestRunSelectsATableRow(t *testing.T) {
+	dir := regionDir(t)
 	if code, out, errb := runOut("{/region[12]}", "--no-shipped-data", "-d", dir); code != 0 || out != "Skåne län" {
 		t.Fatalf("{/region[12]} = %d, %q, stderr=%q", code, out, errb)
 	}
 	if code, out, _ := runOut("{/region[Skåne län].code}", "--no-shipped-data", "-d", dir); code != 0 || out != "12" {
 		t.Fatalf("{/region[Skåne län].code} = %d, %q", code, out)
 	}
+	if code, out, _ := runOut("{/misc.territory[SE]}", "--seed", "1", "--format", "csv"); code != 0 || !strings.HasPrefix(out, "alpha2,") || !strings.Contains(out, "\nSE,SWE,") {
+		t.Fatalf("--format csv {/misc.territory[SE]} = %d, %q", code, out)
+	}
+}
+
+func TestRunFormatSQLNamesASelectedRowsTableWithoutItsSelector(t *testing.T) {
+	dir := regionDir(t)
 	if code, out, _ := runOut("{/region[12]}", "--no-shipped-data", "-d", dir, "--format", "sql"); code != 0 || out != `INSERT INTO "region" ("code", "name") VALUES ('12', 'Skåne län');`+"\n" {
 		t.Fatalf("--format sql {/region[12]} = %d, %q, want the table named without its selector", code, out)
 	}
+}
+
+func TestRunSelectingARowATableLacksIsMisuse(t *testing.T) {
+	dir := regionDir(t)
 	if code, _, errb := runOut("{/region[99]}", "--no-shipped-data", "-d", dir); code != 2 || !strings.Contains(errb, `"99"`) {
 		t.Fatalf("{/region[99]} = %d, stderr=%q, want misuse naming the row", code, errb)
-	}
-	if code, out, _ := runOut("{/misc.territory[SE]}", "--seed", "1", "--format", "csv"); code != 0 || !strings.HasPrefix(out, "alpha2,") || !strings.Contains(out, "\nSE,SWE,") {
-		t.Fatalf("--format csv {/misc.territory[SE]} = %d, %q", code, out)
 	}
 }
 
@@ -639,19 +718,31 @@ func TestUsageExamplesRenderWithNoData(t *testing.T) {
 		t.Fatalf("usage and pipe hint hold %d echo examples, want the help's two and the hint's", len(examples))
 	}
 	for _, e := range examples {
-		if code, out, errb := runOut(e[1], "--no-shipped-data"); code != 0 || strings.TrimSpace(out) == "" {
-			t.Errorf("echo %q with no data: run = %d, %q, stderr %q", e[1], code, out, errb)
-		}
+		t.Run(e[1], func(t *testing.T) {
+			if code, out, errb := runOut(e[1], "--no-shipped-data"); code != 0 || strings.TrimSpace(out) == "" {
+				t.Errorf("echo %q with no data: run = %d, %q, stderr %q", e[1], code, out, errb)
+			}
+		})
 	}
+}
+
+func TestUsageNamesNoPathACustomCLIMayNotCarry(t *testing.T) {
 	for _, token := range regexp.MustCompile(`\{/[^}]*\}`).FindAllString(usage, -1) {
-		if token != "{/path}" && token != "{/table[KEY]}" && token != "{/path as p}" {
-			t.Errorf("usage names %s, a path a custom CLI may not carry", token)
-		}
+		t.Run(token, func(t *testing.T) {
+			if token != "{/path}" && token != "{/table[KEY]}" && token != "{/path as p}" {
+				t.Errorf("usage names %s, a path a custom CLI may not carry", token)
+			}
+		})
 	}
+}
+
+func TestUsageNamesEveryExitCode(t *testing.T) {
 	for _, code := range []string{"0 success", "1 runtime error", "2 misuse"} {
-		if !strings.Contains(usage, code) {
-			t.Errorf("usage does not name exit code %s", code)
-		}
+		t.Run(code, func(t *testing.T) {
+			if !strings.Contains(usage, code) {
+				t.Errorf("usage does not name exit code %s", code)
+			}
+		})
 	}
 }
 
@@ -687,9 +778,11 @@ func TestRunInlineTemplate(t *testing.T) {
 
 func TestRunFormatTakesOnlyALoneReferenceAsARecord(t *testing.T) {
 	for _, stdin := range []string{"{//sv_SE.person}", "{/sv_SE.person|/misc.uuid}", "{/sv_SE.person as p}", "{/}", "{/.sv_SE.person}"} {
-		if code, out, errb := runOut(stdin, "--format", "json"); code != 2 || out != "" {
-			t.Errorf("run(%q, --format json) = %d, %q, %q; want misuse", stdin, code, out, errb)
-		}
+		t.Run(stdin, func(t *testing.T) {
+			if code, out, errb := runOut(stdin, "--format", "json"); code != 2 || out != "" {
+				t.Errorf("run(%q, --format json) = %d, %q, %q; want misuse", stdin, code, out, errb)
+			}
+		})
 	}
 	if code, out, errb := runOut(`{"format":"x"}`); code != 0 || out != "x" {
 		t.Errorf(`run({"format":"x"}) = %d, %q, %q; want x`, code, out, errb)
@@ -703,13 +796,15 @@ func TestRunTemplateMisuse(t *testing.T) {
 		"a } b":                 "}}",
 		"{//sv_SE.person}":      "write {/sv_SE.person}",
 	} {
-		code, out, errb := runOut(stdin, "--seed", "1")
-		if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") || !strings.Contains(errb, want) {
-			t.Errorf("run(%q) = %d, %q, %q; want misuse naming %q and --help", stdin, code, out, errb, want)
-		}
-		if strings.Contains(errb, "fejkdata: fejkdata:") {
-			t.Errorf("run(%q) doubled the program prefix: %q", stdin, errb)
-		}
+		t.Run(stdin, func(t *testing.T) {
+			code, out, errb := runOut(stdin, "--seed", "1")
+			if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") || !strings.Contains(errb, want) {
+				t.Errorf("run(%q) = %d, %q, %q; want misuse naming %q and --help", stdin, code, out, errb, want)
+			}
+			if strings.Contains(errb, "fejkdata: fejkdata:") {
+				t.Errorf("run(%q) doubled the program prefix: %q", stdin, errb)
+			}
+		})
 	}
 }
 
@@ -747,10 +842,16 @@ func TestRunRepeatOfZeroWritesNoRecord(t *testing.T) {
 		{[]string{"--format", "sql"}, ""},
 		{[]string{"--format", "tsv"}, "first\tlast\n"},
 	} {
-		if code, out, errb := runOut("{/users}", append(c.args, "-n", "0", "-d", dir)...); code != 0 || out != c.want {
-			t.Errorf("run(-n 0 %v) = %d, %q, %q, want %q", c.args, code, out, errb, c.want)
-		}
+		t.Run(argsName(c.args), func(t *testing.T) {
+			if code, out, errb := runOut("{/users}", append(c.args, "-n", "0", "-d", dir)...); code != 0 || out != c.want {
+				t.Errorf("run(-n 0 %v) = %d, %q, %q, want %q", c.args, code, out, errb, c.want)
+			}
+		})
 	}
+}
+
+func TestRunRepeatOfZeroStillRefusesAReferenceToNothing(t *testing.T) {
+	dir := recordDir(t)
 	if code, _, _ := runOut("{/nope}", "-n", "0", "--format", "json", "-d", dir); code != 1 {
 		t.Errorf("run(-n 0) of a reference to nothing = %d, want 1", code)
 	}
@@ -762,11 +863,16 @@ func TestRunRepeatIsBounded(t *testing.T) {
 		{"--repeat", "1048577"},
 		{"-n", "99999999999"},
 	} {
-		code, out, errb := runOut("{/sv_SE.word}", args...)
-		if code != 2 || out != "" || !strings.Contains(errb, "0..1048576") {
-			t.Errorf("run(%v) = %d, %q, %q, want misuse naming the range", args, code, out, errb)
-		}
+		t.Run(argsName(args), func(t *testing.T) {
+			code, out, errb := runOut("{/sv_SE.word}", args...)
+			if code != 2 || out != "" || !strings.Contains(errb, "0..1048576") {
+				t.Errorf("run(%v) = %d, %q, %q, want misuse naming the range", args, code, out, errb)
+			}
+		})
 	}
+}
+
+func TestRunRepeatAtTheCapStreamsEveryRender(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "x.json"), []byte(`"x"`), 0o644); err != nil {
 		t.Fatal(err)
@@ -790,12 +896,14 @@ func TestRunIgnoresAFlagWithNoEffect(t *testing.T) {
 		{"{/users}", nil, []string{"--table", "t"}},
 		{"{/users}", []string{"--format", "json"}, []string{"--table", "t"}},
 	} {
-		args := append([]string{"--seed", "1", "--data-path", dir}, c.base...)
-		_, want, _ := runOut(c.stdin, args...)
-		code, got, errb := runOut(c.stdin, append(args, c.ignored...)...)
-		if code != 0 || want == "" || got != want {
-			t.Errorf("run(%v + %v) = %d, %q, %q; want what %v alone prints, %q", c.base, c.ignored, code, got, errb, c.base, want)
-		}
+		t.Run(argsName(c.base)+" + "+argsName(c.ignored), func(t *testing.T) {
+			args := append([]string{"--seed", "1", "--data-path", dir}, c.base...)
+			_, want, _ := runOut(c.stdin, args...)
+			code, got, errb := runOut(c.stdin, append(args, c.ignored...)...)
+			if code != 0 || want == "" || got != want {
+				t.Errorf("run(%v + %v) = %d, %q, %q; want what %v alone prints, %q", c.base, c.ignored, code, got, errb, c.base, want)
+			}
+		})
 	}
 }
 
@@ -807,9 +915,11 @@ func TestRunReadsABareNumberAsAFormatString(t *testing.T) {
 
 func TestRunRendersAnyJSONValue(t *testing.T) {
 	for stdin, want := range map[string]string{"42": "42", "42\n": "42\n", "true\n": "true\n", " 7 ": " 7 ", "null\n": "", " null ": ""} {
-		if code, out, errb := runOut(stdin); code != 0 || out != want {
-			t.Errorf("run(%q) = %d, %q, %q, want %q", stdin, code, out, errb, want)
-		}
+		t.Run(fmt.Sprintf("%q", stdin), func(t *testing.T) {
+			if code, out, errb := runOut(stdin); code != 0 || out != want {
+				t.Errorf("run(%q) = %d, %q, %q, want %q", stdin, code, out, errb, want)
+			}
+		})
 	}
 }
 
@@ -837,6 +947,17 @@ func recordDir(t *testing.T) string {
 	return dir
 }
 
+func eachNDJSONRecord(t *testing.T, out string, check func(record map[string]string)) {
+	t.Helper()
+	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+		var record map[string]string
+		if err := json.Unmarshal([]byte(line), &record); err != nil {
+			t.Fatalf("ndjson line %q is not one object: %v", line, err)
+		}
+		check(record)
+	}
+}
+
 func TestRunRecordJSON(t *testing.T) {
 	code, out, errb := runOut("{/users}", "--seed", "1", "--format", "json", "--repeat", "2", "--data-path", recordDir(t))
 	if code != 0 {
@@ -860,12 +981,11 @@ func TestRunRecordNDJSON(t *testing.T) {
 	if len(lines) != 2 {
 		t.Fatalf("ndjson output = %d lines %q, want one object per line", len(lines), out)
 	}
-	for _, line := range lines {
-		var m map[string]string
-		if err := json.Unmarshal([]byte(line), &m); err != nil || len(m) != 2 {
-			t.Fatalf("ndjson line %q is not one object: %v", line, err)
+	eachNDJSONRecord(t, out, func(record map[string]string) {
+		if len(record) != 2 {
+			t.Fatalf("ndjson record %v does not hold two columns", record)
 		}
-	}
+	})
 }
 
 func TestRunRecordTSVFeedsALaterRun(t *testing.T) {
@@ -886,13 +1006,7 @@ func TestRunRecordTSVFeedsALaterRun(t *testing.T) {
 	}
 	_, truth, _ := runOut("{/series}", "--seed", "1", "--format", "ndjson", "-n", "30", "-d", first)
 	valid := map[string]bool{}
-	for _, line := range strings.Split(strings.TrimSpace(truth), "\n") {
-		var m map[string]string
-		if err := json.Unmarshal([]byte(line), &m); err != nil {
-			t.Fatal(err)
-		}
-		valid[m["id"]+" "+m["customer"]] = true
-	}
+	eachNDJSONRecord(t, truth, func(m map[string]string) { valid[m["id"]+" "+m["customer"]] = true })
 
 	second := t.TempDir()
 	writeFile(second, "series.tsv", tsv)
@@ -903,17 +1017,13 @@ func TestRunRecordTSVFeedsALaterRun(t *testing.T) {
 		t.Fatalf("second run = %d, stderr=%q", code, errb)
 	}
 	seen := map[string]bool{}
-	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
-		var m map[string]string
-		if err := json.Unmarshal([]byte(line), &m); err != nil {
-			t.Fatal(err)
-		}
+	eachNDJSONRecord(t, out, func(m map[string]string) {
 		key := m["series_id"] + " " + m["customer"]
 		if !valid[key] {
 			t.Fatalf("order %q names no series the first run wrote", key)
 		}
 		seen[m["customer"]] = true
-	}
+	})
 	if !seen["{x}"] || !seen["Ada"] {
 		t.Fatalf("customers drawn = %v, want both Ada and the literal {x} the first run wrote as {{x}}", seen)
 	}
@@ -960,12 +1070,14 @@ func TestRunRecordSQLStartsANewStatementEveryThousandRows(t *testing.T) {
 		t.Fatalf("%d statements, want 3", len(statements))
 	}
 	for i, want := range []int{1000, 1000, 1} {
-		if !strings.HasPrefix(statements[i], `INSERT INTO "users" ("first", "last") VALUES (`) || !strings.HasSuffix(statements[i], ");") {
-			t.Errorf("statement %d = %q, want a whole INSERT", i, statements[i])
-		}
-		if got := strings.Count(statements[i], "),(") + 1; got != want {
-			t.Errorf("statement %d holds %d rows, want %d", i, got, want)
-		}
+		t.Run(fmt.Sprintf("statement %d", i), func(t *testing.T) {
+			if !strings.HasPrefix(statements[i], `INSERT INTO "users" ("first", "last") VALUES (`) || !strings.HasSuffix(statements[i], ");") {
+				t.Errorf("statement %d = %q, want a whole INSERT", i, statements[i])
+			}
+			if got := strings.Count(statements[i], "),(") + 1; got != want {
+				t.Errorf("statement %d holds %d rows, want %d", i, got, want)
+			}
+		})
 	}
 }
 
@@ -998,7 +1110,10 @@ func TestRunRecordOfAQuotedLoneReference(t *testing.T) {
 	if code != 0 || !strings.HasPrefix(out, `INSERT INTO "users" (`) {
 		t.Fatalf("a JSON string holding {/users} = %d, %q, %q; want the record users", code, out, errb)
 	}
-	code, out, errb = runOut("{/users} ", "--format", "csv", "--data-path", recordDir(t))
+}
+
+func TestRunRecordRefusesWhitespaceAroundALoneReference(t *testing.T) {
+	code, out, errb := runOut("{/users} ", "--format", "csv", "--data-path", recordDir(t))
 	if code != 2 || out != "" || !strings.Contains(errb, "whitespace around {/users}") {
 		t.Errorf("{/users} and a space = %d, %q, %q; want misuse naming the whitespace", code, out, errb)
 	}
@@ -1030,10 +1145,12 @@ func TestRunRecordMisuse(t *testing.T) {
 		{[]string{"--format", "ndjson", "--separator", ","}, "--separator joins text renders"},
 		{[]string{"--format", "sql", "--separator", ","}, "--separator joins text renders"},
 	} {
-		code, out, errb := runOut("{/users}", c.args...)
-		if code != 2 || out != "" || !strings.Contains(errb, c.want) {
-			t.Errorf("run(%v) = %d, %q, %q; want misuse naming %q", c.args, code, out, errb, c.want)
-		}
+		t.Run(argsName(c.args), func(t *testing.T) {
+			code, out, errb := runOut("{/users}", c.args...)
+			if code != 2 || out != "" || !strings.Contains(errb, c.want) {
+				t.Errorf("run(%v) = %d, %q, %q; want misuse naming %q", c.args, code, out, errb, c.want)
+			}
+		})
 	}
 }
 
@@ -1083,35 +1200,35 @@ func TestRunRecordOfAPathWithNoColumns(t *testing.T) {
 		"sv_SE.personnummer": `{"format":"","personnummer":"{/sv_SE.personnummer}"}`,
 		"sv_SE.time":         `{"format":"","time":"{/sv_SE.time}"}`,
 	} {
-		code, out, errb := runOut("{/"+category+"}", "--format", "csv")
-		if code != 1 {
-			t.Fatalf("run(--format csv) of {/%s} = %d, want 1", category, code)
-		}
-		for _, want := range []string{wrapper, "single quotes"} {
-			if !strings.Contains(errb, want) {
-				t.Errorf("{/%s}: stderr = %q, want it to name %s", category, errb, want)
+		t.Run(category, func(t *testing.T) {
+			code, out, errb := runOut("{/"+category+"}", "--format", "csv")
+			if code != 1 {
+				t.Fatalf("run(--format csv) of {/%s} = %d, want 1", category, code)
 			}
-		}
-		if out != "" {
-			t.Errorf("{/%s}: stdout = %q, want nothing", category, out)
-		}
+			if !strings.Contains(errb, wrapper) {
+				t.Errorf("{/%s}: stderr = %q, want it to name %s", category, errb, wrapper)
+			}
+			if !strings.Contains(errb, "single quotes") {
+				t.Errorf("{/%s}: stderr = %q, want it to name %s", category, errb, "single quotes")
+			}
+			if out != "" {
+				t.Errorf("{/%s}: stdout = %q, want nothing", category, out)
+			}
+		})
 	}
 }
 
 func TestADataPathCategoryFailingAtFirstReachExits1(t *testing.T) {
-	dir := t.TempDir()
-	for name, data := range map[string]string{
+	dir := writeDataFiles(t, map[string]string{
 		".fejkdata.json": `{"index": {"bad": {"paths": [""]}}}`,
 		"bad.json":       `"{/nope}"`,
-	} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(data), 0o644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	})
 	for _, args := range [][]string{{"-d", dir}, {"-d", dir, "--format", "json"}} {
-		if code, _, errb := runOut("{/bad}", args...); code != 1 || !strings.Contains(errb, "{/nope}") {
-			t.Errorf("%v on a category failing to load = %d, %q; want exit 1 naming the reference", args, code, errb)
-		}
+		t.Run(argsName(args), func(t *testing.T) {
+			if code, _, errb := runOut("{/bad}", args...); code != 1 || !strings.Contains(errb, "{/nope}") {
+				t.Errorf("%v on a category failing to load = %d, %q; want exit 1 naming the reference", args, code, errb)
+			}
+		})
 	}
 }
 
@@ -1122,21 +1239,24 @@ func TestDocsURLPinsTheReleaseItRuns(t *testing.T) {
 	mycli := debug.Module{Path: "example.com/mycli", Version: "v9.0.0"}
 	pinned, latest := "https://github.com/larvit/fejkdata/blob/v0.4.0/README.md", "https://github.com/larvit/fejkdata"
 	for _, c := range []struct {
+		name string
 		info *debug.BuildInfo
 		want string
 	}{
-		{&debug.BuildInfo{Main: *fejkdata("v0.4.0", nil)}, pinned},
-		{&debug.BuildInfo{Main: *fejkdata("(devel)", nil)}, latest},
-		{&debug.BuildInfo{Main: *fejkdata("v0.4.1-0.20261108120000-abcdef123456", nil)}, latest},
-		{&debug.BuildInfo{Main: *fejkdata("v0.4.0+dirty", nil)}, latest},
-		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.4.0", nil)}}, pinned},
-		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.4.0", &debug.Module{Path: "example.com/fork", Version: "v0.4.1"})}}, latest},
-		{&debug.BuildInfo{Main: mycli}, latest},
-		{nil, latest},
+		{"fejkdata at a release", &debug.BuildInfo{Main: *fejkdata("v0.4.0", nil)}, pinned},
+		{"fejkdata built from a checkout", &debug.BuildInfo{Main: *fejkdata("(devel)", nil)}, latest},
+		{"fejkdata at a pseudo-version", &debug.BuildInfo{Main: *fejkdata("v0.4.1-0.20261108120000-abcdef123456", nil)}, latest},
+		{"fejkdata built from a dirty checkout", &debug.BuildInfo{Main: *fejkdata("v0.4.0+dirty", nil)}, latest},
+		{"a CLI requiring a release", &debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.4.0", nil)}}, pinned},
+		{"a CLI replacing fejkdata with a fork", &debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.4.0", &debug.Module{Path: "example.com/fork", Version: "v0.4.1"})}}, latest},
+		{"a CLI whose modules lack fejkdata", &debug.BuildInfo{Main: mycli}, latest},
+		{"no build info", nil, latest},
 	} {
-		if got := docsURL(c.info); got != c.want {
-			t.Errorf("docsURL(%+v) = %q, want %q", c.info, got, c.want)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			if got := docsURL(c.info); got != c.want {
+				t.Errorf("docsURL(%+v) = %q, want %q", c.info, got, c.want)
+			}
+		})
 	}
 }
 
@@ -1147,29 +1267,41 @@ func TestHelpLinksTheDocsItIsGiven(t *testing.T) {
 	}
 }
 
-func TestHelpListsEveryBuiltin(t *testing.T) {
+func helpBuiltinLines(t *testing.T) []string {
+	t.Helper()
 	_, out, _ := runOut("", "--help")
 	start := strings.Index(out, "builtins:\n")
 	if start < 0 {
 		t.Fatalf("--help has no list of builtins:\n%s", out)
 	}
-	var listed []string
-	lines := 0
+	var lines []string
 	for _, line := range strings.Split(out[start+len("builtins:\n"):], "\n") {
 		if !strings.HasPrefix(line, "  ") {
 			break
 		}
-		if len(line) > 88 {
-			t.Errorf("--help lists builtins on a line of %d columns, over 88: %q", len(line), line)
-		}
-		lines++
-		listed = append(listed, strings.Fields(line)...)
+		lines = append(lines, line)
 	}
-	if lines < 2 {
-		t.Errorf("--help lists the builtins on %d line, want them wrapped", lines)
-	}
+	return lines
+}
+
+func TestHelpListsEveryBuiltin(t *testing.T) {
+	listed := strings.Fields(strings.Join(helpBuiltinLines(t), " "))
 	if want := fejkdata.Builtins(); !slices.Equal(listed, want) {
 		t.Fatalf("--help lists the builtins %v, want %v", listed, want)
+	}
+}
+
+func TestHelpWrapsItsBuiltinsAt88Columns(t *testing.T) {
+	lines := helpBuiltinLines(t)
+	if len(lines) < 2 {
+		t.Errorf("--help lists the builtins on %d line, want them wrapped", len(lines))
+	}
+	for _, line := range lines {
+		t.Run(strings.TrimSpace(line), func(t *testing.T) {
+			if len(line) > 88 {
+				t.Errorf("--help lists builtins on a line of %d columns, over 88: %q", len(line), line)
+			}
+		})
 	}
 }
 
@@ -1179,13 +1311,16 @@ func TestHelpLeadsToNamesFunctionsAndTheReadme(t *testing.T) {
 		t.Errorf("--help shows no {x as y}:\n%s", out)
 	}
 	for _, link := range []string{"https://github.com/larvit/fejkdata#names", "https://github.com/larvit/fejkdata#functions", "https://github.com/larvit/fejkdata#your-own-data"} {
-		if !strings.Contains(out, link) {
-			t.Errorf("--help does not link %s", link)
-		}
+		t.Run(link, func(t *testing.T) {
+			if !strings.Contains(out, link) {
+				t.Errorf("--help does not link %s", link)
+			}
+		})
 	}
 }
 
-func TestHelpLinksOnlyReadmeHeadings(t *testing.T) {
+func readmeHeadingAnchors(t *testing.T) map[string]bool {
+	t.Helper()
 	readme, err := os.ReadFile(filepath.Join("..", "README.md"))
 	if err != nil {
 		t.Fatal(err)
@@ -1194,12 +1329,26 @@ func TestHelpLinksOnlyReadmeHeadings(t *testing.T) {
 	for _, m := range regexp.MustCompile(`(?m)^#+ (.+)$`).FindAllStringSubmatch(string(readme), -1) {
 		anchors[strings.ReplaceAll(strings.ToLower(m[1]), " ", "-")] = true
 	}
+	return anchors
+}
+
+func TestHelpLinksOnlyReadmeHeadings(t *testing.T) {
+	anchors := readmeHeadingAnchors(t)
 	_, out, _ := runOut("", "--help")
 	for _, m := range regexp.MustCompile(`https://github\.com/larvit/fejkdata#(\S+)`).FindAllStringSubmatch(out, -1) {
-		if !anchors[m[1]] {
-			t.Errorf("--help links #%s, which no README heading makes", m[1])
-		}
+		t.Run(m[1], func(t *testing.T) {
+			if !anchors[m[1]] {
+				t.Errorf("--help links #%s, which no README heading makes", m[1])
+			}
+		})
 	}
+}
+
+func flagAsHelpAndReadmeListIt(f flagDef) (inHelp, inReadme string) {
+	if f.short != "" {
+		return "  -" + f.short + ", --" + f.long, "`-" + f.short + "`, `--" + f.long
+	}
+	return "      --" + f.long, "`--" + f.long
 }
 
 func TestHelpAndReadmeNameEveryFlag(t *testing.T) {
@@ -1208,20 +1357,20 @@ func TestHelpAndReadmeNameEveryFlag(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, f := range flagDefs {
-		inHelp, inReadme := "      --"+f.long, "`--"+f.long
-		if f.short != "" {
-			inHelp, inReadme = "  -"+f.short+", --"+f.long, "`-"+f.short+"`, `--"+f.long
-		}
-		if !strings.Contains(usage, inHelp) {
-			t.Errorf("--help does not list %q", inHelp)
-		}
-		if !strings.Contains(string(readme), inReadme) {
-			t.Errorf("README's flag table does not list %q", inReadme)
-		}
+		t.Run(f.long, func(t *testing.T) {
+			inHelp, inReadme := flagAsHelpAndReadmeListIt(f)
+			if !strings.Contains(usage, inHelp) {
+				t.Errorf("--help does not list %q", inHelp)
+			}
+			if !strings.Contains(string(readme), inReadme) {
+				t.Errorf("README's flag table does not list %q", inReadme)
+			}
+		})
 	}
 }
 
-func TestReadmeLoadIntoADatabaseLeftSidesRun(t *testing.T) {
+func readmeLoadIntoADatabase(t *testing.T) (users string, pipelines [][]string) {
+	t.Helper()
 	readme, err := os.ReadFile(filepath.Join("..", "README.md"))
 	if err != nil {
 		t.Fatal(err)
@@ -1232,33 +1381,37 @@ func TestReadmeLoadIntoADatabaseLeftSidesRun(t *testing.T) {
 	if block == nil {
 		t.Fatal("README's Load into a database lost its users.json")
 	}
-	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "users.json"), []byte(block[1]), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	starts := map[string]string{"pgcopy": "COPY ", "sql": "INSERT INTO", "csv": "id,name\n", "ndjson": `{"id":`}
-	tools := map[string]bool{}
 	for _, line := range strings.Split(section, "\n") {
-		stages := strings.Split(line, " | ")
-		if len(stages) != 3 || !strings.HasPrefix(stages[0], "echo ") {
-			continue
+		if stages := strings.Split(line, " | "); len(stages) == 3 && strings.HasPrefix(stages[0], "echo ") {
+			pipelines = append(pipelines, stages)
 		}
-		args := strings.Fields(strings.TrimPrefix(stages[1], "fejkdata "))
-		for i, a := range args {
-			if a == "./mydata" {
-				args[i] = dir
-			}
-		}
-		code, out, errb := runOut("{/users}", args...)
-		format := args[slices.Index(args, "--format")+1]
-		if code != 0 || !strings.HasPrefix(out, starts[format]) || strings.Count(out, "\n") < 1 {
-			t.Errorf("README's %q = %d, %q, stderr %q, want a %s run", stages[1], code, out, errb, format)
-		}
-		tools[strings.Fields(stages[2])[0]] = true
 	}
+	return block[1], pipelines
+}
+
+func TestReadmeLoadIntoADatabaseLeftSidesRun(t *testing.T) {
+	users, pipelines := readmeLoadIntoADatabase(t)
+	dir := writeDataFiles(t, map[string]string{"users.json": users})
+	starts := map[string]string{"pgcopy": "COPY ", "sql": "INSERT INTO", "csv": "id,name\n", "ndjson": `{"id":`}
+	for _, stages := range pipelines {
+		t.Run(stages[2], func(t *testing.T) {
+			args := strings.Fields(strings.ReplaceAll(strings.TrimPrefix(stages[1], "fejkdata "), "./mydata", dir))
+			code, out, errb := runOut("{/users}", args...)
+			format := args[slices.Index(args, "--format")+1]
+			if code != 0 || !strings.HasPrefix(out, starts[format]) || strings.Count(out, "\n") < 1 {
+				t.Errorf("README's %q = %d, %q, stderr %q, want a %s run", stages[1], code, out, errb, format)
+			}
+		})
+	}
+}
+
+func TestReadmeLoadIntoADatabaseKeepsALineForEachTool(t *testing.T) {
+	_, pipelines := readmeLoadIntoADatabase(t)
 	for _, tool := range []string{"psql", "sqlite3", "mysql", "mongoimport", "curl"} {
-		if !tools[tool] {
-			t.Errorf("README's Load into a database lost its %s line", tool)
-		}
+		t.Run(tool, func(t *testing.T) {
+			if !slices.ContainsFunc(pipelines, func(stages []string) bool { return strings.Fields(stages[2])[0] == tool }) {
+				t.Errorf("README's Load into a database lost its %s line", tool)
+			}
+		})
 	}
 }
