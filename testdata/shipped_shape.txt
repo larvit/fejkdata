@@ -158,6 +158,11 @@ en_US.word.any	string
 en_US.word.noun	string
 en_US.word.verb	string
 en_US.word.verb.present
+fi_FI.address	format "{/geo.FI.address as a}{a}"	reads geo.FI.address
+fi_FI.address.locality	string
+fi_FI.address.postal-code	string
+fi_FI.address.street	string
+fi_FI.address.street-number	string
 fi_FI.company	format "{registered as r}{r}"	reads fi_FI.company fi_FI.company-coined fi_FI.company-word fi_FI.first-name fi_FI.last-name
 fi_FI.company-coined	format "{a}{b}"
 fi_FI.company-coined.a	string
@@ -299,6 +304,80 @@ geo.DK.street	format "{name}"	weight addresses	parent locality
 geo.DK.street.addresses	string
 geo.DK.street.locality	string
 geo.DK.street.name	string
+geo.FI.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.FI.locality
+geo.FI.address.locality	string
+geo.FI.address.postal-code	string
+geo.FI.address.street	string
+geo.FI.address.street-number	string
+geo.FI.locality	format "{name}"	key name	weight population	parent municipality
+geo.FI.locality.lat	string
+geo.FI.locality.lon	string
+geo.FI.locality.municipality	string
+geo.FI.locality.name	string
+geo.FI.locality.population	string
+geo.FI.locality.postal-code
+geo.FI.locality.postal-code.code
+geo.FI.locality.postal-code.locality
+geo.FI.locality.postal-code.population
+geo.FI.locality.street
+geo.FI.locality.street.addresses
+geo.FI.locality.street.locality
+geo.FI.locality.street.name
+geo.FI.locality.street.swedish-name
+geo.FI.municipality	format "{name}"	key code	name name	weight population	parent region
+geo.FI.municipality.code	string
+geo.FI.municipality.locality
+geo.FI.municipality.locality.lat
+geo.FI.municipality.locality.lon
+geo.FI.municipality.locality.municipality
+geo.FI.municipality.locality.name
+geo.FI.municipality.locality.population
+geo.FI.municipality.locality.postal-code
+geo.FI.municipality.locality.postal-code.code
+geo.FI.municipality.locality.postal-code.locality
+geo.FI.municipality.locality.postal-code.population
+geo.FI.municipality.locality.street
+geo.FI.municipality.locality.street.addresses
+geo.FI.municipality.locality.street.locality
+geo.FI.municipality.locality.street.name
+geo.FI.municipality.locality.street.swedish-name
+geo.FI.municipality.name	string
+geo.FI.municipality.population	string
+geo.FI.municipality.region	string
+geo.FI.postal-code	format "{code}"	key code	weight population	parent locality
+geo.FI.postal-code.code	string
+geo.FI.postal-code.locality	string
+geo.FI.postal-code.population	string
+geo.FI.region	format "{name}"	key code	name name	weight population
+geo.FI.region.code	string
+geo.FI.region.municipality
+geo.FI.region.municipality.code
+geo.FI.region.municipality.locality
+geo.FI.region.municipality.locality.lat
+geo.FI.region.municipality.locality.lon
+geo.FI.region.municipality.locality.municipality
+geo.FI.region.municipality.locality.name
+geo.FI.region.municipality.locality.population
+geo.FI.region.municipality.locality.postal-code
+geo.FI.region.municipality.locality.postal-code.code
+geo.FI.region.municipality.locality.postal-code.locality
+geo.FI.region.municipality.locality.postal-code.population
+geo.FI.region.municipality.locality.street
+geo.FI.region.municipality.locality.street.addresses
+geo.FI.region.municipality.locality.street.locality
+geo.FI.region.municipality.locality.street.name
+geo.FI.region.municipality.locality.street.swedish-name
+geo.FI.region.municipality.name
+geo.FI.region.municipality.population
+geo.FI.region.municipality.region
+geo.FI.region.name	string
+geo.FI.region.population	string
+geo.FI.region.timezone	string
+geo.FI.street	format "{name}"	weight addresses	parent locality
+geo.FI.street.addresses	string
+geo.FI.street.locality	string
+geo.FI.street.name	string
+geo.FI.street.swedish-name	string
 geo.NO.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.NO.locality
 geo.NO.address.locality	string
 geo.NO.address.postal-code	string
