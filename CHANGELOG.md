@@ -78,6 +78,12 @@ with its replacement, and each removed path, column or flag.
   agrees with a bound sex `s`.
 - `IsLonePath` reports whether the text after a reference's `/` is one path and
   nothing else, so `{/users}` is a lone reference, and `{/users as u}` is not.
+- `fi_FI.address` prints a Finnish address, such as `Huvilakatu 34\n00700 Helsinki`, from `geo.FI`:
+  Finland's maakunnat, kunnat, postitoimipaikat, normal postinumerot and streets, from Posti's postal
+  code files and Statistics Finland. A street carries its Swedish name under `swedish-name`, or its
+  Finnish one where Posti gives none. Åland ships no place, since Posti's files hold no street there.
+  Posti's terms ask that a program passing the data on name those terms and the day each file was
+  downloaded, which DATA-LICENSES.md does.
 
 ## 0.4.3 - 2026-11-12
 
