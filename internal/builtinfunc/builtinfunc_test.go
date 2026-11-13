@@ -10,6 +10,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/larvit/fejkdata/internal/avoid"
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
@@ -18,12 +19,14 @@ import (
 // prep, and args parsed at compile only behind a check.
 func TestRegistryShapes(t *testing.T) {
 	for name, b := range builtins {
-		if b.prep == nil && name != AddDaysName {
-			t.Errorf("builtin %q has no prep: Prep would call a nil func", name)
-		}
-		if b.arity != 0 && b.checkArgs == nil {
-			t.Errorf("builtin %q parses args in prep with no check", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if b.prep == nil && name != AddDaysName {
+				t.Errorf("builtin %q has no prep: Prep would call a nil func", name)
+			}
+			if b.arity != 0 && b.checkArgs == nil {
+				t.Errorf("builtin %q parses args in prep with no check", name)
+			}
+		})
 	}
 }
 
@@ -42,10 +45,15 @@ func TestCheckNamesWhatACallGetsWrong(t *testing.T) {
 		{"calc", []string{"a", "-1"}, "calc decimals "},
 		{"calc", nil, "calc takes an expression and an optional decimals count, got 0 args"},
 	} {
-		if err := Check(c.name, c.args); err == nil || !strings.HasPrefix(err.Error(), c.want) {
-			t.Errorf("Check(%s, %q) = %v, want it to start %q", c.name, c.args, err, c.want)
-		}
+		t.Run(fmt.Sprintf("%s(%s)", c.name, strings.Join(c.args, ",")), func(t *testing.T) {
+			if err := Check(c.name, c.args); err == nil || !strings.HasPrefix(err.Error(), c.want) {
+				t.Errorf("Check(%s, %q) = %v, want it to start %q", c.name, c.args, err, c.want)
+			}
+		})
 	}
+}
+
+func TestCheckAcceptsACalcOverAnyOperand(t *testing.T) {
 	if err := Check("calc", []string{"a / b", "2"}); err != nil {
 		t.Errorf("Check(calc) = %v, want an expression over any operand accepted", err)
 	}
@@ -59,7 +67,9 @@ func TestArgGuardsPanic(t *testing.T) {
 		"atof on an unvalidated arg":             func() { atof("nope") },
 		"prep on an expression that won't parse": func() { calcPrep([]string{"1 +"}) },
 	} {
-		mustPanic(t, name, call)
+		t.Run(name, func(t *testing.T) {
+			mustPanic(t, name, call)
+		})
 	}
 }
 
@@ -75,7 +85,8 @@ func mustPanic(t *testing.T, name string, call func()) {
 	call()
 }
 
-func TestAsciiFoldsEveryShippedNameLetter(t *testing.T) {
+func shippedNameFiles(t *testing.T) []string {
+	t.Helper()
 	var files []string
 	for _, name := range []string{"first-name.tsv", "last-name.tsv"} {
 		found, err := filepath.Glob("../../data/*/" + name)
@@ -87,28 +98,56 @@ func TestAsciiFoldsEveryShippedNameLetter(t *testing.T) {
 	if len(files) == 0 {
 		t.Fatal("found no first-name.tsv or last-name.tsv under data/")
 	}
-	for _, file := range files {
-		src, err := os.ReadFile(file)
-		if err != nil {
-			t.Fatal(err)
-		}
-		for _, r := range string(src) {
-			if r > unicode.MaxASCII && (unicode.IsLetter(r) || unicode.IsMark(r)) && asciiFolds[r] == "" {
-				t.Errorf("%s holds %q, which ascii has no entry for", file, r)
-			}
+	return files
+}
+
+func eachLetterOutsideASCII(src string, check func(r rune)) {
+	for _, r := range src {
+		if r > unicode.MaxASCII && (unicode.IsLetter(r) || unicode.IsMark(r)) {
+			check(r)
 		}
 	}
 }
 
-func TestEveryBuiltinShowsItsCalls(t *testing.T) {
-	for name, b := range builtins {
-		if len(b.calls) == 0 {
-			t.Errorf("%s shows no call", name)
-		}
-		for _, c := range b.calls {
-			if !strings.HasPrefix(c, name+"(") || !strings.HasSuffix(c, ")") {
-				t.Errorf("%s shows the call %q, want %s(…)", name, c, name)
+func TestAsciiFoldsEveryShippedNameLetter(t *testing.T) {
+	for _, file := range shippedNameFiles(t) {
+		t.Run(filepath.Base(filepath.Dir(file))+" "+filepath.Base(file), func(t *testing.T) {
+			src, err := os.ReadFile(file)
+			if err != nil {
+				t.Fatal(err)
 			}
+			eachLetterOutsideASCII(string(src), func(r rune) {
+				if asciiFolds[r] == "" {
+					t.Errorf("%s holds %q, which ascii has no entry for", file, r)
+				}
+			})
+		})
+	}
+}
+
+func TestEveryBuiltinShowsACall(t *testing.T) {
+	for name, b := range builtins {
+		t.Run(name, func(t *testing.T) {
+			if len(b.calls) == 0 {
+				t.Errorf("%s shows no call", name)
+			}
+		})
+	}
+}
+
+func TestEveryBuiltinSpellsItsCallsWithItsName(t *testing.T) {
+	for name, b := range builtins {
+		t.Run(name, func(t *testing.T) {
+			eachCallSpells(t, name, b.calls)
+		})
+	}
+}
+
+func eachCallSpells(t *testing.T, name string, calls []string) {
+	t.Helper()
+	for _, c := range calls {
+		if !strings.HasPrefix(c, name+"(") || !strings.HasSuffix(c, ")") {
+			t.Errorf("%s shows the call %q, want %s(…)", name, c, name)
 		}
 	}
 }
@@ -124,33 +163,47 @@ func TestEachRunsHoldsWhatItsBuiltinPrintsAndNoMore(t *testing.T) {
 		{"base64", []string{"4"}}, {"uuid", nil}, {"ulid", nil},
 	} {
 		call := fmt.Sprintf("%s(%s)", c.name, strings.Join(c.args, ","))
-		runs, ok := Runs(c.name, c.args)
-		if !ok {
-			t.Errorf("%s has no runs", call)
-			continue
-		}
-		var want []string
-		for _, r := range runs {
-			for range r.N {
-				want = append(want, sortedSet(r.Alphabet))
+		t.Run(call, func(t *testing.T) {
+			runs, ok := Runs(c.name, c.args)
+			if !ok {
+				t.Errorf("%s has no runs", call)
+				return
 			}
+			want := alphabetOfEachCharacter(runs)
+			draw := Prep(c.name, c.args)
+			printedAtEachCharacter(t, call, 5000, len(want), func() string { return draw(s, "", nil) }, func(i int, got string) {
+				if got != want[i] {
+					t.Errorf("%s at %d printed %q, where its runs hold %q", call, i, got, want[i])
+				}
+			})
+		})
+	}
+}
+
+func alphabetOfEachCharacter(runs avoid.Runs) []string {
+	var alphabets []string
+	for _, r := range runs {
+		for range r.N {
+			alphabets = append(alphabets, sortedSet(r.Alphabet))
 		}
-		seen := make([]string, len(want))
-		draw := Prep(c.name, c.args)
-		for range 5000 {
-			v := draw(s, "", nil)
-			if len(v) != len(want) {
-				t.Fatalf("%s printed %q, %d characters, where its runs hold %d", call, v, len(v), len(want))
-			}
-			for i := range v {
-				seen[i] += v[i : i+1]
-			}
+	}
+	return alphabets
+}
+
+func printedAtEachCharacter(t *testing.T, call string, draws, width int, draw func() string, check func(i int, printed string)) {
+	t.Helper()
+	seen := make([]string, width)
+	for range draws {
+		v := draw()
+		if len(v) != width {
+			t.Fatalf("%s printed %q, %d characters, where its runs hold %d", call, v, len(v), width)
 		}
-		for i := range want {
-			if got := sortedSet(seen[i]); got != want[i] {
-				t.Errorf("%s at %d printed %q, where its runs hold %q", call, i, got, want[i])
-			}
+		for i := range v {
+			seen[i] += v[i : i+1]
 		}
+	}
+	for i := range seen {
+		check(i, sortedSet(seen[i]))
 	}
 }
 
@@ -160,14 +213,19 @@ func sortedSet(s string) string {
 	return string(slices.Compact(b))
 }
 
-func TestOnlyTheSampleBuiltinsHaveRuns(t *testing.T) {
-	var got []string
+func builtinsWithRuns() []string {
+	var names []string
 	for name := range builtins {
 		if _, ok := Runs(name, []string{"1"}); ok {
-			got = append(got, name)
+			names = append(names, name)
 		}
 	}
-	slices.Sort(got)
+	slices.Sort(names)
+	return names
+}
+
+func TestOnlyTheSampleBuiltinsHaveRuns(t *testing.T) {
+	got := builtinsWithRuns()
 	if want := []string{"base64", "digits", "hex", "lower", "nanoid", "ulid", "upper", "uuid"}; !slices.Equal(got, want) {
 		t.Errorf("the builtins with runs are %q, want %q", got, want)
 	}
