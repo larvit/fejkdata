@@ -105,6 +105,30 @@ func tsvCell(s string) string { return tsvCellEscapes.Replace(s) }
 
 var tsvCellEscapes = strings.NewReplacer("{", "{{", "}", "}}", "\t", " ", "\r", " ", "\n", " ")
 
+// PGCopyHeader renders the statement that starts a COPY of the records' text into table, columns
+// in double quotes. Follow it with each record's PGCopyLine on a line of its own, then a line of \.
+func (r *Record) PGCopyHeader(table string) string {
+	cols := make([]string, len(r.columns))
+	for i, c := range r.columns {
+		cols[i] = quoteIdent(c.Name)
+	}
+	return fmt.Sprintf("COPY %s (%s) FROM STDIN;", quoteIdent(table), strings.Join(cols, ", "))
+}
+
+// PGCopyLine renders the column values as one row of PostgreSQL's COPY text: tab-separated, a null
+// column \N, and a backslash, tab, CR or LF in a value escaped.
+func (r *Record) PGCopyLine() string {
+	cells := make([]string, len(r.columns))
+	for i, c := range r.columns {
+		cells[i] = literal(c, pgCopyCell, `\N`)
+	}
+	return strings.Join(cells, "\t")
+}
+
+var pgCopyEscapes = strings.NewReplacer(`\`, `\\`, "\t", `\t`, "\r", `\r`, "\n", `\n`)
+
+func pgCopyCell(s string) string { return pgCopyEscapes.Replace(s) }
+
 // SQLInsert renders the record as one INSERT statement into table, identifiers in ANSI
 // double quotes.
 func (r *Record) SQLInsert(table string) string {
