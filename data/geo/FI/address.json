@@ -2,9 +2,9 @@
   "format": "{street} {street-number}\n{postal-code} {locality}",
   "street": "{.locality as l}{l.street.name}",
   "street-number": [
-    { "format": "{int(1,9)}", "weight": 279243 },
-    { "format": "{int(10,99)}", "weight": 241924 },
-    { "format": "{int(100,999)}", "weight": 81982 },
+    { "format": "{int(1,9)}", "weight": 279237 },
+    { "format": "{int(10,99)}", "weight": 241923 },
+    { "format": "{int(100,999)}", "weight": 81981 },
     { "format": "{int(1000,9999)}", "weight": 6916 },
     { "format": "{int(1,9)}{lower(1)}", "weight": 10100 },
     { "format": "{int(10,99)}{lower(1)}", "weight": 10575 },

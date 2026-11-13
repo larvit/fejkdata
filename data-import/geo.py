@@ -135,18 +135,30 @@ def geonames(cache, country):
     return rows
 
 
+def most_addresses_first(in_municipality):
+    """in_municipality's items, the most addresses first, the lower municipality code first in a tie."""
+    return sorted(in_municipality.items(), key=lambda kv: (-kv[1], kv[0][1]))
+
+
+def home_municipalities(in_municipality):
+    """Each locality's municipality: the one holding most of its addresses, the lower code winning a tie.
+    in_municipality maps (locality, municipality) to the addresses they share."""
+    home = {}
+    for (place, municipality), _ in most_addresses_first(in_municipality):
+        home.setdefault(place, municipality)
+    return home
+
+
 def homes(in_municipality, people):
     """Each locality's municipality and population. in_municipality maps (locality, municipality) to the addresses they
-    share, and people maps a municipality to its population. A locality's municipality holds most of its addresses, the
-    lower code winning a tie. Its population is each municipality's, shared out over that municipality's localities by
-    their addresses there."""
-    of_municipality, share, home = collections.Counter(), collections.Counter(), {}
+    share, and people maps a municipality to its population. A locality's municipality is home_municipalities'. Its
+    population is each municipality's, shared out over that municipality's localities by their addresses there."""
+    of_municipality, share = collections.Counter(), collections.Counter()
     for (_, municipality), n in in_municipality.items():
         of_municipality[municipality] += n
-    for (place, municipality), n in sorted(in_municipality.items(), key=lambda kv: (-kv[1], kv[0][1])):
+    for (place, municipality), n in most_addresses_first(in_municipality):
         share[place] += people.get(municipality, 0) * n / of_municipality[municipality]
-        home.setdefault(place, municipality)
-    return {place: (municipality, max(1, round(share[place]))) for place, municipality in home.items()}
+    return {place: (municipality, max(1, round(share[place]))) for place, municipality in home_municipalities(in_municipality).items()}
 
 
 def number_range(number, lettered):

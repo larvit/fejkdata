@@ -3471,7 +3471,7 @@ Pietiläntie	Annonen	Pietiläntie	2
 Törmintie	Annonen	Törmintie	2
 Viireläntie	Annonen	Viireläntie	2
 Mieluskyläntie	Annonen	Mieluskyläntie	1
-Antskogintie	Antskog	Antskogintie	4
+Antskogintie	Antskog	Antskogsvägen	4
 Annummentie	Antskog	Annummivägen	2
 Fiskarsintie	Antskog	Fiskarsvägen	2
 Harabackantie	Antskog	Harabackavägen	2
@@ -10571,7 +10571,7 @@ Tikkalahdentie	Evijärvi	Tikkalahdentie	1
 Vattukuja	Evijärvi	Vattukuja	1
 Vesalantie	Evijärvi	Vesalantie	1
 Yllintie	Evijärvi	Yllintie	1
-Evitskogintie	Evitskog	Evitskogvägen	4
+Evitskogintie	Evitskog	Evitskogsvägen	4
 Harvsintie	Evitskog	Harvsvägen	4
 Östermalmintie	Evitskog	Östermalmsvägen	4
 Edelsintie	Evitskog	Edelsvägen	3
@@ -14886,6 +14886,7 @@ Ahdinkuja	Hanko	Näckensgränd	2
 Ankkurikatu	Hanko	Ankargatan	2
 Anklarängintie	Hanko	Anklarängsvägen	2
 Appelgrenintie	Hanko	Appelgrensvägen	2
+Asema-aukio	Hanko	Stationsskvären	2
 Asemakatu	Hanko	Stationsgatan	2
 Basholmintie	Hanko	Basholmsvägen	2
 Bengtsårinlaituri	Hanko	Bengtsårbryggan	2
@@ -14982,7 +14983,6 @@ Varustuskatu	Hanko	Skansgatan	2
 Vedagrundintie	Hanko	Vedagrundsvägen	2
 Venny Soldanin tie	Hanko	Venny Soldans väg	2
 Vuorikatu	Hanko	Berggatan	2
-asema-aukio	Hanko	Stationsskvären	2
 Östergårdinkatu	Hanko	Östergårdsgatan	2
 Asematori	Hanko	Järnvägstorget	1
 Bengtsår	Hanko	Bengtsår	1
@@ -24608,7 +24608,7 @@ Sahankylä	Hinnerjoki	Sahankylä	1
 Sonkintie	Hinnerjoki	Sonkintie	1
 Tarjola	Hinnerjoki	Tarjola	1
 Vaaljoentie	Hinnerjoki	Vaaljoentie	1
-Isonniityntie	Hinthaara	Isonniityntie	3
+Isonniityntie	Hinthaara	Storängsväg	3
 Vähä-Laukkoskentie	Hinthaara	Lill-Lövkoskivägen	3
 Annalundintie	Hinthaara	Annalundsvägen	2
 Bergsalantie	Hinthaara	Bergsalavägen	2
@@ -35322,6 +35322,7 @@ Konesjärventie	Inari	Konesjärventie	2
 Korppiojantie	Inari	Korppiojantie	2
 Koskelantie	Inari	Koskelantie	2
 Kotakyläntie	Inari	Kotakyläntie	2
+Kuivalahdentie	Inari	Kuivalahdentie	2
 Kultamiehentie	Inari	Kultamiehentie	2
 Kuokkamaantie	Inari	Kuokkamaantie	2
 Kuolpunatie	Inari	Kuolpunatie	2
@@ -35364,7 +35365,6 @@ Uruvaarantie	Inari	Uruvaarantie	2
 Uutelantie	Inari	Uutelantie	2
 V.E. Törmäsentie	Inari	V.E. Törmäsentie	2
 Ventäjäntie	Inari	Ventäjäntie	2
-kuivalahdentie	Inari	kuivalahdentie	2
 Äivihjärventie	Inari	Äivihjärventie	2
 Huutokalliontie	Inari	Huutokalliontie	1
 Juutuanvuonontie	Inari	Juutuanvuonontie	1
@@ -44401,6 +44401,7 @@ Juurikkapohjantie	Jämsä	Juurikkapohjantie	1
 Jyrkynen	Jämsä	Jyrkynen	1
 Jyvätie	Jämsä	Jyvätie	1
 Jänissaari	Jämsä	Jänissaari	1
+Jänönsara	Jämsä	Jänönsara	1
 Kaijanlahti	Jämsä	Kaijanlahti	1
 Kaijansalo	Jämsä	Kaijansalo	1
 Kalliokatu	Jämsä	Kalliokatu	1
@@ -44434,6 +44435,7 @@ Korkeasaari	Jämsä	Korkeasaari	1
 Koskela partala	Jämsä	Koskela partala	1
 Kotasenlammentie	Jämsä	Kotasenlammentie	1
 Koterovuorentie	Jämsä	Koterovuorentie	1
+Kotkassaari	Jämsä	Kotkassaari	1
 Koulukatu	Jämsä	Koulukatu	1
 Koulukuja	Jämsä	Koulukuja	1
 Kouvolanmäki	Jämsä	Kouvolanmäki	1
@@ -44650,8 +44652,6 @@ Väylä	Jämsä	Väylä	1
 Yijälänsaari	Jämsä	Yijälänsaari	1
 Yijälänsalmentie	Jämsä	Yijälänsalmentie	1
 Ylä-Kerkkolantie	Jämsä	Ylä-Kerkkolantie	1
-jänönsara	Jämsä	jänönsara	1
-kotkassaari	Jämsä	kotkassaari	1
 Juokslahdentie	Jämsänkoski	Juokslahdentie	4
 Koskenpääntie	Jämsänkoski	Koskenpääntie	3
 Mulikontie	Jämsänkoski	Mulikontie	3
@@ -45315,7 +45315,7 @@ Villenpolku	Järvelä	Villenpolku	1
 Vuokkopolku	Järvelä	Vuokkopolku	1
 Väinölänkuja	Järvelä	Väinölänkuja	1
 Helsingintie	Järvenpää	Helsingintie	6
-Laurilantie	Järvenpää	Laurilantie	6
+Laurilantie	Järvenpää	Laurilavägen	6
 Pykälistöntie	Järvenpää	Pykälistöntie	6
 Sipoontie	Järvenpää	Sipoontie	6
 Isokydöntie	Järvenpää	Isokydöntie	4
@@ -46141,7 +46141,7 @@ Kaarenkylä	Kaarenkylä	Karsby	2
 Kaarenkylänkuja	Kaarenkylä	Karsbygränden	2
 Klaavuntie	Kaarenkylä	Klaavuntie	2
 Maaseututie	Kaarenkylä	Landsbygdsvägen	2
-Metsäkankaantie	Kaarenkylä	Metsäkankaantie	2
+Metsäkankaantie	Kaarenkylä	Metsäkangasvägen	2
 Monsantie	Kaarenkylä	Monsavägen	2
 Muuntajankuja	Kaarenkylä	Transformatrosgränden	2
 Mäntsäläntie	Kaarenkylä	Mäntsälävägen	2
@@ -60451,7 +60451,7 @@ Marjorannantie	Kerisalo	Marjorannantie	1
 Olavintie	Kerisalo	Olavintie	1
 Rauniontie	Kerisalo	Rauniontie	1
 Salmelantie	Kerisalo	Salmelantie	1
-Nietoontie	Kerkkoo	Nietoontie	4
+Nietoontie	Kerkkoo	Nietoovägen	4
 Erikankuja	Kerkkoo	Erikasgränden	2
 Hannulankuja	Kerkkoo	Hannulagränden	2
 Henttalantie	Kerkkoo	Henttalavägen	2
@@ -70898,7 +70898,7 @@ Umpikuja	Koski Tl	Umpikuja	1
 Uutelantie	Koski Tl	Uutelantie	1
 Vehnäpolku	Koski Tl	Vehnäpolku	1
 Vitkantie	Koski Tl	Vitkantie	1
-Kuovilantie	Koski as	Kuovilantie	4
+Kuovilantie	Koski as	Skogbölevägen	4
 Haarasjoentie	Koski as	Haarasjoentie	2
 Kaivosmäentie	Koski as	Kaivosmäentie	2
 Kaukurintie	Koski as	Kaukurintie	2
@@ -72600,6 +72600,7 @@ Ylijoentie	Koura	Ylijoentie	2
 Ämmäläntie	Koura	Ämmäläntie	2
 Harjunmäentie	Koura	Harjunmäentie	1
 Jokihaarantie	Koura	Jokihaarantie	1
+Juupelinmäentie	Koura	Juupelinmäentie	1
 Juupelintie	Koura	Juupelintie	1
 Kanavatie	Koura	Kanavatie	1
 Kivensaarentie	Koura	Kivensaarentie	1
@@ -72614,7 +72615,6 @@ Onkilahdentie	Koura	Onkilahdentie	1
 Punahongantie	Koura	Punahongantie	1
 Rimmin metsätie	Koura	Rimmin metsätie	1
 Vaajamäentie	Koura	Vaajamäentie	1
-juupelinmäentie	Koura	juupelinmäentie	1
 Kasarminkatu	Kouvola	Kasarminkatu	4
 Ruotsulantie	Kouvola	Ruotsulantie	4
 Sampsantie	Kouvola	Sampsantie	4
@@ -94125,7 +94125,7 @@ Takalontie	Lestijärvi	Takalontie	1
 Vareskarintie	Lestijärvi	Vareskarintie	1
 Varjolantie	Lestijärvi	Varjolantie	1
 Veikonpolku	Lestijärvi	Veikonpolku	1
-viitaniementie	Lestijärvi	viitaniementie	1
+Viitaniementie	Lestijärvi	Viitaniementie	1
 Heinuntie	Leteensuo	Heinuntie	4
 Leteensuontie	Leteensuo	Leteensuontie	4
 Rannikontie	Leteensuo	Rannikontie	4
@@ -109067,7 +109067,7 @@ Kalvikintie	Mustio	Kalviksvägen	1
 Kesäkuja	Mustio	Sommagränden	1
 Koivukummuntie	Mustio	Björkkullavägen	1
 Koivumäki	Mustio	Koivumäki	1
-Kreivittären tie	Mustio	grevinnans väg	1
+Kreivittären tie	Mustio	Grevinnans väg	1
 Kuivassuo	Mustio	Kuivassuo	1
 Lohjantie	Mustio	Lojovägen	1
 Meijerintie	Mustio	Mejerivägen	1
@@ -126549,7 +126549,7 @@ Rintapurontie	Paatela	Rintapurontie	1
 Viljakkalantie	Paatela	Viljakkalantie	1
 Viljuksenrannantie	Paatela	Viljuksenrannantie	1
 Ylösenniementie	Paatela	Ylösenniementie	1
-Vainionkuja	Paattinen	Vainionkuja	4
+Vainionkuja	Paattinen	Vainiogränden	4
 Kaivastentie	Paattinen	Kaivasvägen	3
 Säkyläntie	Paattinen	Säkylävägen	3
 Valuntie	Paattinen	Valuvägen	3
@@ -126574,7 +126574,7 @@ Krouvinkuja	Paattinen	Kroggränden	2
 Krouvintie	Paattinen	Krogvägen	2
 Laukolantie	Paattinen	Laukolavägen	2
 Levauksentie	Paattinen	Levausvägen	2
-Motontie	Paattinen	Motontie	2
+Motontie	Paattinen	Mottovägen	2
 Männistöntie	Paattinen	Männistövägen	2
 Mäntysaarentie	Paattinen	Mäntysaarivägen	2
 Nevalantie	Paattinen	Nevalavägen	2
@@ -135363,6 +135363,7 @@ Koiravuorentie	Pihtipudas	Koiravuorentie	1
 Koivurinne	Pihtipudas	Koivurinne	1
 Koivutie	Pihtipudas	Koivutie	1
 Koskikarankuja	Pihtipudas	Koskikarankuja	1
+Kotarannantie	Pihtipudas	Kotarannantie	1
 Kuivasniementie	Pihtipudas	Kuivasniementie	1
 Kukkolankaari	Pihtipudas	Kukkolankaari	1
 Kukkulantie	Pihtipudas	Kukkulantie	1
@@ -135452,7 +135453,6 @@ Valorinne	Pihtipudas	Valorinne	1
 Virastotie	Pihtipudas	Virastotie	1
 Vuoritie	Pihtipudas	Vuoritie	1
 Wihtorintie	Pihtipudas	Wihtorintie	1
-kotarannantie	Pihtipudas	kotarannantie	1
 Äijäläntie	Pihtipudas	Äijäläntie	1
 Äijänniemi	Pihtipudas	Äijänniemi	1
 Vehkamäentie	Piikkiö	Vehkamäentie	4
@@ -135978,8 +135978,8 @@ Vasaraniementie	Piispajärvi	Vasaraniementie	1
 Virsuniementie	Piispajärvi	Virsuniementie	1
 Vääräkoskentie	Piispajärvi	Vääräkoskentie	1
 Walkialahdentie	Piispajärvi	Walkialahdentie	1
-Isokallantie	Piispanristi	Isokallantie	3
-Kaistisenkatu	Piispanristi	Kaistisenkatu	3
+Isokallantie	Piispanristi	Isokallavägen	3
+Kaistisenkatu	Piispanristi	Kaistisgatan	3
 Ahdintie	Piispanristi	Ahdintie	2
 Ahmankatu	Piispanristi	Ahmankatu	2
 Ahventie	Piispanristi	Ahventie	2
@@ -136065,7 +136065,7 @@ Tiklintie	Piispanristi	Tiklintie	2
 Tiurakuja	Piispanristi	Tiurakuja	2
 Torppalantie	Piispanristi	Torppalantie	2
 Turskatie	Piispanristi	Turskatie	2
-Uudenmaantie	Piispanristi	Uudenmaantie	2
+Uudenmaantie	Piispanristi	Nylandsvägen	2
 Vasankatu	Piispanristi	Vasankatu	2
 Yli-Lemuntie	Piispanristi	Yli-Lemuntie	2
 Yrittäjänkatu	Piispanristi	Yrittäjänkatu	2
@@ -137277,7 +137277,7 @@ Verkkoniementie	Pohjalankila	Verkkoniementie	1
 Virposillantie	Pohjalankila	Virposillantie	1
 Kuninkaantie	Pohjankuru	Kungsvägen	4
 Laptaalintie	Pohjankuru	Lappdalsvägen	3
-Palotie	Pohjankuru	Palotie	3
+Palotie	Pohjankuru	Brandvägen	3
 Bertel Gardbergin tie	Pohjankuru	Bertel Gardbergs väg	2
 Boijentie	Pohjankuru	Boijevägen	2
 Bomanintie	Pohjankuru	Bomansvägen	2
@@ -143371,6 +143371,7 @@ Orhisuontie	Pusula	Orhisuovägen	1
 Otavatie	Pusula	Otavatie	1
 Paavolantie	Pusula	Paavolantie	1
 Pahkatie	Pusula	Pahkatie	1
+Pappilanpellontie	Pusula	Pappilanpellontie	1
 Petsamonpolku	Pusula	Petsamonpolku	1
 Petsamontie	Pusula	Petsamontie	1
 Pikkunokantie	Pusula	Pikkunokantie	1
@@ -143419,7 +143420,6 @@ Välimäentie	Pusula	Välimäentie	1
 Vänkärikuja	Pusula	Brytjärnsgränden	1
 Ylisilta	Pusula	Ylisilta	1
 Yrjönseläntie	Pusula	Yrjönseläntie	1
-pappilanpellontie	Pusula	pappilanpellontie	1
 Hiiesjärventie	Putikko	Hiiesjärventie	2
 Honkaniementie	Putikko	Honkaniementie	2
 Huutovuorentie	Putikko	Huutovuorentie	2
@@ -146950,7 +146950,7 @@ Nygärdstået	Raippaluoto	Nygärdstået	1
 Söderlundintie	Raippaluoto	Söderlundsvägen	1
 Venekuja	Raippaluoto	Båtgränden	1
 Raisiontie	Raisio	Raisiontie	5
-Upalingontie	Raisio	Upalingontie	5
+Upalingontie	Raisio	Upplingevägen	5
 Ihalantie	Raisio	Ihalantie	4
 Isovuorentie	Raisio	Isovuorentie	4
 Sairaalakatu	Raisio	Sairaalakatu	4
@@ -146958,7 +146958,7 @@ Syrjätie	Raisio	Syrjätie	4
 Vahdontie	Raisio	Vahdontie	4
 Kaanaantie	Raisio	Kaanaantie	3
 Kustavintie	Raisio	Kustavintie	3
-Pernontie	Raisio	Pernontie	3
+Pernontie	Raisio	Pernovägen	3
 Somersojantie	Raisio	Somersojantie	3
 Vanha Raumantie	Raisio	Vanha Raumantie	3
 Aaponkuja	Raisio	Aaponkuja	2
@@ -152984,9 +152984,9 @@ Puurotaipaleentie	Risulahti	Puurotaipaleentie	1
 Rasalahdentie	Risulahti	Rasalahdentie	1
 Risulahti	Risulahti	Risulahti	1
 Roinmäentie	Risulahti	Roinmäentie	1
+Ruskoniementie	Risulahti	Ruskoniementie	1
 Talvirannantie	Risulahti	Talvirannantie	1
 Valkjärventie	Risulahti	Valkjärventie	1
-ruskoniementie	Risulahti	ruskoniementie	1
 Aholantie	Ritola	Aholantie	2
 Hautamäenhoikantie	Ritola	Hautamäenhoikantie	2
 Heikkiläntie	Ritola	Heikkiläntie	2
@@ -154940,7 +154940,7 @@ Ryöppäännokka	Ruotsalo	Ryöppäännokka	1
 Selkäkari	Ruotsalo	Selkäkari	1
 Topolantie	Ruotsalo	Topolantie	1
 Tuomikari	Ruotsalo	Tuomikari	1
-Hämeenkyläntie	Ruotsinkylä	Hämeenkyläntie	4
+Hämeenkyläntie	Ruotsinkylä	Tavastbyvägen	4
 Koskistontie	Ruotsinkylä	Koskistovägen	4
 Joensuuntie	Ruotsinkylä	Joensuuntie	3
 Bottaksenkuja	Ruotsinkylä	Bottasgränd	2
@@ -155611,7 +155611,7 @@ Rantatie	Rutava	Rantatie	1
 Satolantie	Rutava	Satolantie	1
 Karkkimalantie	Ruto	Karkmovägen	5
 Lähdetie	Ruto	Lähdetie	3
-Puntaistentie	Ruto	Puntaistentie	3
+Puntaistentie	Ruto	Pundarsvägen	3
 Huidantie	Ruto	Huidantie	2
 Leinentie	Ruto	Leinentie	2
 Lännentie	Ruto	Lännentie	2
@@ -157457,9 +157457,9 @@ Maijalantie	Saari-Kämä	Maijalantie	1
 Paattinginseläntie	Saari-Kämä	Paattinginseläntie	1
 Piimäläntie	Saari-Kämä	Piimäläntie	1
 Puurolahdentie	Saari-Kämä	Puurolahdentie	1
+Saukonrannantie	Saari-Kämä	Saukonrannantie	1
 Ylijoentie	Saari-Kämä	Ylijoentie	1
 Yliportimojärventie	Saari-Kämä	Yliportimojärventie	1
-saukonrannantie	Saari-Kämä	saukonrannantie	1
 Posiontie	Saariharju	Posiontie	5
 Kattila-ahontie	Saariharju	Kattila-ahontie	2
 Koskitie	Saariharju	Koskitie	2
@@ -159333,6 +159333,7 @@ Saharannankuja	Salo	Saharannankuja	1
 Sairaalantie	Salo	Sairaalantie	1
 Salmenranta	Salo	Salmenranta	1
 Sola	Salo	Sola	1
+Suopellonkuja	Salo	Suopellonkuja	1
 Susisaarentie	Salo	Susisaarentie	1
 Suvenkatu	Salo	Suvenkatu	1
 Taitajankatu	Salo	Taitajankatu	1
@@ -159361,7 +159362,6 @@ Viironiituntie	Salo	Viironiituntie	1
 Voitto Hellstenin kuja	Salo	Voitto Hellstenin kuja	1
 Vuohensaari	Salo	Vuohensaari	1
 Ylätammentie	Salo	Ylätammentie	1
-suopellonkuja	Salo	suopellonkuja	1
 Haukkavuorentie	Salo-Miehikkälä	Haukkavuorentie	2
 Hulkkiantie	Salo-Miehikkälä	Hulkkiantie	2
 Huopintie	Salo-Miehikkälä	Huopintie	2
@@ -163536,7 +163536,6 @@ Laivurinkatu	Savonlinna	Laivurinkatu	2
 Lamminraitti	Savonlinna	Lamminraitti	2
 Lapinkatu	Savonlinna	Lapinkatu	2
 Laukansaarentie	Savonlinna	Laukansaarentie	2
-Laukansaari/Pihlajavesi	Savonlinna	Laukansaari/Pihlajavesi	2
 Laukkatie	Savonlinna	Laukkatie	2
 Lavakankaantie	Savonlinna	Lavakankaantie	2
 Lavoniuksenkuja	Savonlinna	Lavoniuksenkuja	2
@@ -163568,7 +163567,6 @@ Luukkaalantie	Savonlinna	Luukkaalantie	2
 Lypsyniemenkatu	Savonlinna	Lypsyniemenkatu	2
 Lötjölahdentie	Savonlinna	Lötjölahdentie	2
 Majakkaniemi	Savonlinna	Majakkaniemi	2
-Makkarasaari/Lapinsaari	Savonlinna	Makkarasaari/Lapinsaari	2
 Matarintie	Savonlinna	Matarintie	2
 Matikkatie	Savonlinna	Matikkatie	2
 Mertajärventie	Savonlinna	Mertajärventie	2
@@ -163974,7 +163972,6 @@ Lyytykänlenkki	Savonlinna	Lyytykänlenkki	1
 Lähdelahdentie	Savonlinna	Lähdelahdentie	1
 Lähdeniementie	Savonlinna	Lähdeniementie	1
 Lötjölä	Savonlinna	Lötjölä	1
-Makkarasaari/Moinselkä	Savonlinna	Makkarasaari/Moinselkä	1
 Malmisaarenkatu	Savonlinna	Malmisaarenkatu	1
 Mansikkamäentie	Savonlinna	Mansikkamäentie	1
 Matkustajasatama	Savonlinna	Matkustajasatama	1
@@ -166769,7 +166766,6 @@ Uikkukuja	Siltakylä	Doppinggränd	1
 Ulkorannantie	Siltakylä	Ytterstrandsvägen	1
 Uusikuja	Siltakylä	Nygränden	1
 Hirsseläntie	Silvola	Hirsseläntie	2
-Jänissaari/Suurijärvi	Silvola	Jänissaari/Suurijärvi	2
 Kaksolantie	Silvola	Kaksolantie	2
 Kapakkalantie	Silvola	Kapakkalantie	2
 Kivikontie	Silvola	Kivikontie	2
@@ -169699,6 +169695,7 @@ Kelovaarantie	Sonka	Kelovaarantie	1
 Kenttäniemenpolku	Sonka	Kenttäniemenpolku	1
 Kettuniementie	Sonka	Kettuniementie	1
 Kulkkusenkuja	Sonka	Kulkkusenkuja	1
+Kulkkusenlahdenpolku	Sonka	Kulkkusenlahdenpolku	1
 Lehtoniementie	Sonka	Lehtoniementie	1
 Luppolapisto	Sonka	Luppolapisto	1
 Mustanperäntie	Sonka	Mustanperäntie	1
@@ -169723,7 +169720,6 @@ Tipsunpolku	Sonka	Tipsunpolku	1
 Tuomikankaantie	Sonka	Tuomikankaantie	1
 Tuuliniementie	Sonka	Tuuliniementie	1
 Typpyräntie	Sonka	Typpyräntie	1
-kulkkusenlahdenpolku	Sonka	kulkkusenlahdenpolku	1
 Enontie	Sonkaja	Enontie	3
 Hakovaarantie	Sonkaja	Hakovaarantie	2
 Hömötintie	Sonkaja	Hömötintie	2
@@ -174616,6 +174612,7 @@ Karhunpolku	Syöte	Karhunpolku	1
 Kariahontie	Syöte	Kariahontie	1
 Kellarilammentie	Syöte	Kellarilammentie	1
 Kellariojantie	Syöte	Kellariojantie	1
+Kelotie	Syöte	Kelotie	1
 Kivitie	Syöte	Kivitie	1
 Kotikankaantie	Syöte	Kotikankaantie	1
 Kultatie	Syöte	Kultatie	1
@@ -174667,7 +174664,6 @@ Valtontie	Syöte	Valtontie	1
 Vannekoskentie	Syöte	Vannekoskentie	1
 Virventie	Syöte	Virventie	1
 Ylärinteentie	Syöte	Ylärinteentie	1
-kelotie	Syöte	kelotie	1
 Taivalkoskentie	Säikkä	Taivalkoskentie	2
 Karvosentie	Säikkä	Karvosentie	1
 Kellinvaarantie	Säikkä	Kellinvaarantie	1
@@ -176494,6 +176490,7 @@ Kujansuu	Taavetti	Kujansuu	1
 Kuuselankuja	Taavetti	Kuuselankuja	1
 Käpyniemi	Taavetti	Käpyniemi	1
 Laastipolku	Taavetti	Laastipolku	1
+Lammasniemi	Taavetti	Lammasniemi	1
 Linnalankuja	Taavetti	Linnalankuja	1
 Losmontie	Taavetti	Losmontie	1
 Lypsyniemi	Taavetti	Lypsyniemi	1
@@ -176548,7 +176545,6 @@ Veitsalmentie	Taavetti	Veitsalmentie	1
 Verkkoniemi	Taavetti	Verkkoniemi	1
 Viertokuja	Taavetti	Viertokuja	1
 Virtalantie	Taavetti	Virtalantie	1
-lammasniemi	Taavetti	lammasniemi	1
 Kylmämäentie	Tahkomäki	Kylmämäentie	4
 Alatalontie	Tahkomäki	Alatalontie	2
 Hankasalmentie	Tahkomäki	Hankasalmentie	2
@@ -181600,6 +181596,7 @@ Kirjakkalantie	Teijo	Kirjakkalantie	2
 Kolmosväylä	Teijo	Kolmosväylä	2
 Lankkerintie	Teijo	Lankkerintie	2
 Lanskalantie	Teijo	Lanskalantie	2
+Lanskalanväylä	Teijo	Lanskalanväylä	2
 Likojärvenkuja	Teijo	Likojärvenkuja	2
 Likojärventie	Teijo	Likojärventie	2
 Malmitie	Teijo	Malmitie	2
@@ -181625,7 +181622,6 @@ Varvintie	Teijo	Varvintie	2
 Vasarsepäntie	Teijo	Vasarsepäntie	2
 Vilniementie	Teijo	Vilniementie	2
 Ykkösväylä	Teijo	Ykkösväylä	2
-lanskalanväylä	Teijo	lanskalanväylä	2
 Hakaneesintie	Teijo	Hakaneesintie	1
 Jokiranta	Teijo	Jokiranta	1
 Joutnantie	Teijo	Joutnantie	1
@@ -181956,9 +181952,9 @@ Korpivaarantie	Terttilä	Korpivaarantie	1
 Mattilantie	Terttilä	Mattilantie	1
 Orhinarontie	Terttilä	Orhinarontie	1
 Töyräänmäentie	Terttilä	Töyräänmäentie	1
-Kaupparaitti	Tervajoki	Kaupparaitti	4
-Kylkkälänraitti	Tervajoki	Kylkkälänraitti	4
-Tervajoentie	Tervajoki	Tervajoentie	4
+Kaupparaitti	Tervajoki	Handelstået	4
+Kylkkälänraitti	Tervajoki	Kylkkälätået	4
+Tervajoentie	Tervajoki	Tervajokivägen	4
 Vähänkyröntie	Tervajoki	Lillkyrovägen	3
 Aittomäentie	Tervajoki	Aittomäkivägen	2
 Asematie	Tervajoki	Asematie	2
@@ -185807,10 +185803,10 @@ Piukuntie	Torppi	Piukuntie	1
 Rajatie	Torppi	Rajatie	1
 Teerimäentie	Torppi	Teerimäentie	1
 Järvijoentie	Tortinmäki	Järvijokivägen	4
-Kaarlejoentie	Tortinmäki	Kaarlejoentie	4
-Nunnanojantie	Tortinmäki	Nunnanojantie	4
+Kaarlejoentie	Tortinmäki	Kaarlejokivägen	4
+Nunnanojantie	Tortinmäki	Nunnebäcksvägen	4
 Perttelmäentie	Tortinmäki	Perttelbacksvägen	4
-Säkyläntie	Tortinmäki	Säkyläntie	4
+Säkyläntie	Tortinmäki	Säkylävägen	4
 Korventie	Tortinmäki	Ödemarksvägen	3
 Erkkiläntie	Tortinmäki	Erkkiläntie	2
 Haapakaari	Tortinmäki	Haapakaari	2
@@ -187084,7 +187080,7 @@ Peltolantie	Turku	Peltolavägen	5
 Satakunnantie	Turku	Satakuntavägen	5
 Vakka-Suomentie	Turku	Vakka-Suomivägen	5
 Artukaistentie	Turku	Artukaisvägen	4
-Haagantie	Turku	Haagantie	4
+Haagantie	Turku	Hagavägen	4
 Hämeenkatu	Turku	Tavastgatan	4
 Inkilänkatu	Turku	Inkilägatan	4
 Jaanintie	Turku	Jahnvägen	4
@@ -187111,7 +187107,7 @@ Ruohonpääntie	Turku	Ruohonpäävägen	4
 Rykmentintie	Turku	Regementsvägen	4
 Suovantie	Turku	Suovavägen	4
 Takamaantie	Turku	Utmarksvägen	4
-Tekkalantie	Turku	Tekkalantie	4
+Tekkalantie	Turku	Tekkalavägen	4
 Vaalantie	Turku	Svalasvägen	4
 Vahdontie	Turku	Vahtovägen	4
 Vaistentie	Turku	Vaistevägen	4
@@ -188716,7 +188712,7 @@ Ajurinportti	Turku	Formansporten	1
 Akaasiakuja	Turku	Akaciagränden	1
 Akatemiankatu	Turku	Akademigatan	1
 Albert Ravilan raitti	Turku	Albert Ravilas väg	1
-Alumiinikatu	Turku	aluminiumgatan	1
+Alumiinikatu	Turku	Aluminiumgatan	1
 Amaliantie	Turku	Amalievägen	1
 Ankkurikyläntie	Turku	Ankarbyvägen	1
 Apupapinahde	Turku	Hjälpprästsbinken	1
@@ -189933,7 +189929,7 @@ Ankkapurontie	Tuusula	Ankkapurontie	4
 Kirkkotie	Tuusula	Kirkkotie	4
 Lahelantie	Tuusula	Lahelantie	4
 Mahlamäentie	Tuusula	Mahlamäentie	4
-Myllypadontie	Tuusula	Myllypadontie	4
+Myllypadontie	Tuusula	Kvarndammsvägen	4
 Pähkinämäentie	Tuusula	Pähkinämäentie	4
 Suotie	Tuusula	Suotie	4
 Tuusulantie	Tuusula	Tuusulantie	4
@@ -195416,6 +195412,7 @@ Sääkslahdentie	Vahanka	Sääkslahdentie	1
 Sääksniementie	Vahanka	Sääksniementie	1
 Vahanka	Vahanka	Vahanka	1
 Valkkunantie	Vahanka	Valkkunantie	1
+Leinaistentie	Vahto	Leinaistentie	3
 Ahtisentie	Vahto	Ahtisentie	2
 Airikkalantie	Vahto	Airikkalantie	2
 Auvaistentie	Vahto	Auvaistentie	2
@@ -195443,7 +195440,6 @@ Koulukuja	Vahto	Koulukuja	2
 Laavistentie	Vahto	Laavistentie	2
 Laukolan koulutie	Vahto	Laukolan koulutie	2
 Lavamäentie	Vahto	Lavamäentie	2
-Leinaistentie	Vahto	Leinaistentie	2
 Liikennöitsijäntie	Vahto	Liikennöitsijäntie	2
 Loimukuja	Vahto	Loimukuja	2
 Metsolantie	Vahto	Metsolantie	2
@@ -195511,7 +195507,6 @@ Rantakuja	Vahto	Rantakuja	1
 Santaojantie	Vahto	Santaojantie	1
 Siutlantie	Vahto	Siutlantie	1
 Veikonpolku	Vahto	Veikonpolku	1
-leinaistentie	Vahto	leinaistentie	1
 Ahomäentie	Vainikkala	Ahomäentie	2
 Hiivaniementie	Vainikkala	Hiivaniementie	2
 Huolintatie	Vainikkala	Huolintatie	2
@@ -197348,7 +197343,7 @@ Eteläkaari	Vantaa	Södersvängen	2
 Etnankuja	Vantaa	Etnagränden	2
 Everstintie	Vantaa	Överstevägen	2
 Evästie	Vantaa	Matsäcksvägen	2
-Fallbackankaari	Vantaa	Fallbackankaari	2
+Fallbackankaari	Vantaa	Fallbackabågen	2
 Fasaanirinne	Vantaa	Fasanbrinken	2
 Fasaanitie	Vantaa	Fasanvägen	2
 Fazerinkuja	Vantaa	Fazersgränden	2
@@ -199846,6 +199841,7 @@ Navettavaarantie	Vanttauskoski	Navettavaarantie	1
 Ojalankuja	Vanttauskoski	Ojalankuja	1
 Ollosenmutka	Vanttauskoski	Ollosenmutka	1
 Paavonpolku	Vanttauskoski	Paavonpolku	1
+Pikkukaarninkuja	Vanttauskoski	Pikkukaarninkuja	1
 Poikkilehdontie	Vanttauskoski	Poikkilehdontie	1
 Puurosenrannantie	Vanttauskoski	Puurosenrannantie	1
 Sivuniementie	Vanttauskoski	Sivuniementie	1
@@ -199857,7 +199853,6 @@ Vanttausjoenkuja	Vanttauskoski	Vanttausjoenkuja	1
 Vanttauskuru	Vanttauskoski	Vanttauskuru	1
 Vilppolankuja	Vanttauskoski	Vilppolankuja	1
 Vittikkokuja	Vanttauskoski	Vittikkokuja	1
-pikkukaarninkuja	Vanttauskoski	pikkukaarninkuja	1
 Harakkamäentie	Vanttila	Harakkamäentie	2
 Lahoniityntie	Vanttila	Lahoniityntie	2
 Lauttakyläntie	Vanttila	Lauttakyläntie	2
@@ -202005,7 +202000,7 @@ Koskentie	Veikkaala	Koskivägen	1
 Kvistintie	Veikkaala	Kvistvägen	1
 Tuovilantie	Veikkaala	Tobyvägen	1
 Voitby Kvarnbacken	Veikkaala	Kvarnvägen	1
-Lamminpääntie	Veikkola	Lamminpääntie	4
+Lamminpääntie	Veikkola	Lamminpäävägen	4
 Ahokuja	Veikkola	Ahokuja	2
 Alitalonkuja	Veikkola	Nedergårdsgränden	2
 Alitalontie	Veikkola	Nedergårdsvägen	2
@@ -211371,6 +211366,7 @@ Kranninkuja	Ylistaro	Kranninkuja	1
 Kunnastie	Ylistaro	Kunnastie	1
 Kylänpääntie	Ylistaro	Kylänpääntie	1
 Kyrönjoentie	Ylistaro	Kyrönjoentie	1
+Kytöiivari	Ylistaro	Kytöiivari	1
 Laakaanmäentie	Ylistaro	Laakaanmäentie	1
 Lahdenrannantie	Ylistaro	Lahdenrannantie	1
 Lakiankuja	Ylistaro	Lakiankuja	1
@@ -211404,7 +211400,6 @@ Tanttarintie	Ylistaro	Tanttarintie	1
 Tuukikuja	Ylistaro	Tuukikuja	1
 Untamantie	Ylistaro	Untamantie	1
 Välinevantie	Ylistaro	Välinevantie	1
-kytöiivari	Ylistaro	kytöiivari	1
 Alhojoentie	Ylistaro as	Alhojoentie	2
 Ammattimiehentie	Ylistaro as	Ammattimiehentie	2
 Asemantie	Ylistaro as	Asemantie	2
@@ -214565,6 +214560,7 @@ Leiväntie	Äkäslompolo	Leiväntie	1
 Liiterintie	Äkäslompolo	Liiterintie	1
 Lohitie	Äkäslompolo	Lohitie	1
 Lompolovaarantie	Äkäslompolo	Lompolovaarantie	1
+Louhikkopolku	Äkäslompolo	Louhikkopolku	1
 Lähitie	Äkäslompolo	Lähitie	1
 Majavankuja	Äkäslompolo	Majavankuja	1
 Martinkuja	Äkäslompolo	Martinkuja	1
@@ -214615,7 +214611,6 @@ Velhotar	Äkäslompolo	Velhotar	1
 Vesikonkuja	Äkäslompolo	Vesikonkuja	1
 Välikuja	Äkäslompolo	Välikuja	1
 Ylälenkki	Äkäslompolo	Ylälenkki	1
-louhikkopolku	Äkäslompolo	louhikkopolku	1
 Äkäsasunnot	Äkäslompolo	Äkäsasunnot	1
 Äkäskuja	Äkäslompolo	Äkäskuja	1
 Korventie	Äystö	Korventie	4

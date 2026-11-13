@@ -38,7 +38,7 @@ ALAND = "21"
 # Posti's abbreviations of asema and kirkonkylä, as in ALAVUS AS and HEINOLA KK.
 LOWER = {"as", "kk"}
 VOWELS = "aeiouyäö"
-NOT_A_STREET = re.compile(r"[\d,()]")
+NOT_A_STREET = re.compile(r"[\d,()/]")
 
 
 def posti(cache, kind):
@@ -89,25 +89,35 @@ def divisions(cache):
     return municipalities, regions
 
 
-def normal_codes(cache, municipality_of):
-    """Each normal postinumero, mapped to its postitoimipaikka written as a place name."""
-    towns = {field(l, 14, 5): field(l, 19, 30) for l in posti(cache, "PCF") if field(l, 111, 1) == NORMAL}
+def normal_codes(pcf, municipality_of):
+    """Each normal postinumero among PCF's lines, mapped to its postitoimipaikka written as a place name."""
+    towns = {field(l, 14, 5): field(l, 19, 30) for l in pcf if field(l, 111, 1) == NORMAL}
     kunnat = {m["name"].upper() for m in municipality_of.values()}
     return {code: recased(town, kunnat) for code, town in towns.items()}
 
 
-def homes(in_municipality):
-    """Each locality's kunta: the one holding most of its ranges, the lower code winning a tie."""
-    home = {}
-    for (place, municipality), _ in sorted(in_municipality.items(), key=lambda kv: (-kv[1], kv[0][1])):
-        home.setdefault(place, municipality)
-    return home
+def mainland(region_names, municipality_of, people):
+    """The region and the municipality rows of every maakunta but Åland, each with its population in people."""
+    regions = {c: {"code": c, "name": n, "population": people["MK" + c], "timezone": TIMEZONE} for c, n in region_names.items() if c != ALAND}
+    municipalities = {c: {"code": c, "name": m["name"], "region": m["region"], "population": people["KU" + c]} for c, m in municipality_of.items() if m["region"] != ALAND}
+    return regions, municipalities
 
 
 def street_name(name):
     """Whether a BAF name is a street's, not a highway's such as Valtatie 23, a postinumero or an island's such as
-    Mustalampi, Lammassaari."""
+    Mustalampi, Lammassaari or Makkarasaari/Lapinsaari."""
     return bool(name) and not NOT_A_STREET.search(name)
+
+
+def capitalised(name):
+    """A BAF name with its first letter in upper case and the rest as Posti writes it."""
+    return name[:1].upper() + name[1:]
+
+
+def swedish_name(names, finnish):
+    """A street's Swedish name: the one names counts most often, the first in the alphabet winning a tie, or its
+    Finnish name where names counts none."""
+    return min(names, key=lambda name: (-names[name], name), default=finnish)
 
 
 def house_numbers(line):
@@ -122,12 +132,13 @@ def tally(baf, codes):
     streets, swedish, in_municipality = collections.Counter(), collections.defaultdict(collections.Counter), collections.Counter()
     postal_codes, numbers = collections.defaultdict(set), collections.Counter()
     for line in baf:
-        code, street = field(line, 14, 5), field(line, 103, 30)
+        code, street, swedish_street = field(line, 14, 5), capitalised(field(line, 103, 30)), capitalised(field(line, 133, 30))
         if code not in codes or not street_name(street):
             continue
         place = codes[code]
         streets[(place, street)] += 1
-        swedish[(place, street)][field(line, 133, 30) or street] += 1
+        if swedish_street:
+            swedish[(place, street)][swedish_street] += 1
         in_municipality[(place, field(line, 214, 3))] += 1
         postal_codes[place].add(code)
         for n, letter in house_numbers(line):
@@ -156,15 +167,14 @@ def main():
     municipality_of, region_names = divisions(cache)
     people = stat_fi(POPULATION, POPULATION_QUERY, cache, "statfi-11ra.json")
     residents = {code: n for code, n in stat_fi(PAAVO, PAAVO_QUERY, cache, "statfi-paavo.json").items() if n}
-    streets, swedish, in_municipality, codes_of, numbers = tally(posti(cache, "BAF"), normal_codes(cache, municipality_of))
+    streets, swedish, in_municipality, codes_of, numbers = tally(posti(cache, "BAF"), normal_codes(posti(cache, "PCF"), municipality_of))
     points = {r["code"]: r for r in geo.geonames(cache, "FI") if r["lat"] is not None}
-    places, postal_codes = localities(codes_of, residents, homes(in_municipality), points)
+    places, postal_codes = localities(codes_of, residents, geo.home_municipalities(in_municipality), points)
     named = geo.top_streets(streets, a.street_share, a.min_streets, "addresses")
     for place, rows in named.items():
         for row in rows:
-            row["swedish-name"] = swedish[(place, row["name"])].most_common(1)[0][0]
-    regions = {c: {"code": c, "name": n, "population": people["MK" + c], "timezone": TIMEZONE} for c, n in region_names.items() if c != ALAND}
-    municipalities = {c: {"code": c, "name": m["name"], "region": m["region"], "population": people["KU" + c]} for c, m in municipality_of.items() if m["region"] != ALAND}
+            row["swedish-name"] = swedish_name(swedish[(place, row["name"])], row["name"])
+    regions, municipalities = mainland(region_names, municipality_of, people)
     kept, dropped = geo.fence(regions, municipalities, places, named, postal_codes)
     geo.log_dropped_localities(dropped["locality"])
     geo.exit_on_dropped_parents(dropped)
