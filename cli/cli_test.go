@@ -712,22 +712,36 @@ func TestRunSelectingARowATableLacksIsMisuse(t *testing.T) {
 	}
 }
 
+func firstSubmatches(matches [][]string) []string {
+	firsts := make([]string, len(matches))
+	for i, m := range matches {
+		firsts[i] = m[1]
+	}
+	return firsts
+}
+
+func distinctSorted(s []string) []string {
+	s = slices.Clone(s)
+	slices.Sort(s)
+	return slices.Compact(s)
+}
+
 func TestUsageExamplesRenderWithNoData(t *testing.T) {
 	examples := regexp.MustCompile(`(?m)^  echo '([^']*)' \| COMMAND$`).FindAllStringSubmatch(usage+"\n  "+pipeHint("COMMAND")+"\n", -1)
 	if len(examples) < 3 {
 		t.Fatalf("usage and pipe hint hold %d echo examples, want the help's two and the hint's", len(examples))
 	}
-	for _, e := range examples {
-		t.Run(e[1], func(t *testing.T) {
-			if code, out, errb := runOut(e[1], "--no-shipped-data"); code != 0 || strings.TrimSpace(out) == "" {
-				t.Errorf("echo %q with no data: run = %d, %q, stderr %q", e[1], code, out, errb)
+	for _, example := range distinctSorted(firstSubmatches(examples)) {
+		t.Run(example, func(t *testing.T) {
+			if code, out, errb := runOut(example, "--no-shipped-data"); code != 0 || strings.TrimSpace(out) == "" {
+				t.Errorf("echo %q with no data: run = %d, %q, stderr %q", example, code, out, errb)
 			}
 		})
 	}
 }
 
 func TestUsageNamesNoPathACustomCLIMayNotCarry(t *testing.T) {
-	for _, token := range regexp.MustCompile(`\{/[^}]*\}`).FindAllString(usage, -1) {
+	for _, token := range distinctSorted(regexp.MustCompile(`\{/[^}]*\}`).FindAllString(usage, -1)) {
 		t.Run(token, func(t *testing.T) {
 			if token != "{/path}" && token != "{/table[KEY]}" && token != "{/path as p}" {
 				t.Errorf("usage names %s, a path a custom CLI may not carry", token)

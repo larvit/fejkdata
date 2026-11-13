@@ -67,23 +67,19 @@ func TestTickRowsKeepAscendingPastTwoHundredNinetyTwoYears(t *testing.T) {
 
 func TestTickKeepsAFractionOfASecondInItsStart(t *testing.T) {
 	f := readOn(t, testDay)
-	for _, want := range []string{"2026-01-01T00:00:00.500Z", "2026-01-01T00:01:00.500Z"} {
-		t.Run(want, func(t *testing.T) {
-			if got := mustRender(t, f, `"{tick(2026-01-01T00:00:00.5Z,60,0,'2006-01-02T15:04:05.000Z')}"`); got != want {
-				t.Fatalf("tick = %q, want %q", got, want)
-			}
-		})
+	want := []string{"2026-01-01T00:00:00.500Z", "2026-01-01T00:01:00.500Z"}
+	if got := drawsInTurn(2, func() string {
+		return mustRender(t, f, `"{tick(2026-01-01T00:00:00.5Z,60,0,'2006-01-02T15:04:05.000Z')}"`)
+	}); !slices.Equal(got, want) {
+		t.Fatalf("ticks = %q, want %q", got, want)
 	}
 }
 
 func TestTickWithNoJitterPrintsExactSteps(t *testing.T) {
 	f := readOn(t, testDay)
-	for _, want := range []string{"2026-01-01 00:00:00", "2026-01-01 00:01:00", "2026-01-01 00:02:00"} {
-		t.Run(want, func(t *testing.T) {
-			if got := mustRender(t, f, `"{tick(2026-01-01,60,0,'2006-01-02 15:04:05')}"`); got != want {
-				t.Fatalf("tick = %q, want %q: a day is read as its midnight, UTC", got, want)
-			}
-		})
+	want := []string{"2026-01-01 00:00:00", "2026-01-01 00:01:00", "2026-01-01 00:02:00"}
+	if got := drawsInTurn(3, func() string { return mustRender(t, f, `"{tick(2026-01-01,60,0,'2006-01-02 15:04:05')}"`) }); !slices.Equal(got, want) {
+		t.Fatalf("ticks = %q, want %q: a day is read as its midnight, UTC", got, want)
 	}
 }
 

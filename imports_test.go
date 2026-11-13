@@ -79,7 +79,9 @@ func moduleImports(t *testing.T) []moduleImport {
 			if rel == "" {
 				rel = "."
 			}
-			imports = append(imports, moduleImport{dir, rel, !slices.Contains(pkg.Imports, imp)})
+			if found := (moduleImport{dir, rel, !slices.Contains(pkg.Imports, imp)}); !slices.Contains(imports, found) {
+				imports = append(imports, found)
+			}
 		}
 	})
 	if len(imports) == 0 {

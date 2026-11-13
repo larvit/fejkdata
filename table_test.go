@@ -321,47 +321,98 @@ func TestATemplateStepsUpToTheRowATableLinksTo(t *testing.T) {
 	}
 }
 
-func TestAStepDownAfterAStepUpDrawsAfreshInsideTheParentRow(t *testing.T) {
+type stepUpDraws struct {
+	named, down, twoUpDown, namedDown, namedTwoDown, namedTwice string
+	downRecord, record                                          []Column
+}
+
+func eachRoundOfStepUpDraws(t *testing.T, check func(d stepUpDraws)) {
+	t.Helper()
 	f := generatorOfStepUpTemplates(t)
-	names := map[string]string{"L1": "Stockholm", "L2": "Solna", "L3": "Malmö", "L4": "Lund", "L5": "Göteborg", "L6": "Hisingen", "L7": "Sandby", "L8": "Sandby"}
-	afresh := map[string]bool{}
-	eachDraw(200, func() string { return fake(t, f, "named") }, func(named string) {
-		if parts := strings.Split(named, "|"); municipalityOf[parts[0]] != parts[1] || regionOf[parts[1]] != parts[2] {
+	for i := 0; i < 200; i++ {
+		var d stepUpDraws
+		d.named = fake(t, f, "named")
+		d.down = fake(t, f, "locality[L4]..municipality.locality.code")
+		d.twoUpDown = fake(t, f, "locality[L4]..municipality..region.municipality.code")
+		d.namedDown = fake(t, f, "named-down")
+		d.namedTwoDown = fake(t, f, "named-two-down")
+		d.namedTwice = fake(t, f, "named-twice")
+		d.downRecord = recordDraw(t, f, "locality[L4]..municipality.locality")().Columns()
+		d.record = recordDraw(t, f, "record")().Columns()
+		check(d)
+	}
+}
+
+func TestANameStepsUpToItsOwnRowsParentAndGrandparent(t *testing.T) {
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		if parts := strings.Split(d.named, "|"); municipalityOf[parts[0]] != parts[1] || regionOf[parts[1]] != parts[2] {
 			t.Fatalf("named = %v, want the locality's own municipality and region", parts)
 		}
-		if l := fake(t, f, "locality[L4]..municipality.locality.code"); l != "L4" && l != "L7" {
+	})
+}
+
+func TestAStepDownAfterAStepUpDrawsInsideTheParentRow(t *testing.T) {
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		if l := d.down; l != "L4" && l != "L7" {
 			t.Fatalf("locality[L4]..municipality.locality.code = %q, outside Lund", l)
-		} else {
-			afresh[l] = true
 		}
-		if m := fake(t, f, "locality[L4]..municipality..region.municipality.code"); regionOf[m] != "12" {
+	})
+}
+
+func TestAStepDownAfterTwoStepsUpDrawsInsideTheGrandparentRow(t *testing.T) {
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		if m := d.twoUpDown; regionOf[m] != "12" {
 			t.Fatalf("locality[L4]..municipality..region.municipality.code = %q, outside 12", m)
 		}
-		if parts := strings.Split(fake(t, f, "named-down"), "|"); municipalityOf[parts[0]] != municipalityOf[parts[1]] {
+	})
+}
+
+func TestAStepDownAfterANamesStepUpDrawsInsideTheParentRowOfTheNamesPick(t *testing.T) {
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		if parts := strings.Split(d.namedDown, "|"); municipalityOf[parts[0]] != municipalityOf[parts[1]] {
 			t.Fatalf("named-down = %v, want a locality of the first one's municipality", parts)
 		}
-		if parts := strings.Split(fake(t, f, "named-two-down"), "|"); municipalityOf[parts[1]] != parts[0] {
+	})
+}
+
+func TestAFurtherStepDownUnderANameDrawsInsideTheRowTheFirstReadDrew(t *testing.T) {
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		if parts := strings.Split(d.namedTwoDown, "|"); municipalityOf[parts[1]] != parts[0] {
 			t.Fatalf("named-two-down = %v, want a locality inside the municipality the first read drew", parts)
 		}
-		if parts := strings.Split(fake(t, f, "named-twice"), "|"); names[parts[0]] != parts[1] {
+	})
+}
+
+func TestTwoReadsOfOneStepDownUnderANameReadOneRow(t *testing.T) {
+	names := map[string]string{"L1": "Stockholm", "L2": "Solna", "L3": "Malmö", "L4": "Lund", "L5": "Göteborg", "L6": "Hisingen", "L7": "Sandby", "L8": "Sandby"}
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		if parts := strings.Split(d.namedTwice, "|"); names[parts[0]] != parts[1] {
 			t.Fatalf("named-twice = %v, want both reads of one step down under a name to read one locality", parts)
 		}
-		down, err := f.FakeRecord("locality[L4]..municipality.locality")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if c := down.Columns(); c[0].Value != "L4" && c[0].Value != "L7" {
+	})
+}
+
+func TestARecordOfAStepDownAfterAStepUpDrawsInsideTheParentRow(t *testing.T) {
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		if c := d.downRecord; c[0].Value != "L4" && c[0].Value != "L7" {
 			t.Fatalf("record locality[L4]..municipality.locality = %v, outside Lund", c)
-		} else {
-			afresh["record "+c[0].Value] = true
 		}
-		r, err := f.FakeRecord("record")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if c := r.Columns(); municipalityOf[c[0].Value] != c[1].Value {
+	})
+}
+
+func TestARecordColumnStepsUpFromTheNameAnotherColumnBinds(t *testing.T) {
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		if c := d.record; municipalityOf[c[0].Value] != c[1].Value {
 			t.Fatalf("record = %v, want the locality's own municipality", c)
 		}
+	})
+}
+
+func TestAStepDownAfterAStepUpDrawsAfresh(t *testing.T) {
+	afresh := map[string]bool{}
+	eachRoundOfStepUpDraws(t, func(d stepUpDraws) {
+		afresh[d.down] = true
+		afresh["record "+d.downRecord[0].Value] = true
 	})
 	if !afresh["L4"] || !afresh["L7"] || !afresh["record L4"] || !afresh["record L7"] {
 		t.Fatalf("locality[L4]..municipality.locality.code drew only %v in 200 renders, want a locality of Lund drawn afresh", afresh)

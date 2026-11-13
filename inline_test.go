@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -236,7 +237,7 @@ func TestIsLonePath(t *testing.T) {
 		"x}}":                                 false,
 		"x} {/y":                              false,
 	} {
-		t.Run(body, func(t *testing.T) {
+		t.Run(strconv.Quote(body), func(t *testing.T) {
 			if got := IsLonePath(body); got != want {
 				t.Errorf("IsLonePath(%q) = %v, want %v", body, got, want)
 			}

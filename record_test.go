@@ -210,8 +210,14 @@ func TestRecordCSV(t *testing.T) {
 }
 
 func TestRecordCSVQuotesWhereEncodingCSVQuotes(t *testing.T) {
-	for value, want := range map[string]string{`\.`: `"\."`, " x": `" x"`, " x": "\" x\"", "a\rb": "\"a\rb\""} {
-		t.Run(value, func(t *testing.T) {
+	for _, c := range []struct{ name, value, want string }{
+		{"a backslash and a dot", `\.`, `"\."`},
+		{"a leading space", " x", `" x"`},
+		{"a leading no-break space", " x", "\" x\""},
+		{"a carriage return", "a\rb", "\"a\rb\""},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			value, want := c.value, c.want
 			body, _ := json.Marshal(map[string]string{"format": "", "v": value})
 			r, err := newGenerator(t, writeData(t, map[string]string{"q": string(body)})).FakeRecord("q")
 			if err != nil {
@@ -485,7 +491,8 @@ func TestRecordNamesDrawApart(t *testing.T) {
 	}
 }
 
-func TestRecordColumnOfOneReferenceIsTheColumnItReads(t *testing.T) {
+func eachRowAndInlineRecordOfOneReference(t *testing.T, check func(r, inline *Record, cols map[string]Column)) {
+	t.Helper()
 	dir := writeData(t, map[string]string{
 		"mid": `{"format":"","score":"{/src.score}"}`,
 		"row": `{"format":"","chain":"{/mid.score}","code":{"format":"{/src.code}","datatype":"integer"},"dot":"{.src.score}","label":"n={/src.score}","mixed":[{"format":"{text}","text":"{/src.score}"},"n/a"],"pick":["{/src.score}",{"format":"7","datatype":"integer"}],"same":"{/src.score}","score":"{/src.score}","text":"{/src.code}"}`,
@@ -496,27 +503,58 @@ func TestRecordColumnOfOneReferenceIsTheColumnItReads(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	nulls := map[string]int{}
-	eachRecordOf(t, f, "row", 200, func(r *Record) {
-		cols := columnsByName(r)
-		score, code := cols["score"], cols["code"]
-		digit := func(c Column) bool { return len(c.Value) == 1 && c.Value >= "1" && c.Value <= "9" }
-		isScore := func(name string) bool { return cols[name].Null != digit(cols[name]) }
-		switch {
-		case score.DataType != DataTypeInteger || cols["chain"].DataType != DataTypeInteger || code.DataType != DataTypeInteger || cols["pick"].DataType != DataTypeInteger || cols["label"].DataType != DataTypeString || cols["mixed"].DataType != DataTypeString || cols["text"].DataType != DataTypeString:
+	eachRecordOf(t, f, "row", 200, func(r *Record) { check(r, inline.Fake(), columnsByName(r)) })
+}
+
+func isOneDigit(c Column) bool { return len(c.Value) == 1 && c.Value >= "1" && c.Value <= "9" }
+
+func isNullOrOneDigit(c Column) bool { return c.Null != isOneDigit(c) }
+
+func TestRecordColumnOfOneReferenceHasTheDatatypeOfTheColumnItReads(t *testing.T) {
+	eachRowAndInlineRecordOfOneReference(t, func(r, _ *Record, cols map[string]Column) {
+		if cols["score"].DataType != DataTypeInteger || cols["chain"].DataType != DataTypeInteger || cols["code"].DataType != DataTypeInteger || cols["pick"].DataType != DataTypeInteger || cols["label"].DataType != DataTypeString || cols["mixed"].DataType != DataTypeString || cols["text"].DataType != DataTypeString {
 			t.Fatalf("%s: want score, chain, code and pick integer columns, label, mixed and text string ones", r.JSON())
-		case !isScore("score") || !isScore("same") || !isScore("chain") || !isScore("dot"):
+		}
+	})
+}
+
+func TestRecordColumnOfOneReferenceIsNullOrAValueOfTheColumnItReads(t *testing.T) {
+	eachRowAndInlineRecordOfOneReference(t, func(r, _ *Record, cols map[string]Column) {
+		if !isNullOrOneDigit(cols["score"]) || !isNullOrOneDigit(cols["same"]) || !isNullOrOneDigit(cols["chain"]) || !isNullOrOneDigit(cols["dot"]) {
 			t.Fatalf("%s: want score, same, chain and dot each null or a digit from src.score", r.JSON())
-		case code.Null == (code.Value == "200" || code.Value == "404"):
+		}
+		if code := cols["code"]; code.Null == (code.Value == "200" || code.Value == "404") {
 			t.Fatalf("code = %+v, want null or a code from src.code", code)
-		case cols["pick"].Value != "7" && !isScore("pick"), cols["mixed"].Null || cols["mixed"].Value != "n/a" && cols["mixed"].Value != "" && !digit(cols["mixed"]):
+		}
+	})
+}
+
+func TestRecordColumnOfSeveralItemsIsALiteralItemOrTheColumnAnItemReads(t *testing.T) {
+	eachRowAndInlineRecordOfOneReference(t, func(_, _ *Record, cols map[string]Column) {
+		if cols["pick"].Value != "7" && !isNullOrOneDigit(cols["pick"]) || cols["mixed"].Null || cols["mixed"].Value != "n/a" && cols["mixed"].Value != "" && !isOneDigit(cols["mixed"]) {
 			t.Fatalf("pick = %+v, mixed = %+v: want pick 7 or a score, mixed n/a or a score's text", cols["pick"], cols["mixed"])
-		case cols["label"].Null || !strings.HasPrefix(cols["label"].Value, "n="):
+		}
+	})
+}
+
+func TestRecordColumnOfAReferenceBesideTextIsTheTextOfTheRead(t *testing.T) {
+	eachRowAndInlineRecordOfOneReference(t, func(_, _ *Record, cols map[string]Column) {
+		if cols["label"].Null || !strings.HasPrefix(cols["label"].Value, "n=") {
 			t.Fatalf("label = %+v, want the text of the read, a null as \"\"", cols["label"])
-		case strings.Contains(r.JSON(), `"score":null`) != score.Null:
+		}
+	})
+}
+
+func TestRecordColumnOfOneReferenceWritesItsNullAsJSONNull(t *testing.T) {
+	eachRowAndInlineRecordOfOneReference(t, func(r, _ *Record, cols map[string]Column) {
+		if strings.Contains(r.JSON(), `"score":null`) != cols["score"].Null {
 			t.Fatalf("JSON() = %s, want a null score written null", r.JSON())
 		}
-		ir := inline.Fake()
+	})
+}
+
+func TestInlineRecordColumnOfOneReferenceIsTheColumnItReads(t *testing.T) {
+	eachRowAndInlineRecordOfOneReference(t, func(_, ir *Record, _ map[string]Column) {
 		ic, sqlValue := ir.Columns()[0], ir.Columns()[0].Value
 		if ic.Null {
 			sqlValue = "NULL"
@@ -524,7 +562,13 @@ func TestRecordColumnOfOneReferenceIsTheColumnItReads(t *testing.T) {
 		if ic.DataType != DataTypeInteger || ic.Null == (len(ic.Value) == 1) || ir.SQLInsert("t") != `INSERT INTO "t" ("score") VALUES (`+sqlValue+`);` || ir.CSVLine() != ic.Value {
 			t.Fatalf("inline score = %+v written %s and %q, want an integer column, NULL and an empty field or a bare digit", ic, ir.SQLInsert("t"), ir.CSVLine())
 		}
-		countNullColumns(nulls, map[string]Column{"code": code, "inline": ic, "score": score})
+	})
+}
+
+func TestRecordColumnOfOneReferenceDrawsBothNullAndAValue(t *testing.T) {
+	nulls := map[string]int{}
+	eachRowAndInlineRecordOfOneReference(t, func(_, ir *Record, cols map[string]Column) {
+		countNullColumns(nulls, map[string]Column{"code": cols["code"], "inline": ir.Columns()[0], "score": cols["score"]})
 	})
 	for _, name := range []string{"code", "inline", "score"} {
 		t.Run(name, func(t *testing.T) {
@@ -785,27 +829,59 @@ func TestLetIsAnOptionNeverAField(t *testing.T) {
 	}
 }
 
-func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatypeAndNull(t *testing.T) {
-	t.Parallel()
+func eachRecordReadingAFieldThroughAName(t *testing.T, check func(r *Record, l, s Column, kind string)) {
+	t.Helper()
 	dir := writeData(t, map[string]string{
 		"sched": `{"format":"{pattern as p}{shape as s}","pattern":[{"format":"daily","len":null},{"format":"weekly","len":{"format":"{int(1,9)}","datatype":"integer"}}],"shape":{"format":"s","size":[null,{"format":"{int(1,9)}","datatype":"integer"}]},"len":"{p.len}","size":"{s.size}","kind":"{p}"}`,
 	})
-	f := newGenerator(t, dir, WithSeed(1))
-	nulls := map[string]int{}
-	eachRecordOf(t, f, "sched", 200, func(r *Record) {
+	eachRecordOf(t, newGenerator(t, dir, WithSeed(1)), "sched", 200, func(r *Record) {
 		cols := columnsByName(r)
-		l, s, kind := cols["len"], cols["size"], cols["kind"].Value
-		digit := func(c Column) bool { return !c.Null && len(c.Value) == 1 && c.Value >= "1" && c.Value <= "9" }
-		switch {
-		case l.DataType != DataTypeInteger || s.DataType != DataTypeInteger:
+		check(r, cols["len"], cols["size"], cols["kind"].Value)
+	})
+}
+
+func isOneDigitNotNull(c Column) bool { return !c.Null && isOneDigit(c) }
+
+func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatype(t *testing.T) {
+	t.Parallel()
+	eachRecordReadingAFieldThroughAName(t, func(r *Record, l, s Column, _ string) {
+		if l.DataType != DataTypeInteger || s.DataType != DataTypeInteger {
 			t.Fatalf("%s: want len and size integer columns", r.JSON())
-		case kind == "daily" && !l.Null, kind == "weekly" && !digit(l), kind != "daily" && kind != "weekly":
+		}
+	})
+}
+
+func TestRecordColumnReadingAFieldThroughANameReadsTheItemTheNamePicked(t *testing.T) {
+	t.Parallel()
+	eachRecordReadingAFieldThroughAName(t, func(r *Record, l, _ Column, kind string) {
+		if kind == "daily" && !l.Null || kind == "weekly" && !isOneDigitNotNull(l) || kind != "daily" && kind != "weekly" {
 			t.Fatalf("%s: want len null for daily and a digit for weekly", r.JSON())
-		case s.Null == digit(s):
+		}
+	})
+}
+
+func TestRecordColumnReadingANullableFieldThroughANameIsNullOrAValue(t *testing.T) {
+	t.Parallel()
+	eachRecordReadingAFieldThroughAName(t, func(_ *Record, _, s Column, _ string) {
+		if s.Null == isOneDigitNotNull(s) {
 			t.Fatalf("size = %+v, want null or a digit", s)
-		case strings.Contains(r.JSON(), `"len":null`) != l.Null || strings.Contains(r.JSON(), `"len":"`) || strings.Contains(r.JSON(), `"size":"`):
+		}
+	})
+}
+
+func TestRecordColumnReadingAFieldThroughANameWritesANullAsJSONNullAndADigitBare(t *testing.T) {
+	t.Parallel()
+	eachRecordReadingAFieldThroughAName(t, func(r *Record, l, _ Column, _ string) {
+		if strings.Contains(r.JSON(), `"len":null`) != l.Null || strings.Contains(r.JSON(), `"len":"`) || strings.Contains(r.JSON(), `"size":"`) {
 			t.Fatalf("JSON() = %s, want a null written null and a digit written bare", r.JSON())
 		}
+	})
+}
+
+func TestRecordColumnReadingANullableFieldThroughANameDrawsBothNullAndAValue(t *testing.T) {
+	t.Parallel()
+	nulls := map[string]int{}
+	eachRecordReadingAFieldThroughAName(t, func(_ *Record, l, s Column, _ string) {
 		countNullColumns(nulls, map[string]Column{"len": l, "size": s})
 	})
 	for _, name := range []string{"len", "size"} {
