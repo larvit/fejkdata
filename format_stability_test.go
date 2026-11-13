@@ -4,6 +4,15 @@ import (
 	"testing"
 )
 
+func checkDrawsInOrder(t *testing.T, f *Generator, path string, want []string) {
+	t.Helper()
+	for i, expect := range want {
+		if got := fake(t, f, path); got != expect {
+			t.Errorf("%s draw %d = %q, want %q", path, i, got, expect)
+		}
+	}
+}
+
 // TestSeededOutputIsStable pins the exact bytes a seeded generator emits for each
 // piece of the token grammar, so a change to how a format is scanned or rendered
 // cannot quietly shift the rng stream that reproducibility depends on.
@@ -45,12 +54,9 @@ func TestSeededOutputIsStable(t *testing.T) {
 		"sums":                           {"90123456789012348 1234567890124 123456780", "90123456789012348 1234567890124 123456780", "90123456789012348 1234567890124 123456780", "90123456789012348 1234567890124 123456780"},
 		"weights":                        {"big", "big", "big", "big"},
 	}
-	for path := range want {
-		f := newGenerator(t, dir, WithSeed(42))
-		for i, expect := range want[path] {
-			if got := fake(t, f, path); got != expect {
-				t.Errorf("%s draw %d = %q, want %q", path, i, got, expect)
-			}
-		}
+	for path, draws := range want {
+		t.Run(path, func(t *testing.T) {
+			checkDrawsInOrder(t, newGenerator(t, dir, WithSeed(42)), path, draws)
+		})
 	}
 }
