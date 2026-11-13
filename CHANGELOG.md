@@ -30,6 +30,10 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
+- `--format pgcopy` writes the records as PostgreSQL's `COPY` text for `psql`: a `COPY "table" (…) FROM STDIN;`
+  line, a tab-separated row per record with `\N` for null and a backslash, tab, CR or LF escaped, and
+  `\.`. `--table` names the target. The library gains `Record.PGCopyHeader(table)` and `Record.PGCopyLine()`.
+  A million rows load in about a fifth of the time `--format sql` takes.
 - `fi_FI`, Finnish, with `fi_FI.person` and the tables it reads: `fi_FI.first-name`, `fi_FI.last-name`,
   `fi_FI.sex` (`nainen` and `mies`) and `fi_FI.title` (`tohtori` and `professori`). A first name that
   women and men both bear has a row under each sex, and a person's first name and sex agree. The

@@ -66,16 +66,16 @@ object, array or string drops the whitespace around it, and null alone renders n
 format string like any other, and renders as sent. A quoted heredoc, <<'EOF', passes $,
 a backslash or a quote as written.
 
-With --format json, ndjson, csv, tsv or sql the template must be a record — a JSON
+With --format json, ndjson, csv, tsv, pgcopy or sql the template must be a record — a JSON
 template whose fields are its columns, or a lone reference such as {/path}:
 one reference and nothing else, with one newline after it allowed — and the rows are
 written as one JSON array, one JSON object per line, one CSV or tab-separated row (after a
-header), or INSERTs of up to 1000 rows, one per line. A tsv file is what a table reads,
+header), a COPY block, or INSERTs of up to 1000 rows, one per line. A tsv file is what a table reads,
 so a later run can draw from this run's records: it writes a brace doubled, and a tab
 or line break in a value as a space.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
-      --format F         output form: text (default), json, ndjson, csv, tsv or sql
+      --format F         output form: text (default), json, ndjson, csv, tsv, pgcopy or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, each written after {/ in a template, then exit;
                          --repeat, --separator, --format and --table do nothing here
@@ -85,7 +85,7 @@ or line break in a value as a space.
   -s, --seed N           same seed, date, data and versions: identical output (default: a random seed)
       --separator S      string between repeated renders (default empty); refused with a record
                          --format, which has its own separators
-      --table T          the INSERT target for --format sql, ignored under any other
+      --table T          the INSERT or COPY target for --format sql or pgcopy, ignored under any other
                          (default: a lone reference's last segment, else records)
       --today DAY        the date to treat as today, as YYYY-MM-DD (default: the system's date);
                          give it beside --seed to repeat a run's output on a later day
@@ -270,6 +270,7 @@ type recordFormat struct {
 	writes string // what it writes between values, which --separator would seem to set
 	write  func(record recordSource, repeat int, table string, out *bufio.Writer) error
 	empty  func(*fejkdata.Record) string // nil where zero records print nothing
+	target string                        // what --table names under this format, "" where it does nothing
 }
 
 // SQL Server refuses a VALUES list above 1000 rows (error 10738).
@@ -296,7 +297,8 @@ var recordFormats = map[string]recordFormat{
 		write:  recordLines{header: (*fejkdata.Record).TSVHeader, line: (*fejkdata.Record).TSVLine, sep: "\n"}.write,
 		empty:  func(r *fejkdata.Record) string { return r.TSVHeader() + "\n" },
 	},
-	"sql": {writes: "writes one INSERT per line", write: writeSQL},
+	"pgcopy": {writes: "always separates fields with a tab", write: writePGCopy, target: "COPY"},
+	"sql":    {writes: "writes one INSERT per line", write: writeSQL, target: "INSERT"},
 }
 
 // formatNames lists the --format values, text included, for the misuse error.
@@ -314,8 +316,8 @@ func (in invocation) checkFlags() error {
 	if _, ok := recordFormats[in.format]; !ok && in.format != "text" {
 		return fmt.Errorf("--format takes %s, got %q", formatNames(), in.format)
 	}
-	if in.tableSet && in.table == "" && in.format == "sql" {
-		return errors.New("--table names the INSERT target, so it cannot be empty")
+	if target := recordFormats[in.format].target; in.tableSet && in.table == "" && target != "" {
+		return fmt.Errorf("--table names the %s target, so it cannot be empty", target)
 	}
 	if f, records := recordFormats[in.format]; records && in.separatorSet && !in.list {
 		return fmt.Errorf("--separator joins text renders; --format %s %s", in.format, f.writes)
@@ -486,6 +488,22 @@ func writeSQL(record recordSource, repeat int, table string, out *bufio.Writer) 
 		out.WriteString(r.SQLValues())
 	}
 	out.WriteString(";\n")
+	return out.Flush()
+}
+
+// writePGCopy streams the records as one COPY block: its statement, a row each and the \. that ends it.
+func writePGCopy(record recordSource, repeat int, table string, out *bufio.Writer) error {
+	for i := 0; i < repeat; i++ {
+		r, err := record()
+		if err != nil {
+			return err
+		}
+		if i == 0 {
+			out.WriteString(r.PGCopyHeader(table) + "\n")
+		}
+		out.WriteString(r.PGCopyLine() + "\n")
+	}
+	out.WriteString("\\.\n")
 	return out.Flush()
 }
 

@@ -28,7 +28,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Registers:** ISO 3166-1 territories, ISO 4217 currencies, ISO 639 languages, IANA
   time zones, TLDs, ports, HTTP status codes, media types and more, as tables you
   select a row from.
-- **Bulk output:** records as JSON, NDJSON, CSV or multi-row SQL `INSERT`s, streamed.
+- **Bulk output:** records as JSON, NDJSON, CSV, PostgreSQL `COPY` text or multi-row SQL `INSERT`s, streamed.
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags.
 - **Your own data:** each JSON file in a folder you pass adds a path, such as
   `{/acme.customer}`, and a mistake in it fails at load, never mid-render.
@@ -228,8 +228,8 @@ these paths; a template reads one as `{/path}`.
 | `--today DAY` | the date to treat as today, as `YYYY-MM-DD` from year 1000 on; ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer` and `sv_SE.person`, count from it (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` or `tsv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
-| `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv` or `sql` — a record's columns, one record per row (json frames them as an array) |
-| `--table T` | the INSERT target for `--format sql`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
+| `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv`, `pgcopy` or `sql` — a record's columns, one record per row (json frames them as an array) |
+| `--table T` | the INSERT or COPY target for `--format sql` or `pgcopy`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
 | `--version`, `-h`, `--help` | print, then exit |
 
@@ -303,7 +303,7 @@ For structured output a record writes the row for you.
 ### Records
 
 A record is a template seen as columns: its fields are the columns, its `format`
-the whole. `--format json|ndjson|csv|tsv|sql` writes the records; the library's
+the whole. `--format json|ndjson|csv|tsv|pgcopy|sql` writes the records; the library's
 `FakeRecord` (below) hands back the columns. A column is a string unless it declares a
 [datatype](#datatype), and a [`null`](#null) item draws it as null. Save
 `mydata/users.json`:
@@ -325,7 +325,8 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --table people # IN
 ```
 
 `--repeat` streams that many records — `json` frames them as one array document,
-`ndjson` writes one object per line, `csv` and `tsv` a row after a header, `sql` one multi-row INSERT
+`ndjson` writes one object per line, `csv` and `tsv` a row after a header, `pgcopy` one `COPY … FROM STDIN;` line, a tab-separated row
+per record and a closing `\.`, `sql` one multi-row INSERT
 per line, each of up to 1000 rows. Only a category-level template is a record, or a one-item choice holding one; a
 field, a choice of more items or a folder errors, and so does a `repeat` on
 the template itself, which composes the format into one string rather than
@@ -450,6 +451,7 @@ endpoint for `curl`. `csv` writes the columns in name order, so the `\copy` list
 
 ```sh
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --repeat 1000 | psql mydb
+echo '{/users}' | fejkdata --seed 1 -d ./mydata --format pgcopy --repeat 1000 | psql mydb
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --repeat 1000 | sqlite3 app.db
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --repeat 1000 | mysql --init-command="SET SESSION sql_mode = CONCAT(@@sql_mode, ',ANSI_QUOTES,NO_BACKSLASH_ESCAPES')" mydb
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format csv --repeat 1000 | psql -c '\copy users (id, name) FROM pstdin WITH (FORMAT csv, HEADER)' mydb
@@ -458,6 +460,11 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format ndjson --repeat 1000 | 
 ```
 
 The `mysql` line sets the two modes the [SQL note](#records) names.
+
+`pgcopy` writes PostgreSQL's `COPY` text: the statement, a tab-separated row per record with `\N` for
+null and a backslash, tab, CR or LF in a value escaped, and `\.`. Loading a million rows into a table
+of `id bigint primary key, name text` on PostgreSQL 17 through `psql` took 1.3 s from `pgcopy` and
+6.5 s from `sql`; both generate in about a second.
 
 ## Library
 
@@ -527,10 +534,10 @@ A path, wherever a call takes one, may start with one `/`, as a reference does.
 
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
-(one object), `CSVHeader()`/`CSVLine()`, `TSVHeader()`/`TSVLine()`, `SQLInsert(table)` (one statement) or
-`SQLInsertHeader(table)`/`SQLValues()` — the shapes the CLI's `--format` writes, each without a
+(one object), `CSVHeader()`/`CSVLine()`, `TSVHeader()`/`TSVLine()`, `SQLInsert(table)` (one statement),
+`SQLInsertHeader(table)`/`SQLValues()` or `PGCopyHeader(table)`/`PGCopyLine()` — the shapes the CLI's `--format` writes, each without a
 trailing newline. To write a multi-row INSERT, write the header, then each record's `SQLValues()` with a comma
-between them, then `;`. `FakeRecord` and
+between them, then `;`. To write a COPY, write the header, each record's `PGCopyLine()` on a line of its own, then a line `\.`. `FakeRecord` and
 `FakeRecordTemplate` take a record; a path or template that is not one — a bare string, a
 choice of more than one item, or a folder — errors.
 
