@@ -50,6 +50,12 @@ COPY data-import/ /data-import/
 COPY data/ /data/
 RUN python3 -m unittest discover -s /data-import -p '*_test.py' && touch /tested
 
+FROM ghcr.io/astral-sh/ruff:0.14.5-alpine AS python-lint
+COPY data-import/ /python/data-import/
+COPY release-tooling/ /python/release-tooling/
+COPY vulnerability-filing/ /python/vulnerability-filing/
+RUN ruff check --no-cache /python && touch /tested
+
 FROM goreleaser/goreleaser:v2.20.2 AS packaging
 WORKDIR /check
 COPY release-tooling/goreleaser.yaml ./
@@ -62,6 +68,7 @@ COPY --from=release-tooling /tested /tmp/release-tooling-tested
 COPY --from=vulnerability-filing /tested /tmp/vulnerability-filing-tested
 COPY --from=data-import /tested /tmp/data-import-tested
 COPY --from=packaging /tested /tmp/packaging-tested
+COPY --from=python-lint /tested /tmp/python-lint-tested
 
 # A pull request's CI builds only latest and lowest-and-tooling, so a check goes in one of them.
 FROM lowest-and-tooling
