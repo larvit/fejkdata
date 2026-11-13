@@ -67,6 +67,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a null read into text", `{"format":"{x}","x":"{/src.score}","datatype":"integer"}`, "reads a null"},
 		{"a sample with leading zeros", `{"format":"{digits(3)}","datatype":"integer"}`, "{digits(3)} prints text, not an integer"},
 		{"a fraction", `{"format":"{v}","v":["1","1.5"],"datatype":"integer"}`, `"1.5" is not an integer`},
+		{"a word in the second arm of an alternation", `{"format":"{n|w}","n":{"format":"{int(1,9)}","datatype":"integer"},"w":["cat"],"datatype":"integer"}`, `"cat" is not an integer`},
 		{"past int64", `{"format":"9223372036854775808","datatype":"integer"}`, "past the int64 range"},
 		{"a float sample", `{"format":"{float(0,1,2)}","datatype":"integer"}`, "{float(0,1,2)} prints a number, not an integer"},
 		{"composed digits", `{"format":"1{digits(2)}","datatype":"integer"}`, "is not one value; write one literal or one {float()}, {int()}, {seq()} or {calc()}, or read one"},
