@@ -84,34 +84,16 @@ func checkClose(path string, i, open int) error {
 
 // indexOutside is the first c in s outside a [selector], or -1.
 func indexOutside(s string, c byte) int {
-	depth := 0
-	for i := 0; i < len(s); i++ {
-		switch {
-		case s[i] == '[':
-			depth++
-		case s[i] == ']' && depth > 0:
-			depth--
-		case s[i] == c && depth == 0:
-			return i
-		}
-	}
-	return -1
+	return (&scanner{}).find(s, func(i int) bool { return s[i] == c })
 }
 
 // cutOutside cuts s around the first sep outside a [selector].
 func cutOutside(s, sep string) (before, after string, found bool) {
-	depth := 0
-	for i := 0; i < len(s); i++ {
-		switch {
-		case s[i] == '[':
-			depth++
-		case s[i] == ']' && depth > 0:
-			depth--
-		case depth == 0 && strings.HasPrefix(s[i:], sep):
-			return s[:i], s[i+len(sep):], true
-		}
+	i := (&scanner{}).find(s, func(i int) bool { return strings.HasPrefix(s[i:], sep) })
+	if i < 0 {
+		return s, "", false
 	}
-	return s, "", false
+	return s[:i], s[i+len(sep):], true
 }
 
 func splitOutside(s string, c byte) []string {

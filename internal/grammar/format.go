@@ -145,19 +145,12 @@ func splitArgs(s string) []string {
 		return nil
 	}
 	var args []string
-	depth, quoted, start := 0, false, 0
-	for i := 0; i < len(s); i++ {
-		switch c := s[i]; {
-		case c == '\'' && depth == 0:
-			quoted = !quoted
-		case quoted:
-		case c == '[':
-			depth++
-		case c == ']' && depth > 0:
-			depth--
-		case c == ',' && depth == 0:
+	start := 0
+	(&scanner{quotes: true}).find(s, func(i int) bool {
+		if s[i] == ',' {
 			args, start = append(args, strings.TrimSpace(s[start:i])), i+1
 		}
-	}
+		return false
+	})
 	return append(args, strings.TrimSpace(s[start:]))
 }
