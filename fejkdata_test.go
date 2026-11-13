@@ -83,32 +83,43 @@ func TestNewRejectsAnEmptyDataPath(t *testing.T) {
 
 func TestNewWithoutASeedFailsNamingWithSeed(t *testing.T) {
 	for name, opts := range map[string][]Option{"no option": nil, "only data": {WithDataFS()}} {
-		if _, err := New(opts...); err == nil || !strings.Contains(err.Error(), "WithSeed(") {
-			t.Errorf("New(%s) = %v, want it refused, naming WithSeed", name, err)
-		}
+		t.Run(name, func(t *testing.T) {
+			if _, err := New(opts...); err == nil || !strings.Contains(err.Error(), "WithSeed(") {
+				t.Errorf("New(%s) = %v, want it refused, naming WithSeed", name, err)
+			}
+		})
 	}
+}
+
+func TestNewNamesBothAMissingSeedAndANilModule(t *testing.T) {
 	if _, err := New(WithDataFS(nil)); err == nil || !strings.Contains(err.Error(), "WithSeed(") || !strings.Contains(err.Error(), "module 1 is nil") {
 		t.Errorf("New(WithDataFS(nil)) = %v, want both the missing seed and the nil module named", err)
 	}
 }
 
+func firstDifferingDraw(n int, drawA, drawB func() string) (i int, x, y string, differ bool) {
+	for i = 0; i < n; i++ {
+		if x, y = drawA(), drawB(); x != y {
+			return i, x, y, true
+		}
+	}
+	return 0, "", "", false
+}
+
 func TestWithSeedIsDeterministic(t *testing.T) {
 	a, b := shipped(t, WithSeed(42)), shipped(t, WithSeed(42))
-	for i := 0; i < 50; i++ {
-		if x, y := fake(t, a, "sv_SE.person"), fake(t, b, "sv_SE.person"); x != y {
-			t.Fatalf("same seed diverged at %d: %q != %q", i, x, y)
-		}
+	i, x, y, differ := firstDifferingDraw(50, func() string { return fake(t, a, "sv_SE.person") }, func() string { return fake(t, b, "sv_SE.person") })
+	if differ {
+		t.Fatalf("same seed diverged at %d: %q != %q", i, x, y)
 	}
 }
 
 func TestDifferentSeedsDiffer(t *testing.T) {
 	a, b := shipped(t, WithSeed(1)), shipped(t, WithSeed(2))
-	for i := 0; i < 50; i++ {
-		if fake(t, a, "en_US.person") != fake(t, b, "en_US.person") {
-			return
-		}
+	_, _, _, differ := firstDifferingDraw(50, func() string { return fake(t, a, "en_US.person") }, func() string { return fake(t, b, "en_US.person") })
+	if !differ {
+		t.Fatal("seeds 1 and 2 produced identical sequences")
 	}
-	t.Fatal("seeds 1 and 2 produced identical sequences")
 }
 
 // fakeTemplate renders an inline template against a loaded generator, so its
