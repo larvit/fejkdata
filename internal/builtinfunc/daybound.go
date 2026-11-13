@@ -34,13 +34,19 @@ func parseDayBound(arg string) (dayBound, error) {
 	return dayBound{days: days, relative: true}, nil
 }
 
-// on is the bound's day, with today the caller's date.
+var (
+	firstDay = time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC)
+	lastDay  = time.Date(9999, time.December, 31, 0, 0, 0, 0, time.UTC)
+)
+
+// on is the bound's day, with today the caller's date. A relative bound stops at year 0000 or 9999,
+// the years a date prints in four digits, and the clamp keeps the order of two bounds.
 func (b dayBound) on(today time.Time) time.Time {
 	if !b.relative {
 		return b.day
 	}
 	year, month, day := today.Date()
-	return time.Date(year, month, day+b.days, 0, 0, 0, 0, time.UTC)
+	return clampDay(time.Date(year, month, day+b.days, 0, 0, 0, 0, time.UTC))
 }
 
 func (b dayBound) after(other dayBound) bool {
@@ -77,4 +83,14 @@ func dayBounds(a []string) (from, to dayBound, err error) {
 		return from, to, fmt.Errorf("date(from,to,layout): from %s is after to %s", a[0], a[1])
 	}
 	return from, to, nil
+}
+
+func clampDay(d time.Time) time.Time {
+	switch {
+	case d.Before(firstDay):
+		return firstDay
+	case d.After(lastDay):
+		return lastDay
+	}
+	return d
 }
