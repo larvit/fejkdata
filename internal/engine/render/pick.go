@@ -115,12 +115,6 @@ func (m *drawMemo) enteredFrame(scope *tree.NameScope) *pickFrame {
 }
 
 // readName reads a from the pick of its name, held in the frame of the name's scope.
-// When the pick renders another category, env.frames.enter pushes that category's frames above
-// mark. The pick's memo keeps those frames. openOwn finds them and opens no new one. Popping to
-// mark after the render leaves the frames as the read found them.
-// So every read through one pick sees one pick of each name the other category binds:
-// {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l
-// that geo.SE.address binds.
 func readName(s *drawstate.State, env renderEnv, a tree.Read) readValue {
 	f := env.frameOf(a.Named().Scope())
 	if f == nil {
@@ -131,16 +125,32 @@ func readName(s *drawstate.State, env renderEnv, a tree.Read) readValue {
 		return r
 	}
 	if v := a.Named().Values(); v != nil {
-		if p.drawn == nil {
-			p.drawn = drawValues(v, s, env)
-		}
-		if a.Member() > 0 {
-			return readValue{text: p.drawn[a.Member()-1]}
-		}
-		return readValue{text: strings.Join(p.drawn, v.Sep())}
+		return p.readValues(s, env, v, a.Member())
 	}
+	return p.readPath(s, env, a)
+}
+
+// readValues reads member of the values p draws once, or all of them joined where member is 0.
+func (p *namedPick) readValues(s *drawstate.State, env renderEnv, v *tree.ValueDraw, member int) readValue {
+	if p.drawn == nil {
+		p.drawn = drawValues(v, s, env)
+	}
+	if member > 0 {
+		return readValue{text: p.drawn[member-1]}
+	}
+	return readValue{text: strings.Join(p.drawn, v.Sep())}
+}
+
+// readPath draws a's path under p and renders its leaf. A read of a field stays in the category,
+// so its frames are already open. When the pick renders another category, env.frames.enter pushes
+// that category's frames above mark. The pick's memo keeps those frames. openOwn finds them and
+// opens no new one. Popping to mark after the render leaves the frames as the read found them.
+// So every read through one pick sees one pick of each name the other category binds:
+// {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l
+// that geo.SE.address binds.
+func (p *namedPick) readPath(s *drawstate.State, env renderEnv, a tree.Read) readValue {
 	leaf, pins := p.draw(s, a.Named().Target().Start(), a.Steps(), a.Levels())
-	if a.Named().BindsField() { // the read stays in the category, so its frames are already open
+	if a.Named().BindsField() {
 		return p.renderAt(s, leaf, pins, a.Key(), env)
 	}
 	mark := env.frames.enter(leaf, &p.memo)

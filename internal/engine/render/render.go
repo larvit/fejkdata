@@ -122,20 +122,30 @@ func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 // readField renders one read of a token. A read is kept in a name's pick when it reads the name, or
 // a level that a read of the name being rendered addresses; every other read draws afresh, so
 // {word} {word} draws twice and {p.a} {p.b} reads two draws of p.
-// A fresh read clears env.pick, which stops a read nested in it from keying the pick's memo under
-// env.pickAt and sharing a value with another node at that key; a reference's read clears it in env.entered.
 func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
 	switch {
 	case a.Kind() == tree.NamedRead:
 		return readName(s, env, a)
 	case keptInPick(env, a):
 		return readUnder(s, t, env, a)
+	case grammar.IsRef(a.Head()):
+		return readReference(s, t, env, a)
 	}
-	if !grammar.IsRef(a.Head()) {
-		env.pick = nil
-		leaf := drawSibling(s, t.StartOf(a.Head(), t.Refs()), a.Steps())
-		return renderLeaf(s, leaf, env)
-	}
+	return readSibling(s, t, env, a)
+}
+
+// readSibling draws afresh a read of a field of t's own category.
+func readSibling(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
+	// A fresh read is in no pick: a read nested in it would otherwise key the pick's memo under
+	// env.pickAt and share a value with another node at that key.
+	env.pick = nil
+	leaf := drawSibling(s, t.StartOf(a.Head(), t.Refs()), a.Steps())
+	return renderLeaf(s, leaf, env)
+}
+
+// readReference draws afresh a read of another category, in frames of its own, and in no pick,
+// which env.entered clears.
+func readReference(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
 	var pins tree.PinSet
 	leaf, leafPins := drawFresh(s, t.StartOf(a.Head(), t.Refs()), a.Steps(), &pins)
 	mark := env.frames.enter(leaf, nil)
