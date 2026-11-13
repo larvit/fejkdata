@@ -27,21 +27,23 @@ func TestMainRendersTheShippedData(t *testing.T) {
 	}
 }
 
-func TestMainWithoutASeedDrawsANewSeedEachRun(t *testing.T) {
-	var outs [2]string
-	for i := range outs {
-		cmd := exec.Command(os.Args[0])
-		cmd.Env = append(os.Environ(), "FEJKDATA_RUN_MAIN=1")
-		cmd.Stdin = strings.NewReader("{uuid()}")
-		var stderr bytes.Buffer
-		cmd.Stderr = &stderr
-		out, err := cmd.Output()
-		if err != nil || len(out) == 0 {
-			t.Fatalf("fejkdata without --seed = %v, %q, %q", err, out, stderr.String())
-		}
-		outs[i] = string(out)
+func mainOutputWithoutASeed(t *testing.T) string {
+	t.Helper()
+	cmd := exec.Command(os.Args[0])
+	cmd.Env = append(os.Environ(), "FEJKDATA_RUN_MAIN=1")
+	cmd.Stdin = strings.NewReader("{uuid()}")
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	if err != nil || len(out) == 0 {
+		t.Fatalf("fejkdata without --seed = %v, %q, %q", err, out, stderr.String())
 	}
-	if outs[0] == outs[1] {
-		t.Errorf("two runs without --seed both printed %q, want a new seed each run", outs[0])
+	return string(out)
+}
+
+func TestMainWithoutASeedDrawsANewSeedEachRun(t *testing.T) {
+	first, second := mainOutputWithoutASeed(t), mainOutputWithoutASeed(t)
+	if first == second {
+		t.Errorf("two runs without --seed both printed %q, want a new seed each run", first)
 	}
 }
