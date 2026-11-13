@@ -9,10 +9,11 @@ import (
 	"github.com/larvit/fejkdata"
 )
 
-// system holds what the machine gives where no flag does.
-type system struct {
-	seed  uint64
-	today time.Time
+type flagDef struct {
+	long  string
+	short string
+	value bool
+	set   func(*invocation, string) error
 }
 
 var flagDefs = []flagDef{

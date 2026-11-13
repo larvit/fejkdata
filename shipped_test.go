@@ -505,6 +505,28 @@ func TestAnIndexedCategoryFailsAtFirstReachAndEveryReachAfter(t *testing.T) {
 	}
 }
 
+func TestAnIndexedCategoryInACycleFailsAtFirstReachAndEveryReachAfter(t *testing.T) {
+	f, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{
+		".fejkdata.json": {Data: []byte(`{"index": {"a": {"paths": [""]}, "b": {"paths": [""]}, "good": {"paths": [""]}}}`)},
+		"a.json":         {Data: []byte(`"{/b}"`)},
+		"b.json":         {Data: []byte(`"{/a}"`)},
+		"good.json":      {Data: []byte(`"fine"`)},
+	}))
+	if err != nil {
+		t.Fatalf("New() = %v", err)
+	}
+	_, first := f.Fake("a")
+	if first == nil || !strings.Contains(first.Error(), "reference cycle") || !errors.Is(first, ErrLoad) {
+		t.Fatalf(`Fake("a") = %v, want a load error naming the reference cycle`, first)
+	}
+	if _, again := f.Fake("a"); again == nil || again.Error() != first.Error() {
+		t.Fatalf(`Fake("a") again = %v, want %v`, again, first)
+	}
+	if got := fejktest.Fake(t, f, "good"); got != "fine" {
+		t.Fatalf(`Fake("good") = %q`, got)
+	}
+}
+
 func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 	for manifest, want := range map[string][]string{
 		`{`:                                              {datafiles.ManifestFile},
