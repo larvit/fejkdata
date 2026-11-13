@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode"
+	"unicode/utf8"
 )
 
 // DVV's "Etunimitilasto" and "Sukunimitilasto" of 4 August 2026: the first given names of the
@@ -695,6 +697,24 @@ func TestShippedFinnishStreetCarriesPostisSwedishName(t *testing.T) {
 	}
 }
 
+func TestShippedFinnishStreetCarriesTheSwedishNamePostiGivesOnOnlySomeOfItsRanges(t *testing.T) {
+	if !slices.ContainsFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool {
+		return r["name"] == "Laurilantie" && r["locality"] == "Järvenpää" && r["swedish-name"] == "Laurilavägen"
+	}) {
+		t.Error("geo.FI: no street Laurilantie in Järvenpää with the swedish-name Laurilavägen")
+	}
+}
+
+func TestShippedFinnishStreetNamesOpenWithNoLowerCaseLetter(t *testing.T) {
+	for i, r := range tsvRows(t, "data/geo/FI/street.tsv") {
+		for _, column := range []string{"name", "swedish-name"} {
+			if first, _ := utf8.DecodeRuneInString(r[column]); unicode.IsLower(first) {
+				t.Errorf("geo.FI street row %d has the %s %q, want its first letter in upper case", i+1, column, r[column])
+			}
+		}
+	}
+}
+
 func TestShippedFinnishStreetWithoutASwedishNameCarriesItsFinnishOne(t *testing.T) {
 	if i := slices.IndexFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool { return r["swedish-name"] == "" }); i >= 0 {
 		t.Errorf("geo.FI street row %d has no swedish-name, want its Finnish name where Posti gives no Swedish one", i+1)
@@ -702,9 +722,9 @@ func TestShippedFinnishStreetWithoutASwedishNameCarriesItsFinnishOne(t *testing.
 }
 
 // Posti lists a highway such as Valtatie 23, a postinumero and an island such as Mustalampi,
-// Lammassaari beside the streets.
-func TestShippedFinnishStreetNamesHoldNoDigitCommaOrBracket(t *testing.T) {
-	if i := slices.IndexFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool { return strings.ContainsAny(r["name"], "0123456789,()") }); i >= 0 {
-		t.Errorf("geo.FI street row %d holds a digit, comma or bracket, want a street name", i+1)
+// Lammassaari or Makkarasaari/Lapinsaari beside the streets.
+func TestShippedFinnishStreetNamesHoldNoDigitCommaBracketOrSlash(t *testing.T) {
+	if i := slices.IndexFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool { return strings.ContainsAny(r["name"], "0123456789,()/") }); i >= 0 {
+		t.Errorf("geo.FI street row %d holds a digit, comma, bracket or slash, want a street name", i+1)
 	}
 }
