@@ -55,6 +55,6 @@ func tickPrep(a []string) Call {
 	counter := "tick(" + strings.Join(a, ",") + ")"
 	return func(s *drawstate.State, _ string, _ []string) string {
 		offset := int64(s.Seq(counter)-1)*step + int64(s.IntN(jitter+1))
-		return time.Unix(start.Unix()+offset, 0).UTC().Format(layout)
+		return time.Unix(start.Unix()+offset, int64(start.Nanosecond())).UTC().Format(layout)
 	}
 }
