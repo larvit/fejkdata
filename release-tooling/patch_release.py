@@ -232,7 +232,8 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 		path = os.path.join(tree, "CHANGELOG.md")
 		write(path, changelog.insert_section(read(path), text))
 		carry_workflows(root, tree)
-		if patch.goreleaser and patch.goreleaser != released.goreleaser:
+		if patch.goreleaser != released.goreleaser:
+			assert patch.goreleaser, "carried.due returned a patch that names no GoReleaser"
 			carry_goreleaser(root, tree, patch.goreleaser)
 		code, tag = effects.publish(read(path), effects.build_and_push(tree, next_patch(last)))
 	if tag:

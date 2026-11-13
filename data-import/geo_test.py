@@ -9,7 +9,7 @@ import geo
 
 
 def script(name: str) -> types.ModuleType:
-    """The import script of that file name, which is no module name, as a module."""
+    """The import script `name`.py as a module. A script's hyphen keeps `import` from naming it; a module here takes an underscore."""
     spec = importlib.util.spec_from_file_location(name.replace("-", "_"), Path(__file__).with_name(name + ".py"))
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
