@@ -154,10 +154,11 @@ def number_range(number, lettered):
     return next(i for i, (_, top) in enumerate(NUMBER_RANGES) if number <= top), lettered
 
 
-def address_json(numbers):
-    """A country's address, its street-number choice weighted by numbers, which counts house numbers by number_range."""
+def address_json(numbers, letter="{upper(1)}"):
+    """A country's address, its street-number choice weighted by numbers, which counts house numbers by number_range,
+    and drawing a number's letter with the template letter."""
     items = ",\n".join(
-        f'    {{ "format": "{{int({low},{top})}}{"{upper(1)}" if lettered else ""}", "weight": {numbers[(i, lettered)]} }}'
+        f'    {{ "format": "{{int({low},{top})}}{letter if lettered else ""}", "weight": {numbers[(i, lettered)]} }}'
         for lettered in (False, True) for i, (low, top) in enumerate(NUMBER_RANGES) if numbers[(i, lettered)]
     )
     return (

@@ -1,0 +1,1 @@
+{ "format": "{name}", "rows": "locality.tsv", "key": "name", "parent": "municipality", "weight": "population" }
