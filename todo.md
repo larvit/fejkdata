@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 457`
+`Next ID = 458`
 
 ## Items
 
@@ -48,6 +48,7 @@
 | 255 | 0.8.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 3.2 |
 | 117 | 0.8.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 3.2 |
 | 168 | 0.8.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.9 |
+| 457 | 0.8.0 |  |  | **Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.9 |
 | 257 | 0.8.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 2.9 |
 | 389 | 0.8.0 |  |  | **Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2 by 1, 3 by 2 | 2.9 |
 | 113 | 0.8.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 2.8 |
@@ -405,6 +406,10 @@ Against "Most, if not all, code should have automated tests" in `technical-princ
 The tests also cover the rules of `company-no.py`: `shape_of` reads an unlisted word in an ENK name as the owner's last name, `roots` takes a word carried in at least two forms, and `register`, `without_wording`, `kind`, `count_shapes` and `endings` hold the rest. They cover `word_usage` and `trade_words` in `company_names.py`, which `company-se.py` and `company-no.py` share; its `Vocabulary.acronym_max` makes a word in capitals an acronym only up to that many letters or where it has no vowel.
 
 They cover `scb_smaorter`, `inside` and `population_of` in `geo-se.py` too, where no gate test kills a mutant today, such as a swapped latitude and longitude or a dropped kommun filter.
+
+### 457. Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.
+
+A script under `data-import/` is named with a hyphen, as `geo-se.py`, and a module with an underscore, as `company_names.py`. A test reaches a script only through `geo_test.script`, which loads it by file path. `mutate-changes` (mutmut 3) cannot map such a file to its mutants: on the chunk that shipped mypy it stopped with "tests recorded trampoline hits but none match any mutant key", so it tested no mutant in any of the three Python folders. The comprehension panel names the same split as a place: "hyphen against underscore tells script from module, stated nowhere", which `geo.py`'s docstring now states. Rename the scripts, update each command the README lists and the Dockerfile's stages, drop `geo_test.script`, and check that `mutate-changes` then runs over `data-import/`, `release-tooling/` and `vulnerability-filing/`. Related: item 168 adds the tests the mutants need.
 
 ### 257. Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.
 

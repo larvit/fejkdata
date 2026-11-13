@@ -57,7 +57,7 @@ COPY data-import/ /python/data-import/
 COPY release-tooling/ /python/release-tooling/
 COPY vulnerability-filing/ /python/vulnerability-filing/
 RUN ruff check --no-cache /python
-# Each folder is checked from inside it, as its scripts run, so one folder's module never shadows another's.
+# mypy runs inside each folder, since a script imports its siblings by bare name, as `import geo`.
 RUN for folder in data-import release-tooling vulnerability-filing; do (cd /python/$folder && mypy --strict --cache-dir /dev/null .) || exit 1; done && touch /tested
 
 FROM goreleaser/goreleaser:v2.20.2 AS packaging

@@ -1,4 +1,8 @@
-"""The steps a country's geo import may share with another's."""
+"""The steps a country's geo import may share with another's.
+
+In this folder a file named with a hyphen, such as `geo-se.py`, is a script to run, and one named with an underscore
+or a single word, such as this one, is a module the scripts import.
+"""
 import argparse
 import collections
 import io
@@ -14,7 +18,7 @@ import tsv
 
 # A table's row, each column under its name; a country's script adds keys of its own.
 type Row = dict[str, Any]
-# fence's result: each table's rows under the table's name, by the row's key.
+# Each table's rows under the table's name, by the row's key.
 type Tables = dict[str, dict[Any, Row]]
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "geo"

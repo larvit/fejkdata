@@ -53,7 +53,7 @@ SLOTS = {
 
 # A name's kinds of word in order, each a key of SLOTS.
 type Shape = tuple[str, ...]
-# Where a name writes its legal form, "before" or "after", and the words it writes.
+# Where a name writes its legal form, "before" or "after", and the legal form as the name spells it.
 type Wording = tuple[str, str]
 
 
