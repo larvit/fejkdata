@@ -230,6 +230,8 @@ func TestNameErrors(t *testing.T) {
 			`renders field "w" twice`},
 		{"a misspelt name", map[string]string{"word": `["a","b"]`, "card": `"{/word as p}{p}{p}{pp}"`},
 			`no field or name "pp"; the names bound here are "p"`},
+		{"a misspelt name among names bound out of order", map[string]string{"word": `["a","b"]`, "card": `"{/word as z}{/word as p}{z}{p}{pp}"`},
+			`no field or name "pp"; the names bound here are "p", "z"`},
 		{"read outside a repeat in the root choice", map[string]string{"word": `["a","b"]`, "card": `[{"format":"{/word as p}{p}{p}","repeat":2},"{p}"]`},
 			`name "p" is bound at an item of the root choice, inside a repeat`},
 		{"an empty name", map[string]string{"word": `["a","b"]`, "card": `"{/word as }"`},

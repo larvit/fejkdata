@@ -38,8 +38,8 @@ func TestRunVersion(t *testing.T) {
 		t.Fatalf("--version = %d, stderr=%q", code, errb)
 	}
 	version, ok := strings.CutPrefix(out, "fejkdata ")
-	if !ok || strings.TrimSpace(version) == "" {
-		t.Errorf("--version = %q, want the command name and a version on stdout", out)
+	if !ok || strings.TrimSpace(version) == "" || strings.Index(out, "\n") != len(out)-1 {
+		t.Errorf("--version = %q, want the command name and a version on stdout, ending in its one newline", out)
 	}
 }
 
