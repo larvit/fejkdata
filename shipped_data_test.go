@@ -13,9 +13,11 @@ import (
 
 func TestABareNewFailsNamingWithDataFS(t *testing.T) {
 	for name, opts := range map[string][]Option{"no option": nil, "only a seed": {WithSeed(1)}} {
-		if _, err := New(opts...); err == nil || !strings.Contains(err.Error(), "WithDataFS(data.Modules()...)") {
-			t.Errorf("New(%s) = %v, want it refused, naming WithDataFS(data.Modules()...)", name, err)
-		}
+		t.Run(name, func(t *testing.T) {
+			if _, err := New(opts...); err == nil || !strings.Contains(err.Error(), "WithDataFS(data.Modules()...)") {
+				t.Errorf("New(%s) = %v, want it refused, naming WithDataFS(data.Modules()...)", name, err)
+			}
+		})
 	}
 }
 
@@ -47,9 +49,18 @@ func TestEveryShippedModuleLoads(t *testing.T) {
 	}
 	paths := f.List()
 	for _, p := range []string{"sv_SE.person", "en_US.address", "misc.uuid"} {
-		if !slices.Contains(paths, p) {
-			t.Errorf("List() omits shipped %q", p)
-		}
+		t.Run(p, func(t *testing.T) {
+			if !slices.Contains(paths, p) {
+				t.Errorf("List() omits shipped %q", p)
+			}
+		})
+	}
+}
+
+func TestAShippedCategoryRenders(t *testing.T) {
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatalf("New() = %v", err)
 	}
 	if got := fake(t, f, "sv_SE.person"); got == "" {
 		t.Error("sv_SE.person rendered empty")
@@ -90,33 +101,54 @@ func TestAGeneratorWithDataSaysNothingOfNoData(t *testing.T) {
 	}
 }
 
-func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
-	for name, opts := range map[string][]Option{
+func optionsHoldingNoData(t *testing.T) map[string][]Option {
+	t.Helper()
+	return map[string][]Option{
 		"no module":    {WithDataFS()},
 		"empty folder": {WithDataPath(t.TempDir())},
-	} {
-		f, err := New(append(opts, WithSeed(1), onTestDay)...)
-		if err != nil {
-			t.Fatalf("%s: New = %v, want a generator holding no data", name, err)
-		}
-		if v, err := f.FakeTemplate("{digits(3)}"); err != nil || len(v) != 3 {
-			t.Errorf("%s: FakeTemplate = %q, %v, want three digits", name, v, err)
-		}
-		if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
-			t.Errorf("%s: Fake(x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
-		}
-		if _, err := f.NewTemplate("{/x}"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
-			t.Errorf("%s: NewTemplate({/x}) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
-		}
-		if _, err := f.FakeRecord("x"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
-			t.Errorf("%s: FakeRecord(x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
-		}
-		var tagged struct {
-			X string `fake:"x"`
-		}
-		if err := f.FakeStruct(&tagged); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
-			t.Errorf("%s: FakeStruct(tag x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
-		}
+	}
+}
+
+func newHoldingNoData(t *testing.T, name string, opts []Option) *Generator {
+	t.Helper()
+	f, err := New(append(opts, WithSeed(1), onTestDay)...)
+	if err != nil {
+		t.Fatalf("%s: New = %v, want a generator holding no data", name, err)
+	}
+	return f
+}
+
+func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
+	for name, opts := range optionsHoldingNoData(t) {
+		t.Run(name, func(t *testing.T) {
+			f := newHoldingNoData(t, name, opts)
+			if v, err := f.FakeTemplate("{digits(3)}"); err != nil || len(v) != 3 {
+				t.Errorf("%s: FakeTemplate = %q, %v, want three digits", name, v, err)
+			}
+		})
+	}
+}
+
+func TestAGeneratorWithNoDataRefusesAReferenceSayingNoDataIsLoaded(t *testing.T) {
+	for name, opts := range optionsHoldingNoData(t) {
+		t.Run(name, func(t *testing.T) {
+			f := newHoldingNoData(t, name, opts)
+			if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
+				t.Errorf("%s: Fake(x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
+			}
+			if _, err := f.NewTemplate("{/x}"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
+				t.Errorf("%s: NewTemplate({/x}) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
+			}
+			if _, err := f.FakeRecord("x"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
+				t.Errorf("%s: FakeRecord(x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
+			}
+			var tagged struct {
+				X string `fake:"x"`
+			}
+			if err := f.FakeStruct(&tagged); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
+				t.Errorf("%s: FakeStruct(tag x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
+			}
+		})
 	}
 }
 
@@ -145,6 +177,9 @@ func TestWithDataFS(t *testing.T) {
 	if got := fake(t, f, "nested.x.y"); got != "z" {
 		t.Errorf("nested.x.y = %q, want z", got)
 	}
+}
+
+func TestWithDataFSNamesTheFileThatFailsToParse(t *testing.T) {
 	bad := fstest.MapFS{"broken.json": {Data: []byte(`{ not json`)}}
 	if _, err := New(WithSeed(1), onTestDay, WithDataFS(bad)); err == nil || !strings.Contains(err.Error(), "broken.json") {
 		t.Errorf("New(bad fs) = %v, want an error naming the file", err)
@@ -170,41 +205,49 @@ func TestWithDataFSRefusesANilModule(t *testing.T) {
 	}
 }
 
-func TestFakeIsSafeForConcurrentUse(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
+func inEightGoroutines(work func()) {
 	var wg sync.WaitGroup
 	for g := 0; g < 8; g++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for i := 0; i < 200; i++ {
-				if _, err := f.Fake("sv_SE.person"); err != nil {
-					t.Error(err)
-					return
-				}
-				f.List()
-				if _, err := f.FakeRecord("sv_SE.person"); err != nil {
-					t.Error(err)
-					return
-				}
-				tmpl, err := f.NewTemplate("{/sv_SE.person.last}")
-				if err != nil {
-					t.Error(err)
-					return
-				}
-				tmpl.Fake()
-				var u struct {
-					Last string `fake:"sv_SE.person.last"`
-				}
-				if err := f.FakeStruct(&u); err != nil {
-					t.Error(err)
-					return
-				}
-			}
+			work()
 		}()
 	}
 	wg.Wait()
+}
+
+func fakeEveryWay200Times(t *testing.T, f *Generator) {
+	for i := 0; i < 200; i++ {
+		if _, err := f.Fake("sv_SE.person"); err != nil {
+			t.Error(err)
+			return
+		}
+		f.List()
+		if _, err := f.FakeRecord("sv_SE.person"); err != nil {
+			t.Error(err)
+			return
+		}
+		tmpl, err := f.NewTemplate("{/sv_SE.person.last}")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		tmpl.Fake()
+		var u struct {
+			Last string `fake:"sv_SE.person.last"`
+		}
+		if err := f.FakeStruct(&u); err != nil {
+			t.Error(err)
+			return
+		}
+	}
+}
+
+func TestFakeIsSafeForConcurrentUse(t *testing.T) {
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	inEightGoroutines(func() { fakeEveryWay200Times(t, f) })
 }
