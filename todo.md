@@ -12,7 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 455 | 0.5.0 |  |  | **Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.** | 3 | 1 | 1 | 3 | 7 | code health by 3 | 0.9 |
+| 455 | 0.5.0 |  |  | **Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.** | 4 | 2 | 2 | 6 | 6 | code health by 3 | 1.6 |
 | 456 | 0.5.0 |  |  | **Gate cyclomatic complexity at 10 in both gocyclo lines, with every function over it split or listed, with its reason, as a table-shaped dispatch.** | 3 | 1 | 1 | 3 | 8 | code health by 5 | 0.7 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
