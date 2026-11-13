@@ -13,9 +13,11 @@ func TestTransforms(t *testing.T) {
 		// The letters beyond Latin-1 in ruby-i18n's default transliteration table, less ŉ.
 		`{"format":"{ascii(x)}","x":"ẞĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿŀŁłŃńŅņŇňŊŋŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžǪǫǬǭ"}`: "SSAaAaAaCcCcCcCcDdDdEeEeEeEeEeGgGgGgGgHhHhIiIiIiIiIiIJijJjKkkLlLlLlLlLlNnNnNnNGngOoOoOoRrRrRrSsSsSsSsTtTtTtUuUuUuUuUuUuWwYyYZzZzZzOoOo",
 	} {
-		if got := mustRender(t, f, src); got != want {
-			t.Errorf("render(%s) = %q, want %q", src, got, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if got := mustRender(t, f, src); got != want {
+				t.Errorf("render(%s) = %q, want %q", src, got, want)
+			}
+		})
 	}
 }
 
@@ -38,21 +40,23 @@ func TestSlugify(t *testing.T) {
 		"a\u007fb":   "a-b",
 		"ŉ":          "",
 	} {
-		src := `{"format":"{slugify(x)}","x":"` + name + `"}`
-		if got := mustRender(t, f, src); got != want {
-			t.Errorf("slugify(%q) = %q, want %q", name, got, want)
-		}
+		t.Run(name, func(t *testing.T) {
+			src := `{"format":"{slugify(x)}","x":"` + name + `"}`
+			if got := mustRender(t, f, src); got != want {
+				t.Errorf("slugify(%q) = %q, want %q", name, got, want)
+			}
+		})
 	}
 }
 
 func TestTransformReadsTheNamedDraw(t *testing.T) {
 	f := emptyGenerator(2)
 	src := `{"format":"{p as q}{q.first}={lowercase(q.first)}","p":[{"format":"{first}","first":"Anna"},{"format":"{first}","first":"Bo"}]}`
-	for i := 0; i < 50; i++ {
-		if got := mustRender(t, f, src); got != "Anna=anna" && got != "Bo=bo" {
+	eachDraw(50, func() string { return mustRender(t, f, src) }, func(got string) {
+		if got != "Anna=anna" && got != "Bo=bo" {
 			t.Fatalf("render = %q, want the transform over the same draw", got)
 		}
-	}
+	})
 }
 
 func TestTransformOverAReference(t *testing.T) {
@@ -61,11 +65,11 @@ func TestTransformOverAReference(t *testing.T) {
 		"email":  `"{/person as p}{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>"`,
 	})
 	f := newGenerator(t, dir, WithSeed(5))
-	for i := 0; i < 50; i++ {
-		if got := fake(t, f, "email"); got != "Åsa Öberg <asa.oberg@example.com>" && got != "Bo Ek <bo.ek@example.com>" {
+	eachDraw(50, func() string { return fake(t, f, "email") }, func(got string) {
+		if got != "Åsa Öberg <asa.oberg@example.com>" && got != "Bo Ek <bo.ek@example.com>" {
 			t.Fatalf("email = %q, want a record from one draw", got)
 		}
-	}
+	})
 }
 
 func TestTransformArgs(t *testing.T) {
@@ -78,9 +82,11 @@ func TestTransformArgs(t *testing.T) {
 		`{"format":"{slugify(x,y)}","x":"v","y":"w"}`,
 		`{"format":"{lowercase(hex(2))}","x":"v"}`,
 	} {
-		if _, err := f.NewTemplate(bad); err == nil {
-			t.Errorf("NewTemplate(%s) = nil error, want it rejected", bad)
-		}
+		t.Run(bad, func(t *testing.T) {
+			if _, err := f.NewTemplate(bad); err == nil {
+				t.Errorf("NewTemplate(%s) = nil error, want it rejected", bad)
+			}
+		})
 	}
 }
 
