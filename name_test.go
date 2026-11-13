@@ -79,24 +79,13 @@ func TestABindingPrintsNothing(t *testing.T) {
 	}
 }
 
-func eachRecordOf(t *testing.T, f *Generator, n int, path string, check func(r *Record)) {
-	t.Helper()
-	for i := 0; i < n; i++ {
-		r, err := f.FakeRecord(path)
-		if err != nil {
-			t.Fatal(err)
-		}
-		check(r)
-	}
-}
-
 func TestSiblingFieldsAndColumnsReadOneName(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person": `{"format":"{first} {last}","first":["Ada","Bo","Cy"],"last":["Byron","Ek","Lind"]}`,
 		"row":    `{"format":"{first} {last}","first":"{/person as p}{p.first}","last":"{p.last}","whole":"{p}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(9))
-	eachRecordOf(t, f, 100, "row", func(r *Record) {
+	eachRecordOf(t, f, "row", 100, func(r *Record) {
 		c := r.Columns()
 		if c[2].Value != c[0].Value+" "+c[1].Value {
 			t.Fatalf("columns = %v, want one person across them", c)
@@ -533,7 +522,7 @@ func nameReadAloneData(t *testing.T) *Generator {
 func TestANameReadAloneIsTheRecordColumnItReads(t *testing.T) {
 	f := nameReadAloneData(t)
 	nulls := 0
-	eachRecordOf(t, f, 100, "row", func(r *Record) {
+	eachRecordOf(t, f, "row", 100, func(r *Record) {
 		c := r.Columns()
 		if c[0].DataType != DataTypeInteger || c[2].DataType != DataTypeInteger || c[0].Value != c[1].Value || c[0].Null != c[1].Null {
 			t.Fatalf("%s: want a, b and c integer columns of src.score, a and b one pick", r.JSON())
