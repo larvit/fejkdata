@@ -1698,3 +1698,20 @@ Read most (opens and searches):
 - `record.go` 2
 - `AGENTS.md` 1
 - `compose.yaml` 1
+
+## Reading cost, chunk dfb26723dc82, finished 2026-11-13T20:07:21Z
+
+165055 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/geo-no.py` 5
+- `finnish_test.go` 5
+- `README.md` 4
+- `data-import/geo.py` 4
+- `data-import/geo-dk.py` 3
+- `shipped_test.go` 3
+- `compose.yaml` 2
+- `danish_test.go` 2
+- `data-import/source.py` 2
+- `docs/decisions.md` 2
