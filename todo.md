@@ -12,8 +12,8 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 456 | 0.5.0 |  | question | **Choose the cyclomatic complexity gate: lower it to the principle's ceiling of 7 with an allow-list of table-shaped dispatches, or record why 14 holds.** | 3 | 1 | 1 | 3 | 8 | code health by 5 | 0.7 |
 | 455 | 0.5.0 |  |  | **Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.** | 3 | 1 | 1 | 3 | 7 | code health by 3 | 0.9 |
+| 456 | 0.5.0 |  |  | **Gate cyclomatic complexity at 10 in both gocyclo lines, with every function over it split or listed, with its reason, as a table-shaped dispatch.** | 3 | 1 | 1 | 3 | 8 | code health by 5 | 0.7 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 453 | 0.6.0 |  | owner | **Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
@@ -231,20 +231,15 @@
 
 ## Details
 
-### 456. Choose the cyclomatic complexity gate: lower it to the principle's ceiling of 7 with an allow-list of table-shaped dispatches, or record why 14 holds.
-
-The principles pass of the release review of 0.5.0 found that `AGENTS.md` gates cyclomatic complexity at 14, twice the ceiling of seven that technical-principles.md ("About seven things per level") sets, and that nothing records why. The one exception AGENTS.md states, a table-shaped dispatch, is such a reason; any other function may carry 8 to 14 branches and pass. That band is where the comprehension panel scores Locality about 5.6, under the 7.0 floor.
-
-`gocyclo -over 7 -ignore _test .` lists 83 functions today, and `-over 10` lists 25, more than the review's rounds could restructure. The gate is a rule in `AGENTS.md`, so the choice is the maintainer's:
-
-- Gate non-test functions at 7, applied by both gocyclo lines, the Dockerfile's and compose.yaml's `cyclo`, and keep the dispatch exception as a short allow-list beside them, each entry with its reason. gocyclo cannot exempt one function, so the allow-list filters its output. The 83 functions are then split, or listed with their reason. Item 453 restructures some of the same code.
-- Keep 14, and record in `docs/decisions.md` why it holds for this code base.
-
-Recommendation: the first, in steps: gate at 10 first, which lists 25 functions, and lower it as item 453 and later chunks split them.
-
 ### 455. Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.
 
 `mypy --strict` reports 1,240 errors today: 725 in data-import, 417 in release-tooling and 98 in vulnerability-filing. Add mypy beside ruff in the Dockerfile's `python-lint` stage, and annotate each folder until it passes.
+
+### 456. Gate cyclomatic complexity at 10 in both gocyclo lines, with every function over it split or listed, with its reason, as a table-shaped dispatch.
+
+`AGENTS.md` gates cyclomatic complexity at 14, twice the ceiling of seven that technical-principles.md ("About seven things per level") sets, and nothing records why. Functions of 8 to 14 branches are where the comprehension panel scores Locality about 5.6, under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 83 functions today, and `-over 10` lists 25.
+
+Chosen: lower the gate in steps, to 10 first, because 25 functions fit one chunk and 83 do not. The gate is applied by both gocyclo lines, the Dockerfile's and compose.yaml's `cyclo`. Split each of the 25, or list it in a short allow-list beside those lines with its reason, where it is a table-shaped dispatch: a switch with one case per kind of its input. gocyclo cannot exempt one function, so the allow-list filters its output. Change `AGENTS.md`'s rule to 10 and the allow-list. When this item ships, file the next step, to 7, as item 453 and later chunks split the rest.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
