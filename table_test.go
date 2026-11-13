@@ -75,11 +75,12 @@ func with(files map[string]string, more map[string]string) map[string]string {
 	return out
 }
 
-func TestTableRendersRowsAndColumns(t *testing.T) {
+var geoRegionNames = map[string]bool{"Stockholms län": true, "Skåne län": true, "Västra Götalands län": true}
+
+func TestTableRendersARowsFormatAndColumns(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
-	names := map[string]bool{"Stockholms län": true, "Skåne län": true, "Västra Götalands län": true}
-	for i := 0; i < 50; i++ {
-		if v := fake(t, f, "region"); !names[v] {
+	eachDraw(50, func() string { return fake(t, f, "region") }, func(v string) {
+		if !geoRegionNames[v] {
 			t.Fatalf("region = %q, want a row's format", v)
 		}
 		if v := fake(t, f, "region.timezone"); v != "Europe/Stockholm" {
@@ -88,7 +89,11 @@ func TestTableRendersRowsAndColumns(t *testing.T) {
 		if v := fake(t, f, "region.code"); v != "01" && v != "12" && v != "14" {
 			t.Fatalf("region.code = %q", v)
 		}
-	}
+	})
+}
+
+func TestTableListsItsColumnsAndLinkedTables(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	want := []string{
 		"locality", "locality.code", "locality.municipality", "locality.name",
 		"municipality", "municipality.code", "municipality.locality", "municipality.locality.code", "municipality.locality.municipality", "municipality.locality.name", "municipality.name", "municipality.population", "municipality.region",
@@ -97,6 +102,10 @@ func TestTableRendersRowsAndColumns(t *testing.T) {
 	if got := f.List(); !reflect.DeepEqual(got, want) {
 		t.Fatalf("List() = %v\nwant %v", got, want)
 	}
+}
+
+func TestTableRecordHoldsOneRowsCellsAsStrings(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	r, err := f.FakeRecord("region")
 	if err != nil {
 		t.Fatal(err)
@@ -105,21 +114,24 @@ func TestTableRendersRowsAndColumns(t *testing.T) {
 		t.Fatalf("CSVHeader = %q", r.CSVHeader())
 	}
 	line := strings.Split(r.CSVLine(), ",")
-	if len(line) != 4 || !names[line[1]] || line[3] != "Europe/Stockholm" {
+	if len(line) != 4 || !geoRegionNames[line[1]] || line[3] != "Europe/Stockholm" {
 		t.Fatalf("CSVLine = %q, want one row's cells", r.CSVLine())
 	}
-	for _, c := range r.Columns() {
-		if c.DataType != DataTypeString || c.Null {
-			t.Fatalf("column %q is %s null=%v, want a string", c.Name, c.DataType, c.Null)
-		}
+	columns := r.Columns()
+	if i := slices.IndexFunc(columns, func(c Column) bool { return c.DataType != DataTypeString || c.Null }); i >= 0 {
+		c := columns[i]
+		t.Fatalf("column %q is %s null=%v, want a string", c.Name, c.DataType, c.Null)
 	}
+}
+
+func TestTableFormatCalculatesFromAColumn(t *testing.T) {
 	calc := newGenerator(t, writeFiles(t, map[string]string{
 		"r.json": `{"format":"{name} {calc(population * 2)}","rows":"r.tsv","key":"code"}`,
 		"r.tsv":  "code\tname\tpopulation\n01\tA\t10\n02\tB\t4\n",
 		"w.json": `"{/r}"`,
 	}))
-	for i := 0; i < 20; i++ {
-		if got := fake(t, calc, "r"); got != "A 20" && got != "B 8" {
+	eachDraw(20, func() string { return fake(t, calc, "r") }, func(got string) {
+		if got != "A 20" && got != "B 8" {
 			t.Fatalf("r = %q, want a row doubling its population", got)
 		}
 		if got := fake(t, calc, "r[01]"); got != "A 20" {
@@ -128,43 +140,53 @@ func TestTableRendersRowsAndColumns(t *testing.T) {
 		if got := fake(t, calc, "w"); got != "A 20" && got != "B 8" {
 			t.Fatalf("w = %q, want a row doubling its population", got)
 		}
-	}
+	})
 }
 
 func TestTableWeightSkewsTheDraw(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(3))
-	count := map[string]int{}
-	for i := 0; i < 3000; i++ {
-		count[fake(t, f, "region.code")]++
-	}
-	if count["01"] < 1200 || count["12"] > 900 {
-		t.Fatalf("region draws %v, want weighted by population (01 ≈ 43%%, 12 ≈ 25%%)", count)
-	}
-	count = map[string]int{}
-	for i := 0; i < 3000; i++ {
-		count[fake(t, f, "region[01].municipality.code")]++
-	}
-	if count["0180"] < 2500 || count["0184"] == 0 || len(count) != 2 {
-		t.Fatalf("municipality draws inside 01 %v, want Stockholm ≈ 92%% and Solna the rest", count)
-	}
+	t.Run("across the table", func(t *testing.T) {
+		count := tallyDraws(3000, func() string { return fake(t, f, "region.code") })
+		if count["01"] < 1200 || count["12"] > 900 {
+			t.Fatalf("region draws %v, want weighted by population (01 ≈ 43%%, 12 ≈ 25%%)", count)
+		}
+	})
+	t.Run("inside a selected parent row", func(t *testing.T) {
+		count := tallyDraws(3000, func() string { return fake(t, f, "region[01].municipality.code") })
+		if count["0180"] < 2500 || count["0184"] == 0 || len(count) != 2 {
+			t.Fatalf("municipality draws inside 01 %v, want Stockholm ≈ 92%% and Solna the rest", count)
+		}
+	})
 }
 
-func TestTableCellsAreStringNodes(t *testing.T) {
+func generatorOfPlaceCells(t *testing.T) *Generator {
+	t.Helper()
 	dir := writeFiles(t, map[string]string{
 		"w.json":     `"x"`,
 		"place.json": `{"format":"{zip} {name}","rows":"place.tsv","key":"name"}`,
 		"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(2)} {digits(2)}\t{/w}\nTranås\t573 {digits(2)}\tplain\n",
 	})
-	f := newGenerator(t, dir, WithSeed(1))
+	return newGenerator(t, dir, WithSeed(1))
+}
+
+func TestATableCellExpandsItsTokens(t *testing.T) {
+	f := generatorOfPlaceCells(t)
 	zip := regexp.MustCompile(`^(1\d\d \d\d Stockholm|573 \d\d Tranås)$`)
-	for i := 0; i < 50; i++ {
-		if v := fake(t, f, "place"); !zip.MatchString(v) {
+	eachDraw(50, func() string { return fake(t, f, "place") }, func(v string) {
+		if !zip.MatchString(v) {
 			t.Fatalf("place = %q, want the cell's tokens expanded", v)
 		}
-	}
+	})
+}
+
+func TestATableCellRendersItsReference(t *testing.T) {
+	f := generatorOfPlaceCells(t)
 	if v := fake(t, f, "place[Stockholm].tag"); v != "x" {
 		t.Fatalf("place[Stockholm].tag = %q, want the reference rendered", v)
 	}
+}
+
+func TestATableCellReadingAColumnIsRefused(t *testing.T) {
 	bad := writeFiles(t, map[string]string{
 		"place.json": `{"format":"{name}","rows":"place.tsv"}`,
 		"place.tsv":  "name\tzip\nA\t{name}\nB\t2\n",
@@ -174,12 +196,17 @@ func TestTableCellsAreStringNodes(t *testing.T) {
 	}
 }
 
-func TestTableSelectsARowByKeyOrName(t *testing.T) {
+func generatorOfGeoAndCities(t *testing.T) *Generator {
+	t.Helper()
 	files := with(geo(), map[string]string{
 		"city.json": `{"format":"{name}","rows":"city.tsv","key":"code","name":"name"}`,
 		"city.tsv":  "code\tname\nSTL\tSt. Louis\nSPI\tSpringfield\n",
 	})
-	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
+	return newGenerator(t, writeFiles(t, files), WithSeed(1))
+}
+
+func TestTableSelectsARowByKeyOrName(t *testing.T) {
+	f := generatorOfGeoAndCities(t)
 	for path, want := range map[string]string{
 		"region[12]":                               "Skåne län",
 		"region[Skåne län].code":                   "12",
@@ -188,10 +215,16 @@ func TestTableSelectsARowByKeyOrName(t *testing.T) {
 		"municipality[0184].locality[Sandby].code": "L8",
 		"city[St. Louis].code":                     "STL",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
+}
+
+func TestTableRefusesASelectorThatSelectsNoRowOfItsOwn(t *testing.T) {
+	f := generatorOfGeoAndCities(t)
 	for path, want := range map[string]string{
 		"region[99]":                    `"99"`,
 		"locality[Sandby]":              "L7, L8",
@@ -200,13 +233,22 @@ func TestTableSelectsARowByKeyOrName(t *testing.T) {
 		"region[12":                     "]",
 		"region[12].municipality[1480]": "not inside",
 	} {
-		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
+			}
+		})
 	}
+}
+
+func TestTableReadsALinkColumnAsItsCell(t *testing.T) {
+	f := generatorOfGeoAndCities(t)
 	if v := fake(t, f, "municipality[0180].region"); v != "01" {
 		t.Fatalf("municipality[0180].region = %q, want the link column's cell", v)
 	}
+}
+
+func TestTableWithoutAKeyRefusesASelector(t *testing.T) {
 	noKey := writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"})
 	if _, err := newGenerator(t, noKey).Fake("t[x]"); err == nil || !strings.Contains(err.Error(), "no key") {
 		t.Fatalf("Fake(t[x]) = %v, want no column to select by", err)
@@ -215,8 +257,8 @@ func TestTableSelectsARowByKeyOrName(t *testing.T) {
 
 func TestTableDescendsToALinkedTable(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(2))
-	for i := 0; i < 200; i++ {
-		if m := fake(t, f, "region[12].municipality.code"); regionOf[m] != "12" {
+	eachDraw(200, func() string { return fake(t, f, "region[12].municipality.code") }, func(m string) {
+		if regionOf[m] != "12" {
 			t.Fatalf("region[12].municipality.code = %q, outside 12", m)
 		}
 		if l := fake(t, f, "region[12].locality.code"); regionOf[municipalityOf[l]] != "12" {
@@ -228,7 +270,11 @@ func TestTableDescendsToALinkedTable(t *testing.T) {
 		if l := fake(t, f, "region.municipality.locality.name"); l == "" {
 			t.Fatal("region.municipality.locality.name rendered empty")
 		}
-	}
+	})
+}
+
+func TestTableRecordDescendsToALinkedTable(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, geo()), WithSeed(2))
 	r, err := f.FakeRecord("region[14].municipality")
 	if err != nil {
 		t.Fatal(err)
@@ -238,7 +284,8 @@ func TestTableDescendsToALinkedTable(t *testing.T) {
 	}
 }
 
-func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
+func generatorOfStepUpTemplates(t *testing.T) *Generator {
+	t.Helper()
 	files := with(geo(), map[string]string{
 		"named.json":          `"{/locality as l}{l.code}|{l..municipality.code}|{l..municipality..region.code}"`,
 		"named-down.json":     `"{/locality as l}{l.code}|{l..municipality.locality.code}"`,
@@ -246,7 +293,11 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 		"record.json":         `{"format":"","l":"{/locality as x}{x.code}","m":"{x..municipality.code}"}`,
 		"named-two-down.json": `"{/locality[L4] as l}{l..municipality..region.municipality.code}|{l..municipality..region.municipality.locality.code}"`,
 	})
-	f := newGenerator(t, writeFiles(t, files), WithSeed(4))
+	return newGenerator(t, writeFiles(t, files), WithSeed(4))
+}
+
+func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
+	f := generatorOfStepUpTemplates(t)
 	for path, want := range map[string]string{
 		"locality[L4]..municipality.name":                               "Lund",
 		"locality[L4]..municipality":                                    "Lund",
@@ -255,17 +306,27 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 		"region[12].municipality[1281].locality[L4]..municipality.code": "1281",
 		"locality[L4].municipality":                                     "1281",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
+}
+
+func TestATemplateStepsUpToTheRowATableLinksTo(t *testing.T) {
+	f := generatorOfStepUpTemplates(t)
 	if got := fakeTemplate(t, f, "{/locality[L4]..municipality.name}"); got != "Lund" {
 		t.Errorf("{/locality[L4]..municipality.name} = %q, want Lund", got)
 	}
+}
+
+func TestAStepDownAfterAStepUpDrawsAfreshInsideTheParentRow(t *testing.T) {
+	f := generatorOfStepUpTemplates(t)
 	names := map[string]string{"L1": "Stockholm", "L2": "Solna", "L3": "Malmö", "L4": "Lund", "L5": "Göteborg", "L6": "Hisingen", "L7": "Sandby", "L8": "Sandby"}
 	afresh := map[string]bool{}
-	for i := 0; i < 200; i++ {
-		if parts := strings.Split(fake(t, f, "named"), "|"); municipalityOf[parts[0]] != parts[1] || regionOf[parts[1]] != parts[2] {
+	eachDraw(200, func() string { return fake(t, f, "named") }, func(named string) {
+		if parts := strings.Split(named, "|"); municipalityOf[parts[0]] != parts[1] || regionOf[parts[1]] != parts[2] {
 			t.Fatalf("named = %v, want the locality's own municipality and region", parts)
 		}
 		if l := fake(t, f, "locality[L4]..municipality.locality.code"); l != "L4" && l != "L7" {
@@ -301,20 +362,26 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 		if c := r.Columns(); municipalityOf[c[0].Value] != c[1].Value {
 			t.Fatalf("record = %v, want the locality's own municipality", c)
 		}
-	}
+	})
 	if !afresh["L4"] || !afresh["L7"] || !afresh["record L4"] || !afresh["record L7"] {
 		t.Fatalf("locality[L4]..municipality.locality.code drew only %v in 200 renders, want a locality of Lund drawn afresh", afresh)
 	}
+}
+
+func TestAStructTagStepsUpToTheRowATableLinksTo(t *testing.T) {
+	f := generatorOfStepUpTemplates(t)
 	var tagged struct {
 		M string `fake:"locality[L4]..municipality.name"`
 	}
 	if err := f.FakeStruct(&tagged); err != nil || tagged.M != "Lund" {
 		t.Errorf("a struct tag stepping up = %q, %v; want Lund", tagged.M, err)
 	}
-	for _, p := range f.List() {
-		if strings.Contains(p, "..") {
-			t.Fatalf("List() advertises %q; it lists direct descents only", p)
-		}
+}
+
+func TestListAdvertisesNoStepUp(t *testing.T) {
+	paths := generatorOfStepUpTemplates(t).List()
+	if i := slices.IndexFunc(paths, func(p string) bool { return strings.Contains(p, "..") }); i >= 0 {
+		t.Fatalf("List() advertises %q; it lists direct descents only", paths[i])
 	}
 }
 
@@ -332,71 +399,94 @@ func TestTableStepUpRefusals(t *testing.T) {
 		"locality.region.code":             `no column or linked table "region" in locality`,
 		"x..y":                             "only from a table's row",
 	} {
-		f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"x.json": `{"format":"{y}","y":"a"}`})))
-		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
-		}
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, with(geo(), map[string]string{
-			"x.json": `{"format":"{y}","y":"a"}`,
-			"t.json": strconv.Quote("{/" + path + "}"),
-		}))))
-		if err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("{/%s}: New = %v, want an error mentioning %s", path, err, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"x.json": `{"format":"{y}","y":"a"}`})))
+			if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
+			}
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, with(geo(), map[string]string{
+				"x.json": `{"format":"{y}","y":"a"}`,
+				"t.json": strconv.Quote("{/" + path + "}"),
+			}))))
+			if err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("{/%s}: New = %v, want an error mentioning %s", path, err, want)
+			}
+		})
 	}
+}
+
+func TestAStepUpFromAFieldIsRefused(t *testing.T) {
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{"s.json": `{"format":"{a..b}","a":{"format":"{b}","b":"x"}}`}))); err == nil || !strings.Contains(err.Error(), "only from a table's row") {
 		t.Errorf("{a..b} on a field: New = %v, want an error mentioning only from a table's row", err)
 	}
 }
 
+func localityMunicipalityAndRegionAmong(codes []string) (l, m, r string) {
+	for _, p := range codes {
+		switch {
+		case strings.HasPrefix(p, "L"):
+			l = p
+		case len(p) == 4:
+			m = p
+		default:
+			r = p
+		}
+	}
+	if m == "" {
+		m = municipalityOf[l]
+	}
+	return l, m, r
+}
+
+func drawsOneConsistentLocalityMunicipalityAndRegion(t *testing.T, name string, draw func() string) {
+	t.Helper()
+	seen := map[string]bool{}
+	eachDraw(300, draw, func(got string) {
+		parts := strings.Split(got, "|")
+		l, m, r := localityMunicipalityAndRegionAmong(parts)
+		if municipalityOf[l] != m || regionOf[m] != r {
+			t.Fatalf("%s: %v is not one consistent draw", name, parts)
+		}
+		seen[l] = true
+	})
+	if len(seen) < 4 {
+		t.Fatalf("%s: only %v drawn in 300 renders", name, seen)
+	}
+}
+
 func TestLinkedTablesDrawConsistently(t *testing.T) {
-	spellings := map[string]string{
+	for name, addr := range map[string]string{
 		"leaf first":        `{"format":"{l}|{m}|{r}","l":"{/locality as x}{x.code}","m":"{x..municipality.code}","r":"{x..municipality..region.code}"}`,
 		"root first":        `{"format":"{r}|{m}|{l}","r":"{/region as x}{x.code}","m":"{x.municipality.code}","l":"{x.municipality.locality.code}"}`,
 		"skipping one":      `{"format":"{r}|{l}","r":"{/region as x}{x.code}","l":"{x.locality.code}"}`,
 		"a skip read first": `{"format":"{l}|{m}|{r}","l":"{/region as x}{x.locality.code}","m":"{x.municipality.code}","r":"{x.code}"}`,
 		"nested":            `{"format":"{a}|{l}","a":{"format":"{r}|{m}","r":"{x..municipality..region.code}","m":"{x..municipality.code}"},"l":"{/locality as x}{x.code}"}`,
-		"a record":          `{"format":"","l":"{/locality as x}{x.code}","m":"{x..municipality.code}","r":"{x..municipality..region.code}"}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"addr.json": addr})), WithSeed(5))
+			drawsOneConsistentLocalityMunicipalityAndRegion(t, name, func() string { return fake(t, f, "addr") })
+		})
 	}
-	for name, addr := range spellings {
-		f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"addr.json": addr})), WithSeed(5))
-		seen := map[string]bool{}
-		for i := 0; i < 300; i++ {
-			var parts []string
-			if name == "a record" {
-				r, err := f.FakeRecord("addr")
-				if err != nil {
-					t.Fatal(err)
-				}
-				for _, c := range r.Columns() {
-					parts = append(parts, c.Value)
-				}
-			} else {
-				parts = strings.Split(fake(t, f, "addr"), "|")
-			}
-			var l, m, r string
-			for _, p := range parts {
-				switch {
-				case strings.HasPrefix(p, "L"):
-					l = p
-				case len(p) == 4:
-					m = p
-				default:
-					r = p
-				}
-			}
-			if m == "" {
-				m = municipalityOf[l]
-			}
-			if municipalityOf[l] != m || regionOf[m] != r {
-				t.Fatalf("%s: %v is not one consistent draw", name, parts)
-			}
-			seen[l] = true
+}
+
+func TestLinkedTablesDrawConsistentlyInARecord(t *testing.T) {
+	addr := `{"format":"","l":"{/locality as x}{x.code}","m":"{x..municipality.code}","r":"{x..municipality..region.code}"}`
+	f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"addr.json": addr})), WithSeed(5))
+	drawsOneConsistentLocalityMunicipalityAndRegion(t, "a record", func() string {
+		r, err := f.FakeRecord("addr")
+		if err != nil {
+			t.Fatal(err)
 		}
-		if len(seen) < 4 {
-			t.Fatalf("%s: only %v drawn in 300 renders", name, seen)
-		}
+		return strings.Join(columnValues(r), "|")
+	})
+}
+
+func aPartDiffersFromTheFirst(parts []string) bool {
+	differ := false
+	for _, p := range parts[1:] {
+		differ = differ || p != parts[0]
 	}
+	return differ
 }
 
 func TestLinkedTablesDrawApartAcrossReadsAndRepeats(t *testing.T) {
@@ -406,66 +496,90 @@ func TestLinkedTablesDrawApartAcrossReadsAndRepeats(t *testing.T) {
 	})
 	f := newGenerator(t, writeFiles(t, files), WithSeed(9))
 	for _, path := range []string{"groups", "many"} {
-		differ := false
-		for i := 0; i < 100 && !differ; i++ {
-			parts := strings.Split(fake(t, f, path), "|")
-			for _, p := range parts[1:] {
-				differ = differ || p != parts[0]
+		t.Run(path, func(t *testing.T) {
+			differ := false
+			eachDraw(100, func() string { return fake(t, f, path) }, func(got string) {
+				differ = differ || aPartDiffersFromTheFirst(strings.Split(got, "|"))
+			})
+			if !differ {
+				t.Fatalf("%s: every draw agreed in 100 renders, want reads and repeat iterations drawn apart", path)
 			}
-		}
-		if !differ {
-			t.Fatalf("%s: every draw agreed in 100 renders, want reads and repeat iterations drawn apart", path)
-		}
+		})
 	}
 }
 
-func TestSiblingTablesDrawInsideOneAncestor(t *testing.T) {
+func generatorOfSiblingTablesAndAnAddress(t *testing.T) *Generator {
+	t.Helper()
 	files := with(siblings(), map[string]string{
 		"addr.json": `{"format":"{s}|{p}|{l}","s":"{/locality as x}{x.street.name}","p":"{x.postal-code.code}","l":"{x.code}"}`,
 	})
-	f := newGenerator(t, writeFiles(t, files), WithSeed(3))
+	return newGenerator(t, writeFiles(t, files), WithSeed(3))
+}
+
+func TestSiblingTablesDrawInsideOneAncestor(t *testing.T) {
+	f := generatorOfSiblingTablesAndAnAddress(t)
 	seen := map[string]bool{}
-	for i := 0; i < 300; i++ {
-		parts := strings.Split(fake(t, f, "addr"), "|")
+	eachDraw(300, func() string { return fake(t, f, "addr") }, func(got string) {
+		parts := strings.Split(got, "|")
 		if s, p, l := parts[0], parts[1], parts[2]; !slices.Contains(localityOfStreet[s], l) || localityOfCode[p] != l {
 			t.Fatalf("addr = %v, want the street and the postal code inside the locality", parts)
 		}
 		seen[parts[2]] = true
-	}
+	})
 	if len(seen) < 4 {
 		t.Fatalf("only %v drawn in 300 renders", seen)
 	}
-	for i := 0; i < 100; i++ {
-		if s := fake(t, f, "locality[L4].street.name"); s != "Stora Södergatan" && s != "Klostergatan" {
+}
+
+func TestASiblingTableDrawsInsideASelectedAncestor(t *testing.T) {
+	f := generatorOfSiblingTablesAndAnAddress(t)
+	eachDraw(100, func() string { return fake(t, f, "locality[L4].street.name") }, func(s string) {
+		if s != "Stora Södergatan" && s != "Klostergatan" {
 			t.Fatalf("locality[L4].street.name = %q, outside L4", s)
 		}
 		if p := fake(t, f, "region[01].postal-code"); localityOfCode[p] != "L1" && localityOfCode[p] != "L2" && localityOfCode[p] != "L8" {
 			t.Fatalf("region[01].postal-code = %q, outside region 01", p)
 		}
-	}
+	})
+}
+
+func TestASiblingTableWithoutAKeyRefusesASelector(t *testing.T) {
+	f := generatorOfSiblingTablesAndAnAddress(t)
 	if _, err := f.Fake("street[Avenyn]"); err == nil || !strings.Contains(err.Error(), "no key") {
 		t.Fatalf("Fake(street[Avenyn]) = %v, want no column to select by", err)
 	}
-	paths := f.List()
+}
+
+func TestListAdvertisesSiblingTablesUnderTheirAncestors(t *testing.T) {
+	paths := generatorOfSiblingTablesAndAnAddress(t).List()
 	for _, p := range []string{"locality.postal-code", "locality.street", "region.municipality.locality.street.name"} {
-		if !slices.Contains(paths, p) {
-			t.Fatalf("List() lacks %s: %v", p, paths)
-		}
+		t.Run(p, func(t *testing.T) {
+			if !slices.Contains(paths, p) {
+				t.Fatalf("List() lacks %s: %v", p, paths)
+			}
+		})
 	}
 }
 
-func TestTableSelectorInAReference(t *testing.T) {
-	files := with(geo(), map[string]string{
+func geoAndARecordInsideRegion12() map[string]string {
+	return with(geo(), map[string]string{
 		"x.json": `{"format":"{a} {b} {c}","a":"{/region[12] as x}{x.name}","b":"{x.municipality.code}","c":"{x.locality.code}"}`,
 	})
-	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
-	for i := 0; i < 100; i++ {
-		parts := strings.Fields(fake(t, f, "x"))
+}
+
+func TestTableSelectorInAReference(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, geoAndARecordInsideRegion12()), WithSeed(1))
+	eachDraw(100, func() string { return fake(t, f, "x") }, func(got string) {
+		parts := strings.Fields(got)
 		m, l := parts[len(parts)-2], parts[len(parts)-1]
 		if !strings.HasPrefix(fake(t, f, "x"), "Skåne län") || regionOf[m] != "12" || municipalityOf[l] != m {
 			t.Fatalf("x = %v, want one draw inside region 12", parts)
 		}
-	}
+	})
+}
+
+func TestTableSelectorInAReferenceIsCheckedAtLoad(t *testing.T) {
+	files := geoAndARecordInsideRegion12()
 	for name, c := range map[string]struct{ json, want string }{
 		"unknown row":                    {`"{/region[99].name}"`, `"99"`},
 		"ambiguous name":                 {`"{/locality[Sandby].name}"`, "L7, L8"},
@@ -473,10 +587,12 @@ func TestTableSelectorInAReference(t *testing.T) {
 		"selector on template":           {`"{/x[1].a}"`, "not a table"},
 		"selector on repeating template": {`"{/rep[1]}"`, "not a table"},
 	} {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, with(files, map[string]string{"bad.json": c.json, "rep.json": `{"format":"x","repeat":2}`}))))
-		if err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: New = %v, want an error mentioning %q", name, err, c.want)
-		}
+		t.Run(name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, with(files, map[string]string{"bad.json": c.json, "rep.json": `{"format":"x","repeat":2}`}))))
+			if err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("%s: New = %v, want an error mentioning %q", name, err, c.want)
+			}
+		})
 	}
 }
 
@@ -493,12 +609,14 @@ func TestTableReadsBesideEachOtherLoad(t *testing.T) {
 		`"{/region[12].locality[L4].name} {/region[12].locality[L7].name}"`,
 		`"{/region[14].name} {/locality[L4].name}"`,
 	} {
-		f, err := New(WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Errorf("%s: New = %v, want each read a draw of its own", json, err)
-			continue
-		}
-		fake(t, f, "x")
+		t.Run(json, func(t *testing.T) {
+			f, err := New(WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Errorf("%s: New = %v, want each read a draw of its own", json, err)
+				return
+			}
+			fake(t, f, "x")
+		})
 	}
 }
 
@@ -513,17 +631,18 @@ func TestSelectedRowsAgreeAcrossSpellings(t *testing.T) {
 		"a draw under the selection": `"{/region[12].name}|{/region[12].municipality.locality[L4].name}"`,
 	}
 	for name, json := range accepted {
-		f, err := New(WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Errorf("%s: New = %v, want it accepted", name, err)
-			continue
-		}
-		for i := 0; i < 50; i++ {
-			v := fake(t, f, "x")
-			if strings.Contains(v, "Sandby") || strings.Contains(v, "Malmö") || strings.Contains(v, "1280") || !strings.Contains(v, "Lund") && !strings.Contains(v, "Skåne") {
-				t.Fatalf("%s: x = %q, want every part inside region 12 and Lund", name, v)
+		t.Run(name, func(t *testing.T) {
+			f, err := New(WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Errorf("%s: New = %v, want it accepted", name, err)
+				return
 			}
-		}
+			eachDraw(50, func() string { return fake(t, f, "x") }, func(v string) {
+				if strings.Contains(v, "Sandby") || strings.Contains(v, "Malmö") || strings.Contains(v, "1280") || !strings.Contains(v, "Lund") && !strings.Contains(v, "Skåne") {
+					t.Fatalf("%s: x = %q, want every part inside region 12 and Lund", name, v)
+				}
+			})
+		})
 	}
 }
 
@@ -542,18 +661,22 @@ func TestATableOfOneRowOrNamedByItsKeyLoads(t *testing.T) {
 
 func TestARowOfWeightZeroIsNeverDrawn(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t0\ny\t2\n"}), WithSeed(1))
-	for i := 0; i < 50; i++ {
-		if v := fake(t, f, "t"); v != "y" {
+	eachDraw(50, func() string { return fake(t, f, "t") }, func(v string) {
+		if v != "y" {
 			t.Fatalf("t = %q, want only the row of a positive weight", v)
 		}
+	})
+}
+
+func twoRegions() map[string]string {
+	return map[string]string{
+		"region.json": `{"format":"{name}","rows":"region.tsv","key":"code","name":"name"}`,
+		"region.tsv":  "code\tname\n01\tA\n12\tB\n",
 	}
 }
 
 func TestTableFences(t *testing.T) {
-	base := map[string]string{
-		"region.json": `{"format":"{name}","rows":"region.tsv","key":"code","name":"name"}`,
-		"region.tsv":  "code\tname\n01\tA\n12\tB\n",
-	}
+	base := twoRegions()
 	rejected := map[string]struct {
 		files map[string]string
 		want  string
@@ -604,15 +727,30 @@ func TestTableFences(t *testing.T) {
 		"a category referencing itself":                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "cycle"},
 	}
 	for name, c := range rejected {
-		_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, c.files)))
-		if err == nil {
-			t.Errorf("%s: New = nil error, want it rejected at load", name)
-			continue
-		}
-		if !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
+		t.Run(name, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, c.files)))
+			if err == nil {
+				t.Errorf("%s: New = nil error, want it rejected at load", name)
+				return
+			}
+			if !strings.Contains(err.Error(), c.want) {
+				t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
+			}
+		})
+	}
+}
+
+func fakesEveryListedPath(t *testing.T, name string, f *Generator) {
+	t.Helper()
+	for _, path := range f.List() {
+		if _, err := f.Fake(path); err != nil {
+			t.Errorf("%s: Fake(%s) = %v", name, path, err)
 		}
 	}
+}
+
+func TestTableReadsOfItsFamilyAndOfOtherRowsLoad(t *testing.T) {
+	base := twoRegions()
 	accepted := map[string]map[string]string{
 		"a cell reading its family":                      with(geo(), map[string]string{"locality.tsv": "code\tname\tmunicipality\tnote\nL1\tStockholm\t0180\t{/municipality.code}\nL2\tSolna\t0184\t-\nL3\tMalmö\t1280\t-\nL4\tLund\t1281\t-\nL5\tGöteborg\t1480\t-\n"}),
 		"a format reading its family":                    with(geo(), map[string]string{"locality.json": `{"format":"{name} {/region.name}","rows":"locality.tsv","key":"code","name":"name","parent":"municipality"}`}),
@@ -625,48 +763,69 @@ func TestTableFences(t *testing.T) {
 		"a cell repeating a reference":                   with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n{/region} {/region} {uppercase(/region)}\n"}),
 	}
 	for name, files := range accepted {
-		f, err := New(WithDataPath(writeFiles(t, files)), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Errorf("%s: New = %v, want each read a draw of its own", name, err)
-			continue
-		}
-		for _, path := range f.List() {
-			if _, err := f.Fake(path); err != nil {
-				t.Errorf("%s: Fake(%s) = %v", name, path, err)
+		t.Run(name, func(t *testing.T) {
+			f, err := New(WithDataPath(writeFiles(t, files)), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Errorf("%s: New = %v, want each read a draw of its own", name, err)
+				return
 			}
-		}
+			fakesEveryListedPath(t, name, f)
+		})
 	}
-	if _, err := New(WithSeed(1), onTestDay, WithDataFS(os.DirFS(writeFiles(t, base)))); err != nil {
+}
+
+func TestTableLoadsFromAnyFS(t *testing.T) {
+	if _, err := New(WithSeed(1), onTestDay, WithDataFS(os.DirFS(writeFiles(t, twoRegions())))); err != nil {
 		t.Fatalf("New(WithDataFS) = %v, want a table loaded from any fs.FS", err)
 	}
-	inline := newGenerator(t, writeFiles(t, base))
+}
+
+func TestTableIsRefusedInline(t *testing.T) {
+	inline := newGenerator(t, writeFiles(t, twoRegions()))
 	if _, err := inline.NewTemplate(`{"format":"{a}","rows":"t.tsv"}`); err == nil || !strings.Contains(err.Error(), "inline") {
 		t.Fatalf("NewTemplate(rows) = %v, want a table refused inline", err)
 	}
+}
+
+func TestTableHeaderDropsAByteOrderMark(t *testing.T) {
 	bom := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "\xEF\xBB\xBFa\tb\nx\t1\ny\t2\n"}), WithSeed(1))
 	if v := fake(t, bom, "t[x].b"); v != "1" {
 		t.Fatalf("t[x].b under a BOM header = %q, want the mark stripped", v)
 	}
+}
+
+func TestTableRowsDropACarriageReturn(t *testing.T) {
 	crlf := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\r\nx\t1\r\ny\t2\r\n"}), WithSeed(1))
 	if v := fake(t, crlf, "t[y].b"); v != "2" {
 		t.Fatalf("t[y].b in a CRLF file = %q, want the carriage return stripped", v)
 	}
+}
+
+func TestAFailedFakeLeavesTheSeededStreamWhereItWas(t *testing.T) {
 	a, b := newGenerator(t, writeFiles(t, geo()), WithSeed(1)), newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	for _, path := range []string{"region.nope", "region.locality.nope", "region.municipality[9999]", "region[12].locality[L1]"} {
-		if _, err := a.Fake(path); err == nil {
-			t.Fatalf("Fake(%s) = nil error", path)
-		}
-		if _, err := a.FakeRecord(path); err == nil {
-			t.Fatalf("FakeRecord(%s) = nil error", path)
-		}
+		t.Run(path, func(t *testing.T) {
+			if _, err := a.Fake(path); err == nil {
+				t.Fatalf("Fake(%s) = nil error", path)
+			}
+			if _, err := a.FakeRecord(path); err == nil {
+				t.Fatalf("FakeRecord(%s) = nil error", path)
+			}
+		})
 	}
 	if x, y := fake(t, a, "region.locality.name"), fake(t, b, "region.locality.name"); x != y {
 		t.Fatalf("a failed Fake shifted the seeded stream: %q != %q", x, y)
 	}
+}
+
+func TestTwoCategoriesReadOneTSV(t *testing.T) {
 	two := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"capital.json": `{"format":"{timezone}","rows":"region.tsv","key":"code"}`})), WithSeed(1))
 	if v := fake(t, two, "capital[12]"); v != "Europe/Stockholm" {
 		t.Fatalf("capital[12] over region.tsv = %q, want a second category over one file", v)
 	}
+}
+
+func TestATableOfAnEmptyFormatRendersEmptyAndKeepsItsColumns(t *testing.T) {
 	empty := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\nx\t1\ny\t2\n"}), WithSeed(1))
 	if v := fake(t, empty, "t"); v != "" {
 		t.Fatalf("a record-only table renders %q, want \"\"", v)
@@ -691,8 +850,8 @@ func TestTableInAStructTag(t *testing.T) {
 	}
 }
 
-func TestTableRowsAreAlternatives(t *testing.T) {
-	files := map[string]string{
+func currencyTables() map[string]string {
+	return map[string]string{
 		"cur.json":     `{"format":"{code}","rows":"cur.tsv","key":"code"}`,
 		"cur.tsv":      "code\tsym\nEUR\t€\nSEK\tkr\nUSD\t$\n",
 		"y.json":       `{"format":"{sym}","rows":"y.tsv","key":"k"}`,
@@ -700,13 +859,44 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 		"country.json": `{"format":"{name} {money}","rows":"country.tsv","key":"alpha2"}`,
 		"country.tsv":  "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}\nSE\tSweden\t{/cur[SEK].sym}\n",
 	}
-	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
+}
+
+func andZWhereDefined(more map[string]string, paths ...string) []string {
+	if _, defined := more["z.json"]; defined {
+		return append(paths, "z")
+	}
+	return paths
+}
+
+func eachDrawOfEachPath(t *testing.T, g *Generator, n int, paths []string, check func(path, v string)) {
+	t.Helper()
+	for i := 0; i < n; i++ {
+		for _, path := range paths {
+			check(path, fake(t, g, path))
+		}
+	}
+}
+
+func distinctMatches(re *regexp.Regexp, v string) int {
+	seen := map[string]bool{}
+	for _, s := range re.FindAllString(v, -1) {
+		seen[s] = true
+	}
+	return len(seen)
+}
+
+func TestACellSelectingARowRendersItsCell(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, currencyTables()), WithSeed(1))
 	if v := fake(t, f, "country[SE]"); v != "Sweden kr" {
 		t.Fatalf("country[SE] = %q", v)
 	}
 	if v := fake(t, f, "country[FI].money"); v != "€" {
 		t.Fatalf("country[FI].money = %q", v)
 	}
+}
+
+func TestCellsAgreeingOnOneRowRenderOneCurrency(t *testing.T) {
+	files := currencyTables()
 	accepted := map[string]map[string]string{
 		"a cell reaching a table whose rows are alternatives": {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y.sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
 		"a cell agreeing with the row it selects":             {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
@@ -720,28 +910,23 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 	}
 	symbols := regexp.MustCompile(`€|kr|\$`)
 	for name, more := range accepted {
-		g, err := New(WithDataPath(writeFiles(t, with(files, more))), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Errorf("%s: New = %v, want it accepted", name, err)
-			continue
-		}
-		paths := []string{"country", "country[FI]"}
-		if _, defined := more["z.json"]; defined {
-			paths = append(paths, "z")
-		}
-		for i := 0; i < 50; i++ {
-			for _, path := range paths {
-				v := fake(t, g, path)
-				seen := map[string]bool{}
-				for _, s := range symbols.FindAllString(v, -1) {
-					seen[s] = true
-				}
-				if len(seen) > 1 {
+		t.Run(name, func(t *testing.T) {
+			g, err := New(WithDataPath(writeFiles(t, with(files, more))), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Errorf("%s: New = %v, want it accepted", name, err)
+				return
+			}
+			eachDrawOfEachPath(t, g, 50, andZWhereDefined(more, "country", "country[FI]"), func(path, v string) {
+				if distinctMatches(symbols, v) > 1 {
 					t.Fatalf("%s: %s = %q, want one currency per render", name, path, v)
 				}
-			}
-		}
+			})
+		})
 	}
+}
+
+func TestCellsSelectingTwoRowsLoadAndRender(t *testing.T) {
+	files := currencyTables()
 	twoRows := map[string]map[string]string{
 		"two draws landing on cells selecting two rows": {"z.json": `"{/country}|{/country}"`},
 		"one cell selecting two rows":                   {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}{/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
@@ -752,20 +937,14 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 		"a cell reaching another's cells":               {"y.json": `{"format":"{sym}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tsym\n1\t{/cur[SEK].sym}\n2\t{/cur[USD].sym}\n", "cur.tsv": "code\tsym\nEUR\t€\nSEK\tkr\nUSD\t$\n", "country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[EUR].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
 	}
 	for name, more := range twoRows {
-		g, err := New(WithDataPath(writeFiles(t, with(files, more))), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Errorf("%s: New = %v, want each read a draw of its own", name, err)
-			continue
-		}
-		paths := []string{"country"}
-		if _, defined := more["z.json"]; defined {
-			paths = append(paths, "z")
-		}
-		for i := 0; i < 50; i++ {
-			for _, path := range paths {
-				fake(t, g, path)
+		t.Run(name, func(t *testing.T) {
+			g, err := New(WithDataPath(writeFiles(t, with(files, more))), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Errorf("%s: New = %v, want each read a draw of its own", name, err)
+				return
 			}
-		}
+			eachDrawOfEachPath(t, g, 50, andZWhereDefined(more, "country"), func(path, v string) {})
+		})
 	}
 }
 
@@ -786,7 +965,7 @@ func TestTableOverridesByLayering(t *testing.T) {
 	}
 }
 
-func TestShippedTables(t *testing.T) {
+func TestShippedTablesSelectARowByKeyOrName(t *testing.T) {
 	f := newBareModule(t, "misc", WithSeed(1))
 	for path, want := range map[string]string{
 		"territory[SE]":                         "Sweden",
@@ -861,11 +1040,17 @@ func TestShippedTables(t *testing.T) {
 		"loglevel[err].code":                    "3",
 		"loglevel[6].severity":                  "Informational",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
-	re := map[string]*regexp.Regexp{
+}
+
+func TestShippedTableColumnsAreWellFormed(t *testing.T) {
+	f := newBareModule(t, "misc", WithSeed(1))
+	for p, rx := range map[string]*regexp.Regexp{
 		"territory.numeric":      regexp.MustCompile(`^\d{3}$`),
 		"territory.tld":          regexp.MustCompile(`^\.[a-z]{2}$`),
 		"territory.calling-code": regexp.MustCompile(`^\d{1,4}(-\d{3})?$`),
@@ -876,27 +1061,37 @@ func TestShippedTables(t *testing.T) {
 		"territory.languages":    regexp.MustCompile(`^[a-z]{2,3}(-[A-Z]{2})?(,[a-z]{2,3}(-[A-Z]{2})?)*$`),
 		"currency.numeric":       regexp.MustCompile(`^\d{3}$`),
 		"currency.decimals":      regexp.MustCompile(`^[0-4]$`),
+	} {
+		t.Run(p, func(t *testing.T) {
+			eachDraw(100, func() string { return fake(t, f, p) }, func(v string) {
+				if !rx.MatchString(v) {
+					t.Fatalf("misc %s = %q, want %s", p, v, rx)
+				}
+			})
+		})
 	}
-	for i := 0; i < 100; i++ {
-		for p, rx := range re {
-			if v := fake(t, f, p); !rx.MatchString(v) {
-				t.Fatalf("misc %s = %q, want %s", p, v, rx)
-			}
-		}
-	}
-	count := map[string]bool{}
-	for i := 0; i < 5000; i++ {
-		count[fake(t, f, "territory.alpha2")] = true
-	}
+}
+
+func TestTerritoryDrawsItsWholeRegister(t *testing.T) {
+	f := newBareModule(t, "misc", WithSeed(1))
+	count := tallyDraws(5000, func() string { return fake(t, f, "territory.alpha2") })
 	if len(count) < 200 {
 		t.Fatalf("territory draws %d distinct rows in 5000, want the full register", len(count))
 	}
-	for i := 0; i < 200; i++ {
-		got := fakeTemplate(t, f, `{/timezone as z}{z..territory.alpha2} {z.territory}`)
+}
+
+func TestATimezoneAgreesWithTheTerritoryItStepsUpTo(t *testing.T) {
+	f := newBareModule(t, "misc", WithSeed(1))
+	eachDraw(200, func() string {
+		return fakeTemplate(t, f, `{/timezone as z}{z..territory.alpha2} {z.territory}`)
+	}, func(got string) {
 		if drawn, zone, _ := strings.Cut(got, " "); drawn != zone {
 			t.Fatalf("%q: a timezone and the territory it steps up to disagree", got)
 		}
-	}
+	})
+}
+
+func TestHTTPMethodFlagsShipAsBooleans(t *testing.T) {
 	var row struct {
 		Idempotent bool   `fake:"{/misc.httpmethod as m}{m.idempotent}"`
 		Method     string `fake:"{m.method}"`
@@ -913,10 +1108,11 @@ func TestShippedTables(t *testing.T) {
 	if !named || row.Safe != want[0] || row.Idempotent != want[1] {
 		t.Fatalf("%s drew safe=%v idempotent=%v", row.Method, row.Safe, row.Idempotent)
 	}
-	zones := map[string]int{}
-	for i := 0; i < 2000; i++ {
-		zones[fake(t, f, "territory[US].timezone")]++
-	}
+}
+
+func TestUSTimezonesWeighByThePeopleLivingInThem(t *testing.T) {
+	f := newBareModule(t, "misc", WithSeed(1))
+	zones := tallyDraws(2000, func() string { return fake(t, f, "territory[US].timezone") })
 	if peopled := zones["America/New_York"] + zones["America/Chicago"] + zones["America/Los_Angeles"] + zones["America/Denver"]; peopled < 1600 {
 		t.Fatalf("the four zones most Americans live in take %d of 2000 US draws, want the population weight to favour them", peopled)
 	}
@@ -926,14 +1122,12 @@ func TestShippedTables(t *testing.T) {
 func TestEveryTerritoryNamesAShippedSovereign(t *testing.T) {
 	header, rows := shippedRows(t, "territory.tsv", "alpha2", "sovereign")
 	keys := map[string]bool{}
-	for _, r := range rows {
-		keys[r[header["alpha2"]]] = true
-	}
-	for i, r := range rows {
+	eachShippedMiscRow(rows, func(_ int, r []string) { keys[r[header["alpha2"]]] = true })
+	eachShippedMiscRow(rows, func(line int, r []string) {
 		if c := r[header["sovereign"]]; !keys[c] {
-			t.Errorf("territory.tsv line %d: sovereign %q is no alpha2 of the table", i+2, c)
+			t.Errorf("territory.tsv line %d: sovereign %q is no alpha2 of the table", line, c)
 		}
-	}
+	})
 }
 
 // TestEveryUserAgentColumnAgreesWithItsString pins what the column regexes cannot:
@@ -944,17 +1138,23 @@ func TestEveryUserAgentColumnAgreesWithItsString(t *testing.T) {
 	for _, token := range []struct{ in, browser string }{
 		{"Edg", "Edge"}, {"OPR/", "Opera"}, {"SamsungBrowser/", "Samsung Internet"}, {"CriOS/", "Chrome"},
 	} {
-		for i, r := range rows {
-			if strings.Contains(r[header["ua"]], token.in) && r[header["browser"]] != token.browser {
-				t.Errorf("useragent.tsv line %d: %q carries %q but is labelled %q", i+2, r[header["ua"]], token.in, r[header["browser"]])
-			}
-		}
+		t.Run(token.in, func(t *testing.T) {
+			eachShippedMiscRow(rows, func(line int, r []string) {
+				if strings.Contains(r[header["ua"]], token.in) && r[header["browser"]] != token.browser {
+					t.Errorf("useragent.tsv line %d: %q carries %q but is labelled %q", line, r[header["ua"]], token.in, r[header["browser"]])
+				}
+			})
+		})
 	}
-	for i, r := range rows {
+}
+
+func TestEveryMobileUserAgentRunsAMobileOS(t *testing.T) {
+	header, rows := shippedRows(t, "useragent.tsv", "browser", "device", "os", "ua")
+	eachShippedMiscRow(rows, func(line int, r []string) {
 		if r[header["device"]] == "mobile" && r[header["os"]] != "Android" && r[header["os"]] != "iOS" {
-			t.Errorf("useragent.tsv line %d: a mobile row runs %q", i+2, r[header["os"]])
+			t.Errorf("useragent.tsv line %d: a mobile row runs %q", line, r[header["os"]])
 		}
-	}
+	})
 }
 
 // TestEveryTimezoneRowIsWellFormed scans the file rather than drawing: the draw is
@@ -962,14 +1162,14 @@ func TestEveryUserAgentColumnAgreesWithItsString(t *testing.T) {
 func TestEveryTimezoneRowIsWellFormed(t *testing.T) {
 	header, rows := shippedRows(t, "timezone.tsv", "offset", "territory", "weight", "zone")
 	offset := regexp.MustCompile(`^[+-](0\d|1[0-4]):[0-5]\d$`)
-	for i, r := range rows {
+	eachShippedMiscRow(rows, func(line int, r []string) {
 		if !offset.MatchString(r[header["offset"]]) {
-			t.Errorf("timezone.tsv line %d: offset %q is no ±HH:MM", i+2, r[header["offset"]])
+			t.Errorf("timezone.tsv line %d: offset %q is no ±HH:MM", line, r[header["offset"]])
 		}
 		if w, err := strconv.Atoi(r[header["weight"]]); err != nil || w < 1 {
-			t.Errorf("timezone.tsv line %d: weight %q is not a positive number", i+2, r[header["weight"]])
+			t.Errorf("timezone.tsv line %d: weight %q is not a positive number", line, r[header["weight"]])
 		}
-	}
+	})
 }
 
 // TestEveryTldRowSpellsItsKey scans the file rather than drawing: 100 draws leave
@@ -978,21 +1178,33 @@ func TestEveryTimezoneRowIsWellFormed(t *testing.T) {
 func TestEveryTldRowSpellsItsKey(t *testing.T) {
 	header, rows := shippedRows(t, "tld.tsv", "tld", "type", "unicode")
 	types := map[string]bool{"country-code": true, "generic": true, "generic-restricted": true, "infrastructure": true, "sponsored": true}
-	for i, r := range rows {
+	eachShippedMiscRow(rows, func(line int, r []string) {
 		key, kind, shown := r[header["tld"]], r[header["type"]], r[header["unicode"]]
 		if !types[kind] {
-			t.Errorf("tld.tsv line %d: %s is typed %q, which the register assigns no TLD", i+2, key, kind)
+			t.Errorf("tld.tsv line %d: %s is typed %q, which the register assigns no TLD", line, key, kind)
 		}
-		for _, c := range shown {
-			if unicode.Is(unicode.Cf, c) {
-				t.Errorf("tld.tsv line %d: %s displays %q, carrying the format character %U", i+2, key, shown, c)
-			}
-		}
+		eachFormatCharacterIn(shown, func(c rune) {
+			t.Errorf("tld.tsv line %d: %s displays %q, carrying the format character %U", line, key, shown, c)
+		})
 		if idn := strings.HasPrefix(key, ".xn--"); idn && shown == key {
-			t.Errorf("tld.tsv line %d: the IDN %s displays its A-label, not a Unicode form", i+2, key)
+			t.Errorf("tld.tsv line %d: the IDN %s displays its A-label, not a Unicode form", line, key)
 		} else if !idn && shown != key {
-			t.Errorf("tld.tsv line %d: the ASCII TLD %s displays %q", i+2, key, shown)
+			t.Errorf("tld.tsv line %d: the ASCII TLD %s displays %q", line, key, shown)
 		}
+	})
+}
+
+func eachFormatCharacterIn(s string, found func(c rune)) {
+	for _, c := range s {
+		if unicode.Is(unicode.Cf, c) {
+			found(c)
+		}
+	}
+}
+
+func eachShippedMiscRow(rows [][]string, check func(line int, r []string)) {
+	for i, r := range rows {
+		check(i+2, r)
 	}
 }
 
@@ -1025,14 +1237,19 @@ func shippedRows(t *testing.T, file string, want ...string) (map[string]int, [][
 	return header, rows
 }
 
+func generatorOfStreetsNamedInsideTheirLocality(t *testing.T) *Generator {
+	t.Helper()
+	files := siblings()
+	files["street.json"] = `{"format":"{name}","rows":"street.tsv","name":"name","parent":"locality","weight":"segments"}`
+	return newGenerator(t, writeFiles(t, files), WithSeed(1))
+}
+
 // TestNamedTableWithoutAKeyResolvesInsideItsParent pins a table whose rows are
 // told apart only by their parent: a name selects a row inside the parent pinned
 // before it, an ambiguous one is listed by its parent's spelling, and a name
 // repeating inside one parent row is a load error (see TestTableFences).
 func TestNamedTableWithoutAKeyResolvesInsideItsParent(t *testing.T) {
-	files := siblings()
-	files["street.json"] = `{"format":"{name}","rows":"street.tsv","name":"name","parent":"locality","weight":"segments"}`
-	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
+	f := generatorOfStreetsNamedInsideTheirLocality(t)
 	for path, want := range map[string]string{
 		"street[Avenyn]":                                                   "Avenyn",
 		"street[Avenyn].locality":                                          "L5",
@@ -1041,31 +1258,48 @@ func TestNamedTableWithoutAKeyResolvesInsideItsParent(t *testing.T) {
 		"municipality[0184].locality[Sandby].street[Sandbyvägen]":          "Sandbyvägen",
 		"municipality[0184].locality[Sandby].street[Sandbyvägen].locality": "L8",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
+}
+
+func TestNamedTableWithoutAKeyRefusesANameItsParentDoesNotSettle(t *testing.T) {
+	f := generatorOfStreetsNamedInsideTheirLocality(t)
 	for path, want := range map[string]string{
 		"street[Sandbyvägen]":         "locality[L7].street[Sandbyvägen]",
 		"locality[L1].street[Avenyn]": "not inside",
 		"street[Kungsgatan]":          `"Kungsgatan"`,
 	} {
-		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
+			}
+		})
 	}
+}
+
+func TestATemplateSelectsANameInsideAPinnedParent(t *testing.T) {
+	f := generatorOfStreetsNamedInsideTheirLocality(t)
 	if got := fakeTemplate(t, f, `{/locality[L8].name}: {/locality[L8].street[Sandbyvägen].name}`); got != "Sandby: Sandbyvägen" {
 		t.Fatalf("a name selected inside a pinned parent = %q", got)
 	}
 }
 
+func underTheFolder(folder string, files map[string]string) map[string]string {
+	out := map[string]string{}
+	for name, body := range files {
+		out[folder+"/"+name] = body
+	}
+	return out
+}
+
 // TestAmbiguousNameNamesARunnablePath pins what a shell user reads: each row is
 // named as the path they can type, from the root, and the rows are listed plainly.
 func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
-	files := map[string]string{}
-	for name, body := range siblings() {
-		files["se/"+name] = body
-	}
+	files := underTheFolder("se", siblings())
 	files["se/street.json"] = `{"format":"{name}","rows":"street.tsv","name":"name","parent":"locality","weight":"segments"}`
 	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
 	_, err := f.Fake("se.street[Sandbyvägen]")
@@ -1073,12 +1307,14 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 		t.Fatal("se.street[Sandbyvägen] resolved, though two rows carry that name")
 	}
 	for _, want := range []string{"se.locality[L7].street[Sandbyvägen]", "se.locality[L8].street[Sandbyvägen]"} {
-		if !strings.Contains(err.Error(), want) {
-			t.Errorf("%v does not name %s", err, want)
-		}
-		if got := fake(t, f, want); got != "Sandbyvägen" {
-			t.Errorf("Fake(%q) = %q, want the named path to run", want, got)
-		}
+		t.Run(want, func(t *testing.T) {
+			if !strings.Contains(err.Error(), want) {
+				t.Errorf("%v does not name %s", err, want)
+			}
+			if got := fake(t, f, want); got != "Sandbyvägen" {
+				t.Errorf("Fake(%q) = %q, want the named path to run", want, got)
+			}
+		})
 	}
 	if strings.Contains(err.Error(), "[se.locality") {
 		t.Errorf("%v lists the rows as a Go slice; separate them with commas", err)
@@ -1101,28 +1337,32 @@ func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 		"region[12].municipality[1281].locality.code",
 		"region[12].name",
 	} {
-		segs, err := grammar.SplitPath(path)
-		if err != nil {
-			t.Fatalf("SplitPath(%s) = %v", path, err)
-		}
-		tail := segs[1:]
-		steps, err := load.CallerPathSteps(f.root.Children()[segs[0]], tail, nil)
-		if err != nil {
-			t.Fatalf("%s: callerPathSteps = %v", path, err)
-		}
-		for _, st := range steps {
-			seg := ""
-			switch st.Kind {
-			case tree.StepSelect:
-				seg = "[" + st.Name + "]"
-			case tree.StepChild, tree.StepColumn:
-				seg = st.Name
-			default:
-				continue
+		t.Run(path, func(t *testing.T) {
+			segs, err := grammar.SplitPath(path)
+			if err != nil {
+				t.Fatalf("SplitPath(%s) = %v", path, err)
 			}
-			if st.At >= len(tail) || tail[st.At] != seg {
-				t.Errorf("%s: step %q sits at %d, want the segment it consumes", path, seg, st.At)
+			tail := segs[1:]
+			steps, err := load.CallerPathSteps(f.root.Children()[segs[0]], tail, nil)
+			if err != nil {
+				t.Fatalf("%s: callerPathSteps = %v", path, err)
 			}
+			eachStepConsumingASegment(steps, func(seg string, at int) {
+				if at >= len(tail) || tail[at] != seg {
+					t.Errorf("%s: step %q sits at %d, want the segment it consumes", path, seg, at)
+				}
+			})
+		})
+	}
+}
+
+func eachStepConsumingASegment(steps []tree.PathStep, check func(seg string, at int)) {
+	for _, st := range steps {
+		switch st.Kind {
+		case tree.StepSelect:
+			check("["+st.Name+"]", st.At)
+		case tree.StepChild, tree.StepColumn:
+			check(st.Name, st.At)
 		}
 	}
 }
@@ -1136,27 +1376,29 @@ func TestCellReadsLoadAndRender(t *testing.T) {
 		"region.tsv":       "code\tname\tpopulation\tnote\n01\tStockholms län\t2400000\t{/addr}\n12\tSkåne län\t1400000\t-\n14\tVästra Götalands län\t1750000\t-\n",
 	})
 	for _, x := range []string{`"{/region.note} {/municipality.note}"`, `"{/region}|{/municipality}"`} {
-		f, err := New(WithDataPath(writeFiles(t, with(cells, map[string]string{"x.json": x}))), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Fatalf("New(%s) = %v, want the cells accepted", x, err)
-		}
-		for i := 0; i < 50; i++ {
-			fake(t, f, "x")
-		}
+		t.Run(x, func(t *testing.T) {
+			f, err := New(WithDataPath(writeFiles(t, with(cells, map[string]string{"x.json": x}))), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Fatalf("New(%s) = %v, want the cells accepted", x, err)
+			}
+			eachDraw(50, func() string { return fake(t, f, "x") }, func(string) {})
+		})
 	}
 }
 
 func TestDatatypeRefusesARowRead(t *testing.T) {
 	for _, format := range []string{"{/region}", "{/region[01]}"} {
-		files := with(geo(), map[string]string{"row.json": `{"format":"","col":{"format":"` + format + `","datatype":"integer"}}`})
-		want := `"{name}" renders a row of region, which is composed text`
-		if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("%s: New = %v, want an error containing %q", format, err, want)
-		}
+		t.Run(format, func(t *testing.T) {
+			files := with(geo(), map[string]string{"row.json": `{"format":"","col":{"format":"` + format + `","datatype":"integer"}}`})
+			want := `"{name}" renders a row of region, which is composed text`
+			if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("%s: New = %v, want an error containing %q", format, err, want)
+			}
+		})
 	}
 }
 
-func TestATableErrorNamesItsPathAndACellItsLine(t *testing.T) {
+func TestACellErrorNamesItsPathAndLine(t *testing.T) {
 	files := map[string]string{
 		"g/t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`,
 		"g/t.tsv":  "a\tb\nx\t-\ny\t{/nope}\n",
@@ -1165,25 +1407,39 @@ func TestATableErrorNamesItsPathAndACellItsLine(t *testing.T) {
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("a cell's bad reference: New = %v, want it to contain %q", err, want)
 	}
-	files["g/t.json"], files["g/t.tsv"] = `{"format":"{a} {/nope}","rows":"t.tsv","key":"a"}`, "a\tb\nx\t-\ny\t-\n"
-	want = "g.t: reference {/nope}"
+}
+
+func TestATableFormatErrorNamesItsPath(t *testing.T) {
+	files := map[string]string{
+		"g/t.json": `{"format":"{a} {/nope}","rows":"t.tsv","key":"a"}`,
+		"g/t.tsv":  "a\tb\nx\t-\ny\t-\n",
+	}
+	want := "g.t: reference {/nope}"
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("a format's bad reference: New = %v, want it to contain %q", err, want)
 	}
+}
+
+func TestASelectorErrorNamesItsTable(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	for path, want := range map[string]string{
 		"region[99]":       `no row of region has key or name "99"`,
 		"locality[Sandby]": `"Sandby" names 2 rows of locality; select one by key, one of L7, L8, or select it inside its municipality`,
 	} {
-		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("Fake(%s) = %v, want it to contain %q", path, err, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("Fake(%s) = %v, want it to contain %q", path, err, want)
+			}
+		})
 	}
+}
+
+func TestASelectorErrorOnAShippedTableNamesItsNamespace(t *testing.T) {
 	shipped, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	want = `no row of misc.territory has key or name "ZZZ"`
+	want := `no row of misc.territory has key or name "ZZZ"`
 	if _, err := shipped.Fake("misc.territory[ZZZ]"); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("Fake(misc.territory[ZZZ]) = %v, want it to contain %q", err, want)
 	}
