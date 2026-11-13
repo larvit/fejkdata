@@ -12,8 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.8 |
-| 395 | 0.5.0 |  |  | **Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time, and let `date()` take bounds relative to the caller's date.** | 2 | 1 | 1 | 2 | 4 | 1 by 4 | 1.6 |
 | 299 | 0.5.0 |  |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 402 | 0.5.0 |  |  | **Run each case of the older tests as a subtest, and split each test that checks more than one behaviour.** | 4 | 2 | 1 | 5 | 7 | code health by 2 | 0.6 |
@@ -232,16 +230,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 394. Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.
-
-From the same review, which asked for fast seeding of a million-row database. `COPY ... FROM STDIN` takes tab-separated text with `\N` for null, and loads several times faster than INSERT. It needs no dependency (goal 10). A writer panel picks the spelling, `copy` or `pgcopy`, and whether the `COPY` line is written. Measure it against `--format sql` for 1,000,000 rows (goal 12) and show both in the Records section beside the README's database pipes. Escape a tab, a newline and a backslash in a value as COPY text asks; a null column writes `\N`.
-
-### 395. Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time, and let `date()` take bounds relative to the caller's date.
-
-From the same review, whose ask was timestamps that fit a dashboard: `{date()}` draws each row's time afresh, so rows arrive out of order and with random gaps. The function reads the row's `{seq(name)}`, adds the step times the count, and a bounded jitter smaller than the step, so rows never swap order. It draws only from the seed and the date (goal 9, the decision "A builtin reads the date the caller gives, never the clock"). Its date arithmetic should read like `{adddays(d,n)}`, which adds whole days to a date that a name holds. A writer panel picks the spelling, and whether a jitter of the step or more is refused at `New`.
-
-The same date arithmetic gives `date()` bounds relative to the caller's date, such as 30 days before it to 14 days after it. Today a due date or a sprint window around today is two fixed days in `date(from,to,'layout')`, re-pinned whenever the fixture should look current; `born` bounds only by whole years of age, and `adddays` shifts only a date already drawn. The same panel picks both spellings, and the README's Functions row for `date` names the relative form.
 
 ### 299. Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.
 
