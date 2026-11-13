@@ -47,17 +47,23 @@ func TestShippedUSPhone(t *testing.T) {
 	})
 }
 
+func eachTitleAndSex(drawn []string, check func(got, title, sex string)) {
+	for _, got := range drawn {
+		title, sex, _ := strings.Cut(got, "|")
+		check(got, strings.TrimSpace(title), sex)
+	}
+}
+
 // TestShippedUSTitleAgreesWithSex pins that one person's title and sex agree, and
 // that the everyday titles are reachable.
 func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 	f := shipped(t, WithSeed(4))
+	drawn := drawsInTurn(3000, func() string { return fakeTemplate(t, f, `{/en_US.person as p}{p.prefix}|{p.sex}`) })
 	seen := map[string]bool{}
+	eachTitleAndSex(drawn, func(_, title, _ string) { seen[title] = true })
 	t.Run("a title agrees with the sex", func(t *testing.T) {
 		female := map[string]bool{"Miss": true, "Mrs": true, "Ms": true}
-		eachDraw(3000, func() string { return fakeTemplate(t, f, `{/en_US.person as p}{p.prefix}|{p.sex}`) }, func(got string) {
-			title, sex, _ := strings.Cut(got, "|")
-			title = strings.TrimSpace(title)
-			seen[title] = true
+		eachTitleAndSex(drawn, func(got, title, sex string) {
 			if title == "Mr" && sex != "male" || female[title] && sex != "female" {
 				t.Fatalf("%q: the title contradicts the sex", got)
 			}

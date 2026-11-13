@@ -109,20 +109,36 @@ func someStructFilled[T any](t *testing.T, f *Generator, n int, found func(v T) 
 	return false
 }
 
-func TestFakeStructFieldTaggedWithAColumnIsThatColumn(t *testing.T) {
+func TestFakeStructPointerTaggedWithAColumnOnlyEverNullIsNil(t *testing.T) {
+	eachStructFilled(t, structData(t), 200, func(v structOfColumns) {
+		if pointedText(v.Del) != "nil" {
+			t.Fatalf("Del = %s, want nil from a column only ever null", pointedText(v.Del))
+		}
+	})
+}
+
+func TestFakeStructFieldTaggedWithSeveralItemsIsALiteralItemOrADrawOfTheColumnAnItemReads(t *testing.T) {
+	eachStructFilled(t, structData(t), 200, func(v structOfColumns) {
+		if !digitOrNil(pointedText(v.Mixed)) && pointedText(v.Mixed) != "x" || !digitOrNil(pointedText(v.Pair)) && pointedText(v.Pair) != "5" || !digitOrNil(pointedText(v.Codes)) && pointedText(v.Codes) != "200" && pointedText(v.Codes) != "404" {
+			t.Fatalf("Mixed %s, Pair %s, Codes %s: want each the literal or a draw of the column it reads", pointedText(v.Mixed), pointedText(v.Pair), pointedText(v.Codes))
+		}
+	})
+}
+
+func TestFakeStructPointerTaggedWithANullableColumnIsNilOrADrawOfTheColumn(t *testing.T) {
 	eachStructFilled(t, structData(t), 200, func(v structOfColumns) {
 		score, code := pointedText(v.Score), pointedText(v.Code)
-		switch {
-		case pointedText(v.Del) != "nil":
-			t.Fatalf("Del = %s, want nil from a column only ever null", pointedText(v.Del))
-		case !digitOrNil(pointedText(v.Mixed)) && pointedText(v.Mixed) != "x", !digitOrNil(pointedText(v.Pair)) && pointedText(v.Pair) != "5", !digitOrNil(pointedText(v.Codes)) && pointedText(v.Codes) != "200" && pointedText(v.Codes) != "404":
-			t.Fatalf("Mixed %s, Pair %s, Codes %s: want each the literal or a draw of the column it reads", pointedText(v.Mixed), pointedText(v.Pair), pointedText(v.Codes))
-		case score != "nil" && !digitOrNil(score), code != "nil" && code != "200" && code != "404":
+		if score != "nil" && !digitOrNil(score) || code != "nil" && code != "200" && code != "404" {
 			t.Fatalf("Score %s, Code %s: want each nil or a draw of its column", score, code)
 		}
 		if v.Code != nil && *v.Code != "200" && *v.Code != "404" {
 			t.Fatalf("Code = %q, want nil or a code, never a null's \"\"", *v.Code)
 		}
+	})
+}
+
+func TestFakeStructFieldTaggedWithAColumnBesideTextHoldsANullAsNoText(t *testing.T) {
+	eachStructFilled(t, structData(t), 200, func(v structOfColumns) {
 		if label, _ := strings.CutPrefix(v.Label, "n="); !strings.HasPrefix(v.Label, "n=") || label != "" && !digitOrNil(label) {
 			t.Fatalf("Label %q, want n= and a draw of src.score, a null as \"\"", v.Label)
 		}
@@ -191,20 +207,43 @@ func eachStructUserAndItsTwin(t *testing.T, check func(i int, u, twin structUser
 	}
 }
 
-func TestFakeStructFillsTaggedFields(t *testing.T) {
-	people := map[string]string{"Ada": "Lovelace", "Bo": "Ek"}
-	zips := map[string]string{"Stockholm": "111 22", "Tranås": "573 31"}
-	eachStructUserAndItsTwin(t, func(i int, u, twin structUser, oldNick string) {
-		switch {
-		case !reflect.DeepEqual(u, twin):
+func TestFakeStructFillsTheSameForTheSameSeed(t *testing.T) {
+	eachStructUserAndItsTwin(t, func(_ int, u, twin structUser, _ string) {
+		if !reflect.DeepEqual(u, twin) {
 			t.Fatalf("same seed diverged: %+v != %+v", u, twin)
-		case people[u.First] != u.Last || u.Email != strings.ToLower(u.First)+"@example.com":
+		}
+	})
+}
+
+func TestFakeStructReadsOnePickOfANameAcrossItsFields(t *testing.T) {
+	people := map[string]string{"Ada": "Lovelace", "Bo": "Ek"}
+	eachStructUserAndItsTwin(t, func(_ int, u, _ structUser, _ string) {
+		if people[u.First] != u.Last || u.Email != strings.ToLower(u.First)+"@example.com" {
 			t.Fatalf("person fields %q %q %q, want one person read through p across the struct", u.First, u.Last, u.Email)
-		case zips[u.Home.City] != u.Home.Zip || u.Work == nil || zips[u.Work.City] != u.Work.Zip:
+		}
+	})
+}
+
+func TestFakeStructFillsANestedStructAsOneRecordAndAllocatesItsPointer(t *testing.T) {
+	zips := map[string]string{"Stockholm": "111 22", "Tranås": "573 31"}
+	eachStructUserAndItsTwin(t, func(_ int, u, _ structUser, _ string) {
+		if zips[u.Home.City] != u.Home.Zip || u.Work == nil || zips[u.Work.City] != u.Work.Zip {
 			t.Fatalf("places %+v, %+v, want each nested struct one place, the pointer allocated", u.Home, u.Work)
-		case u.ID != int64(i+1) || u.Age < 18 || u.Age > 99 || u.Score < 0 || u.Score > 1 || u.Rank == nil || (*u.Rank != 1 && *u.Rank != 2):
+		}
+	})
+}
+
+func TestFakeStructFillsATypedFieldWithTheValueItsTagDraws(t *testing.T) {
+	eachStructUserAndItsTwin(t, func(i int, u, _ structUser, _ string) {
+		if u.ID != int64(i+1) || u.Age < 18 || u.Age > 99 || u.Score < 0 || u.Score > 1 || u.Rank == nil || (*u.Rank != 1 && *u.Rank != 2) {
 			t.Fatalf("typed fields %+v, want each the value its tag draws", u)
-		case u.Nick != nil && *u.Nick != "bo", u.Note != "keep", u.hidden != (structPlace{}), u.Skip != nil, oldNick != "old":
+		}
+	})
+}
+
+func TestFakeStructLeavesUntaggedFieldsAsTheyWere(t *testing.T) {
+	eachStructUserAndItsTwin(t, func(_ int, u, _ structUser, oldNick string) {
+		if u.Nick != nil && *u.Nick != "bo" || u.Note != "keep" || u.hidden != (structPlace{}) || u.Skip != nil || oldNick != "old" {
 			t.Fatalf("%+v: want Nick nil or bo, and the untagged fields left as they were", u)
 		}
 	})

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -37,7 +38,7 @@ func TestGrowIsALowerBound(t *testing.T) {
 		"9{d}{luhn()}",
 		"{a|b} and {a|b}",
 	} {
-		t.Run(format, func(t *testing.T) {
+		t.Run(strconv.Quote(format), func(t *testing.T) {
 			src := `{"format":` + quote(format) + `,"x":"1","a":"A","b":"B","d":"012345678901234"}`
 			tmpl, ok := compiled(t, src).(*tree.Template)
 			if !ok {

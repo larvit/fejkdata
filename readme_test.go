@@ -93,9 +93,9 @@ func readmeLine(src string, at int) string {
 }
 
 func TestReadmeExamplesLoadAndRender(t *testing.T) {
-	n := 0
 	src := readme(t)
-	for _, at := range jsonBlock.FindAllStringSubmatchIndex(src, -1) {
+	blocks := jsonBlock.FindAllStringSubmatchIndex(src, -1)
+	for _, at := range blocks {
 		t.Run(readmeLine(src, at[0]), func(t *testing.T) {
 			body := src[at[2]:at[3]]
 			f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1), onTestDay)
@@ -106,11 +106,10 @@ func TestReadmeExamplesLoadAndRender(t *testing.T) {
 			if err := firstRenderError(f, "example", 20); err != nil {
 				t.Errorf("README example does not render: %v\n%s", err, body)
 			}
-			n++
 		})
 	}
-	if n < 8 {
-		t.Fatalf("found only %d README examples", n)
+	if len(blocks) < 8 {
+		t.Fatalf("found only %d README examples", len(blocks))
 	}
 }
 
@@ -172,6 +171,14 @@ func jsonHoldsColumnAsItsDatatype(m map[string]any, c Column) bool {
 	return ok
 }
 
+func datatypesOf(cols []Column) map[DataType]bool {
+	shown := map[DataType]bool{}
+	for _, c := range cols {
+		shown[c.DataType] = true
+	}
+	return shown
+}
+
 func TestReadmeDatatypeExample(t *testing.T) {
 	src := readme(t)
 	i := strings.Index(src, "### Datatype")
@@ -191,16 +198,14 @@ func TestReadmeDatatypeExample(t *testing.T) {
 	if err := json.Unmarshal([]byte(r.JSON()), &m); err != nil {
 		t.Fatalf("JSON() = %s: %v", r.JSON(), err)
 	}
-	shown := map[DataType]bool{}
 	for _, c := range r.Columns() {
 		t.Run(c.Name, func(t *testing.T) {
-			shown[c.DataType] = true
 			if !jsonHoldsColumnAsItsDatatype(m, c) {
 				t.Errorf("column %q, datatype %s, written as %s", c.Name, c.DataType, r.JSON())
 			}
 		})
 	}
-	if !shown[DataTypeInteger] || !shown[DataTypeNumber] || !shown[DataTypeBoolean] {
+	if shown := datatypesOf(r.Columns()); !shown[DataTypeInteger] || !shown[DataTypeNumber] || !shown[DataTypeBoolean] {
 		t.Errorf("README Datatype example shows %v, want an integer, a number and a boolean column", shown)
 	}
 }
@@ -815,18 +820,18 @@ func TestReadmeRatiosAndRules(t *testing.T) {
 	}
 }
 
-func TestReadmeRatioExamplePrintsActiveFourTimesInFive(t *testing.T) {
+func TestReadmeRatioExamplePrintsOnlyActiveOrInactive(t *testing.T) {
 	_, ratio, _ := readmeRatioAndRuleExamples(t)
-	active := 0
 	eachDraw(5000, readmeExampleDraw(t, ratio), func(s string) {
-		switch s {
-		case "active":
-			active++
-		case "inactive":
-		default:
+		if s != "active" && s != "inactive" {
 			t.Fatalf("the ratio example prints %q, want active or inactive", s)
 		}
 	})
+}
+
+func TestReadmeRatioExamplePrintsActiveFourTimesInFive(t *testing.T) {
+	_, ratio, _ := readmeRatioAndRuleExamples(t)
+	active := tallyDraws(5000, readmeExampleDraw(t, ratio))["active"]
 	if share := float64(active) / 5000; share < 0.77 || share > 0.83 {
 		t.Errorf("the ratio example prints active %.3f of the time, want about 0.80", share)
 	}

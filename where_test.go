@@ -31,6 +31,12 @@ func eachDraw(n int, draw func() string, check func(got string)) {
 	}
 }
 
+func drawsInTurn(n int, draw func() string) []string {
+	drawn := make([]string, 0, n)
+	eachDraw(n, draw, func(got string) { drawn = append(drawn, got) })
+	return drawn
+}
+
 func tallyDraws(n int, draw func() string) map[string]int {
 	seen := map[string]int{}
 	eachDraw(n, draw, func(got string) { seen[got]++ })

@@ -212,23 +212,15 @@ func validFnr(s string) bool {
 // draw state so a fresh Generator restarts at 1.
 func TestBuiltinSeqPerGenerator(t *testing.T) {
 	f := emptyGenerator(1)
-	for _, want := range []string{"1", "2", "3", "4", "5"} {
-		t.Run("call "+want, func(t *testing.T) {
-			if got := mustRender(t, f, `"{seq()}"`); got != want {
-				t.Fatalf("seq call %s = %q, want %s", want, got, want)
-			}
-		})
+	if got, want := drawsInTurn(5, func() string { return mustRender(t, f, `"{seq()}"`) }), []string{"1", "2", "3", "4", "5"}; !slices.Equal(got, want) {
+		t.Fatalf("five seq calls = %q, want %q", got, want)
 	}
-	t.Run("a named counter counts from 1", func(t *testing.T) {
-		if got := mustRender(t, f, `"{seq(orders)}"`); got != "1" {
-			t.Fatalf("named seq(orders) = %q, want its own count from 1", got)
-		}
-	})
-	t.Run("the default counter goes on after a named one", func(t *testing.T) {
-		if got := mustRender(t, f, `"{seq()}"`); got != "6" {
-			t.Fatalf("default seq after the named one = %q, want 6 (counters are independent)", got)
-		}
-	})
+	if got := mustRender(t, f, `"{seq(orders)}"`); got != "1" {
+		t.Fatalf("named seq(orders) = %q, want its own count from 1", got)
+	}
+	if got := mustRender(t, f, `"{seq()}"`); got != "6" {
+		t.Fatalf("default seq after the named one = %q, want 6 (counters are independent)", got)
+	}
 }
 
 func TestBuiltinSeqCountsOnAcrossARepeat(t *testing.T) {

@@ -347,19 +347,28 @@ func eachShippedFinnishPhone(t *testing.T, check func(n string)) {
 	eachDraw(30000, func() string { return fake(t, f, "fi_FI.phone") }, check)
 }
 
-func TestShippedFinnishPhoneIsAnAllocatedAreaCodeAndASubscriberNumberOfTheLengthTheRegulationGives(t *testing.T) {
-	fixed, mobile := finnishAreaSet(finnishFixedAreaCodes()...), finnishAreaSet(finnishMobileAreas...)
+func eachShippedFinnishPhoneInGroups(t *testing.T, check func(n, area string, length int)) {
+	t.Helper()
 	eachShippedFinnishPhone(t, func(n string) {
-		m := finnishNationalPhone.FindStringSubmatch(n)
-		if m == nil {
+		if m := finnishNationalPhone.FindStringSubmatch(n); m != nil {
+			check(n, m[1], len(m[1])-1+len(strings.ReplaceAll(m[2], " ", "")))
+		}
+	})
+}
+
+func TestShippedFinnishPhoneIsAnAreaCodeAndASubscriberNumberInGroups(t *testing.T) {
+	eachShippedFinnishPhone(t, func(n string) {
+		if !finnishNationalPhone.MatchString(n) {
 			t.Fatalf("phone %q is not an area code and a subscriber number in groups", n)
 		}
-		length := len(m[1]) - 1 + len(strings.ReplaceAll(m[2], " ", ""))
-		switch {
-		case fixed[m[1]] && length >= 7 && length <= 9:
-		case mobile[m[1]] && length >= 8 && length <= 10:
-		default:
-			t.Fatalf("phone %q has area code %q and %d digits after the 0, which the plan allows for neither a fixed nor a mobile number", n, m[1], length)
+	})
+}
+
+func TestShippedFinnishPhoneHasAnAllocatedAreaCodeAndTheDigitsThePlanAllowsIt(t *testing.T) {
+	fixed, mobile := finnishAreaSet(finnishFixedAreaCodes()...), finnishAreaSet(finnishMobileAreas...)
+	eachShippedFinnishPhoneInGroups(t, func(n, area string, length int) {
+		if !(fixed[area] && length >= 7 && length <= 9) && !(mobile[area] && length >= 8 && length <= 10) {
+			t.Fatalf("phone %q has area code %q and %d digits after the 0, which the plan allows for neither a fixed nor a mobile number", n, area, length)
 		}
 	})
 }

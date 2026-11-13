@@ -512,11 +512,10 @@ func TestShippedSwedishPhoneInternational(t *testing.T) {
 }
 
 func TestShippedSwedishPhoneAreaIsPTSsWholePlan(t *testing.T) {
-	seen := map[string]bool{}
-	for _, cells := range swedishPhoneAreaRows(t) {
+	rows := swedishPhoneAreaRows(t)
+	for _, cells := range rows {
 		t.Run(cells[0], func(t *testing.T) {
 			area, ndc, subscriber := cells[0], cells[1], cells[3]
-			seen[area] = true
 			if area != "0"+ndc {
 				t.Errorf("area %s is not the trunk 0 and %s", area, ndc)
 			}
@@ -526,9 +525,17 @@ func TestShippedSwedishPhoneAreaIsPTSsWholePlan(t *testing.T) {
 			}
 		})
 	}
-	if len(seen) != 264 {
-		t.Fatalf("phone-area.tsv has %d area codes, PTS's plan gives 264", len(seen))
+	if areas := distinctFirstCells(rows); areas != 264 {
+		t.Fatalf("phone-area.tsv has %d area codes, PTS's plan gives 264", areas)
 	}
+}
+
+func distinctFirstCells(rows [][]string) int {
+	seen := map[string]bool{}
+	for _, cells := range rows {
+		seen[cells[0]] = true
+	}
+	return len(seen)
 }
 
 func swedishPhoneAreaRows(t *testing.T) [][]string {
