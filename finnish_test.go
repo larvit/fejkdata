@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -616,5 +617,85 @@ func TestShippedFinnishCompanyNamesAreBuiltOfNamesAndTradeWords(t *testing.T) {
 				t.Errorf("%d sole traders drew a name of the shape %s %d times, want %d or more", draws, shape, seen[shape], draws/10)
 			}
 		})
+	}
+}
+
+func TestShippedFinnishAddressIsAStreetANumberAPostinumeroAndAPostitoimipaikka(t *testing.T) {
+	f := shipped(t, WithSeed(3))
+	address := regexp.MustCompile(`^[\pL\d].* [1-9]\d{0,3}[a-z]?\n\d{5} \pL.*$`)
+	eachDraw(300, func() string { return fake(t, f, "fi_FI.address") }, func(a string) {
+		if !address.MatchString(a) {
+			t.Fatalf("fi_FI.address = %q, want a street and a number, then a postinumero and a postitoimipaikka", a)
+		}
+	})
+}
+
+func TestShippedFinnishHouseNumbersWriteTheirDeliveryLetterInLowerCase(t *testing.T) {
+	f := shipped(t, WithSeed(5))
+	lettered := 0
+	eachDraw(20000, func() string { return fake(t, f, "fi_FI.address.street-number") }, func(n string) {
+		if strings.TrimRight(n, "abcdefghijklmnopqrstuvwxyzåäö") != n {
+			lettered++
+		}
+	})
+	if lettered == 0 {
+		t.Error("fi_FI.address drew no house number with a lower-case delivery letter in 20000, want some, as Posti's file holds them")
+	}
+}
+
+// Posti writes a postitoimipaikka in capitals, such as HEINOLA KK; geo.FI writes it as a place
+// name, keeping the abbreviations kk and as in lower case, and a noun after a genitive too.
+func TestShippedFinnishPlacesAreWrittenAsPlaceNames(t *testing.T) {
+	places := map[string]bool{}
+	for _, r := range geoRows(t, "FI", "locality") {
+		places[r[0]] = true
+	}
+	for _, name := range []string{"Helsinki", "Espoo", "Tampere", "Turku", "Oulu", "Jyväskylä", "Heinola kk", "Alavus as", "Inhan tehtaat", "Yli-Ii"} {
+		t.Run(name, func(t *testing.T) {
+			if !places[name] {
+				t.Errorf("geo.FI: no postitoimipaikka %q", name)
+			}
+		})
+	}
+}
+
+// Statistics Finland numbers a kunta in three digits and a maakunta in two.
+func TestShippedFinnishPlacesAreNumberedAsStatisticsFinlandWritesThem(t *testing.T) {
+	f := shipped(t, WithSeed(1))
+	for path, want := range map[string]string{
+		"geo.FI.municipality[Helsinki].code":   "091",
+		"geo.FI.municipality[Turku].code":      "853",
+		"geo.FI.municipality[Helsinki].region": "01",
+		"geo.FI.region[Uusimaa].code":          "01",
+		"geo.FI.region[Lappi].code":            "19",
+		"geo.FI.postal-code[00100].locality":   "Helsinki",
+		"geo.FI.postal-code[20720].locality":   "Turku",
+	} {
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("%s = %q, want %q", path, got, want)
+			}
+		})
+	}
+}
+
+// Posti's files hold no street on Åland, so its maakunta ships no place.
+func TestShippedFinnishPlacesHoldTheEighteenMainlandMaakunnat(t *testing.T) {
+	if n := len(geoRows(t, "FI", "region")); n != 18 {
+		t.Errorf("geo.FI holds %d regions, want mainland Finland's 18 maakunnat", n)
+	}
+}
+
+func TestShippedFinnishStreetCarriesPostisSwedishName(t *testing.T) {
+	if !slices.ContainsFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool {
+		return r["name"] == "Uudenmaantie" && r["locality"] == "Turku" && r["swedish-name"] == "Nylandsvägen"
+	}) {
+		t.Error("geo.FI: no street Uudenmaantie in Turku with the swedish-name Nylandsvägen")
+	}
+}
+
+func TestShippedFinnishStreetWithoutASwedishNameCarriesItsFinnishOne(t *testing.T) {
+	if i := slices.IndexFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool { return r["swedish-name"] == "" }); i >= 0 {
+		t.Errorf("geo.FI street row %d has no swedish-name, want its Finnish name where Posti gives no Swedish one", i+1)
 	}
 }

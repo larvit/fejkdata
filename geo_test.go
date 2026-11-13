@@ -20,6 +20,7 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}", "New York"},
 		{"nb_NO", "NO", "{a.street}|{a.postal-code}|{a.locality}|", "Oslo"},
 		{"da_DK", "DK", "{a.street}|{a.postal-code}|{a.locality}|", "København S"},
+		{"fi_FI", "FI", "{a.street}|{a.postal-code}|{a.locality}|", "Helsinki"},
 	} {
 		t.Run(c.locale, func(t *testing.T) {
 			t.Parallel()
@@ -71,7 +72,7 @@ func TestShippedPlacesSpreadAddresses(t *testing.T) {
 	for country, city := range map[string]struct {
 		key   string
 		least int
-	}{"DK": {"København S", 500}, "NO": {"Oslo", 2000}, "SE": {"Göteborg", 1500}, "US": {"0644000", 2500}} {
+	}{"DK": {"København S", 500}, "FI": {"Helsinki", 2000}, "NO": {"Oslo", 2000}, "SE": {"Göteborg", 1500}, "US": {"0644000", 2500}} {
 		streets := 0
 		for _, r := range geoRows(t, country, "street") {
 			if r[1] == city.key {
