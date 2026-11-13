@@ -135,6 +135,11 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 		v.NotOperand = notOneValue(t.Format(), operandCalls)
 		return v
 	}
+	return p.proveOp(o)
+}
+
+// proveOp proves what the one op of a template that prints more than fixed text renders.
+func (p *valueProof) proveOp(o tree.Op) proven.Facts {
 	tok := o.Token()
 	body, name, args := tok.Body, tok.Fn, tok.Args
 	switch {
@@ -145,11 +150,7 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 	case p.mayFallBack(o):
 		return fallsBack(body)
 	case tok.Kind == grammar.PathRead:
-		var leaves []tree.Node
-		for _, a := range o.Alternatives() {
-			leaves = append(leaves, a.Leaves()...)
-		}
-		return p.proveUnion(leaves)
+		return p.proveUnion(o.AlternativeLeaves())
 	case name == builtinfunc.CalcName:
 		return p.proveCalc(o)
 	case builtinfunc.IsTransform(name):

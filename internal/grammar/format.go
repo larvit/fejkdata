@@ -30,15 +30,9 @@ func eachScanUnit(format string, fn func(scanUnit) error) error {
 				i++
 				break
 			}
-			end := i + 1
-			for end < len(rs) && rs[end] != '}' {
-				if rs[end] == '{' {
-					return fmt.Errorf("'{' inside a token in %q; a literal brace is written {{", format)
-				}
-				end++
-			}
-			if end >= len(rs) {
-				return fmt.Errorf("unterminated '{' in %q", format)
+			end, err := tokenEnd(rs, i, format)
+			if err != nil {
+				return err
 			}
 			u.isToken, u.body = true, string(rs[i+1:end])
 			i = end
@@ -57,6 +51,19 @@ func eachScanUnit(format string, fn func(scanUnit) error) error {
 		}
 	}
 	return nil
+}
+
+// tokenEnd returns the index of the "}" closing the token that the "{" at open in format starts.
+func tokenEnd(rs []rune, open int, format string) (int, error) {
+	for end := open + 1; end < len(rs); end++ {
+		switch rs[end] {
+		case '}':
+			return end, nil
+		case '{':
+			return 0, fmt.Errorf("'{' inside a token in %q; a literal brace is written {{", format)
+		}
+	}
+	return 0, fmt.Errorf("unterminated '{' in %q", format)
 }
 
 // Token is one parsed unit of a format.

@@ -185,14 +185,8 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 	if err != nil {
 		return misuse(stderr, name, err)
 	}
-	if in.help {
-		info, _ := debug.ReadBuildInfo()
-		io.WriteString(stdout, help(name, docsURL(info)))
-		return 0
-	}
-	if in.version {
-		info, _ := debug.ReadBuildInfo()
-		fmt.Fprintln(stdout, versionLine(name, info))
+	if in.help || in.version {
+		io.WriteString(stdout, about(name, in.help))
 		return 0
 	}
 	if err := in.check(name); err != nil {
@@ -209,15 +203,28 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 		return fail(stderr, name, err)
 	}
 	if in.list {
-		for _, p := range f.List() {
-			fmt.Fprintln(stdout, p)
-		}
+		writeLines(stdout, f.List())
 		return 0
 	}
 	if err := in.write(f, src, stdout); err != nil {
 		return fail(stderr, name, err)
 	}
 	return 0
+}
+
+func writeLines(w io.Writer, lines []string) {
+	for _, l := range lines {
+		fmt.Fprintln(w, l)
+	}
+}
+
+// about is what --help prints where wantsHelp is set, else what --version prints.
+func about(name string, wantsHelp bool) string {
+	info, _ := debug.ReadBuildInfo()
+	if wantsHelp {
+		return help(name, docsURL(info))
+	}
+	return versionLine(name, info) + "\n"
 }
 
 func help(name, docs string) string {

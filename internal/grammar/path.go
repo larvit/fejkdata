@@ -39,10 +39,16 @@ func SplitPath(path string) ([]string, error) {
 	if open >= 0 {
 		return nil, fmt.Errorf(`%q opens a selector with "[" and never closes it with "]"`, path)
 	}
+	return withLastSegment(segs, path, start), nil
+}
+
+// withLastSegment appends the segment from start to the end of path, which is empty only where
+// path is or ends in a dot that does not close a "..".
+func withLastSegment(segs []string, path string, start int) []string {
 	if start < len(path) || start == len(path) && (len(segs) == 0 || segs[len(segs)-1] != "..") {
-		segs = append(segs, path[start:])
+		return append(segs, path[start:])
 	}
-	return segs, nil
+	return segs
 }
 
 // stepUpAt appends a ".." segment where the dot at i is the first of two, returning the

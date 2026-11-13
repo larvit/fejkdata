@@ -44,25 +44,26 @@ func nodeDateLayout(n tree.Node, l *tree.LoadFinds, seen map[tree.Node]bool) (st
 	case *tree.Choice:
 		return dateLayout(n.Items(), l, seen)
 	case *tree.Template:
-		ops := l.Of(n).Compiled().Ops()
-		if n.Repeat() != 1 || len(n.Tokens()) != 1 || len(ops) != 1 {
-			return "", fmt.Sprintf("it renders %q", n.Format())
-		}
-		o := ops[0]
-		if layout, isDate := builtinfunc.DateLayout(o.Token().Fn, o.Token().Args); isDate {
-			return layout, ""
-		}
-		switch {
-		case o.Token().Fn == builtinfunc.AddDaysName:
-			return "", fmt.Sprintf("it renders {%s}; add both offsets in one adddays", o.Token().Body)
-		case o.Token().Kind == grammar.PathRead:
-			var leaves []tree.Node
-			for _, a := range o.Alternatives() {
-				leaves = append(leaves, a.Leaves()...)
-			}
-			return dateLayout(leaves, l, seen)
-		}
-		return "", fmt.Sprintf("it renders %q", n.Format())
+		return templateDateLayout(n, l, seen)
 	}
 	return "", "it renders a table cell or a null"
+}
+
+// templateDateLayout is the layout of the one date call t prints, directly or through a read.
+func templateDateLayout(t *tree.Template, l *tree.LoadFinds, seen map[tree.Node]bool) (string, string) {
+	ops := l.Of(t).Compiled().Ops()
+	if t.Repeat() != 1 || len(t.Tokens()) != 1 || len(ops) != 1 {
+		return "", fmt.Sprintf("it renders %q", t.Format())
+	}
+	o := ops[0]
+	if layout, isDate := builtinfunc.DateLayout(o.Token().Fn, o.Token().Args); isDate {
+		return layout, ""
+	}
+	switch {
+	case o.Token().Fn == builtinfunc.AddDaysName:
+		return "", fmt.Sprintf("it renders {%s}; add both offsets in one adddays", o.Token().Body)
+	case o.Token().Kind == grammar.PathRead:
+		return dateLayout(o.AlternativeLeaves(), l, seen)
+	}
+	return "", fmt.Sprintf("it renders %q", t.Format())
 }

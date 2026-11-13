@@ -253,11 +253,8 @@ func floatArgs(a []string) error {
 	if err != nil {
 		return fmt.Errorf("float(min,max,dp): decimals %w", err)
 	}
-	if math.IsNaN(lo) || math.IsNaN(hi) || math.IsInf(lo, 0) || math.IsInf(hi, 0) {
-		return fmt.Errorf("float(min,max,dp) needs finite bounds, got %q,%q", a[0], a[1])
-	}
-	if lo > hi {
-		return fmt.Errorf("float(min,max,dp): min %v > max %v", lo, hi)
+	if err := finiteOrdered(lo, hi, a); err != nil {
+		return err
 	}
 	if dp < 0 || dp > maxDecimals {
 		return fmt.Errorf("float(min,max,dp): decimals %d out of range 0..%d", dp, maxDecimals)
@@ -267,6 +264,19 @@ func floatArgs(a []string) error {
 	}
 	return nil
 }
+
+// finiteOrdered refuses float bounds lo and hi, spelled a[0] and a[1], that are not finite or not
+// in order.
+func finiteOrdered(lo, hi float64, a []string) error {
+	if math.IsNaN(lo) || math.IsNaN(hi) || math.IsInf(lo, 0) || math.IsInf(hi, 0) {
+		return fmt.Errorf("float(min,max,dp) needs finite bounds, got %q,%q", a[0], a[1])
+	}
+	if lo > hi {
+		return fmt.Errorf("float(min,max,dp): min %v > max %v", lo, hi)
+	}
+	return nil
+}
+
 func seqArg(a []string) error {
 	if len(a) > 1 {
 		return fmt.Errorf("seq takes at most one name, got %d", len(a))

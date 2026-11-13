@@ -166,23 +166,9 @@ func CallerPathSteps(n tree.Node, tail []string, steps []tree.PathStep) ([]tree.
 func Paths(n tree.Node, intoRepeats bool) []string {
 	switch n := n.(type) {
 	case *tree.Folder:
-		var out []string
-		for _, name := range tree.SortedNames(n.Children()) {
-			out = appendUnder(out, name, Paths(n.Children()[name], intoRepeats))
-		}
-		for _, name := range tree.SortedNames(n.Unloaded()) {
-			out = appendUnder(out, name, n.Unloaded()[name].Entry().Paths)
-		}
-		return out
+		return folderPaths(n, intoRepeats)
 	case *tree.Template:
-		out := []string{""}
-		if n.Repeat() > 1 && !intoRepeats {
-			return out
-		}
-		for _, name := range tree.SortedNames(n.Fields()) {
-			out = appendUnder(out, name, Paths(n.Fields()[name], intoRepeats))
-		}
-		return out
+		return templatePaths(n, intoRepeats)
 	case *tree.Table:
 		return tablePaths(n, intoRepeats)
 	case *tree.TableColumn, *tree.TableRow, *tree.NullItem:
@@ -196,6 +182,32 @@ func Paths(n tree.Node, intoRepeats bool) []string {
 	default:
 		panic(invariant.Broken("paths has no case for node %T", n))
 	}
+}
+
+// folderPaths is each child's paths under its name, the loaded children first, then those its
+// index lists.
+func folderPaths(f *tree.Folder, intoRepeats bool) []string {
+	var out []string
+	for _, name := range tree.SortedNames(f.Children()) {
+		out = appendUnder(out, name, Paths(f.Children()[name], intoRepeats))
+	}
+	for _, name := range tree.SortedNames(f.Unloaded()) {
+		out = appendUnder(out, name, f.Unloaded()[name].Entry().Paths)
+	}
+	return out
+}
+
+// templatePaths is the template itself, then each field's paths under its name, none below a
+// repeat unless intoRepeats.
+func templatePaths(t *tree.Template, intoRepeats bool) []string {
+	out := []string{""}
+	if t.Repeat() > 1 && !intoRepeats {
+		return out
+	}
+	for _, name := range tree.SortedNames(t.Fields()) {
+		out = appendUnder(out, name, Paths(t.Fields()[name], intoRepeats))
+	}
+	return out
 }
 
 func appendUnder(out []string, name string, ps []string) []string {

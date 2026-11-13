@@ -194,31 +194,34 @@ func compileFormat(t *tree.Template, l *tree.LoadFinds) (tree.FormatOps, error) 
 	var ops []tree.Op
 	grow := 0
 	for _, tok := range t.Tokens() {
-		var alternatives, operands, clause []tree.Read
-		var err error
-		switch tok.Kind {
-		case grammar.LiteralRun:
+		if tok.Kind == grammar.LiteralRun {
 			grow += len(tok.Lit)
-		case grammar.BuiltinCall:
-			operands, err = compileReads(t, builtinfunc.Operands(tok.Fn, tok.Args), l)
-			if err == nil && tok.Where != nil {
-				clause, err = compileClauseNames(t, tok.Where, l)
-			}
-		case grammar.PathRead:
-			alternatives, err = compileReads(t, tok.Arms, l)
-			if err == nil && tok.Where != nil {
-				clause, err = compileClauseNames(t, tok.Where, l)
-			}
-		case grammar.NameBind:
-			if tok.Where == nil && tok.Distinct == nil {
-				continue
-			}
-			clause, err = compileClauseNames(t, tok.Where, l)
 		}
+		if tok.Kind == grammar.NameBind && tok.Where == nil && tok.Distinct == nil {
+			continue
+		}
+		op, err := compileOp(t, tok, l)
 		if err != nil {
 			return tree.FormatOps{}, fmt.Errorf("token {%s}: %w", tok.Body, err)
 		}
-		ops = append(ops, tree.NewOp(tok, alternatives, operands, clause))
+		ops = append(ops, op)
 	}
 	return tree.NewFormatOps(ops, grow), nil
+}
+
+// compileOp compiles the reads of tok's op: a call's operands, a path read's alternatives, and the
+// names its where clause reads.
+func compileOp(t *tree.Template, tok grammar.Token, l *tree.LoadFinds) (tree.Op, error) {
+	var alternatives, operands, clause []tree.Read
+	var err error
+	switch tok.Kind {
+	case grammar.BuiltinCall:
+		operands, err = compileReads(t, builtinfunc.Operands(tok.Fn, tok.Args), l)
+	case grammar.PathRead:
+		alternatives, err = compileReads(t, tok.Arms, l)
+	}
+	if err == nil && tok.Where != nil {
+		clause, err = compileClauseNames(t, tok.Where, l)
+	}
+	return tree.NewOp(tok, alternatives, operands, clause), err
 }

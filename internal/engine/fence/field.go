@@ -43,6 +43,17 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column tree.Node)
 	if kind.Datatype == datatype.String {
 		return nil
 	}
+	return p.checkFieldValues(label, ft, items)
+}
+
+// checkFieldValues rejects an item of a column a field of the non-string Go type ft cannot hold:
+// one not proven of its kind's datatype, or not within its kind's range.
+func (p *valueProof) checkFieldValues(label string, ft reflect.Type, items []*tree.Template) error {
+	elem := ft
+	if ft.Kind() == reflect.Pointer {
+		elem = ft.Elem()
+	}
+	kind := FieldKinds[elem.Kind()]
 	for _, it := range items {
 		v := p.proveColumnItem(it)
 		if reason := v.Not[kind.Datatype]; reason != "" {

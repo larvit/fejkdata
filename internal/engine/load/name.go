@@ -36,14 +36,22 @@ func bindNames(root tree.Node, l *tree.LoadFinds) error {
 	if err := gather(root, nil, false, ""); err != nil {
 		return err
 	}
-	for _, sc := range scopes[1:] {
+	if err := refuseShadowed(scopes[1:]); err != nil {
+		return err
+	}
+	return answerReads(root, scopes, l)
+}
+
+// refuseShadowed refuses a name that one of scopes binds and a scope around it binds too.
+func refuseShadowed(scopes []*tree.NameScope) error {
+	for _, sc := range scopes {
 		for _, b := range sc.Order() {
 			if outer := sc.Up().Lookup(b.Name()); outer != nil {
 				return fmt.Errorf("%stoken {%s}: name %q is bound outside this %s too, by {%s}; rename one", b.Where(), b.Body(), b.Name(), sc.Kind(), outer.Body())
 			}
 		}
 	}
-	return answerReads(root, scopes, l)
+	return nil
 }
 
 func bindAll(sc *tree.NameScope, t *tree.Template, where string) error {
@@ -143,33 +151,41 @@ func (up besideField) refusal(where string, u tree.UnboundRead) error {
 func unanswered(where string, u tree.UnboundRead, seen *tree.NameScope, scopes []*tree.NameScope, up besideField) error {
 	for _, sc := range scopes {
 		if b, ok := sc.Bindings()[u.Head()]; ok {
-			at := strings.TrimSuffix(b.Where(), ": ")
-			if at == "" {
-				at = "an item of the root choice"
-			}
-			if sc.Kind() == tree.ScopeChoiceItem {
-				return fmt.Errorf("%s%w; name %q is bound at %s, inside an item of a choice, which a read outside that item cannot see; bind it outside the choice", where, u.Err(), u.Head(), at)
-			}
-			return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.Err(), u.Head(), at)
+			return outOfSight(where, u, sc, b)
 		}
 	}
 	if up.t != nil && up.t.Fields()[u.Head()] != nil {
 		return up.refusal(where, u)
 	}
-	var visible []string
-	for sc := seen; sc != nil; sc = sc.Up() {
-		for _, b := range sc.Order() {
-			visible = append(visible, b.Name())
-		}
-	}
-	if len(visible) > 0 {
-		sort.Strings(visible)
-		for i, name := range visible {
-			visible[i] = strconv.Quote(name)
-		}
+	if visible := visibleNames(seen); len(visible) > 0 {
 		return fmt.Errorf("%stoken {%s}: no field or name %q; the names bound here are %s", where, u.Body(), u.Head(), strings.Join(visible, ", "))
 	}
 	return fmt.Errorf("%s%w", where, u.Err())
+}
+
+// outOfSight is the refusal of u, a read of the name b binds inside sc, a repeat or a choice's
+// item the read is outside.
+func outOfSight(where string, u tree.UnboundRead, sc *tree.NameScope, b *tree.NameBinding) error {
+	at := strings.TrimSuffix(b.Where(), ": ")
+	if at == "" {
+		at = "an item of the root choice"
+	}
+	if sc.Kind() == tree.ScopeChoiceItem {
+		return fmt.Errorf("%s%w; name %q is bound at %s, inside an item of a choice, which a read outside that item cannot see; bind it outside the choice", where, u.Err(), u.Head(), at)
+	}
+	return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.Err(), u.Head(), at)
+}
+
+// visibleNames is every name seen and the scopes around it bind, sorted and quoted.
+func visibleNames(seen *tree.NameScope) []string {
+	var visible []string
+	for sc := seen; sc != nil; sc = sc.Up() {
+		for _, b := range sc.Order() {
+			visible = append(visible, strconv.Quote(b.Name()))
+		}
+	}
+	sort.Strings(visible)
+	return visible
 }
 
 func isName(t *tree.Template, head string, l *tree.LoadFinds) bool {
