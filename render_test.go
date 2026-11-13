@@ -2,7 +2,10 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"reflect"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -92,6 +95,31 @@ func nodeSamples(t *testing.T) (map[string]tree.Node, *tree.Table) {
 		samples[reflect.TypeOf(n).Elem().Name()] = n
 	}
 	return samples, tbl
+}
+
+func TestNodeSamplesHoldEveryNodeKind(t *testing.T) {
+	samples, _ := nodeSamples(t)
+	files, err := filepath.Glob(filepath.Join("internal", "engine", "tree", "*.go"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	isNode := regexp.MustCompile(`(?m)^func \(\*(\w+)\) isNode\(\)`)
+	kinds := 0
+	for _, f := range files {
+		src, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range isNode.FindAllStringSubmatch(string(src), -1) {
+			kinds++
+			if samples[m[1]] == nil {
+				t.Errorf("nodeSamples holds no %s, so no switch is checked on it", m[1])
+			}
+		}
+	}
+	if kinds != len(samples) {
+		t.Errorf("tree declares %d node kinds, nodeSamples holds %d", kinds, len(samples))
+	}
 }
 
 // nodeSwitches calls each function holding a type switch over node kinds.
