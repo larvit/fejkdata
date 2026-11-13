@@ -75,7 +75,7 @@ func containedItems(c *tree.Choice) []ContainedNode {
 	return out
 }
 
-// containedCells is each cell of the column c that reads a reference, with its line in the TSV.
+// containedCells is each cell of the column c that carries a token, with its line in the TSV.
 func containedCells(c *tree.TableColumn) []ContainedNode {
 	if len(c.Table().CellTemplates()) == 0 {
 		return nil

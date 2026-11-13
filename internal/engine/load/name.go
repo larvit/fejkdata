@@ -163,8 +163,8 @@ func unanswered(where string, u tree.UnboundRead, seen *tree.NameScope, scopes [
 	return fmt.Errorf("%s%w", where, u.Err())
 }
 
-// outOfSight is the refusal of u, a read of the name b binds inside sc, a repeat or a choice's
-// item the read is outside.
+// outOfSight refuses u, which reads the name b binds inside sc. sc is a repeat or a choice's item,
+// and u sits outside it.
 func outOfSight(where string, u tree.UnboundRead, sc *tree.NameScope, b *tree.NameBinding) error {
 	at := strings.TrimSuffix(b.Where(), ": ")
 	if at == "" {
@@ -176,7 +176,7 @@ func outOfSight(where string, u tree.UnboundRead, sc *tree.NameScope, b *tree.Na
 	return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.Err(), u.Head(), at)
 }
 
-// visibleNames is every name seen and the scopes around it bind, sorted and quoted.
+// visibleNames is every name that seen or a scope around it binds, sorted and quoted.
 func visibleNames(seen *tree.NameScope) []string {
 	var visible []string
 	for sc := seen; sc != nil; sc = sc.Up() {
