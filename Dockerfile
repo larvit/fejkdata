@@ -8,7 +8,7 @@ RUN unformatted="$(gofmt -l .)"; test -z "$unformatted" || \
 	{ echo "unformatted files:"; echo "$unformatted"; exit 1; }
 RUN --mount=type=cache,target=/cache \
 	go vet ./... && \
-	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \
+	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 10 -ignore _test . && \
 	go test -race ./... && touch /tested
 
 FROM golang:${LOWEST_GO_VERSION} AS lowest
