@@ -14,8 +14,7 @@ func TestShippedUSTaxIds(t *testing.T) {
 	f := shipped(t, WithSeed(5))
 	ssn := regexp.MustCompile(`^(\d{3})-(\d{2})-(\d{4})$`)
 	itin := regexp.MustCompile(`^9\d{2}-(5\d|6[0-5]|7\d|8[0-8]|9[0-24-9])-\d{4}$`)
-	for i := 0; i < 2000; i++ {
-		v := fake(t, f, "en_US.ssn")
+	eachDraw(2000, func() string { return fake(t, f, "en_US.ssn") }, func(v string) {
 		m := ssn.FindStringSubmatch(v)
 		if m == nil {
 			t.Fatalf("ssn %q, want AAA-GG-SSSS", v)
@@ -29,7 +28,7 @@ func TestShippedUSTaxIds(t *testing.T) {
 		if v := fake(t, f, "en_US.itin"); !itin.MatchString(v) {
 			t.Fatalf("itin %q, want %s", v, itin)
 		}
-	}
+	})
 }
 
 // NANPA's central office code records mark N11, 555, 950, 958, 959 and 976 unassignable.
@@ -37,8 +36,7 @@ func TestShippedUSPhone(t *testing.T) {
 	f := shipped(t, WithSeed(11))
 	re := regexp.MustCompile(`^(?:\(\d{3}\) |\d{3}-)([2-9]\d{2})-\d{4}$`)
 	unassignable := map[string]bool{"555": true, "950": true, "958": true, "959": true, "976": true}
-	for i := 0; i < 2000; i++ {
-		n := fake(t, f, "en_US.phone")
+	eachDraw(2000, func() string { return fake(t, f, "en_US.phone") }, func(n string) {
 		m := re.FindStringSubmatch(n)
 		if m == nil {
 			t.Fatalf("phone %q does not match %s", n, re)
@@ -46,33 +44,38 @@ func TestShippedUSPhone(t *testing.T) {
 		if exchange := m[1]; exchange[1:] == "11" || unassignable[exchange] {
 			t.Fatalf("phone %q has the unassignable exchange %s", n, exchange)
 		}
-	}
+	})
 }
 
 // TestShippedUSTitleAgreesWithSex pins that one person's title and sex agree, and
 // that the everyday titles are reachable.
 func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 	f := shipped(t, WithSeed(4))
-	female := map[string]bool{"Miss": true, "Mrs": true, "Ms": true}
 	seen := map[string]bool{}
-	for i := 0; i < 3000; i++ {
-		got := fakeTemplate(t, f, `{/en_US.person as p}{p.prefix}|{p.sex}`)
-		title, sex, _ := strings.Cut(got, "|")
-		title = strings.TrimSpace(title)
-		seen[title] = true
-		if title == "Mr" && sex != "male" || female[title] && sex != "female" {
-			t.Fatalf("%q: the title contradicts the sex", got)
-		}
-	}
+	t.Run("a title agrees with the sex", func(t *testing.T) {
+		female := map[string]bool{"Miss": true, "Mrs": true, "Ms": true}
+		eachDraw(3000, func() string { return fakeTemplate(t, f, `{/en_US.person as p}{p.prefix}|{p.sex}`) }, func(got string) {
+			title, sex, _ := strings.Cut(got, "|")
+			title = strings.TrimSpace(title)
+			seen[title] = true
+			if title == "Mr" && sex != "male" || female[title] && sex != "female" {
+				t.Fatalf("%q: the title contradicts the sex", got)
+			}
+		})
+	})
 	for _, want := range []string{"", "Mr", "Ms"} {
-		if !seen[want] {
-			t.Errorf("en_US.person.prefix never drew %q in 3000 draws", want)
-		}
+		t.Run("draws the title "+strconv.Quote(want), func(t *testing.T) {
+			if !seen[want] {
+				t.Errorf("en_US.person.prefix never drew %q in 3000 draws", want)
+			}
+		})
 	}
-	swedish := map[string]bool{"dr": true, "prof": true}
-	for i := 0; i < 50; i++ {
-		if got := fake(t, f, "sv_SE.title"); !swedish[got] {
-			t.Fatalf("sv_SE.title = %q, want an unsexed Swedish honorific", got)
-		}
-	}
+	t.Run("sv_SE.title is an unsexed honorific", func(t *testing.T) {
+		swedish := map[string]bool{"dr": true, "prof": true}
+		eachDraw(50, func() string { return fake(t, f, "sv_SE.title") }, func(got string) {
+			if !swedish[got] {
+				t.Fatalf("sv_SE.title = %q, want an unsexed Swedish honorific", got)
+			}
+		})
+	})
 }
