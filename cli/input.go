@@ -11,8 +11,8 @@ import (
 	"github.com/larvit/fejkdata"
 )
 
-// operandError refuses an argument that is no flag, naming the spelling that reads what
-// it most likely means: dropping it for -, a file for a file's name, else a template
+// operandError refuses an argument that is no flag, naming the spelling the user most likely
+// meant: no argument for -, stdin redirected from the file for a file's name, else the template
 // piped in.
 func operandError(arg, name string) error {
 	unexpected := "unexpected argument '" + arg + "'"

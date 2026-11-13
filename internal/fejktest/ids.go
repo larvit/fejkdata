@@ -33,8 +33,8 @@ func ValidCpr(s string) bool {
 	return sum%11 == 0
 }
 
-// CprYear is the year the same document's table of "Personnummerets opbygning" gives the year
-// digits and the seventh digit.
+// CprYear is the year that the table "Personnummerets opbygning", in the same document, gives for
+// year digits yy and seventh digit seventh.
 func CprYear(yy, seventh int) int {
 	switch {
 	case seventh <= 3:
@@ -101,6 +101,7 @@ func LuhnValid(s string) bool {
 	return sum%10 == 0
 }
 
-// DVV's "Personal identity code" page: ddmmyy, a century sign, an individual number and a control
-// character, which is the remainder of the nine digits divided by 31 read in its table.
+// DVVControlTable maps the remainder of a hetu's nine digits divided by 31 to its control
+// character, per DVV's "Personal identity code" page: ddmmyy, a century sign, an individual number
+// and that character.
 const DVVControlTable = "0123456789ABCDEFHJKLMNPRSTUVWXY"

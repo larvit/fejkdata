@@ -2164,14 +2164,14 @@ internal/engine/fence/ the proofs and fences a finished tree passes at load: no 
 internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, and the paths List advertises
 internal/engine/render/ drawing a compiled tree: choices, format strings, expansions, paths and table steps, named picks and the frames they render in, where and reword draws, and a record's columns
 internal/engine/tree/ the node types of the template tree, what a load found for them, and the methods every other package reads or sets a node through
-internal/fejktest/ what the root's tests and the locale tests share: draw loops, the ids' checksums, a TSV's rows and a country's geo tables
+internal/fejktest/ what the root's tests and data/'s tests share: the test day, Fake helpers, draw loops, the ids' checksums, a TSV's rows and a country's geo tables
 internal/grammar/ how the template language is written: format tokens, where and distinct clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one input a template compiles from, and the kind an error names it by
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
-data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; Modules, which lists them; and the tests of each locale's data
-data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the modules they import, which none runs
+data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; Modules, which lists them; and the tests of the shipped data
+data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the shared modules they import
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ the release CI publishes from the changelog heading or as a patch of the last release for an update to main's Go, modules or GoReleaser, and the binaries, packages, image and package repositories built for it
@@ -2217,8 +2217,9 @@ workflow itself. Otherwise CI runs the build's two halves, the targets `latest` 
 check and the Go tests under the race detector, on the latest supported Go.
 `lowest-and-tooling` runs vet and the Go tests without the race detector, on the lowest
 Go, which the Dockerfile's `LOWEST_GO_VERSION` names. That target also runs the release
-tooling's tests, the vulnerability filer's tests, the geo imports' tests, ruff over all three's Python and the check of GoReleaser's config; the
-filer's tests file an item into `todo.md` themselves, so a change to the plan's shape can
+tooling's tests, the vulnerability filer's tests, the geo imports' tests, the check of
+GoReleaser's config, and ruff over the Python in `data-import/`, `release-tooling/` and
+`vulnerability-filing/`; the filer's tests file an item into `todo.md` themselves, so a change to the plan's shape can
 fail them. The rest of the gate is the Packages dry run below and the changelog check, which
 CI runs against the PR base and which refuses a `## ` heading in `CHANGELOG.md` other than
 `Unreleased` or a version with its date. The check `gate` passes once each of these has
@@ -2231,11 +2232,10 @@ docker build .                                   # the whole build, on both Go v
 GO_VERSION=1.22.12 docker compose run --rm test  # the tests on the lowest Go, without the image build
 ```
 
-A known vulnerability in the Go version the gate builds with, or in a module fejkdata
-requires, holds the release and no merge. The decision "A known vulnerability in the Go
-version or a required module blocks a release, even in code fejkdata never calls, and
-blocks no merge", in [docs/decisions.md](docs/decisions.md), says when CI checks and how
-it files what it finds in `todo.md`. The pull request it opens from `security-plan` merges
+The decision "A known vulnerability in the Go version or a required module blocks a
+release, even in code fejkdata never calls, and blocks no merge", in
+[docs/decisions.md](docs/decisions.md), says when CI checks for a known vulnerability and
+how it files what it finds in `todo.md`. The pull request it opens from `security-plan` merges
 itself, which needs "Allow auto-merge" on in the repository's settings. When the step
 "Fetch govulncheck's report from vuln.go.dev" fails, vuln.go.dev did not answer: rerun
 it. When GitHub pauses the daily run after 60 days with no activity, re-enable it under
@@ -2298,6 +2298,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-dk.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-fi.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
@@ -2330,6 +2331,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timez
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-us.py
 ```
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
@@ -2366,14 +2368,12 @@ Renovate merges an update itself once `gate` passes. These wait for a human:
 - a GoReleaser major, since it may rename the release assets, which the gate doesn't
   check.
 
-An update to a tool, such as Python or `govulncheck`, isn't released. An update to what a
-release carries is, as a patch of the last release, cut by CI. The decision "CI releases
-each update to what a release carries at once, as a fejkdata patch cut from the last
-release's tag", in [docs/decisions.md](docs/decisions.md), says what a release carries,
-how a patch is built, and when one waits for you. A patch that waits fails the release
-job, cutting nothing, until you cut a release or fix the cause. Where the release job
-could not read a Go minor's release notes, write what they require under Breaking yourself
-before you cut a release.
+An update to a tool, such as Python or `govulncheck`, isn't released. CI releases an update
+to what a release carries as a patch of the last release. The decision "CI releases each
+update to what a release carries at once, as a fejkdata patch cut from the last release's
+tag", in [docs/decisions.md](docs/decisions.md), says what a release carries, how a patch
+is built, and when one waits for you. Where the release job could not read a Go minor's
+release notes, write what they require under Breaking yourself before you cut a release.
 
 Renovate leaves the Dockerfile's `LOWEST_GO_VERSION` alone: raising it is a major.
 

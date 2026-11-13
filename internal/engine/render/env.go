@@ -77,7 +77,6 @@ type renderEnv struct {
 	// below which no frame is the category's.
 	base int
 	// pick is the named pick being rendered, nil outside one; pickAt is the key in it of what renders.
-	// A fresh read clears pick: readSibling sets it to nil, and entered does for readReference.
 	pick   *namedPick
 	pickAt tree.PickKey
 }

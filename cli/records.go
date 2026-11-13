@@ -57,8 +57,8 @@ func formatNames() string {
 	return strings.Join(names[:len(names)-1], ", ") + " or " + names[len(names)-1]
 }
 
-// recordStream builds the record drawer for the input, plus the INSERT table
-// a sql format names.
+// recordStream builds the record drawer for the input, plus the table --format sql or pgcopy
+// writes to.
 func (in invocation) recordStream(f *fejkdata.Generator, src input) (func() (*fejkdata.Record, error), string, error) {
 	record := func() (*fejkdata.Record, error) { return f.FakeRecord(src.record) }
 	if src.record == "" {
@@ -172,7 +172,7 @@ func writeNoRecord(record recordSource, format recordFormat, w io.Writer) error 
 	return err
 }
 
-// defaultTable names the INSERT target when --table is absent: the path's last
+// defaultTable names the INSERT or COPY target when --table is absent: the path's last
 // segment, or "records" when stdin is not a lone reference.
 func defaultTable(path string) string {
 	if path == "" {

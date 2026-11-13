@@ -43,8 +43,9 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 }
 
 // ColumnDatatype is the datatype a column holds, which its first item decides: fence.CheckColumns
-// refuses a column whose items disagree. A table's column, like one only ever null, has no item and
-// is a string, and so is a column that reads itself back, which fence.CheckNoCycles refuses.
+// refuses a column whose items disagree. A column with no item, such as a table's column or one only
+// ever null, is a string. So is a column that reads itself back, which fence.CheckNoCycles later
+// refuses.
 func ColumnDatatype(n tree.Node, l *tree.LoadFinds) datatype.DataType {
 	return columnDatatype(n, l, map[tree.Node]bool{})
 }
