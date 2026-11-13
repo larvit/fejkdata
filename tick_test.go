@@ -33,9 +33,26 @@ func TestTickPrintsRowNAtTheStartPlusNStepsAndWithinTheJitter(t *testing.T) {
 
 func TestTickRowsAscendWhenTheJitterIsOneBelowTheStep(t *testing.T) {
 	ticks := drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,29,'2006-01-02T15:04:05Z')}"`, 5000)
-	if !slices.IsSortedFunc(ticks, func(a, b time.Time) int { return a.Compare(b) }) {
-		t.Fatal("rows swapped order")
+	for i := 1; i < len(ticks); i++ {
+		if !ticks[i].After(ticks[i-1]) {
+			t.Fatalf("row %d = %s does not come after row %d = %s", i+1, ticks[i], i, ticks[i-1])
+		}
 	}
+}
+
+func TestTickDrawsTheJittersFirstAndLastSecond(t *testing.T) {
+	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	seen := map[time.Duration]bool{}
+	for i, at := range drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 600) {
+		seen[at.Sub(start)-time.Duration(i)*30*time.Second] = true
+	}
+	if !seen[0] || !seen[5*time.Second] || len(seen) != 6 {
+		t.Errorf("jitter 5 drew the offsets %v, want each of 0 to 5 seconds and no other", seen)
+	}
+}
+
+func TestTickRowsKeepAscendingPastTwoHundredNinetyTwoYears(t *testing.T) {
+	ticks := drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01,86400,0,'2006-01-02T15:04:05Z')}"`, 107000)
 	for i := 1; i < len(ticks); i++ {
 		if !ticks[i].After(ticks[i-1]) {
 			t.Fatalf("row %d = %s does not come after row %d = %s", i+1, ticks[i], i, ticks[i-1])
@@ -109,10 +126,38 @@ func TestDateDrawsBetweenDaysRelativeToTheCallersToday(t *testing.T) {
 }
 
 func TestDateOfTodayAloneIsTheCallersDay(t *testing.T) {
-	for today, want := range map[time.Time]string{dayOf(2026, 2, 28): "2026-02-28", dayOf(2027, 3, 1): "2027-03-01"} {
-		if got := mustRender(t, readOn(t, today), `"{date(today,today,'2006-01-02')}"`); got != want {
-			t.Errorf("date(today,today) on %s = %q, want %q", want, got, want)
-		}
+	for _, want := range []string{"2026-02-28", "2027-03-01"} {
+		t.Run(want, func(t *testing.T) {
+			today, err := time.Parse("2006-01-02", want)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := mustRender(t, readOn(t, today), `"{date(today,today,'2006-01-02')}"`); got != want {
+				t.Errorf("date(today,today) on %s = %q, want %q", want, got, want)
+			}
+		})
+	}
+}
+
+func TestDateKeepsARelativeBoundInsideYears0000To9999(t *testing.T) {
+	for name, c := range map[string]struct {
+		today      time.Time
+		tmpl, want string
+	}{
+		"far past":   {dayOf(2026, 11, 12), `"{date(today-1000000,today-1000000,'2006-01-02')}"`, "0000-01-01"},
+		"far future": {dayOf(9999, 12, 31), `"{date(today+1,today+1,'2006-01-02')}"`, "9999-12-31"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if got := mustRender(t, readOn(t, c.today), c.tmpl); got != c.want {
+				t.Errorf("%s on %s = %q, want %q", c.tmpl, c.today.Format("2006-01-02"), got, c.want)
+			}
+		})
+	}
+}
+
+func TestDateAcceptsARelativeOffsetOfAMillionDays(t *testing.T) {
+	if _, err := resolved(t, `"{date(today-1000000,today+1000000,'2006-01-02')}"`); err != nil {
+		t.Errorf("a bound of a million days either way is refused: %v", err)
 	}
 }
 
@@ -130,6 +175,8 @@ func TestDateRefusesRelativeBoundsThatCannotBeOrdered(t *testing.T) {
 		"from after to":              {`"{date(today+14,today-30,'2006-01-02')}"`, "is after"},
 		"an offset that is no count": {`"{date(today-x,today,'2006-01-02')}"`, "today-x"},
 		"an offset past a million":   {`"{date(today-1000001,today,'2006-01-02')}"`, "exceeds"},
+		"a future offset past that":  {`"{date(today,today+1000001,'2006-01-02')}"`, "exceeds"},
+		"an offset with no sign":     {`"{date(today5,today,'2006-01-02')}"`, "today5"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if _, err := resolved(t, c.tmpl); err == nil || !strings.Contains(err.Error(), c.want) {
