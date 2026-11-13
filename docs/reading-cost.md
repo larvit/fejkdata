@@ -1715,3 +1715,13 @@ Read most (opens and searches):
 - `danish_test.go` 2
 - `data-import/source.py` 2
 - `docs/decisions.md` 2
+
+## Reading cost, chunk 09ab9e808833, finished 2026-11-13T21:06:49Z
+
+45392 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `compose.yaml` 2
+- `cpr_test.go` 2
+- `README.md` 1
