@@ -46,6 +46,17 @@
       "matchStrings": [
         "go run (?<depName>[^@\\s]+?)(/cmd/[^@\\s]+)?@(?<currentValue>v\\S+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "pypi",
+      "description": "Python tools the Dockerfile installs with pip",
+      "managerFilePatterns": [
+        "/^Dockerfile$/"
+      ],
+      "matchStrings": [
+        "pip install --no-cache-dir (?<depName>[^=\\s]+)==(?<currentValue>\\S+)"
+      ]
     }
   ],
   "extends": [
