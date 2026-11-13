@@ -641,13 +641,10 @@ func TestShippedFinnishHouseNumbersWriteTheirDeliveryLetterInLowerCase(t *testin
 		}
 	})
 	if lettered == 0 {
-		t.Error("fi_FI.address drew no house number with a lower-case delivery letter in 20000, want some, as Posti's file holds them")
+		t.Error("fi_FI.address.street-number drew no house number with a lower-case delivery letter in 20000, want some, as Posti's file holds them")
 	}
 }
 
-// Posti writes a postitoimipaikka in capitals, such as HEINOLA KK; geo.FI writes it as a place
-// name, keeping the abbreviations kk and as in lower case, a noun after a genitive too, and a
-// compound's part that opens with the vowel the part before it ends in, unless it names a kunta.
 func TestShippedFinnishPlacesAreWrittenAsPlaceNames(t *testing.T) {
 	places := map[string]bool{}
 	for _, r := range geoRows(t, "FI", "locality") {
@@ -662,7 +659,6 @@ func TestShippedFinnishPlacesAreWrittenAsPlaceNames(t *testing.T) {
 	}
 }
 
-// Statistics Finland numbers a kunta in three digits and a maakunta in two.
 func TestShippedFinnishPlacesAreNumberedAsStatisticsFinlandWritesThem(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	for path, want := range map[string]string{
@@ -721,8 +717,8 @@ func TestShippedFinnishStreetWithoutASwedishNameCarriesItsFinnishOne(t *testing.
 	}
 }
 
-// Posti lists a highway such as Valtatie 23, a postinumero and an island such as Mustalampi,
-// Lammassaari or Makkarasaari/Lapinsaari beside the streets.
+// Posti lists highways such as `Valtatie 23`, postinumerot, and islands or lakes such as
+// `Mustalampi, Lammassaari` or `Makkarasaari/Lapinsaari` beside the streets.
 func TestShippedFinnishStreetNamesHoldNoDigitCommaBracketOrSlash(t *testing.T) {
 	if i := slices.IndexFunc(tsvRows(t, "data/geo/FI/street.tsv"), func(r map[string]string) bool { return strings.ContainsAny(r["name"], "0123456789,()/") }); i >= 0 {
 		t.Errorf("geo.FI street row %d holds a digit, comma, bracket or slash, want a street name", i+1)

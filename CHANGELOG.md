@@ -80,10 +80,15 @@ with its replacement, and each removed path, column or flag.
   nothing else, so `{/users}` is a lone reference, and `{/users as u}` is not.
 - `fi_FI.address` prints a Finnish address, such as `Huvilakatu 34\n00700 Helsinki`, from `geo.FI`:
   Finland's maakunnat, kunnat, postitoimipaikat, normal postinumerot and streets, from Posti's postal
-  code files and Statistics Finland. A street carries its Swedish name under `swedish-name`, or its
-  Finnish one where Posti gives none. Åland ships no place, since Posti's files hold no street there.
-  Posti's terms ask that a program passing the data on name those terms and the day each file was
-  downloaded, which DATA-LICENSES.md does.
+  code files, Statistics Finland and GeoNames. `geo.FI` is the Go package `data/geo/FI`, and
+  `fifi.Modules()` returns it beside `fifi.FS`. A street's `swedish-name` is the Swedish name Posti
+  gives it, or its Finnish name where Posti gives none. Åland ships no place, since Posti's files hold
+  no street there. Posti's terms ask that whoever passes the data on make sure the recipient knows
+  those terms and the day each file was downloaded: DATA-LICENSES.md links the terms and names the
+  days. A program showing the data credits "Source: Statistics Finland" and "Postal codes from
+  GeoNames, www.geonames.org".
+- The image carries `LICENSE`, `DATA-LICENSES.md` and `WORDNET-LICENSE.txt` under
+  `/usr/share/doc/fejkdata/`, as the packages do.
 
 ## 0.4.3 - 2026-11-12
 
