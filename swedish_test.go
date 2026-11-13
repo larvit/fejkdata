@@ -18,16 +18,24 @@ import (
 func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
 	f := shipped(t, WithSeed(11))
 	for _, path := range []string{"sv_SE.person", "sv_SE.person.last"} {
-		for i := 0; i < 20000; i++ {
-			name := fake(t, f, path)
-			r := []rune(name)
-			for j := 0; j+2 < len(r); j++ {
-				if r[j] == r[j+1] && r[j] == r[j+2] {
-					t.Fatalf("%s = %q, which triples %q", path, name, string(r[j]))
+		t.Run(path, func(t *testing.T) {
+			eachDraw(20000, func() string { return fake(t, f, path) }, func(name string) {
+				if letter, tripled := letterWrittenThreeTimesOver(name); tripled {
+					t.Fatalf("%s = %q, which triples %q", path, name, string(letter))
 				}
-			}
+			})
+		})
+	}
+}
+
+func letterWrittenThreeTimesOver(s string) (rune, bool) {
+	r := []rune(s)
+	for j := 0; j+2 < len(r); j++ {
+		if r[j] == r[j+1] && r[j] == r[j+2] {
+			return r[j], true
 		}
 	}
+	return 0, false
 }
 
 // Bolagsverket's group digits are 5 for aktiebolag, 9 for handelsbolag and kommanditbolag and 7 and 8
@@ -36,13 +44,12 @@ func TestSwedishOrganisationsnummer(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	re := regexp.MustCompile(`^[5789]\d[2-9]\d{3}-\d{4}$`)
 	group := map[byte]int{}
-	for i := 0; i < 5000; i++ {
-		v := fake(t, sv, "sv_SE.organisationsnummer")
+	eachDraw(5000, func() string { return fake(t, sv, "sv_SE.organisationsnummer") }, func(v string) {
 		if !re.MatchString(v) || !luhnValid(digitsOnly(v)) {
 			t.Fatalf("organisationsnummer %q, want a group digit 5, 7, 8 or 9, a digit 2 to 9 third, and a Luhn check digit", v)
 		}
 		group[v[0]]++
-	}
+	})
 	if group['5'] < 4690 || group['5'] > 4840 || group['9'] <= group['7'] || group['9'] <= group['8'] || group['7'] == 0 || group['8'] == 0 {
 		t.Fatalf("group digits drawn %v, want 5 for 95.3%%, 9 for 3.2%% and 7 and 8 for 0.7%% each", group)
 	}
@@ -55,79 +62,108 @@ func TestSwedishCompanyLegalFormsFollowBolagsverketsRegistrations(t *testing.T) 
 	t.Parallel()
 	sv := shipped(t, WithSeed(1))
 	const draws = shareDraws
-	form := map[string]int{}
-	for i := 0; i < draws; i++ {
-		v := strings.ToLower(fake(t, sv, "sv_SE.company"))
-		switch {
-		case strings.HasSuffix(v, " ab"), strings.HasSuffix(v, " aktiebolag"):
-			form["AB"]++
-		case strings.HasPrefix(v, "bostadsrättsföreningen "):
-			form["BRF"]++
-		case strings.HasSuffix(v, " ekonomisk förening"), strings.HasSuffix(v, " ek. för."):
-			form["EK"]++
-		case strings.HasSuffix(v, " handelsbolag"), strings.HasPrefix(v, "handelsbolaget "):
-			form["HB"]++
-		case strings.HasSuffix(v, " kommanditbolag"), strings.HasPrefix(v, "kommanditbolaget "):
-			form["KB"]++
-		default:
-			form["E"]++
-		}
-	}
+	form := tallyDraws(draws, func() string {
+		return legalFormOfALowerCaseSwedishCompany(strings.ToLower(fake(t, sv, "sv_SE.company")))
+	})
 	for f, registered := range map[string]int{"AB": 50859, "E": 8468, "HB": 1557, "BRF": 398, "EK": 319, "KB": 176} {
-		assertShare(t, f+" of the companies", form[f], draws, float64(registered)/61777)
+		t.Run(f, func(t *testing.T) {
+			assertShare(t, f+" of the companies", form[f], draws, float64(registered)/61777)
+		})
 	}
+}
+
+func legalFormOfALowerCaseSwedishCompany(v string) string {
+	switch {
+	case strings.HasSuffix(v, " ab"), strings.HasSuffix(v, " aktiebolag"):
+		return "AB"
+	case strings.HasPrefix(v, "bostadsrättsföreningen "):
+		return "BRF"
+	case strings.HasSuffix(v, " ekonomisk förening"), strings.HasSuffix(v, " ek. för."):
+		return "EK"
+	case strings.HasSuffix(v, " handelsbolag"), strings.HasPrefix(v, "handelsbolaget "):
+		return "HB"
+	case strings.HasSuffix(v, " kommanditbolag"), strings.HasPrefix(v, "kommanditbolaget "):
+		return "KB"
+	}
+	return "E"
 }
 
 // The wordings of a legal form and the one-word names are drawn as often as the register's active companies
 // carry them. The counts are those data-import/company-se.py wrote into company.json from the register: a
 // wording's over the names not in capitals, and oneWord's the names of one coined word against all of a form's.
-func TestSwedishCompanyWordingsAndShapesFollowTheRegister(t *testing.T) {
+func TestSwedishCompanyWordingsFollowTheRegister(t *testing.T) {
 	t.Parallel()
-	type wording struct {
-		form, text string
-		before     bool
-		count      int
+	drawn := drawnSwedishCompanyTally(t)
+	for _, w := range swedishCompanyWordings {
+		t.Run(w.amongItsForm(), func(t *testing.T) {
+			assertShare(t, w.amongItsForm(), drawn.written[w.text], drawn.form[w.form], float64(w.count)/float64(swedishCompanyWordingsCountOfForm(w.form)))
+		})
 	}
-	wordings := []wording{
-		{"AB", " AB", false, 718311}, {"AB", " Aktiebolag", false, 60401},
-		{"HB", " Handelsbolag", false, 20268}, {"HB", "Handelsbolaget ", true, 1526}, {"HB", " handelsbolag", false, 1232},
-		{"KB", " Kommanditbolag", false, 7885}, {"KB", "Kommanditbolaget ", true, 1160}, {"KB", " kommanditbolag", false, 387},
-		{"EK", " Ekonomisk förening", false, 3730}, {"EK", " ekonomisk förening", false, 3166}, {"EK", " ek. för.", false, 1022}, {"EK", " Ek. för.", false, 587},
-		{"BRF", "Bostadsrättsföreningen ", true, 26480},
+}
+
+func TestSwedishCompanyOneWordNamesFollowTheRegister(t *testing.T) {
+	t.Parallel()
+	drawn := drawnSwedishCompanyTally(t)
+	for f, c := range map[string][2]int{"AB": {144879, 552375}, "E": {34479, 134451}, "HB": {5046, 15696}, "BRF": {8409, 22408}, "EK": {1251, 6563}, "KB": {1754, 6611}} {
+		t.Run(f, func(t *testing.T) {
+			assertShare(t, f+" names of one word", drawn.single[f], drawn.form[f], float64(c[0])/float64(c[1]))
+		})
 	}
-	oneWord := map[string][2]int{"AB": {144879, 552375}, "E": {34479, 134451}, "HB": {5046, 15696}, "BRF": {8409, 22408}, "EK": {1251, 6563}, "KB": {1754, 6611}}
+}
+
+type swedishCompanyWording struct {
+	form, text string
+	before     bool
+	count      int
+}
+
+func (w swedishCompanyWording) amongItsForm() string {
+	return strings.TrimSpace(w.text) + " among the " + w.form
+}
+
+var swedishCompanyWordings = []swedishCompanyWording{
+	{"AB", " AB", false, 718311}, {"AB", " Aktiebolag", false, 60401},
+	{"HB", " Handelsbolag", false, 20268}, {"HB", "Handelsbolaget ", true, 1526}, {"HB", " handelsbolag", false, 1232},
+	{"KB", " Kommanditbolag", false, 7885}, {"KB", "Kommanditbolaget ", true, 1160}, {"KB", " kommanditbolag", false, 387},
+	{"EK", " Ekonomisk förening", false, 3730}, {"EK", " ekonomisk förening", false, 3166}, {"EK", " ek. för.", false, 1022}, {"EK", " Ek. för.", false, 587},
+	{"BRF", "Bostadsrättsföreningen ", true, 26480},
+}
+
+func swedishCompanyWordingsCountOfForm(form string) int {
+	var all int
+	for _, o := range swedishCompanyWordings {
+		if o.form == form {
+			all += o.count
+		}
+	}
+	return all
+}
+
+type swedishCompanyTally struct{ written, form, single map[string]int }
+
+func (c swedishCompanyTally) add(v string) {
+	f, name := "E", v
+	for _, w := range swedishCompanyWordings {
+		if w.before && strings.HasPrefix(v, w.text) {
+			f, name = w.form, strings.TrimPrefix(v, w.text)
+			c.written[w.text]++
+		} else if !w.before && strings.HasSuffix(v, w.text) {
+			f, name = w.form, strings.TrimSuffix(v, w.text)
+			c.written[w.text]++
+		}
+	}
+	c.form[f]++
+	if !strings.Contains(name, " ") {
+		c.single[f]++
+	}
+}
+
+func drawnSwedishCompanyTally(t *testing.T) swedishCompanyTally {
+	t.Helper()
 	sv := shipped(t, WithSeed(2))
-	const draws = shareDraws
-	written, form, single := map[string]int{}, map[string]int{}, map[string]int{}
-	for i := 0; i < draws; i++ {
-		v := fake(t, sv, "sv_SE.company")
-		f, name := "E", v
-		for _, w := range wordings {
-			if w.before && strings.HasPrefix(v, w.text) {
-				f, name = w.form, strings.TrimPrefix(v, w.text)
-				written[w.text]++
-			} else if !w.before && strings.HasSuffix(v, w.text) {
-				f, name = w.form, strings.TrimSuffix(v, w.text)
-				written[w.text]++
-			}
-		}
-		form[f]++
-		if !strings.Contains(name, " ") {
-			single[f]++
-		}
-	}
-	for _, w := range wordings {
-		var all int
-		for _, o := range wordings {
-			if o.form == w.form {
-				all += o.count
-			}
-		}
-		assertShare(t, strings.TrimSpace(w.text)+" among the "+w.form, written[w.text], form[w.form], float64(w.count)/float64(all))
-	}
-	for f, c := range oneWord {
-		assertShare(t, f+" names of one word", single[f], form[f], float64(c[0])/float64(c[1]))
-	}
+	c := swedishCompanyTally{map[string]int{}, map[string]int{}, map[string]int{}}
+	eachDraw(shareDraws, func() string { return fake(t, sv, "sv_SE.company") }, c.add)
+	return c
 }
 
 func assertShare(t *testing.T, what string, got, of int, want float64) {
@@ -140,6 +176,22 @@ func assertShare(t *testing.T, what string, got, of int, want float64) {
 
 // company-word.tsv holds a word only where the register repeats it, so no row names one company.
 func TestSwedishCompanyWordsAreRepeatedInTheRegister(t *testing.T) {
+	errorOnCompanyWordRowsTheRegisterDoesNotRepeat(t, swedishCompanyWordRows(t)[1:])
+}
+
+func TestSwedishCompanyWordsHoldTheWordsManyRegisterNamesCarry(t *testing.T) {
+	rows := swedishCompanyWordRows(t)
+	for _, w := range []string{"Bygg", "Konsult", "Fastigheter", "VVS"} {
+		t.Run(w, func(t *testing.T) {
+			if !slices.ContainsFunc(rows, func(r string) bool { return strings.HasPrefix(r, w+"\t") }) {
+				t.Errorf("company-word.tsv omits %q, a word that 100 or more register names carry", w)
+			}
+		})
+	}
+}
+
+func swedishCompanyWordRows(t *testing.T) []string {
+	t.Helper()
 	b, err := os.ReadFile("data/sv_SE/company-word.tsv")
 	if err != nil {
 		t.Fatal(err)
@@ -148,16 +200,16 @@ func TestSwedishCompanyWordsAreRepeatedInTheRegister(t *testing.T) {
 	if rows[0] != "word\tcount" {
 		t.Fatalf("header %q, want word and count", rows[0])
 	}
+	return rows
+}
+
+func errorOnCompanyWordRowsTheRegisterDoesNotRepeat(t *testing.T, rows []string) {
+	t.Helper()
 	word := regexp.MustCompile(`^\p{Lu}\p{L}{2,}$`)
-	for _, row := range rows[1:] {
+	for _, row := range rows {
 		w, c, _ := strings.Cut(row, "\t")
 		if n, err := strconv.Atoi(c); err != nil || n < 100 || !word.MatchString(w) {
 			t.Errorf("row %q, want a word of three or more letters, capitalised, that 100 or more register names carry", row)
-		}
-	}
-	for _, w := range []string{"Bygg", "Konsult", "Fastigheter", "VVS"} {
-		if !slices.ContainsFunc(rows, func(r string) bool { return strings.HasPrefix(r, w+"\t") }) {
-			t.Errorf("company-word.tsv omits %q, a word that 100 or more register names carry", w)
 		}
 	}
 }
@@ -165,8 +217,7 @@ func TestSwedishCompanyWordsAreRepeatedInTheRegister(t *testing.T) {
 func TestSwedishVat(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	vat := regexp.MustCompile(`^SE([5789]\d[2-9]\d{7})01$`)
-	for i := 0; i < 2000; i++ {
-		n := fake(t, sv, "sv_SE.vat")
+	eachDraw(2000, func() string { return fake(t, sv, "sv_SE.vat") }, func(n string) {
 		if m := vat.FindStringSubmatch(n); m == nil || !luhnValid(m[1]) {
 			t.Fatalf("sv_SE.vat %q, want SE + a Luhn-valid organisationsnummer + 01", n)
 		}
@@ -175,7 +226,7 @@ func TestSwedishVat(t *testing.T) {
 		if v != "SE"+strings.ReplaceAll(nr, "-", "")+"01" {
 			t.Fatalf("a bound organisationsnummer %q has the VAT number %q, want SE + its digits + 01", nr, v)
 		}
-	}
+	})
 }
 
 // The 99 combinations that Transportstyrelsen's page listed as blocked when it was updated on 2026-03-31.
@@ -199,8 +250,20 @@ func TestSwedishLicensePlateLettersAreEveryCombinationButTheBlocked(t *testing.T
 	if len(rows)-1 != want {
 		t.Fatalf("%d rows, want %d: 23 letters cubed less the 99 blocked", len(rows)-1, want)
 	}
+	seen := licensePlateLetterRowsEachSeenOnce(t, rows[1:], alphabet)
+	for _, c := range blocked {
+		t.Run(c, func(t *testing.T) {
+			if seen[c] {
+				t.Errorf("row %q is blocked by Transportstyrelsen", c)
+			}
+		})
+	}
+}
+
+func licensePlateLetterRowsEachSeenOnce(t *testing.T, rows []string, alphabet string) map[string]bool {
+	t.Helper()
 	seen := map[string]bool{}
-	for _, r := range rows[1:] {
+	for _, r := range rows {
 		if len(r) != 3 || strings.Trim(r, alphabet) != "" {
 			t.Fatalf("row %q, want three of %s", r, alphabet)
 		}
@@ -209,80 +272,94 @@ func TestSwedishLicensePlateLettersAreEveryCombinationButTheBlocked(t *testing.T
 		}
 		seen[r] = true
 	}
-	for _, c := range blocked {
-		if seen[c] {
-			t.Errorf("row %q is blocked by Transportstyrelsen", c)
-		}
-	}
+	return seen
 }
 
 func TestSwedishLicensePlate(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	plate := regexp.MustCompile(`^([A-HJ-PR-UW-Z]{3}) (?:(\d{3})|(\d{2})([A-HJ-NPR-UW-Z]))$`)
 	blocked := strings.Fields(blockedPlates)
-	var old, current int
-	for i := 0; i < 5000; i++ {
-		v := fake(t, sv, "sv_SE.licenseplate")
+	endsInThreeDigits := map[bool]int{}
+	eachDraw(5000, func() string { return fake(t, sv, "sv_SE.licenseplate") }, func(v string) {
 		m := plate.FindStringSubmatch(v)
 		if m == nil || slices.Contains(blocked, m[1]) || m[2] == "000" {
 			t.Fatalf("sv_SE.licenseplate %q, want ABC 123 or ABC 12A: no I, Q or V, no O in the last place, no blocked combination and no 000", v)
 		}
-		if m[2] != "" {
-			old++
-		} else {
-			current++
-		}
-	}
-	if old < 2000 || current < 2000 {
+		endsInThreeDigits[m[2] != ""]++
+	})
+	if old, current := endsInThreeDigits[true], endsInThreeDigits[false]; old < 2000 || current < 2000 {
 		t.Errorf("%d plates of the form ABC 123 and %d of ABC 12A in 5000, want about half each", old, current)
 	}
 }
 
 // ABC 123 runs from 001 to 999 and ABC 12A from 00A to 99Z, each number as often as another, and
 // the last character is any of the 22 letters but O.
-func TestSwedishLicensePlateNumbersAndLastLetters(t *testing.T) {
-	sv := shipped(t, WithSeed(1))
-	const draws = 30000
-	old, current, last := map[string]int{}, map[string]int{}, map[string]int{}
-	for i := 0; i < draws; i++ {
-		old[fake(t, sv, "sv_SE.licenseplate.old-number")]++
-		current[fake(t, sv, "sv_SE.licenseplate.current-number")]++
-		last[fake(t, sv, "sv_SE.licenseplate.last")]++
-	}
-	var below100, below10 int
+func TestSwedishLicensePlateOldNumbersRunEvenlyFrom001To999(t *testing.T) {
+	old, _, _ := drawnSwedishLicensePlateParts(t)
 	for n := 1; n <= 999; n++ {
-		c := old[fmt.Sprintf("%03d", n)]
-		if c == 0 {
-			t.Errorf("sv_SE.licenseplate.old-number never drew %03d in %d draws", n, draws)
-		}
-		if n < 100 {
-			below100 += c
-		}
-		if n < 10 {
-			below10 += c
-		}
+		t.Run(fmt.Sprintf("%03d", n), func(t *testing.T) {
+			if old[fmt.Sprintf("%03d", n)] == 0 {
+				t.Errorf("sv_SE.licenseplate.old-number never drew %03d in %d draws", n, swedishLicensePlatePartDraws)
+			}
+		})
 	}
 	if len(old) != 999 {
 		t.Errorf("old-number drew %d distinct numbers, want the 999 from 001 to 999", len(old))
 	}
-	assertShare(t, "old numbers below 100", below100, draws, 99.0/999)
-	assertShare(t, "old numbers below 10", below10, draws, 9.0/999)
+	assertShare(t, "old numbers below 100", drawsOfOldNumbersBelow(old, 100), swedishLicensePlatePartDraws, 99.0/999)
+	assertShare(t, "old numbers below 10", drawsOfOldNumbersBelow(old, 10), swedishLicensePlatePartDraws, 9.0/999)
+}
+
+func TestSwedishLicensePlateCurrentNumbersRunFrom00To99(t *testing.T) {
+	_, current, _ := drawnSwedishLicensePlateParts(t)
 	for n := 0; n <= 99; n++ {
-		if current[fmt.Sprintf("%02d", n)] == 0 {
-			t.Errorf("sv_SE.licenseplate.current-number never drew %02d in %d draws", n, draws)
-		}
+		t.Run(fmt.Sprintf("%02d", n), func(t *testing.T) {
+			if current[fmt.Sprintf("%02d", n)] == 0 {
+				t.Errorf("sv_SE.licenseplate.current-number never drew %02d in %d draws", n, swedishLicensePlatePartDraws)
+			}
+		})
 	}
 	if len(current) != 100 {
 		t.Errorf("current-number drew %d distinct numbers, want the 100 from 00 to 99", len(current))
 	}
-	var got []string
-	for l := range last {
-		got = append(got, l)
-	}
-	slices.Sort(got)
-	if strings.Join(got, "") != "ABCDEFGHJKLMNPRSTUWXYZ" {
+}
+
+func TestSwedishLicensePlateLastIsAnyOfThe22LettersButO(t *testing.T) {
+	_, _, last := drawnSwedishLicensePlateParts(t)
+	if got := sortedNamesDrawn(last); strings.Join(got, "") != "ABCDEFGHJKLMNPRSTUWXYZ" {
 		t.Errorf("last drew %v, want each of A-Z but I, O, Q and V", got)
 	}
+}
+
+const swedishLicensePlatePartDraws = 30000
+
+func drawnSwedishLicensePlateParts(t *testing.T) (old, current, last map[string]int) {
+	t.Helper()
+	sv := shipped(t, WithSeed(1))
+	old, current, last = map[string]int{}, map[string]int{}, map[string]int{}
+	eachDraw(swedishLicensePlatePartDraws, func() string { return fake(t, sv, "sv_SE.licenseplate.old-number") }, func(number string) {
+		old[number]++
+		current[fake(t, sv, "sv_SE.licenseplate.current-number")]++
+		last[fake(t, sv, "sv_SE.licenseplate.last")]++
+	})
+	return old, current, last
+}
+
+func drawsOfOldNumbersBelow(old map[string]int, limit int) int {
+	var below int
+	for n := 1; n < limit; n++ {
+		below += old[fmt.Sprintf("%03d", n)]
+	}
+	return below
+}
+
+func sortedNamesDrawn(seen map[string]int) []string {
+	got := make([]string, 0, len(seen))
+	for name := range seen {
+		got = append(got, name)
+	}
+	slices.Sort(got)
+	return got
 }
 
 // TestSwedishPersonnummer checks what the shape regex can't: the date is a real
@@ -294,8 +371,7 @@ func TestSwedishPersonnummer(t *testing.T) {
 	re := regexp.MustCompile(`^\d{6}-23[89]\d$`)
 	reShort := regexp.MustCompile(`^\d{6}[-+]23[89]\d$`)
 	sawLongMonthEnd, birth := false, map[string]bool{}
-	for i := 0; i < 2000; i++ {
-		v := fake(t, sv, "sv_SE.personnummer")
+	eachDraw(2000, func() string { return fake(t, sv, "sv_SE.personnummer") }, func(v string) {
 		d := digitsOnly(v)
 		if !reShort.MatchString(v) {
 			t.Fatalf("personnummer %q, want YYMMDD-238C or YYMMDD-239C, or + for -", v)
@@ -317,7 +393,7 @@ func TestSwedishPersonnummer(t *testing.T) {
 		if _, err := time.Parse("0601", sd[:4]); err != nil {
 			t.Fatalf("samordningsnummer %q is not a valid year and month: %v", s, err)
 		}
-	}
+	})
 	if !sawLongMonthEnd {
 		t.Fatal("never generated a 31st")
 	}
@@ -349,11 +425,11 @@ func TestShippedSwedishPhoneMobile(t *testing.T) {
 	f := shipped(t, WithSeed(11))
 	re := regexp.MustCompile(`^0(70|72|73|76|79)-\d{3} \d{2} \d{2}$`)
 	seen := map[string]bool{}
-	for i := 0; i < 3000; i++ {
-		if m := re.FindStringSubmatch(fake(t, f, "sv_SE.phone")); m != nil {
+	eachDraw(3000, func() string { return fake(t, f, "sv_SE.phone") }, func(n string) {
+		if m := re.FindStringSubmatch(n); m != nil {
 			seen[m[1]] = true
 		}
-	}
+	})
 	if len(seen) != 5 {
 		t.Fatalf("3000 phones drew the mobile codes %v, want 70, 72, 73, 76 and 79", seen)
 	}
@@ -363,10 +439,9 @@ func TestShippedSwedishPhoneFixedIsGroupedAndLongEnough(t *testing.T) {
 	f := shipped(t, WithSeed(11))
 	mobile := regexp.MustCompile(`^0(70|72|73|76|79)-`)
 	fixed := regexp.MustCompile(`^0(\d{1,3})-(\d[\d ]+)$`)
-	for i := 0; i < 6000; i++ {
-		n := fake(t, f, "sv_SE.phone")
+	eachDraw(6000, func() string { return fake(t, f, "sv_SE.phone") }, func(n string) {
 		if mobile.MatchString(n) {
-			continue
+			return
 		}
 		m := fixed.FindStringSubmatch(n)
 		if m == nil {
@@ -380,7 +455,7 @@ func TestShippedSwedishPhoneFixedIsGroupedAndLongEnough(t *testing.T) {
 		if total := len(ndc) + digits; total < swedishPhoneShortest(ndc) || total > 9 {
 			t.Fatalf("phone %q has %d digits after the 0, PTS gives area code %s %d to 9", n, total, ndc, swedishPhoneShortest(ndc))
 		}
-	}
+	})
 }
 
 func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {
@@ -392,8 +467,7 @@ func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {
 		t.Run(c.area, func(t *testing.T) {
 			got := map[int]bool{}
 			eight := map[bool]bool{}
-			for i := 0; i < 400; i++ {
-				subscriber := fake(t, f, "sv_SE.phone-area["+c.area+"].subscriber")
+			eachDraw(400, func() string { return fake(t, f, "sv_SE.phone-area["+c.area+"].subscriber") }, func(subscriber string) {
 				digits := len(strings.ReplaceAll(subscriber, " ", ""))
 				if re := swedishPhoneGrouped[digits]; re == nil || !re.MatchString(subscriber) {
 					t.Fatalf("subscriber %q is not grouped as Språkrådet writes it, or starts with the trunk 0", subscriber)
@@ -402,11 +476,13 @@ func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {
 				if digits == 8 {
 					eight[len(strings.Fields(subscriber)) == 3] = true
 				}
-			}
+			})
 			for digits := 5; digits <= 8; digits++ {
-				if want := slices.Contains(c.lengths, digits); got[digits] != want {
-					t.Errorf("subscribers of %d digits drawn is %v, want %v", digits, got[digits], want)
-				}
+				t.Run(strconv.Itoa(digits)+" digits", func(t *testing.T) {
+					if want := slices.Contains(c.lengths, digits); got[digits] != want {
+						t.Errorf("subscribers of %d digits drawn is %v, want %v", digits, got[digits], want)
+					}
+				})
 			}
 			if got[8] && len(eight) != 2 {
 				t.Errorf("eight digits were written one way only, want both of Språkrådet's")
@@ -417,120 +493,167 @@ func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {
 
 func TestShippedSwedishPhoneInternational(t *testing.T) {
 	f := shipped(t, WithSeed(5))
-	for i := 0; i < 300; i++ {
-		got := fakeTemplate(t, f, "{/sv_SE.phone as p}{p}|{p.international}")
-		national, international, _ := strings.Cut(got, "|")
-		code, subscriber, _ := strings.Cut(strings.TrimPrefix(national, "0"), "-")
-		if want := "+46 " + code + " " + subscriber; international != want {
-			t.Fatalf("%q: international form %q, want %q", national, international, want)
-		}
-	}
-	for i := 0; i < 20; i++ {
-		if got := fake(t, f, "sv_SE.phone.international"); !regexp.MustCompile(`^\+46 \d{1,3} \d`).MatchString(got) {
-			t.Fatalf("sv_SE.phone.international = %q", got)
-		}
-	}
+	t.Run("a bound phone's international form is its national one after +46", func(t *testing.T) {
+		eachDraw(300, func() string { return fakeTemplate(t, f, "{/sv_SE.phone as p}{p}|{p.international}") }, func(got string) {
+			national, international, _ := strings.Cut(got, "|")
+			code, subscriber, _ := strings.Cut(strings.TrimPrefix(national, "0"), "-")
+			if want := "+46 " + code + " " + subscriber; international != want {
+				t.Fatalf("%q: international form %q, want %q", national, international, want)
+			}
+		})
+	})
+	t.Run("the international form read alone opens with +46 and an area code", func(t *testing.T) {
+		eachDraw(20, func() string { return fake(t, f, "sv_SE.phone.international") }, func(got string) {
+			if !regexp.MustCompile(`^\+46 \d{1,3} \d`).MatchString(got) {
+				t.Fatalf("sv_SE.phone.international = %q", got)
+			}
+		})
+	})
 }
 
 func TestShippedSwedishPhoneAreaIsPTSsWholePlan(t *testing.T) {
-	b, err := os.ReadFile("data/sv_SE/phone-area.tsv")
-	if err != nil {
-		t.Fatal(err)
-	}
 	seen := map[string]bool{}
-	for _, line := range strings.Split(strings.TrimSuffix(string(b), "\n"), "\n")[1:] {
-		cells := strings.Split(line, "\t")
-		area, ndc, subscriber := cells[0], cells[1], cells[3]
-		seen[area] = true
-		if area != "0"+ndc {
-			t.Errorf("area %s is not the trunk 0 and %s", area, ndc)
-		}
-		want := fmt.Sprintf("digits-%d-%d", swedishPhoneShortest(ndc)-len(ndc), 9-len(ndc))
-		if subscriber != "{.phone-subscriber."+want+"}" {
-			t.Errorf("area %s draws %s, PTS allows %s", area, subscriber, want)
-		}
+	for _, cells := range swedishPhoneAreaRows(t) {
+		t.Run(cells[0], func(t *testing.T) {
+			area, ndc, subscriber := cells[0], cells[1], cells[3]
+			seen[area] = true
+			if area != "0"+ndc {
+				t.Errorf("area %s is not the trunk 0 and %s", area, ndc)
+			}
+			want := fmt.Sprintf("digits-%d-%d", swedishPhoneShortest(ndc)-len(ndc), 9-len(ndc))
+			if subscriber != "{.phone-subscriber."+want+"}" {
+				t.Errorf("area %s draws %s, PTS allows %s", area, subscriber, want)
+			}
+		})
 	}
 	if len(seen) != 264 {
 		t.Fatalf("phone-area.tsv has %d area codes, PTS's plan gives 264", len(seen))
 	}
-	f := shipped(t, WithSeed(2))
-	drawn := map[string]bool{}
-	for i := 0; i < 6000; i++ {
-		drawn[fake(t, f, "sv_SE.phone-area")] = true
+}
+
+func swedishPhoneAreaRows(t *testing.T) [][]string {
+	t.Helper()
+	b, err := os.ReadFile("data/sv_SE/phone-area.tsv")
+	if err != nil {
+		t.Fatal(err)
 	}
+	var rows [][]string
+	for _, line := range strings.Split(strings.TrimSuffix(string(b), "\n"), "\n")[1:] {
+		rows = append(rows, strings.Split(line, "\t"))
+	}
+	return rows
+}
+
+func TestShippedSwedishPhoneAreaDrawsReachEveryAreaCode(t *testing.T) {
+	f := shipped(t, WithSeed(2))
+	drawn := tallyDraws(6000, func() string { return fake(t, f, "sv_SE.phone-area") })
 	if len(drawn) != 264 {
 		t.Fatalf("6000 draws reached %d of the 264 area codes", len(drawn))
 	}
+}
+
+func TestShippedSwedishPhoneAreaNamesItsPlace(t *testing.T) {
+	f := shipped(t, WithSeed(2))
 	for area, name := range map[string]string{"08": "Stockholm", "0480": "Kalmar"} {
-		if got := fake(t, f, "sv_SE.phone-area["+area+"].name"); got != name {
-			t.Errorf("area code %s is %q, want %q", area, got, name)
-		}
+		t.Run(area, func(t *testing.T) {
+			if got := fake(t, f, "sv_SE.phone-area["+area+"].name"); got != name {
+				t.Errorf("area code %s is %q, want %q", area, got, name)
+			}
+		})
 	}
 }
 
 func TestShippedSwedishAddress(t *testing.T) {
 	f := shipped(t, WithSeed(3))
-	digit := regexp.MustCompile(`\d`)
-	for i := 0; i < 30; i++ {
-		a := fake(t, f, "sv_SE.address")
-		if !regexp.MustCompile(`\n`).MatchString(a) || !digit.MatchString(a) {
-			t.Fatalf("address %q is not a multi-line address with a number", a)
-		}
-	}
-
-	locality := regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
-	for i := 0; i < 30; i++ {
-		if c := fake(t, f, "sv_SE.address.locality"); !locality.MatchString(c) {
-			t.Fatalf("locality %q is not a Swedish place name", c)
-		}
-	}
+	t.Run("an address is several lines with a number", func(t *testing.T) {
+		digit := regexp.MustCompile(`\d`)
+		eachDraw(30, func() string { return fake(t, f, "sv_SE.address") }, func(a string) {
+			if !regexp.MustCompile(`\n`).MatchString(a) || !digit.MatchString(a) {
+				t.Fatalf("address %q is not a multi-line address with a number", a)
+			}
+		})
+	})
+	t.Run("a locality is a place name", func(t *testing.T) {
+		locality := regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
+		eachDraw(30, func() string { return fake(t, f, "sv_SE.address.locality") }, func(c string) {
+			if !locality.MatchString(c) {
+				t.Fatalf("locality %q is not a Swedish place name", c)
+			}
+		})
+	})
 }
 
 // TestShippedSwedishSmallPlacesKeepTheirPopulation pins postorter that lie inside an SCB småort
 // of 2023, which holds 50 to 199 people.
 func TestShippedSwedishSmallPlacesKeepTheirPopulation(t *testing.T) {
 	t.Parallel()
-	want := map[string]string{"Ambjörby": "127", "Storlien": "89", "Utö": "54", "Målerås": "196", "Latikberg": "51"}
-	for _, r := range geoRows(t, "SE", "locality") {
-		if people, ok := want[r[0]]; ok {
+	localities := geoSELocalityRowsByName(t)
+	for name, people := range map[string]string{"Ambjörby": "127", "Storlien": "89", "Utö": "54", "Målerås": "196", "Latikberg": "51"} {
+		t.Run(name, func(t *testing.T) {
+			r, ok := localities[name]
+			if !ok {
+				t.Errorf("geo.SE: no locality %s", name)
+				return
+			}
 			if r[2] != people {
 				t.Errorf("geo.SE: %s holds %s people, want %s from SCB's småorter 2023", r[0], r[2], people)
 			}
-			delete(want, r[0])
+		})
+	}
+}
+
+func geoSELocalityRowsByName(t *testing.T) map[string][]string {
+	t.Helper()
+	rows := map[string][]string{}
+	for _, r := range geoRows(t, "SE", "locality") {
+		if _, held := rows[r[0]]; !held {
+			rows[r[0]] = r
 		}
 	}
-	for name := range want {
-		t.Errorf("geo.SE: no locality %s", name)
-	}
+	return rows
 }
 
 func TestShippedSwedishPostortTakesTheKommunOfTheSmaortHoldingItsCentre(t *testing.T) {
 	t.Parallel()
-	want := map[string][2]string{"Lönneberga": {"0860", "129"}, "Axmar": {"2180", "103"}, "Rökå": {"2418", "60"}, "Torsö": {"1083", "57"}}
-	for _, r := range geoRows(t, "SE", "locality") {
-		if w, ok := want[r[0]]; ok {
+	localities := geoSELocalityRowsByName(t)
+	for name, w := range map[string][2]string{"Lönneberga": {"0860", "129"}, "Axmar": {"2180", "103"}, "Rökå": {"2418", "60"}, "Torsö": {"1083", "57"}} {
+		t.Run(name, func(t *testing.T) {
+			r, ok := localities[name]
+			if !ok {
+				t.Errorf("geo.SE: no locality %s", name)
+				return
+			}
 			if r[1] != w[0] || r[2] != w[1] {
 				t.Errorf("geo.SE: %s lies in kommun %s with %s people, want %s with %s from the SCB småort holding its centre", r[0], r[1], r[2], w[0], w[1])
 			}
-			delete(want, r[0])
-		}
-	}
-	for name := range want {
-		t.Errorf("geo.SE: no locality %s", name)
+		})
 	}
 }
 
 func TestShippedSwedishStreetsAreStreetNames(t *testing.T) {
-	refused := map[string]bool{
-		"Färjeled Henriksdalsbryggan - Barnängsbryggan": true, "HÄLLSÄTTERSLEDEN": true, "Kärrs VSF": true,
-		"Länsväg 694": true, "NN": true, "Risövägen,Dejstolvägen,Runvägen": true, "tornslingan": true,
-		"Öresundsvägen, Bondevägen": true,
+	localityOf := geoSEStreetLocalities(t)
+	for _, refused := range []string{
+		"Färjeled Henriksdalsbryggan - Barnängsbryggan", "HÄLLSÄTTERSLEDEN", "Kärrs VSF",
+		"Länsväg 694", "NN", "Risövägen,Dejstolvägen,Runvägen", "tornslingan",
+		"Öresundsvägen, Bondevägen",
+	} {
+		t.Run(refused, func(t *testing.T) {
+			if locality, held := localityOf[refused]; held {
+				t.Errorf("geo.SE: street %q in %s, want no road number, ferry route, label, placeholder, two names or miscased name", refused, locality)
+			}
+		})
 	}
+}
+
+func geoSEStreetLocalities(t *testing.T) map[string]string {
+	t.Helper()
+	localityOf := map[string]string{}
 	for _, r := range geoRows(t, "SE", "street") {
-		if refused[r[0]] {
-			t.Errorf("geo.SE: street %q in %s, want no road number, ferry route, label, placeholder, two names or miscased name", r[0], r[1])
+		if _, held := localityOf[r[0]]; !held {
+			localityOf[r[0]] = r[1]
 		}
 	}
+	return localityOf
 }
 
 // swedishName matches one or more letter-words, optionally space/hyphen joined
@@ -541,22 +664,22 @@ var swedishName = regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
 func TestShippedStreetIsARegisteredName(t *testing.T) {
 	f := shipped(t, WithSeed(5))
 	street := regexp.MustCompile(`^\p{L}[\p{L}\d:.-]*([ -][\p{L}\d:.-]+)*$`)
-	for i := 0; i < 300; i++ {
-		if s := fake(t, f, "sv_SE.address.street"); !street.MatchString(s) {
+	eachDraw(300, func() string { return fake(t, f, "sv_SE.address.street") }, func(s string) {
+		if !street.MatchString(s) {
 			t.Fatalf("street %q is not a Swedish street name", s)
 		}
-	}
+	})
 }
 
 func TestShippedLastNameComposition(t *testing.T) {
 	// last is a choice of patronymic {first}sson templates, compound
 	// {first}{last} templates and literal surnames.
 	f := shipped(t, WithSeed(6))
-	for i := 0; i < 300; i++ {
-		if s := fake(t, f, "sv_SE.person.last"); !swedishName.MatchString(s) {
+	eachDraw(300, func() string { return fake(t, f, "sv_SE.person.last") }, func(s string) {
+		if !swedishName.MatchString(s) {
 			t.Fatalf("last name %q is not a Swedish surname", s)
 		}
-	}
+	})
 }
 
 // The share of each age band is SCB's for Sweden at 2024-12-31, per
@@ -569,28 +692,21 @@ func TestSwedishBirthDatesWeighAgesByPopulation(t *testing.T) {
 			sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
 			bands := [4]int{}
 			oldest, youngest := [4]int{9999, 9999, 9999, 9999}, [4]int{}
-			for range draws {
-				v := fake(t, sv, path)
+			eachDraw(draws, func() string { return fake(t, sv, path) }, func(v string) {
 				born, err := time.Parse(layout, v[:min(len(v), len(layout))])
 				if err != nil {
 					t.Fatalf("%s %q holds no calendar date: %v", path, v, err)
 				}
-				band := 3
-				switch age := 2026 - born.Year(); {
-				case age < 18:
-					band = 0
-				case age < 65:
-					band = 1
-				case age < 100:
-					band = 2
-				}
+				band := ageBandOfABirthYearReadIn2026(born.Year())
 				bands[band]++
 				oldest[band], youngest[band] = min(oldest[band], born.Year()), max(youngest[band], born.Year())
-			}
+			})
 			for i, want := range []float64{20.36, 58.80, 20.81} {
-				if got := 100 * float64(bands[i]) / draws; got < want-0.3 || got > want+0.3 {
-					t.Errorf("age band %d drew %.2f%%, want about %.2f%%", i, got, want)
-				}
+				t.Run("age band "+strconv.Itoa(i), func(t *testing.T) {
+					if got := 100 * float64(bands[i]) / draws; got < want-0.3 || got > want+0.3 {
+						t.Errorf("age band %d drew %.2f%%, want about %.2f%%", i, got, want)
+					}
+				})
 			}
 			if bands[3] < 33 || bands[3] > 80 {
 				t.Errorf("age 100 or more drew %d in %d, want about 56, 0.028%%", bands[3], draws)
@@ -605,44 +721,59 @@ func TestSwedishBirthDatesWeighAgesByPopulation(t *testing.T) {
 	}
 }
 
+func ageBandOfABirthYearReadIn2026(year int) int {
+	switch age := 2026 - year; {
+	case age < 18:
+		return 0
+	case age < 65:
+		return 1
+	case age < 100:
+		return 2
+	}
+	return 3
+}
+
 // The law sets the + from the year the holder turns 100. Read on 2026-11-04, that is
 // everyone born in 1926 or before, back to 1913, age 113 being the oldest validated Swede's.
 func TestSwedishPersonnummerSpellsThePlusFromTheYearTheHolderTurns100(t *testing.T) {
 	today := dayOf(2026, 11, 4)
 	sv := shipped(t, WithToday(today))
 	pluses := 0
-	for range 200000 {
-		v := fake(t, sv, "sv_SE.personnummer")
+	eachDraw(200000, func() string { return fake(t, sv, "sv_SE.personnummer") }, func(v string) {
 		day, err := time.Parse("060102", v[:6])
 		if err != nil {
 			t.Fatalf("personnummer %q holds no calendar date: %v", v, err)
 		}
-		yy, century := day.Year()%100, 1900
+		yy := day.Year() % 100
 		if v[6] == '-' {
-			if yy <= 26 {
-				century = 2000
-			}
-			if holder := dayOf(century+yy, day.Month(), day.Day()); holder.After(today) || holder.Year() < 1927 {
+			if holder := dayOf(birthYearOfAHyphenPersonnummerReadIn2026(yy), day.Month(), day.Day()); holder.After(today) || holder.Year() < 1927 {
 				t.Fatalf("personnummer %q read on %s, want - for a birth in 1927 or later, and none after the date", v, today.Format(time.DateOnly))
 			}
-			continue
+			return
 		}
 		pluses++
 		if v[6] != '+' || yy < 13 || yy > 26 {
 			t.Fatalf("personnummer %q read on %s, want + for a birth from 1913 to 1926", v, today.Format(time.DateOnly))
 		}
-	}
+	})
 	if pluses == 0 {
 		t.Error("never drew a +")
 	}
+}
+
+func birthYearOfAHyphenPersonnummerReadIn2026(yy int) int {
+	if yy <= 26 {
+		return 2000 + yy
+	}
+	return 1900 + yy
 }
 
 // Both forms draw one date from one set of bands, so a seed gives one person in both spellings.
 func TestSwedishPersonnummerFormsSpellOneNumber(t *testing.T) {
 	short, long := shipped(t, WithToday(dayOf(2026, 11, 4))), shipped(t, WithToday(dayOf(2026, 11, 4)))
 	saw := map[byte]bool{}
-	for range 100000 {
-		a, b := fake(t, short, "sv_SE.personnummer"), fake(t, long, "sv_SE.personnummer-12")
+	eachDraw(100000, func() string { return fake(t, short, "sv_SE.personnummer") }, func(a string) {
+		b := fake(t, long, "sv_SE.personnummer-12")
 		if a[:6]+a[7:] != b[2:] {
 			t.Fatalf("personnummer %q and personnummer-12 %q, want the short form's digits after the century", a, b)
 		}
@@ -650,7 +781,7 @@ func TestSwedishPersonnummerFormsSpellOneNumber(t *testing.T) {
 			t.Fatalf("personnummer %q and personnummer-12 %q, want + exactly for a birth in 1926 or before", a, b)
 		}
 		saw[a[6]] = true
-	}
+	})
 	if !saw['+'] || !saw['-'] {
 		t.Errorf("separators drawn %v, want both", saw)
 	}
@@ -663,8 +794,7 @@ func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
 	sv := shipped(t, WithToday(today))
 	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
 	first, last := time.Date(9999, 1, 1, 0, 0, 0, 0, time.UTC), time.Time{}
-	for i := 0; i < 20000; i++ {
-		v := fake(t, sv, "sv_SE.personnummer-12")
+	eachDraw(20000, func() string { return fake(t, sv, "sv_SE.personnummer-12") }, func(v string) {
 		if !re.MatchString(v) {
 			t.Fatalf("personnummer-12 %q, want YYYYMMDD23[89]C", v)
 		}
@@ -681,7 +811,7 @@ func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
 		if born.After(last) {
 			last = born
 		}
-	}
+	})
 	if first.Year() > 1927 || last.Year() != 2026 {
 		t.Errorf("personnummer-12 drew %s to %s in 20000, want it to reach the date's year and back towards 1926", first.Format(time.DateOnly), last.Format(time.DateOnly))
 	}
@@ -691,8 +821,7 @@ func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
 	centuries := map[string]int{}
-	for i := 0; i < 3000; i++ {
-		v := fake(t, sv, "sv_SE.samordningsnummer-12")
+	eachDraw(3000, func() string { return fake(t, sv, "sv_SE.samordningsnummer-12") }, func(v string) {
 		if !re.MatchString(v) {
 			t.Fatalf("samordningsnummer-12 %q, want YYYYMM(61-88)23[89]C", v)
 		}
@@ -710,7 +839,7 @@ func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 			t.Fatalf("samordningsnummer-12 %q, want a year from 1930 to 2025, whichever century its two digits sit in", v)
 		}
 		centuries[v[:2]]++
-	}
+	})
 	if centuries["19"] < 1500 || centuries["20"] < 400 {
 		t.Errorf("centuries drawn %v in 3000, want 1930 to 1999 and 2000 to 2025 in proportion to their days", centuries)
 	}
@@ -720,25 +849,33 @@ func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 // draws the same first and last year.
 func TestSwedishSamordningsnummerFormsSpanOneRangeOfYears(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
-	span := func(path string, year func(string) int) [2]int {
-		first, last := 9999, 0
-		for i := 0; i < 20000; i++ {
-			y := year(fake(t, sv, path))
-			first, last = min(first, y), max(last, y)
-		}
-		return [2]int{first, last}
-	}
-	short := func(v string) int {
-		yy, _ := strconv.Atoi(v[:2])
-		if yy >= 30 {
-			return 1900 + yy
-		}
-		return 2000 + yy
-	}
-	long := func(v string) int { y, _ := strconv.Atoi(v[:4]); return y }
-	if a, b := span("sv_SE.samordningsnummer", short), span("sv_SE.samordningsnummer-12", long); a != b || a[0] > 1931 || a[1] < 2024 {
+	a := firstAndLastYearDrawn(20000, func() string { return fake(t, sv, "sv_SE.samordningsnummer") }, yearOfASamordningsnummer)
+	b := firstAndLastYearDrawn(20000, func() string { return fake(t, sv, "sv_SE.samordningsnummer-12") }, yearOfASamordningsnummer12)
+	if a != b || a[0] > 1931 || a[1] < 2024 {
 		t.Errorf("samordningsnummer draws years %v, samordningsnummer-12 %v, want the same range, 1930 to 2025 at its ends", a, b)
 	}
+}
+
+func firstAndLastYearDrawn(n int, draw func() string, year func(string) int) [2]int {
+	first, last := 9999, 0
+	eachDraw(n, draw, func(v string) {
+		y := year(v)
+		first, last = min(first, y), max(last, y)
+	})
+	return [2]int{first, last}
+}
+
+func yearOfASamordningsnummer(v string) int {
+	yy, _ := strconv.Atoi(v[:2])
+	if yy >= 30 {
+		return 1900 + yy
+	}
+	return 2000 + yy
+}
+
+func yearOfASamordningsnummer12(v string) int {
+	y, _ := strconv.Atoi(v[:4])
+	return y
 }
 
 func TestShippedSwedishCalendar(t *testing.T) {
@@ -777,48 +914,49 @@ func TestShippedSwedishCalendar(t *testing.T) {
 		"sv_SE.holiday[juldagen]":               "juldagen",
 		"sv_SE.holiday[annandag-jul]":           "annandag jul",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
 	for path, want := range map[string][]string{
 		"sv_SE.month":   {"januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"},
 		"sv_SE.weekday": {"måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag", "söndag"},
 		"sv_SE.holiday": {"nyårsdagen", "trettondedag jul", "långfredagen", "påskdagen", "annandag påsk", "första maj", "Kristi himmelsfärdsdag", "pingstdagen", "nationaldagen", "midsommardagen", "alla helgons dag", "juldagen", "annandag jul"},
 	} {
-		seen := map[string]bool{}
-		for i := 0; i < 2000; i++ {
-			seen[fake(t, f, path)] = true
-		}
-		got := make([]string, 0, len(seen))
-		for name := range seen {
-			got = append(got, name)
-		}
-		slices.Sort(got)
-		slices.Sort(want)
-		if !slices.Equal(got, want) {
-			t.Errorf("%s drew %v in 2000 draws, want exactly %v", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			got := sortedNamesDrawn(tallyDraws(2000, func() string { return fake(t, f, path) }))
+			slices.Sort(want)
+			if !slices.Equal(got, want) {
+				t.Errorf("%s drew %v in 2000 draws, want exactly %v", path, got, want)
+			}
+		})
 	}
 }
 
 func TestShippedSwedishTerritoryNamesEveryMiscTerritory(t *testing.T) {
-	keys := func(file string) []string {
-		data, err := os.ReadFile(file)
-		if err != nil {
-			t.Fatal(err)
-		}
-		var out []string
-		for _, line := range strings.Split(strings.TrimSuffix(string(data), "\n"), "\n")[1:] {
-			key, _, _ := strings.Cut(line, "\t")
-			out = append(out, key)
-		}
-		slices.Sort(out)
-		return out
-	}
-	if got, want := keys("data/sv_SE/territory.tsv"), keys("data/misc/territory.tsv"); !slices.Equal(got, want) {
+	if got, want := sortedKeysOfATSV(t, "data/sv_SE/territory.tsv"), sortedKeysOfATSV(t, "data/misc/territory.tsv"); !slices.Equal(got, want) {
 		t.Errorf("sv_SE/territory.tsv has %d rows, misc/territory.tsv %d: want the same alpha-2 codes", len(got), len(want))
 	}
+}
+
+func sortedKeysOfATSV(t *testing.T, file string) []string {
+	t.Helper()
+	data, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out []string
+	for _, line := range strings.Split(strings.TrimSuffix(string(data), "\n"), "\n")[1:] {
+		key, _, _ := strings.Cut(line, "\t")
+		out = append(out, key)
+	}
+	slices.Sort(out)
+	return out
+}
+
+func TestShippedSwedishTerritoryIsSelectedByItsAlpha2Code(t *testing.T) {
 	f := shipped(t, WithSeed(3))
 	for path, want := range map[string]string{
 		"sv_SE.territory[SE]": "Sverige",
@@ -827,27 +965,28 @@ func TestShippedSwedishTerritoryNamesEveryMiscTerritory(t *testing.T) {
 		"sv_SE.territory[GB]": "Storbritannien",
 		"sv_SE.territory[GL]": "Grönland",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
 }
 
 func TestShippedSwedishBloodTypeFollowsItsShares(t *testing.T) {
 	f := shipped(t, WithSeed(11))
 	const draws = 40000
-	counts := map[string]int{}
-	for i := 0; i < draws; i++ {
-		counts[fake(t, f, "sv_SE.bloodtype")]++
-	}
+	counts := tallyDraws(draws, func() string { return fake(t, f, "sv_SE.bloodtype") })
 	want := map[string]float64{"A+": 37, "0+": 32, "B+": 10, "A-": 7, "0-": 6, "AB+": 5, "B-": 2, "AB-": 1}
 	if len(counts) != len(want) {
 		t.Errorf("drew %v, want exactly the types %v", counts, want)
 	}
 	for name, share := range want {
-		if got := float64(counts[name]) * 100 / draws; math.Abs(got-share) > 0.5 {
-			t.Errorf("%s drew %.1f%%, want %v%% within half a point", name, got, share)
-		}
+		t.Run(name, func(t *testing.T) {
+			if got := float64(counts[name]) * 100 / draws; math.Abs(got-share) > 0.5 {
+				t.Errorf("%s drew %.1f%%, want %v%% within half a point", name, got, share)
+			}
+		})
 	}
 }
 
@@ -860,8 +999,7 @@ func TestSwedishPersonNumbersSpellItsBirthdateAndSex(t *testing.T) {
 	}
 	birthNumber := map[string]string{"kvinna": "238", "man": "239"}
 	pluses, days := 0, map[int]bool{}
-	for range 200000 {
-		v := person.Fake()
+	eachDraw(200000, person.Fake, func(v string) {
 		f := strings.Split(v, "|")
 		born, err := time.Parse(time.DateOnly, f[0])
 		if err != nil || born.Year() < 1913 || born.After(dayOf(2026, 11, 4)) {
@@ -880,14 +1018,16 @@ func TestSwedishPersonNumbersSpellItsBirthdateAndSex(t *testing.T) {
 			t.Fatalf("person %q, want a Luhn-valid samordningsnummer starting %s", v, sam)
 		}
 		days[born.Day()+60] = true
-	}
+	})
 	if pluses == 0 {
 		t.Error("never drew a +")
 	}
 	for day := 61; day <= 91; day++ {
-		if !days[day] {
-			t.Errorf("samordningsnummer never drew the day %d", day)
-		}
+		t.Run("day "+strconv.Itoa(day), func(t *testing.T) {
+			if !days[day] {
+				t.Errorf("samordningsnummer never drew the day %d", day)
+			}
+		})
 	}
 }
 
@@ -901,18 +1041,27 @@ func TestShippedSwedishSNI(t *testing.T) {
 		"sv_SE.sni[17.110].name": "Massatillverkning",
 		"sv_SE.sni[99.000].code": "99.000",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
+}
+
+func TestShippedSwedishSNITableHoldsSCBs835Codes(t *testing.T) {
 	rows := tsvRows(t, "data/sv_SE/sni.tsv")
 	if len(rows) != 835 {
 		t.Fatalf("sni.tsv has %d rows, want 835", len(rows))
 	}
-	code := regexp.MustCompile(`^\d\d\.\d{3}$`)
+	errorOnRowsWithoutACodeAndATrimmedLabel(t, "sni.tsv", rows, regexp.MustCompile(`^\d\d\.\d{3}$`), "an NN.NNN code")
+}
+
+func errorOnRowsWithoutACodeAndATrimmedLabel(t *testing.T, file string, rows []map[string]string, code *regexp.Regexp, want string) {
+	t.Helper()
 	for _, row := range rows {
 		if !code.MatchString(row["code"]) || row["name"] != strings.TrimSpace(row["name"]) || row["name"] == "" {
-			t.Errorf("sni.tsv row %q is not an NN.NNN code with a trimmed label", row)
+			t.Errorf("%s row %q is not %s with a trimmed label", file, row, want)
 		}
 	}
 }
@@ -927,20 +1076,20 @@ func TestShippedSwedishSSYK(t *testing.T) {
 		"sv_SE.ssyk[5223].name": "Butikssäljare, fackhandel",
 		"sv_SE.ssyk[5120].code": "5120",
 	} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
+}
+
+func TestShippedSwedishSSYKTableHoldsSCBs429Groups(t *testing.T) {
 	rows := tsvRows(t, "data/sv_SE/ssyk.tsv")
 	if len(rows) != 429 {
 		t.Fatalf("ssyk.tsv has %d rows, want 429", len(rows))
 	}
-	code := regexp.MustCompile(`^\d{4}$`)
-	for _, row := range rows {
-		if !code.MatchString(row["code"]) || row["name"] != strings.TrimSpace(row["name"]) || row["name"] == "" {
-			t.Errorf("ssyk.tsv row %q is not a four-digit code with a trimmed label", row)
-		}
-	}
+	errorOnRowsWithoutACodeAndATrimmedLabel(t, "ssyk.tsv", rows, regexp.MustCompile(`^\d{4}$`), "a four-digit code")
 }
 
 // sv_SE.car holds each model that Mobility Sweden's December 2025 report counts 500 or more new
@@ -950,18 +1099,34 @@ func TestShippedSwedishCar(t *testing.T) {
 	if len(rows) != 119 {
 		t.Fatalf("car.tsv has %d rows, want 119", len(rows))
 	}
-	total, registrations := 0, map[string]int{}
+	errorOnCarRowsMobilitySwedenDoesNotCount(t, rows)
+}
+
+func errorOnCarRowsMobilitySwedenDoesNotCount(t *testing.T, rows []map[string]string) {
+	t.Helper()
 	for _, row := range rows {
-		n, err := strconv.Atoi(row["registrations"])
-		if err != nil || n < 500 {
+		if n, err := strconv.Atoi(row["registrations"]); err != nil || n < 500 {
 			t.Errorf("car.tsv row %q has no registrations of 500 or more", row)
 		}
 		if strings.HasPrefix(strings.ToUpper(row["model"]), strings.ToUpper(row["make"])+" ") || strings.Contains(strings.ToUpper(row["model"]), "ÖVRIGA") {
 			t.Errorf("car.tsv row %q repeats its make in the model or is an Övriga row", row)
 		}
+	}
+}
+
+func swedishCarRegistrations(t *testing.T) (total int, registrations map[string]int) {
+	t.Helper()
+	registrations = map[string]int{}
+	for _, row := range tsvRows(t, "data/sv_SE/car.tsv") {
+		n, _ := strconv.Atoi(row["registrations"])
 		total += n
 		registrations[row["make"]+" "+row["model"]] = n
 	}
+	return total, registrations
+}
+
+func TestShippedSwedishCarHoldsMobilitySwedensRegistrations(t *testing.T) {
+	total, registrations := swedishCarRegistrations(t)
 	for name, want := range map[string]int{
 		"Volvo XC60":                  17933,
 		"Volkswagen ID.7/ID.7 Tourer": 8134,
@@ -980,21 +1145,22 @@ func TestShippedSwedishCar(t *testing.T) {
 		"Škoda Octavia":               2219,
 		"Citroën C4":                  536,
 	} {
-		if registrations[name] != want {
-			t.Errorf("car.tsv gives %s %d registrations, want %d", name, registrations[name], want)
-		}
+		t.Run(name, func(t *testing.T) {
+			if registrations[name] != want {
+				t.Errorf("car.tsv gives %s %d registrations, want %d", name, registrations[name], want)
+			}
+		})
 	}
 	if total != 242981 {
 		t.Errorf("car.tsv registrations sum to %d, want 242981", total)
 	}
+}
+
+func TestShippedSwedishCarWeighsAModelByItsRegistrations(t *testing.T) {
+	total, _ := swedishCarRegistrations(t)
 	f := shipped(t, WithSeed(7))
 	const draws = 60000
-	xc60 := 0
-	for i := 0; i < draws; i++ {
-		if fake(t, f, "sv_SE.car") == "Volvo XC60" {
-			xc60++
-		}
-	}
+	xc60 := tallyDraws(draws, func() string { return fake(t, f, "sv_SE.car") })["Volvo XC60"]
 	want := 17933 * 100 / float64(total)
 	if got := float64(xc60) * 100 / draws; math.Abs(got-want) > 0.5 {
 		t.Errorf("Volvo XC60 drew %.2f%%, want %.2f%% within half a point", got, want)
@@ -1007,82 +1173,133 @@ func TestACompanysRegisteredBesideTheCompanyIsRefused(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, WithSeed(3))
 	for _, locale := range []string{"sv_SE", "nb_NO"} {
-		company := "/" + locale + ".company"
-		_, err := f.NewTemplate("{" + company + " as c}{c} / {c.registered}")
-		if err == nil {
-			t.Fatalf("%s: {c.registered} beside {c} loaded, want it refused", locale)
-		}
-		for _, want := range []string{"{c.registered}", "{" + company + ".registered}"} {
-			if !strings.Contains(err.Error(), want) {
-				t.Errorf("%s: error %q, want it to name %s", locale, err, want)
+		t.Run(locale, func(t *testing.T) {
+			company := "/" + locale + ".company"
+			_, err := f.NewTemplate("{" + company + " as c}{c} / {c.registered}")
+			if err == nil {
+				t.Fatalf("%s: {c.registered} beside {c} loaded, want it refused", locale)
 			}
-		}
-		for _, loads := range []string{"{" + company + " as c}{c}|{c.legal}", "{" + company + " as c}{c.registered}", "{" + company + ".registered}"} {
-			if _, err := f.NewTemplate(loads); err != nil {
-				t.Errorf("NewTemplate(%s) = %v, want it to load", loads, err)
+			for _, want := range []string{"{c.registered}", "{" + company + ".registered}"} {
+				t.Run("names "+want, func(t *testing.T) {
+					if !strings.Contains(err.Error(), want) {
+						t.Errorf("%s: error %q, want it to name %s", locale, err, want)
+					}
+				})
 			}
-		}
+		})
 	}
 }
 
-// The wordings are those TestSwedishCompanyWordingsAndShapesFollowTheRegister holds a company to, and an
+func TestACompanysRegisteredLoadsWhereItIsTheOnlyReadOfTheCompany(t *testing.T) {
+	t.Parallel()
+	f := shipped(t, WithSeed(3))
+	for _, locale := range []string{"sv_SE", "nb_NO"} {
+		t.Run(locale, func(t *testing.T) {
+			company := "/" + locale + ".company"
+			for _, loads := range []string{"{" + company + " as c}{c}|{c.legal}", "{" + company + " as c}{c.registered}", "{" + company + ".registered}"} {
+				t.Run(loads, func(t *testing.T) {
+					if _, err := f.NewTemplate(loads); err != nil {
+						t.Errorf("NewTemplate(%s) = %v, want it to load", loads, err)
+					}
+				})
+			}
+		})
+	}
+}
+
+// The wordings are those TestSwedishCompanyWordingsFollowTheRegister holds a company to, and an
 // enskild näringsidkare carries none.
 func TestSwedishCompanyLegalIsTheWordOfTheBoundCompany(t *testing.T) {
 	t.Parallel()
 	sv := shipped(t, WithSeed(3))
-	after := []string{"AB", "Aktiebolag", "Handelsbolag", "handelsbolag", "Kommanditbolag", "kommanditbolag", "Ekonomisk förening", "ekonomisk förening", "ek. för.", "Ek. för."}
-	before := []string{"Handelsbolaget", "Kommanditbolaget", "Bostadsrättsföreningen"}
 	seen := map[string]int{}
 	const draws = shareDraws / 10
-	for i := 0; i < draws; i++ {
-		company, legal, _ := strings.Cut(fakeTemplate(t, sv, "{/sv_SE.company as c}{c}|{c.legal}"), "|")
+	eachDraw(draws, func() string { return fakeTemplate(t, sv, "{/sv_SE.company as c}{c}|{c.legal}") }, func(got string) {
+		company, legal, _ := strings.Cut(got, "|")
 		seen[legal]++
-		switch {
-		case legal == "":
-			for _, w := range after {
-				if strings.HasSuffix(company, " "+w) {
-					t.Fatalf("company %q has an empty legal, yet ends in %q", company, w)
-				}
-			}
-			for _, w := range before {
-				if strings.HasPrefix(company, w+" ") {
-					t.Fatalf("company %q has an empty legal, yet starts with %q", company, w)
-				}
-			}
-		case slices.Contains(before, legal):
-			if !strings.HasPrefix(company, legal+" ") {
-				t.Fatalf("company %q does not start with its legal %q", company, legal)
-			}
-		case slices.Contains(after, legal):
-			if !strings.HasSuffix(company, " "+legal) {
-				t.Fatalf("company %q does not end in its legal %q", company, legal)
-			}
-		default:
-			t.Fatalf("legal %q of company %q is no wording of a legal form", legal, company)
-		}
-	}
+		fatalUnlessASwedishCompanyCarriesItsLegal(t, company, legal)
+	})
 	assertShare(t, "companies with no legal word", seen[""], draws, 8468.0/61777)
+}
+
+var (
+	swedishLegalWordsAfterAName  = []string{"AB", "Aktiebolag", "Handelsbolag", "handelsbolag", "Kommanditbolag", "kommanditbolag", "Ekonomisk förening", "ekonomisk förening", "ek. för.", "Ek. för."}
+	swedishLegalWordsBeforeAName = []string{"Handelsbolaget", "Kommanditbolaget", "Bostadsrättsföreningen"}
+)
+
+func fatalUnlessASwedishCompanyCarriesItsLegal(t *testing.T, company, legal string) {
+	t.Helper()
+	switch {
+	case legal == "":
+		for _, w := range swedishLegalWordsAfterAName {
+			if strings.HasSuffix(company, " "+w) {
+				t.Fatalf("company %q has an empty legal, yet ends in %q", company, w)
+			}
+		}
+		for _, w := range swedishLegalWordsBeforeAName {
+			if strings.HasPrefix(company, w+" ") {
+				t.Fatalf("company %q has an empty legal, yet starts with %q", company, w)
+			}
+		}
+	case slices.Contains(swedishLegalWordsBeforeAName, legal):
+		if !strings.HasPrefix(company, legal+" ") {
+			t.Fatalf("company %q does not start with its legal %q", company, legal)
+		}
+	case slices.Contains(swedishLegalWordsAfterAName, legal):
+		if !strings.HasSuffix(company, " "+legal) {
+			t.Fatalf("company %q does not end in its legal %q", company, legal)
+		}
+	default:
+		t.Fatalf("legal %q of company %q is no wording of a legal form", legal, company)
+	}
+}
+
+type swedishRegisteredCompanyForm struct{ Format, Legal string }
+
+func swedishRegisteredCompanyForms(t *testing.T) []swedishRegisteredCompanyForm {
+	t.Helper()
 	raw, err := os.ReadFile("data/sv_SE/company.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	var company struct {
-		Registered []struct{ Format, Legal string } `json:"registered"`
+		Registered []swedishRegisteredCompanyForm `json:"registered"`
 	}
 	if err := json.Unmarshal(raw, &company); err != nil {
 		t.Fatal(err)
 	}
-	listed := map[string]bool{}
-	for _, item := range company.Registered {
-		listed[item.Legal] = true
-		if item.Legal != "" && !strings.HasPrefix(item.Format, item.Legal+" ") && !strings.HasSuffix(item.Format, " "+item.Legal) {
-			t.Errorf("%q is listed with legal %q, which it does not start or end with", item.Format, item.Legal)
-		}
+	return company.Registered
+}
+
+func TestSwedishCompanyRegisteredFormStartsOrEndsWithItsLegal(t *testing.T) {
+	t.Parallel()
+	for _, item := range swedishRegisteredCompanyForms(t) {
+		t.Run(item.Format, func(t *testing.T) {
+			if item.Legal != "" && !strings.HasPrefix(item.Format, item.Legal+" ") && !strings.HasSuffix(item.Format, " "+item.Legal) {
+				t.Errorf("%q is listed with legal %q, which it does not start or end with", item.Format, item.Legal)
+			}
+		})
 	}
-	for _, w := range append(after, before...) {
-		if !listed[w] {
-			t.Errorf("no registered company form carries the legal word %q", w)
-		}
+}
+
+func swedishRegisteredLegalWords(t *testing.T) map[string]bool {
+	t.Helper()
+	listed := map[string]bool{}
+	for _, item := range swedishRegisteredCompanyForms(t) {
+		listed[item.Legal] = true
+	}
+	return listed
+}
+
+func TestSwedishCompanyRegisteredFormsCarryEveryLegalWord(t *testing.T) {
+	t.Parallel()
+	listed := swedishRegisteredLegalWords(t)
+	for _, w := range slices.Concat(swedishLegalWordsAfterAName, swedishLegalWordsBeforeAName) {
+		t.Run(w, func(t *testing.T) {
+			if !listed[w] {
+				t.Errorf("no registered company form carries the legal word %q", w)
+			}
+		})
 	}
 }
 
@@ -1109,49 +1326,73 @@ func TestSwedishWordHoldsSaldoFormsPerPartOfSpeech(t *testing.T) {
 		{"word-adj", "stor", "stora"},
 		{"word-adv", "ofta", ""},
 	} {
-		if got, ok := swedishWordForms(t, c.table)[c.word]; !ok || got != c.form {
-			t.Errorf("%s holds %q with form %q (held: %v), want %q", c.table, c.word, got, ok, c.form)
-		}
+		t.Run(c.table+" "+c.word, func(t *testing.T) {
+			if got, ok := swedishWordForms(t, c.table)[c.word]; !ok || got != c.form {
+				t.Errorf("%s holds %q with form %q (held: %v), want %q", c.table, c.word, got, ok, c.form)
+			}
+		})
 	}
+}
+
+func TestSwedishNounTableHoldsAsManyNounsAsSaldo(t *testing.T) {
+	t.Parallel()
 	if n := len(swedishWordForms(t, "word-noun")); n < 50000 {
 		t.Errorf("word-noun holds %d nouns, want SALDO's, tens of thousands", n)
 	}
 }
 
+func swedishWordSet(t *testing.T, table string) map[string]bool {
+	t.Helper()
+	held := map[string]bool{}
+	for word := range swedishWordForms(t, table) {
+		held[word] = true
+	}
+	return held
+}
+
+func swedishWordFormSet(t *testing.T, table string) map[string]bool {
+	t.Helper()
+	held := map[string]bool{}
+	for _, form := range swedishWordForms(t, table) {
+		held[form] = true
+	}
+	return held
+}
+
 func TestSwedishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 	t.Parallel()
 	sv := shipped(t, WithSeed(5))
-	nouns, verbs, adjs, advs := swedishWordForms(t, "word-noun"), swedishWordForms(t, "word-verb"), swedishWordForms(t, "word-adj"), swedishWordForms(t, "word-adv")
-	definite := map[string]bool{}
-	for _, form := range nouns {
-		definite[form] = true
+	for _, c := range []struct {
+		path string
+		held map[string]bool
+	}{
+		{"sv_SE.word.noun", swedishWordSet(t, "word-noun")},
+		{"sv_SE.word.noun.definite", swedishWordFormSet(t, "word-noun")},
+		{"sv_SE.word.verb", swedishWordSet(t, "word-verb")},
+		{"sv_SE.word.verb.present", swedishWordFormSet(t, "word-verb")},
+		{"sv_SE.word.adj", swedishWordSet(t, "word-adj")},
+		{"sv_SE.word.adv", swedishWordSet(t, "word-adv")},
+	} {
+		t.Run(c.path, func(t *testing.T) {
+			eachDraw(2000, func() string { return fake(t, sv, c.path) }, func(got string) {
+				if !c.held[got] {
+					t.Fatalf("%s = %q, which its table does not hold", c.path, got)
+				}
+			})
+		})
 	}
-	present := map[string]bool{}
-	for _, form := range verbs {
-		present[form] = true
-	}
-	seen := map[string]int{}
-	for i := 0; i < 2000; i++ {
-		for path, held := range map[string]func(string) bool{
-			"sv_SE.word.noun":          func(w string) bool { _, ok := nouns[w]; return ok },
-			"sv_SE.word.noun.definite": func(w string) bool { return definite[w] },
-			"sv_SE.word.verb":          func(w string) bool { _, ok := verbs[w]; return ok },
-			"sv_SE.word.verb.present":  func(w string) bool { return present[w] },
-			"sv_SE.word.adj":           func(w string) bool { _, ok := adjs[w]; return ok },
-			"sv_SE.word.adv":           func(w string) bool { _, ok := advs[w]; return ok },
-		} {
-			if got := fake(t, sv, path); !held(got) {
-				t.Fatalf("%s = %q, which its table does not hold", path, got)
-			}
+}
+
+func TestSwedishWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
+	t.Parallel()
+	sv := shipped(t, WithSeed(5))
+	nouns := swedishWordSet(t, "word-noun")
+	seen := tallyDraws(2000, func() string {
+		if nouns[fake(t, sv, "sv_SE.word")] {
+			return "noun"
 		}
-		w := fake(t, sv, "sv_SE.word")
-		switch _, n := nouns[w]; {
-		case n:
-			seen["noun"]++
-		default:
-			seen["other"]++
-		}
-	}
+		return "other"
+	})
 	if seen["noun"] == 0 || seen["other"] == 0 {
 		t.Errorf("sv_SE.word drew %v, want nouns and other parts of speech", seen)
 	}
@@ -1165,13 +1406,15 @@ func TestSwedishBoundWordReadsItsOwnForm(t *testing.T) {
 		{"sv_SE.word.verb", "present", "word-verb"},
 		{"sv_SE.word.adj", "definite", "word-adj"},
 	} {
-		forms := swedishWordForms(t, c.table)
-		for i := 0; i < 200; i++ {
-			word, form, _ := strings.Cut(fakeTemplate(t, sv, "{/"+c.path+" as w}{w}|{w."+c.form+"}"), "|")
-			if forms[word] != form {
-				t.Fatalf("%s %q printed %s %q, want its own, %q", c.path, word, c.form, form, forms[word])
-			}
-		}
+		t.Run(c.path, func(t *testing.T) {
+			forms := swedishWordForms(t, c.table)
+			eachDraw(200, func() string { return fakeTemplate(t, sv, "{/"+c.path+" as w}{w}|{w."+c.form+"}") }, func(got string) {
+				word, form, _ := strings.Cut(got, "|")
+				if forms[word] != form {
+					t.Fatalf("%s %q printed %s %q, want its own, %q", c.path, word, c.form, form, forms[word])
+				}
+			})
+		})
 	}
 }
 
@@ -1194,69 +1437,93 @@ func TestSwedishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 		t.Fatalf("any holds %d parts of speech, want 4", len(word.Any))
 	}
 	for _, part := range word.Any {
-		table := strings.Trim(part.Format, "{.}")
-		if rows := len(swedishWordForms(t, table)); part.Weight != rows {
-			t.Errorf("%s weighs %d, want its %d rows", table, part.Weight, rows)
-		}
+		t.Run(strings.Trim(part.Format, "{.}"), func(t *testing.T) {
+			table := strings.Trim(part.Format, "{.}")
+			if rows := len(swedishWordForms(t, table)); part.Weight != rows {
+				t.Errorf("%s weighs %d, want its %d rows", table, part.Weight, rows)
+			}
+		})
 	}
 }
 
 func TestSwedishSentenceDrawsTheFormsItsPatternNeeds(t *testing.T) {
 	t.Parallel()
 	sv := shipped(t, WithSeed(7))
-	forms := func(table string) map[string]bool {
-		held := map[string]bool{}
-		for _, form := range swedishWordForms(t, table) {
-			held[form] = true
-		}
-		return held
-	}
-	adj, noun, present := forms("word-adj"), forms("word-noun"), forms("word-verb")
-	lemma := swedishWordForms(t, "word-verb")
-	for i := 0; i < 200; i++ {
-		sentence := fake(t, sv, "sv_SE.sentence")
-		w := strings.Fields(strings.TrimRight(sentence, ".!?"))
-		last := len(w) - 1
-		var adjs, nouns []string
-		var verbHeld bool
-		if strings.HasSuffix(sentence, "?") {
-			adjs, nouns = []string{w[last-4]}, []string{w[last-3], w[last]}
-			_, verbHeld = lemma[w[last-2]]
-		} else {
-			adjs, nouns = []string{w[1], w[5]}, []string{w[2], w[6]}
-			verbHeld = present[w[3]]
-		}
-		if !verbHeld {
+	adj, noun := swedishWordFormSet(t, "word-adj"), swedishWordFormSet(t, "word-noun")
+	verbOfAQuestion := map[bool]map[string]bool{true: swedishWordSet(t, "word-verb"), false: swedishWordFormSet(t, "word-verb")}
+	eachDraw(200, func() string { return fake(t, sv, "sv_SE.sentence") }, func(sentence string) {
+		adjs, nouns, verb, question := partsOfASwedishSentence(sentence)
+		if !verbOfAQuestion[question][verb] {
 			t.Errorf("sentence %q holds a verb form its pattern doesn't read", sentence)
 		}
-		for _, n := range nouns {
-			if !noun[n] {
-				t.Errorf("sentence %q prints %q, no definite noun", sentence, n)
-			}
-		}
-		for _, a := range adjs {
-			if !adj[a] {
-				t.Errorf("sentence %q prints %q, no definite adjective", sentence, a)
-			}
+		errorOnSentenceWordsNotHeld(t, sentence, nouns, noun, "noun")
+		errorOnSentenceWordsNotHeld(t, sentence, adjs, adj, "adjective")
+	})
+}
+
+func partsOfASwedishSentence(sentence string) (adjs, nouns []string, verb string, question bool) {
+	w := strings.Fields(strings.TrimRight(sentence, ".!?"))
+	last := len(w) - 1
+	if strings.HasSuffix(sentence, "?") {
+		return []string{w[last-4]}, []string{w[last-3], w[last]}, w[last-2], true
+	}
+	return []string{w[1], w[5]}, []string{w[2], w[6]}, w[3], false
+}
+
+func errorOnSentenceWordsNotHeld(t *testing.T, sentence string, words []string, held map[string]bool, kind string) {
+	t.Helper()
+	for _, w := range words {
+		if !held[w] {
+			t.Errorf("sentence %q prints %q, no definite %s", sentence, w, kind)
 		}
 	}
 }
 
 func TestSwedishPostortKeepsItsDeliveryDigitNineCodes(t *testing.T) {
 	t.Parallel()
+	shipped := geoSEPostalCodeLocalities(t)
+	for code, locality := range map[string]string{"169 41": "Solna", "169 34": "Solna", "589 41": "Linköping"} {
+		t.Run(code, func(t *testing.T) {
+			if shipped[code] != locality {
+				t.Errorf("%s belongs to %q, want %s, where people and companies have street addresses", code, shipped[code], locality)
+			}
+		})
+	}
+}
+
+func geoSEPostalCodeLocalities(t *testing.T) map[string]string {
+	t.Helper()
 	shipped := map[string]string{}
 	for _, r := range geoRows(t, "SE", "postal-code") {
 		shipped[r[0]] = r[1]
 	}
-	for code, locality := range map[string]string{"169 41": "Solna", "169 34": "Solna", "589 41": "Linköping"} {
-		if shipped[code] != locality {
-			t.Errorf("%s belongs to %q, want %s, where people and companies have street addresses", code, shipped[code], locality)
-		}
-	}
+	return shipped
 }
 
 func TestSwedishStreetSitsInThePostortWhoseAreaHoldsIt(t *testing.T) {
 	t.Parallel()
+	streets := geoSEStreetsByLocality(t)
+	for _, c := range []struct{ locality, name string }{
+		{"Stockholm", "Sveavägen"}, {"Stockholm", "Birger Jarlsgatan"}, {"Stockholm", "Hornsgatan"}, {"Stockholm", "Götgatan"}, {"Stockholm", "Odengatan"}, {"Stockholm", "Fleminggatan"},
+		{"Bromma", "Bergslagsvägen"},
+	} {
+		t.Run(c.locality+" "+c.name, func(t *testing.T) {
+			if !streets[c.locality][c.name] {
+				t.Errorf("%s has no %s", c.locality, c.name)
+			}
+		})
+	}
+}
+
+func TestSwedishStockholmHoldsTheStreetsOfACapitalsOwnPostort(t *testing.T) {
+	t.Parallel()
+	if got := len(geoSEStreetsByLocality(t)["Stockholm"]); got < 1000 {
+		t.Errorf("Stockholm has %d streets, want the 1000 or more of a capital's own postort", got)
+	}
+}
+
+func geoSEStreetsByLocality(t *testing.T) map[string]map[string]bool {
+	t.Helper()
 	streets := map[string]map[string]bool{}
 	for _, r := range geoRows(t, "SE", "street") {
 		if streets[r[1]] == nil {
@@ -1264,19 +1531,7 @@ func TestSwedishStreetSitsInThePostortWhoseAreaHoldsIt(t *testing.T) {
 		}
 		streets[r[1]][r[0]] = true
 	}
-	for locality, names := range map[string][]string{
-		"Stockholm": {"Sveavägen", "Birger Jarlsgatan", "Hornsgatan", "Götgatan", "Odengatan", "Fleminggatan"},
-		"Bromma":    {"Bergslagsvägen"},
-	} {
-		for _, name := range names {
-			if !streets[locality][name] {
-				t.Errorf("%s has no %s", locality, name)
-			}
-		}
-	}
-	if got := len(streets["Stockholm"]); got < 1000 {
-		t.Errorf("Stockholm has %d streets, want the 1000 or more of a capital's own postort", got)
-	}
+	return streets
 }
 
 func bankgirotMod11Valid(digits string) bool {
@@ -1291,25 +1546,23 @@ func bankgirotMod11Valid(digits string) bool {
 // the last four, eight with it in the middle, the final digit Luhn's check digit as Bankgirot's
 // 10-modul sheet has it.
 func TestSwedishBankgiro(t *testing.T) {
-	if !luhnValid("9912346") || !luhnValid("55555551") {
-		t.Fatal("Bankgirot's two examples, 991-2346 and 5555-5551, must pass the Luhn oracle")
-	}
 	f := shipped(t, WithSeed(1))
 	form := regexp.MustCompile(`^([1-9]\d{2}-\d{4}|[1-9]\d{3}-\d{4})$`)
-	seven, eight := 0, 0
-	for i := 0; i < 2000; i++ {
-		v := fake(t, f, "sv_SE.bankgiro")
+	sevenDigits := map[bool]int{}
+	eachDraw(2000, func() string { return fake(t, f, "sv_SE.bankgiro") }, func(v string) {
 		if !form.MatchString(v) || !luhnValid(digitsOnly(v)) {
 			t.Fatalf("sv_SE.bankgiro %q, want 991-2346 or 5555-5551's form with a Luhn check digit", v)
 		}
-		if len(v) == 8 {
-			seven++
-		} else {
-			eight++
-		}
-	}
-	if seven < 800 || eight < 800 {
+		sevenDigits[len(v) == 8]++
+	})
+	if seven, eight := sevenDigits[true], sevenDigits[false]; seven < 800 || eight < 800 {
 		t.Errorf("%d bankgiro of seven digits and %d of eight in 2000, want about half each", seven, eight)
+	}
+}
+
+func TestSwedishBankgiroOracleAcceptsBankgirotsExamples(t *testing.T) {
+	if !luhnValid("9912346") || !luhnValid("55555551") {
+		t.Fatal("Bankgirot's two examples, 991-2346 and 5555-5551, must pass the Luhn oracle")
 	}
 }
 
@@ -1319,8 +1572,7 @@ func TestSwedishPlusgiro(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	form := regexp.MustCompile(`^[1-9]\d?( \d{2})*-\d$`)
 	lengths := map[int]int{}
-	for i := 0; i < 3500; i++ {
-		v := fake(t, f, "sv_SE.plusgiro")
+	eachDraw(3500, func() string { return fake(t, f, "sv_SE.plusgiro") }, func(v string) {
 		d := digitsOnly(v)
 		if !form.MatchString(v) || !luhnValid(d) || len(d) < 2 || len(d) > 8 {
 			t.Fatalf("sv_SE.plusgiro %q, want 2 to 8 digits, the hyphen before the last, a Luhn check digit", v)
@@ -1329,11 +1581,13 @@ func TestSwedishPlusgiro(t *testing.T) {
 			t.Fatalf("sv_SE.plusgiro %q has its hyphen elsewhere than before the last digit", v)
 		}
 		lengths[len(d)]++
-	}
+	})
 	for n := 2; n <= 8; n++ {
-		if lengths[n] < 300 {
-			t.Errorf("%d plusgiro of %d digits in 3500, want about 500", lengths[n], n)
-		}
+		t.Run(strconv.Itoa(n)+" digits", func(t *testing.T) {
+			if lengths[n] < 300 {
+				t.Errorf("%d plusgiro of %d digits in 3500, want about 500", lengths[n], n)
+			}
+		})
 	}
 }
 
@@ -1458,16 +1712,26 @@ func TestSwedishBankAccountHasOneRowPerClearingNumber(t *testing.T) {
 	if lines[0] != "clearing\tbank\tnumber" {
 		t.Fatalf("header %q, want clearing, bank and number", lines[0])
 	}
+	want := clearingNumberAndBankOfEachListedRow()
+	if len(lines)-1 != len(want) {
+		t.Fatalf("%d rows, want %d: one for each clearing number of the listed ranges", len(lines)-1, len(want))
+	}
+	fatalOnARowNotOpeningWith(t, lines[1:], want)
+}
+
+func clearingNumberAndBankOfEachListedRow() []string {
 	var want []string
 	for _, r := range clearingRanges {
 		for c := r.first; c <= r.last; c++ {
 			want = append(want, fmt.Sprintf("%d\t%s", c, r.bank))
 		}
 	}
-	if len(lines)-1 != len(want) {
-		t.Fatalf("%d rows, want %d: one for each clearing number of the listed ranges", len(lines)-1, len(want))
-	}
-	for i, l := range lines[1:] {
+	return want
+}
+
+func fatalOnARowNotOpeningWith(t *testing.T, rows, want []string) {
+	t.Helper()
+	for i, l := range rows {
 		if !strings.HasPrefix(l, want[i]+"\t") {
 			t.Fatalf("row %d is %q, want it to open with %q", i+1, l, want[i])
 		}
@@ -1477,30 +1741,40 @@ func TestSwedishBankAccountHasOneRowPerClearingNumber(t *testing.T) {
 func TestSwedishBankAccountOfEveryClearingNumberChecks(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	for _, r := range clearingRanges {
-		for c := r.first; c <= r.last; c++ {
-			v := fakeTemplate(t, f, fmt.Sprintf("{/sv_SE.bankaccount[%d]}", c))
-			if !strings.HasPrefix(v, strconv.Itoa(c)+"-") {
-				t.Fatalf("sv_SE.bankaccount[%d] = %q, want it to open with its clearing number", c, v)
-			}
-			checkBankAccount(t, v)
-			if bank := fakeTemplate(t, f, fmt.Sprintf("{/sv_SE.bankaccount[%d].bank}", c)); bank != r.bank {
-				t.Fatalf("sv_SE.bankaccount[%d].bank = %q, want %q", c, bank, r.bank)
-			}
-		}
+		t.Run(fmt.Sprintf("%d-%d", r.first, r.last), func(t *testing.T) {
+			eachClearingNumberFrom(r.first, r.last, func(c int) {
+				v := fakeTemplate(t, f, fmt.Sprintf("{/sv_SE.bankaccount[%d]}", c))
+				if !strings.HasPrefix(v, strconv.Itoa(c)+"-") {
+					t.Fatalf("sv_SE.bankaccount[%d] = %q, want it to open with its clearing number", c, v)
+				}
+				checkBankAccount(t, v)
+				if bank := fakeTemplate(t, f, fmt.Sprintf("{/sv_SE.bankaccount[%d].bank}", c)); bank != r.bank {
+					t.Fatalf("sv_SE.bankaccount[%d].bank = %q, want %q", c, bank, r.bank)
+				}
+			})
+		})
+	}
+}
+
+func eachClearingNumberFrom(first, last int, check func(c int)) {
+	for c := first; c <= last; c++ {
+		check(c)
 	}
 }
 
 func TestSwedishBankAccount(t *testing.T) {
 	f := shipped(t, WithSeed(2))
 	banks := map[string]bool{}
-	for i := 0; i < 3000; i++ {
-		bank, v, _ := strings.Cut(fakeTemplate(t, f, "{/sv_SE.bankaccount as a}{a.bank}={a}"), "=")
+	eachDraw(3000, func() string { return fakeTemplate(t, f, "{/sv_SE.bankaccount as a}{a.bank}={a}") }, func(got string) {
+		bank, v, _ := strings.Cut(got, "=")
 		checkBankAccount(t, v)
 		banks[bank] = true
-	}
+	})
 	for _, b := range []string{"Nordea", "SEB", "Swedbank", "Handelsbanken", "Danske Bank"} {
-		if !banks[b] {
-			t.Errorf("3000 sv_SE.bankaccount never drew a clearing number of %s", b)
-		}
+		t.Run(b, func(t *testing.T) {
+			if !banks[b] {
+				t.Errorf("3000 sv_SE.bankaccount never drew a clearing number of %s", b)
+			}
+		})
 	}
 }
