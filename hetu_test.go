@@ -41,35 +41,46 @@ func TestBuiltinHetuReadsTheLastSixDigitsEmitted(t *testing.T) {
 
 func TestBuiltinHetuRendersNothingForAYearOutside1800To2099(t *testing.T) {
 	for _, year := range []int{1799, 2160} {
-		f := engineOn(6, time.Date(year, 6, 1, 0, 0, 0, 0, time.UTC))
-		if got := mustRender(t, f, `{"format":"131052{hetu(last)}","last":"3"}`); got != "131052" {
-			t.Errorf("hetu on %d = %q, want 131052 and nothing after it", year, got)
-		}
+		t.Run(strconv.Itoa(year), func(t *testing.T) {
+			f := engineOn(6, time.Date(year, 6, 1, 0, 0, 0, 0, time.UTC))
+			if got := mustRender(t, f, `{"format":"131052{hetu(last)}","last":"3"}`); got != "131052" {
+				t.Errorf("hetu on %d = %q, want 131052 and nothing after it", year, got)
+			}
+		})
 	}
 }
 
 func TestBuiltinHetuGivesEachDigitTheParityOfItsOperand(t *testing.T) {
 	f := emptyGenerator(7)
 	for digit := range 10 {
-		got := mustRender(t, f, fmt.Sprintf(`{"format":"131052{hetu(last)}","last":"%d"}`, digit))
-		if len(got) != 11 {
-			t.Fatalf("hetu with the operand %d = %q, want a date, a sign, three digits and a control character", digit, got)
-		}
-		if individual, _ := strconv.Atoi(got[7:10]); individual%2 != digit%2 {
-			t.Errorf("hetu with the operand %d = %q, want an individual number of that parity", digit, got)
-		}
+		t.Run(strconv.Itoa(digit), func(t *testing.T) {
+			got := mustRender(t, f, fmt.Sprintf(`{"format":"131052{hetu(last)}","last":"%d"}`, digit))
+			if len(got) != 11 {
+				t.Fatalf("hetu with the operand %d = %q, want a date, a sign, three digits and a control character", digit, got)
+			}
+			if individual, _ := strconv.Atoi(got[7:10]); individual%2 != digit%2 {
+				t.Errorf("hetu with the operand %d = %q, want an individual number of that parity", digit, got)
+			}
+		})
 	}
+}
+
+func hetuIndividualNumbersOverSeeds(t *testing.T, seeds int, parity int) map[string]int {
+	t.Helper()
+	seed := uint64(0)
+	return tallyDraws(seeds, func() string {
+		got := mustRender(t, emptyGenerator(seed), fmt.Sprintf(`{"format":"131052{hetu(last)}","last":"%d"}`, parity))
+		seed++
+		return got[7:10]
+	})
 }
 
 func TestBuiltinHetuDrawsEveryIndividualNumberFrom900To999(t *testing.T) {
 	for parity := range 2 {
-		seen := map[string]bool{}
-		for seed := range uint64(3000) {
-			got := mustRender(t, emptyGenerator(seed), fmt.Sprintf(`{"format":"131052{hetu(last)}","last":"%d"}`, parity))
-			seen[got[7:10]] = true
-		}
-		if len(seen) != 50 {
-			t.Errorf("3000 draws with the operand %d gave %d individual numbers, want each of the 50", parity, len(seen))
-		}
+		t.Run(strconv.Itoa(parity), func(t *testing.T) {
+			if seen := hetuIndividualNumbersOverSeeds(t, 3000, parity); len(seen) != 50 {
+				t.Errorf("3000 draws with the operand %d gave %d individual numbers, want each of the 50", parity, len(seen))
+			}
+		})
 	}
 }
