@@ -22,17 +22,14 @@ func drawTicks(t *testing.T, f *Generator, tmpl string, n int) []time.Time {
 	return ticks
 }
 
-func TestTickPrintsRowNAtTheStartPlusNStepsAndWithinTheJitter(t *testing.T) {
-	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	for i, at := range drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 200) {
-		if low := start.Add(time.Duration(i) * 30 * time.Second); at.Before(low) || at.After(low.Add(5*time.Second)) {
-			t.Fatalf("row %d = %s, want %s to %s", i+1, at.Format(tickLayout), low.Format(tickLayout), low.Add(5*time.Second).Format(tickLayout))
-		}
+func eachTick(ticks []time.Time, check func(i int, at time.Time)) {
+	for i, at := range ticks {
+		check(i, at)
 	}
 }
 
-func TestTickRowsAscendWhenTheJitterIsOneBelowTheStep(t *testing.T) {
-	ticks := drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,29,'2006-01-02T15:04:05Z')}"`, 5000)
+func ticksMustAscend(t *testing.T, ticks []time.Time) {
+	t.Helper()
 	for i := 1; i < len(ticks); i++ {
 		if !ticks[i].After(ticks[i-1]) {
 			t.Fatalf("row %d = %s does not come after row %d = %s", i+1, ticks[i], i, ticks[i-1])
@@ -40,41 +37,53 @@ func TestTickRowsAscendWhenTheJitterIsOneBelowTheStep(t *testing.T) {
 	}
 }
 
+func TestTickPrintsRowNAtTheStartPlusNStepsAndWithinTheJitter(t *testing.T) {
+	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	eachTick(drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 200), func(i int, at time.Time) {
+		if low := start.Add(time.Duration(i) * 30 * time.Second); at.Before(low) || at.After(low.Add(5*time.Second)) {
+			t.Fatalf("row %d = %s, want %s to %s", i+1, at.Format(tickLayout), low.Format(tickLayout), low.Add(5*time.Second).Format(tickLayout))
+		}
+	})
+}
+
+func TestTickRowsAscendWhenTheJitterIsOneBelowTheStep(t *testing.T) {
+	ticksMustAscend(t, drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,29,'2006-01-02T15:04:05Z')}"`, 5000))
+}
+
 func TestTickDrawsTheJittersFirstAndLastSecond(t *testing.T) {
 	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	seen := map[time.Duration]bool{}
-	for i, at := range drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 600) {
+	eachTick(drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01T00:00:00Z,30,5,'2006-01-02T15:04:05Z')}"`, 600), func(i int, at time.Time) {
 		seen[at.Sub(start)-time.Duration(i)*30*time.Second] = true
-	}
+	})
 	if !seen[0] || !seen[5*time.Second] || len(seen) != 6 {
 		t.Errorf("jitter 5 drew the offsets %v, want each of 0 to 5 seconds and no other", seen)
 	}
 }
 
 func TestTickRowsKeepAscendingPastTwoHundredNinetyTwoYears(t *testing.T) {
-	ticks := drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01,86400,0,'2006-01-02T15:04:05Z')}"`, 107000)
-	for i := 1; i < len(ticks); i++ {
-		if !ticks[i].After(ticks[i-1]) {
-			t.Fatalf("row %d = %s does not come after row %d = %s", i+1, ticks[i], i, ticks[i-1])
-		}
-	}
+	ticksMustAscend(t, drawTicks(t, readOn(t, testDay), `"{tick(2026-01-01,86400,0,'2006-01-02T15:04:05Z')}"`, 107000))
 }
 
 func TestTickKeepsAFractionOfASecondInItsStart(t *testing.T) {
 	f := readOn(t, testDay)
 	for _, want := range []string{"2026-01-01T00:00:00.500Z", "2026-01-01T00:01:00.500Z"} {
-		if got := mustRender(t, f, `"{tick(2026-01-01T00:00:00.5Z,60,0,'2006-01-02T15:04:05.000Z')}"`); got != want {
-			t.Fatalf("tick = %q, want %q", got, want)
-		}
+		t.Run(want, func(t *testing.T) {
+			if got := mustRender(t, f, `"{tick(2026-01-01T00:00:00.5Z,60,0,'2006-01-02T15:04:05.000Z')}"`); got != want {
+				t.Fatalf("tick = %q, want %q", got, want)
+			}
+		})
 	}
 }
 
 func TestTickWithNoJitterPrintsExactSteps(t *testing.T) {
 	f := readOn(t, testDay)
 	for _, want := range []string{"2026-01-01 00:00:00", "2026-01-01 00:01:00", "2026-01-01 00:02:00"} {
-		if got := mustRender(t, f, `"{tick(2026-01-01,60,0,'2006-01-02 15:04:05')}"`); got != want {
-			t.Fatalf("tick = %q, want %q: a day is read as its midnight, UTC", got, want)
-		}
+		t.Run(want, func(t *testing.T) {
+			if got := mustRender(t, f, `"{tick(2026-01-01,60,0,'2006-01-02 15:04:05')}"`); got != want {
+				t.Fatalf("tick = %q, want %q: a day is read as its midnight, UTC", got, want)
+			}
+		})
 	}
 }
 
@@ -125,10 +134,9 @@ func TestTickRefusesWhatCouldSwapRowsOrIsNoTime(t *testing.T) {
 func TestDateDrawsBetweenDaysRelativeToTheCallersToday(t *testing.T) {
 	f := readOn(t, dayOf(2026, 11, 12))
 	first, last := "9999-12-31", "0000-01-01"
-	for range 3000 {
-		got := mustRender(t, f, `"{date(today-30,today+14,'2006-01-02')}"`)
+	eachDraw(3000, func() string { return mustRender(t, f, `"{date(today-30,today+14,'2006-01-02')}"`) }, func(got string) {
 		first, last = min(first, got), max(last, got)
-	}
+	})
 	if first != "2026-10-13" || last != "2026-11-26" {
 		t.Errorf("date(today-30,today+14) on 2026-11-12 drew %s to %s, want 2026-10-13 to 2026-11-26", first, last)
 	}
