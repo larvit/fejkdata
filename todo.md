@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 459`
+`Next ID = 460`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 459 | 0.6.0 |  |  | **Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.** | 2 | 1 | 1 | 2 | 2 | code health by 2 | 6.5 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
 | 453 | 0.6.0 |  | owner | **Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
@@ -230,6 +231,10 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
+
+### 459. Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.
+
+Stability round 1 of item 456 found that removing `walkTemplate`'s `staysInCategory` guard (`internal/engine/fence/namefence.go`) survives every test. References are walked again in `refsReached`, and the rules compare routes by node, so a case the guard changes is not obvious: find one, such as a reference back into the pick's own category, and pin it, or record at the guard why it is a cost bound alone.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 

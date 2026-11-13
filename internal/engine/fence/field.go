@@ -43,24 +43,20 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column tree.Node)
 	if kind.Datatype == datatype.String {
 		return nil
 	}
-	return p.checkFieldValues(label, ft, items)
+	return p.checkFieldValues(label, ft, elem.Kind(), items)
 }
 
-// checkFieldValues rejects an item of a column a field of the non-string Go type ft cannot hold:
-// one not proven of its kind's datatype, or not within its kind's range.
-func (p *valueProof) checkFieldValues(label string, ft reflect.Type, items []*tree.Template) error {
-	elem := ft
-	if ft.Kind() == reflect.Pointer {
-		elem = ft.Elem()
-	}
-	kind := FieldKinds[elem.Kind()]
+// checkFieldValues rejects an item that a field of Go type ft, of the non-string kind k, cannot
+// hold: one not proven of k's datatype, or not proven within k's range.
+func (p *valueProof) checkFieldValues(label string, ft reflect.Type, k reflect.Kind, items []*tree.Template) error {
+	kind := FieldKinds[k]
 	for _, it := range items {
 		v := p.proveColumnItem(it)
 		if reason := v.Not[kind.Datatype]; reason != "" {
 			return fmt.Errorf("%s (%s): %s", label, ft, reason)
 		}
 		if !kind.holds(v) {
-			return fmt.Errorf("%s (%s): %q is not proven within %s; narrow it to that range, or make the field %s", label, ft, it.Format(), elem.Kind(), kind.wider)
+			return fmt.Errorf("%s (%s): %q is not proven within %s; narrow it to that range, or make the field %s", label, ft, it.Format(), k, kind.wider)
 		}
 	}
 	return nil
