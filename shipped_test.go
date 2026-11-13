@@ -140,20 +140,26 @@ func TestShippedManifestsAreCurrent(t *testing.T) {
 		t.Fatal(err)
 	}
 	for i, m := range modules {
-		file := filepath.Join("data", filepath.FromSlash(m.dir), datafiles.ManifestFile)
-		if os.Getenv("REGENERATE") == "1" {
-			if err := os.WriteFile(file, manifests[i], 0o644); err != nil {
-				t.Fatal(err)
-			}
-			continue
-		}
-		want, err := os.ReadFile(file)
-		if err != nil {
+		t.Run(m.namespace, func(t *testing.T) {
+			shippedManifestIsCurrentOrRegenerated(t, filepath.Join("data", filepath.FromSlash(m.dir), datafiles.ManifestFile), manifests[i])
+		})
+	}
+}
+
+func shippedManifestIsCurrentOrRegenerated(t *testing.T, file string, manifest []byte) {
+	t.Helper()
+	if os.Getenv("REGENERATE") == "1" {
+		if err := os.WriteFile(file, manifest, 0o644); err != nil {
 			t.Fatal(err)
 		}
-		if string(manifests[i]) != string(want) {
-			t.Errorf("%s is stale; regenerate it: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", file)
-		}
+		return
+	}
+	want, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(manifest) != string(want) {
+		t.Errorf("%s is stale; regenerate it: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", file)
 	}
 }
 
@@ -224,7 +230,7 @@ func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 	return index
 }
 
-func TestEachShippedPackagesModulesHoldWhatItReadsAndRender(t *testing.T) {
+func TestEachShippedPackagesModulesHoldWhatItReads(t *testing.T) {
 	t.Parallel()
 	modules := shippedModules(t)
 	_, reads, err := shippedManifests(newShippedWhole(t), modules)
@@ -232,26 +238,40 @@ func TestEachShippedPackagesModulesHoldWhatItReadsAndRender(t *testing.T) {
 		t.Fatal(err)
 	}
 	for i, m := range modules {
-		set := m.modules()
-		for _, read := range reads[i] {
-			j := slices.IndexFunc(modules, func(r shippedModule) bool { return r.namespace == read })
-			if j < 0 || !slices.Contains(set, modules[j].fsys) {
-				t.Errorf("%s reads %s, which its Modules leaves out", m.namespace, read)
+		t.Run(m.namespace, func(t *testing.T) {
+			set := m.modules()
+			for _, read := range reads[i] {
+				t.Run(read, func(t *testing.T) {
+					j := slices.IndexFunc(modules, func(r shippedModule) bool { return r.namespace == read })
+					if j < 0 || !slices.Contains(set, modules[j].fsys) {
+						t.Errorf("%s reads %s, which its Modules leaves out", m.namespace, read)
+					}
+				})
 			}
-		}
-		manifest, err := datafiles.FS(m.fsys).Manifest()
-		if err != nil {
-			t.Fatal(err)
-		}
-		f, err := New(WithSeed(1), onTestDay, WithDataFS(set...))
-		if err != nil {
-			t.Fatalf("New(%s's Modules) = %v", m.namespace, err)
-		}
-		for _, p := range tree.SortedNames(manifest.Index) {
-			if _, err := f.Fake(p); err != nil {
-				t.Errorf("%s's Modules: Fake(%q) = %v", m.namespace, p, err)
+		})
+	}
+}
+
+func TestEachShippedPackagesModulesRender(t *testing.T) {
+	t.Parallel()
+	for _, m := range shippedModules(t) {
+		t.Run(m.namespace, func(t *testing.T) {
+			manifest, err := datafiles.FS(m.fsys).Manifest()
+			if err != nil {
+				t.Fatal(err)
 			}
-		}
+			f, err := New(WithSeed(1), onTestDay, WithDataFS(m.modules()...))
+			if err != nil {
+				t.Fatalf("New(%s's Modules) = %v", m.namespace, err)
+			}
+			for _, p := range tree.SortedNames(manifest.Index) {
+				t.Run(p, func(t *testing.T) {
+					if _, err := f.Fake(p); err != nil {
+						t.Errorf("%s's Modules: Fake(%q) = %v", m.namespace, p, err)
+					}
+				})
+			}
+		})
 	}
 }
 
@@ -262,6 +282,13 @@ func TestALocaleAloneFailsAtItsAddressNamingTheMissingGeo(t *testing.T) {
 	}
 	if _, err := f.Fake("sv_SE.address"); !errors.Is(err, ErrLoad) || !strings.Contains(err.Error(), `reference {/geo.SE.address}: no entry "geo"`) {
 		t.Errorf(`Fake("sv_SE.address") = %v, want a load error naming the missing geo`, err)
+	}
+}
+
+func TestALocaleAloneLoadsItsCategoriesThatReadNoGeo(t *testing.T) {
+	f, err := New(WithSeed(1), onTestDay, WithDataFS(svse.FS))
+	if err != nil {
+		t.Fatalf("New(WithDataFS(svse.FS)) = %v", err)
 	}
 	if got := fake(t, f, "sv_SE.person"); got == "" {
 		t.Error("sv_SE.person rendered empty, want the locale's other categories to load alone")
@@ -301,15 +328,19 @@ func TestANamespaceMountsAModuleUnderIt(t *testing.T) {
 			"sub/word.json":  {Data: []byte(`"hej"`)},
 		}),
 	} {
-		f, err := New(opt, WithSeed(1), onTestDay)
-		if err != nil {
-			t.Fatalf("New(%s) = %v", name, err)
-		}
-		for _, p := range []string{"my.data.word", "my.data.sub.word"} {
-			if got := fake(t, f, p); got != "hej" {
-				t.Errorf("%s: %s = %q, want hej", name, p, got)
+		t.Run(name, func(t *testing.T) {
+			f, err := New(opt, WithSeed(1), onTestDay)
+			if err != nil {
+				t.Fatalf("New(%s) = %v", name, err)
 			}
-		}
+			for _, p := range []string{"my.data.word", "my.data.sub.word"} {
+				t.Run(p, func(t *testing.T) {
+					if got := fake(t, f, p); got != "hej" {
+						t.Errorf("%s: %s = %q, want hej", name, p, got)
+					}
+				})
+			}
+		})
 	}
 }
 
@@ -323,31 +354,51 @@ func TestNewLoadsNoShippedCategory(t *testing.T) {
 	}
 }
 
+func loadedHoldsAndLeaves(t *testing.T, label string, got, want, absent []string) {
+	t.Helper()
+	for _, w := range want {
+		if !slices.Contains(got, w) {
+			t.Errorf("%s %v, want %s among them", label, got, w)
+		}
+	}
+	for _, a := range absent {
+		if slices.Contains(got, a) {
+			t.Errorf("%s %v, want %s left unloaded", label, got, a)
+		}
+	}
+}
+
 func TestReachingACategoryLoadsWhatItReads(t *testing.T) {
 	for _, tc := range []struct {
+		name         string
 		reach        func(f *Generator) error
 		want, absent []string
 	}{
 		{
+			name:  "Fake sv_SE.person.first",
 			reach: func(f *Generator) error { _, err := f.Fake("sv_SE.person.first"); return err },
 			want:  []string{"sv_SE.first-name", "sv_SE.last-name", "sv_SE.person", "sv_SE.sex", "sv_SE.title"},
 		},
 		{
+			name:   "Fake geo.SE.region",
 			reach:  func(f *Generator) error { _, err := f.Fake("geo.SE.region"); return err },
 			want:   []string{"geo.SE.locality", "geo.SE.municipality", "geo.SE.postal-code", "geo.SE.region", "geo.SE.street"},
 			absent: []string{"geo.SE.address", "geo.US.region"},
 		},
 		{
+			name:   "FakeTemplate misc.territory[SE].name",
 			reach:  func(f *Generator) error { _, err := f.FakeTemplate("{/misc.territory[SE].name}"); return err },
 			want:   []string{"misc.territory", "misc.timezone"},
 			absent: []string{"misc.tld"},
 		},
 		{
+			name:   "FakeRecord misc.uuid",
 			reach:  func(f *Generator) error { _, err := f.FakeRecord("misc.uuid"); return err },
 			want:   []string{"misc.uuid"},
 			absent: []string{"misc.objectid"},
 		},
 		{
+			name: "FakeStruct sv_SE.first-name",
 			reach: func(f *Generator) error {
 				var v struct {
 					Name string `fake:"sv_SE.first-name"`
@@ -358,24 +409,16 @@ func TestReachingACategoryLoadsWhatItReads(t *testing.T) {
 			absent: []string{"sv_SE.person"},
 		},
 	} {
-		f, err := New(withShipped(), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Fatalf("New() = %v", err)
-		}
-		if err := tc.reach(f); err != nil {
-			t.Fatal(err)
-		}
-		got := loadedCategories(f)
-		for _, w := range tc.want {
-			if !slices.Contains(got, w) {
-				t.Errorf("loaded %v, want %s among them", got, w)
+		t.Run(tc.name, func(t *testing.T) {
+			f, err := New(withShipped(), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Fatalf("New() = %v", err)
 			}
-		}
-		for _, a := range tc.absent {
-			if slices.Contains(got, a) {
-				t.Errorf("loaded %v, want %s left unloaded", got, a)
+			if err := tc.reach(f); err != nil {
+				t.Fatal(err)
 			}
-		}
+			loadedHoldsAndLeaves(t, "loaded", loadedCategories(f), tc.want, tc.absent)
+		})
 	}
 }
 
@@ -384,17 +427,9 @@ func TestADataPathLoadsWhatItReads(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
-	got := loadedCategories(f)
-	for _, w := range []string{"greeting", "sv_SE.first-name", "sv_SE.person"} {
-		if !slices.Contains(got, w) {
-			t.Errorf("New loaded %v, want %s among them", got, w)
-		}
-	}
-	for _, a := range []string{"misc.uuid", "sv_SE.address", "geo.SE.region"} {
-		if slices.Contains(got, a) {
-			t.Errorf("New loaded %v, want %s left unloaded", got, a)
-		}
-	}
+	loadedHoldsAndLeaves(t, "New loaded", loadedCategories(f),
+		[]string{"greeting", "sv_SE.first-name", "sv_SE.person"},
+		[]string{"misc.uuid", "sv_SE.address", "geo.SE.region"})
 }
 
 func TestAReplacementBreakingAShippedReaderFailsItsFirstReach(t *testing.T) {
@@ -405,16 +440,18 @@ func TestAReplacementBreakingAShippedReaderFailsItsFirstReach(t *testing.T) {
 			"sv_SE/last-name.json": {Data: []byte(`"x"`)},
 		}),
 	} {
-		f, err := New(withShipped(), WithSeed(1), onTestDay, opt)
-		if err != nil {
-			t.Fatalf("New(%s) = %v", name, err)
-		}
-		if got := loadedCategories(f); slices.Contains(got, "sv_SE.person") {
-			t.Errorf("New(%s) loaded %v, want sv_SE.person left for its first reach", name, got)
-		}
-		if _, err := f.Fake("sv_SE.person"); !errors.Is(err, ErrLoad) || !strings.Contains(err.Error(), "sv_SE.person") {
-			t.Errorf(`%s: Fake("sv_SE.person") = %v, want ErrLoad naming sv_SE.person`, name, err)
-		}
+		t.Run(name, func(t *testing.T) {
+			f, err := New(withShipped(), WithSeed(1), onTestDay, opt)
+			if err != nil {
+				t.Fatalf("New(%s) = %v", name, err)
+			}
+			if got := loadedCategories(f); slices.Contains(got, "sv_SE.person") {
+				t.Errorf("New(%s) loaded %v, want sv_SE.person left for its first reach", name, got)
+			}
+			if _, err := f.Fake("sv_SE.person"); !errors.Is(err, ErrLoad) || !strings.Contains(err.Error(), "sv_SE.person") {
+				t.Errorf(`%s: Fake("sv_SE.person") = %v, want ErrLoad naming sv_SE.person`, name, err)
+			}
+		})
 	}
 }
 
@@ -487,15 +524,19 @@ func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 		`{"namespace": "a..b"}`: {`namespace "a..b"`},
 		`{"index": {"b.x": {"paths": [""]}}, "namespace": "a"}`: {`index entry "b.x" lies outside the namespace "a"`},
 	} {
-		_, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
-		for _, w := range want {
-			if err == nil || !strings.Contains(err.Error(), w) {
-				t.Errorf("New(manifest %s) = %v, want an error naming %s", manifest, err, w)
+		t.Run(manifest, func(t *testing.T) {
+			_, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
+			for _, w := range want {
+				t.Run(w, func(t *testing.T) {
+					if err == nil || !strings.Contains(err.Error(), w) {
+						t.Errorf("New(manifest %s) = %v, want an error naming %s", manifest, err, w)
+					}
+				})
 			}
-		}
-		if err != nil && strings.Count(err.Error(), "\n") >= len(want) {
-			t.Errorf("New(manifest %s) = %v, want %d mistakes, each once", manifest, err, len(want))
-		}
+			if err != nil && strings.Count(err.Error(), "\n") >= len(want) {
+				t.Errorf("New(manifest %s) = %v, want %d mistakes, each once", manifest, err, len(want))
+			}
+		})
 	}
 }
 
@@ -505,16 +546,17 @@ func TestNewMatchesErrLoadOnDataThatFailsToLoad(t *testing.T) {
 		"a broken category":   WithDataPath(writeData(t, map[string]string{"x": `{ not json`})),
 		"a broken manifest":   WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(`{`)}}),
 	} {
-		if _, err := New(withShipped(), WithSeed(1), onTestDay, opt); !errors.Is(err, ErrLoad) {
-			t.Errorf("New(%s) = %v, want it to match ErrLoad", name, err)
-		}
+		t.Run(name, func(t *testing.T) {
+			if _, err := New(withShipped(), WithSeed(1), onTestDay, opt); !errors.Is(err, ErrLoad) {
+				t.Errorf("New(%s) = %v, want it to match ErrLoad", name, err)
+			}
+		})
 	}
 }
 
-func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
+func TestOnDemandListsAsTheWholeLoad(t *testing.T) {
 	t.Parallel()
-	whole := newShippedWhole(t)
-	paths := whole.List()
+	paths := newShippedWhole(t).List()
 	lazy, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatalf("New() = %v", err)
@@ -522,42 +564,50 @@ func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
 	if got := lazy.List(); !reflect.DeepEqual(got, paths) {
 		t.Fatalf("List() on demand = %v, want %v", got, paths)
 	}
+}
+
+func fakesThreeTimesAsTheWholeLoad(t *testing.T, onDemand, whole *Generator, p string) {
+	t.Helper()
+	for range 3 {
+		got, gotErr := onDemand.Fake(p)
+		want, wantErr := whole.Fake(p)
+		if got != want || (gotErr == nil) != (wantErr == nil) {
+			t.Fatalf("Fake(%q) on demand = %q, %v; whole = %q, %v", p, got, gotErr, want, wantErr)
+		}
+	}
+}
+
+func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
+	t.Parallel()
 	a, err := New(withShipped(), WithSeed(7), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
 	b := newShippedWhole(t, WithSeed(7), onTestDay)
-	for _, p := range paths {
-		for range 3 {
-			got, gotErr := a.Fake(p)
-			want, wantErr := b.Fake(p)
-			if got != want || (gotErr == nil) != (wantErr == nil) {
-				t.Fatalf("Fake(%q) on demand = %q, %v; whole = %q, %v", p, got, gotErr, want, wantErr)
-			}
-		}
+	for _, p := range b.List() {
+		t.Run(p, func(t *testing.T) { fakesThreeTimesAsTheWholeLoad(t, a, b, p) })
 	}
 }
 
 func TestEveryShippedCategoryLoadsAlone(t *testing.T) {
 	t.Parallel()
 	for _, p := range tree.SortedNames(shippedIndex(t)) {
-		f, err := New(withShipped(), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Fatalf("New() = %v", err)
-		}
-		if _, err := f.Fake(p); err != nil {
-			t.Errorf("Fake(%q) on a fresh New() = %v", p, err)
-		}
+		t.Run(p, func(t *testing.T) {
+			f, err := New(withShipped(), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Fatalf("New() = %v", err)
+			}
+			if _, err := f.Fake(p); err != nil {
+				t.Errorf("Fake(%q) on a fresh New() = %v", p, err)
+			}
+		})
 	}
 }
 
-func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatalf("New() = %v", err)
-	}
+func fakeEachBesideList(t *testing.T, f *Generator, paths ...string) {
+	t.Helper()
 	var wg sync.WaitGroup
-	for _, p := range []string{"sv_SE.person", "geo.US.address", "misc.territory"} {
+	for _, p := range paths {
 		wg.Add(2)
 		go func() {
 			defer wg.Done()
@@ -571,6 +621,14 @@ func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
 		}()
 	}
 	wg.Wait()
+}
+
+func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatalf("New() = %v", err)
+	}
+	fakeEachBesideList(t, f, "sv_SE.person", "geo.US.address", "misc.territory")
 }
 
 func TestATableWhoseEntryOmitsItsParentFailsAtFirstReach(t *testing.T) {
