@@ -252,10 +252,7 @@ func TestShippedDanishAddressIsAStreetANumberAPostnummerAndAPostdistrikt(t *test
 }
 
 func TestShippedDanishPlacesAreNamedAsDARWritesThem(t *testing.T) {
-	districts := map[string]bool{}
-	for _, r := range geoRows(t, "DK", "locality") {
-		districts[r[0]] = true
-	}
+	districts := geoNameSet(t, "DK", "locality")
 	for _, name := range []string{"København K", "Frederiksberg C", "Aarhus C", "Odense C", "Aalborg", "Esbjerg", "Rønne"} {
 		t.Run(name, func(t *testing.T) {
 			if !districts[name] {
@@ -292,15 +289,11 @@ func TestShippedDanishPlacesHoldDenmarksFiveRegions(t *testing.T) {
 	}
 }
 
-type danishHouseNumberShares struct{ lettered, oneDigit, fourDigits int }
+type houseNumberShares struct{ lettered, oneDigit, fourDigits int }
 
-const danishHouseNumberDraws = 40000
-
-func danishHouseNumbers(t *testing.T) danishHouseNumberShares {
-	t.Helper()
-	f := shipped(t, WithSeed(11))
-	var shares danishHouseNumberShares
-	eachDraw(danishHouseNumberDraws, func() string { return fake(t, f, "da_DK.address.street-number") }, func(n string) {
+func houseNumberSharesOf(n int, draw func() string) houseNumberShares {
+	var shares houseNumberShares
+	eachDraw(n, draw, func(n string) {
 		digits := strings.TrimRight(n, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 		if digits != n {
 			shares.lettered++
@@ -313,6 +306,14 @@ func danishHouseNumbers(t *testing.T) danishHouseNumberShares {
 		}
 	})
 	return shares
+}
+
+const danishHouseNumberDraws = 40000
+
+func danishHouseNumbers(t *testing.T) houseNumberShares {
+	t.Helper()
+	f := shipped(t, WithSeed(11))
+	return houseNumberSharesOf(danishHouseNumberDraws, func() string { return fake(t, f, "da_DK.address.street-number") })
 }
 
 // Of DAR's 2.62 million house numbers in force, 14.4% carry a letter after the number, 29.3% have
@@ -795,10 +796,7 @@ func TestShippedDanishCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
 func TestShippedDanishCompanyEndsInALegalFormDrawnByStatisticsDenmarksEnterprises(t *testing.T) {
 	t.Parallel()
 	registered := map[string]int{"ENK": 132403, "ApS": 218208, "A/S": 30750, "I/S": 5840, "K/S": 5839}
-	var total int
-	for _, n := range registered {
-		total += n
-	}
+	total := sumOfCounts(registered)
 	form := map[string]int{}
 	eachShippedDanishCompany(t, func(got string) { form[danishLegalForm(got)]++ })
 	for code, n := range registered {
@@ -831,6 +829,32 @@ func TestShippedDanishCompanyLegalIsItsAbbreviation(t *testing.T) {
 	})
 }
 
+func sumOfCounts(counts map[string]int) int {
+	var total int
+	for _, n := range counts {
+		total += n
+	}
+	return total
+}
+
+func geoNameSet(t *testing.T, country, table string) map[string]bool {
+	t.Helper()
+	out := map[string]bool{}
+	for _, r := range geoRows(t, country, table) {
+		out[r[0]] = true
+	}
+	return out
+}
+
+func nameColumnSet(t *testing.T, file string) map[string]bool {
+	t.Helper()
+	out := map[string]bool{}
+	for _, row := range tsvRows(t, file) {
+		out[row["name"]] = true
+	}
+	return out
+}
+
 func danishCompanyShape(name string, words []string, places, firsts, lasts map[string]bool) []string {
 	var shapes []string
 	for _, w := range words {
@@ -849,6 +873,19 @@ func danishCompanyShape(name string, words []string, places, firsts, lasts map[s
 	return shapes
 }
 
+func danishSoleProprietorshipShapes(t *testing.T, words []string, draws int) map[string]int {
+	t.Helper()
+	places, firsts, lasts := nameColumnSet(t, "data/geo/DK/locality.tsv"), nameColumnSet(t, "data/da_DK/first-name.tsv"), nameColumnSet(t, "data/da_DK/last-name.tsv")
+	f := shipped(t, WithSeed(8))
+	seen := map[string]int{}
+	eachDraw(draws, func() string { return fake(t, f, "da_DK.company.enk") }, func(name string) {
+		for _, shape := range danishCompanyShape(name, words, places, firsts, lasts) {
+			seen[shape]++
+		}
+	})
+	return seen
+}
+
 func TestShippedDanishCompanyNamesAreBuiltOfNamesPlacesAndTradeWords(t *testing.T) {
 	t.Parallel()
 	src, err := os.ReadFile("data/da_DK/company-word.json")
@@ -859,22 +896,8 @@ func TestShippedDanishCompanyNamesAreBuiltOfNamesPlacesAndTradeWords(t *testing.
 	if err := json.Unmarshal(src, &words); err != nil || len(words) < 20 {
 		t.Fatalf("company-word.json is %d words (%v), want an array of 20 or more", len(words), err)
 	}
-	set := func(file string) map[string]bool {
-		out := map[string]bool{}
-		for _, row := range tsvRows(t, file) {
-			out[row["name"]] = true
-		}
-		return out
-	}
-	places, firsts, lasts := set("data/geo/DK/locality.tsv"), set("data/da_DK/first-name.tsv"), set("data/da_DK/last-name.tsv")
-	f := shipped(t, WithSeed(8))
-	seen := map[string]int{}
 	const draws = 4000
-	eachDraw(draws, func() string { return fake(t, f, "da_DK.company.enk") }, func(name string) {
-		for _, shape := range danishCompanyShape(name, words, places, firsts, lasts) {
-			seen[shape]++
-		}
-	})
+	seen := danishSoleProprietorshipShapes(t, words, draws)
 	for _, shape := range []string{"place and trade word", "last name and trade word", "first and last name"} {
 		t.Run(shape, func(t *testing.T) {
 			if seen[shape] < draws/10 {
