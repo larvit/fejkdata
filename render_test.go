@@ -98,7 +98,7 @@ func nodeSamples(t *testing.T) (map[string]tree.Node, *tree.Table) {
 func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 	return map[string]func(tree.Node){
 		"ChildNamed":  func(n tree.Node) { _, _ = load.ChildNamed(n, "x") },
-		"ColumnItems": func(n tree.Node) { fence.ColumnItems(n) },
+		"ColumnItems": func(n tree.Node) { load.ColumnItems(n) },
 		"Contained":   func(n tree.Node) { load.Contained(n) },
 		"Paths":       func(n tree.Node) { load.Paths(n, false) },
 		"render": func(n tree.Node) {
@@ -107,7 +107,7 @@ func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 			tbl.Rows().DrawIn(s, &pins)
 			render.Pinned(s, n, &pins)
 		},
-		"RenderEdges": func(n tree.Node) { tree.RenderEdges(n, tree.AfterFinish) },
+		"RenderEdges": func(n tree.Node) { tree.RenderEdges(n) },
 		"Prove":       func(n tree.Node) { fence.Prove(n) },
 	}
 }
@@ -166,7 +166,7 @@ func TestRenderEdgesListWhatRenderRecursesInto(t *testing.T) {
 	for kind, n := range samples {
 		t.Run(kind, func(t *testing.T) {
 			recurses := kind != "NullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
-			if edges := tree.RenderEdges(n, tree.AfterFinish); recurses != (len(edges) > 0) {
+			if edges := tree.RenderEdges(n); recurses != (len(edges) > 0) {
 				t.Errorf("%s: render recurses into it %v, RenderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
 			}
 		})

@@ -1,7 +1,6 @@
 package fence
 
 import (
-	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/proven"
 )
@@ -24,18 +23,6 @@ func checkReadColumns(label, name string, items []*tree.Template, check func(lab
 		}
 	}
 	return nil
-}
-
-// itemDatatype is the datatype a column item declares, else that of the column it reads.
-func itemDatatype(t *tree.Template, l *tree.LoadFinds) datatype.DataType {
-	r := l.Of(t).ReadsColumn()
-	switch {
-	case t.DataType() != nil:
-		return *t.DataType()
-	case r != nil:
-		return ColumnDatatype(r.Column(), l)
-	}
-	return datatype.String
 }
 
 // proveColumnItem proves what a column item renders or, where the item is a column read, the column it reads.

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/larvit/fejkdata/internal/engine/fence"
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -50,7 +50,7 @@ func shippedShape(f *Generator) string {
 			facts[prefix] = "\tformat " + strconv.Quote(n.Format()) + readsFact(n)
 			for _, c := range n.Columns() {
 				fact := "\t" + c.DataType().String()
-				if _, nullable := fence.ColumnItems(c.Field()); nullable {
+				if _, nullable := load.ColumnItems(c.Field()); nullable {
 					fact += " null"
 				}
 				facts[prefix+"."+c.Name()] = fact

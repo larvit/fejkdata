@@ -33,8 +33,7 @@ func wroteTemplateOrAField(root *tree.Template) bool {
 
 func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 	for src, want := range map[string]string{
-		`{"format":"{w as e}{reword(e,e)}","w":["ab","cd"]}`:            "is a name, which holds one pick",
-		`{"format":"{x as n}{y as m}{n}{n}{m}{m}","x":"{m}","y":"{n}"}`: "reference cycle",
+		`{"format":"{w as e}{reword(e,e)}","w":["ab","cd"]}`: "is a name, which holds one pick",
 	} {
 		t.Run(src, func(t *testing.T) {
 			n, l := compileInput(t, src)

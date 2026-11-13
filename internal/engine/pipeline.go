@@ -6,7 +6,6 @@ import (
 	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
-	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 func siteNodes(sites []categorySite) fence.NodeSet {
@@ -49,26 +48,25 @@ func categoryPipeline(sites []categorySite, root map[string]tree.Node, l *tree.L
 	}
 }
 
-// run needs each stage to follow the one before. resolve binds what each template's tokens read, and
-// refuses a name or reference that can't resolve. fence.RefuseReadsInsideFields comes before the cycle
-// check: a name read inside the field bound to it is also a reference cycle, and its error says how
-// to fix the read. The cycle check comes before settleRecords, fence.Templates and fence.CheckNodes,
-// whose walks recurse unguarded. settleRecords fixes each record's columns, whose datatypes
-// fence.CheckColumns proves agree. Until finish, each stage reads from p.finds what the stages
-// before it found; from finish on, each reads the nodes.
+// run loads, then fences. resolve binds what each template's tokens read, and refuses a name or
+// reference that can't resolve. load.SettleRecords fixes each record's columns, and Finish writes
+// what the load found into the nodes, so every fence reads finished nodes. fence.RefuseReadsInsideFields
+// comes before the cycle check: a name read inside the field bound to it is also a reference cycle,
+// and its error says how to fix the read. The cycle check comes before fence.Templates and
+// fence.CheckNodes, whose walks recurse unguarded.
 func (p pipeline) run() error {
 	ts, err := p.resolve()
 	if err != nil {
 		return err
 	}
-	if err := fence.RefuseReadsInsideFields(ts, p.finds); err != nil {
-		return err
-	}
-	if err := fence.CheckNoCycles(p.nodes, p.finds); err != nil {
-		return err
-	}
-	settleRecords(p.nodes, p.finds)
+	load.SettleRecords(p.nodes, p.finds)
 	p.finds.Finish()
+	if err := fence.RefuseReadsInsideFields(ts); err != nil {
+		return err
+	}
+	if err := fence.CheckNoCycles(p.nodes); err != nil {
+		return err
+	}
 	if err := fence.Templates(ts); err != nil {
 		return err
 	}
@@ -109,40 +107,4 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]tree.Node, l
 		return nil, err
 	}
 	return ts, nil
-}
-
-// settleRecords fixes the columns of every record in nodes. The pipeline runs it after fence.CheckNoCycles: a
-// column's datatype walks the column, and a cycle would walk forever.
-func settleRecords(nodes fence.NodeSet, l *tree.LoadFinds) {
-	_ = nodes(func(_ string, n tree.Node) error {
-		if t, isTemplate := n.(*tree.Template); isTemplate {
-			l.SetColumns(t, recordColumns(t, l))
-		}
-		return nil
-	})
-}
-
-// recordColumns is t's columns in name order where t is a record with fields, else nil.
-func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
-	if !t.IsRecord() || len(t.Fields()) == 0 {
-		return nil
-	}
-	whole := map[tree.Node]*tree.NameBinding{}
-	for _, tok := range t.Tokens() {
-		if tok.Kind != grammar.NameBind {
-			continue
-		}
-		b := l.Of(t).NameScope().Bindings()[tok.Bound]
-		if target := l.Binding(b).Target(); b.BindsField() && len(target.Tail()) == 0 && whole[target.Start()] == nil {
-			whole[target.Start()] = b
-		}
-	}
-	var columns []tree.RecordColumn
-	for _, name := range tree.SortedNames(t.Fields()) {
-		if !t.Lets()[name] {
-			field := t.Fields()[name]
-			columns = append(columns, tree.NewRecordColumn(name, fence.ColumnDatatype(field, l), field, whole[field]))
-		}
-	}
-	return columns
 }

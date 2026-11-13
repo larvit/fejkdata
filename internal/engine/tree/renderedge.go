@@ -30,9 +30,8 @@ type RenderEdge struct {
 	Label string
 }
 
-// RenderEdges lists every child a render of n can step into. It reads what l found, since the
-// cycle check runs before Finish.
-func RenderEdges(n Node, l *LoadFinds) []RenderEdge {
+// RenderEdges lists every child a render of n can step into.
+func RenderEdges(n Node) []RenderEdge {
 	switch n := n.(type) {
 	case *Choice:
 		es := make([]RenderEdge, len(n.items))
@@ -42,7 +41,7 @@ func RenderEdges(n Node, l *LoadFinds) []RenderEdge {
 		return es
 	case *Template:
 		var es []RenderEdge
-		for _, o := range l.Of(n).Compiled().Ops() {
+		for _, o := range n.Compiled().Ops() {
 			for _, a := range o.AllReads() {
 				for _, leaf := range a.Leaves() {
 					es = append(es, RenderEdge{leaf, a.Spelling()})

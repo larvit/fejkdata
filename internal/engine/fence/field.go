@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/larvit/fejkdata/internal/datatype"
+	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/proven"
 )
@@ -30,7 +31,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column tree.Node)
 		elem = ft.Elem()
 	}
 	kind := FieldKinds[elem.Kind()]
-	items, _ := ColumnItems(column)
+	items, _ := load.ColumnItems(column)
 	for _, it := range items {
 		if it.DataType() != nil && *it.DataType() != kind.Datatype {
 			return fmt.Errorf("%s: its Go type %s sets the datatype %s; drop \"datatype\"", label, ft, kind.Datatype)

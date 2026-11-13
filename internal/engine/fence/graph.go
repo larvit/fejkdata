@@ -16,7 +16,7 @@ func (m RenderCounts) renderCount(n tree.Node) int {
 		return r
 	}
 	r := 1
-	for _, e := range tree.RenderEdges(n, tree.AfterFinish) {
+	for _, e := range tree.RenderEdges(n) {
 		if c := m.renderCount(e.To); c > r {
 			r = c
 		}
@@ -44,7 +44,7 @@ func RepeatCheck(label string, n tree.Node, mem RenderCounts) error {
 // graph (tree.RenderEdges). Every node is a root: a field its parent's format never
 // renders is still reachable by dot path, so a cycle in one would otherwise reach
 // render and be fatal there.
-func CheckNoCycles(s NodeSet, l *tree.LoadFinds) error {
+func CheckNoCycles(s NodeSet) error {
 	const (
 		grey  = 1
 		black = 2
@@ -70,7 +70,7 @@ func CheckNoCycles(s NodeSet, l *tree.LoadFinds) error {
 			return nil
 		}
 		color[n] = grey
-		for _, e := range tree.RenderEdges(n, l) {
+		for _, e := range tree.RenderEdges(n) {
 			if err := visit(e.To, label+" -> "+e.Label); err != nil {
 				return err
 			}

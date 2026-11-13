@@ -40,7 +40,7 @@ func (p *valueProof) proveColumn(n tree.Node) proven.Facts {
 	if p.columnMemo == nil {
 		p.columnMemo = map[tree.Node]proven.Facts{}
 	}
-	items, nullable := ColumnItems(n)
+	items, nullable := load.ColumnItems(n)
 	var v proven.Facts
 	for i, it := range items {
 		if w := p.proveColumnItem(it); i == 0 {
