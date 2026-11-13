@@ -18,6 +18,19 @@ func compileInput(t *testing.T, input string) (tree.Node, *tree.LoadFinds) {
 	return n, l
 }
 
+func wroteTemplateOrAField(root *tree.Template) bool {
+	written := root.Finished()
+	for _, field := range root.Fields() {
+		switch field := field.(type) {
+		case *tree.Template:
+			written = written || field.Finished()
+		case *tree.Choice:
+			written = written || field.NameScope() != nil
+		}
+	}
+	return written
+}
+
 func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 	for src, want := range map[string]string{
 		`{"format":"{w as e}{reword(e,e)}","w":["ab","cd"]}`:            "is a name, which holds one pick",
@@ -28,17 +41,7 @@ func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 			if err := loadInline(tree.NewFolder(), n, l, "t", false); err == nil || !strings.Contains(err.Error(), want) {
 				t.Fatalf("loadInline() = %v, want an error holding %q", err, want)
 			}
-			root := n.(*tree.Template)
-			written := root.Finished()
-			for _, field := range root.Fields() {
-				switch field := field.(type) {
-				case *tree.Template:
-					written = written || field.Finished()
-				case *tree.Choice:
-					written = written || field.NameScope() != nil
-				}
-			}
-			if written {
+			if wroteTemplateOrAField(n.(*tree.Template)) {
 				t.Error("a load that failed before finish wrote its template or a field")
 			}
 		})
