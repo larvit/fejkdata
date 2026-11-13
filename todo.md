@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 455 | 0.5.0 |  |  | **Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.** | 4 | 2 | 2 | 6 | 6 | code health by 3 | 1.6 |
 | 456 | 0.5.0 |  |  | **Gate cyclomatic complexity at 10 in both gocyclo lines, with every function over it split or listed, with its reason, as a table-shaped dispatch.** | 3 | 1 | 1 | 3 | 8 | code health by 5 | 0.7 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
@@ -231,10 +230,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 455. Run mypy at full strictness over data-import, release-tooling and vulnerability-filing in the gate, and fix every error it reports.
-
-`mypy --strict` reports 1,240 errors today: 725 in data-import, 417 in release-tooling and 98 in vulnerability-filing. Add mypy beside ruff in the Dockerfile's `python-lint` stage, and annotate each folder until it passes.
 
 ### 456. Gate cyclomatic complexity at 10 in both gocyclo lines, with every function over it split or listed, with its reason, as a table-shaped dispatch.
 
