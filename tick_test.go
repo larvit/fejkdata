@@ -60,6 +60,15 @@ func TestTickRowsKeepAscendingPastTwoHundredNinetyTwoYears(t *testing.T) {
 	}
 }
 
+func TestTickKeepsAFractionOfASecondInItsStart(t *testing.T) {
+	f := readOn(t, testDay)
+	for _, want := range []string{"2026-01-01T00:00:00.500Z", "2026-01-01T00:01:00.500Z"} {
+		if got := mustRender(t, f, `"{tick(2026-01-01T00:00:00.5Z,60,0,'2006-01-02T15:04:05.000Z')}"`); got != want {
+			t.Fatalf("tick = %q, want %q", got, want)
+		}
+	}
+}
+
 func TestTickWithNoJitterPrintsExactSteps(t *testing.T) {
 	f := readOn(t, testDay)
 	for _, want := range []string{"2026-01-01 00:00:00", "2026-01-01 00:01:00", "2026-01-01 00:02:00"} {
