@@ -63,6 +63,10 @@ dockers_v2:
       - "{{ .Version }}"
       - '{{ if eq .Env.LATEST "true" }}latest{{ end }}'
     dockerfile: ../tooling/release-tooling/image.Dockerfile
+    extra_files:
+      - LICENSE
+      - DATA-LICENSES.md
+      - data/en_US/WORDNET-LICENSE.txt
     labels:
       org.opencontainers.image.source: *homepage
       org.opencontainers.image.version: "{{ .Version }}"
