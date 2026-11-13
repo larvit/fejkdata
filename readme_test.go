@@ -79,23 +79,35 @@ func readme(t *testing.T) string {
 	return string(src)
 }
 
+func firstRenderError(f *Generator, path string, n int) error {
+	for i := 0; i < n; i++ {
+		if _, err := f.Fake(path); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func readmeLine(src string, at int) string {
+	return "line-" + strconv.Itoa(strings.Count(src[:at], "\n")+1)
+}
+
 func TestReadmeExamplesLoadAndRender(t *testing.T) {
 	n := 0
 	src := readme(t)
 	for _, at := range jsonBlock.FindAllStringSubmatchIndex(src, -1) {
-		body := src[at[2]:at[3]]
-		f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1), onTestDay)
-		if err != nil {
-			t.Errorf("README example does not load: %v\n%s", err, body)
-			continue
-		}
-		for i := 0; i < 20; i++ {
-			if _, err := f.Fake("example"); err != nil {
-				t.Errorf("README example does not render: %v\n%s", err, body)
-				break
+		t.Run(readmeLine(src, at[0]), func(t *testing.T) {
+			body := src[at[2]:at[3]]
+			f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1), onTestDay)
+			if err != nil {
+				t.Errorf("README example does not load: %v\n%s", err, body)
+				return
 			}
-		}
-		n++
+			if err := firstRenderError(f, "example", 20); err != nil {
+				t.Errorf("README example does not render: %v\n%s", err, body)
+			}
+			n++
+		})
 	}
 	if n < 8 {
 		t.Fatalf("found only %d README examples", n)
@@ -147,6 +159,19 @@ func TestReadmeSQLExampleOutput(t *testing.T) {
 	}
 }
 
+func jsonHoldsColumnAsItsDatatype(m map[string]any, c Column) bool {
+	var ok bool
+	switch c.DataType {
+	case DataTypeBoolean:
+		_, ok = m[c.Name].(bool)
+	case DataTypeInteger, DataTypeNumber:
+		_, ok = m[c.Name].(float64)
+	default:
+		_, ok = m[c.Name].(string)
+	}
+	return ok
+}
+
 func TestReadmeDatatypeExample(t *testing.T) {
 	src := readme(t)
 	i := strings.Index(src, "### Datatype")
@@ -168,26 +193,20 @@ func TestReadmeDatatypeExample(t *testing.T) {
 	}
 	shown := map[DataType]bool{}
 	for _, c := range r.Columns() {
-		shown[c.DataType] = true
-		var ok bool
-		switch c.DataType {
-		case DataTypeBoolean:
-			_, ok = m[c.Name].(bool)
-		case DataTypeInteger, DataTypeNumber:
-			_, ok = m[c.Name].(float64)
-		default:
-			_, ok = m[c.Name].(string)
-		}
-		if !ok {
-			t.Errorf("column %q, datatype %s, written as %s", c.Name, c.DataType, r.JSON())
-		}
+		t.Run(c.Name, func(t *testing.T) {
+			shown[c.DataType] = true
+			if !jsonHoldsColumnAsItsDatatype(m, c) {
+				t.Errorf("column %q, datatype %s, written as %s", c.Name, c.DataType, r.JSON())
+			}
+		})
 	}
 	if !shown[DataTypeInteger] || !shown[DataTypeNumber] || !shown[DataTypeBoolean] {
 		t.Errorf("README Datatype example shows %v, want an integer, a number and a boolean column", shown)
 	}
 }
 
-func TestReadmeTableExample(t *testing.T) {
+func readmeTableExample(t *testing.T) *Generator {
+	t.Helper()
 	src := readme(t)
 	i := strings.Index(src, "### Table")
 	if i < 0 {
@@ -202,18 +221,29 @@ func TestReadmeTableExample(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	return f
+}
+
+func TestReadmeTableExample(t *testing.T) {
+	f := readmeTableExample(t)
 	for path, want := range map[string]string{"example[SE]": "Sweden (SE)", "example[Norway].alpha2": "NO"} {
-		if got := fake(t, f, path); got != want {
-			t.Errorf("README table example: Fake(%q) = %q, want %q", path, got, want)
-		}
+		t.Run(path, func(t *testing.T) {
+			if got := fake(t, f, path); got != want {
+				t.Errorf("README table example: Fake(%q) = %q, want %q", path, got, want)
+			}
+		})
 	}
-	r, err := f.FakeRecord("example")
+}
+
+func TestReadmeTableExampleIsARecord(t *testing.T) {
+	r, err := readmeTableExample(t).FakeRecord("example")
 	if err != nil || r.CSVHeader() != "alpha2,name,population" {
 		t.Fatalf("README table example as a record: %q, %v", r.CSVHeader(), err)
 	}
 }
 
-func TestLayoutNamesEverySourceFile(t *testing.T) {
+func readmeLayoutGoFiles(t *testing.T) map[string]bool {
+	t.Helper()
 	src := readme(t)
 	i := strings.Index(src, "## Layout")
 	if i < 0 {
@@ -230,19 +260,36 @@ func TestLayoutNamesEverySourceFile(t *testing.T) {
 			listed[name] = true
 		}
 	}
-	for _, name := range packageDir(t).GoFiles {
-		if !listed[name] {
-			t.Errorf("the README Layout names no %s, so nothing says what it holds", name)
-		}
-		delete(listed, name)
-	}
+	return listed
+}
+
+func namesListedBesides(listed map[string]bool, held []string) []string {
 	stale := make([]string, 0, len(listed))
 	for name := range listed {
-		stale = append(stale, name)
+		if !slices.Contains(held, name) {
+			stale = append(stale, name)
+		}
 	}
 	slices.Sort(stale)
-	for _, name := range stale {
-		t.Errorf("the README Layout names %s, which the package does not hold", name)
+	return stale
+}
+
+func TestLayoutNamesEverySourceFile(t *testing.T) {
+	listed := readmeLayoutGoFiles(t)
+	for _, name := range packageDir(t).GoFiles {
+		t.Run(name, func(t *testing.T) {
+			if !listed[name] {
+				t.Errorf("the README Layout names no %s, so nothing says what it holds", name)
+			}
+		})
+	}
+}
+
+func TestLayoutNamesOnlyTheSourceFilesThePackageHolds(t *testing.T) {
+	for _, name := range namesListedBesides(readmeLayoutGoFiles(t), packageDir(t).GoFiles) {
+		t.Run(name, func(t *testing.T) {
+			t.Errorf("the README Layout names %s, which the package does not hold", name)
+		})
 	}
 }
 
@@ -257,7 +304,7 @@ func shCommands(src string) []string {
 	return commands
 }
 
-func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
+func TestDockerhubDescriptionOpensAReadmeSentence(t *testing.T) {
 	doc := readme(t)
 	description, err := os.ReadFile("dockerhub/description.txt")
 	if err != nil {
@@ -267,6 +314,10 @@ func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
 	if !regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(tagline) + `[:.]`).MatchString(doc) {
 		t.Errorf("dockerhub/description.txt says %q, which no README.md sentence opens with", tagline)
 	}
+}
+
+func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
+	doc := readme(t)
 	overview, err := os.ReadFile("dockerhub/overview.md")
 	if err != nil {
 		t.Fatal(err)
@@ -278,14 +329,16 @@ func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
 	shown := shCommands(doc)
 	docker := regexp.MustCompile(`docker run --rm (-i )?larvit/fejkdata`)
 	for _, command := range commands {
-		before, after, _ := strings.Cut(command, "docker run")
-		reads := strings.Contains(before, "|") || strings.Contains(after, "<")
-		if reads != strings.Contains(command, "docker run --rm -i ") {
-			t.Errorf("dockerhub/overview.md runs %q, which needs -i exactly when it reads stdin", command)
-		}
-		if !slices.Contains(shown, docker.ReplaceAllString(command, "fejkdata")) {
-			t.Errorf("dockerhub/overview.md runs %q, which no README.md sh line shows", command)
-		}
+		t.Run(command, func(t *testing.T) {
+			before, after, _ := strings.Cut(command, "docker run")
+			reads := strings.Contains(before, "|") || strings.Contains(after, "<")
+			if reads != strings.Contains(command, "docker run --rm -i ") {
+				t.Errorf("dockerhub/overview.md runs %q, which needs -i exactly when it reads stdin", command)
+			}
+			if !slices.Contains(shown, docker.ReplaceAllString(command, "fejkdata")) {
+				t.Errorf("dockerhub/overview.md runs %q, which no README.md sh line shows", command)
+			}
+		})
 	}
 }
 
@@ -454,20 +507,13 @@ func TestReadmeBulkQuickStart(t *testing.T) {
 		t.Fatal(err)
 	}
 	shipped := loadQuickStartShipped(t)
-	for i := 0; i < 300; i++ {
-		r, err := f.FakeRecord("person")
-		if err != nil {
-			t.Fatal(err)
-		}
-		col := map[string]string{}
-		for _, c := range r.Columns() {
-			col[c.Name] = c.Value
-		}
+	eachRecordOf(t, f, "person", 300, func(r *Record) {
+		col := valuesByColumn(r)
 		p := quickStartPerson{col["sex"], col["first"], col["last"], col["personnummer"], col["email"], col["street"], col["postal-code"], col["locality"]}
 		if err := shipped.checkPerson(p); err != nil {
 			t.Fatalf("%v: %v", col, err)
 		}
-	}
+	})
 }
 
 func TestReadmeBulkQuickStartOutput(t *testing.T) {
@@ -493,6 +539,22 @@ func TestReadmeBulkQuickStartOutput(t *testing.T) {
 	}
 }
 
+func headedRecordLines(t *testing.T, f *Generator, path string, n int, header, line func(r *Record) string) []string {
+	t.Helper()
+	var got []string
+	for i := 0; i < n; i++ {
+		r, err := f.FakeRecord(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if i == 0 {
+			got = append(got, header(r))
+		}
+		got = append(got, line(r))
+	}
+	return got
+}
+
 func TestReadmeUniqueColumnOutput(t *testing.T) {
 	src := readme(t)
 	at := strings.Index(src, "`{seq()}` counts")
@@ -508,72 +570,96 @@ func TestReadmeUniqueColumnOutput(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var got []string
-	for i := 0; i < 3; i++ {
-		r, err := f.FakeRecord("ids")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if i == 0 {
-			got = append(got, r.CSVHeader())
-		}
-		got = append(got, r.CSVLine())
-	}
+	got := headedRecordLines(t, f, "ids", 3, (*Record).CSVHeader, (*Record).CSVLine)
 	if want := strings.TrimSpace(out[1]); strings.Join(got, "\n") != want {
 		t.Errorf("README prints %q for --seed 1 --format csv --repeat 3, it renders %q", want, strings.Join(got, "\n"))
 	}
 }
 
-func TestReadmeGoQuickStart(t *testing.T) {
-	t.Parallel()
+func readmeGoQuickStart(t *testing.T) (block, printed string) {
+	t.Helper()
 	section := readmeSection(t, readme(t), "### Go tests")
-	block := goBlock.FindStringSubmatch(section)
-	printed := regexp.MustCompile(`(?m)^\s*// With seed 1, p is (\{.*\})$`).FindStringSubmatch(section)
-	if block == nil || printed == nil {
+	goCode := goBlock.FindStringSubmatch(section)
+	person := regexp.MustCompile(`(?m)^\s*// With seed 1, p is (\{.*\})$`).FindStringSubmatch(section)
+	if goCode == nil || person == nil {
 		t.Fatal("README's Go quick start lost its go block or its printed person")
 	}
-	if !strings.Contains(block[1], "fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1), fejkdata.WithToday(day))") {
-		t.Error("README's Go quick start no longer has the New call this test runs")
-	}
-	if !strings.Contains(block[1], "f.FakeStruct(&p)") {
-		t.Error("README's Go quick start no longer has the FakeStruct call this test runs")
-	}
-	if !strings.Contains(block[1], `"github.com/larvit/fejkdata/data/sv_SE"`) {
-		t.Error("README's Go quick start no longer imports the data this test loads")
-	}
-	typ := readmeStruct(t, block[1])
+	return goCode[1], person[1]
+}
+
+func readmeGoQuickStartGenerator(t *testing.T) *Generator {
+	t.Helper()
 	f, err := New(WithDataFS(svse.Modules()...), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	first := reflect.New(typ)
-	if err := f.FakeStruct(first.Interface()); err != nil {
-		t.Fatal(err)
+	return f
+}
+
+func stringField(t *testing.T, ptr reflect.Value, name string) string {
+	t.Helper()
+	v := ptr.Elem().FieldByName(name)
+	if !v.IsValid() {
+		t.Fatalf("README's Go quick start has no %s field", name)
 	}
-	if got := fmt.Sprintf("%+v", first.Elem().Interface()); got != printed[1] {
-		t.Errorf("README prints %s for seed 1, it renders %s", printed[1], got)
-	}
-	shipped := loadQuickStartShipped(t)
-	for i := 0; i < 300; i++ {
+	return v.String()
+}
+
+func eachReadmePersonFilled(t *testing.T, f *Generator, typ reflect.Type, n int, check func(p quickStartPerson)) {
+	t.Helper()
+	for i := 0; i < n; i++ {
 		ptr := reflect.New(typ)
 		if err := f.FakeStruct(ptr.Interface()); err != nil {
 			t.Fatal(err)
 		}
-		field := func(name string) string {
-			v := ptr.Elem().FieldByName(name)
-			if !v.IsValid() {
-				t.Fatalf("README's Go quick start has no %s field", name)
-			}
-			return v.String()
-		}
-		p := quickStartPerson{field("Sex"), field("First"), field("Last"), field("Personnummer"), field("Email"), field("Street"), field("PostalCode"), field("Locality")}
-		if err := shipped.checkPerson(p); err != nil {
-			t.Fatalf("%+v: %v", p, err)
-		}
+		field := func(name string) string { return stringField(t, ptr, name) }
+		check(quickStartPerson{field("Sex"), field("First"), field("Last"), field("Personnummer"), field("Email"), field("Street"), field("PostalCode"), field("Locality")})
 	}
 }
 
-func TestReadmeTSVExampleOutput(t *testing.T) {
+func TestReadmeGoQuickStartRunsTheCallsItsTestsRun(t *testing.T) {
+	block, _ := readmeGoQuickStart(t)
+	if !strings.Contains(block, "fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1), fejkdata.WithToday(day))") {
+		t.Error("README's Go quick start no longer has the New call this test runs")
+	}
+	if !strings.Contains(block, "f.FakeStruct(&p)") {
+		t.Error("README's Go quick start no longer has the FakeStruct call this test runs")
+	}
+	if !strings.Contains(block, `"github.com/larvit/fejkdata/data/sv_SE"`) {
+		t.Error("README's Go quick start no longer imports the data this test loads")
+	}
+}
+
+func TestReadmeGoQuickStart(t *testing.T) {
+	t.Parallel()
+	block, printed := readmeGoQuickStart(t)
+	typ := readmeStruct(t, block)
+	f := readmeGoQuickStartGenerator(t)
+	t.Run("output", func(t *testing.T) {
+		first := reflect.New(typ)
+		if err := f.FakeStruct(first.Interface()); err != nil {
+			t.Fatal(err)
+		}
+		if got := fmt.Sprintf("%+v", first.Elem().Interface()); got != printed {
+			t.Errorf("README prints %s for seed 1, it renders %s", printed, got)
+		}
+	})
+	t.Run("valid", func(t *testing.T) {
+		shipped := loadQuickStartShipped(t)
+		eachReadmePersonFilled(t, f, typ, 300, func(p quickStartPerson) {
+			if err := shipped.checkPerson(p); err != nil {
+				t.Fatalf("%+v: %v", p, err)
+			}
+		})
+	})
+}
+
+type readmeTSVExample struct {
+	record, rows, table, orders, printed string
+}
+
+func loadReadmeTSVExample(t *testing.T) readmeTSVExample {
+	t.Helper()
 	src := readme(t)
 	at := strings.Index(src, "`--format tsv` writes")
 	if at < 0 {
@@ -588,43 +674,52 @@ func TestReadmeTSVExampleOutput(t *testing.T) {
 	if gen == nil || written == nil || len(table) < 2 || printed == nil || !strings.Contains(rest, "echo '"+orders+"'") {
 		t.Fatal("README's tsv example lost its record, its table, its rows, its second record or its printed output")
 	}
-	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"series": gen[1]})), WithSeed(1), onTestDay)
+	return readmeTSVExample{record: gen[1], rows: written[1], table: table[1][1], orders: orders, printed: printed[1]}
+}
+
+func TestReadmeTSVExampleOutput(t *testing.T) {
+	example := loadReadmeTSVExample(t)
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"series": example.record})), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	var got []string
-	for i := 0; i < 3; i++ {
-		r, err := f.FakeRecord("series")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if i == 0 {
-			got = append(got, r.TSVHeader())
-		}
-		got = append(got, r.TSVLine())
-	}
-	if want := strings.TrimSpace(written[1]); strings.Join(got, "\n") != want {
+	got := headedRecordLines(t, f, "series", 3, (*Record).TSVHeader, (*Record).TSVLine)
+	if want := strings.TrimSpace(example.rows); strings.Join(got, "\n") != want {
 		t.Fatalf("README shows %q as the first run's rows, --seed 1 --format tsv -n 3 renders %q", want, strings.Join(got, "\n"))
 	}
-	dir := writeFiles(t, map[string]string{"series.tsv": written[1], "series.json": table[1][1], "orders.json": orders})
-	f, err = New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay)
+}
+
+func TestReadmeTSVExampleSecondRunOutput(t *testing.T) {
+	example := loadReadmeTSVExample(t)
+	dir := writeFiles(t, map[string]string{"series.tsv": example.rows, "series.json": example.table, "orders.json": example.orders})
+	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
-	got = nil
-	for i := 0; i < 4; i++ {
-		r, err := f.FakeRecord("orders")
+	got := headedRecordLines(t, f, "orders", 4, (*Record).CSVHeader, (*Record).CSVLine)
+	if want := strings.TrimSpace(example.printed); strings.Join(got, "\n") != want {
+		t.Errorf("README prints %q for the second run, it renders %q", want, strings.Join(got, "\n"))
+	}
+}
+
+func threeRecordsAsTheCLIWritesThem(t *testing.T, f *Generator, path string, csv bool) []string {
+	t.Helper()
+	var got []string
+	for i := 0; i < 3; i++ {
+		r, err := f.FakeRecord(path)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if i == 0 {
-			got = append(got, r.CSVHeader())
+		switch {
+		case csv && i == 0:
+			got = append(got, r.CSVHeader(), r.CSVLine())
+		case csv:
+			got = append(got, r.CSVLine())
+		default:
+			got = append(got, r.JSON())
 		}
-		got = append(got, r.CSVLine())
 	}
-	if want := strings.TrimSpace(printed[1]); strings.Join(got, "\n") != want {
-		t.Errorf("README prints %q for the second run, it renders %q", want, strings.Join(got, "\n"))
-	}
+	return got
 }
 
 func TestReadmeLetAndNameReadExamplesOutput(t *testing.T) {
@@ -637,37 +732,37 @@ func TestReadmeLetAndNameReadExamplesOutput(t *testing.T) {
 		{"`let` is an option holding fields that write no column", "ride", "fejkdata --seed 2 --format csv --repeat 3 < ride.json", 2, true},
 		{"`sched.json` shows it", "sched", "fejkdata --seed 1 --format ndjson --repeat 3 < sched.json", 1, false},
 	} {
-		at := strings.Index(src, c.after)
-		if at < 0 {
-			t.Fatalf("README lost the paragraph %q", c.after)
-		}
-		block, out := jsonBlock.FindStringSubmatch(src[at:]), textBlock.FindStringSubmatch(src[at:])
-		if block == nil || out == nil || !strings.Contains(src[at:], c.command) {
-			t.Fatalf("README's %s example lost its record, its command or its printed output", c.name)
-		}
-		f, err := New(WithDataPath(writeData(t, map[string]string{c.name: block[1]})), WithSeed(c.seed), onTestDay)
-		if err != nil {
-			t.Fatal(err)
-		}
-		var got []string
-		for i := 0; i < 3; i++ {
-			r, err := f.FakeRecord(c.name)
+		t.Run(c.name, func(t *testing.T) {
+			at := strings.Index(src, c.after)
+			if at < 0 {
+				t.Fatalf("README lost the paragraph %q", c.after)
+			}
+			block, out := jsonBlock.FindStringSubmatch(src[at:]), textBlock.FindStringSubmatch(src[at:])
+			if block == nil || out == nil || !strings.Contains(src[at:], c.command) {
+				t.Fatalf("README's %s example lost its record, its command or its printed output", c.name)
+			}
+			f, err := New(WithDataPath(writeData(t, map[string]string{c.name: block[1]})), WithSeed(c.seed), onTestDay)
 			if err != nil {
 				t.Fatal(err)
 			}
-			switch {
-			case c.csv && i == 0:
-				got = append(got, r.CSVHeader(), r.CSVLine())
-			case c.csv:
-				got = append(got, r.CSVLine())
-			default:
-				got = append(got, r.JSON())
+			got := threeRecordsAsTheCLIWritesThem(t, f, c.name, c.csv)
+			if want := strings.TrimSpace(out[1]); strings.Join(got, "\n") != want {
+				t.Errorf("README prints %q for %s, it renders %q", want, c.command, strings.Join(got, "\n"))
 			}
-		}
-		if want := strings.TrimSpace(out[1]); strings.Join(got, "\n") != want {
-			t.Errorf("README prints %q for %s, it renders %q", want, c.command, strings.Join(got, "\n"))
+		})
+	}
+}
+
+func callsInFunctionsTable(section string) []string {
+	var listed []string
+	for _, row := range regexp.MustCompile("(?m)^\\| `\\{.*$").FindAllString(section, -1) {
+		cell := strings.SplitN(row, "|", 3)[1]
+		for _, m := range regexp.MustCompile("`\\{([a-z0-9]+\\([^`]*\\))\\}`").FindAllStringSubmatch(cell, -1) {
+			listed = append(listed, m[1])
 		}
 	}
+	slices.Sort(listed)
+	return listed
 }
 
 func TestReadmeFunctionsTableListsEveryBuiltin(t *testing.T) {
@@ -678,47 +773,52 @@ func TestReadmeFunctionsTableListsEveryBuiltin(t *testing.T) {
 	}
 	section := src[start+1:]
 	section = section[:headingEnd.FindStringIndex(section[1:])[0]+1]
-	var listed []string
-	for _, row := range regexp.MustCompile("(?m)^\\| `\\{.*$").FindAllString(section, -1) {
-		cell := strings.SplitN(row, "|", 3)[1]
-		for _, m := range regexp.MustCompile("`\\{([a-z0-9]+\\([^`]*\\))\\}`").FindAllStringSubmatch(cell, -1) {
-			listed = append(listed, m[1])
-		}
-	}
-	slices.Sort(listed)
+	listed := callsInFunctionsTable(section)
 	if want := Builtins(); !slices.Equal(listed, want) {
 		t.Fatalf("README's Functions table lists %v, want each builtin's calls: %v", listed, want)
 	}
 }
 
-func TestReadmeRatiosAndRules(t *testing.T) {
-	section := readmeSection(t, readme(t), "### Ratios and rules")
-	for _, word := range []string{"ratio", "percent", "`if`"} {
-		if !strings.Contains(section, word) {
-			t.Errorf("README's Ratios and rules section never says %s, so a search for it finds nothing", word)
-		}
-	}
+func readmeRatioAndRuleExamples(t *testing.T) (section, ratio, rule string) {
+	t.Helper()
+	section = readmeSection(t, readme(t), "### Ratios and rules")
 	blocks := jsonBlock.FindAllStringSubmatch(section, -1)
 	if len(blocks) != 2 {
 		t.Fatalf("README's Ratios and rules section has %d json examples, want a ratio and a rule", len(blocks))
 	}
-	render := func(block string, n int) []string {
-		f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"example": block})), WithSeed(1), onTestDay)
+	return section, blocks[0][1], blocks[1][1]
+}
+
+func readmeExampleDraw(t *testing.T, block string) func() string {
+	t.Helper()
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"example": block})), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return func() string {
+		s, err := f.Fake("example")
 		if err != nil {
 			t.Fatal(err)
 		}
-		var got []string
-		for i := 0; i < n; i++ {
-			s, err := f.Fake("example")
-			if err != nil {
-				t.Fatal(err)
-			}
-			got = append(got, s)
-		}
-		return got
+		return s
 	}
+}
+
+func TestReadmeRatiosAndRules(t *testing.T) {
+	section, _, _ := readmeRatioAndRuleExamples(t)
+	for _, word := range []string{"ratio", "percent", "`if`"} {
+		t.Run(word, func(t *testing.T) {
+			if !strings.Contains(section, word) {
+				t.Errorf("README's Ratios and rules section never says %s, so a search for it finds nothing", word)
+			}
+		})
+	}
+}
+
+func TestReadmeRatioExamplePrintsActiveFourTimesInFive(t *testing.T) {
+	_, ratio, _ := readmeRatioAndRuleExamples(t)
 	active := 0
-	for _, s := range render(blocks[0][1], 5000) {
+	eachDraw(5000, readmeExampleDraw(t, ratio), func(s string) {
 		switch s {
 		case "active":
 			active++
@@ -726,20 +826,24 @@ func TestReadmeRatiosAndRules(t *testing.T) {
 		default:
 			t.Fatalf("the ratio example prints %q, want active or inactive", s)
 		}
-	}
+	})
 	if share := float64(active) / 5000; share < 0.77 || share > 0.83 {
 		t.Errorf("the ratio example prints active %.3f of the time, want about 0.80", share)
 	}
+}
+
+func TestReadmeRuleExamplePrintsACountryBesideItsOwnCurrency(t *testing.T) {
+	_, _, rule := readmeRatioAndRuleExamples(t)
 	currency := map[string]string{"SE": "SEK", "NO": "NOK", "DK": "DKK"}
 	const draws = 3000
 	seen := map[string]int{}
-	for _, s := range render(blocks[1][1], draws) {
+	eachDraw(draws, readmeExampleDraw(t, rule), func(s string) {
 		var country, code string
 		if n, _ := fmt.Sscanf(s, "%s pays in %s", &country, &code); n != 2 || currency[country] != code {
 			t.Fatalf("the rule example prints %q, want a country beside its own currency", s)
 		}
 		seen[country]++
-	}
+	})
 	if len(seen) != len(currency) {
 		t.Errorf("the rule example drew only %v of %d countries", seen, len(currency))
 	}
