@@ -1681,3 +1681,20 @@ Read most (opens and searches):
 - `data/nb_NO/date.json` 2
 - `data/nb_NO/email.json` 2
 - `docs/decisions.md` 2
+
+## Reading cost, chunk 59b4a43d20ef, finished 2026-11-13T19:26:31Z
+
+163401 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 8
+- `todo.md` 5
+- `cli/cli.go` 4
+- `cli/cli_test.go` 4
+- `record_test.go` 4
+- `docs/decisions.md` 2
+- `internal/builtinfunc/layout.go` 2
+- `record.go` 2
+- `AGENTS.md` 1
+- `compose.yaml` 1
