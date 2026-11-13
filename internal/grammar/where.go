@@ -53,28 +53,21 @@ func containsWord(s, word string) bool {
 }
 
 // cutWord cuts a token's body around its first " "+word outside a selector and a quote, where the
-// word ends the body or a space follows it. A quote opens only inside a clause, so a path may hold an
-// apostrophe, as o'neil does; inClause says body starts inside one.
+// word ends the body or a space follows it. A quote opens only inside a clause; inClause says body
+// starts inside one.
 func cutWord(body, word string, inClause bool) (head, rest string, found bool) {
-	depth, quoted := 0, false
-	for i := 0; i < len(body); i++ {
-		switch c := body[i]; {
-		case quoted:
-			quoted = c != '\''
-		case c == '[':
-			depth++
-		case c == ']' && depth > 0:
-			depth--
-		case depth > 0:
-		case c == '\'' && inClause:
-			quoted = true
-		case atWord(body, i, word):
-			return body[:i], strings.TrimPrefix(body[i+1+len(word):], " "), true
-		case atWord(body, i, whereWord) || atWord(body, i, distinctWord):
-			inClause = true
+	sc := scanner{quotes: inClause}
+	i := sc.find(body, func(i int) bool {
+		if atWord(body, i, word) {
+			return true
 		}
+		sc.quotes = sc.quotes || atWord(body, i, whereWord) || atWord(body, i, distinctWord)
+		return false
+	})
+	if i < 0 {
+		return body, "", false
 	}
-	return body, "", false
+	return body[:i], strings.TrimPrefix(body[i+1+len(word):], " "), true
 }
 
 // atWord reports whether body holds " "+word at i, ending body or followed by a space, and not right
@@ -84,17 +77,15 @@ func atWord(body string, i int, word string) bool {
 	return found && (after == "" || after[0] == ' ') && !strings.HasSuffix(body[:i+1], AsWord)
 }
 
-// lastAsOutsideQuotes cuts clause around its last " as " outside a quote.
+// lastAsOutsideQuotes cuts clause around its last " as " outside a quote and a selector.
 func lastAsOutsideQuotes(clause string) (before, name string, found bool) {
-	at, quoted := -1, false
-	for i := 0; i < len(clause); i++ {
-		switch {
-		case clause[i] == '\'':
-			quoted = !quoted
-		case !quoted && strings.HasPrefix(clause[i:], AsWord):
+	at := -1
+	(&scanner{quotes: true}).find(clause, func(i int) bool {
+		if strings.HasPrefix(clause[i:], AsWord) {
 			at = i
 		}
-	}
+		return false
+	})
 	if at < 0 {
 		return clause, "", false
 	}
