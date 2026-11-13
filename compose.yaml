@@ -37,7 +37,7 @@ services:
 
   cyclo:
     <<: *go
-    command: go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test .
+    command: go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 10 -ignore _test .
     mem_limit: 2g
     memswap_limit: 2g
 
