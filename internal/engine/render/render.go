@@ -48,19 +48,24 @@ func render(s *drawstate.State, n tree.Node, env renderEnv) string {
 		}
 		return n.Table().Rows().Cell(row, n.Index())
 	case *tree.Template:
-		if n.Repeat() == 1 {
-			if mark := env.frames.openOwn(n, env.base); mark >= 0 {
-				defer env.frames.pop(mark)
-			}
-			if lit, fixed := n.FixedText(); fixed {
-				return lit
-			}
-			return expand(s, n, env)
-		}
-		return renderRepeat(s, n, env)
+		return renderTemplate(s, n, env)
 	default:
 		panic(invariant.Broken("uncompiled node %T", n))
 	}
+}
+
+// renderTemplate renders t, inside the name scope t opens where it binds names of its own.
+func renderTemplate(s *drawstate.State, t *tree.Template, env renderEnv) string {
+	if t.Repeat() != 1 {
+		return renderRepeat(s, t, env)
+	}
+	if mark := env.frames.openOwn(t, env.base); mark >= 0 {
+		defer env.frames.pop(mark)
+	}
+	if lit, fixed := t.FixedText(); fixed {
+		return lit
+	}
+	return expand(s, t, env)
 }
 
 // renderRepeat renders each iteration of t inside the name scopes rendering t, where a name bound

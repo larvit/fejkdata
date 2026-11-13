@@ -110,52 +110,66 @@ func routesApart(nodes []tree.Node) []route {
 //     in the pick, since the pick keeps the item drawn. A table's format is apart: the pick pins
 //     the row, so its columns read one row whichever read renders them.
 func walkRoutes(nodes []tree.Node, start tree.PickKey, addressed map[tree.PickKey]string, inPick bool) []route {
-	type site struct {
-		n      tree.Node
-		at     tree.PickKey
-		inPick bool
-	}
-	var found []route
-	seen := map[site]bool{}
-	var walk func(n tree.Node, at tree.PickKey, inPick bool)
-	walk = func(n tree.Node, at tree.PickKey, inPick bool) {
-		if seen[site{n, at, inPick}] {
-			return
-		}
-		seen[site{n, at, inPick}] = true
-		switch n := n.(type) {
-		case *tree.Template:
-			for i, o := range n.Compiled().Ops() {
-				for _, a := range o.AllReads() {
-					r := route{a: a, in: n, op: i}
-					if inPick {
-						r = r.placedAt(at, addressed)
-					}
-					found = append(found, r)
-					if !staysInCategory(a) {
-						continue
-					}
-					below, kept := r.below()
-					for _, leaf := range a.Leaves() {
-						walk(leaf, below, kept)
-					}
-				}
-			}
-		case *tree.Choice:
-			for _, e := range tree.RenderEdges(n) {
-				walk(e.To, at, inPick)
-			}
-		case *tree.TableColumn: // its cells are not walked, so no rule sees a read in a cell (item 452)
-		default:
-			for _, e := range tree.RenderEdges(n) {
-				walk(e.To, "", false)
-			}
-		}
-	}
+	w := routeWalk{addressed: addressed, seen: map[routeSite]bool{}}
 	for _, n := range nodes {
-		walk(n, start, inPick)
+		w.walk(n, start, inPick)
 	}
-	return found
+	return w.found
+}
+
+// routeWalk is one walk of walkRoutes: the routes found so far, and the sites visited.
+type routeWalk struct {
+	addressed map[tree.PickKey]string
+	found     []route
+	seen      map[routeSite]bool
+}
+
+// routeSite is a node met at a key, inside the pick or apart from it.
+type routeSite struct {
+	n      tree.Node
+	at     tree.PickKey
+	inPick bool
+}
+
+func (w *routeWalk) walk(n tree.Node, at tree.PickKey, inPick bool) {
+	if w.seen[routeSite{n, at, inPick}] {
+		return
+	}
+	w.seen[routeSite{n, at, inPick}] = true
+	switch n := n.(type) {
+	case *tree.Template:
+		w.walkTemplate(n, at, inPick)
+	case *tree.Choice:
+		for _, e := range tree.RenderEdges(n) {
+			w.walk(e.To, at, inPick)
+		}
+	case *tree.TableColumn: // its cells are not walked, so no rule sees a read in a cell (item 452)
+	default:
+		for _, e := range tree.RenderEdges(n) {
+			w.walk(e.To, "", false)
+		}
+	}
+}
+
+// walkTemplate lists each read of t's ops, met at key at, and walks the leaves of each read that
+// stays in the pick's category.
+func (w *routeWalk) walkTemplate(t *tree.Template, at tree.PickKey, inPick bool) {
+	for i, o := range t.Compiled().Ops() {
+		for _, a := range o.AllReads() {
+			r := route{a: a, in: t, op: i}
+			if inPick {
+				r = r.placedAt(at, w.addressed)
+			}
+			w.found = append(w.found, r)
+			if !staysInCategory(a) {
+				continue
+			}
+			below, kept := r.below()
+			for _, leaf := range a.Leaves() {
+				w.walk(leaf, below, kept)
+			}
+		}
+	}
 }
 
 // placedAt is r, met in what the pick renders at key at, with its place in the pick.

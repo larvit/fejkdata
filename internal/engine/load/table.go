@@ -46,13 +46,8 @@ type tableOptionValues struct {
 	options      rows.Options
 }
 
-func readTableOptions(m map[string]any) (tableOptionValues, error) {
-	var o tableOptionValues
-	for k := range m {
-		if !slices.Contains(tableOptions, k) {
-			return o, fmt.Errorf("a table takes %s; %q is none of them", strings.Join(tableOptions, ", "), k)
-		}
-	}
+// readStringOptions writes into o each option of m that a table spells as a string.
+func readStringOptions(m map[string]any, o *tableOptionValues) error {
 	for k, into := range map[string]*string{"format": &o.format, "key": &o.options.Key, "name": &o.options.Name, "parent": &o.options.Parent, "rows": &o.rows, "weight": &o.options.Weight} {
 		v, ok := m[k]
 		if !ok {
@@ -60,12 +55,25 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 		}
 		s, isString := v.(string)
 		if !isString {
-			return o, fmt.Errorf("%s must be a string, not %s", k, jsonvalue.Kind(v))
+			return fmt.Errorf("%s must be a string, not %s", k, jsonvalue.Kind(v))
 		}
 		if k != "format" && s == "" {
-			return o, fmt.Errorf("%s names a column, so it cannot be empty; drop it", k)
+			return fmt.Errorf("%s names a column, so it cannot be empty; drop it", k)
 		}
 		*into = s
+	}
+	return nil
+}
+
+func readTableOptions(m map[string]any) (tableOptionValues, error) {
+	var o tableOptionValues
+	for k := range m {
+		if !slices.Contains(tableOptions, k) {
+			return o, fmt.Errorf("a table takes %s; %q is none of them", strings.Join(tableOptions, ", "), k)
+		}
+	}
+	if err := readStringOptions(m, &o); err != nil {
+		return o, err
 	}
 	if _, ok := m["format"]; !ok {
 		return o, fmt.Errorf("template object missing string \"format\"")
@@ -125,16 +133,8 @@ func compileRowFormat(t *tree.Table, rs *tree.RowsTable, format string) (*tree.T
 	if err := refuseInTable(toks); err != nil {
 		return nil, err
 	}
-	for _, tok := range toks {
-		if tok.Kind != grammar.PathRead {
-			continue
-		}
-		for _, name := range tok.Arms {
-			a := splitRead(name, nil)
-			if _, ok := rs.Column(a.head); !ok && !grammar.IsRef(a.head) && a.head != "" {
-				return nil, fmt.Errorf("format names no column %q of %s; the columns are %v", a.head, rs.File(), rs.Header())
-			}
-		}
+	if err := refuseUnknownColumns(toks, rs); err != nil {
+		return nil, err
 	}
 	fields := make(map[string]tree.Node, len(rs.Header()))
 	for i, name := range rs.Header() {
@@ -148,6 +148,23 @@ func compileRowFormat(t *tree.Table, rs *tree.RowsTable, format string) (*tree.T
 		return nil, unbound[0].Err()
 	}
 	return tree.NewTemplate(tree.TemplateSyntax{Format: format, Tokens: toks, Fields: fields, Repeat: 1, IsRecord: true}), nil
+}
+
+// refuseUnknownColumns refuses a read in a row's format whose head is neither a column of rs nor a
+// reference.
+func refuseUnknownColumns(toks []grammar.Token, rs *tree.RowsTable) error {
+	for _, tok := range toks {
+		if tok.Kind != grammar.PathRead {
+			continue
+		}
+		for _, name := range tok.Arms {
+			a := splitRead(name, nil)
+			if _, ok := rs.Column(a.head); !ok && !grammar.IsRef(a.head) && a.head != "" {
+				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.head, rs.File(), rs.Header())
+			}
+		}
+	}
+	return nil
 }
 
 // refuseInTable refuses a table's format or cell binding a name, filtering a draw or drawing
@@ -213,10 +230,7 @@ func routeThrough(t *tree.Table, tail []string, fromRow bool) (tableRoute, error
 		return tableRoute{}, err
 	}
 	if len(tail) > 0 && tail[0] == ".." {
-		if err := t.Rows().ProveStepUp(tail[1:]); err != nil {
-			return tableRoute{}, err
-		}
-		return tableRoute{sel: sel, draw: sel == "", then: pathPos{n: t.Rows().Parent().Owner(), tail: tail[2:], fromRow: true}, up: true}, nil
+		return stepUpRoute(t, sel, tail)
 	}
 	column, child, err := columnOrLinked(t, tail)
 	if err != nil {
@@ -227,18 +241,30 @@ func routeThrough(t *tree.Table, tail []string, fromRow bool) (tableRoute, error
 	// A selector further down pins this table by ancestry; drawing first could draw a row the
 	// selector is not inside.
 	pinnedBelow := grammar.HasSelector(tail)
-	r := tableRoute{sel: sel, draw: !selected && readsRow && !pinnedBelow}
+	return tableRoute{sel: sel, draw: !selected && readsRow && !pinnedBelow, then: past(t, tail, readsRow, column, child)}, nil
+}
+
+// past is where a route goes after t: t itself where it reads no row, else the row, the linked
+// table child or the column that tail names.
+func past(t *tree.Table, tail []string, readsRow bool, column tree.Node, child *tree.Table) pathPos {
 	switch {
 	case !readsRow:
-		r.then = pathPos{n: t}
+		return pathPos{n: t}
 	case len(tail) == 0:
-		r.then = pathPos{n: t.RowNode()}
+		return pathPos{n: t.RowNode()}
 	case child != nil:
-		r.then = pathPos{n: child, tail: tail[1:], fromRow: true}
+		return pathPos{n: child, tail: tail[1:], fromRow: true}
 	default:
-		r.then = pathPos{n: column, tail: tail[1:]}
+		return pathPos{n: column, tail: tail[1:]}
 	}
-	return r, nil
+}
+
+// stepUpRoute is how a tail starting with ".." passes t, onto a row of its parent table.
+func stepUpRoute(t *tree.Table, sel string, tail []string) (tableRoute, error) {
+	if err := t.Rows().ProveStepUp(tail[1:]); err != nil {
+		return tableRoute{}, err
+	}
+	return tableRoute{sel: sel, draw: sel == "", then: pathPos{n: t.Rows().Parent().Owner(), tail: tail[2:], fromRow: true}, up: true}, nil
 }
 
 // routeSteps appends the steps r takes past t, the first at at, pinning in pins the row

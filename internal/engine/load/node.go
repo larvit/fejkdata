@@ -84,17 +84,20 @@ func compileItem(v any, pos position) (tree.Node, error) {
 		}
 		return &tree.NullItem{}, nil
 	case json.Number:
-		if pos == inColumn {
-			return nil, typedOrText(string(v), datatype.Integer, datatype.Number)
-		}
-		return compileString(string(v))
+		return compileBare(string(v), pos, datatype.Integer, datatype.Number)
 	case bool:
-		if pos == inColumn {
-			return nil, typedOrText(strconv.FormatBool(v), datatype.Boolean)
-		}
-		return compileString(strconv.FormatBool(v))
+		return compileBare(strconv.FormatBool(v), pos, datatype.Boolean)
 	}
 	panic(invariant.Broken("compileItem has no case for the JSON value %T", v))
+}
+
+// compileBare compiles the text of a bare JSON number or boolean as a format string, refusing it in
+// a record column, where it could also be a value of one of ds.
+func compileBare(text string, pos position, ds ...datatype.DataType) (tree.Node, error) {
+	if pos == inColumn {
+		return nil, typedOrText(text, ds...)
+	}
+	return compileString(text)
 }
 
 // typedOrText refuses a bare JSON number or boolean in a record column, which could be the
@@ -254,29 +257,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 // also names in lets. A key of let that is an option name fails, as a field cannot take it.
 func compileFields(m map[string]any, pos position) (fields map[string]tree.Node, lets map[string]bool, err error) {
 	fields = make(map[string]tree.Node, len(m))
-	compile := func(raw map[string]any, skipOptions bool) error {
-		for _, k := range tree.SortedNames(raw) {
-			if isOption(k) {
-				if skipOptions {
-					continue
-				}
-				return fmt.Errorf("let holds fields, and %q is an option; name the field otherwise", k)
-			}
-			if err := grammar.CheckIdentifier(k); err != nil {
-				return fmt.Errorf("field %w", err)
-			}
-			if _, twice := fields[k]; twice {
-				return fmt.Errorf("field %q is in let and beside it; write it once", k)
-			}
-			n, err := compileItem(raw[k], pos)
-			if err != nil {
-				return fmt.Errorf("field %q: %w", k, err)
-			}
-			fields[k] = n
-		}
-		return nil
-	}
-	if err := compile(m, true); err != nil {
+	if err := compileFieldsInto(fields, m, pos, true); err != nil {
 		return nil, nil, err
 	}
 	let, hasLet := m["let"]
@@ -287,7 +268,7 @@ func compileFields(m map[string]any, pos position) (fields map[string]tree.Node,
 	if !ok {
 		return nil, nil, fmt.Errorf("let is an option and takes an object of fields, not %s; a field cannot be named \"let\"", jsonvalue.Kind(let))
 	}
-	if err := compile(held, false); err != nil {
+	if err := compileFieldsInto(fields, held, pos, false); err != nil {
 		return nil, nil, err
 	}
 	lets = make(map[string]bool, len(held))
@@ -295,6 +276,31 @@ func compileFields(m map[string]any, pos position) (fields map[string]tree.Node,
 		lets[k] = true
 	}
 	return fields, lets, nil
+}
+
+// compileFieldsInto compiles each field of raw into fields, skipping the options where skipOptions
+// and refusing them otherwise.
+func compileFieldsInto(fields map[string]tree.Node, raw map[string]any, pos position, skipOptions bool) error {
+	for _, k := range tree.SortedNames(raw) {
+		if isOption(k) {
+			if skipOptions {
+				continue
+			}
+			return fmt.Errorf("let holds fields, and %q is an option; name the field otherwise", k)
+		}
+		if err := grammar.CheckIdentifier(k); err != nil {
+			return fmt.Errorf("field %w", err)
+		}
+		if _, twice := fields[k]; twice {
+			return fmt.Errorf("field %q is in let and beside it; write it once", k)
+		}
+		n, err := compileItem(raw[k], pos)
+		if err != nil {
+			return fmt.Errorf("field %q: %w", k, err)
+		}
+		fields[k] = n
+	}
+	return nil
 }
 
 // repeatOf reads a template's "repeat" (default 1): how many times its format

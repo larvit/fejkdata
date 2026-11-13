@@ -129,26 +129,32 @@ func parseArgs(argv []string) (invocation, error) {
 			return in, err
 		}
 		for _, fl := range flags {
-			if !fl.def.value {
-				if fl.inline {
-					return in, fmt.Errorf("--%s takes no value", fl.def.long)
-				}
-				_ = fl.def.set(&in, "")
-				continue
-			}
-			value := fl.value
-			if !fl.inline {
-				if i++; i >= len(argv) {
-					return in, fmt.Errorf("--%s needs a value", fl.def.long)
-				}
-				value = argv[i]
-			}
-			if err := fl.def.set(&in, value); err != nil {
+			if i, err = setFlag(&in, fl, argv, i); err != nil {
 				return in, err
 			}
 		}
 	}
 	return in, nil
+}
+
+// setFlag sets fl on in, reading its value from the argument after argv[i] where fl carries none,
+// and returns the index of the last argument it read.
+func setFlag(in *invocation, fl flagArg, argv []string, i int) (int, error) {
+	if !fl.def.value {
+		if fl.inline {
+			return i, fmt.Errorf("--%s takes no value", fl.def.long)
+		}
+		_ = fl.def.set(in, "")
+		return i, nil
+	}
+	value := fl.value
+	if !fl.inline {
+		if i++; i >= len(argv) {
+			return i, fmt.Errorf("--%s needs a value", fl.def.long)
+		}
+		value = argv[i]
+	}
+	return i, fl.def.set(in, value)
 }
 
 // checkFlags rejects a flag value or combination that cannot run.

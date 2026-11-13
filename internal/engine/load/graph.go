@@ -53,31 +53,40 @@ func Contained(n tree.Node) []ContainedNode {
 	case *tree.Folder:
 		return containedByName(n.Children())
 	case *tree.Choice:
-		out := make([]ContainedNode, len(n.Items()))
-		for i, it := range n.Items() {
-			out[i] = ContainedNode{Node: it}
-		}
-		return out
+		return containedItems(n)
 	case *tree.Template:
 		return containedByName(n.Fields())
 	case *tree.Table:
 		return append([]ContainedNode{{Node: n.FormatTemplate()}}, containedByName(n.FormatTemplate().Fields())...)
 	case *tree.TableColumn:
-		if len(n.Table().CellTemplates()) == 0 {
-			return nil
-		}
-		var out []ContainedNode
-		for r := 0; r < n.Table().Rows().Len(); r++ {
-			if cell := n.Table().CellTemplate(r, n.Index()); cell != nil {
-				out = append(out, ContainedNode{Node: cell, line: r + 2})
-			}
-		}
-		return out
+		return containedCells(n)
 	case *tree.NullItem, *tree.TableRow:
 		return nil
 	default:
 		panic(invariant.Broken("Contained has no case for node %T", n))
 	}
+}
+
+func containedItems(c *tree.Choice) []ContainedNode {
+	out := make([]ContainedNode, len(c.Items()))
+	for i, it := range c.Items() {
+		out[i] = ContainedNode{Node: it}
+	}
+	return out
+}
+
+// containedCells is each cell of the column c that reads a reference, with its line in the TSV.
+func containedCells(c *tree.TableColumn) []ContainedNode {
+	if len(c.Table().CellTemplates()) == 0 {
+		return nil
+	}
+	var out []ContainedNode
+	for r := 0; r < c.Table().Rows().Len(); r++ {
+		if cell := c.Table().CellTemplate(r, c.Index()); cell != nil {
+			out = append(out, ContainedNode{Node: cell, line: r + 2})
+		}
+	}
+	return out
 }
 
 func containedByName(m map[string]tree.Node) []ContainedNode {

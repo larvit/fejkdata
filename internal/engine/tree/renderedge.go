@@ -40,33 +40,43 @@ func RenderEdges(n Node) []RenderEdge {
 		}
 		return es
 	case *Template:
-		var es []RenderEdge
-		for _, o := range n.Compiled().Ops() {
-			for _, a := range o.AllReads() {
-				for _, leaf := range a.Leaves() {
-					es = append(es, RenderEdge{leaf, a.Spelling()})
-				}
-			}
-		}
-		return es
+		return templateEdges(n)
 	case *Table:
 		return []RenderEdge{{To: n.RenderedFormat(), Label: "format"}}
 	case *TableRow:
 		return []RenderEdge{{To: n.RenderedFormat(), Label: "format"}}
 	case *TableColumn:
-		if len(n.t.cellTemplates) == 0 {
-			return nil
-		}
-		var es []RenderEdge
-		for row := 0; row < n.t.rows.Len(); row++ {
-			if cell := n.RenderedCell(row); cell != nil {
-				es = append(es, RenderEdge{To: cell, Label: n.Name()})
-			}
-		}
-		return es
+		return cellEdges(n)
 	case *Folder, *NullItem:
 		return nil
 	default:
 		panic(invariant.Broken("RenderEdges has no case for node %T", n))
 	}
+}
+
+// templateEdges is an edge to each leaf of each read t's ops make, labelled by the read's spelling.
+func templateEdges(t *Template) []RenderEdge {
+	var es []RenderEdge
+	for _, o := range t.Compiled().Ops() {
+		for _, a := range o.AllReads() {
+			for _, leaf := range a.Leaves() {
+				es = append(es, RenderEdge{leaf, a.Spelling()})
+			}
+		}
+	}
+	return es
+}
+
+// cellEdges is an edge to each cell of the column c that reads a reference.
+func cellEdges(c *TableColumn) []RenderEdge {
+	if len(c.t.cellTemplates) == 0 {
+		return nil
+	}
+	var es []RenderEdge
+	for row := 0; row < c.t.rows.Len(); row++ {
+		if cell := c.RenderedCell(row); cell != nil {
+			es = append(es, RenderEdge{To: cell, Label: c.Name()})
+		}
+	}
+	return es
 }

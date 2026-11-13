@@ -119,16 +119,7 @@ func (p *calcParser) factor() (CalcNode, error) {
 		}
 		return CalcNeg{x}, nil
 	case c == '(':
-		p.pos++
-		n, err := p.expr()
-		if err != nil {
-			return nil, err
-		}
-		if p.space(); p.pos >= len(p.rs) || p.rs[p.pos] != ')' {
-			return nil, fmt.Errorf("missing ')'")
-		}
-		p.pos++
-		return n, nil
+		return p.group()
 	case c == '.' || c >= '0' && c <= '9':
 		return p.number()
 	case c == '_' || unicode.IsLetter(c):
@@ -136,6 +127,20 @@ func (p *calcParser) factor() (CalcNode, error) {
 	default:
 		return nil, fmt.Errorf("unexpected %q", string(c))
 	}
+}
+
+// group reads a parenthesised expression, from its "(" to its ")".
+func (p *calcParser) group() (CalcNode, error) {
+	p.pos++
+	n, err := p.expr()
+	if err != nil {
+		return nil, err
+	}
+	if p.space(); p.pos >= len(p.rs) || p.rs[p.pos] != ')' {
+		return nil, fmt.Errorf("missing ')'")
+	}
+	p.pos++
+	return n, nil
 }
 
 func (p *calcParser) number() (CalcNode, error) {
