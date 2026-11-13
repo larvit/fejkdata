@@ -28,17 +28,18 @@ func TestBuiltinIDGenerators(t *testing.T) {
 	}
 	f := emptyGenerator(1)
 	for _, c := range cases {
-		seen := map[string]bool{}
-		for i := 0; i < 200; i++ {
-			got := mustRender(t, f, c.tmpl)
-			if !c.re.MatchString(got) {
-				t.Fatalf("%s = %q, want %s", c.name, got, c.re)
+		t.Run(c.name, func(t *testing.T) {
+			seen := map[string]bool{}
+			eachDraw(200, func() string { return mustRender(t, f, c.tmpl) }, func(got string) {
+				if !c.re.MatchString(got) {
+					t.Fatalf("%s = %q, want %s", c.name, got, c.re)
+				}
+				seen[got] = true
+			})
+			if len(seen) < 190 {
+				t.Fatalf("%s not varied: %d uniques in 200", c.name, len(seen))
 			}
-			seen[got] = true
-		}
-		if len(seen) < 190 {
-			t.Fatalf("%s not varied: %d uniques in 200", c.name, len(seen))
-		}
+		})
 	}
 }
 
@@ -51,22 +52,24 @@ func TestBuiltinSamplesReproducible(t *testing.T) {
 		`"{float(0,1,6)}"`, `"{base64(12)}"`, `"{iban(SE)}"`,
 		`"{date(2000-01-01,2020-12-31,'2006-01-02 15:04:05')}"`, `"{time('15:04:05')}"`,
 	} {
-		if a, b := mustRender(t, emptyGenerator(7), tmpl), mustRender(t, emptyGenerator(7), tmpl); a != b {
-			t.Fatalf("%s not reproducible: %q != %q", tmpl, a, b)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if a, b := mustRender(t, emptyGenerator(7), tmpl), mustRender(t, emptyGenerator(7), tmpl); a != b {
+				t.Fatalf("%s not reproducible: %q != %q", tmpl, a, b)
+			}
+		})
 	}
 }
 
 func TestBuiltinIntInclusiveRange(t *testing.T) {
 	f := emptyGenerator(1)
 	lo, hi := false, false
-	for i := 0; i < 1000; i++ {
-		n, err := strconv.Atoi(mustRender(t, f, `"{int(3,7)}"`))
+	eachDraw(1000, func() string { return mustRender(t, f, `"{int(3,7)}"`) }, func(got string) {
+		n, err := strconv.Atoi(got)
 		if err != nil || n < 3 || n > 7 {
 			t.Fatalf("int(3,7) = %d (err %v), out of range", n, err)
 		}
 		lo, hi = lo || n == 3, hi || n == 7
-	}
+	})
 	if !lo || !hi {
 		t.Fatalf("int(3,7) never hit a bound: lo=%v hi=%v (bounds must be inclusive)", lo, hi)
 	}
@@ -74,14 +77,20 @@ func TestBuiltinIntInclusiveRange(t *testing.T) {
 
 func TestBuiltinFloat(t *testing.T) {
 	f, re := emptyGenerator(1), regexp.MustCompile(`^[12]\.\d{3}$`)
-	for i := 0; i < 200; i++ {
-		if got := mustRender(t, f, `"{float(1,2,3)}"`); !re.MatchString(got) {
-			t.Fatalf("float(1,2,3) = %q, want d.ddd in [1,2]", got)
-		}
-		if got := mustRender(t, f, `"{float(-1,1,0)}"`); got == "-0" {
-			t.Fatalf("float(-1,1,0) = %q, want a zero printed unsigned", got)
-		}
-	}
+	t.Run("draws within its bounds at its decimals", func(t *testing.T) {
+		eachDraw(200, func() string { return mustRender(t, f, `"{float(1,2,3)}"`) }, func(got string) {
+			if !re.MatchString(got) {
+				t.Fatalf("float(1,2,3) = %q, want d.ddd in [1,2]", got)
+			}
+		})
+	})
+	t.Run("prints a zero unsigned", func(t *testing.T) {
+		eachDraw(200, func() string { return mustRender(t, f, `"{float(-1,1,0)}"`) }, func(got string) {
+			if got == "-0" {
+				t.Fatalf("float(-1,1,0) = %q, want a zero printed unsigned", got)
+			}
+		})
+	})
 }
 
 func TestBuiltinBase64(t *testing.T) {
@@ -101,22 +110,25 @@ func TestBuiltinChecksums(t *testing.T) {
 	}
 	f := emptyGenerator(1)
 	for tmpl, want := range cases {
-		if got := mustRender(t, f, tmpl); got != want {
-			t.Fatalf("%s = %q, want %q", tmpl, got, want)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if got := mustRender(t, f, tmpl); got != want {
+				t.Fatalf("%s = %q, want %q", tmpl, got, want)
+			}
+		})
 	}
 }
 
 func TestBuiltinFnr(t *testing.T) {
 	f := emptyGenerator(1)
 	seen := map[string]bool{}
-	for i := 0; i < 300; i++ {
-		got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"7"}`)
+	eachDraw(300, func() string {
+		return mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"7"}`)
+	}, func(got string) {
 		if len(got) != 11 || got[:7] != "0181804" || got[8] != '7' || !validFnr(got) {
 			t.Fatalf("fnr = %q, want 0181804, an individ digit, 7, and valid check digits", got)
 		}
 		seen[got] = true
-	}
+	})
 	if len(seen) < 5 {
 		t.Errorf("fnr drew %d numbers in 300, want its second individ digit to vary", len(seen))
 	}
@@ -124,31 +136,36 @@ func TestBuiltinFnr(t *testing.T) {
 
 func TestBuiltinFnrReadsItsOperandFromAPath(t *testing.T) {
 	f := emptyGenerator(2)
-	for i := 0; i < 50; i++ {
-		got := mustRender(t, f, `{"format":"{pre}{fnr(sex.last)}","pre":"3181804","sex":{"format":"{last}","last":"4"}}`)
+	eachDraw(50, func() string {
+		return mustRender(t, f, `{"format":"{pre}{fnr(sex.last)}","pre":"3181804","sex":{"format":"{last}","last":"4"}}`)
+	}, func(got string) {
 		if !validFnr(got) || got[8] != '4' {
 			t.Fatalf("fnr = %q, want a valid number whose individ ends in 4", got)
 		}
-	}
+	})
 }
 
 func TestBuiltinFnrRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
 	f := emptyGenerator(3)
 	for _, last := range []string{"", "mann", "12", "x7", "-"} {
-		tmpl := `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"` + last + `"}`
-		if got := mustRender(t, f, tmpl); got != "0181804" {
-			t.Errorf("fnr with operand %q = %q, want 0181804 and nothing after it", last, got)
-		}
+		t.Run(strconv.Quote(last), func(t *testing.T) {
+			tmpl := `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"` + last + `"}`
+			if got := mustRender(t, f, tmpl); got != "0181804" {
+				t.Errorf("fnr with operand %q = %q, want 0181804 and nothing after it", last, got)
+			}
+		})
 	}
 }
 
 func TestBuiltinFnrReadsTheLastSevenDigitsEmitted(t *testing.T) {
 	f := emptyGenerator(5)
 	for pre, seven := range map[string]string{"x-0181804": "0181804", "9990181804": "0181804", "181804": "0181804", "a1b2c3d4e5f6g7h8": "2345678"} {
-		got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"`+pre+`","last":"3"}`)
-		if tail := got[len(pre):]; !validFnr(seven + tail) {
-			t.Errorf("fnr after %q = %q, want check digits valid for %s", pre, tail, seven)
-		}
+		t.Run(pre, func(t *testing.T) {
+			got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"`+pre+`","last":"3"}`)
+			if tail := got[len(pre):]; !validFnr(seven + tail) {
+				t.Errorf("fnr after %q = %q, want check digits valid for %s", pre, tail, seven)
+			}
+		})
 	}
 }
 
@@ -156,10 +173,15 @@ func TestValidFnrAcceptsAPublishedTestNumber(t *testing.T) {
 	if !validFnr("10108000398") {
 		t.Error("10108000398 is a published test number, want it valid")
 	}
+}
+
+func TestValidFnrRejectsAWrongCheckDigitOrLength(t *testing.T) {
 	for _, bad := range []string{"10108000399", "10108000388", "1010800039", "10108000398x"} {
-		if validFnr(bad) {
-			t.Errorf("%s is no valid fødselsnummer", bad)
-		}
+		t.Run(bad, func(t *testing.T) {
+			if validFnr(bad) {
+				t.Errorf("%s is no valid fødselsnummer", bad)
+			}
+		})
 	}
 }
 
@@ -190,22 +212,32 @@ func validFnr(s string) bool {
 // draw state so a fresh Generator restarts at 1.
 func TestBuiltinSeqPerGenerator(t *testing.T) {
 	f := emptyGenerator(1)
-	for i := 1; i <= 5; i++ {
-		if got := mustRender(t, f, `"{seq()}"`); got != strconv.Itoa(i) {
-			t.Fatalf("seq call %d = %q, want %d", i, got, i)
+	for _, want := range []string{"1", "2", "3", "4", "5"} {
+		t.Run("call "+want, func(t *testing.T) {
+			if got := mustRender(t, f, `"{seq()}"`); got != want {
+				t.Fatalf("seq call %s = %q, want %s", want, got, want)
+			}
+		})
+	}
+	t.Run("a named counter counts from 1", func(t *testing.T) {
+		if got := mustRender(t, f, `"{seq(orders)}"`); got != "1" {
+			t.Fatalf("named seq(orders) = %q, want its own count from 1", got)
 		}
-	}
-	if got := mustRender(t, f, `"{seq(orders)}"`); got != "1" {
-		t.Fatalf("named seq(orders) = %q, want its own count from 1", got)
-	}
-	if got := mustRender(t, f, `"{seq()}"`); got != "6" {
-		t.Fatalf("default seq after the named one = %q, want 6 (counters are independent)", got)
-	}
-	// repeat drives one counter forward across its renders...
+	})
+	t.Run("the default counter goes on after a named one", func(t *testing.T) {
+		if got := mustRender(t, f, `"{seq()}"`); got != "6" {
+			t.Fatalf("default seq after the named one = %q, want 6 (counters are independent)", got)
+		}
+	})
+}
+
+func TestBuiltinSeqCountsOnAcrossARepeat(t *testing.T) {
 	if got := mustRender(t, emptyGenerator(2), `{"format":"{seq()}","repeat":3,"separator":","}`); got != "1,2,3" {
 		t.Fatalf("repeat seq = %q, want 1,2,3", got)
 	}
-	// ...and a fresh generator restarts from 1.
+}
+
+func TestBuiltinSeqRestartsInANewGenerator(t *testing.T) {
 	if got := mustRender(t, emptyGenerator(2), `"{seq()}"`); got != "1" {
 		t.Fatalf("new generator seq = %q, want 1", got)
 	}
@@ -226,11 +258,15 @@ func TestBuiltinArgLimits(t *testing.T) {
 		`{"format":"{x}","x":"1","repeat":2000000000}`, // repeat -> multi-GB join
 	}
 	for _, tmpl := range bad {
-		if _, err := resolved(t, tmpl); err == nil {
-			t.Errorf("compile(%s) = nil error, want a limit rejection", tmpl)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if _, err := resolved(t, tmpl); err == nil {
+				t.Errorf("compile(%s) = nil error, want a limit rejection", tmpl)
+			}
+		})
 	}
-	// Ordinary values still compile.
+}
+
+func TestBuiltinArgsWithinTheLimitsCompile(t *testing.T) {
 	if _, err := load.Compile(parse(t, `"{hex(16)} {int(-5,5)} {float(0,1,3)} {calc(1+1,2)}"`), tree.NewLoadFinds()); err != nil {
 		t.Errorf("compile of normal args failed: %v", err)
 	}
@@ -240,16 +276,17 @@ func TestBuiltinIBAN(t *testing.T) {
 	wantLen := map[string]int{"SE": 24, "DE": 22, "NO": 15}
 	f := emptyGenerator(1)
 	for cc, n := range wantLen {
-		tmpl := `"{iban(` + cc + `)}"`
-		for i := 0; i < 100; i++ {
-			got := mustRender(t, f, tmpl)
-			if got[:2] != cc || len(got) != n {
-				t.Fatalf("iban(%s) = %q, want %d chars prefixed %s", cc, got, n, cc)
-			}
-			if !ibanValid(got) {
-				t.Fatalf("iban(%s) = %q fails the mod-97 check", cc, got)
-			}
-		}
+		t.Run(cc, func(t *testing.T) {
+			tmpl := `"{iban(` + cc + `)}"`
+			eachDraw(100, func() string { return mustRender(t, f, tmpl) }, func(got string) {
+				if got[:2] != cc || len(got) != n {
+					t.Fatalf("iban(%s) = %q, want %d chars prefixed %s", cc, got, n, cc)
+				}
+				if !ibanValid(got) {
+					t.Fatalf("iban(%s) = %q fails the mod-97 check", cc, got)
+				}
+			})
+		})
 	}
 }
 
@@ -283,16 +320,23 @@ func mustPanic(t *testing.T, name string, call func()) {
 	call()
 }
 
-func TestClassBuiltinArgs(t *testing.T) {
+func TestClassBuiltinRejectsAnArgThatIsNoCountWithinItsLimit(t *testing.T) {
 	for _, bad := range []string{`"{digits(2000000000)}"`, `"{upper(-1)}"`, `"{lower(x)}"`, `"{digits()}"`, `"{upper(1,2)}"`} {
-		if _, err := resolved(t, bad); err == nil {
-			t.Errorf("compile(%s) = nil error, want the arg rejected", bad)
-		}
+		t.Run(bad, func(t *testing.T) {
+			if _, err := resolved(t, bad); err == nil {
+				t.Errorf("compile(%s) = nil error, want the arg rejected", bad)
+			}
+		})
 	}
+}
+
+func TestClassBuiltinAcceptsACountWithinItsLimit(t *testing.T) {
 	for _, ok := range []string{`"{digits(1048576)}"`, `"{upper(1)}"`, `"{lower(26)}"`} {
-		if _, err := resolved(t, ok); err != nil {
-			t.Errorf("compile(%s) = %v", ok, err)
-		}
+		t.Run(ok, func(t *testing.T) {
+			if _, err := resolved(t, ok); err != nil {
+				t.Errorf("compile(%s) = %v", ok, err)
+			}
+		})
 	}
 }
 
@@ -301,55 +345,75 @@ func TestClassBuiltinArgs(t *testing.T) {
 // layout, commas and English names included; time draws a second within one day.
 func TestBuiltinDateAndTime(t *testing.T) {
 	f := emptyGenerator(1)
-	seen := map[string]bool{}
-	for i := 0; i < 500; i++ {
-		got := mustRender(t, f, `"{date(1990-01-01,1990-12-31,'2006-01-02')}"`)
-		if d, err := time.Parse("2006-01-02", got); err != nil || d.Year() != 1990 {
-			t.Fatalf("date = %q, want a 1990 calendar date (err %v)", got, err)
+	t.Run("date spreads over its range", func(t *testing.T) {
+		seen := map[string]bool{}
+		eachDraw(500, func() string { return mustRender(t, f, `"{date(1990-01-01,1990-12-31,'2006-01-02')}"`) }, func(got string) {
+			if d, err := time.Parse("2006-01-02", got); err != nil || d.Year() != 1990 {
+				t.Fatalf("date = %q, want a 1990 calendar date (err %v)", got, err)
+			}
+			seen[got] = true
+		})
+		if len(seen) < 200 {
+			t.Fatalf("date drew %d distinct days of 365 in 500, want a uniform spread", len(seen))
 		}
-		seen[got] = true
-	}
-	if len(seen) < 200 {
-		t.Fatalf("date drew %d distinct days of 365 in 500, want a uniform spread", len(seen))
-	}
-	lo, hi := false, false
-	for i := 0; i < 200; i++ {
-		got := mustRender(t, f, `"{date(2020-02-28,2020-02-29,'2006-01-02')}"`)
-		if got != "2020-02-28" && got != "2020-02-29" {
-			t.Fatalf("date(2020-02-28,2020-02-29) = %q, out of range", got)
+	})
+	t.Run("date bounds are inclusive", func(t *testing.T) {
+		lo, hi := false, false
+		eachDraw(200, func() string { return mustRender(t, f, `"{date(2020-02-28,2020-02-29,'2006-01-02')}"`) }, func(got string) {
+			if got != "2020-02-28" && got != "2020-02-29" {
+				t.Fatalf("date(2020-02-28,2020-02-29) = %q, out of range", got)
+			}
+			lo, hi = lo || got == "2020-02-28", hi || got == "2020-02-29"
+		})
+		if !lo || !hi {
+			t.Fatalf("date never hit a bound: lo=%v hi=%v (bounds must be inclusive)", lo, hi)
 		}
-		lo, hi = lo || got == "2020-02-28", hi || got == "2020-02-29"
-	}
-	if !lo || !hi {
-		t.Fatalf("date never hit a bound: lo=%v hi=%v (bounds must be inclusive)", lo, hi)
-	}
-	if got := mustRender(t, f, `"{date(2020-07-04,2020-07-05,'January 2, 2006')}"`); got != "July 4, 2020" && got != "July 5, 2020" {
-		t.Fatalf("date with a comma in its layout = %q", got)
-	}
-	rfc := regexp.MustCompile(`^2021-\d\d-\d\dT\d\d:\d\d:\d\dZ$`)
-	clock := regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d$`)
-	ampm := regexp.MustCompile(`^(1[0-2]|[1-9]):[0-5]\d (AM|PM)$`)
-	seconds := map[string]bool{}
-	for i := 0; i < 300; i++ {
-		got := mustRender(t, f, `"{date(2021-01-01,2021-12-31,'2006-01-02T15:04:05Z07:00')}"`)
-		if !rfc.MatchString(got) {
-			t.Fatalf("date in an RFC 3339 layout = %q, want %s", got, rfc)
+	})
+	t.Run("date renders a layout holding a comma", func(t *testing.T) {
+		if got := mustRender(t, f, `"{date(2020-07-04,2020-07-05,'January 2, 2006')}"`); got != "July 4, 2020" && got != "July 5, 2020" {
+			t.Fatalf("date with a comma in its layout = %q", got)
 		}
-		seconds[got[17:19]] = true
-		if got := mustRender(t, f, `"{time('15:04')}"`); !clock.MatchString(got) {
-			t.Fatalf("time('15:04') = %q, want %s", got, clock)
+	})
+	t.Run("date draws every second of a day", func(t *testing.T) {
+		rfc := regexp.MustCompile(`^2021-\d\d-\d\dT\d\d:\d\d:\d\dZ$`)
+		seconds := map[string]bool{}
+		eachDraw(300, func() string {
+			return mustRender(t, f, `"{date(2021-01-01,2021-12-31,'2006-01-02T15:04:05Z07:00')}"`)
+		}, func(got string) {
+			if !rfc.MatchString(got) {
+				t.Fatalf("date in an RFC 3339 layout = %q, want %s", got, rfc)
+			}
+			seconds[got[17:19]] = true
+		})
+		if len(seconds) < 30 {
+			t.Fatalf("date drew %d distinct seconds in 300, want the whole day, not midnight", len(seconds))
 		}
-		if got := mustRender(t, f, `"{time('3:04 PM')}"`); !ampm.MatchString(got) {
-			t.Fatalf("time('3:04 PM') = %q, want %s", got, ampm)
-		}
-		got = mustRender(t, f, `"{date(1950-01-01,2000-12-31,'060102')}-238{luhn()}"`)
-		if d := digitsOnly(got); len(d) != 10 || !luhnValid(d) {
-			t.Fatalf("a personnummer over date() = %q, want ten Luhn-valid digits", got)
-		}
-	}
-	if len(seconds) < 30 {
-		t.Fatalf("date drew %d distinct seconds in 300, want the whole day, not midnight", len(seconds))
-	}
+	})
+	t.Run("time renders a 24-hour layout", func(t *testing.T) {
+		clock := regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d$`)
+		eachDraw(300, func() string { return mustRender(t, f, `"{time('15:04')}"`) }, func(got string) {
+			if !clock.MatchString(got) {
+				t.Fatalf("time('15:04') = %q, want %s", got, clock)
+			}
+		})
+	})
+	t.Run("time renders a 12-hour layout", func(t *testing.T) {
+		ampm := regexp.MustCompile(`^(1[0-2]|[1-9]):[0-5]\d (AM|PM)$`)
+		eachDraw(300, func() string { return mustRender(t, f, `"{time('3:04 PM')}"`) }, func(got string) {
+			if !ampm.MatchString(got) {
+				t.Fatalf("time('3:04 PM') = %q, want %s", got, ampm)
+			}
+		})
+	})
+	t.Run("luhn checks the digits of a date", func(t *testing.T) {
+		eachDraw(300, func() string {
+			return mustRender(t, f, `"{date(1950-01-01,2000-12-31,'060102')}-238{luhn()}"`)
+		}, func(got string) {
+			if d := digitsOnly(got); len(d) != 10 || !luhnValid(d) {
+				t.Fatalf("a personnummer over date() = %q, want ten Luhn-valid digits", got)
+			}
+		})
+	})
 }
 
 // TestBuiltinDateArgs pins the New-time checks: bounds are calendar dates in order, and the
@@ -367,17 +431,16 @@ func TestBuiltinDateArgs(t *testing.T) {
 		`"{time(3:04 PM, Mon)}"`:                              "'3:04 PM, Mon'",
 		`"{time(15:04)}"`:                                     "'15:04'",
 	} {
-		_, err := resolved(t, tmpl)
-		if err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want an error mentioning %q", tmpl, err, want)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			_, err := resolved(t, tmpl)
+			if err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("compile(%s) = %v, want an error mentioning %q", tmpl, err, want)
+			}
+		})
 	}
 }
 
-// TestBuiltinLayoutErrorsNameARunnableSpelling pins the two layout errors a user
-// can follow: a double-quoted layout is named single-quoted, without its own
-// quotes carried into the suggestion, whether it split on a comma or not.
-func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
+func TestBuiltinLayoutErrorNamesADoubleQuotedLayoutSingleQuoted(t *testing.T) {
 	_, err := load.Compile(parse(t, `"{date(1990-01-01,1990-12-31,\"2006-01-02\")}"`), tree.NewLoadFinds())
 	if err == nil || !strings.Contains(err.Error(), "write '2006-01-02'") {
 		t.Fatalf("a double-quoted layout = %v, want it named single-quoted", err)
@@ -388,12 +451,17 @@ func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
 	if !strings.Contains(err.Error(), "is double-quoted") {
 		t.Errorf("%v does not say which quotes were wrong", err)
 	}
-	_, err = load.Compile(parse(t, `"{time(15:04)}"`), tree.NewLoadFinds())
+}
+
+func TestBuiltinLayoutErrorNamesABareLayoutQuoted(t *testing.T) {
+	_, err := load.Compile(parse(t, `"{time(15:04)}"`), tree.NewLoadFinds())
 	if err == nil || !strings.Contains(err.Error(), "write '15:04'") {
 		t.Fatalf("a bare layout = %v, want it named quoted", err)
 	}
-	// The comma hint belongs to a layout that split, not to a call given extra args.
-	_, err = load.Compile(parse(t, `"{time(0,12,'15:04')}"`), tree.NewLoadFinds())
+}
+
+func TestBuiltinArgCountErrorOffersNoCommaHintForAQuotedLayout(t *testing.T) {
+	_, err := load.Compile(parse(t, `"{time(0,12,'15:04')}"`), tree.NewLoadFinds())
 	if err == nil || !strings.Contains(err.Error(), "takes 1 argument, got 3") {
 		t.Fatalf("time with three args = %v, want the count named in the singular", err)
 	}
@@ -406,20 +474,25 @@ func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
 // draws every second of it, and without one it prints that day.
 func TestBuiltinDateSpansOneDay(t *testing.T) {
 	f := emptyGenerator(1)
-	seen := map[string]bool{}
-	for i := 0; i < 500; i++ {
-		got := mustRender(t, f, `"{date(2026-01-01,2026-01-01,'2006-01-02 15:04:05')}"`)
-		if !strings.HasPrefix(got, "2026-01-01 ") {
-			t.Fatalf("date over one day = %q, out of range", got)
+	t.Run("a clock layout draws the whole day", func(t *testing.T) {
+		seen := map[string]bool{}
+		eachDraw(500, func() string {
+			return mustRender(t, f, `"{date(2026-01-01,2026-01-01,'2006-01-02 15:04:05')}"`)
+		}, func(got string) {
+			if !strings.HasPrefix(got, "2026-01-01 ") {
+				t.Fatalf("date over one day = %q, out of range", got)
+			}
+			seen[got] = true
+		})
+		if len(seen) < 400 {
+			t.Fatalf("date over one day drew %d distinct seconds in 500, want the whole day", len(seen))
 		}
-		seen[got] = true
-	}
-	if len(seen) < 400 {
-		t.Fatalf("date over one day drew %d distinct seconds in 500, want the whole day", len(seen))
-	}
-	if got := mustRender(t, f, `"{date(2026-01-01,2026-01-01,'2006-01-02')}"`); got != "2026-01-01" {
-		t.Fatalf("one day in a date-only layout = %q, want that day", got)
-	}
+	})
+	t.Run("a date-only layout prints that day", func(t *testing.T) {
+		if got := mustRender(t, f, `"{date(2026-01-01,2026-01-01,'2006-01-02')}"`); got != "2026-01-01" {
+			t.Fatalf("one day in a date-only layout = %q, want that day", got)
+		}
+	})
 }
 
 func TestClassBuiltins(t *testing.T) {
@@ -433,11 +506,13 @@ func TestClassBuiltins(t *testing.T) {
 	}
 	f := emptyGenerator(7)
 	for tmpl, re := range cases {
-		for i := 0; i < 100; i++ {
-			if got := mustRender(t, f, tmpl); !re.MatchString(got) {
-				t.Fatalf("%s produced %q, want %s", tmpl, got, re)
-			}
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			eachDraw(100, func() string { return mustRender(t, f, tmpl) }, func(got string) {
+				if !re.MatchString(got) {
+					t.Fatalf("%s produced %q, want %s", tmpl, got, re)
+				}
+			})
+		})
 	}
 }
 
@@ -453,9 +528,11 @@ func TestFunctionTokenLuhn(t *testing.T) {
 		`{"format":"{n}{luhn()}","n":"811218987"}`: "8112189876",  // over a rendered token
 	}
 	for tmpl, want := range cases {
-		if got := mustRender(t, f, tmpl); got != want {
-			t.Fatalf("%s = %q, want %q", tmpl, got, want)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if got := mustRender(t, f, tmpl); got != want {
+				t.Fatalf("%s = %q, want %q", tmpl, got, want)
+			}
+		})
 	}
 }
 
@@ -473,9 +550,11 @@ func TestBuiltinCompileErrors(t *testing.T) {
 		`"{iban(US)}"`,         // unsupported country
 		`"{seq(a,b)}"`,         // seq takes at most one name
 	} {
-		if _, err := resolved(t, bad); err == nil {
-			t.Errorf("compile(%s) = nil error, want error", bad)
-		}
+		t.Run(bad, func(t *testing.T) {
+			if _, err := resolved(t, bad); err == nil {
+				t.Errorf("compile(%s) = nil error, want error", bad)
+			}
+		})
 	}
 }
 
@@ -494,17 +573,23 @@ func TestASignOrLeadingZeroIsTheInteger(t *testing.T) {
 		`"{int(007,9)}"`:                    `"{int(7,9)}"`,
 		`"{int(+1,5)}"`:                     `"{int(1,5)}"`,
 	} {
-		sameRenders(t, long, short)
+		t.Run(long, func(t *testing.T) { sameRenders(t, long, short) })
+	}
+}
+
+func TestBuiltinsShowsEachCall(t *testing.T) {
+	got := Builtins()
+	for _, name := range []string{"hex(n)", "lower(n)", "digits(n)", "uuid()", "iban(CC)", "seq()", "seq(name)", "date(from,to,'layout')", "slugify(x)"} {
+		t.Run(name, func(t *testing.T) {
+			if !slices.Contains(got, name) {
+				t.Errorf("Builtins() = %v, missing %s", got, name)
+			}
+		})
 	}
 }
 
 func TestBuiltinsShowsEachCallOnceInOrder(t *testing.T) {
 	got := Builtins()
-	for _, name := range []string{"hex(n)", "lower(n)", "digits(n)", "uuid()", "iban(CC)", "seq()", "seq(name)", "date(from,to,'layout')", "slugify(x)"} {
-		if !slices.Contains(got, name) {
-			t.Errorf("Builtins() = %v, missing %s", got, name)
-		}
-	}
 	if !slices.IsSorted(got) || len(slices.Compact(slices.Clone(got))) != len(got) {
 		t.Errorf("Builtins() = %v, want each call once, sorted", got)
 	}
