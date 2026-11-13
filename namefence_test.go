@@ -23,12 +23,6 @@ func refusedNamingEach(t *testing.T, err error, wants []string) {
 	}
 }
 
-func eachNumberedDraw(n int, draw func() string, check func(i int, got string)) {
-	for i := 0; i < n; i++ {
-		check(i, draw())
-	}
-}
-
 func TestAReadThroughAFieldBoundNameIsRefusedWhereItsFieldReadsANameTheItemBinds(t *testing.T) {
 	const ab = `{"format":"{written}","written":["x","y"],"legal":["L","M"]}`
 	for label, c := range map[string]struct {
