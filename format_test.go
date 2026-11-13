@@ -13,13 +13,22 @@ func TestStringIsAFormat(t *testing.T) {
 		`"100 Main St, Apt 1A #0"`: "100 Main St, Apt 1A #0",
 		`"{{x}}"`:                  "{x}",
 	} {
-		if got := mustRender(t, f, src); got != want {
-			t.Errorf("render(%s) = %q, want %q", src, got, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if got := mustRender(t, f, src); got != want {
+				t.Errorf("render(%s) = %q, want %q", src, got, want)
+			}
+		})
 	}
+}
+
+func TestStringFormatCallsAFunction(t *testing.T) {
+	f := emptyGenerator(1)
 	if got := mustRender(t, f, `"{digits(3)}"`); !regexp.MustCompile(`^[0-9]{3}$`).MatchString(got) {
 		t.Errorf(`render("{digits(3)}") = %q, want three digits`, got)
 	}
+}
+
+func TestStringNamingAFieldIsANoFieldError(t *testing.T) {
 	if _, err := resolved(t, `"{x}"`); err == nil || !strings.Contains(err.Error(), `no field "x"`) {
 		t.Errorf(`compile("{x}") = %v, want a no-field error`, err)
 	}
@@ -40,19 +49,26 @@ func TestBraceEscapes(t *testing.T) {
 		`{"format":"{{{x}}}","x":"v"}`:    "{v}",
 		`{"format":"a{{{{b}}}}","x":"v"}`: "a{{b}}",
 	} {
-		if got := mustRender(t, f, src); got != want {
-			t.Errorf("render(%s) = %q, want %q", src, got, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if got := mustRender(t, f, src); got != want {
+				t.Errorf("render(%s) = %q, want %q", src, got, want)
+			}
+		})
 	}
+}
+
+func TestMisplacedBraceIsACompileError(t *testing.T) {
 	for src, want := range map[string]string{
 		`"x}y"`:                      "}}",
 		`"}"`:                        "}}",
 		`{"format":"{a{b}","a":"Q"}`: "'{'",
 		`"{x"`:                       "unterminated",
 	} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)
-		}
+		t.Run(src, func(t *testing.T) {
+			if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)
+			}
+		})
 	}
 }
 
@@ -64,22 +80,16 @@ func TestTokenSubstitution(t *testing.T) {
 
 func TestAlternationDrawsOneField(t *testing.T) {
 	f := emptyGenerator(3)
-	seen := map[string]bool{}
-	for i := 0; i < 100; i++ {
-		seen[mustRender(t, f, `{"format":"{a|b}","a":"A","b":"B"}`)] = true
-	}
-	if !seen["A"] || !seen["B"] || len(seen) != 2 {
+	seen := tallyDraws(100, func() string { return mustRender(t, f, `{"format":"{a|b}","a":"A","b":"B"}`) })
+	if seen["A"] == 0 || seen["B"] == 0 || len(seen) != 2 {
 		t.Fatalf("alternation produced %v, want both A and B", seen)
 	}
 }
 
 func TestAlternationThreeWay(t *testing.T) {
 	f := emptyGenerator(4)
-	seen := map[string]bool{}
-	for i := 0; i < 200; i++ {
-		seen[mustRender(t, f, `{"format":"{a|b|c}","a":"A","b":"B","c":"C"}`)] = true
-	}
-	if !seen["A"] || !seen["B"] || !seen["C"] || len(seen) != 3 {
+	seen := tallyDraws(200, func() string { return mustRender(t, f, `{"format":"{a|b|c}","a":"A","b":"B","c":"C"}`) })
+	if seen["A"] == 0 || seen["B"] == 0 || seen["C"] == 0 || len(seen) != 3 {
 		t.Fatalf("3-way alternation produced %v, want A, B and C", seen)
 	}
 }
@@ -94,9 +104,11 @@ func TestHashIsLiteral(t *testing.T) {
 		`{"format":"#{x}","x":"v"}`:     "#v",
 	}
 	for tmpl, want := range cases {
-		if got := mustRender(t, f, tmpl); got != want {
-			t.Errorf("render(%s) = %q, want %q", tmpl, got, want)
-		}
+		t.Run(tmpl, func(t *testing.T) {
+			if got := mustRender(t, f, tmpl); got != want {
+				t.Errorf("render(%s) = %q, want %q", tmpl, got, want)
+			}
+		})
 	}
 }
 
@@ -125,14 +137,17 @@ func TestFormatCompileErrors(t *testing.T) {
 		`"{int(1)}"`,                 // wrong arity
 		`"{float(1,2)}"`,             // wrong arity
 	} {
-		if _, err := resolved(t, bad); err == nil {
-			t.Errorf("compile(%s) = nil error, want error", bad)
-		}
+		t.Run(bad, func(t *testing.T) {
+			if _, err := resolved(t, bad); err == nil {
+				t.Errorf("compile(%s) = nil error, want error", bad)
+			}
+		})
 	}
 }
 
+const fieldBesideItsTemplateRule = "whose format holds it"
+
 func TestAReadOfAFieldBesideItsTemplateNamesTheRuleAndTheFix(t *testing.T) {
-	const rule = "whose format holds it"
 	for _, c := range []struct {
 		name, src, holder, bind string
 	}{
@@ -142,24 +157,32 @@ func TestAReadOfAFieldBesideItsTemplateNamesTheRuleAndTheFix(t *testing.T) {
 		{"an item of a choice in the field", `{"format":"{a}","a":["x{b}","z"],"b":"y"}`, `the item of field "a"`, `{b as n}`},
 		{"a field of a choice's item", `{"format":"{c}","c":[{"format":"{a}","a":"x{b}","b":"y"},"z"]}`, `field "a"`, ""},
 	} {
-		_, err := resolved(t, c.src)
-		if err == nil {
-			t.Errorf("%s: compile(%s) loaded, want a refusal", c.name, c.src)
-			continue
-		}
-		msg := err.Error()
-		if !strings.Contains(msg, rule) || !strings.Contains(msg, c.holder) || !strings.Contains(msg, `"b"`) {
-			t.Errorf("%s: compile(%s) = %v, want it to state the rule %q and name %s and \"b\"", c.name, c.src, err, rule, c.holder)
-		}
-		if c.bind == "" && strings.Contains(msg, " as n}") {
-			t.Errorf("%s: compile(%s) = %v, want no binding fix inside a choice's item", c.name, c.src, err)
-		} else if !strings.Contains(msg, c.bind) {
-			t.Errorf("%s: compile(%s) = %v, want the binding fix %s", c.name, c.src, err, c.bind)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			_, err := resolved(t, c.src)
+			if err == nil {
+				t.Errorf("%s: compile(%s) loaded, want a refusal", c.name, c.src)
+				return
+			}
+			msg := err.Error()
+			if !strings.Contains(msg, fieldBesideItsTemplateRule) || !strings.Contains(msg, c.holder) || !strings.Contains(msg, `"b"`) {
+				t.Errorf("%s: compile(%s) = %v, want it to state the rule %q and name %s and \"b\"", c.name, c.src, err, fieldBesideItsTemplateRule, c.holder)
+			}
+			if c.bind == "" && strings.Contains(msg, " as n}") {
+				t.Errorf("%s: compile(%s) = %v, want no binding fix inside a choice's item", c.name, c.src, err)
+			} else if !strings.Contains(msg, c.bind) {
+				t.Errorf("%s: compile(%s) = %v, want the binding fix %s", c.name, c.src, err, c.bind)
+			}
+		})
 	}
-	if _, err := resolved(t, `{"format":"{a}","a":"x{zzz}","b":"y"}`); err == nil || strings.Contains(err.Error(), rule) {
+}
+
+func TestAReadOfAFieldNowhereNamesNoFieldBeside(t *testing.T) {
+	if _, err := resolved(t, `{"format":"{a}","a":"x{zzz}","b":"y"}`); err == nil || strings.Contains(err.Error(), fieldBesideItsTemplateRule) {
 		t.Errorf("compile(a read of a field nowhere) = %v, want a refusal that names no field beside", err)
 	}
+}
+
+func TestTheFixARefusedReadOfAFieldNamesPrintsTheRead(t *testing.T) {
 	for _, src := range []string{
 		`{"format":"{a}","a":{"format":"x{b}","b":"y"}}`,
 		`{"format":"{b as n}{a}","a":"x{n}","b":"y"}`,
@@ -167,8 +190,10 @@ func TestAReadOfAFieldBesideItsTemplateNamesTheRuleAndTheFix(t *testing.T) {
 		`{"format":"{b as n}{a}","a":["x{n}"],"b":"y"}`,
 		`{"format":"{b as n}{a}","a":"x{n.c}","b":{"format":"{c}","c":"y"}}`,
 	} {
-		if got := mustRender(t, emptyGenerator(1), src); got != "xy" {
-			t.Errorf("render(%s) = %q, want the fix the refusal names to print xy", src, got)
-		}
+		t.Run(src, func(t *testing.T) {
+			if got := mustRender(t, emptyGenerator(1), src); got != "xy" {
+				t.Errorf("render(%s) = %q, want the fix the refusal names to print xy", src, got)
+			}
+		})
 	}
 }
