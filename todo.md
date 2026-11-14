@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 169 | 0.6.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
-| 463 | 0.6.0 |  |  | **Add a `####` section under `### `en_US`` in the README's Data section saying what `en_US.ssn` and `en_US.itin` draw: their kind, source, columns and when they repeat.** | 1 | 2 | 1 | 2 | 1 | 3 by 4, 11 by 3 | 5.4 |
 | 113 | 0.6.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 2.8 |
 | 334 | 0.6.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
 | 28 | 0.6.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 2.1 |
@@ -232,17 +231,6 @@
 ### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
 
 Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
-
-### 463. Add a `####` section under `### `en_US`` in the README's Data section saying what `en_US.ssn` and `en_US.itin` draw: their kind, source, columns and when they repeat.
-
-Found by the product-owner reviewer of PR #383; it predates that chunk. The README lists `ssn` and `itin` under "Locale categories" and its top promises them, but no README text says what they draw, unlike `sv_SE.personnummer`, `fi_FI.henkilotunnus` and `da_DK.cpr`, which each have a `####` section under their locale's `###` heading. Goal 3 asks the docs to say each value's kind; goal 11.1 asks every feature to have its own heading. Only `CHANGELOG.md` says it today: "draw the ranges the SSA and the IRS assign, with the columns `area`, `group` and `serial`".
-
-What `data/en_US/ssn.json` and `itin.json` draw, both `{area}-{group}-{serial}`, each column a path:
-
-- `en_US.ssn`: area `001` to `665` and `667` to `899`, group `01` to `99`, serial `0001` to `9999`, each number equally likely. So it skips 000, 666 and 900 to 999 in the area, 00 in the group and 0000 in the serial, the numbers the SSA never assigns. The value is valid, not synthetic: fejkdata draws no test series, so a number may be a living person's. About 890 million numbers, so a fixture repeats one after some tens of thousands of rows.
-- `en_US.itin`: area `900` to `999`, group `50` to `65`, `70` to `88`, `90` to `92` or `94` to `99`, serial `0001` to `9999`, each number equally likely: the IRS's ITIN ranges. Valid, and may be a real taxpayer's. About 44 million numbers, so a fixture of a few thousand rows starts to repeat one.
-
-The section states the kind (valid), the source (the SSA's and the IRS's published rules; read and cite them before paraphrasing, as AGENTS.md asks), the columns, and the repeat caveat, pointing to `{seq()}` or a category of one's own for a `UNIQUE` column, as the CPR section does. The README's `Data` section at line 613 is a place the comprehension seats found hard (540 lines of per-locale prose): keep the section short.
 
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 
