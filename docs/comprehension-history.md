@@ -1930,3 +1930,55 @@ Inherited architect, would restructure first:
 - Shape: `internal/builtinfunc/reword.go:11` `reword`: says package fejkdata renders it, where internal/engine does
 - Shape: `internal/engine/tree/table.go:30` `RowsTable`: t.Rows().Parent().Owner() reads as a table of rows of a table
 - Navigation: `internal/engine/fence/fence.go:28` `fence`: fence imports load, so it is not a leaf
+
+## 2026-11-14T15:04:14Z, PR #381 at ca568bcb
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7 | 5.5 | 6.5 | 6.5 | 6.5 |
+| Maintainability senior | 7.5 | 6 | 7 | 6.5 | 6.5 |
+| Inherited architect | 7 | 5.5 | 6 | 6.5 | 6 |
+| Mean | 7.13 | 5.63 | 6.50 | 6.38 | 6.25 |
+
+Junior A, hardest first:
+
+- Shape, Self-sufficiency: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: three chained conditions over routes, references followed into other categories and nested field renders that the seat couldn't instantiate as an example
+- Self-sufficiency: `internal/engine/tree/pick.go:83` `LevelsUnder`: the key alignment of fresh and named reads needs three files and is tangled with heap-escape asides
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frame stack, mark, base and frames kept in the memo, all held at once
+- Locality: `internal/engine/load/resolve.go:70` `CompileTemplates`: six stages write `LoadFinds` in an unstated order, read later through the nil `AfterFinish` sentinel
+- Locality: `internal/engine/pipeline.go:58` `pipeline.run`: fence order is load-bearing, held only by a comment
+- Shape: `internal/engine/load/name.go:89` `answerReads`: a recursive closure threading `besideField`, where error construction outweighs the check
+- Locality: `internal/engine/lazy.go:133` `batch.load`: the queue grows while iterated, and partial loads are undone in the caller
+- Locality: `internal/grammar/where.go:58` `cutWord`: a search predicate mutates the scanner's quote state
+
+Mid A, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/fence/names/refusedrawnapart.go:38` `sharedDraw`: its verdict needs the whole pick, level and addressed-key model and must match render's `LandsInPick`, with terms defined only by each other
+- Shape, Self-sufficiency: `internal/engine/tree/pick.go:83` `LevelsUnder`: the one rule aligning fresh and named read keys only made sense after the `PickKey` doc's worked example
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames are pushed into a shared stack, cached in another pick's memo and found again by `openOwn`
+- Locality: `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of`: node data lives in a side table or in the node depending on the load phase, with a nil `AfterFinish` sentinel and a panic on the wrong phase
+- Locality: `internal/engine/pipeline.go:58` `pipeline.run`: the stage order silently decides correctness, and only the comment stops a harmless-looking reorder
+- Shape: `internal/engine/load/path.go:93` `compileStep`: six parameters, two of them only for error text
+- Locality: `internal/engine/lazy.go:107` `loadReached`: a queue that grows while consumed, rolled back with `putBack`
+
+Maintainability senior, hardest first:
+
+- Self-sufficiency, Locality: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: a three-condition rule over a cross-category walk with a negated `rendersField` exit, understood only with the README's Names list open
+- Shape, Self-sufficiency: `internal/engine/fence/names/refusetwicedrawn.go:32` `readTwiceApart`: a dense boolean leaf flag and an unexplained one-sided `drawsDownTo` check
+- Locality: `internal/engine/tree/pick.go:83` `LevelsUnder`: two level schemes, fresh and named, must line up between load and render, plus a parameter that exists only to save an allocation
+- Shape: `internal/engine/fence/names/route.go:31` `route`: a struct of three kinds whose fields are valid only for some, guarded by callers rather than by the type
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames kept in another pick's memo, `base` marks and `entered` clearing the pick make correctness depend on push and pop order
+- Navigation, Shape: `internal/engine/fence/names/refusedrawnapart.go:38` `sharedDraw`: a five-exit level walk resting on an invariant stated only in an inline comment
+- Locality: `internal/engine/load/path.go:119` `compiledPath.walkEvery`: a full-slice-expression aliasing trick that a cleanup could break
+- Shape: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: a nil pointer named like a phase constant, used as a mode switch
+
+Inherited architect, would restructure first:
+
+- Locality, Self-sufficiency: `internal/engine/tree/pick.go:83` `LevelsUnder`: load and render must build identical pick keys, an agreement held only by both calling this function
+- Locality, Shape: `internal/engine/render/pick.go:51` `drawMemo`: one map per syntax feature accretes here, and the pick contract is split over tree, load, render and fence/names
+- Shape: `internal/engine/tree/where.go:6` `ValueDraw`: the file stem, type, `Values()` and "filtered draw" are four names for one concept, and `pathvalues` beside it is unexplained
+- Locality: `internal/engine/pipeline.go:58` `pipeline.run`: stage order is enforced by a comment, and fence reaches back into load's helpers
+- Navigation, Locality: `data-import/geo-se.py:252` `streets`: a street's postort is assigned by distance, and that can't be told from an engine bug without running something
+- Self-sufficiency, Navigation: `README.md:613` "Data": 540 lines of per-locale prose inside a 2405-line README that is also the navigation map
+- Shape: `internal/engine/fence/names/rules.go:54` `nameRules`: five refusal rules over 13 files, and every new syntax feature adds here
