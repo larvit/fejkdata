@@ -1834,13 +1834,15 @@ Posti's basic address file names every street under its postinumero, in Finnish 
 
 The file holds no street on Åland, so Åland's maakunta and kunnat ship no place. A postinumero weighs its residents in Statistics Finland's Paavo, and a street its ranges in Posti's file, since neither source counts addresses. Valid while Posti's files are free to download and hold no street on Åland.
 
-## A Finnish street's `swedish-name` holds its Finnish name where Posti gives no Swedish one
+## A `geo.FI` `swedish-name` holds the Finnish name where its source gives no Swedish one
 
-2026-11-13, in the chunk that added `geo.FI`, from a bench of two readers. Serves goal 2.1.
+2026-11-13, in the chunk that added `geo.FI`, from a bench of two readers. Serves goal 2.1. Widened to the postitoimipaikka and the kunta in the chunk that gave them the column.
 
-A street's `swedish-name` is the Swedish name Posti gives it most often in its postitoimipaikka, the first in the alphabet winning a tie. Where Posti gives none, it is the Finnish name: a TSV cell can't be empty, and a Swedish address writes the Finnish name of a street that has no Swedish one. Both readers chose the spelling `swedish-name` over `name-sv`. Valid while a street table names one language per column.
+A street's `swedish-name` is the Swedish name Posti gives it most often in its postitoimipaikka, the first in the alphabet winning a tie. Where Posti gives none, it is the Finnish name: a TSV cell can't be empty, and a Swedish address writes the Finnish name of a street that has no Swedish one. Both readers chose the spelling `swedish-name` over `name-sv`.
 
-A postitoimipaikka's and a kunta's `swedish-name` follow it, as does `geo.FI`'s import: Posti's Swedish name of a postitoimipaikka is recased as its Finnish name is, the Swedish `ST` and `KBY` staying lower case as `AS` and `KK` do, and a kunta's is Statistics Finland's.
+A postitoimipaikka's and a kunta's `swedish-name` follow the same rule. A postitoimipaikka's is the Swedish name Posti gives its postinumerot most often. A kunta's is Statistics Finland's.
+
+Valid while a `geo.FI` table names one language per column.
 
 ## A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 
