@@ -1,5 +1,6 @@
-// Package nnno is fejkdata's nn_NO locale module, whose categories are nn_NO.*; they read
-// nb_NO's names, ids, phone numbers, emails and companies, and geo.NO's places.
+// Package nnno is fejkdata's nn_NO locale module, whose categories are nn_NO.*; its person,
+// fodselsnummer, phone, email and company read nb_NO, which package nbno holds, and its address
+// reads geo.NO, which nbno's Modules returns.
 package nnno
 
 import (
