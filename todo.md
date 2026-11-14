@@ -13,13 +13,10 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 169 | 0.6.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
-| 451 | 0.6.0 |  |  | **Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.1 |
-| 376 | 0.6.0 |  |  | **Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 3 by 2 | 1.9 |
 | 460 | 0.6.0 |  |  | **Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.** | 2 | 1 | 1 | 2 | 3 | 1 by 3 | 1.8 |
 | 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
 | 18 | 0.6.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
 | 27 | 0.6.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip` into one `misc.ip`, and `en_US.version` and `sv_SE.version` into one `misc.version`, each pair today byte-identical.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.7 |
-| 28 | 0.6.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 1 | 2 | 5 | 6 | 1 by 1, 2.1 by 3, 3 by 2 | 0.7 |
 | 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
@@ -230,16 +227,6 @@
 
 Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
 
-### 451. Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.
-
-`fi_FI.henkilotunnus` draws numbers DVV issues to no one, as the decision "The Finnish id draws DVV's unissued 900 to 999" records, which names this variant as a later item. A checker that treats endings from 900 as synthetic ("keinohenkilötunnus", per the Vero API FAQ on testing) may refuse them, so a hand fixture for such a checker needs numbers of the issued range. Goal 3 asks the best category to offer more than one kind. A drawn number may be a living person's, so the README says so beside the variant, as it does for the Danish `cpr`, and the default stays 900 to 999 for goal 3.3.
-
-`{hetu(x)}` draws 900 to 999 only, so the item decides how the variant takes the range, records it in `docs/decisions.md` and revises the decision above. Recommended: a second argument to `{hetu(x)}` naming the range, beside a path such as `fi_FI.henkilotunnus-issued`, since the control character and century sign are the same and a second builtin adds a name for one meaning. Bench the path's and the argument's spelling with the README's audience before it ships. The individual number stays of the parity `x` reads, and 001 stays undrawn, as DVV issues from 002.
-
-### 376. Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.
-
-The category weighs four age bands in one choice, and a template can reach only the whole. A test of a system's handling of the `+` has to draw until one comes, at 0.028%. Bench the spelling with the README's audience: a table selector, a path per band or a builtin. The decision "`sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`" sets the bands and weights.
-
 ### 460. Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.
 
 Measured on 2026-11-13 at 94474007, in containers of 2 CPUs and 2 GB, with a release build of Go 1.27.4.
@@ -253,10 +240,6 @@ The item ends when the choice, the strategies it weighed and their measured gain
 ### 454. Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.
 
 Posti's postcode file names each postitoimipaikka in Swedish too (field 49, 30 characters), and Statistics Finland's classification names each kunta in Swedish. Add a `swedish-name` column to the locality and municipality tables, as the street table has, falling back to the Finnish name where no Swedish one exists, and recase Posti's Swedish names as `recased` does the Finnish ones.
-
-### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
-
-Today `sv_SE.personnummer` draws its own sex, so a chosen sex and a number agree only through the README Data section's template, which reads both through one bound `sex`. `sv_SE.person` reads its own sex and birth date in its `personnummer` field in `data/sv_SE/person.json`, so this item may follow that shape.
 
 ### 458. Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.
 
