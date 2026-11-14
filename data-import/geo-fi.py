@@ -27,6 +27,7 @@ import sys
 import zipfile
 from collections.abc import Collection, Iterable, Mapping
 from pathlib import Path
+from typing import Any
 
 import geo
 import source
@@ -90,7 +91,7 @@ def stat_fi(url: str, query: Mapping[str, list[str]], cache: Path, name: str) ->
     return {code: table["value"][i] for code, i in index.items() if table["value"][i] is not None}
 
 
-def classification(cache: Path, lang: str) -> list[dict[str, dict[str, object]]]:
+def classification(cache: Path, lang: str) -> Any:
     """Statistics Finland's table of each kunta and its maakunta, with the names in a language."""
     return json.loads(source.fetch(CLASSIFICATION.format(lang=lang), cache, f"statfi-kunta-maakunta-{lang}.json"))
 
