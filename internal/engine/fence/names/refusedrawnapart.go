@@ -3,7 +3,6 @@ package names
 import (
 	"fmt"
 
-	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
@@ -33,35 +32,34 @@ func refuseDrawnApart(nr nameRead) error {
 
 // sharedDraw reports whether a read of one name shares, with a second name bound to target, a draw
 // that could differ, and returns that read. Parameter above is target's path under the first name's
-// pick. It walks target's path from its start, a level at a time. The first name's pick holds a
-// draw of a level only where a read of that name addresses the level. Each level is settled by
-// the first case that fits, and each case rests on the ones before it not fitting.
+// pick. It walks target's path from its start, a level at a time, and the kind of each level
+// settles it (levelKind).
 func sharedDraw(pick pickReads, target tree.NameTarget, above []string) (by string, shares bool) {
-	n := target.Start()
-	for i := 0; ; i++ {
-		key := keyOf(above, target.Tail()[:i])
-		by, here := pick.addressed[key]
-		switch {
-		case !here:
-			// First: every later case needs a read that addresses this level. A read that
-			// addresses a level addresses every level above it, so no deeper level is addressed.
+	for w := walkFrom(target.Start(), target.Tail()); ; {
+		key := keyOf(above, w.walked())
+		by, addressed := pick.addresser(key)
+		if !addressed {
+			// The first name's pick holds a draw of a level only where a read of that name
+			// addresses the level. Such a read addresses every level above it too, so no
+			// deeper level is addressed either.
 			return "", false
-		case isDraw(n):
-			// Before the leaf case: a choice or a table is a draw wherever on the path it sits.
-			return by, true
-		case i == len(target.Tail()):
-			// The leaf isn't a choice or a table here, so only a constant renders the same twice.
-			return by, !isConstant(n)
 		}
-		// Before the step down: a read landing here renders every level below it. The next
-		// level may be one no read addresses, and the first case would then say they share none.
-		if lander, lands := pick.landingOn(key); lands && drawsAlong(n, target.Tail()[i:], true) {
-			return lander, true
-		}
-		var err error
-		if n, err = load.ChildNamed(n, target.Tail()[i]); err != nil {
-			// A step no field spells, such as "..", can't be followed: they count as sharing a draw.
+		switch w.kind() {
+		case drawLevel:
 			return by, true
+		case constantLeaf:
+			return by, false
+		case varyingLeaf:
+			return by, true
+		case innerLevel:
+			// A read landing here renders every level below, addressed or not.
+			if lander, lands := pick.landingOn(key); lands && w.drawsBelow() {
+				return lander, true
+			}
+			if !w.step() {
+				// A step the walk can't follow counts as sharing a draw.
+				return by, true
+			}
 		}
 	}
 }
