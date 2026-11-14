@@ -1743,3 +1743,31 @@ Read most (opens and searches):
 - `todo.md` 3
 - `README.md` 2
 - `compose.yaml` 2
+
+## Reading cost, chunk 9ee9643d9c7a, finished 2026-11-13T23:51:06Z
+
+101037 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/engine/load/table.go` 5
+- `internal/builtinfunc/builtins.go` 3
+- `internal/engine/load/name.go` 3
+- `internal/engine/load/node.go` 3
+- `internal/grammar/where.go` 3
+- `README.md` 2
+- `compose.yaml` 2
+- `internal/engine/load/adddays.go` 2
+- `internal/engine/tree/renderedge.go` 2
+- `todo.md` 2
+
+## Reading cost, chunk 928a56d03605, finished 2026-11-14T14:20:04Z
+
+124970 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `CHANGELOG.md` 4
+- `README.md` 3
+- `docs/decisions.md` 2
+- `todo.md` 1
