@@ -1829,3 +1829,14 @@ Read most (opens and searches):
 - `doc_test.go` 1
 - `readme_test.go` 1
 - `release-tooling/patch_release.py` 1
+
+## Reading cost, chunk 27607d0d96ba, finished 2026-11-14T16:23:32Z
+
+68243 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 9
+- `CHANGELOG.md` 2
+- `data/en_US/itin.json` 1
+- `data/en_US/ssn.json` 1
