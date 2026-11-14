@@ -12,5 +12,7 @@
     { "format": "{int(1000,9999)}{lower(1)}", "weight": 557 }
   ],
   "postal-code": "{l.postal-code.code}",
-  "locality": "{l.name}"
+  "locality": "{l.name}",
+  "municipality": "{l..municipality.name}",
+  "region": "{l..municipality..region.name}"
 }

@@ -1,6 +1,6 @@
 {
 	"index": {
-		"geo.NO.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"geo.NO.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"geo.NO.locality": {"parent":"municipality","paths":["","lat","lon","municipality","name","population","postal-code","postal-code.addresses","postal-code.code","postal-code.locality","street","street.addresses","street.locality","street.name"]},
 		"geo.NO.municipality": {"parent":"region","paths":["","code","locality","locality.lat","locality.lon","locality.municipality","locality.name","locality.population","locality.postal-code","locality.postal-code.addresses","locality.postal-code.code","locality.postal-code.locality","locality.street","locality.street.addresses","locality.street.locality","locality.street.name","name","population","region"]},
 		"geo.NO.postal-code": {"parent":"locality","paths":["","addresses","code","locality"]},

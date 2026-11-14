@@ -3,6 +3,7 @@
   "street": "{a.street}",
   "street-number": "{a.street-number}",
   "locality": "{a.locality}",
+  "municipality": "{a.municipality}",
   "region": "{a.region}",
   "postal-code": "{a.postal-code}"
 }
