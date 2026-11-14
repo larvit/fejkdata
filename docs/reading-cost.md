@@ -1804,3 +1804,14 @@ Read most (opens and searches):
 - `internal/engine/fence/names/route.go` 1
 - `internal/engine/tree/renderedge.go` 1
 - `todo.md` 1
+
+## Reading cost, chunk b3c1152d23eb, finished 2026-11-14T15:58:46Z
+
+99068 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 33
+- `readme_test.go` 5
+- `compose.yaml` 2
+- `todo.md` 1
