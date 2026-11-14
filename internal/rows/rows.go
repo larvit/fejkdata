@@ -41,8 +41,8 @@ type Options struct {
 	Key, Name, Parent, Weight string
 }
 
-// parentRun is rows from up to, not including, to, whose parent cell is the same: a run ends
-// where the cell differs from the one above it, so a key whose rows are scattered has several.
+// parentRun is the rows from from to to-1, which sit side by side and share one parent cell. A
+// parent whose rows are scattered has several runs.
 type parentRun struct{ from, to int }
 
 func (t *Table[O]) runKey(run parentRun) string { return t.Cell(run.from, t.parentIndex) }
@@ -181,8 +181,7 @@ func (t *Table[O]) bindOptions() error {
 	return t.sumWeights()
 }
 
-// readParentRuns reads the parent column once, into the runs that the weight proof, the link
-// check and the row lookup each walk with one map operation per run instead of one per row.
+// readParentRuns splits the parent column into its runs, in row order.
 func (t *Table[O]) readParentRuns() {
 	if t.parentIndex < 0 {
 		return
