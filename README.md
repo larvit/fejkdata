@@ -805,23 +805,28 @@ packages carry it.
 
 #### Social Security numbers and ITINs
 
-`en_US.ssn` and `en_US.itin` print `area-group-serial`, such as `123-45-6789`, and each has the
-columns `area`, `group` and `serial`. Both are valid, not synthetic: they pass the rules the
-issuer publishes, but fejkdata draws no test series, so a number may be a living person's.
-Every number the rules allow is equally likely.
+`en_US.ssn`, a Social Security number, and `en_US.itin`, an Individual Taxpayer Identification
+Number, print `area-group-serial`, and each has those three columns. Both are valid, not
+synthetic: a drawn number passes the issuing agency's published rules and nothing marks it
+unissued, so it may be a living person's. A serial is `0001` to `9999`. Within the ranges below,
+every number is equally likely.
 
-- `en_US.ssn` draws the area from `001` to `665` and `667` to `899`, the group from `01` to
-  `99` and the serial from `0001` to `9999`. The Social Security Administration (SSA) [assigns
-  no area 000, 666 or 900 to 999](https://www.ssa.gov/employer/randomization.html), and
-  [no group 00 or serial 0000](https://www.ssa.gov/employer/randomizationfaqs.html). About 890
-  million numbers exist, so a fixture of some tens of thousands of rows starts to repeat one.
-- `en_US.itin` draws the area from `900` to `999`, the group from `50` to `65`, `70` to `88`, `90`
-  to `92` or `94` to `99`, and the serial from `0001` to `9999`, the ranges of the Internal
-  Revenue Service's [Individual Taxpayer Identification
-  Number](https://www.irs.gov/irm/part3/irm_03-021-263r). About 44 million numbers exist, so a
-  fixture of a few thousand rows starts to repeat one.
+- `en_US.ssn` draws the area from `001` to `665` and `667` to `899`, and the group from `01` to
+  `99`. The Social Security Administration (SSA) assigns [no area 000, 666 or 900 to
+  999](https://www.ssa.gov/employer/randomization.html), [no group 00 and no serial
+  0000](https://www.ssa.gov/employer/randomizationfaqs.html). About 890 million numbers are
+  possible, so a fixture of some tens of thousands of rows starts to repeat one.
+- `en_US.itin` draws the area from `900` to `999` and the group from `50` to `65`, `70` to `88`,
+  `90` to `92` or `94` to `99`, the groups the Internal Revenue Service (IRS) [lists for an
+  ITIN](https://www.irs.gov/irm/part3/irm_03-021-263r). About 44 million numbers are possible,
+  so a fixture of a few thousand rows starts to repeat one.
 
-A `UNIQUE` column takes `{seq()}` or a category of your own.
+A `UNIQUE` column needs a category of your own whose id ends in `.{seq()}`, as
+[Records](#records) shows.
+
+A checker older than the SSA's 2011 randomization, which refused areas the SSA had not yet
+assigned, or one accepting fewer ITIN groups than the IRS lists, refuses some of these numbers:
+pin a number for such a checker.
 
 #### US phone exchanges
 
