@@ -747,6 +747,35 @@ nb_NO.sex.name	string
 nb_NO.title	format "{name}"	key name	weight share
 nb_NO.title.name	string
 nb_NO.title.share	string
+nn_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
+nn_NO.address.locality	string
+nn_NO.address.postal-code	string
+nn_NO.address.street	string
+nn_NO.address.street-number	string
+nn_NO.company	format "{/nb_NO.company as c}{c}"	reads nb_NO.company
+nn_NO.company.legal	string
+nn_NO.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
+nn_NO.email	format "{/nb_NO.email as e}{e}"	reads nb_NO.email
+nn_NO.email.domain	string
+nn_NO.email.local	string
+nn_NO.fodselsnummer	format "{/nb_NO.fodselsnummer as f}{f}"	reads nb_NO.fodselsnummer
+nn_NO.month	format "{name}"	key code	name name
+nn_NO.month.code	string
+nn_NO.month.name	string
+nn_NO.person	format "{prefix}{first} {last}"	reads nb_NO.first-name nb_NO.last-name nn_NO.title
+nn_NO.person.first	string
+nn_NO.person.last	string
+nn_NO.person.prefix	string null
+nn_NO.person.sex	string
+nn_NO.phone	format "{/nb_NO.phone as p}{p}"	reads nb_NO.phone
+nn_NO.phone.international	string
+nn_NO.phone.national	string
+nn_NO.title	format "{name}"	key name	weight share
+nn_NO.title.name	string
+nn_NO.title.share	string
+nn_NO.weekday	format "{name}"	key code	name name
+nn_NO.weekday.code	string
+nn_NO.weekday.name	string
 sv_SE.address	format "{/geo.SE.address as a}{a}"	reads geo.SE.address
 sv_SE.address.locality	string
 sv_SE.address.postal-code	string
