@@ -57,10 +57,7 @@ func sharedDraw(pick pickReads, target tree.NameTarget, above []string) (by stri
 			if lander, lands := pick.landingOn(key); lands && w.drawsBelow() {
 				return lander, true
 			}
-			if !w.step() {
-				// A step the walk can't follow counts as sharing a draw.
-				return by, true
-			}
+			w.step()
 		}
 	}
 }
