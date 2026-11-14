@@ -2113,7 +2113,7 @@ Renders `SE pays in SEK` three times in six, and never `SE pays in NOK`.
 
 ### Performance
 
-The target is about a microsecond per value (goal 12).
+After a category's first load, the target is about a microsecond per value (goal 12.3).
 
 A source with an [index](#indexed-sources), as the shipped set has, loads nothing in `New`: a
 category loads on the first `Fake`, `FakeRecord`, `FakeStruct` or template that reads
@@ -2310,15 +2310,29 @@ against each other in the order listed.
     1. **Maintain:** Every feature has its own heading.
     2. **Maintain:** Every example runs as a test and shows its output.
     3. **Maintain:** Each rule is stated in one place.
-12. **Achieve:** **It is fast enough that speed never rules it out: the first
-    value appears at once, and bulk output stays within reach of the fastest
-    general fake-data libraries, while every value stays linked and valid.**
+12. **Achieve:** **It is fast enough that speed never rules it out: the first value
+    appears at once, and bulk output stays within reach of the fastest general
+    fake-data libraries, without giving up goal 3's values.**
+    - Signal: the README's benchmark shows the rows a second beside other tools, and
+      the gap narrows.
+    - Counter-signal: a faster draw changes a value's kind or breaks the links
+      between values.
+    - Why: people rule a tool out by its slowest run, and speed that costs correct
+      values loses them anyway.
     1. **Maintain:** A render's cost grows only with the data it reaches.
-    2. **Achieve:** The first value of any category appears in under 100 ms,
+    2. **Achieve:** The CLI prints the first value of any category in under 100 ms,
        however much data ships.
-    3. **Achieve:** A million rows of a typical record take under 10 seconds on
-       one CPU and scale with the CPUs you give it. The README shows the
-       numbers beside other tools.
+       - Signal: the first value of each category stays under 100 ms as data is added.
+       - Counter-signal: adding one country's data slows another category's first
+         value.
+       - Why: 100 ms is the limit under which an answer feels instant.
+    3. **Achieve:** A million rows of an eight-column person record take under 10
+       seconds on one CPU, and take less with each CPU you add.
+       - Signal: the rows a second on that record rise.
+       - Counter-signal: a faster path changes what a seed draws without the
+         changelog saying so.
+       - Why: people fill a test database with millions of rows, and a slow tool is
+         replaced by a faster one.
 
 ### Documentation
 
