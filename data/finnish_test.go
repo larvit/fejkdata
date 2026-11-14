@@ -758,6 +758,53 @@ func TestShippedFinnishStreetCarriesTheSwedishNamePostiGivesOnOnlySomeOfItsRange
 	}
 }
 
+func TestShippedFinnishMunicipalityCarriesStatisticsFinlandsSwedishName(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(1))
+	for path, want := range map[string]string{
+		"geo.FI.municipality[Helsinki].swedish-name": "Helsingfors",
+		"geo.FI.municipality[Turku].swedish-name":    "Åbo",
+		"geo.FI.municipality[Porvoo].swedish-name":   "Borgå",
+		"geo.FI.municipality[Alajärvi].swedish-name": "Alajärvi",
+	} {
+		t.Run(path, func(t *testing.T) {
+			if got := fejktest.Fake(t, f, path); got != want {
+				t.Errorf("%s = %q, want %q", path, got, want)
+			}
+		})
+	}
+}
+
+// Posti writes a postitoimipaikka in capitals, and its Swedish name is recased as its Finnish one is.
+func TestShippedFinnishLocalityCarriesPostisSwedishNameWrittenAsAPlaceName(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(1))
+	for path, want := range map[string]string{
+		"geo.FI.locality[Helsinki].swedish-name":   "Helsingfors",
+		"geo.FI.locality[Turku].swedish-name":      "Åbo",
+		"geo.FI.locality[Porvoo].swedish-name":     "Borgå",
+		"geo.FI.locality[Inkoo as].swedish-name":   "Ingå st",
+		"geo.FI.locality[Siuntio kk].swedish-name": "Sjundeå kby",
+		"geo.FI.locality[Alavus].swedish-name":     "Alavus",
+	} {
+		t.Run(path, func(t *testing.T) {
+			if got := fejktest.Fake(t, f, path); got != want {
+				t.Errorf("%s = %q, want %q", path, got, want)
+			}
+		})
+	}
+}
+
+func TestShippedFinnishPlacesCarryASwedishNameOpeningWithNoLowerCaseLetter(t *testing.T) {
+	for _, table := range []string{"locality", "municipality"} {
+		t.Run(table, func(t *testing.T) {
+			for i, r := range fejktest.TSVRows(t, "geo/FI/"+table+".tsv") {
+				if first, _ := utf8.DecodeRuneInString(r["swedish-name"]); first == utf8.RuneError || unicode.IsLower(first) {
+					t.Errorf("geo.FI %s row %d has the swedish-name %q, want a name opening in upper case", table, i+1, r["swedish-name"])
+				}
+			}
+		})
+	}
+}
+
 func eachFinnishStreetRow(t *testing.T, check func(i int, r map[string]string)) {
 	t.Helper()
 	for i, r := range fejktest.TSVRows(t, "geo/FI/street.tsv") {
