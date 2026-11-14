@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 475`
+`Next ID = 487`
 
 ## Items
 
@@ -19,9 +19,21 @@
 | 332 | 0.7.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 331 | 0.7.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 474 | 0.7.0 |  | decision | **Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 2.1 by 4 | 2.2 |
+| 475 | 0.7.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 2 | 1.9 |
 | 333 | 0.7.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 329 | 0.7.0 | 217 |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 476 | 0.7.0 |  |  | **Add `sv_SE.paragraph` from `sv_SE.sentence`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2.1 by 1 | 1.2 |
+| 477 | 0.7.0 |  |  | **Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 478 | 0.7.0 |  |  | **Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 479 | 0.7.0 |  |  | **Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 480 | 0.7.0 |  |  | **Add `fi_FI`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 481 | 0.7.0 | 217 |  | **Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 330 | 0.7.0 | 329, 474 |  | **Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
+| 482 | 0.7.0 |  |  | **Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 483 | 0.7.0 |  |  | **Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 484 | 0.7.0 |  |  | **Add `da_DK`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 485 | 0.7.0 |  |  | **Add `fi_FI`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 486 | 0.7.0 | 217 |  | **Add `de_DE`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.5 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 6.1 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 6.1 |
@@ -172,7 +184,7 @@
 | 214 | 1.3.0 |  | decision | **Add `ur_PK` with its given names by sex, last names and titles, and `ur_PK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 322 | 1.3.0 | 214 |  | **Add `ur_PK`'s national personal id, the CNIC number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 245 | 1.3.0 |  |  | **Draw `en_US.phone` from every area code NANPA has in service.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2, 3.2 by 3 | 3.5 |
-| 250 | 1.3.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 3.2 by 2 | 3.1 |
+| 250 | 1.3.0 |  |  | **Add `en_US.holiday`, the federal holidays.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 3.2 by 2 | 3.1 |
 | 244 | 1.3.0 |  |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 2.1 by 4, 3.2 by 3 | 2.7 |
 | 198 | 1.3.0 |  |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2, 3.3 by 3 | 2.6 |
 | 272 | 1.3.0 | 210 |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -256,13 +268,61 @@ Find the numbering plan and its licence first.
 
 Applies the decision "A country with no open address register covering it whole draws invented streets", as the project principle for `da_DK.company` and `fi_FI.company` draws names. Each name shape weighs the same, and the README's Data section marks the country's streets invented (item 254's labels). Item 330 is its first user; items 271, 280, 285 and 325 may take it too where no open register covers the country. Item 218 replaces the invented streets with real ones.
 
+### 475. Add `en_US.month` and `en_US.weekday` names from CLDR.
+
+CLDR is under the Unicode licence, as `sv_SE.month` and `sv_SE.weekday` take theirs. [Source research](docs/research/research-sources-world.md).
+
 ### 329. Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.
 
 GeoNames publishes Germany's postal codes.
 
+### 476. Add `sv_SE.paragraph` from `sv_SE.sentence`.
+
+Joins three to six sentences, as `en_US.paragraph` does.
+
+### 477. Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 478. Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 479. Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr.), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 480. Add `fi_FI`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in euro (€), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 481. Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in euro (€), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
 ### 330. Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.
 
 Each Land publishes its own address data. Where open registers cover every Land, they are its street source; else it draws invented streets (decision: no open address register covering it whole).
+
+### 482. Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
+
+### 483. Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
+
+### 484. Add `da_DK`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
+
+### 485. Add `fi_FI`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
+
+### 486. Add `de_DE`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
 
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 
@@ -947,9 +1007,9 @@ Find the issuer's rules, and a test series if it publishes one, first.
 
 Today it draws 21 area codes; the exchange already ships as `en_US.phone-exchange`. No research file covers NANPA yet: find its list of area codes in service and that list's licence first.
 
-### 250. Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.
+### 250. Add `en_US.holiday`, the federal holidays.
 
-CLDR is under the Unicode licence. [Source research](docs/research/research-sources-world.md). The federal holidays are listed in 5 U.S.C. 6103, which no research file covers yet.
+[Source research](docs/research/research-sources-world.md). The federal holidays are listed in 5 U.S.C. 6103, which no research file covers yet.
 
 ### 244. Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.
 
