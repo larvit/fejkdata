@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"os"
 	"reflect"
+	"regexp"
 	"slices"
 	"strings"
 	"sync"
@@ -74,10 +75,15 @@ func TestIPAndVersionLiveInMiscAlone(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
-	for _, p := range []string{"misc.ip", "misc.version"} {
-		if got := fejktest.Fake(t, f, p); got == "" {
-			t.Errorf("%s rendered empty", p)
-		}
+	for p, want := range map[string]*regexp.Regexp{
+		"misc.ip":      regexp.MustCompile(`^((\d{1,3}\.){3}\d{1,3}|([0-9a-f]{4}:){7}[0-9a-f]{4})$`),
+		"misc.version": regexp.MustCompile(`^v?\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$`),
+	} {
+		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, p) }, func(v string) {
+			if !want.MatchString(v) {
+				t.Fatalf("%s = %q, want %s", p, v, want)
+			}
+		})
 	}
 	for _, p := range []string{"sv_SE.ip", "en_US.ip", "sv_SE.version", "en_US.version"} {
 		if got, err := f.Fake(p); err == nil {
