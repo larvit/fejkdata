@@ -1857,3 +1857,20 @@ Read most (opens and searches):
 - `data/misc/iban-test.tsv` 1
 - `data/sv_SE/bankaccount.json` 1
 - `data/swedish_test.go` 1
+
+## Reading cost, chunk 28a7310f003a, finished 2026-11-14T17:39:14Z
+
+67394 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 7
+- `data/norwegian_test.go` 5
+- `DATA-LICENSES.md` 3
+- `AGENTS.md` 2
+- `compose.yaml` 2
+- `data/swedish_test.go` 2
+- `docs/decisions.md` 2
+- `shipped_test.go` 2
+- `CHANGELOG.md` 1
+- `data/modules.go` 1
