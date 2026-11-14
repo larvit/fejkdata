@@ -145,7 +145,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A where clause also filters a call drawing from an alphabet, reads a name unquoted, and may end in `else` and a fallback
 - One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`
 - `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
-- A Finnish street's `swedish-name` holds its Finnish name where Posti gives no Swedish one
+- A `geo.FI` `swedish-name` holds the Finnish name where its source gives no Swedish one
 - A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 - Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, and a weighted draw stays a binary search over cumulative weights
 
