@@ -993,8 +993,10 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 
 A drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real: it passes the Luhn check or
 the IBAN's mod-97 check, and a real card or account may hold it. `{iban(CC)}` also carries the
-check digits of the account number in BE, ES, FI and NO, and a listed bank's IBAN ID in SE; the
-other digits are random, and DE and DK check only mod 97. `misc.creditcard-test` and
+check digits of the account number in BE, ES, FI and NO, and in SE the IBAN ID of a bank in
+Bankinfrastruktur i Sverige's clearing number table. Every other digit is random, so a
+checker that looks up a bank code, or the account digits behind an SE IBAN ID, or that checks
+a DE or DK account, can still refuse a draw. `misc.creditcard-test` and
 `misc.iban-test` draw only numbers published for testing: Stripe's test card for each brand
 (`visa`, `mastercard`, `amex`, `discover`, `diners`, `jcb`, `unionpay`) and Stripe's test IBAN for
 each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK. Each key holds one
@@ -1638,7 +1640,7 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{uuid()}` | sample | UUID v7 (`misc.uuid` ships v4 as data) |
 | `{ulid()}` | sample | ULID, 26 Crockford base32 chars |
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
-| `{iban(CC)}` | sample | mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE, with the national check digits of BE, ES, FI and NO and a listed bank's ID in SE, which a real account may hold; `misc.iban-test` draws published test IBANs |
+| `{iban(CC)}` | sample | mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE, which a real account may hold, with the account check digits of BE, ES, FI and NO and a listed bank's IBAN ID in SE (see [Credit cards and IBANs](#credit-cards-and-ibans)); `misc.iban-test` draws published test IBANs |
 | `{date(from,to,'layout')}` | sample | a second between two days, both included, each `YYYY-MM-DD`, or both `today` with a day count added or taken away, as `today-30` or `today+14`, from `WithToday` or `--today` ([Dates around today](#dates-around-today)), in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
 | `{born(min,max,'layout')}` | sample | a second in the calendar years in which someone turns `min` to `max`, both included, counted from the year of `WithToday` or `--today`, and never after that date; the layout as in `date` |
 | `{adddays(d,n)}`, `{adddays(d,n,'layout')}` | computation | the date `d` reads plus `n` days, an integer, field, path or name, negative for earlier; the time of day stays, and the layout is `d`'s unless given ([Date offsets](#date-offsets)) |
