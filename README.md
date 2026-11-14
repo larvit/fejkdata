@@ -90,7 +90,7 @@ Save this record as `person.json`. Its `format` draws one sex, one last name and
   "sex": "{s.name}",
   "first": "{s.first-name}",
   "last": "{l}",
-  "personnummer": "{date(1940-01-01,2006-12-31,'060102')}-{s.birth-number.number}{luhn()}",
+  "personnummer": "{s.personnummer}",
   "email": "{slugify(s.first-name)}.{slugify(l)}@example.com",
   "street": "{a.street} {a.street-number}",
   "postal-code": "{a.postal-code}",
@@ -99,7 +99,7 @@ Save this record as `person.json`. Its `format` draws one sex, one last name and
 ```
 
 ```sh
-fejkdata --seed 1 --format csv < person.json                       # a header, then one person
+fejkdata --seed 1 --today 2026-01-15 --format csv < person.json    # a header, then one person
 fejkdata --format csv --repeat 1000000 < person.json > people.csv  # a million rows
 fejkdata --format sql --table people --repeat 1000000 < person.json > people.sql
 ```
@@ -108,7 +108,7 @@ The first command prints:
 
 ```text
 email,first,last,locality,personnummer,postal-code,sex,street
-viktoria.larsson@example.com,Viktoria,Larsson,Östersund,740514-2386,831 34,kvinna,Sånghusvägen 9
+viktoria.larsson@example.com,Viktoria,Larsson,Östersund,501120-2388,831 73,kvinna,Kärrvägen 1
 ```
 
 A fixture this size repeats personnummer and email values. [Personnummer](#personnummer-and-samordningsnummer) explains why a personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
@@ -132,7 +132,7 @@ type Person struct {
 	Sex          string `fake:"{/sv_SE.sex as s}{s.name}"`
 	First        string `fake:"{s.first-name}"`
 	Last         string `fake:"{/sv_SE.last-name as l}{l}"`
-	Personnummer string `fake:"{date(1940-01-01,2006-12-31,'060102')}-{s.birth-number.number}{luhn()}"`
+	Personnummer string `fake:"{s.personnummer}"`
 	Email        string `fake:"{slugify(s.first-name)}.{slugify(l)}@example.com"`
 	Street       string `fake:"{/sv_SE.address as a}{a.street} {a.street-number}"`
 	PostalCode   string `fake:"{a.postal-code}"`
@@ -150,7 +150,7 @@ func TestSignup(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Sex is kvinna or man.
-	// With seed 1, p is {Sex:kvinna First:Viktoria Last:Larsson Personnummer:740514-2386 Email:viktoria.larsson@example.com Street:Sånghusvägen 9 PostalCode:831 34 Locality:Östersund}
+	// With seed 1, p is {Sex:kvinna First:Viktoria Last:Larsson Personnummer:501120-2388 Email:viktoria.larsson@example.com Street:Kärrvägen 1 PostalCode:831 73 Locality:Östersund}
 }
 ```
 
@@ -671,7 +671,7 @@ as `example.com` into the template; `todo.md` plans the path.
 `sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
 `version` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
-`samordningsnummer`, `personnummer-12`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
+`samordningsnummer`, `personnummer-12`, `personnummer-date`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
 `company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
 `en_US` adds `ssn`, `itin`,
@@ -696,6 +696,14 @@ draws a woman's name, and a name both sexes carry is a row under each, so
 `{n..sex.name}`, so its `first` and `sex` columns agree. `en_US.title` links to `sex`
 
 too, so a person's prefix never contradicts it.
+
+A middle name is a second draw under the first name's sex:
+
+```json
+"{/sv_SE.first-name as n}{n} {n..sex.first-name} {/sv_SE.last-name}"
+```
+
+Renders e.g. `Louice Kajsa Grönberg`. About one draw in 220 repeats the first name.
 
 ### `da_DK`
 
@@ -837,7 +845,7 @@ may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, 
 
 ### `fi_FI`
 
-`fi_FI`, Finnish, carries `address`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex` and `title`, built like [`nb_NO`'s](#nb_no).
+`fi_FI`, Finnish, carries `address`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex` and `title`, built like [`nb_NO`'s](#nb_no).
 `fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
 2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
 and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
@@ -913,6 +921,13 @@ that `individ` gives:
 ```
 
 Renders e.g. `Eila Kirjavainen, 260163-9405`.
+
+#### Henkilötunnus of the issued range
+
+`fi_FI.henkilotunnus-issued` draws the same dates with an individual number from 002 to 899, the range DVV
+issues, such as `160432-581J`, for a checker that refuses the numbers from 900. Such a number is valid, and may be a living
+person's, so keep it out of anything that reaches a real system. To make one agree with a bound sex, write
+`{hetu(s.individ.digit,'issued')}` in the template above.
 
 ### `geo`
 
@@ -1254,24 +1269,31 @@ Skatteverket's test series is small: a personnummer is one of about 83,000 value
 digits, the century first and no hyphen, `199001012385`: the form many systems store. As in the short form, the Luhn
 check digit covers the last ten digits, which `sv_SE.samordningsnummer-12`'s field `ten` holds.
 
-#### Personnummer matched to a sex
+#### Personnummer of a sex or an age band
 
-To choose the sex, assemble the person from the tables — `sex[f].first-name` beside
-`last-name`. `sv_SE.personnummer` draws its own sex, so where that name and a number must
-agree, read both through one bound `sex`, `{/sv_SE.sex[f] as s}` for a woman:
+`sv_SE.personnummer` is a table under `sex`, so `sv_SE.sex[f].personnummer` draws a woman's number, and a
+bound sex gives a name and a number that agree:
 
 ```json
-{ "format": "{first} {last}, {pnr}",
-  "first": "{/sv_SE.sex as s}{s.first-name}",
-  "last": "{/sv_SE.last-name}",
-  "pnr": [
-    { "format": "{born(0,99,'060102')}-{s.birth-number.number}{luhn()}", "weight": 99.972 },
-    { "format": "{born(100,113,'060102')}+{s.birth-number.number}{luhn()}", "weight": 0.028 }
-  ] }
+{ "format": "{/sv_SE.sex as s}{s.first-name} {/sv_SE.last-name}, {s.personnummer}" }
 ```
 
-Renders e.g. `Anne Grönberg, 011012-2389`. Each item of `pnr` spells its own separator, so a birthdate
-of `born(100,…)` carries the `+`.
+Renders e.g. `Love Fogelström, 670711-2394`.
+
+Each age band is a column: `child` for the ages 0 to 17, `adult` for 18 to 64, `senior` for 65 to 99 and
+`centenarian` for 100 to 113, which always carries the `+`. `sv_SE.personnummer.centenarian` draws one of
+either sex, and `sv_SE.sex[f].personnummer.centenarian` or `{s.personnummer.centenarian}` a woman's. For a mix of your own, weigh
+the columns in a choice:
+
+```json
+[
+  "{/sv_SE.personnummer.child}",
+  { "format": "{/sv_SE.personnummer.centenarian}", "weight": 0.1 }
+]
+```
+
+Renders e.g. `251006-2389`. `sv_SE.personnummer-date` is the date and separator the mixed number starts with, the
+four bands by their weights.
 
 #### Swedish companies
 
@@ -1651,7 +1673,7 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
 | `{cpr(x)}` | derivation | completes a Danish CPR number after the last six digits emitted, its date, with a seventh digit that the CPR office's table of century digits allows for the year, an eighth and a ninth digit it picks, and the check digit, whose parity is that of the digit `x` reads; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1858 to 2057, renders nothing |
-| `{hetu(x)}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number from 900 to 999 of the parity of the digit `x` reads, and the control character; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
+| `{hetu(x)}`, `{hetu(x,'issued')}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number from 900 to 999 of the parity of the digit `x` reads, and the control character; `{hetu(x,'issued')}` takes the individual number from 002 to 899, which DVV issues; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
 | `{bgmod11(x)}` | derivation | a random digit, then the check digit, that complete the digits emitted so far in this expansion to a number Bankgirot's 11-modul accepts: its digits, weighted 1 to 10 from the right and then 1 again, sum to a multiple of 11; the literal digits `x` count as coming first and are not printed (`0` for none) |
 | `{digits(n)}` | sample | `n` digits 0–9 |
 | `{upper(n)}`, `{lower(n)}` | sample | `n` letters A–Z, a–z |
