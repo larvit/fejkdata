@@ -32,8 +32,9 @@ func refuseDrawnApart(nr nameRead) error {
 
 // sharedDraw reports whether a read of one name shares, with a second name bound to target, a draw
 // that could differ, and returns that read. Parameter above is target's path under the first name's
-// pick. It walks target's path from its start, a level at a time, and the kind of each level
-// settles it (levelKind).
+// pick. It walks target's path from its start, a level at a time. A level no read of the first
+// name addresses ends the walk, and the kind of any other level (levelKind) says whether the walk
+// ends there or steps down.
 func sharedDraw(pick pickReads, target tree.NameTarget, above []string) (by string, shares bool) {
 	for w := walkFrom(target.Start(), target.Tail()); ; {
 		key := keyOf(above, w.walked())

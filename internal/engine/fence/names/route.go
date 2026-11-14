@@ -16,15 +16,15 @@ const (
 	routeKept                   // the pick keeps its value, and what it renders is part of the pick
 )
 
-// route is one read met while a name's pick renders: the read a, in the template in, in the op at
-// index op of that template.
+// route is one read met while a name's pick renders. Field a is the read, in the template holding
+// it, and op the index of the op holding it.
 //
 // A kept or a fresh route has a place in the pick. Field at is the key of its template there, and
 // levels holds one key for each node the read passes: its head, then the end of each longer prefix
 // of its tail. So levels is one longer than the tail, and levels[i] is the key of the node where
 // the walk of a.Tail()[:i] from the head ends. A level's key is its path from the start of the
 // name's target (tree.PickKey), so two routes pass one level exactly where they hold one key.
-// Only this file indexes levels or a tail: a rule asks a route by key.
+// No rule indexes levels or a's tail: a rule asks a route by key.
 //
 // Field by is the spelling of the read of the name that addresses a kept route. A routeApart has
 // neither at, levels nor by.
@@ -52,10 +52,8 @@ func (r route) placedAt(at tree.PickKey, addressed map[tree.PickKey]string) rout
 	return r
 }
 
-// kept reports whether the pick keeps r's value.
 func (r route) kept() bool { return r.kind == routeKept }
 
-// drawsAfresh reports whether r is a field read the pick renders and doesn't keep.
 func (r route) drawsAfresh() bool { return r.kind == routeFresh }
 
 // landing is the key of the level r lands on, its last.
@@ -64,7 +62,7 @@ func (r route) landing() tree.PickKey { return r.levels[len(r.levels)-1] }
 // landsOn reports whether level is the one r lands on, and not one it passes on the way.
 func (r route) landsOn(level tree.PickKey) bool { return r.landing() == level }
 
-// below is where what r renders stands: at r's landing where the pick keeps r, else apart.
+// below is the place of r's leaves: r's landing where the pick keeps r, else apart.
 func (r route) below() place {
 	if !r.kept() {
 		return apart
