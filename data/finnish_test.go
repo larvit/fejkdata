@@ -790,3 +790,31 @@ func TestShippedFinnishStreetNamesHoldNoDigitCommaBracketOrSlash(t *testing.T) {
 		t.Errorf("geo.FI street row %d holds a digit, comma, bracket or slash, want a street name", i+1)
 	}
 }
+
+// DVV issues the individual numbers 002 to 899; fi_FI.henkilotunnus-issued draws those alone.
+func TestFinnishHenkilotunnusIssuedDrawsDVVsIssuedRange(t *testing.T) {
+	f := shipped(t)
+	low, high := false, false
+	fejktest.EachDraw(finnishHenkilotunnusDraws, func() string { return fejktest.Fake(t, f, "fi_FI.henkilotunnus-issued") }, func(got string) {
+		b := parseHenkilotunnus(t, got)
+		if b.born.After(fejktest.TestDay) || b.age > 99 || b.individual < 2 || b.individual > 899 {
+			t.Fatalf("%q, want someone aged 0 to 99 with an individual number from 002 to 899", got)
+		}
+		low, high = low || b.individual < 100, high || b.individual >= 800
+	})
+	if !low || !high {
+		t.Errorf("the numbers reached below 100: %v, and 800 or above: %v, want both", low, high)
+	}
+}
+
+func TestFinnishHenkilotunnusIssuedAgreesWithABoundSex(t *testing.T) {
+	f := shipped(t)
+	fejktest.EachDraw(500, func() string {
+		return fejktest.FakeTemplate(t, f, "{/fi_FI.sex as s}{s.name}|{/fi_FI.henkilotunnus-issued.birth}{hetu(s.individ.digit,'issued')}")
+	}, func(got string) {
+		sex, number, _ := strings.Cut(got, "|")
+		if b := parseHenkilotunnus(t, number); b.individual > 899 || (b.individual%2 == 1) != (sex == "mies") {
+			t.Fatalf("%q: want an issued individual number, odd for a mies and even for a nainen", got)
+		}
+	})
+}

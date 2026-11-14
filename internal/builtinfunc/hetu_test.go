@@ -85,6 +85,29 @@ var hetuParities = []byte{'0', '1', '2', '3', '9'}
 
 func eachHetuTailAfter131052(parity byte, check func(pick int, tail string)) {
 	for pick := range 50 {
-		check(pick, hetuTail("131052", '-', parity, pick))
+		check(pick, hetuTail("131052", '-', parity, hetuUnissued, pick))
+	}
+}
+
+// DVV issues the individual numbers 002 to 899, so 449 of each parity, and never 000 or 001.
+func TestHetuTailGivesEachIssuedIndividualNumberOfTheParityFrom002To899(t *testing.T) {
+	for _, parity := range hetuParities {
+		t.Run(string(parity), func(t *testing.T) {
+			seen := map[int]bool{}
+			for pick := range hetuIssued.count {
+				tail := hetuTail("131052", '-', parity, hetuIssued, pick)
+				number, err := strconv.Atoi(tail[1:4])
+				if err != nil || number < 2 || number > 899 || number%2 != int(parity-'0')%2 {
+					t.Fatalf("hetuTail(131052, -, %c, issued, %d) = %q, want an individual number of that parity from 002 to 899", parity, pick, tail)
+				}
+				if want := dvvControlCharacters[(131052000+number)%31]; tail[4] != want {
+					t.Errorf("hetuTail(131052, -, %c, issued, %d) = %q, want the check character %c", parity, pick, tail, want)
+				}
+				seen[number] = true
+			}
+			if len(seen) != 449 {
+				t.Errorf("the issued picks of parity %c gave %d individual numbers, want each of the 449", parity, len(seen))
+			}
+		})
 	}
 }
