@@ -645,9 +645,10 @@ else by a name no other place in its state carries. No census-designated place s
 so Honolulu is the one capital missing. Every Swedish street is 174k rows; a quarter
 of the US streets 475k. On 2026-10-11 the embed grew from 5.2 MB to 16 MB, and a CLI
 run printing the first `en_US.address` took 145 ms, `sv_SE.address` 95 ms and
-`misc.territory` 3 ms, within goal 12. `--place-share`, `--street-share` and
+`misc.territory` 3 ms, then within goal 12; its 12.2 now asks for under 100 ms. `--place-share`, `--street-share` and
 `--min-streets` on the import scripts build another set. Valid while the first reach of
-a country stays unnoticed beside a test run.
+a country stays unnoticed beside a test run; it works against goal 12.2 until `todo.md`
+items 464 and 465 land.
 
 ## A locale's `address` binds its country's record once and prints it whole
 
