@@ -1,0 +1,4 @@
+{
+  "format": "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit,'issued')}",
+  "birth": "{/fi_FI.henkilotunnus.birth}"
+}

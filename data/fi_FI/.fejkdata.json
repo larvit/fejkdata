@@ -8,6 +8,7 @@
 		"fi_FI.email": {"paths":["","domain","local","local.n"]},
 		"fi_FI.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"fi_FI.henkilotunnus": {"paths":["","birth"]},
+		"fi_FI.henkilotunnus-issued": {"paths":["","birth"]},
 		"fi_FI.individ": {"parent":"sex","paths":["","digit","sex"]},
 		"fi_FI.last-name": {"paths":["","count","name"]},
 		"fi_FI.person": {"paths":["","first","last","prefix","sex"]},
