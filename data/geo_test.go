@@ -230,7 +230,7 @@ func TestEveryGeoTreeHoldsWhatPortsAcrossCountries(t *testing.T) {
 }
 
 func geoAddressColumnsOf(dir string) []string {
-	columns := []string{"postal-code", "locality"}
+	columns := []string{"postal-code", "locality", "municipality", "region"}
 	if _, err := os.Stat(dir + "/street.tsv"); err == nil {
 		columns = append(columns, "street", "street-number")
 	}
@@ -261,5 +261,72 @@ func TestEveryGeoAddressHoldsTheColumnsItsTreeHasTablesFor(t *testing.T) {
 				}
 			})
 		}
+	}
+}
+
+func columnNames(columns map[string]json.RawMessage) []string {
+	var names []string
+	for name := range columns {
+		if name != "format" {
+			names = append(names, name)
+		}
+	}
+	slices.Sort(names)
+	return names
+}
+
+func TestEveryLocaleAddressHoldsItsCountrysColumns(t *testing.T) {
+	for _, c := range append(slices.Clone(shippedAddressLocales), struct{ locale, country, template, largest string }{locale: "nn_NO", country: "NO"}) {
+		t.Run(c.locale, func(t *testing.T) {
+			got, want := columnNames(geoAddress(t, c.locale)), columnNames(geoAddress(t, "geo/"+c.country))
+			if !slices.Equal(got, want) {
+				t.Errorf("%s.address holds the columns %q, where geo.%s.address holds %q", c.locale, got, c.country, want)
+			}
+		})
+	}
+}
+
+// geoLocalityParents holds "locality|municipality|region" for every locality of dir, the region by
+// regionColumn.
+func geoLocalityParents(t *testing.T, dir, regionColumn string) map[string]bool {
+	t.Helper()
+	regionKey := "code"
+	if regionColumn == "abbr" {
+		regionKey = "abbr"
+	}
+	regions := map[string]string{}
+	for _, r := range fejktest.TSVRows(t, dir+"/region.tsv") {
+		regions[r[regionKey]] = r[regionColumn]
+	}
+	municipalities := map[string]string{}
+	for _, m := range fejktest.TSVRows(t, dir+"/municipality.tsv") {
+		municipalities[m["code"]] = m["name"] + "|" + regions[m["region"]]
+	}
+	parents := map[string]bool{}
+	for _, l := range fejktest.TSVRows(t, dir+"/locality.tsv") {
+		parents[l["name"]+"|"+municipalities[l["municipality"]]] = true
+	}
+	return parents
+}
+
+func TestShippedAddressNamesTheMunicipalityAndRegionOfItsLocality(t *testing.T) {
+	t.Parallel()
+	for _, c := range shippedAddressLocales {
+		t.Run(c.locale, func(t *testing.T) {
+			t.Parallel()
+			regionColumn := "name"
+			if c.country == "US" {
+				regionColumn = "abbr"
+			}
+			parents := geoLocalityParents(t, "geo/"+c.country, regionColumn)
+			f := shipped(t, fejkdata.WithSeed(4))
+			fejktest.EachDraw(500, func() string {
+				return fejktest.FakeTemplate(t, f, `{/`+c.locale+`.address as a}{a.locality}|{a.municipality}|{a.region}`)
+			}, func(got string) {
+				if !parents[got] {
+					t.Fatalf("%s.address: %q is no locality, municipality and region of one place", c.locale, got)
+				}
+			})
+		})
 	}
 }
