@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 462`
+`Next ID = 463`
 
 ## Items
 
@@ -46,6 +46,7 @@
 | 220 | 0.8.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 3.4 |
 | 24 | 0.8.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 3.4 |
 | 30 | 0.8.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 3.3 |
+| 462 | 0.8.0 |  | owner | **Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
 | 255 | 0.8.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 3.2 |
 | 117 | 0.8.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 3.2 |
 | 168 | 0.8.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.9 |
@@ -394,6 +395,19 @@ Goal 3 names the kinds. A real value is a thing that exists, such as the territo
 ### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
+
+### 462. Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.
+
+The scoring run at ca568bcb (PR #381) left Locality at 5.63, Shape 6.50, Self-sufficiency 6.38 and Overall 6.25, under the floor of 7.0. Three of four seats named the same render unit for Locality:
+
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frame stack, mark, base and frames kept in the memo, all held at once
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames are pushed into a shared stack, cached in another pick's memo and found again by `openOwn`
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames kept in another pick's memo, `base` marks and `entered` clearing the pick make correctness depend on push and pop order
+- Locality, Shape: `internal/engine/render/pick.go:51` `drawMemo`: one map per syntax feature accretes here, and the pick contract is split over tree, load, render and fence/names
+
+Give the frames a pick enters one owner: a value the pick holds and hands to a read, so `readPath` needs no `base` mark, `openOwn` scans no shared `frameStack`, and `renderEnv.entered` clears no pick out of sight. Group `drawMemo`'s maps by what they keep per level, so a new clause adds a field to one named value, not a fifth map. No render output, seed or allocation count changes; the performance gate holds.
+
+The seats' other Locality places, for the floor item after this one: `internal/engine/tree/pick.go:83` `LevelsUnder` (all four seats: load and render must build identical pick keys), `internal/engine/pipeline.go:58` `pipeline.run` with `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of` and the nil `AfterFinish` (stage order held by a comment), and `internal/engine/lazy.go:133` `batch.load`.
 
 ### 255. Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.
 
