@@ -150,7 +150,7 @@ class NormalCodes(unittest.TestCase):
 
 
 class SwedishPlaces(unittest.TestCase):
-    KUNNAT = {"139": {"name": "Ii", "swedish-name": "Ii", "region": "17"}}
+    KUNNAT = {"139": {"name": "Ii", "swedish-name": "Ijo", "region": "17"}}
 
     def test_a_postitoimipaikka_takes_the_swedish_name_posti_gives_it_written_as_a_place_name(self) -> None:
         lines = [pcf("00100", "HELSINKI", "1", "HELSINGFORS"), pcf("91101", "YLI-II", "1", "YLI-II"), pcf("10600", "INKOO AS", "1", "INGÅ ST")]
