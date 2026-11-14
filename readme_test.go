@@ -381,7 +381,7 @@ var quickStartSex = map[string]struct{ code, birthNumber string }{
 var (
 	asciiFold         = strings.NewReplacer("å", "a", "ä", "a", "ã", "a", "ö", "o", "ø", "o", "ó", "o", "é", "e", "ü", "u")
 	slugRun           = regexp.MustCompile(`[^a-z0-9]+`)
-	personnummerShape = regexp.MustCompile(`^(\d{6})-(\d{3})(\d)$`)
+	personnummerShape = regexp.MustCompile(`^(\d{6})[-+](\d{3})(\d)$`)
 )
 
 // emailSlug is a name as the quick starts' email slugs it: folded, lower case, every run of other characters one `-`, none at either end.
@@ -427,13 +427,8 @@ func (s quickStartShipped) checkPerson(p quickStartPerson) error {
 	if pnr[2] != sex.birthNumber {
 		return fmt.Errorf("personnummer %q has birth number %s, sex %q takes %s", p.personnummer, pnr[2], p.sex, sex.birthNumber)
 	}
-	century := "20"
-	if pnr[1][:2] >= "40" {
-		century = "19"
-	}
-	day, err := time.Parse("20060102", century+pnr[1])
-	if err != nil || day.Before(time.Date(1940, 1, 1, 0, 0, 0, 0, time.UTC)) || day.After(time.Date(2006, 12, 31, 0, 0, 0, 0, time.UTC)) {
-		return fmt.Errorf("personnummer %q has a birth date outside 1940-01-01 to 2006-12-31", p.personnummer)
+	if _, err := time.Parse("060102", pnr[1]); err != nil {
+		return fmt.Errorf("personnummer %q holds no calendar date", p.personnummer)
 	}
 	if !fejktest.LuhnValid(pnr[1] + pnr[2] + pnr[3]) {
 		return fmt.Errorf("personnummer %q fails the Luhn check", p.personnummer)
@@ -514,7 +509,7 @@ func TestReadmeBulkQuickStartOutput(t *testing.T) {
 	if block == nil || out == nil {
 		t.Fatal("README's bulk quick start lost its record or its printed output")
 	}
-	if !strings.Contains(section, "fejkdata --seed 1 --format csv < person.json") {
+	if !strings.Contains(section, "fejkdata --seed 1 --today 2026-01-15 --format csv < person.json") {
 		t.Fatal("README's bulk quick start no longer runs the command its output shows")
 	}
 	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"person": block[1]})), WithSeed(1), onTestDay)
@@ -526,7 +521,7 @@ func TestReadmeBulkQuickStartOutput(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got, want := r.CSVHeader()+"\n"+r.CSVLine(), strings.TrimSpace(out[1]); got != want {
-		t.Errorf("README prints %q for --seed 1 --format csv, it renders %q", want, got)
+		t.Errorf("README prints %q for --seed 1 --today 2026-01-15 --format csv, it renders %q", want, got)
 	}
 }
 
@@ -563,7 +558,7 @@ func TestReadmeUniqueColumnOutput(t *testing.T) {
 	}
 	got := headedRecordLines(t, f, "ids", 3, (*Record).CSVHeader, (*Record).CSVLine)
 	if want := strings.TrimSpace(out[1]); strings.Join(got, "\n") != want {
-		t.Errorf("README prints %q for --seed 1 --format csv --repeat 3, it renders %q", want, strings.Join(got, "\n"))
+		t.Errorf("README prints %q for --seed 1 --today 2026-01-15 --format csv --repeat 3, it renders %q", want, strings.Join(got, "\n"))
 	}
 }
 
