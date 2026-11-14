@@ -280,9 +280,14 @@ func namesListedBesides(listed map[string]bool, held []string) []string {
 	return stale
 }
 
+func layoutSourceFiles(t *testing.T) []string {
+	t.Helper()
+	return slices.DeleteFunc(slices.Clone(packageDir(t).GoFiles), func(name string) bool { return name == "doc.go" })
+}
+
 func TestLayoutNamesEverySourceFile(t *testing.T) {
 	listed := readmeLayoutGoFiles(t)
-	for _, name := range packageDir(t).GoFiles {
+	for _, name := range layoutSourceFiles(t) {
 		t.Run(name, func(t *testing.T) {
 			if !listed[name] {
 				t.Errorf("the README Layout names no %s, so nothing says what it holds", name)
@@ -291,10 +296,10 @@ func TestLayoutNamesEverySourceFile(t *testing.T) {
 	}
 }
 
-func TestLayoutNamesOnlyTheSourceFilesThePackageHolds(t *testing.T) {
-	for _, name := range namesListedBesides(readmeLayoutGoFiles(t), packageDir(t).GoFiles) {
+func TestLayoutNamesOnlyTheSourceFilesThatNeedALine(t *testing.T) {
+	for _, name := range namesListedBesides(readmeLayoutGoFiles(t), layoutSourceFiles(t)) {
 		t.Run(name, func(t *testing.T) {
-			t.Errorf("the README Layout names %s, which the package does not hold", name)
+			t.Errorf("the README Layout names %s, which the package does not hold or whose name says what it holds", name)
 		})
 	}
 }
