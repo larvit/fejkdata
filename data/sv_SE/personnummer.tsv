@@ -1,0 +1,3 @@
+sex	number	child	adult	senior	centenarian
+f	{/sv_SE.personnummer-date}{/sv_SE.sex[f].birth-number.number}{luhn()}	{born(0,17,'060102')}-{/sv_SE.sex[f].birth-number.number}{luhn()}	{born(18,64,'060102')}-{/sv_SE.sex[f].birth-number.number}{luhn()}	{born(65,99,'060102')}-{/sv_SE.sex[f].birth-number.number}{luhn()}	{born(100,113,'060102')}+{/sv_SE.sex[f].birth-number.number}{luhn()}
+m	{/sv_SE.personnummer-date}{/sv_SE.sex[m].birth-number.number}{luhn()}	{born(0,17,'060102')}-{/sv_SE.sex[m].birth-number.number}{luhn()}	{born(18,64,'060102')}-{/sv_SE.sex[m].birth-number.number}{luhn()}	{born(65,99,'060102')}-{/sv_SE.sex[m].birth-number.number}{luhn()}	{born(100,113,'060102')}+{/sv_SE.sex[m].birth-number.number}{luhn()}
