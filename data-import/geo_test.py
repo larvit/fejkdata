@@ -153,7 +153,7 @@ class SwedishPlaces(unittest.TestCase):
     KUNNAT = {"139": {"name": "Ii", "swedish-name": "Ijo", "region": "17"}}
 
     def places(self, lines: list[str]) -> dict[str, str]:
-        return geo_fi.swedish_places(lines, geo_fi.normal_codes(lines, self.KUNNAT), self.KUNNAT)
+        return dict(geo_fi.swedish_places(lines, geo_fi.normal_codes(lines, self.KUNNAT), self.KUNNAT))
 
     def test_a_postitoimipaikka_takes_the_swedish_name_posti_gives_it_written_as_a_place_name(self) -> None:
         lines = [pcf("00100", "HELSINKI", "1", "HELSINGFORS"), pcf("91101", "YLI-II", "1", "YLI-II"), pcf("10600", "INKOO AS", "1", "INGÅ ST")]
