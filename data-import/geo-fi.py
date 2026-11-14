@@ -3,21 +3,20 @@
 
     data-import/geo-fi.py [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]
 
-Posti's postcode file (PCF) names each postinumero's postitoimipaikka and type, and its basic address file (BAF)
-every street under its postinumero, in Finnish and, where Posti has one, in Swedish, with its odd and its even
-house number range. A postitoimipaikka is a locality. Its postinumerot are the normal ones under which BAF lists a
-street, each weighted by its residents in Statistics Finland's Paavo; one without residents is dropped. A
+Posti's postcode file (PCF) names each postinumero's postitoimipaikka, in Finnish and in Swedish, and its type, and its
+basic address file (BAF) every street under its postinumero, in Finnish and, where Posti has one, in Swedish, with its
+odd and its even house number range. A postitoimipaikka is a locality. Its postinumerot are the normal ones under which
+BAF lists a street, each weighted by its residents in Statistics Finland's Paavo; one without residents is dropped. A
 locality's population is its postinumerot's residents summed, and its kunta is the one BAF places most of its
-ranges in. A street is weighted by its ranges in the locality. Its Swedish name is the one Posti gives it most
-often there, or its Finnish name where Posti gives none.
+ranges in. A locality's Swedish name is the one its postinumerot give most often, or its Finnish name where they give
+none. A street is weighted by its ranges in the locality. Its Swedish name is the one Posti gives it most often there,
+or its Finnish name where Posti gives none.
 
-Statistics Finland's classification names each kunta and places it in its maakunta, and its table 11ra gives
-both their populations. Posti's files hold no street on Åland, so its maakunta ships no place. Posti writes a
-postitoimipaikka in capitals, and `recased` writes it as a place name. address.json weighs each length of house
-number, with a delivery letter or without, by how many ends of BAF's ranges carry one.
-
-A postitoimipaikka's Swedish name is the one most of its postinumerot give in PCF, written as `recased` writes the
-Finnish one, and a kunta's is Statistics Finland's. Each is its Finnish name where the source gives no Swedish one.
+Statistics Finland's classification names each kunta, in Finnish and in Swedish, and places it in its maakunta, and its
+table 11ra gives both their populations. A kunta's Swedish name is its Finnish one where the classification gives none.
+Posti's files hold no street on Åland, so its maakunta ships no place. Posti writes a postitoimipaikka, in either
+language, in capitals, and `recased` writes it as a place name. address.json weighs each length of house number, with a
+delivery letter or without, by how many ends of BAF's ranges carry one.
 """
 import collections
 import io
@@ -97,8 +96,7 @@ def classification(cache: Path, lang: str) -> Any:
 
 
 def divisions(cache: Path) -> tuple[dict[str, dict[str, str]], dict[str, str]]:
-    """Each kunta's name, Swedish name and maakunta, and each maakunta's name, by code. A kunta the classification gives
-    no Swedish name keeps its Finnish one."""
+    """Each kunta's name, Swedish name and maakunta, and each maakunta's name, by code."""
     swedish = {m["sourceItem"]["code"]: m["sourceItem"]["classificationItemNames"][0]["name"] for m in classification(cache, "sv")}
     municipalities: dict[str, dict[str, str]] = {}
     regions: dict[str, str] = {}
@@ -122,18 +120,15 @@ def normal_codes(pcf: Iterable[str], municipality_of: Mapping[str, Mapping[str, 
     return {code: recased(town, kunnat) for code, town in towns.items()}
 
 
-def swedish_places(pcf: Iterable[str], municipality_of: Mapping[str, Mapping[str, str]]) -> dict[str, str]:
-    """Each postitoimipaikka among PCF's normal postinumerot, as a place name, mapped to its Swedish name written as one:
-    the name most of its postinumerot give, or its own name where they give none. Posti's Swedish field often holds
-    the Finnish name, so a kunta's Finnish and Swedish names both count as kunnat for `recased`."""
+def swedish_places(pcf: Iterable[str], codes: Mapping[str, str], municipality_of: Mapping[str, Mapping[str, str]]) -> dict[str, str]:
+    """Each postitoimipaikka among codes' values, as a place name, mapped to its Swedish name, also as a place name:
+    the name its postinumerot give most often, or its Finnish name where they give none. codes is normal_codes' result."""
     kunnat = {m["name"].upper() for m in municipality_of.values()}
-    swedish_kunnat = kunnat | {m["swedish-name"].upper() for m in municipality_of.values()}
     names: dict[str, collections.Counter[str]] = collections.defaultdict(collections.Counter)
     for line in normal_lines(pcf):
-        place, swedish = recased(field(line, 19, 30), kunnat), field(line, 49, 30)
-        counts = names[place]
+        counts, swedish = names[codes[field(line, 14, 5)]], field(line, 49, 30)
         if swedish:
-            counts[recased(swedish, swedish_kunnat)] += 1
+            counts[recased(swedish, kunnat)] += 1
     return {place: swedish_name(counts, place) for place, counts in names.items()}
 
 
@@ -157,8 +152,8 @@ def capitalised(name: str) -> str:
 
 
 def swedish_name(names: Mapping[str, int], finnish: str) -> str:
-    """A street's Swedish name: the one names counts most often, the first in the alphabet winning a tie, or its
-    Finnish name where names counts none."""
+    """A Swedish name: the one names counts most often, the first in the alphabet winning a tie, or the Finnish name
+    where names counts none."""
     return min(names, key=lambda name: (-names[name], name), default=finnish)
 
 
@@ -193,8 +188,8 @@ def tally(baf: Iterable[str], codes: Mapping[str, str]) -> Tally:
 
 
 def localities(codes_of: Mapping[str, Iterable[str]], residents: Mapping[str, int], home: Mapping[str, str], points: Mapping[str, geo.Row], swedish: Mapping[str, str]) -> tuple[dict[str, geo.Row], dict[str, dict[str, int]]]:
-    """Each locality with a postinumero holding residents and a point, with its Swedish name from swedish, and those
-    postinumerot with their residents."""
+    """Each locality with a postinumero holding residents and a point, and those postinumerot with their residents.
+    swedish maps each locality's name to its Swedish name."""
     out: dict[str, geo.Row] = {}
     postal_codes: dict[str, dict[str, int]] = {}
     for place, codes in codes_of.items():
@@ -215,9 +210,10 @@ def main() -> None:
     people = stat_fi(POPULATION, POPULATION_QUERY, cache, "statfi-11ra.json")
     residents = {code: n for code, n in stat_fi(PAAVO, PAAVO_QUERY, cache, "statfi-paavo.json").items() if n}
     pcf = posti(cache, "PCF")
-    streets, swedish, in_municipality, codes_of, numbers = tally(posti(cache, "BAF"), normal_codes(pcf, municipality_of))
+    codes = normal_codes(pcf, municipality_of)
+    streets, swedish, in_municipality, codes_of, numbers = tally(posti(cache, "BAF"), codes)
     points = {r["code"]: r for r in geo.geonames(cache, "FI") if r["lat"] is not None}
-    places, postal_codes = localities(codes_of, residents, geo.home_municipalities(in_municipality), points, swedish_places(pcf, municipality_of))
+    places, postal_codes = localities(codes_of, residents, geo.home_municipalities(in_municipality), points, swedish_places(pcf, codes, municipality_of))
     named = geo.top_streets(streets, a.street_share, a.min_streets, "addresses")
     for place, rows in named.items():
         for row in rows:

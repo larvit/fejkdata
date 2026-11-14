@@ -27,6 +27,10 @@ with its replacement, and each removed path, column or flag.
   `geo.<CC>.address` needs both columns before a locale's `address` loads.
 - `sv_SE.ip`, `en_US.ip`, `sv_SE.version` and `en_US.version` are gone: write `misc.ip` and
   `misc.version`, which draw the same values.
+- `geo.FI.locality` and `geo.FI.municipality` have a `swedish-name` column, as `geo.FI.street` has,
+  so their `--format csv` rows are a column wider. A locality's is the Swedish name Posti gives it,
+  such as `Helsingfors` for `Helsinki`, and a municipality's is Statistics Finland's, such as `Åbo`
+  for `Turku`. Each is the Finnish name where the source gives no Swedish one.
 
 ### Added
 
@@ -37,10 +41,6 @@ with its replacement, and each removed path, column or flag.
 - `fi_FI.henkilotunnus-issued` and `{hetu(x,'issued')}` draw a henkilötunnus with an individual
   number from 002 to 899, the range DVV issues, for a checker that refuses 900 to 999. Such a
   number may be a living person's.
-- `geo.FI.locality` and `geo.FI.municipality` have a `swedish-name` column, as `geo.FI.street` has:
-  `Helsingfors` for the postitoimipaikka and the kunta `Helsinki`, `Åbo` for `Turku`. A
-  postitoimipaikka's is Posti's, a kunta's Statistics Finland's, and each is its Finnish name where the
-  source gives no Swedish one.
 
 ### Changed
 
