@@ -465,21 +465,17 @@ func TestAReadOfATableRowIsRefusedWhereACellDrawsAfreshAColumnAnotherReadReadsFr
 }
 
 func TestAReadOfATableRowLoadsWhereNoOtherReadReadsWhatACellDrawsAfresh(t *testing.T) {
-	for label, card := range map[string]string{
-		"the whole row alone":                  `"{/place as n}{n}"`,
-		"the cell's column and the key":        `"{/place as n}{n.tag} {n.name}"`,
-		"a cell drawing from another category": `"{/place as n}{n.tag} {n.zip}"`,
+	for label, c := range map[string]struct{ tag, card string }{
+		"the whole row alone":                  {"{/place.zip}", `"{/place as n}{n}"`},
+		"the cell's column and the key":        {"{/place.zip}", `"{/place as n}{n.tag} {n.name}"`},
+		"a cell drawing from another category": {"{/other.word}", `"{/place as n}{n.tag} {n.zip}"`},
 	} {
 		t.Run(label, func(t *testing.T) {
-			tag := "{/place.zip}"
-			if strings.Contains(label, "another category") {
-				tag = "{/other.word}"
-			}
 			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
 				"place.json": `{"format":"{zip}/{tag}","rows":"place.tsv","key":"name"}`,
-				"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(4)}\t" + tag + "\n",
+				"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(4)}\t" + c.tag + "\n",
 				"other.json": `{"format":"{word}","word":["x","y"]}`,
-				"card.json":  card,
+				"card.json":  c.card,
 			})))
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
