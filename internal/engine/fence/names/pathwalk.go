@@ -3,6 +3,7 @@ package names
 import (
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // pathWalk is a walk down path from a node, a level at a time. Field n is the node it stands on,
@@ -47,20 +48,18 @@ func (w *pathWalk) walked() []string { return w.path[:w.steps] }
 // ends on a level that isn't a constant.
 func (w *pathWalk) drawsBelow() bool { return drawsAlong(w.n, w.path[w.steps:], true) }
 
-// step moves the walk down one level. It reports false, and stays, where no field spells the
-// next segment, such as "..".
-func (w *pathWalk) step() bool {
+// step moves the walk down one level. The path load check admits only a segment that names a field,
+// so a segment that names none breaks an invariant.
+func (w *pathWalk) step() {
 	n, err := load.ChildNamed(w.n, w.path[w.steps])
 	if err != nil {
-		return false
+		panic(invariant.Broken("the name rules cannot follow %q below %T: %v", w.path[w.steps], w.n, err))
 	}
 	w.n, w.steps = n, w.steps+1
-	return true
 }
 
 // drawsAlong reports whether the walk of path from start meets a choice or a table at one of its
-// levels, or, with leaf, ends on a level that isn't a constant. A walk it can't follow counts as
-// meeting one.
+// levels, or, with leaf, ends on a level that isn't a constant.
 func drawsAlong(start tree.Node, path []string, leaf bool) bool {
 	for w := walkFrom(start, path); ; {
 		switch w.kind() {
@@ -71,9 +70,7 @@ func drawsAlong(start tree.Node, path []string, leaf bool) bool {
 		case varyingLeaf:
 			return leaf
 		}
-		if !w.step() {
-			return true
-		}
+		w.step()
 	}
 }
 

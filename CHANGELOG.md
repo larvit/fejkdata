@@ -5,6 +5,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), with headings 
 their brackets. A release's `Breaking` section comes first and names each rejected spelling
 with its replacement, and each removed path, column or flag.
 
+## Unreleased
+
+### Breaking
+
+- A read of a name fails to load where a table cell it renders reads a reference that draws
+  afresh a path another read of the name reads from the pick. `{/place as n}{n.tag} {n.zip}`
+  loaded and printed two postal codes where a `tag` cell of `place` read `{/place.zip}`. Drop
+  `{n.zip}`, or write `{/place.zip}` for a second draw, as for a reference in a template's field.
+
 ## 0.5.0 - 2026-11-14
 
 ### Breaking
