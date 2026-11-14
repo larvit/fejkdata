@@ -86,3 +86,28 @@ func TestBuiltinHetuDrawsEveryIndividualNumberFrom900To999(t *testing.T) {
 		})
 	}
 }
+
+func TestBuiltinHetuIssuedDrawsIndividualNumbersFrom002To899(t *testing.T) {
+	for parity := range 2 {
+		t.Run(strconv.Itoa(parity), func(t *testing.T) {
+			seed, low, high := uint64(0), false, false
+			fejktest.EachDraw(3000, func() string {
+				got := mustRender(t, emptyGenerator(seed), fmt.Sprintf(`{"format":"131052{hetu(last,'issued')}","last":"%d"}`, parity))
+				seed++
+				return got
+			}, func(got string) {
+				individual, err := strconv.Atoi(got[7:10])
+				if len(got) != 11 || err != nil || individual < 2 || individual > 899 || individual%2 != parity {
+					t.Fatalf("hetu(last,'issued') with the operand %d = %q, want an individual number of that parity from 002 to 899", parity, got)
+				}
+				if got[10] != fejktest.DVVControlTable[(131052000+individual)%31] {
+					t.Fatalf("hetu(last,'issued') = %q, want the control character of 131052%03d", got, individual)
+				}
+				low, high = low || individual < 100, high || individual >= 800
+			})
+			if !low || !high {
+				t.Errorf("3000 draws reached below 100: %v, and 800 or above: %v, want both", low, high)
+			}
+		})
+	}
+}
