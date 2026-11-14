@@ -13,12 +13,9 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 169 | 0.6.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
-| 452 | 0.6.0 |  | defect | **Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.** | 2 | 2 | 2 | 4 | 3 | 3.1 by 2, 4.6 by 2 | 12.5 |
 | 343 | 0.6.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 9.4 |
 | 66 | 0.6.0 |  |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 354 | 0.6.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
-| 459 | 0.6.0 |  |  | **Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.** | 2 | 1 | 1 | 2 | 2 | code health by 2 | 6.5 |
-| 461 | 0.6.0 |  |  | **Pin with a test, or replace with an invariant panic, what the name rules answer for a path step they cannot follow, and pin that the route walk visits a node once per place.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 6.5 |
 | 113 | 0.6.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 2.8 |
 | 334 | 0.6.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
 | 28 | 0.6.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 2.1 |
@@ -238,14 +235,6 @@
 
 Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
 
-### 452. Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.
-
-`fence/names/routewalk.go` `routeWalk.walk` steps into a node's children by `tree.RenderEdges`, and skips a `*tree.TableColumn` on purpose, to keep what item 421 found. So no refusal rule sees a read inside a table cell.
-
-Found by probe on 2026-11-12: with `place.json` `{"format":"{zip}/{tag}","rows":"place.tsv","key":"name"}` and `place.tsv` holding the row `Stockholm`, `1{digits(4)}`, `{/place.zip}`, the template `{/place as n}{n.tag} {n.zip}` loads and prints two different postal codes, such as `19166 15556`. The same shape in a template's fields, `"zip":"1{digits(4)}","tag":"{/place.zip}"`, is refused by `refuseFreshDraw`: "`{n.tag}` reaches `{/place.zip}`, which draws afresh a path `{n.zip}` reads from the pick".
-
-Drop the `*tree.TableColumn` case in `routeWalk.walk` so a cell's reads become routes, apart as a table's format is, and check each of the five rules in `nameRules` against a cell. Test first with the probe above; every shipped category must still load. A template that loaded is then refused, which the changelog states.
-
 ### 343. Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).
 
 `## Data` in `README.md`, from its heading to the next `## ` heading, holds the locale categories, the linked tables, the `sv_SE` personnummer recipe, the `nb_NO` fodselsnummer paragraphs and the `geo` namespace with no sub-heading, and every `[Data](#data)` link, and each `[index](#data)` link, points at the whole section. The prose reviewer of PR #249 found that the `nb_NO` fodselsnummer text uses "bound sex" and "as a personnummer does", which lines further down explain. The split keeps every README example `readme_test.go` runs passing, and every in-README link resolving, each to the sub-heading it means.
@@ -257,18 +246,6 @@ Drop the `*tree.TableColumn` case in `routeWalk.walk` so a cell's reads become r
 ### 354. Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.
 
 `release-tooling/patch_release_test.py` `test_main_hands_the_cut_tag_to_the_workflow` reads the wall clock after `patch_release.main` read it at `patch_release.py:270`, and asserts the changelog's date equals its own. A gate run that crosses UTC midnight between the two reads fails. Applies the technical principles' test bullet: a test is deterministic. Found by the principles pass of PR #267.
-
-### 459. Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.
-
-Stability round 1 of item 456 found that removing `walkTemplate`'s `staysInCategory` guard (`internal/engine/fence/names/routewalk.go`) survives every test. References are walked again in `refsReached`, and the rules compare routes by node, so a case the guard changes is not obvious: find one, such as a reference back into the pick's own category, and pin it, or record at the guard why it is a cost bound alone.
-
-### 461. Pin with a test, or replace with an invariant panic, what the name rules answer for a path step they cannot follow, and pin that the route walk visits a node once per place.
-
-Stability round 1 of item 453 found two behaviours of `internal/engine/fence/names` that no test pins; both are older than that item.
-
-In `pathwalk.go` `drawsAlong` and `refusedrawnapart.go` `sharedDraw`, a step `load.ChildNamed` cannot follow counts as a draw. Turning either answer to false passes every test, and no template was found that reaches the branch: `{w.a..a}` fails earlier, in the path's own load check. Find a template that reaches it, perhaps a table path with `..` or a selector, and pin one case in each function. Where none exists, make the branch an `invariant.Broken` panic.
-
-In `routewalk.go` `routeWalk.walk`, keying `seen` on the node alone passes every test too. A node met first apart and then in the pick, as with `{w as r}{r.a}` beside `{w.a}`, would lose its kept routes: build that template and pin its verdict.
 
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 
