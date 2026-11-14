@@ -62,8 +62,8 @@ func (w *routeWalk) walk(n tree.Node, p place) {
 		w.walkEdges(n, p)
 	default:
 		// Anything else renders apart. A table's format does: the pick pins the row, so its
-		// columns read one row whichever read renders them. So does a cell, which reads what
-		// another cell of the row, or a reference, reads.
+		// columns read one row whichever read renders them. So does a cell, which reads only
+		// references.
 		w.walkEdges(n, apart)
 	}
 }

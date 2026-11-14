@@ -48,8 +48,9 @@ func (w *pathWalk) walked() []string { return w.path[:w.steps] }
 // ends on a level that isn't a constant.
 func (w *pathWalk) drawsBelow() bool { return drawsAlong(w.n, w.path[w.steps:], true) }
 
-// step moves the walk down one level. The path load check admits only a segment that names a field,
-// so a segment that names none breaks an invariant.
+// step moves the walk down one level. Every walk stops at a choice or a table, so none reaches a
+// selector or "..", the segments ChildNamed refuses on a path that loaded; one that does breaks an
+// invariant.
 func (w *pathWalk) step() {
 	n, err := load.ChildNamed(w.n, w.path[w.steps])
 	if err != nil {
