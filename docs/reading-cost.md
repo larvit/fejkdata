@@ -1874,3 +1874,20 @@ Read most (opens and searches):
 - `shipped_test.go` 2
 - `CHANGELOG.md` 1
 - `data/modules.go` 1
+
+## Reading cost, chunk f484533dab81, finished 2026-11-14T18:35:21Z
+
+105501 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 19
+- `docs/decisions.md` 9
+- `todo.md` 6
+- `data/sv_SE/birth-number.json` 2
+- `data/sv_SE/person.json` 2
+- `data/sv_SE/personnummer.json` 2
+- `data/geo/SE/address.json` 1
+- `data/sv_SE/birth-number.tsv` 1
+- `data/sv_SE/first-name.json` 1
+- `data/sv_SE/first-name.tsv` 1
