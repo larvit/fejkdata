@@ -16,10 +16,10 @@ with its replacement, and each removed path, column or flag.
 
 ### Fixed
 
-- `{iban(CC)}` draws an account number with its country's national check digits for BE, ES,
-  FI and NO, and an SE IBAN with the IBAN ID of a bank in Bankinfrastruktur i Sverige's
-  clearing number table, so a validator checking more than mod 97 accepts it. A seed draws
-  other IBANs than before.
+- `{iban(CC)}` draws the account check digits of BE, ES, FI and NO, and an SE IBAN with the
+  IBAN ID of a bank in Bankinfrastruktur i Sverige's clearing number table, so a validator
+  that checks those digits too accepts it. A seed draws other IBANs than before, and other
+  values after an `{iban(CC)}` in the same render.
 
 ## 0.5.0 - 2026-11-14
 

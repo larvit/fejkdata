@@ -148,8 +148,8 @@ func spanishControl(ten string) byte {
 	}
 }
 
-// bban draws cc's account number with the check its banks apply. Germany and Denmark carry
-// none that every bank applies, so theirs are digits.
+// bban draws cc's account number: BE, ES, FI and NO with their account check digits, SE with a
+// listed IBAN ID, and any other country as random digits.
 func bban(r rng, cc string) string {
 	switch cc {
 	case "BE":
@@ -178,7 +178,6 @@ func bban(r rng, cc string) string {
 	return randomDigits(r, ibanLen[cc]-4)
 }
 
-// iban generates an IBAN for cc: a BBAN with its national check, then mod-97 check digits.
 func iban(r rng, cc string) string {
 	account := bban(r, cc)
 	rem := 0
