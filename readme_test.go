@@ -558,7 +558,7 @@ func TestReadmeUniqueColumnOutput(t *testing.T) {
 	}
 	got := headedRecordLines(t, f, "ids", 3, (*Record).CSVHeader, (*Record).CSVLine)
 	if want := strings.TrimSpace(out[1]); strings.Join(got, "\n") != want {
-		t.Errorf("README prints %q for --seed 1 --today 2026-01-15 --format csv --repeat 3, it renders %q", want, strings.Join(got, "\n"))
+		t.Errorf("README prints %q for --seed 1 --format csv --repeat 3, it renders %q", want, strings.Join(got, "\n"))
 	}
 }
 

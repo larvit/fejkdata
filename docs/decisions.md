@@ -762,14 +762,14 @@ layout, and `{luhn(9)}` keeps it out of the check digit. A panel of three reader
 and so does a birth in a year Skatteverket hasn't published. Valid while the callers' dates lie from 2013
 up to the years Skatteverket has published, and while no Swede passes 113.
 
-Goal 3.1: a category renders the same whoever references it, so `sv_SE.personnummer` can't read a sex its
-caller picked. It is a table under `sex` instead, one row per sex, so `sex[f].personnummer` and a bound
+2026-11-14: goal 3.1 has a person's sex and number come from one pick, and a category can't read a sex
+its caller picked. So `sv_SE.personnummer` is a table under `sex`, one row per sex, so `sex[f].personnummer` and a bound
 `{s.personnummer}` carry that sex's birth number. Each band is a column, `child`, `adult`, `senior` and
 `centenarian`, and `number`, the table's format, starts with `sv_SE.personnummer-date`, the four bands
 by their weights. A panel of three readers, seated as a validator-facing author, a hand fixture author
 and a Go test author, chose `personnummer.child` over `personnummer[child]`, `personnummer-child` and
 `personnummer.0-17`, and `{s.personnummer}` over `{s.birth-number.personnummer}` and
-`personnummer-f`. A row's cells draw apart, so its CSV columns hold six unrelated values.
+`personnummer-f`. A row's cells draw apart, so its CSV columns hold the sex and five numbers of that sex that share no date.
 
 ## `misc` is what every locale shares
 
@@ -998,7 +998,7 @@ none.
 
 Valid while DVV issues no number from 900.
 
-A hand fixture for a checker that refuses the synthetic endings needs the issued range, and goal 3
+2026-11-14: a hand fixture for a checker that refuses the synthetic endings needs the issued range, and goal 3
 asks the best category to offer more than one kind. `fi_FI.henkilotunnus-issued` draws 002 to 899
 through `{hetu(x,'issued')}`: the sign and the control character are the same, so a second builtin
 would add a name for one meaning. A panel of three readers, seated as a validator-facing author, a

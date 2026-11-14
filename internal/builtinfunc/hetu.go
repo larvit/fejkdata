@@ -3,7 +3,6 @@ package builtinfunc
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -17,7 +16,7 @@ const hetuControlCharacters = "0123456789ABCDEFHJKLMNPRSTUVWXY"
 // parity.
 type hetuRange struct{ first, count int }
 
-// DVV issues the individual numbers 002 to 899, and 900 to 999 to no one.
+// DVV issues the individual numbers 002 to 899, and never 900 to 999.
 var (
 	hetuUnissued = hetuRange{first: 900, count: 50}
 	hetuIssued   = hetuRange{first: 2, count: 449}
@@ -34,7 +33,7 @@ func hetuArgs(a []string) error {
 		return nil
 	}
 	if !quotedLayout(a[1]) {
-		return fmt.Errorf("hetu's range %s is not quoted; write '%s'", a[1], strings.Trim(a[1], `'"`))
+		return fmt.Errorf("hetu's range %s is not quoted; write 'issued', the one range it takes beside its default of 900 to 999", a[1])
 	}
 	return fmt.Errorf("hetu's range %s is not 'issued', the one range it takes beside its default of 900 to 999", a[1])
 }

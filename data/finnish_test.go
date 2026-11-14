@@ -791,7 +791,6 @@ func TestShippedFinnishStreetNamesHoldNoDigitCommaBracketOrSlash(t *testing.T) {
 	}
 }
 
-// DVV issues the individual numbers 002 to 899; fi_FI.henkilotunnus-issued draws those alone.
 func TestFinnishHenkilotunnusIssuedDrawsDVVsIssuedRange(t *testing.T) {
 	f := shipped(t)
 	low, high := false, false
