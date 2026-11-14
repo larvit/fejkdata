@@ -330,6 +330,7 @@ geo.FI.locality.street.addresses
 geo.FI.locality.street.locality
 geo.FI.locality.street.name
 geo.FI.locality.street.swedish-name
+geo.FI.locality.swedish-name	string
 geo.FI.municipality	format "{name}"	key code	name name	weight population	parent region
 geo.FI.municipality.code	string
 geo.FI.municipality.locality
@@ -347,9 +348,11 @@ geo.FI.municipality.locality.street.addresses
 geo.FI.municipality.locality.street.locality
 geo.FI.municipality.locality.street.name
 geo.FI.municipality.locality.street.swedish-name
+geo.FI.municipality.locality.swedish-name
 geo.FI.municipality.name	string
 geo.FI.municipality.population	string
 geo.FI.municipality.region	string
+geo.FI.municipality.swedish-name	string
 geo.FI.postal-code	format "{code}"	key code	weight population	parent locality
 geo.FI.postal-code.code	string
 geo.FI.postal-code.locality	string
@@ -373,9 +376,11 @@ geo.FI.region.municipality.locality.street.addresses
 geo.FI.region.municipality.locality.street.locality
 geo.FI.region.municipality.locality.street.name
 geo.FI.region.municipality.locality.street.swedish-name
+geo.FI.region.municipality.locality.swedish-name
 geo.FI.region.municipality.name
 geo.FI.region.municipality.population
 geo.FI.region.municipality.region
+geo.FI.region.municipality.swedish-name
 geo.FI.region.name	string
 geo.FI.region.population	string
 geo.FI.region.timezone	string
