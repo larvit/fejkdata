@@ -16,7 +16,6 @@
 | 460 | 0.6.0 |  |  | **Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.** | 2 | 1 | 1 | 2 | 3 | 1 by 3 | 1.8 |
 | 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
 | 18 | 0.6.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
-| 27 | 0.6.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip` into one `misc.ip`, and `en_US.version` and `sv_SE.version` into one `misc.version`, each pair today byte-identical.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.7 |
 | 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
@@ -27,7 +26,7 @@
 | 350 | 0.8.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.9 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.8 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 4.3 |
-| 15 | 0.8.0 | 27 |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 4.1 |
+| 15 | 0.8.0 |  |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 4.1 |
 | 22 | 0.8.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 4.1 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.7 |
 | 256 | 0.8.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 3.6 |
