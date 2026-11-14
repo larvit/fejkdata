@@ -13,6 +13,8 @@ with its replacement, and each removed path, column or flag.
   `{/place.zip}`. It loaded and printed two postal codes that could differ, as a template's
   field reading the same reference was already refused. Drop `{n.zip}`, or write
   `{/place.zip}` for a second draw.
+- `sv_SE.ip`, `en_US.ip`, `sv_SE.version` and `en_US.version` are gone: write `misc.ip` and
+  `misc.version`, which draw the same values.
 
 ### Added
 

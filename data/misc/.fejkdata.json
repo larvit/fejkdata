@@ -10,6 +10,7 @@
 		"misc.httpmethod": {"paths":["","idempotent","method","safe"]},
 		"misc.httpstatus": {"paths":["","code","reason"]},
 		"misc.iban-test": {"paths":["","country","iban"]},
+		"misc.ip": {"paths":[""]},
 		"misc.language": {"paths":["","code","code3","name"]},
 		"misc.loglevel": {"paths":["","code","keyword","severity"]},
 		"misc.mac": {"paths":[""]},
@@ -21,7 +22,8 @@
 		"misc.timezone": {"parent":"territory","paths":["","offset","territory","weight","zone"]},
 		"misc.tld": {"paths":["","tld","type","unicode"]},
 		"misc.useragent": {"paths":["","browser","device","os","ua"]},
-		"misc.uuid": {"paths":["","variant"]}
+		"misc.uuid": {"paths":["","variant"]},
+		"misc.version": {"paths":["","n","pre","suffix"]}
 	},
 	"namespace": "misc"
 }

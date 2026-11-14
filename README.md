@@ -334,7 +334,7 @@ projecting columns — ask for more records with `--repeat`. A `repeat` on a col
 is fine.
 
 Columns are written in name order, whatever order the fields appear in. A category
-whose fields are the parts of one value — `sv_SE.price`, `sv_SE.version`, `misc.uuid` —
+whose fields are the parts of one value — `sv_SE.price`, `misc.version`, `misc.uuid` —
 projects those parts rather than the value, so for one column holding what `Fake`
 renders, write `{"format":"","price":"{/sv_SE.price}"}` as a fieldless category asks
 for.
@@ -669,8 +669,8 @@ as `example.com` into the template; `todo.md` plans the path.
 ### Locale categories
 
 `sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
-`ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
-`version` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
+`last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`
+and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `personnummer-date`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
 `company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
@@ -993,9 +993,9 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 
 `misc` carries `car`, `coordinate`, `creditcard`
 (Luhn-valid), `creditcard-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
-`httpstatus`, `iban-test`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
+`httpstatus`, `iban-test`, `ip` (IPv4, or IPv6 one time in nine), `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
 severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
-3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent` and `uuid` (v4). Many
+3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent`, `uuid` (v4) and `version` (such as `1.24.3` or `v2.0.1-rc.1`). Many
 carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 `misc.httpstatus.code` — which `--list` shows. `car`, `creditcard-test`, `currency`, `httpmethod`,
 `httpstatus`, `iban-test`, `language`, `loglevel`, `mimetype`, `port`, `protocol`, `territory`,
