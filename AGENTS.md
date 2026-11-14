@@ -118,7 +118,7 @@ In [docs/decisions.md](docs/decisions.md):
 - Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 - Goal 6.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 - Locales ship by region: the Nordic countries, then the rest of the EU, then the rest of Europe, then the rest of the world
-- A country with no open address register covering it whole ships its places and postal codes without streets
+- A country with no open address register covering it whole draws invented streets
 - The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
 - The image is pushed to GHCR and copied to Docker Hub, whose name the README shows
 - A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge

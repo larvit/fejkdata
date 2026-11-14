@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 474`
+`Next ID = 487`
 
 ## Items
 
@@ -14,6 +14,25 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.4 |
 | 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.3 |
+| 217 | 0.7.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
+| 332 | 0.7.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 331 | 0.7.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 474 | 0.7.0 |  | decision | **Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 2.1 by 4 | 2.2 |
+| 475 | 0.7.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 2 | 1.9 |
+| 333 | 0.7.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 329 | 0.7.0 | 217 |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 476 | 0.7.0 |  |  | **Add `sv_SE.paragraph` from `sv_SE.sentence`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2.1 by 1 | 1.2 |
+| 477 | 0.7.0 |  |  | **Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 478 | 0.7.0 |  |  | **Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 479 | 0.7.0 |  |  | **Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 480 | 0.7.0 |  |  | **Add `fi_FI`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 481 | 0.7.0 | 217 |  | **Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 330 | 0.7.0 | 329, 474 |  | **Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
+| 482 | 0.7.0 |  |  | **Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 483 | 0.7.0 |  |  | **Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 484 | 0.7.0 |  |  | **Add `da_DK`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 485 | 0.7.0 |  |  | **Add `fi_FI`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 486 | 0.7.0 | 217 |  | **Add `de_DE`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.5 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 6.1 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 6.1 |
@@ -103,7 +122,7 @@
 | 193 | 0.8.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.4 |
 | 393 | 0.8.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 6 | 0.4 |
 | 407 | 0.8.0 |  |  | **Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.** | 3 | 2 | 2 | 5 | 6 | 1 by 3 | 0.3 |
-| 218 | 0.8.0 |  | decision | **Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
+| 218 | 0.8.0 |  | decision | **Replace each country's invented streets with its real streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
 | 129 | 0.8.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
 | 41 | 0.8.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 4 by 4 | 0.2 |
 | 186 | 0.8.0 |  | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 4 | 1 | 3 | 6 | 7 | 1 by 3 | 0.2 |
@@ -163,10 +182,8 @@
 | 318 | 1.3.0 | 213 |  | **Add `id_ID`'s national personal id, the NIK, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 214 | 1.3.0 |  | decision | **Add `ur_PK` with its given names by sex, last names and titles, and `ur_PK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 322 | 1.3.0 | 214 |  | **Add `ur_PK`'s national personal id, the CNIC number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
-| 217 | 1.3.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
-| 332 | 1.3.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 245 | 1.3.0 |  |  | **Draw `en_US.phone` from every area code NANPA has in service.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2, 3.2 by 3 | 3.5 |
-| 250 | 1.3.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 3.2 by 2 | 3.1 |
+| 250 | 1.3.0 |  |  | **Add `en_US.holiday`, the federal holidays.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 3.2 by 2 | 3.1 |
 | 244 | 1.3.0 |  |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 2.1 by 4, 3.2 by 3 | 2.7 |
 | 198 | 1.3.0 |  |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2, 3.3 by 3 | 2.6 |
 | 272 | 1.3.0 | 210 |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -178,7 +195,6 @@
 | 313 | 1.3.0 | 211 |  | **Add `bn_BD.phone`, drawn from Bangladesh's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 317 | 1.3.0 | 213 |  | **Add `id_ID.phone`, drawn from Indonesia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 321 | 1.3.0 | 214 |  | **Add `ur_PK.phone`, drawn from Pakistan's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
-| 331 | 1.3.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 248 | 1.3.0 |  |  | **Add `en_US.car`, a make and model from NHTSA vPIC.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 3.2 by 2 | 2.2 |
 | 246 | 1.3.0 |  |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2 | 1.8 |
 | 274 | 1.3.0 | 210 |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
@@ -190,7 +206,6 @@
 | 315 | 1.3.0 | 211, 345 |  | **Add `bn_BD.company`, `bn_BD.email` and `bn_BD.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 319 | 1.3.0 | 213 |  | **Add `id_ID.company`, `id_ID.email` and `id_ID.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 323 | 1.3.0 | 214 |  | **Add `ur_PK.company`, `ur_PK.email` and `ur_PK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
-| 333 | 1.3.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 247 | 1.3.0 |  |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 1.8 |
 | 270 | 1.3.0 | 210 |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 275 | 1.3.0 | 206 |  | **Add `geo/CN` with China's places and postal codes, and `zh_CN.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
@@ -201,11 +216,9 @@
 | 312 | 1.3.0 | 211 |  | **Add `geo/BD` with Bangladesh's places and postal codes, and `bn_BD.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 316 | 1.3.0 | 213 |  | **Add `geo/ID` with Indonesia's places and postal codes, and `id_ID.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 320 | 1.3.0 | 214 |  | **Add `geo/PK` with Pakistan's places and postal codes, and `ur_PK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
-| 329 | 1.3.0 | 217 |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 271 | 1.3.0 | 270 |  | **Give `geo/FR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 280 | 1.3.0 | 279 |  | **Give `geo/MX`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 285 | 1.3.0 | 284 |  | **Give `geo/BR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
-| 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 432 | 2.0.0 |  | question | **Reword goals 2.2, 7, 8.1, 8.5, 8.6, 9.2 and 10, and the README's Versioning table, for a Rust core that a native Go library and the npm package both serve.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.7 |
 | 433 | 2.0.0 |  |  | **Measure a seeded render of the README's person.json, one row and 100,000 rows, from Rust compiled to WebAssembly under wazero against the native Go library, and record whether wazero comes within a few percent.** | 2 | 1 | 1 | 2 | 2 | 1 by 1 | 0.7 |
 | 434 | 2.0.0 | 432, 433 |  | **Add a Cargo workspace with a compose service, and a gate leg running rustfmt, clippy at the Go gate's complexity limit, the tests, and cargo-mutants for the stability pass.** | 3 | 1 | 1 | 3 | 4 | 1 by 1 | 0.3 |
@@ -237,6 +250,74 @@ Posti's postcode file names each postitoimipaikka in Swedish too (field 49, 30 c
 `AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 74 functions.
 
 They do not fit one chunk: break this item into steps, by package, before starting it. In the last step, change the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
+
+### 332. Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.
+
+Find the issuer's rules, and a test series if it publishes one, first.
+
+### 331. Add `de_DE.phone`, drawn from Germany's numbering plan.
+
+Find the numbering plan and its licence first.
+
+### 474. Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.
+
+Applies the decision "A country with no open address register covering it whole draws invented streets", as the project principle for `da_DK.company` and `fi_FI.company` draws names. Each name shape weighs the same, and the README's Data section marks the country's streets invented (item 254's labels). Item 330 is its first user; items 271, 280, 285 and 325 may take it too where no open register covers the country. Item 218 replaces the invented streets with real ones.
+
+### 475. Add `en_US.month` and `en_US.weekday` names from CLDR.
+
+CLDR is under the Unicode licence, as `sv_SE.month` and `sv_SE.weekday` take theirs. [Source research](docs/research/research-sources-world.md).
+
+### 329. Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.
+
+GeoNames publishes Germany's postal codes.
+
+### 476. Add `sv_SE.paragraph` from `sv_SE.sentence`.
+
+Joins three to six sentences, as `en_US.paragraph` does.
+
+### 477. Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 478. Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 479. Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr.), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 480. Add `fi_FI`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in euro (€), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 481. Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
+
+Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in euro (€), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
+
+### 330. Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.
+
+Each Land publishes its own address data. Where open registers cover every Land, they are its street source; else it draws invented streets (decision: no open address register covering it whole).
+
+### 482. Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
+
+### 483. Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
+
+### 484. Add `da_DK`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
+
+### 485. Add `fi_FI`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
+
+### 486. Add `de_DE`'s word, sentence and paragraph, the words from a published word list.
+
+Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
 
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 
@@ -593,9 +674,9 @@ Three of the bench's readers feared a category named `run` clashing with `{/run.
 
 A fixture often needs a fixed mix: of 200 issues, 4 in progress, 30 done and the rest to do. A weighted choice gives about 4, and the count shifts with the seed, so a test asserting on it needs a loader to fix the counts. A dealt choice is a deck, drawn without replacement. Decide what a render past the last card does: refuse at `New` where the repeat is known to exceed the deck, start a fresh deck, or fall back to the weights; and which renders share one deck: the run, as `{seq()}` shares one counter, or each `repeat`. The deck is per-generator state beside `seq()`'s counters, so the same seed and date still give the same output (goal 9). A writer panel picks the spelling.
 
-### 218. Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.
+### 218. Replace each country's invented streets with its real streets, once the maintainer accepts ODbL data or the country opens a register.
 
-Ends the decision "A country with no open address register covering it whole ships its places and postal codes without streets".
+Ends the decision "A country with no open address register covering it whole draws invented streets".
 
 ### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 
@@ -917,17 +998,13 @@ Urdu is Pakistan's national language, yet India has more native speakers: 50.8M 
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
-### 332. Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
-
 ### 245. Draw `en_US.phone` from every area code NANPA has in service.
 
 Today it draws 21 area codes; the exchange already ships as `en_US.phone-exchange`. No research file covers NANPA yet: find its list of area codes in service and that list's licence first.
 
-### 250. Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.
+### 250. Add `en_US.holiday`, the federal holidays.
 
-CLDR is under the Unicode licence. [Source research](docs/research/research-sources-world.md). The federal holidays are listed in 5 U.S.C. 6103, which no research file covers yet.
+[Source research](docs/research/research-sources-world.md). The federal holidays are listed in 5 U.S.C. 6103, which no research file covers yet.
 
 ### 244. Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.
 
@@ -973,10 +1050,6 @@ Find the numbering plan and its licence first.
 
 Find the numbering plan and its licence first.
 
-### 331. Add `de_DE.phone`, drawn from Germany's numbering plan.
-
-Find the numbering plan and its licence first.
-
 ### 248. Add `en_US.car`, a make and model from NHTSA vPIC.
 
 NHTSA vPIC is public domain. The decision "`misc` is what every locale shares" puts a national register's cars in its locale. [Source research](docs/research/part2-internet-vehicle-airline.md).
@@ -995,7 +1068,7 @@ The Base Adresse Nationale (Licence Ouverte 2.0) names each address's commune an
 
 ### 275. Add `geo/CN` with China's places and postal codes, and `zh_CN.address` printing them.
 
-`rows.Pins` holds eight pins inline, enough for a five-deep geo tree. If CN's tree runs deeper, raise that number to keep a render off the heap. Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+`rows.Pins` holds eight pins inline, enough for a five-deep geo tree. If CN's tree runs deeper, raise that number to keep a render off the heap. Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 279. Add `geo/MX` with Mexico's places and postal codes, and `es_MX.address` printing them.
 
@@ -1007,27 +1080,23 @@ IBGE's CNEFE lists every address with its CEP.
 
 ### 304. Add `geo/IN` with India's places and postal codes, and `hi_IN.address` printing them.
 
-India's PIN code directory is open data on data.gov.in. It ships without streets (decision: no open address register covering it whole).
+India's PIN code directory is open data on data.gov.in. It draws invented streets (decision: no open address register covering it whole).
 
 ### 308. Add `geo/EG` with Egypt's places and postal codes, and `ar_EG.address` printing them.
 
-Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 312. Add `geo/BD` with Bangladesh's places and postal codes, and `bn_BD.address` printing them.
 
-Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 316. Add `geo/ID` with Indonesia's places and postal codes, and `id_ID.address` printing them.
 
-Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 320. Add `geo/PK` with Pakistan's places and postal codes, and `ur_PK.address` printing them.
 
-Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
-
-### 329. Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.
-
-GeoNames publishes Germany's postal codes.
+Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 271. Give `geo/FR`'s places their streets.
 
@@ -1040,10 +1109,6 @@ INEGI's Marco Geoestadístico names the streets.
 ### 285. Give `geo/BR`'s places their streets.
 
 IBGE's CNEFE lists every address with its CEP.
-
-### 330. Give `geo/DE`'s places their streets.
-
-Each Land publishes its own address data. Where open registers cover every Land, they are its street source; else it ships without streets (decision: no open address register covering it whole), and this item goes.
 
 ### 432. Reword goals 2.2, 7, 8.1, 8.5, 8.6, 9.2 and 10, and the README's Versioning table, for a Rust core that a native Go library and the npm package both serve.
 
