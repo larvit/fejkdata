@@ -15,6 +15,9 @@ Statistics Finland's classification names each kunta and places it in its maakun
 both their populations. Posti's files hold no street on Åland, so its maakunta ships no place. Posti writes a
 postitoimipaikka in capitals, and `recased` writes it as a place name. address.json weighs each length of house
 number, with a delivery letter or without, by how many ends of BAF's ranges carry one.
+
+A postitoimipaikka's Swedish name is the one most of its postinumerot give in PCF, written as `recased` writes the
+Finnish one, and a kunta's is Statistics Finland's. Each is its Finnish name where the source gives no Swedish one.
 """
 import collections
 import io
@@ -29,7 +32,7 @@ import geo
 import source
 
 POSTI = "https://www.posti.fi/webpcode/"
-CLASSIFICATION = "https://data.stat.fi/api/classifications/v2/correspondenceTables/kunta_1_20260101%23maakunta_1_20260101/maps?content=data&format=json&lang=fi&meta=max"
+CLASSIFICATION = "https://data.stat.fi/api/classifications/v2/correspondenceTables/kunta_1_20260101%23maakunta_1_20260101/maps?content=data&format=json&lang={lang}&meta=max"
 PAAVO = "https://pxdata.stat.fi/PxWeb/api/v1/fi/Postinumeroalueittainen_avoin_tieto/2026/12ey_ja2026.px"
 PAAVO_QUERY = {"postinumeroalue_4_20260101": ["*"], "contentscode": ["he_vakiy"], "timeperiod_y": ["2024"]}
 POPULATION = "https://pxdata.stat.fi/PxWeb/api/v1/fi/StatFin/vaerak/11ra.px"
@@ -37,8 +40,8 @@ POPULATION_QUERY = {"alue_23_20260101": ["KU*", "MK*"], "contentscode": ["vaerak
 TIMEZONE = "Europe/Helsinki"
 NORMAL = "1"
 ALAND = "21"
-# Posti's abbreviations of asema and kirkonkylä, as in ALAVUS AS and HEINOLA KK.
-LOWER = {"as", "kk"}
+# Posti's abbreviations of asema and kirkonkylä, as in ALAVUS AS and HEINOLA KK, and their Swedish ST and KBY.
+LOWER = {"as", "kk", "st", "kby"}
 VOWELS = "aeiouyäö"
 NOT_A_STREET = re.compile(r"[\d,()/]")
 
@@ -87,28 +90,56 @@ def stat_fi(url: str, query: Mapping[str, list[str]], cache: Path, name: str) ->
     return {code: table["value"][i] for code, i in index.items() if table["value"][i] is not None}
 
 
+def classification(cache: Path, lang: str) -> list[dict[str, dict[str, object]]]:
+    """Statistics Finland's table of each kunta and its maakunta, with the names in a language."""
+    return json.loads(source.fetch(CLASSIFICATION.format(lang=lang), cache, f"statfi-kunta-maakunta-{lang}.json"))
+
+
 def divisions(cache: Path) -> tuple[dict[str, dict[str, str]], dict[str, str]]:
-    """Each kunta's name and maakunta, and each maakunta's name, by code."""
+    """Each kunta's name, Swedish name and maakunta, and each maakunta's name, by code. A kunta the classification gives
+    no Swedish name keeps its Finnish one."""
+    swedish = {m["sourceItem"]["code"]: m["sourceItem"]["classificationItemNames"][0]["name"] for m in classification(cache, "sv")}
     municipalities: dict[str, dict[str, str]] = {}
     regions: dict[str, str] = {}
-    for m in json.loads(source.fetch(CLASSIFICATION, cache, "statfi-kunta-maakunta.json")):
+    for m in classification(cache, "fi"):
         s, r = m["sourceItem"], m["targetItem"]
-        municipalities[s["code"]] = {"name": s["classificationItemNames"][0]["name"], "region": r["code"]}
+        name = s["classificationItemNames"][0]["name"]
+        municipalities[s["code"]] = {"name": name, "swedish-name": swedish.get(s["code"], name), "region": r["code"]}
         regions[r["code"]] = r["classificationItemNames"][0]["name"]
     return municipalities, regions
 
 
+def normal_lines(pcf: Iterable[str]) -> list[str]:
+    """The lines of PCF that hold a normal postinumero."""
+    return [line for line in pcf if field(line, 111, 1) == NORMAL]
+
+
 def normal_codes(pcf: Iterable[str], municipality_of: Mapping[str, Mapping[str, str]]) -> dict[str, str]:
     """Each normal postinumero among PCF's lines, mapped to its postitoimipaikka written as a place name."""
-    towns = {field(line, 14, 5): field(line, 19, 30) for line in pcf if field(line, 111, 1) == NORMAL}
+    towns = {field(line, 14, 5): field(line, 19, 30) for line in normal_lines(pcf)}
     kunnat = {m["name"].upper() for m in municipality_of.values()}
     return {code: recased(town, kunnat) for code, town in towns.items()}
+
+
+def swedish_places(pcf: Iterable[str], municipality_of: Mapping[str, Mapping[str, str]]) -> dict[str, str]:
+    """Each postitoimipaikka among PCF's normal postinumerot, as a place name, mapped to its Swedish name written as one:
+    the name most of its postinumerot give, or its own name where they give none. Posti's Swedish field often holds
+    the Finnish name, so a kunta's Finnish and Swedish names both count as kunnat for `recased`."""
+    kunnat = {m["name"].upper() for m in municipality_of.values()}
+    swedish_kunnat = kunnat | {m["swedish-name"].upper() for m in municipality_of.values()}
+    names: dict[str, collections.Counter[str]] = collections.defaultdict(collections.Counter)
+    for line in normal_lines(pcf):
+        place, swedish = recased(field(line, 19, 30), kunnat), field(line, 49, 30)
+        counts = names[place]
+        if swedish:
+            counts[recased(swedish, swedish_kunnat)] += 1
+    return {place: swedish_name(counts, place) for place, counts in names.items()}
 
 
 def mainland(region_names: Mapping[str, str], municipality_of: Mapping[str, Mapping[str, str]], people: Mapping[str, int]) -> tuple[dict[str, geo.Row], dict[str, geo.Row]]:
     """The region and the municipality rows of every maakunta but Åland, each with its population in people."""
     regions = {c: {"code": c, "name": n, "population": people["MK" + c], "timezone": TIMEZONE} for c, n in region_names.items() if c != ALAND}
-    municipalities = {c: {"code": c, "name": m["name"], "region": m["region"], "population": people["KU" + c]} for c, m in municipality_of.items() if m["region"] != ALAND}
+    municipalities = {c: {"code": c, "name": m["name"], "swedish-name": m["swedish-name"], "region": m["region"], "population": people["KU" + c]} for c, m in municipality_of.items() if m["region"] != ALAND}
     return regions, municipalities
 
 
@@ -160,8 +191,9 @@ def tally(baf: Iterable[str], codes: Mapping[str, str]) -> Tally:
     return streets, swedish, in_municipality, postal_codes, numbers
 
 
-def localities(codes_of: Mapping[str, Iterable[str]], residents: Mapping[str, int], home: Mapping[str, str], points: Mapping[str, geo.Row]) -> tuple[dict[str, geo.Row], dict[str, dict[str, int]]]:
-    """Each locality with a postinumero holding residents and a point, and those postinumerot with their residents."""
+def localities(codes_of: Mapping[str, Iterable[str]], residents: Mapping[str, int], home: Mapping[str, str], points: Mapping[str, geo.Row], swedish: Mapping[str, str]) -> tuple[dict[str, geo.Row], dict[str, dict[str, int]]]:
+    """Each locality with a postinumero holding residents and a point, with its Swedish name from swedish, and those
+    postinumerot with their residents."""
     out: dict[str, geo.Row] = {}
     postal_codes: dict[str, dict[str, int]] = {}
     for place, codes in codes_of.items():
@@ -171,7 +203,7 @@ def localities(codes_of: Mapping[str, Iterable[str]], residents: Mapping[str, in
             print(f"{place}: no postinumero with residents and a point, dropped", file=sys.stderr)
             continue
         postal_codes[place] = kept
-        out[place] = {"name": place, "municipality": home[place], "population": sum(kept.values()), "lat": f"{centre[0]:.4f}", "lon": f"{centre[1]:.4f}"}
+        out[place] = {"name": place, "swedish-name": swedish[place], "municipality": home[place], "population": sum(kept.values()), "lat": f"{centre[0]:.4f}", "lon": f"{centre[1]:.4f}"}
     return out, postal_codes
 
 
@@ -181,9 +213,10 @@ def main() -> None:
     municipality_of, region_names = divisions(cache)
     people = stat_fi(POPULATION, POPULATION_QUERY, cache, "statfi-11ra.json")
     residents = {code: n for code, n in stat_fi(PAAVO, PAAVO_QUERY, cache, "statfi-paavo.json").items() if n}
-    streets, swedish, in_municipality, codes_of, numbers = tally(posti(cache, "BAF"), normal_codes(posti(cache, "PCF"), municipality_of))
+    pcf = posti(cache, "PCF")
+    streets, swedish, in_municipality, codes_of, numbers = tally(posti(cache, "BAF"), normal_codes(pcf, municipality_of))
     points = {r["code"]: r for r in geo.geonames(cache, "FI") if r["lat"] is not None}
-    places, postal_codes = localities(codes_of, residents, geo.home_municipalities(in_municipality), points)
+    places, postal_codes = localities(codes_of, residents, geo.home_municipalities(in_municipality), points, swedish_places(pcf, municipality_of))
     named = geo.top_streets(streets, a.street_share, a.min_streets, "addresses")
     for place, rows in named.items():
         for row in rows:
@@ -193,7 +226,7 @@ def main() -> None:
     geo.log_dropped_localities(dropped["locality"])
     geo.exit_on_dropped_parents(dropped)
     rows = [{"code": c, "locality": loc, "population": n} for loc in kept["locality"] for c, n in postal_codes[loc].items()]
-    geo.write_tables(out, kept, rows, named, postal_code=["code", "locality", "population"], street=["name", "locality", "swedish-name", "addresses"])
+    geo.write_tables(out, kept, rows, named, municipality=["code", "name", "swedish-name", "region", "population"], locality=["name", "swedish-name", "municipality", "population", "lat", "lon"], postal_code=["code", "locality", "population"], street=["name", "locality", "swedish-name", "addresses"])
     (out / "address.json").write_text(geo.address_json(numbers, "{lower(1)}"), encoding="utf-8")
 
 
