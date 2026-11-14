@@ -85,7 +85,6 @@ en_US.first-name	format "{name}"	name name	weight count	parent sex
 en_US.first-name.count	string
 en_US.first-name.name	string
 en_US.first-name.sex	string
-en_US.ip
 en_US.itin	format "{area}-{group}-{serial}"
 en_US.itin.area	string
 en_US.itin.group	string
@@ -138,10 +137,6 @@ en_US.url.host	string
 en_US.url.path	string
 en_US.username
 en_US.username.n
-en_US.version	format "{pre}{n}.{n}.{n}{suffix}"
-en_US.version.n	string
-en_US.version.pre	string
-en_US.version.suffix	string
 en_US.word	format "{any}"	reads en_US.word-adj en_US.word-adv en_US.word-noun en_US.word-verb
 en_US.word-adj	format "{word}"
 en_US.word-adj.word	string
@@ -191,6 +186,8 @@ fi_FI.first-name.count	string
 fi_FI.first-name.name	string
 fi_FI.first-name.sex	string
 fi_FI.henkilotunnus	format "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit)}"	reads fi_FI.sex
+fi_FI.henkilotunnus-issued	format "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit,'issued')}"	reads fi_FI.henkilotunnus fi_FI.sex
+fi_FI.henkilotunnus-issued.birth	string
 fi_FI.henkilotunnus.birth	string
 fi_FI.individ	format "{digit}"	parent sex
 fi_FI.individ.digit	string
@@ -618,6 +615,7 @@ misc.httpstatus.reason	string
 misc.iban-test	format "{iban}"	key country
 misc.iban-test.country	string
 misc.iban-test.iban	string
+misc.ip
 misc.language	format "{name}"	key code	name name
 misc.language.code	string
 misc.language.code3	string
@@ -671,6 +669,10 @@ misc.useragent.os	string
 misc.useragent.ua	string
 misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
 misc.uuid.variant	string
+misc.version	format "{pre}{n}.{n}.{n}{suffix}"
+misc.version.n	string
+misc.version.pre	string
+misc.version.suffix	string
 nb_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
 nb_NO.address.locality	string
 nb_NO.address.postal-code	string
@@ -836,7 +838,6 @@ sv_SE.first-name.sex	string
 sv_SE.holiday	format "{name}"	key code	name name
 sv_SE.holiday.code	string
 sv_SE.holiday.name	string
-sv_SE.ip
 sv_SE.last-name	format "{name}"	key name	weight count
 sv_SE.last-name.count	string
 sv_SE.last-name.name	string
@@ -939,10 +940,6 @@ sv_SE.url.path	string
 sv_SE.username
 sv_SE.username.n
 sv_SE.vat	format "{.organisationsnummer.vat}"	reads sv_SE.organisationsnummer
-sv_SE.version	format "{pre}{n}.{n}.{n}{suffix}"
-sv_SE.version.n	string
-sv_SE.version.pre	string
-sv_SE.version.suffix	string
 sv_SE.weekday	format "{name}"	key code	name name
 sv_SE.weekday.code	string
 sv_SE.weekday.name	string
