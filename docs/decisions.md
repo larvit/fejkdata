@@ -1201,15 +1201,17 @@ record the result here. A region's locales ship before the next region's; within
 the plan's scores order them. Each locale carries goal 2.1's categories, and its `address`
 reads its country's `geo/` tree by reference.
 
-## A country with no open address register covering it whole ships its places and postal codes without streets
+## A country with no open address register covering it whole draws invented streets
 
-2026-10-11, Lilleman auf Larv. Serves goal 2.2. Where no open register covers a country's
-streets, the only source is OpenStreetMap. ODbL binds a database derived from it to
-share-alike and attribution, and every program linking that country's geo package would
-inherit both terms. So that country's `address` prints no street, and the README's Data
-section says why beside each such country. This works against goal 2.1 until
-`todo.md` item 218 gives those countries streets. Valid until the maintainer accepts ODbL
-data, or the country opens a register.
+2026-11-14, decided by the maintainer. Serves goal 2.1. Where no open register covers a
+country's streets, the only source is OpenStreetMap. ODbL binds a database derived from it
+to share-alike and attribution, and every program linking that country's geo package would
+inherit both terms. So that country's `address` draws an invented street: names from a
+language model's recall, each weighing the same, as the project principle for `da_DK.company`
+states. A half address helps no one, and an invented street is better than none. The
+README's Data section says beside each such country that its streets are invented.
+`todo.md` item 474 builds the fallback. It works against goal 3 until `todo.md` item 218 gives those countries their real streets. Valid
+until the maintainer accepts ODbL data, or the country opens a register.
 
 ## The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
 
