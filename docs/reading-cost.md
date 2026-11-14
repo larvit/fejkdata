@@ -1891,3 +1891,20 @@ Read most (opens and searches):
 - `data/sv_SE/birth-number.tsv` 1
 - `data/sv_SE/first-name.json` 1
 - `data/sv_SE/first-name.tsv` 1
+
+## Reading cost, chunk 4b7c5718bc9f, finished 2026-11-14T22:47:14Z
+
+195500 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `docs/decisions.md` 13
+- `todo.md` 10
+- `internal/rows/rows.go` 7
+- `README.md` 5
+- `compose.yaml` 3
+- `AGENTS.md` 1
+- `bench_test.go` 1
+- `data/en_US/fs.go` 1
+- `data/geo/US/.fejkdata.json` 1
+- `data/geo/US/address.json` 1
