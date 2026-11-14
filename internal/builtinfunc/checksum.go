@@ -3,6 +3,7 @@ package builtinfunc
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
@@ -109,6 +110,13 @@ func eanCheck(s string) string {
 // a left-to-right derivation; it generates the whole value instead.
 var ibanLen = map[string]int{"BE": 16, "DE": 22, "DK": 18, "ES": 24, "FI": 18, "NO": 15, "SE": 24}
 
+// swedishIBANIDs are the IBAN IDs in Bankinfrastruktur i Sverige's clearing number table.
+var swedishIBANIDs = []string{
+	"120", "211", "212", "213", "230", "300", "500", "600", "800", "902", "904", "907", "910", "915",
+	"917", "918", "919", "923", "925", "927", "928", "930", "939", "940", "946", "947", "950", "955",
+	"957", "958", "959", "960", "963", "964", "965", "966", "967", "968", "970", "971", "975", "978",
+}
+
 func ibanArg(a []string) error {
 	if _, ok := ibanLen[a[0]]; !ok {
 		return fmt.Errorf("iban(%q): unsupported country code", a[0])
@@ -116,15 +124,66 @@ func ibanArg(a []string) error {
 	return nil
 }
 
-// iban generates an IBAN for cc: a numeric BBAN of the right length, then mod-97 check digits.
-func iban(r rng, cc string) string {
-	bban := make([]byte, ibanLen[cc]-4)
-	for i := range bban {
-		bban[i] = byte('0' + r.IntN(10))
+func randomDigits(r rng, n int) string {
+	d := make([]byte, n)
+	for i := range d {
+		d[i] = byte('0' + r.IntN(10))
 	}
+	return string(d)
+}
+
+// spanishControl returns the Banco de España control digit of ten digits.
+func spanishControl(ten string) byte {
+	sum := 0
+	for i, w := range [...]int{1, 2, 4, 8, 5, 10, 9, 7, 3, 6} {
+		sum += int(ten[i]-'0') * w
+	}
+	switch dc := 11 - sum%11; dc {
+	case 10:
+		return '1'
+	case 11:
+		return '0'
+	default:
+		return byte('0' + dc)
+	}
+}
+
+// bban draws cc's account number with the check its banks apply. Germany and Denmark carry
+// none that every bank applies, so theirs are digits.
+func bban(r rng, cc string) string {
+	switch cc {
+	case "BE":
+		n := randomDigits(r, 10)
+		v, _ := strconv.Atoi(n)
+		if v %= 97; v == 0 {
+			v = 97
+		}
+		return fmt.Sprintf("%s%02d", n, v)
+	case "ES":
+		bank, account := randomDigits(r, 8), randomDigits(r, 10)
+		return bank + string([]byte{spanishControl("00" + bank), spanishControl(account)}) + account
+	case "FI":
+		n := randomDigits(r, 13)
+		return n + string(rune('0'+luhnCheck(n)))
+	case "NO":
+		for {
+			n := randomDigits(r, 10)
+			if c := mod11Check(n); c != "X" {
+				return n + c
+			}
+		}
+	case "SE":
+		return swedishIBANIDs[r.IntN(len(swedishIBANIDs))] + randomDigits(r, 17)
+	}
+	return randomDigits(r, ibanLen[cc]-4)
+}
+
+// iban generates an IBAN for cc: a BBAN with its national check, then mod-97 check digits.
+func iban(r rng, cc string) string {
+	account := bban(r, cc)
 	rem := 0
 	feed := func(d int) { rem = (rem*10 + d) % 97 }
-	for _, c := range bban {
+	for _, c := range []byte(account) {
 		feed(int(c - '0'))
 	}
 	for i := 0; i < len(cc); i++ { // letters A-Z -> 10..35, fed as two digits
@@ -134,5 +193,5 @@ func iban(r rng, cc string) string {
 	}
 	feed(0)
 	feed(0)
-	return fmt.Sprintf("%s%02d%s", cc, 98-rem, bban)
+	return fmt.Sprintf("%s%02d%s", cc, 98-rem, account)
 }

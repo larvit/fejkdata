@@ -14,6 +14,13 @@ with its replacement, and each removed path, column or flag.
   field reading the same reference was already refused. Drop `{n.zip}`, or write
   `{/place.zip}` for a second draw.
 
+### Fixed
+
+- `{iban(CC)}` draws an account number with its country's national check digits for BE, ES,
+  FI and NO, and an SE IBAN with the IBAN ID of a bank in Bankinfrastruktur i Sverige's
+  clearing number table, so a validator checking more than mod 97 accepts it. A seed draws
+  other IBANs than before.
+
 ## 0.5.0 - 2026-11-14
 
 ### Breaking
