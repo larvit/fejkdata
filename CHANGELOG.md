@@ -20,6 +20,14 @@ with its replacement, and each removed path, column or flag.
   names such as `januar` and `tysdag`, `nn_NO.title`, and `person`, `fodselsnummer`, `phone`,
   `email`, `company`, `address` and `date`, which draw what `nb_NO` and `geo.NO` draw.
   `nnno.Modules()` returns `nbno`'s modules too.
+- `sv_SE.personnummer` is a table under `sex`: `sv_SE.sex[f].personnummer` draws a woman's number,
+  and `{/sv_SE.sex as s}{s.first-name} {s.personnummer}` a name and a number that agree. Its columns
+  `child`, `adult`, `senior` and `centenarian` draw one age band each, as in
+  `sv_SE.personnummer.centenarian`, and `sv_SE.personnummer-date` is the date and separator a
+  number starts with. A seed draws another number than it did.
+- `fi_FI.henkilotunnus-issued` and `{hetu(x,'issued')}` draw a henkilötunnus with an individual
+  number from 002 to 899, the range DVV issues, for a checker that refuses 900 to 999. Such a
+  number may be a living person's.
 
 ### Fixed
 
