@@ -1118,14 +1118,16 @@ repeat fences among them, since they check the finished graph; `render` draws. `
 `render` each import `tree` and leaf libraries, and neither imports the other. `fence` imports
 `load` as well as `tree`, since the fences walk the graph `load` built, read its names and
 compile a path as it does; an import one way keeps the stages acyclic, and `render` imports
-neither. The rules that refuse a read of a name sit in `fence/names`: they share the walk of a
-pick's routes and its types, which no other fence reads, and `fence` and the pipeline call the
-package's two entry points. `internal/engine` holds the pipeline and lazy loading, and the entry points' walks of a
-caller's path and record, importing `tree`, `load`, `fence`, `render` and the leaf libraries.
+neither. The rules that refuse a read of a name sit in `fence/names`. They share one walk of
+the reads a pick renders, and no other fence reads that walk or the types it returns. `fence`
+calls the package's `RefuseReads`, and the pipeline its `RefuseReadsInsideFields`.
+`internal/engine` holds the pipeline and lazy loading, and the entry points' walks of a
+caller's path and record, importing `tree`, `load`, `fence`, `fence/names`, `render` and the
+leaf libraries.
 The root keeps only the public API and its options: it imports `internal/engine`, `tree`, whose
 folder its generator holds, and leaf libraries, never a stage, and builds `Record` from
-the column values the engine draws. Names and paths get no package of their own: each stage keeps
-its part of them, and `tree` holds the step type every stage walks. The three functions
+the column values the engine draws. Names and paths get no package across the stages: each stage keeps
+its part of them, as `fence` keeps its name rules in `fence/names`, and `tree` holds the step type every stage walks. The three functions
 walking a path, one to load every branch, one to draw one and one to find the caller's
 folders, stay in their stages.
 

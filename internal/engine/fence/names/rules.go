@@ -10,7 +10,7 @@ import (
 )
 
 // RefuseReads refuses, in the templates of ts, a read of a name that could disagree with another
-// read of it, or that reads a name of a choice's item it never renders.
+// read of it, or that reads a name bound in a choice's item the read never renders.
 func RefuseReads(ts []load.TemplateSite) error {
 	names := namesOf(ts)
 	for _, s := range ts {

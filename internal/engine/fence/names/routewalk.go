@@ -55,13 +55,13 @@ func (w *routeWalk) walk(n tree.Node, p place) {
 	w.seen[routeSite{n, p}] = true
 	switch n := n.(type) {
 	case *tree.Template:
-		// Each read says where its leaves stand.
+		// A read's route says where the read's leaves stand.
 		w.walkTemplate(n, p)
 	case *tree.Choice:
 		// An item stands where its choice stands, since the pick keeps the item drawn.
 		w.walkEdges(n, p)
 	case *tree.TableColumn:
-		// A cell is not walked, so no rule refuses a read of a name for what a cell reads.
+		// A cell is not walked: no rule sees what a cell reads.
 	default:
 		// Anything else renders apart. A table's format does: the pick pins the row, so its
 		// columns read one row whichever read renders them.

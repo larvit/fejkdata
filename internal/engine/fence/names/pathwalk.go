@@ -6,7 +6,7 @@ import (
 )
 
 // pathWalk is a walk down path from a node, a level at a time. Field n is the node it stands on,
-// which the first steps segments of path lead to.
+// and steps counts the segments of path it walked to get there.
 type pathWalk struct {
 	n     tree.Node
 	path  []string
@@ -25,7 +25,7 @@ const (
 	drawLevel    levelKind = iota // a choice or a table, which draws wherever on the path it stands
 	innerLevel                    // any other node the path goes on below
 	constantLeaf                  // the path ends on a template whose every render is the same text
-	varyingLeaf                   // the path ends on anything else
+	varyingLeaf                   // the path ends on any other node but a choice or a table
 )
 
 func (w *pathWalk) kind() levelKind {

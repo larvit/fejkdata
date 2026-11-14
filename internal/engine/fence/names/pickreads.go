@@ -12,10 +12,10 @@ import (
 // pickReads is the reads of one name: its binding, the reads through it, and the keys they
 // address, each with the spelling of the first read reaching it.
 //
-// The pick's keys start at the start of the binding's target, and the binding itself lands a
-// level for each segment of the target's tail below that. So a read through the name passes those
-// levels before the first one it addresses, and a key under the binding opens with the tail. Only
-// this file counts the tail's segments: a rule asks the pick.
+// The pick's keys start at the start of the binding's target, and the binding lands one level
+// below that for each segment of the target's tail. A read through the name addresses the level
+// the binding lands on and each of its own levels below, never a level above the binding. A key
+// under the binding opens with the tail. No rule counts the tail's segments: a rule asks the pick.
 type pickReads struct {
 	binding   *tree.NameBinding
 	reads     []*tree.Read
