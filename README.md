@@ -15,7 +15,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places. Each address takes its street and
-  postal code from one town ([The `geo` namespace](#the-geo-namespace)).
+  postal code from one town ([`geo`](#geo)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
@@ -111,7 +111,7 @@ email,first,last,locality,personnummer,postal-code,sex,street
 viktoria.larsson@example.com,Viktoria,Larsson,Östersund,740514-2386,831 34,kvinna,Sånghusvägen 9
 ```
 
-A fixture this size repeats personnummer and email values. [Personnummer](#personnummer) explains why a personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
+A fixture this size repeats personnummer and email values. [Personnummer](#personnummer-and-samordningsnummer) explains why a personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
 
 ### Go tests
 
@@ -507,7 +507,7 @@ calls := fejkdata.Builtins()              // each way to call a function, such a
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
 A shipped package's `Modules()` returns its own `FS` and every module it reads, such as a
-locale's country's places ([The `geo` namespace](#the-geo-namespace)); `misc.*` comes from `misc.Modules()`, in
+locale's country's places ([`geo`](#geo)); `misc.*` comes from `misc.Modules()`, in
 `github.com/larvit/fejkdata/data/misc`. Your program links only the packages it imports.
 `data.Modules()`, from `github.com/larvit/fejkdata/data`, is every shipped module, and
 links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/data/en_US`,
@@ -630,7 +630,7 @@ opens a [filter](#filters), or ` distinct `, which opens a [distinct draw](#dist
 entry is never a category or a folder, so a data directory can also be a checkout, though
 a category may name a hidden rows file beside it.
 
-### Indexed sources
+#### Indexed sources
 
 A source whose root holds `.fejkdata.json` with an `index` loads each category on the
 first call reaching it, so `New` does not check them: load each category once in a test,
@@ -649,12 +649,22 @@ table linking under another source's table needs a source without an index. `//g
 of a directory leaves the manifest out, and the source then loads whole in `New` and at
 the root, with no `namespace`; name the manifest in the pattern too.
 
-### Manifest namespace
+#### Manifest namespace
 
 A manifest's `namespace` is the dot path its source's root sits under: a folder holding
 `person.json` with `"namespace": "sv_SE"` provides `sv_SE.person`, its subfolders adding
 segments below that. It needs no index. Each shipped module carries one, so
 `data/sv_SE/person.json` is `sv_SE.person`.
+
+#### Data sources
+
+Where a script under [`data-import/`](data-import) reads a source, the facts come from
+that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
+set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2).
+The `sentence` and `paragraph` patterns state no fact and stay hand-written. Where a category
+has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
+as `example.com` into the template; `todo.md` plans the path.
+[`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 ### Locale categories
 
@@ -667,24 +677,13 @@ segments below that. It needs no index. Each shipped module carries one, so
 `en_US` adds `ssn`, `itin`,
 `phone-exchange` (the three digits after the area code), `paragraph`, `word-adj`, `word-adv`, `word-noun` and `word-verb`.
 
-The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `da_DK.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
-
-What the two locales do not share: `en_US.address` carries a `region` column the Swedish
+What `sv_SE` and `en_US` do not share: `en_US.address` carries a `region` column the Swedish
 one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
-### Data sources
+The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `da_DK.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
-Where a script under [`data-import/`](data-import) reads a source, the facts come from
-that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
-set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2).
-The `sentence` and `paragraph` patterns state no fact and stay hand-written. Where a category
-has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
-as `example.com` into the template; `todo.md` plans the path.
-
-[`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
-
-### Names and sex
+#### Names and sex
 
 `first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
 SCB, Statistics Norway, DVV, Statistics Finland, the SSA and the Census Bureau, and for Denmark from Statistics Denmark's top 20 and a
@@ -695,349 +694,18 @@ draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
 `person` binds one first name and reads its sex through it, `{.first-name as n}` and
 `{n..sex.name}`, so its `first` and `sex` columns agree. `en_US.title` links to `sex`
-too, so a person's prefix never contradicts it. A `personnummer`'s birth number,
-`sv_SE.birth-number` under `sex`, is Skatteverket's test series, 238 for a woman and 239
-for a man, which no real person is ever given.
 
-### `sv_SE`
-
-#### Personnummer
-
-`sv_SE.personnummer` and `sv_SE.personnummer-12` draw four age bands as often as SCB counted them in Sweden
-at the end of 2024, and a birthdate evenly inside each: 20.36% aged 0–17, 58.80% aged 18–64, 20.81% aged
-65–99 and 0.028% aged 100 to 113, the oldest age validated in Sweden. Ages count as [`born`](#functions)
-counts them, from the date given to `WithToday` or `--today`, so what a seed draws changes with that date. The short form spells `-`, and `+` from
-the year the holder turns 100, as folkbokföringslagen 18 § states: with today at 2026-11-04, a birth in 1926
-or earlier carries the `+`. A date before 2013 can draw a birth before 1900, where the test series
-holds other birth numbers, 980 and 981 among them, so such a number is outside the series. A birth in a
-year Skatteverket hasn't published yet is outside it too; it adds the coming year each December.
-`sv_SE.samordningsnummer` draws a date from 1930 to 2025 and always spells `-`, since lag (2022:1697), the
-law that governs it, states no `+`.
-
-Skatteverket's test series is small: a personnummer is one of about 83,000 values, a day in the 114 years up to the given date against the two birth numbers, so a fixture past a few hundred rows repeats one and a `UNIQUE` column needs a category of your own.
-
-#### Person
-
-`sv_SE.person` draws one invented birth date from the four age bands, and its `birthdate`, `personnummer` and
-`samordningsnummer` read it. Both numbers spell the person's sex from the same test series, with the limits
-above, and the samordningsnummer adds 60 to the day, so `{/sv_SE.person as p}{p.birthdate} {p.personnummer} {p.samordningsnummer}` renders e.g.
-`1932-04-16 320416-2394 320476-2391`.
-
-#### Matching a personnummer to a chosen sex
-
-To choose the sex, assemble the person from the tables — `sex[f].first-name` beside
-`last-name`. `sv_SE.personnummer` draws its own sex, so where that name and a number must
-agree, read both through one bound `sex`, `{/sv_SE.sex[f] as s}` for a woman:
-
-```json
-{ "format": "{first} {last}, {pnr}",
-  "first": "{/sv_SE.sex as s}{s.first-name}",
-  "last": "{/sv_SE.last-name}",
-  "pnr": [
-    { "format": "{born(0,99,'060102')}-{s.birth-number.number}{luhn()}", "weight": 99.972 },
-    { "format": "{born(100,113,'060102')}+{s.birth-number.number}{luhn()}", "weight": 0.028 }
-  ] }
-```
-
-Renders e.g. `Anne Grönberg, 011012-2389`. Each item of `pnr` spells its own separator, so a birthdate
-of `born(100,…)` carries the `+`.
-
-#### Personnummer with a four-digit year
-
-`sv_SE.personnummer-12` and `sv_SE.samordningsnummer-12` draw a personnummer and a samordningsnummer as twelve
-digits, the century first and no hyphen, `199001012385`: the form many systems store. As in the short form, the Luhn
-check digit covers the last ten digits, which `sv_SE.samordningsnummer-12`'s field `ten` holds.
-
-#### Organisation VAT numbers
-
-A bound `organisationsnummer`
-has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
-
-#### Licence plates
-
-`sv_SE.licenseplate` draws a registration number, `ABC 123` or `ABC 12A` at even odds, in its fields `old` and
-`current`. It is valid, not real: a drawn plate has the shape of a Swedish one and may be on a real car. Its three
-letters come from `licenseplate-letters`, every combination of the 23 letters plates use (no I, Q or V) but
-the 99 that Transportstyrelsen's page listed as blocked in March 2026 and no longer lists, such as `APA` and `XXX`.
-The last character of `ABC 12A` is any of those letters but O. The numbers run from `001` to `999`, and from `00` to `99`
-in `ABC 12A`. The forms, letters and numbers are those of sv.wikipedia's article on Swedish plates, which
-Transportstyrelsen's pages do not confirm.
-
-#### Bankgiro, plusgiro and bank accounts
-
-`sv_SE.bankgiro` draws a bankgiro number of seven or eight digits at even odds, `991-2346` or `5555-5551`, the last
-digit a Luhn check digit. `sv_SE.plusgiro` draws a plusgiro number of two to eight digits, the last a Luhn check
-digit, with a hyphen before it and the rest in pairs from the right, `12 34 56-6`. Wikipedia and convention give that
-length and spelling; no official page does.
-
-`sv_SE.bankaccount` draws a clearing number and an account number that passes the check its bank demands,
-`1522-8923497`. `{/sv_SE.bankaccount[5000]}` selects a clearing number, and a row's fields are `clearing`, `bank` and
-`number`. The clearing numbers and banks are those of Bankinfrastruktur i Sverige AB's list, and the checks are those
-of Bankgirot's "Bankernas kontonummer" of 2024-02-22. A Swedbank clearing number from `8000` to `8999` has a fifth
-digit that this category leaves out. The 15 clearing numbers `9565`–`9569` and `9600`–`9609` are not shipped, since
-that document doesn't publish their check.
-
-`bankgiro`, `plusgiro` and `bankaccount` draw valid numbers, not real ones: a number drawn may belong to a real
-account.
-
-#### Swedish phone numbers
-
-`sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
-area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
-Swedish Post and Telecom Authority's (PTS) numbering plan of 2024-01-08. A row is selected by the
-code as Swedes write it, `phone-area[08]`, and carries its `ndc`, the code without the trunk `0`
-that international dialling uses (`8`), and the `name` of its place.
-
-The rest of a fixed number comes from `sv_SE.phone-subscriber`. It has any length the plan allows
-that area code, five to eight digits, and is grouped as Språkrådet writes it, such as `08-16 01 01`
-and `031-668 01 50`. No subscriber number starts with the trunk `0`. A number is valid, not real: it
-follows the plan, and a real subscriber may hold it. A bound number reads `national`,
-`070-123 45 67`, and `international`, `+46 70 123 45 67`.
-
-#### Months, weekdays, holidays and territories
-
-`sv_SE.month` and `sv_SE.weekday` are Unicode CLDR's Swedish names. `{/sv_SE.month[1]}` is `januari` and
-`[12]` is `december`; `{/sv_SE.weekday[1]}` is `måndag` and `[7]` is `söndag`, Monday first as ISO 8601
-numbers them. `sv_SE.holiday` holds the thirteen public holidays that lag (1989:253) names, each selected by a
-code in lower case ASCII with hyphens, `{/sv_SE.holiday[nationaldagen]}` or `[forsta-maj]`. It leaves out the
-law's entry for every Sunday, and holds no dates, since seven of the holidays move from year to year.
-`sv_SE.territory` is the Swedish name of each `misc.territory` row, selected by its alpha-2 code:
-`{/sv_SE.territory[DE]}` is `Tyskland`. All four are real names.
-
-#### Industries and occupations
-
-`sv_SE.sni` is SCB's SNI 2025 industry classification at its finest level, 835 five-digit codes, and
-`sv_SE.ssyk` its SSYK 2012 occupation classification at four digits, 429 codes. Each is selected by its
-code: `{/sv_SE.sni[62.100].name}` is `Dataprogrammering` and `{/sv_SE.ssyk[2512].name}` is
-`Mjukvaru- och systemutvecklare m.fl.`. A draw picks a code evenly and prints it with its label,
-`62.100 Dataprogrammering`. Both are real.
-
-#### Cars
-
-`sv_SE.car` is a make and a model, `Volvo XC60`, weighted by Mobility Sweden's registrations of new
-passenger cars in 2025. It holds the 119 models with 500 or more registrations, as Mobility Sweden groups
-them: `EX/XC40` is two models in one row. A model is real, spelled as its maker writes it, and the shares
-are those of 2025's new cars, not of the cars on the road.
-
-#### Blood types
-
-`sv_SE.bloodtype` draws `A+`, `0-` and the six other types, spelled with the digit `0` as Swedish does, as
-often as sv.wikipedia's Blodgrupp article gives them for Sweden: `A+` is the commonest, at 37 percent. The
-shares are real.
-
-#### Swedish companies
-
-`sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
-enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
-förening and kommanditbolag. It spells the form as the register's active companies do, so a handelsbolag
-reads `Handelsbolag`, `Handelsbolaget` or `handelsbolag`, never `HB`. Bind a company to read its legal-form word from the same pick:
-`{/sv_SE.company as c}{c} ({c.legal})` prints `Solvik Bygg AB (AB)` or
-`Handelsbolaget Solvik (Handelsbolaget)`, and `()` for an enskild näringsidkare.
-The name has a shape those companies' names have, such as a made-up
-word and a trade word like `Bygg` or `Holding`, or a surname and a trade word. `company-word` holds the
-trade words that 100 or more of the register's names carry, and `company-coined` the made-up words.
-A name is invented, and may also be a real company's.
-
-#### Swedish words
-
-`sv_SE.word` draws evenly from about 108,000 words of SALDO, Språkbanken's Swedish dictionary.
-SALDO has no frequencies, so a word may be rare. `sv_SE.word.noun`, `.verb`, `.adj` and `.adv` each
-draw one part of speech. `sv_SE.word.noun.definite`, `sv_SE.word.verb.present` and
-`sv_SE.word.adj.definite` each draw a word and print one form of it, such as `huset`, `springer` or
-`stora`. To read a word and its form from one pick, bind it: `{/sv_SE.word.noun as n}{n} {n.definite}`
-prints `hus huset`.
-
-The import drops the words on LDNOOBW's Swedish list of rude words, and other rude words remain, so
-read the output before showing it to anyone. `sv_SE.sentence` fills a fixed pattern with these words
-and doesn't make them agree, so its sentences aren't grammatical.
-
-### `nb_NO`
-
-`nb_NO`, Norwegian in the Bokmål standard, carries `address`, `birth-day`, `company`, `company-coined`,
-`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `person`,
-`phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
-`fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
-`nb_NO.title[dr.]`.
-
-#### Norwegian dates and emails
-
-`nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
-Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
-or `example.net`, or a subdomain of one, and half of its local parts are a first and a last name drawn from
-`nb_NO.first-name` and `nb_NO.last-name` and folded to ASCII, `ø` to `o`, `å` to `a` and `æ` to `ae`. IANA reserves those domains, so no address reaches a real
-mailbox.
-
-#### Norwegian companies
-
-`nb_NO.company` draws a legal form as often as the Brønnøysund Register Centre's Enhetsregisteret held
-active units of it on 2026-10-22: sole proprietorship (ENK), limited company (AS), and DA, SA, ANS, ASA and
-KS. An ENK's name has no abbreviation after it, and the others end in theirs, such as `Nordicvik Holding AS`.
-`nb_NO.company.as` draws only a limited company, and `.enk`, `.da`, `.sa`, `.ans`, `.asa` and `.ks` each draw their
-form. Bind a company to read its abbreviation from the same pick: `{/nb_NO.company as c}{c.legal}` prints the
-`AS` of `Nordicvik Holding AS`, and nothing for an ENK.
-
-A name has a shape that the register's names of its form have, such as a coined word and a trade word, or a
-last name and a trade word, in the proportions the register has them. A last or first name is drawn from
-`nb_NO.last-name` or `nb_NO.first-name`. A sole proprietor's name always holds a last name, as
-foretaksnavneloven § 2-2 requires. A trade word names a line of business, like `Holding` or `Eiendom`, and
-`company-word` holds those that 100 or more of the register's names carry. A coined word is made up:
-`company-coined` joins a root that 60 or more names begin with, such as `Nordic`, to an ending that 40 or more
-words of `geo/NO`'s place names share, such as `vik`. Where the register's names hold a postal town
-(poststed) or a municipality (kommune), the shape draws a poststed from `geo.NO.locality`, as in
-`Hamar Nordicdal AS`. A name is invented, and may also be a real
-company's.
-
-#### Norwegian phone numbers
-
-`nb_NO.phone` is a mobile number ten times as often as a fixed one. Norway has no area codes, so
-both have eight digits. The Language Council of Norway (Språkrådet) has written both in pairs
-since 22 May 2019, on its page «Tall, tid og dato»: `46 12 34 56`.
-
-`nb_NO.phone-mobile` and `nb_NO.phone-fixed` hold the first four digits, such as `46 12`, of the
-numbers in Nkom's E.164 register, downloaded on 2026-10-22. A prefix is a row only when Nkom has
-assigned all ten thousand numbers behind it to providers, as mobile or as fixed numbers. A row is
-selected by its prefix, `phone-fixed[56 12]`.
-
-A number's `block` is one of those prefixes and its `subscriber` the last four digits, such as
-`34 56`. A number is valid, not real: it lies in a block Nkom has assigned, and a real subscriber
-may hold it. A bound number reads `national`, `46 12 34 56`, and `international`,
-`+47 46 12 34 56`. The page names no country-code form, so fejkdata puts `+47` before the same pairs.
-
-#### Fødselsnummer
-
-`nb_NO.fodselsnummer` is Skatteetaten's synthetic series, the numbers of its test register. A
-number is the day, the month plus 80 and the year of birth, three individ digits and two check
-digits. The individ digits give the century. Skatteetaten assigns 000 to 499 to 1900 to 1999,
-500 to 749 to 1854 to 1899, 900 to 999 to 1940 to 1999 and 500 to 999 to 2000 to 2039; fejkdata
-draws 000 to 499 for 1940 to 1999 and 500 to 999 for 2000 to 2025, never on 29 February. Its
-`birth` draws three bands, 1940 to 1999, 2000 to 2019 and 2020 to 2025, each weighing its count of
-years, so every year from 1940 to 2025 is equally likely. The
-last individ digit is even for a woman and odd for a man. No real person holds a number from
-this series, and a checker that requires a month of 1 to 12 refuses it. A number is one of
-about 13 million, so a fixture of a few thousand rows starts to repeat one, and a `UNIQUE`
-column needs a category of your own.
-
-`nb_NO.birth-day` holds the 365 days of a year as `ddmm`, with 80 added to the month.
-`nb_NO.individ`, under `sex`, holds the five digits each sex's last individ digit can be. To
-make a number agree with the sex the template below binds as `s`, read the `birth` field of `nb_NO.fodselsnummer`, the
-date and the first individ digit, then `{fnr(x)}`, which completes the number from the third
-individ digit `x` reads:
-
-```json
-{ "format": "{first} {last}, {fnr}",
-  "first": "{/nb_NO.sex as s}{s.first-name}",
-  "last": "{/nb_NO.last-name}",
-  "fnr": "{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}" }
-```
-
-Renders e.g. `Kjersti Østrem, 07899027420`.
-
-### `fi_FI`
-
-`fi_FI`, Finnish, carries `address`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex` and `title`, built like `nb_NO`'s.
-`fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
-2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
-and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
-Population Data Services Agency ([DVV](https://dvv.fi/en)). A program showing those counts credits "Lähde: Digi- ja
-väestötietovirasto", and one showing the sex counts "Source: Statistics Finland".
-
-#### Henkilötunnus
-
-`fi_FI.henkilotunnus` is a Finnish personal identity code as DVV defines it on its page "Personal identity code",
-`ddmmyy`, a century sign, an individual number and a control character, such as `131052-9085`. Its individual
-number is from 900 to 999, which DVV issues to no one: its page "Personal identity code" says the numbers issued run
-from 002 to 899, and its test table on "Reform of personal identity code" holds codes with 902 to 904. A drawn number
-is no living person's, but a checker that treats endings from 900 as synthetic ("keinohenkilötunnus"), as the
-[Vero API FAQ on testing](https://www.vero.fi/tietoa-verohallinnosta/kehittaja/vero-api/yleiset-virhetilanteet-ja-ratkaisut/ukk/vero-api-testaus-onko-henkilotunnuksen-muodolle-jotain-tiettyja-vaatimuksia/) does, may apply more checks or refuse it. The sign is `+` for the 1800s, `-` for the 1900s and `A`
-for the 2000s; fejkdata doesn't draw the letters DVV has added for the 1900s and 2000s since 2023. The individual
-number is odd for a man and even for a woman, and the control character is the remainder of the nine digits of the date
-and the individual number divided by 31, read in DVV's table of `0` to `9` and the letters `A` to `Y` without `G`,
-`I`, `O`, `Q` and `Z`. The date is of someone aged 0 to 99, drawn evenly within two bands that are weighted by [Statistics Finland](https://stat.fi/en/news/Finland-in-Figures-2026-ageing-Finland-is-visible-in-numbers)'s
-1,347,494 of 5,652,881 residents aged 65 or over at the end of 2025: 23.84% of the dates are of the band aged 65 to 99 and
-the rest of the band aged 0 to 64. A date of someone 100 or older is not drawn. The builtin `{hetu(x)}` completes a number
-after its date: it reads the last six digits emitted, takes the sign from the latest year not after the date of `--today`
-or `WithToday` that bears the year digits, then adds an individual number of the parity of the digit `x` reads and the
-control character, and renders nothing in the cases the Functions table lists. A fixture of a few
-thousand rows starts to repeat a number, and a `UNIQUE` column needs a category of your own.
-
-#### Matching a henkilötunnus to a chosen sex
-
-`fi_FI.individ`, under `sex`, holds one digit of each sex's parity. To make a number agree with the
-sex the template below binds as `s`, read the `birth` field of `fi_FI.henkilotunnus`, the date, then `{hetu(x)}` with the digit
-that `individ` gives:
-
-```json
-{ "format": "{first} {last}, {hetu}",
-  "first": "{/fi_FI.sex as s}{s.first-name}",
-  "last": "{/fi_FI.last-name}",
-  "hetu": "{/fi_FI.henkilotunnus.birth}{hetu(s.individ.digit)}" }
-```
-
-Renders e.g. `Eila Kirjavainen, 260163-9405`.
-
-#### Finnish phone numbers
-
-`fi_FI.phone` is a mobile number ten times as often as a fixed one: `040 234 5678`, or `09 234 5678`
-where it is fixed. Its `national` field is that form, and its `international` field is
-`+358 40 234 5678`, with the country code and without the 0 dialled before an area code. The
-subscriber number is split in two groups near its middle, as Traficom writes its own number,
-`+358 29 534 5000`; the regulation fixes only the digits.
-
-`fi_FI.phone-fixed` holds the area codes of the telecommunications areas in Traficom's Regulation
-32 V/2025 M, such as `09` for Uusimaa I, each with its `name`, its `ndc` (the code without the 0)
-and its `subscriber`. `fi_FI.phone-mobile` holds the mobile codes whose row in Annex 1 says `No`
-under Available ranges, such as `040` and `0451`. A row is selected by its code, `phone-fixed[09]`.
-A fixed number has 7 to 9 digits after the 0 and a mobile number 8 to 10, as Table 1 of the
-regulation gives, each length equally likely since the regulation publishes no frequency. A fixed
-subscriber number begins with 2 to 8, the ranges section 11 reserves for it. A number is valid, not
-real: a real subscriber may hold it. The tables leave out the mobile codes the plan assigns as five
-digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
-
-#### Finnish dates and emails
-
-`fi_FI.date` is a date from 1970 to 2029 in the Finnish spelling, day, month and year with dots and no zero before a
-one-digit day or month, such as `2.4.2019`; the Institute for the Languages of Finland (Kotus), in "Ajanilmaukset: päiväys ja
-vuosiluku" of its Kielitoimiston ohjepankki, says a number under ten needs no leading zero. `fi_FI.email` is built like
-`nb_NO.email`: half its local parts are a first and a last name from `fi_FI`'s names, with `ä`, `ö` and `å` folded to ASCII.
-
-#### Finnish companies
-
-`fi_FI.company` draws a legal form as often as Statistics Finland counted enterprises of it in 2024 (its table 13w6):
-sole trader (a natural person), limited company (`Oy`), limited partnership (`Ky`), general partnership (`Ay`) and
-co-operative (`osk`). A sole trader's name has no abbreviation after it, and the others end in theirs, such as
-`Pohjanniemi Rakennus Oy`. `fi_FI.company.tmi`, `.oy`, `.ky`, `.ay` and `.osk` each draw one form, and
-`{/fi_FI.company as c}{c.legal}` prints the abbreviation of the same pick, empty for a sole trader.
-No open bulk file of Finnish company names was found, so the name's shapes and the words of `company-coined` and
-`company-word` are a language model's recall. Each name is made of those words and `fi_FI`'s names. A name is
-invented, and may also be a real company's. A program showing the counts credits "Source: Statistics Finland".
+too, so a person's prefix never contradicts it.
 
 ### `da_DK`
 
-`da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
+`da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like [`nb_NO`'s](#nb_no):
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
 1 January 2026. Every other name is a language model's recall of a name common in Denmark: the commoner ones come first,
 from the most to the least common, and the rarer ones share one weight. These weights are estimates. A program showing the
 top 20 counts or the sex counts credits "Kilde: Danmarks Statistik".
-
-#### Danish dates and emails
-
-`da_DK.date` is a date from 1970 to 2029 in the traditional Danish spelling, day, month and year with dots and no zero
-before a one-digit day or month, such as `2.4.2019`; the Danish Language Council (Dansk Sprognævn) advises against the
-zero. `da_DK.email` is built like `nb_NO.email`: half its local parts are a first and a last name from `da_DK`'s names,
-with `æ`, `ø` and `å` folded to ASCII.
-
-#### Danish companies
-
-`da_DK.company` draws a legal form as often as Statistics Denmark counted enterprises of it in 2024 (its table GF15):
-sole proprietorship (ENK), private limited company (`ApS`), public limited company (`A/S`), and `I/S` or `K/S`, which
-the table counts together as partnerships and limited partnerships, so they are drawn evenly. An ENK's name has no
-abbreviation after it, and the others end in theirs, such as `Nordholm Holding ApS`. `da_DK.company.enk`, `.aps`, `.as`,
-`.is` and `.ks` each draw one form, and `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick.
-No open bulk file of Danish company names was found, so the name's shapes and the words of `company-coined` and
-`company-word` are a language model's recall. Each name is made of those words, `da_DK`'s names and
-`geo.DK.locality`. A name is invented, and may also be a real company's.
 
 #### CPR number
 
@@ -1060,7 +728,7 @@ reads. The date comes from `born(0,99,…)`, so a date of someone 100 or older, 
 population, is not drawn. A fixture of a few thousand rows starts to repeat a number, and a
 `UNIQUE` column needs a category of your own.
 
-#### Matching a CPR number to a chosen sex
+#### CPR number matched to a sex
 
 `da_DK.individ`, under `sex`, holds one digit of each sex's parity. To make a number agree with the
 sex the template below binds as `s`, read the `birth` field of `da_DK.cpr`, the date, then `{cpr(x)}` with the digit that
@@ -1074,6 +742,24 @@ sex the template below binds as `s`, read the `birth` field of `da_DK.cpr`, the 
 ```
 
 Renders e.g. `Bodil Holm, 141062-2730`.
+
+#### Danish companies
+
+`da_DK.company` draws a legal form as often as Statistics Denmark counted enterprises of it in 2024 (its table GF15):
+sole proprietorship (ENK), private limited company (`ApS`), public limited company (`A/S`), and `I/S` or `K/S`, which
+the table counts together as partnerships and limited partnerships, so they are drawn evenly. An ENK's name has no
+abbreviation after it, and the others end in theirs, such as `Nordholm Holding ApS`. `da_DK.company.enk`, `.aps`, `.as`,
+`.is` and `.ks` each draw one form, and `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick.
+No open bulk file of Danish company names was found, so the name's shapes and the words of `company-coined` and
+`company-word` are a language model's recall. Each name is made of those words, `da_DK`'s names and
+`geo.DK.locality`. A name is invented, and may also be a real company's.
+
+#### Danish dates and emails
+
+`da_DK.date` is a date from 1970 to 2029 in the traditional Danish spelling, day, month and year with dots and no zero
+before a one-digit day or month, such as `2.4.2019`; the Danish Language Council (Dansk Sprognævn) advises against the
+zero. `da_DK.email` is built like `nb_NO.email`: half its local parts are a first and a last name from `da_DK`'s names,
+with `æ`, `ø` and `å` folded to ASCII.
 
 #### Danish phone numbers
 
@@ -1100,6 +786,8 @@ number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
 ### `en_US`
 
+The categories it carries are listed under [Locale categories](#locale-categories).
+
 #### English words
 
 `en_US.word` draws evenly from about 70,000 words of WordNet 3.0, Princeton's English dictionary: the nouns,
@@ -1122,89 +810,88 @@ which draws evenly from the codes the North American Numbering Plan Administrati
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
 `976`.
 
-### `misc`
+### `fi_FI`
 
-`misc` carries `car`, `coordinate`, `creditcard`
-(Luhn-valid), `creditcard-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
-`httpstatus`, `iban-test`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
-severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
-3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent` and `uuid` (v4). Many
-carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
-`misc.httpstatus.code` — which `--list` shows. `car`, `creditcard-test`, `currency`, `httpmethod`,
-`httpstatus`, `iban-test`, `language`, `loglevel`, `mimetype`, `port`, `protocol`, `territory`,
-`timezone`, `tld` and `useragent` are [tables](#table), so
-`misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
-`useragent` carry no key or name, so they are drawn from rather than selected in.
+`fi_FI`, Finnish, carries `address`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex` and `title`, built like [`nb_NO`'s](#nb_no).
+`fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
+2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
+and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
+Population Data Services Agency ([DVV](https://dvv.fi/en)). A program showing those counts credits "Lähde: Digi- ja
+väestötietovirasto", and one showing the sex counts "Source: Statistics Finland".
 
-#### Credit cards and IBANs
+#### Finnish companies
 
-A drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real: it passes the Luhn check or
-the IBAN's mod-97 check, and a real card or account may hold it. `misc.creditcard-test` and
-`misc.iban-test` draw only numbers published for testing: Stripe's test card for each brand
-(`visa`, `mastercard`, `amex`, `discover`, `diners`, `jcb`, `unionpay`) and Stripe's test IBAN for
-each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK. Each key holds one
-number, so there are seven cards and seven IBANs, and `{/misc.creditcard-test[visa]}` always prints
-`4242424242424242` and `{/misc.iban-test[SE]}` `SE3550000000054910000003`.
+`fi_FI.company` draws a legal form as often as Statistics Finland counted enterprises of it in 2024 (its table 13w6):
+sole trader (a natural person), limited company (`Oy`), limited partnership (`Ky`), general partnership (`Ay`) and
+co-operative (`osk`). A sole trader's name has no abbreviation after it, and the others end in theirs, such as
+`Pohjanniemi Rakennus Oy`. `fi_FI.company.tmi`, `.oy`, `.ky`, `.ay` and `.osk` each draw one form, and
+`{/fi_FI.company as c}{c.legal}` prints the abbreviation of the same pick, empty for a sole trader.
+No open bulk file of Finnish company names was found, so the name's shapes and the words of `company-coined` and
+`company-word` are a language model's recall. Each name is made of those words and `fi_FI`'s names. A name is
+invented, and may also be a real company's. A program showing the counts credits "Source: Statistics Finland".
 
-#### Registries
+#### Finnish dates and emails
 
-`misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
-`misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
-other entries, WebDAV and DeltaV among them, do not ship. Its `safe` and
-`idempotent` are `true` or `false`, so a Go `bool` reads them, though `--format json`
-and `sql` write them as text, a table column carrying no datatype. `misc.protocol`
-carries a `number` and a `name`, the keyword itself where the register spells none out,
-and selects by either spelling.
-`misc.port` is the TCP assignments, rendering the number a port field holds with the
-IANA `service` beside it, and selecting by number alone. A draw spans the whole
-register, so pin `misc.port[443]` where a fixture needs a port a reader recognises;
-it stops at 49150, IANA assigning nothing above, so an ephemeral source port is
-`{int(49152,65535)}`.
-`misc.tld` is the root zone's delegated TLDs, keyed with the leading dot
-`misc.territory.tld` already carries, `.se`. Its `type` is the register's —
-`country-code`, `generic`, `generic-restricted`, `infrastructure` or `sponsored` — and
-its `unicode` the form the register displays, `.рф` for `.xn--p1ai` and the key itself
-for an ASCII one, which selects the row too, so `misc.tld[.рф]` renders `.xn--p1ai`. A
-draw spans the whole zone, `.arpa` and `.zuerich` alike, so pin `misc.tld[.com]` where
-a fixture needs one a reader recognises.
-`misc.loglevel` is the eight syslog severities, rendering the keyword a configuration
-writes, `err` and `info`, keyed by the numerical code a PRI encodes and selectable by
-either, so `misc.loglevel[3]` and `misc.loglevel[err]` are one row.
-`misc.loglevel.severity` is the name RFC 5424 spells, `Error` beside `err`; it
-selects nothing, the code and the keyword do.
+`fi_FI.date` is a date from 1970 to 2029 in the Finnish spelling, day, month and year with dots and no zero before a
+one-digit day or month, such as `2.4.2019`; the Institute for the Languages of Finland (Kotus), in "Ajanilmaukset: päiväys ja
+vuosiluku" of its Kielitoimiston ohjepankki, says a number under ten needs no leading zero. `fi_FI.email` is built like
+`nb_NO.email`: half its local parts are a first and a last name from `fi_FI`'s names, with `ä`, `ö` and `å` folded to ASCII.
 
-#### Time zones
+#### Finnish phone numbers
 
-`misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
-of them to dozens for the largest, weighted by the population GeoNames records in each,
-so `misc.territory[US].timezone` draws `America/New_York` far more often than
-`America/Nome`. It links to `misc.territory`, so `misc.territory[SE].timezone` is
-`Europe/Stockholm` and a drawn territory and zone agree. Its `offset` is the zone's
-*standard* offset, so do not pair it with a drawn `misc.datetime`: in a zone that
-observes DST it is the wrong one half the year, which is what storing a zone name
-avoids. A zone tzdb named recently — `Europe/Kyiv`, `America/Ciudad_Juarez` — is
-rejected outright by a consumer resolving it against older tzdata, so where the
-consumer validates the zone, pin one rather than draw it. There is no `UTC` row, tzdb
-giving that name no territory — spell it as the text `"UTC"`. `misc.useragent` carries
-`browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`,
-until an international source replaces them.
+`fi_FI.phone` is a mobile number ten times as often as a fixed one: `040 234 5678`, or `09 234 5678`
+where it is fixed. Its `national` field is that form, and its `international` field is
+`+358 40 234 5678`, with the country code and without the 0 dialled before an area code. The
+subscriber number is split in two groups near its middle, as Traficom writes its own number,
+`+358 29 534 5000`; the regulation fixes only the digits.
 
-#### Territories
+`fi_FI.phone-fixed` holds the area codes of the telecommunications areas in Traficom's Regulation
+32 V/2025 M, such as `09` for Uusimaa I, each with its `name`, its `ndc` (the code without the 0)
+and its `subscriber`. `fi_FI.phone-mobile` holds the mobile codes whose row in Annex 1 says `No`
+under Available ranges, such as `040` and `0451`. A row is selected by its code, `phone-fixed[09]`.
+A fixed number has 7 to 9 digits after the 0 and a mobile number 8 to 10, as Table 1 of the
+regulation gives, each length equally likely since the regulation publishes no frequency. A fixed
+subscriber number begins with 2 to 8, the ranges section 11 reserves for it. A number is valid, not
+real: a real subscriber may hold it. The tables leave out the mobile codes the plan assigns as five
+digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
 
-The table is called `territory` because ISO 3166-1 codes territories, not sovereign
-states: Greenland and Åland have codes of their own. `misc.territory.sovereign` names the
-state a territory belongs to: `DK` for Greenland, `FI` for Åland. A sovereign state names
-itself, and so does a territory its source names no state for, such as Western Sahara, `EH`.
+#### Henkilötunnus
 
-### The `geo` namespace
+`fi_FI.henkilotunnus` is a Finnish personal identity code as DVV defines it on its page "Personal identity code",
+`ddmmyy`, a century sign, an individual number and a control character, such as `131052-9085`. Its individual
+number is from 900 to 999, which DVV issues to no one: its page "Personal identity code" says the numbers issued run
+from 002 to 899, and its test table on "Reform of personal identity code" holds codes with 902 to 904. A drawn number
+is no living person's, but a checker that treats endings from 900 as synthetic ("keinohenkilötunnus"), as the
+[Vero API FAQ on testing](https://www.vero.fi/tietoa-verohallinnosta/kehittaja/vero-api/yleiset-virhetilanteet-ja-ratkaisut/ukk/vero-api-testaus-onko-henkilotunnuksen-muodolle-jotain-tiettyja-vaatimuksia/) does, may apply more checks or refuse it. The sign is `+` for the 1800s, `-` for the 1900s and `A`
+for the 2000s; fejkdata doesn't draw the letters DVV has added for the 1900s and 2000s since 2023. The individual
+number is odd for a man and even for a woman, and the control character is the remainder of the nine digits of the date
+and the individual number divided by 31, read in DVV's table of `0` to `9` and the letters `A` to `Y` without `G`,
+`I`, `O`, `Q` and `Z`. The date is of someone aged 0 to 99, drawn evenly within two bands that are weighted by [Statistics Finland](https://stat.fi/en/news/Finland-in-Figures-2026-ageing-Finland-is-visible-in-numbers)'s
+1,347,494 of 5,652,881 residents aged 65 or over at the end of 2025: 23.84% of the dates are of the band aged 65 to 99 and
+the rest of the band aged 0 to 64. A date of someone 100 or older is not drawn. The builtin `{hetu(x)}` completes a number
+after its date: it reads the last six digits emitted, takes the sign from the latest year not after the date of `--today`
+or `WithToday` that bears the year digits, then adds an individual number of the parity of the digit `x` reads and the
+control character, and renders nothing in the cases the Functions table lists. A fixture of a few
+thousand rows starts to repeat a number, and a `UNIQUE` column needs a category of your own.
 
-The `geo` namespace holds one tree per country under its alpha-2 code: five
-[linked tables](#linked-tables) named alike, and an `address` record binding one locality
-and drawing its street and postal code inside it. The locale's `address` prints that
-record, and each of its columns describes the address printed. Do not assert that a Swedish
-street lies in its postort: GeoNames gives a postal code a point and a postort no area, so the import
-places each road segment by distance, leaning towards the postort a tätort is named after, and
-a street may sit under a neighbouring one.
+#### Henkilötunnus matched to a sex
+
+`fi_FI.individ`, under `sex`, holds one digit of each sex's parity. To make a number agree with the
+sex the template below binds as `s`, read the `birth` field of `fi_FI.henkilotunnus`, the date, then `{hetu(x)}` with the digit
+that `individ` gives:
+
+```json
+{ "format": "{first} {last}, {hetu}",
+  "first": "{/fi_FI.sex as s}{s.first-name}",
+  "last": "{/fi_FI.last-name}",
+  "hetu": "{/fi_FI.henkilotunnus.birth}{hetu(s.individ.digit)}" }
+```
+
+Renders e.g. `Eila Kirjavainen, 260163-9405`.
+
+### `geo`
+
+The `geo` namespace holds one tree per country under its alpha-2 code: five [linked tables](#linked-tables) named alike, and an `address` record binding one locality and drawing its street and postal code inside it. The locale's `address` prints that record, and each of its columns describes the address printed.
 
 | Table | `geo.DK` | `geo.FI` | `geo.NO` | `geo.SE` | `geo.US` | Weight |
 |-------|----------|----------|----------|----------|----------|--------|
@@ -1213,6 +900,10 @@ a street may sit under a neighbouring one.
 | `locality` | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | postitoimipaikka, by name: every one with a street in Posti's basic address file under a normal postinumero with residents | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; FI: its postinumerot's residents; SE: tätort population, the kommun's where the postort names it, the småort's where one holds the postort's centre, else 200; US: place population |
 | `postal-code` | postnummer with a street address, by code | normal postinumero with a street and residents, by code | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DK and NO: addresses; FI: residents in Statistics Finland's Paavo; SE: one; US: address ranges |
 | `street` | street name, every one in Danmarks Adresseregister | street name, every one [`geo-fi.py`](data-import/geo-fi.py)'s `street_name` accepts, with its `swedish-name` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DK and NO: addresses; FI: ranges in Posti's basic address file; SE: segments; US: address ranges |
+
+#### Across countries
+
+What ports across countries is the five table names, the `name` column, selection by name, and the `address` record's columns `street`, `street-number`, `postal-code` and `locality`; every other column is the country's own, `code` on a Swedish region but `abbr` on a US one.
 
 #### Danish places
 
@@ -1242,20 +933,334 @@ Kommuner that share a name keep Statistics Norway's fylke in brackets, `Herøy (
 `Herøy (Møre og Romsdal)`, so each name selects one. A Norwegian street sits under each poststed
 where it has an address.
 
-#### Selecting a place
+#### Swedish places
 
-`geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
-`geo.SE.locality[Lund].street` a street in Lund, and
+`geo.SE.region[Skåne län].municipality` draws a kommun in Skåne, `geo.SE.locality[Lund].street` a street in Lund.
+
+Do not assert that a Swedish street lies in its postort: GeoNames gives a postal code a point and a postort no area, so the import places each road segment by distance, leaning towards the postort a tätort is named after, and a street may sit under a neighbouring one.
+
+#### US places
+
 `geo.US.region[IL].locality[Springfield]` settles which Springfield. The US places come
 from the incorporated places that hold most of some postal code's land: a tenth of them,
 drawn with odds by population, every state capital but Honolulu, and every place of
 100,000 or more. A smaller city may be missing, so look one up in
 [`locality.tsv`](data/geo/US/locality.tsv) before selecting it. A region row
 carries its `timezone`, the state's predominant zone, and a locality its `lat` and
-`lon`. What ports across countries is the five table names, the `name` column,
-selection by name, and the `address` record's columns `street`, `street-number`,
-`postal-code` and `locality`; every other column is the country's own, `code` on a
-Swedish region but `abbr` on a US one.
+`lon`.
+
+### `misc`
+
+`misc` carries `car`, `coordinate`, `creditcard`
+(Luhn-valid), `creditcard-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
+`httpstatus`, `iban-test`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
+severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
+3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent` and `uuid` (v4). Many
+carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
+`misc.httpstatus.code` — which `--list` shows. `car`, `creditcard-test`, `currency`, `httpmethod`,
+`httpstatus`, `iban-test`, `language`, `loglevel`, `mimetype`, `port`, `protocol`, `territory`,
+`timezone`, `tld` and `useragent` are [tables](#table), so
+`misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
+`useragent` carry no key or name, so they are drawn from rather than selected in.
+`misc.useragent` carries `browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`, until an international source replaces them.
+
+#### Credit cards and IBANs
+
+A drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real: it passes the Luhn check or
+the IBAN's mod-97 check, and a real card or account may hold it. `misc.creditcard-test` and
+`misc.iban-test` draw only numbers published for testing: Stripe's test card for each brand
+(`visa`, `mastercard`, `amex`, `discover`, `diners`, `jcb`, `unionpay`) and Stripe's test IBAN for
+each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK. Each key holds one
+number, so there are seven cards and seven IBANs, and `{/misc.creditcard-test[visa]}` always prints
+`4242424242424242` and `{/misc.iban-test[SE]}` `SE3550000000054910000003`.
+
+#### Registry tables
+
+`misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
+`misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
+other entries, WebDAV and DeltaV among them, do not ship. Its `safe` and
+`idempotent` are `true` or `false`, so a Go `bool` reads them, though `--format json`
+and `sql` write them as text, a table column carrying no datatype. `misc.protocol`
+carries a `number` and a `name`, the keyword itself where the register spells none out,
+and selects by either spelling.
+`misc.port` is the TCP assignments, rendering the number a port field holds with the
+IANA `service` beside it, and selecting by number alone. A draw spans the whole
+register, so pin `misc.port[443]` where a fixture needs a port a reader recognises;
+it stops at 49150, IANA assigning nothing above, so an ephemeral source port is
+`{int(49152,65535)}`.
+`misc.tld` is the root zone's delegated TLDs, keyed with the leading dot
+`misc.territory.tld` already carries, `.se`. Its `type` is the register's —
+`country-code`, `generic`, `generic-restricted`, `infrastructure` or `sponsored` — and
+its `unicode` the form the register displays, `.рф` for `.xn--p1ai` and the key itself
+for an ASCII one, which selects the row too, so `misc.tld[.рф]` renders `.xn--p1ai`. A
+draw spans the whole zone, `.arpa` and `.zuerich` alike, so pin `misc.tld[.com]` where
+a fixture needs one a reader recognises.
+`misc.loglevel` is the eight syslog severities, rendering the keyword a configuration
+writes, `err` and `info`, keyed by the numerical code a PRI encodes and selectable by
+either, so `misc.loglevel[3]` and `misc.loglevel[err]` are one row.
+`misc.loglevel.severity` is the name RFC 5424 spells, `Error` beside `err`; it
+selects nothing, the code and the keyword do.
+
+#### Territories
+
+The table is called `territory` because ISO 3166-1 codes territories, not sovereign
+states: Greenland and Åland have codes of their own. `misc.territory.sovereign` names the
+state a territory belongs to: `DK` for Greenland, `FI` for Åland. A sovereign state names
+itself, and so does a territory its source names no state for, such as Western Sahara, `EH`.
+
+#### Time zones
+
+`misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
+of them to dozens for the largest, weighted by the population GeoNames records in each,
+so `misc.territory[US].timezone` draws `America/New_York` far more often than
+`America/Nome`. It links to `misc.territory`, so `misc.territory[SE].timezone` is
+`Europe/Stockholm` and a drawn territory and zone agree. Its `offset` is the zone's
+*standard* offset, so do not pair it with a drawn `misc.datetime`: in a zone that
+observes DST it is the wrong one half the year, which is what storing a zone name
+avoids. A zone tzdb named recently — `Europe/Kyiv`, `America/Ciudad_Juarez` — is
+rejected outright by a consumer resolving it against older tzdata, so where the
+consumer validates the zone, pin one rather than draw it. There is no `UTC` row, tzdb
+giving that name no territory — spell it as the text `"UTC"`.
+
+### `nb_NO`
+
+`nb_NO`, Norwegian in the Bokmål standard, carries `address`, `birth-day`, `company`, `company-coined`,
+`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `person`,
+`phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
+`fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
+`nb_NO.title[dr.]`.
+
+#### Fødselsnummer
+
+`nb_NO.fodselsnummer` is Skatteetaten's synthetic series, the numbers of its test register. A
+number is the day, the month plus 80 and the year of birth, three individ digits and two check
+digits. The individ digits give the century. Skatteetaten assigns 000 to 499 to 1900 to 1999,
+500 to 749 to 1854 to 1899, 900 to 999 to 1940 to 1999 and 500 to 999 to 2000 to 2039; fejkdata
+draws 000 to 499 for 1940 to 1999 and 500 to 999 for 2000 to 2025, never on 29 February. Its
+`birth` draws three bands, 1940 to 1999, 2000 to 2019 and 2020 to 2025, each weighing its count of
+years, so every year from 1940 to 2025 is equally likely. The
+last individ digit is even for a woman and odd for a man. No real person holds a number from
+this series, and a checker that requires a month of 1 to 12 refuses it. A number is one of
+about 13 million, so a fixture of a few thousand rows starts to repeat one, and a `UNIQUE`
+column needs a category of your own.
+
+`nb_NO.birth-day` holds the 365 days of a year as `ddmm`, with 80 added to the month.
+
+#### Fødselsnummer matched to a sex
+
+`nb_NO.individ`, under `sex`, holds the five digits each sex's last individ digit can be. To
+make a number agree with the sex the template below binds as `s`, read the `birth` field of `nb_NO.fodselsnummer`, the
+date and the first individ digit, then `{fnr(x)}`, which completes the number from the third
+individ digit `x` reads:
+
+```json
+{ "format": "{first} {last}, {fnr}",
+  "first": "{/nb_NO.sex as s}{s.first-name}",
+  "last": "{/nb_NO.last-name}",
+  "fnr": "{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}" }
+```
+
+Renders e.g. `Kjersti Østrem, 07899027420`.
+
+#### Norwegian companies
+
+`nb_NO.company` draws a legal form as often as the Brønnøysund Register Centre's Enhetsregisteret held
+active units of it on 2026-10-22: sole proprietorship (ENK), limited company (AS), and DA, SA, ANS, ASA and
+KS. An ENK's name has no abbreviation after it, and the others end in theirs, such as `Nordicvik Holding AS`.
+`nb_NO.company.as` draws only a limited company, and `.enk`, `.da`, `.sa`, `.ans`, `.asa` and `.ks` each draw their
+form. Bind a company to read its abbreviation from the same pick: `{/nb_NO.company as c}{c.legal}` prints the
+`AS` of `Nordicvik Holding AS`, and nothing for an ENK.
+
+A name has a shape that the register's names of its form have, such as a coined word and a trade word, or a
+last name and a trade word, in the proportions the register has them. A last or first name is drawn from
+`nb_NO.last-name` or `nb_NO.first-name`. A sole proprietor's name always holds a last name, as
+foretaksnavneloven § 2-2 requires. A trade word names a line of business, like `Holding` or `Eiendom`, and
+`company-word` holds those that 100 or more of the register's names carry. A coined word is made up:
+`company-coined` joins a root that 60 or more names begin with, such as `Nordic`, to an ending that 40 or more
+words of `geo/NO`'s place names share, such as `vik`. Where the register's names hold a postal town
+(poststed) or a municipality (kommune), the shape draws a poststed from `geo.NO.locality`, as in
+`Hamar Nordicdal AS`. A name is invented, and may also be a real
+company's.
+
+#### Norwegian dates and emails
+
+`nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
+Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
+or `example.net`, or a subdomain of one, and half of its local parts are a first and a last name drawn from
+`nb_NO.first-name` and `nb_NO.last-name` and folded to ASCII, `ø` to `o`, `å` to `a` and `æ` to `ae`. IANA reserves those domains, so no address reaches a real
+mailbox.
+
+#### Norwegian phone numbers
+
+`nb_NO.phone` is a mobile number ten times as often as a fixed one. Norway has no area codes, so
+both have eight digits. The Language Council of Norway (Språkrådet) has written both in pairs
+since 22 May 2019, on its page «Tall, tid og dato»: `46 12 34 56`.
+
+`nb_NO.phone-mobile` and `nb_NO.phone-fixed` hold the first four digits, such as `46 12`, of the
+numbers in Nkom's E.164 register, downloaded on 2026-10-22. A prefix is a row only when Nkom has
+assigned all ten thousand numbers behind it to providers, as mobile or as fixed numbers. A row is
+selected by its prefix, `phone-fixed[56 12]`.
+
+A number's `block` is one of those prefixes and its `subscriber` the last four digits, such as
+`34 56`. A number is valid, not real: it lies in a block Nkom has assigned, and a real subscriber
+may hold it. A bound number reads `national`, `46 12 34 56`, and `international`,
+`+47 46 12 34 56`. The page names no country-code form, so fejkdata puts `+47` before the same pairs.
+
+### `sv_SE`
+
+The categories it carries are listed under [Locale categories](#locale-categories).
+
+#### Bankgiro, plusgiro and bank accounts
+
+`sv_SE.bankgiro` draws a bankgiro number of seven or eight digits at even odds, `991-2346` or `5555-5551`, the last
+digit a Luhn check digit. `sv_SE.plusgiro` draws a plusgiro number of two to eight digits, the last a Luhn check
+digit, with a hyphen before it and the rest in pairs from the right, `12 34 56-6`. Wikipedia and convention give that
+length and spelling; no official page does.
+
+`sv_SE.bankaccount` draws a clearing number and an account number that passes the check its bank demands,
+`1522-8923497`. `{/sv_SE.bankaccount[5000]}` selects a clearing number, and a row's fields are `clearing`, `bank` and
+`number`. The clearing numbers and banks are those of Bankinfrastruktur i Sverige AB's list, and the checks are those
+of Bankgirot's "Bankernas kontonummer" of 2024-02-22. A Swedbank clearing number from `8000` to `8999` has a fifth
+digit that this category leaves out. The 15 clearing numbers `9565`–`9569` and `9600`–`9609` are not shipped, since
+that document doesn't publish their check.
+
+`bankgiro`, `plusgiro` and `bankaccount` draw valid numbers, not real ones: a number drawn may belong to a real
+account.
+
+#### Blood types
+
+`sv_SE.bloodtype` draws `A+`, `0-` and the six other types, spelled with the digit `0` as Swedish does, as
+often as sv.wikipedia's Blodgrupp article gives them for Sweden: `A+` is the commonest, at 37 percent. The
+shares are real.
+
+#### Cars
+
+`sv_SE.car` is a make and a model, `Volvo XC60`, weighted by Mobility Sweden's registrations of new
+passenger cars in 2025. It holds the 119 models with 500 or more registrations, as Mobility Sweden groups
+them: `EX/XC40` is two models in one row. A model is real, spelled as its maker writes it, and the shares
+are those of 2025's new cars, not of the cars on the road.
+
+#### Industries and occupations
+
+`sv_SE.sni` is SCB's SNI 2025 industry classification at its finest level, 835 five-digit codes, and
+`sv_SE.ssyk` its SSYK 2012 occupation classification at four digits, 429 codes. Each is selected by its
+code: `{/sv_SE.sni[62.100].name}` is `Dataprogrammering` and `{/sv_SE.ssyk[2512].name}` is
+`Mjukvaru- och systemutvecklare m.fl.`. A draw picks a code evenly and prints it with its label,
+`62.100 Dataprogrammering`. Both are real.
+
+#### Licence plates
+
+`sv_SE.licenseplate` draws a registration number, `ABC 123` or `ABC 12A` at even odds, in its fields `old` and
+`current`. It is valid, not real: a drawn plate has the shape of a Swedish one and may be on a real car. Its three
+letters come from `licenseplate-letters`, every combination of the 23 letters plates use (no I, Q or V) but
+the 99 that Transportstyrelsen's page listed as blocked in March 2026 and no longer lists, such as `APA` and `XXX`.
+The last character of `ABC 12A` is any of those letters but O. The numbers run from `001` to `999`, and from `00` to `99`
+in `ABC 12A`. The forms, letters and numbers are those of sv.wikipedia's article on Swedish plates, which
+Transportstyrelsen's pages do not confirm.
+
+#### Months, weekdays, holidays and territories
+
+`sv_SE.month` and `sv_SE.weekday` are Unicode CLDR's Swedish names. `{/sv_SE.month[1]}` is `januari` and
+`[12]` is `december`; `{/sv_SE.weekday[1]}` is `måndag` and `[7]` is `söndag`, Monday first as ISO 8601
+numbers them. `sv_SE.holiday` holds the thirteen public holidays that lag (1989:253) names, each selected by a
+code in lower case ASCII with hyphens, `{/sv_SE.holiday[nationaldagen]}` or `[forsta-maj]`. It leaves out the
+law's entry for every Sunday, and holds no dates, since seven of the holidays move from year to year.
+`sv_SE.territory` is the Swedish name of each `misc.territory` row, selected by its alpha-2 code:
+`{/sv_SE.territory[DE]}` is `Tyskland`. All four are real names.
+
+#### Organisationsnummer and VAT numbers
+
+A bound `organisationsnummer`
+has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
+
+#### Person
+
+`sv_SE.person` draws one invented birth date from the four age bands, and its `birthdate`, `personnummer` and
+`samordningsnummer` read it. Both numbers spell the person's sex from the same test series, with the limits
+above, and the samordningsnummer adds 60 to the day, so `{/sv_SE.person as p}{p.birthdate} {p.personnummer} {p.samordningsnummer}` renders e.g.
+`1932-04-16 320416-2394 320476-2391`.
+
+#### Personnummer and samordningsnummer
+
+A `personnummer`'s birth number, `sv_SE.birth-number` under `sex`, is Skatteverket's test series, 238 for a woman and 239 for a man, which no real person is ever given.
+
+`sv_SE.personnummer` and `sv_SE.personnummer-12` draw four age bands as often as SCB counted them in Sweden
+at the end of 2024, and a birthdate evenly inside each: 20.36% aged 0–17, 58.80% aged 18–64, 20.81% aged
+65–99 and 0.028% aged 100 to 113, the oldest age validated in Sweden. Ages count as [`born`](#functions)
+counts them, from the date given to `WithToday` or `--today`, so what a seed draws changes with that date. The short form spells `-`, and `+` from
+the year the holder turns 100, as folkbokföringslagen 18 § states: with today at 2026-11-04, a birth in 1926
+or earlier carries the `+`. A date before 2013 can draw a birth before 1900, where the test series
+holds other birth numbers, 980 and 981 among them, so such a number is outside the series. A birth in a
+year Skatteverket hasn't published yet is outside it too; it adds the coming year each December.
+`sv_SE.samordningsnummer` draws a date from 1930 to 2025 and always spells `-`, since lag (2022:1697), the
+law that governs it, states no `+`.
+
+Skatteverket's test series is small: a personnummer is one of about 83,000 values, a day in the 114 years up to the given date against the two birth numbers, so a fixture past a few hundred rows repeats one and a `UNIQUE` column needs a category of your own.
+
+#### Personnummer and samordningsnummer, twelve digits
+
+`sv_SE.personnummer-12` and `sv_SE.samordningsnummer-12` draw a personnummer and a samordningsnummer as twelve
+digits, the century first and no hyphen, `199001012385`: the form many systems store. As in the short form, the Luhn
+check digit covers the last ten digits, which `sv_SE.samordningsnummer-12`'s field `ten` holds.
+
+#### Personnummer matched to a sex
+
+To choose the sex, assemble the person from the tables — `sex[f].first-name` beside
+`last-name`. `sv_SE.personnummer` draws its own sex, so where that name and a number must
+agree, read both through one bound `sex`, `{/sv_SE.sex[f] as s}` for a woman:
+
+```json
+{ "format": "{first} {last}, {pnr}",
+  "first": "{/sv_SE.sex as s}{s.first-name}",
+  "last": "{/sv_SE.last-name}",
+  "pnr": [
+    { "format": "{born(0,99,'060102')}-{s.birth-number.number}{luhn()}", "weight": 99.972 },
+    { "format": "{born(100,113,'060102')}+{s.birth-number.number}{luhn()}", "weight": 0.028 }
+  ] }
+```
+
+Renders e.g. `Anne Grönberg, 011012-2389`. Each item of `pnr` spells its own separator, so a birthdate
+of `born(100,…)` carries the `+`.
+
+#### Swedish companies
+
+`sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
+enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
+förening and kommanditbolag. It spells the form as the register's active companies do, so a handelsbolag
+reads `Handelsbolag`, `Handelsbolaget` or `handelsbolag`, never `HB`. Bind a company to read its legal-form word from the same pick:
+`{/sv_SE.company as c}{c} ({c.legal})` prints `Solvik Bygg AB (AB)` or
+`Handelsbolaget Solvik (Handelsbolaget)`, and `()` for an enskild näringsidkare.
+The name has a shape those companies' names have, such as a made-up
+word and a trade word like `Bygg` or `Holding`, or a surname and a trade word. `company-word` holds the
+trade words that 100 or more of the register's names carry, and `company-coined` the made-up words.
+A name is invented, and may also be a real company's.
+
+#### Swedish phone numbers
+
+`sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
+area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
+Swedish Post and Telecom Authority's (PTS) numbering plan of 2024-01-08. A row is selected by the
+code as Swedes write it, `phone-area[08]`, and carries its `ndc`, the code without the trunk `0`
+that international dialling uses (`8`), and the `name` of its place.
+
+The rest of a fixed number comes from `sv_SE.phone-subscriber`. It has any length the plan allows
+that area code, five to eight digits, and is grouped as Språkrådet writes it, such as `08-16 01 01`
+and `031-668 01 50`. No subscriber number starts with the trunk `0`. A number is valid, not real: it
+follows the plan, and a real subscriber may hold it. A bound number reads `national`,
+`070-123 45 67`, and `international`, `+46 70 123 45 67`.
+
+#### Swedish words
+
+`sv_SE.word` draws evenly from about 108,000 words of SALDO, Språkbanken's Swedish dictionary.
+SALDO has no frequencies, so a word may be rare. `sv_SE.word.noun`, `.verb`, `.adj` and `.adv` each
+draw one part of speech. `sv_SE.word.noun.definite`, `sv_SE.word.verb.present` and
+`sv_SE.word.adj.definite` each draw a word and print one form of it, such as `huset`, `springer` or
+`stora`. To read a word and its form from one pick, bind it: `{/sv_SE.word.noun as n}{n} {n.definite}`
+prints `hus huset`.
+
+The import drops the words on LDNOOBW's Swedish list of rude words, and other rude words remain, so
+read the output before showing it to anyone. `sv_SE.sentence` fills a fixed pattern with these words
+and doesn't make them agree, so its sentences aren't grammatical.
 
 ## Data format
 
@@ -2501,7 +2506,7 @@ A pull request that adds a locale ships, in this order:
    [the paragraph on a change to the shipped data](#development) says.
 4. A raised `base` in `TestNoNewAllocRegression` (`perf_test.go`), where the new manifest paths
    take `New` past its 10% slack.
-5. Its README text: a paragraph under Data, and its name in the "Data built in" bullet.
+5. Its README text: a `###` section under Data, with a `####` heading per feature, and its name in the "Data built in" bullet.
 6. A `CHANGELOG.md` entry under `Unreleased`.
 7. A [`DATA-LICENSES.md`](DATA-LICENSES.md) entry for each dataset the locale adds.
 
