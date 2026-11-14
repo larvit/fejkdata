@@ -30,7 +30,10 @@ func refuseTwiceDrawn(nr nameRead) error {
 //
 // Two fields of a template that isn't a choice do none of these.
 func readTwiceApart(pick pickReads, x, y route) bool {
-	shared, _ := x.deepestShared(y)
+	shared, share := x.deepestShared(y)
+	if !share {
+		return false
+	}
 	_, landed := pick.landingOn(shared)
 	endsOnShared := x.landsOn(shared) && y.landsOn(shared) || landed
 	return x.drawsDownTo(shared, endsOnShared)
