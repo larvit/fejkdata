@@ -1210,8 +1210,9 @@ inherit both terms. So that country's `address` draws an invented street: names 
 language model's recall, each weighing the same, as the project principle for `da_DK.company`
 states. A half address helps no one, and an invented street is better than none. The
 README's Data section says beside each such country that its streets are invented.
-`todo.md` item 474 builds the fallback. It works against goal 3 until `todo.md` item 218 gives those countries their real streets. Valid
-until the maintainer accepts ODbL data, or the country opens a register.
+`todo.md` item 474 builds the fallback. Goal 3 allows invented values but ranks them after
+real ones, so a country's streets offer one kind until `todo.md` item 218 gives it its real
+streets. Valid until the maintainer accepts ODbL data, or the country opens a register.
 
 ## The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
 
