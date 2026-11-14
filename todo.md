@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 487 | 0.6.0 |  |  | **Split every function in `internal/engine/load`'s `columnread.go`, `format.go`, `name.go` and `node.go` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 2 | 2.7 |
 | 488 | 0.6.0 |  |  | **Split every function in `internal/engine/load`'s `path.go`, `pathvalues.go`, `read.go`, `record.go`, `resolve.go`, `reword.go` and `table.go` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 2 | 2.7 |
 | 491 | 0.6.0 |  |  | **Split every function in `internal/engine/fence` and its package `names` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 2 | 2.7 |
 | 492 | 0.6.0 |  |  | **Split every function in `cli` and the root package until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 3 | code health by 1 | 2.0 |
@@ -20,7 +19,7 @@
 | 489 | 0.6.0 |  |  | **Split every function in `internal/grammar` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
 | 490 | 0.6.0 |  |  | **Split every function in `internal/builtinfunc` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
 | 493 | 0.6.0 |  |  | **Split every function in `internal/rows`, `internal/datafiles`, `internal/proven` and `internal/fejktest` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
-| 458 | 0.6.0 | 487, 488, 489, 490, 491, 492, 493, 494 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 6.5 |
+| 458 | 0.6.0 | 488, 489, 490, 491, 492, 493, 494 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 6.5 |
 | 217 | 0.7.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 332 | 0.7.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 331 | 0.7.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -247,10 +246,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 487. Split every function in `internal/engine/load`'s `columnread.go`, `format.go`, `name.go` and `node.go` until gocyclo counts it at 7 or under.
-
-Step 1 of item 458. Nine functions count 8 to 10: `columnsAt`, `onlyRead`, `checkFieldRead`, `bindNames`, `answerReads`, `compileChoice`, `compileTemplate`, `repeatOf` and `compileItem`. The comprehension seats found `answerReads` hard: a recursive closure threading `besideField`, where building the error outweighs the check. Make it easier to read, not only shorter. Check with `gocyclo -over 7 -ignore _test internal/engine/load`.
 
 ### 488. Split every function in `internal/engine/load`'s `path.go`, `pathvalues.go`, `read.go`, `record.go`, `resolve.go`, `reword.go` and `table.go` until gocyclo counts it at 7 or under.
 
