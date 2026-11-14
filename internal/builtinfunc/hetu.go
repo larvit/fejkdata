@@ -2,6 +2,8 @@ package builtinfunc
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -11,18 +13,37 @@ import (
 // digits of the date and the individual number divided by 31.
 const hetuControlCharacters = "0123456789ABCDEFHJKLMNPRSTUVWXY"
 
-// hetuIndividuals is how many individual numbers of one parity are in 900 to 999, which DVV issues
-// to no one: it issues 002 to 899.
-const hetuIndividuals = 50
+// hetuRange is a run of individual numbers: its lowest even number and how many it holds of one
+// parity.
+type hetuRange struct{ first, count int }
 
-func hetuArg(a []string) error {
+// DVV issues the individual numbers 002 to 899, and 900 to 999 to no one.
+var (
+	hetuUnissued = hetuRange{first: 900, count: 50}
+	hetuIssued   = hetuRange{first: 2, count: 449}
+)
+
+func hetuArgs(a []string) error {
+	if len(a) != 1 && len(a) != 2 {
+		return fmt.Errorf("hetu takes the digit of the sex's parity and an optional 'issued', got %d args", len(a))
+	}
 	if _, _, isCall := grammar.FuncCall(a[0]); isCall {
 		return errors.New("hetu takes the field or path that holds a digit of the sex's parity")
 	}
-	return nil
+	if len(a) == 1 || a[1] == "'issued'" {
+		return nil
+	}
+	if !quotedLayout(a[1]) {
+		return fmt.Errorf("hetu's range %s is not quoted; write '%s'", a[1], strings.Trim(a[1], `'"`))
+	}
+	return fmt.Errorf("hetu's range %s is not 'issued', the one range it takes beside its default of 900 to 999", a[1])
 }
 
-func hetuPrep([]string) Call {
+func hetuPrep(a []string) Call {
+	individuals := hetuUnissued
+	if len(a) == 2 {
+		individuals = hetuIssued
+	}
 	return func(s *drawstate.State, emitted string, operands []string) string {
 		if len(operands[0]) != 1 || operands[0][0] < '0' || operands[0][0] > '9' {
 			return ""
@@ -32,7 +53,7 @@ func hetuPrep([]string) Call {
 		if sign == 0 {
 			return ""
 		}
-		return hetuTail(date, sign, operands[0][0], s.IntN(hetuIndividuals))
+		return hetuTail(date, sign, operands[0][0], individuals, s.IntN(individuals.count))
 	}
 }
 
@@ -50,11 +71,11 @@ func hetuSign(thisYear, yy int) byte {
 	return 0
 }
 
-// hetuTail completes a henkilötunnus after its date: the sign, the pick-th individual number from
-// 900 whose parity is that of the digit parity, odd for a man and even for a woman, and the
-// control character.
-func hetuTail(date string, sign, parity byte, pick int) string {
-	individual := 900 + 2*pick
+// hetuTail completes a henkilötunnus after its date: the sign, the pick-th individual number of
+// individuals whose parity is that of the digit parity, odd for a man and even for a woman, and
+// the control character.
+func hetuTail(date string, sign, parity byte, individuals hetuRange, pick int) string {
+	individual := individuals.first + 2*pick
 	if (parity-'0')%2 == 1 {
 		individual++
 	}
