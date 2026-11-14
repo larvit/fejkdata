@@ -1831,7 +1831,7 @@ A street's `swedish-name` is the Swedish name Posti gives it most often in its p
 
 ## A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 
-2026-11-14, in the chunk that measured the cold start. Serves goal 12.1, that a render's cost grows only with the data it reaches. Revised the same day, after a study of bulk speed and data growth: loading by block, first built only if one pass left the CLI's first `en_US.address` at 100 ms or more, is now unconditional and covers every table larger than one block. Carried out by `todo.md` items 464, 465, 470, 471 and 472.
+2026-11-14, in the chunk that measured the cold start. Serves goals 12.1, that a render's cost grows only with the data it reaches, and 12.2, that the first value of any category appears in under 100 ms. Revised the same day, after a study of bulk speed and data growth: loading by block, first built only if one pass left the CLI's first `en_US.address` at 100 ms or more, is now unconditional and covers every table larger than one block. Carried out by `todo.md` items 464, 465, 470, 471 and 472.
 
 The first reach of a country's streets is the cost; `New` and every later draw are not. Measured at 12c96997 with Go 1.27.4 in a container: `New` took 0.3 ms with `en_US`'s modules and 1 to 2 ms with every shipped module, the library's first `en_US.address` took 126 to 142 ms and peaked near 80 MB, and its second took 20 µs. In the CLI, a name or a uuid took 5 to 7 ms; `en_US.address` took 150 ms and peaked near 80 MB, `geo.FI.address` 87 ms and 53 MB, `sv_SE.address` 75 ms and 37 MB, and `geo.NO.address` 48 ms. A CPU profile of 40 first draws put 72% in loading the tables a category reads and 13% in building the row lookup on the first draw. For `geo.US`'s 475,271 street rows, 10.8 MB under 1,716 localities, the phases were:
 
@@ -1862,7 +1862,7 @@ Valid while a shipped table is a TSV, and the shipped data may grow by several t
 
 ## Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, and a weighted draw stays a binary search over cumulative weights
 
-2026-11-14, from the study of bulk speed and data growth behind the decision above. Serves goal 1, the best fake-data tool, and goal 12, speed. Carried out by `todo.md` items 466, 467, 468, 469 and 473.
+2026-11-14, from the study of bulk speed and data growth behind the decision above. Serves goal 1, the best fake-data tool, and goal 12.3, a million rows in under 10 seconds on one CPU, scaling with the CPUs. Carried out by `todo.md` items 466, 467, 468, 469 and 473.
 
 Measured with Go 1.27.4 in a container on 16 CPUs, three runs each. A million rows is 1,048,576, written as CSV to a file: `en_US.person` took 2.95 to 3.25 s, `en_US.address` 6.3 to 7.0 s, `sv_SE.person` 9.4 s, and the README's eight-column `person.json` 13.3 to 13.7 s, 76 to 79 thousand rows a second. Every tool wrote the same ten-column US record: fejkdata ran at 79 to 85 thousand rows a second, gofakeit v7.18.4 at 426 to 465 thousand, faker-js 10.6.0 at 75 to 81 thousand, Mimesis 22.2.0 at 72 to 75 thousand and Faker 40.54.0 at 3.1 thousand. gofakeit's rows don't hold together (a city of Texas under the state WY); fejkdata's do. In a CPU profile of the README's record, garbage collection took about 19%, `mallocgc` 16%, string-keyed maps about 20% and the weighted draw 3.2%.
 

@@ -2310,8 +2310,15 @@ against each other in the order listed.
     1. **Maintain:** Every feature has its own heading.
     2. **Maintain:** Every example runs as a test and shows its output.
     3. **Maintain:** Each rule is stated in one place.
-12. **Maintain:** **It is fast enough that you never notice it with the shipped data.**
+12. **Achieve:** **It is fast enough that speed never rules it out: the first
+    value appears at once, and bulk output stays within reach of the fastest
+    general fake-data libraries, while every value stays linked and valid.**
     1. **Maintain:** A render's cost grows only with the data it reaches.
+    2. **Achieve:** The first value of any category appears in under 100 ms,
+       however much data ships.
+    3. **Achieve:** A million rows of a typical record take under 10 seconds on
+       one CPU and scale with the CPUs you give it. The README shows the
+       numbers beside other tools.
 
 ### Documentation
 
