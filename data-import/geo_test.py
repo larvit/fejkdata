@@ -152,19 +152,22 @@ class NormalCodes(unittest.TestCase):
 class SwedishPlaces(unittest.TestCase):
     KUNNAT = {"139": {"name": "Ii", "swedish-name": "Ijo", "region": "17"}}
 
+    def places(self, lines: list[str]) -> dict[str, str]:
+        return geo_fi.swedish_places(lines, geo_fi.normal_codes(lines, self.KUNNAT), self.KUNNAT)
+
     def test_a_postitoimipaikka_takes_the_swedish_name_posti_gives_it_written_as_a_place_name(self) -> None:
         lines = [pcf("00100", "HELSINKI", "1", "HELSINGFORS"), pcf("91101", "YLI-II", "1", "YLI-II"), pcf("10600", "INKOO AS", "1", "INGÅ ST")]
-        self.assertEqual(geo_fi.swedish_places(lines, self.KUNNAT), {"Helsinki": "Helsingfors", "Yli-Ii": "Yli-Ii", "Inkoo as": "Ingå st"})
+        self.assertEqual(self.places(lines), {"Helsinki": "Helsingfors", "Yli-Ii": "Yli-Ii", "Inkoo as": "Ingå st"})
 
     def test_a_postitoimipaikka_without_a_swedish_name_keeps_its_finnish_one(self) -> None:
-        self.assertEqual(geo_fi.swedish_places([pcf("04400", "JÄRVENPÄÄ", "1")], self.KUNNAT), {"Järvenpää": "Järvenpää"})
+        self.assertEqual(self.places([pcf("04400", "JÄRVENPÄÄ", "1")]), {"Järvenpää": "Järvenpää"})
 
     def test_a_postinumero_that_is_not_normal_names_nothing(self) -> None:
-        self.assertEqual(geo_fi.swedish_places([pcf("00101", "HELSINKI", "2", "HELSINGFORS")], self.KUNNAT), {})
+        self.assertEqual(self.places([pcf("00101", "HELSINKI", "2", "HELSINGFORS")]), {})
 
     def test_the_swedish_name_most_postinumerot_give_wins(self) -> None:
         lines = [pcf("00100", "HELSINKI", "1", "HELSINGFORS"), pcf("00101", "HELSINKI", "1", "HELSINGFORS"), pcf("00102", "HELSINKI", "1", "HELSINKI")]
-        self.assertEqual(geo_fi.swedish_places(lines, self.KUNNAT), {"Helsinki": "Helsingfors"})
+        self.assertEqual(self.places(lines), {"Helsinki": "Helsingfors"})
 
 
 class Mainland(unittest.TestCase):
