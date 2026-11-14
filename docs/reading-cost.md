@@ -1840,3 +1840,20 @@ Read most (opens and searches):
 - `CHANGELOG.md` 2
 - `data/en_US/itin.json` 1
 - `data/en_US/ssn.json` 1
+
+## Reading cost, chunk d241f13c6e45, finished 2026-11-14T16:47:31Z
+
+56113 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `compose.yaml` 3
+- `builtins_test.go` 2
+- `data/sv_SE/bankaccount.tsv` 2
+- `docs/research/research-sources-se.md` 2
+- `internal/builtinfunc/checksum.go` 2
+- `CHANGELOG.md` 1
+- `README.md` 1
+- `data/misc/iban-test.tsv` 1
+- `data/sv_SE/bankaccount.json` 1
+- `data/swedish_test.go` 1
