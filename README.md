@@ -1138,16 +1138,24 @@ may hold it. A bound number reads `national`, `46 12 34 56`, and `international`
 ### `nn_NO`
 
 `nn_NO`, Norwegian in the Nynorsk standard, carries `address`, `company`, `date`, `email`, `fodselsnummer`,
-`month`, `person`, `phone`, `title` and `weekday`. Names, places, streets, ids and phone numbers are spelled alike in
-both standards, so `nn_NO.person` draws `nb_NO`'s names, `nn_NO.fodselsnummer`, `nn_NO.phone`, `nn_NO.email` and
-`nn_NO.company` draw `nb_NO`'s, `nn_NO.address` prints `geo.NO.address`, and `nn_NO.date` is `nb_NO.date`'s spelling.
-`nn_NO.company` draws any legal form, and has no `.as` or `.enk` beside it. To make a number agree with a sex, bind
-`nb_NO.sex` as the [fødselsnummer matched to a sex](#fødselsnummer-matched-to-a-sex) section shows.
+`month`, `person`, `phone`, `title` and `weekday`. Both standards spell names, places, streets, ids and phone
+numbers alike, so `nn_NO` reads `nb_NO`'s data and `geo.NO`. It has no table of names, `sex`, `birth-day`,
+`individ` or phone prefixes, and none of `nb_NO.company`'s forms such as `.as`: read those from `nb_NO`.
+
+#### Persons, ids, contact details and companies
+
+`nn_NO.person`, `nn_NO.fodselsnummer`, `nn_NO.phone`, `nn_NO.email`, `nn_NO.company` and `nn_NO.date` draw what the
+`nb_NO` category of the same name draws, and are the same kind of value. `nn_NO.person` takes its prefix from
+`nn_NO.title`, and `nn_NO.address` prints `geo.NO.address`. Email local parts and company names hold Bokmål
+words, since no register of Nynorsk ones was found. To match a fødselsnummer to a sex, bind `nb_NO.sex` as
+[Fødselsnummer matched to a sex](#fødselsnummer-matched-to-a-sex) shows.
+
+#### Nynorsk months, weekdays and titles
 
 `nn_NO.month` and `nn_NO.weekday` are Unicode CLDR's Nynorsk names. `{/nn_NO.month[1]}` is `januar` and `[12]` is
 `desember`; `{/nn_NO.weekday[2]}` is `tysdag` and `[7]` is `søndag`, Monday first as ISO 8601 numbers them.
-`nn_NO.title` holds `dr.` and `professor`, the same words as `nb_NO.title`, and has no `parent`, so it is selected as
-`nn_NO.title[dr.]`. All of them are real names, apart from the persons, who are invented.
+`nn_NO.title` holds `dr.` and `professor`, and has no `parent`, so it is selected as `nn_NO.title[dr.]`.
+The month and weekday names are real.
 
 ### `sv_SE`
 
@@ -2430,7 +2438,7 @@ REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
 A shipped table built from a source is rebuilt by its script under
 [`data-import/`](data-import), one command per dataset, from the source named in
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Run the block below in order: some scripts
-read a table another one writes. `cldr-sv.py` and `timezone.py` read
+read a table another one writes. `cldr.py` and `timezone.py` read
 `misc/territory.tsv`. `company-se.py` reads the sv_SE names and `geo/SE`, and
 `company-no.py` reads the nb_NO names and `geo/NO`.
 
@@ -2463,7 +2471,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/bankaccount-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/car-se.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr-sv.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
