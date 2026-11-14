@@ -447,35 +447,41 @@ func TestATableFormatReadingAColumnTwiceLoadsBesideAReadOfThatColumn(t *testing.
 }
 
 func TestAReadOfATableRowIsRefusedWhereACellDrawsAfreshAColumnAnotherReadReadsFromThePick(t *testing.T) {
-	files := map[string]string{
-		"place.json": `{"format":"{zip}/{tag}","rows":"place.tsv","key":"name"}`,
-		"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(4)}\t{/place.zip}\n",
-	}
-	for label, c := range map[string]struct{ card, want string }{
-		"the cell's column and the column it draws":   {`"{/place as n}{n.tag} {n.zip}"`, "{n.zip}"},
-		"the whole row and the column the cell draws": {`"{/place as n}{n} {n.zip}"`, "{n.zip}"},
+	for label, c := range map[string]struct{ cell, card, want string }{
+		"the cell's column and the column it draws":       {"{/place.zip}", `"{/place as n}{n.tag} {n.zip}"`, "{n.zip}"},
+		"the whole row and the column the cell draws":     {"{/place.zip}", `"{/place as n}{n} {n.zip}"`, "{n.zip}"},
+		"a cell reading a category that draws the column": {"{/other}", `"{/place as n}{n.tag} {n.zip}"`, "{n.zip}"},
 	} {
 		t.Run(label, func(t *testing.T) {
-			files["card.json"] = c.card
-			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files)))
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
+				"place.json": `{"format":"{zip}/{tag}","rows":"place.tsv","key":"name"}`,
+				"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(4)}\t" + c.cell + "\n",
+				"other.json": `"{/place.zip}"`,
+				"card.json":  c.card,
+			})))
 			refusedNamingEach(t, err, []string{"{/place.zip}", "draws afresh", c.want})
 		})
 	}
 }
 
-func TestAReadOfATableRowLoadsWhereACellDrawsNothingAnotherReadReadsFromThePick(t *testing.T) {
-	files := map[string]string{
-		"place.json": `{"format":"{zip}/{tag}","rows":"place.tsv","key":"name"}`,
-		"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(4)}\t{/other.word}\n",
-		"other.json": `{"format":"{word}","word":["x","y"]}`,
-	}
+func TestAReadOfATableRowLoadsWhereNoOtherReadReadsWhatACellDrawsAfresh(t *testing.T) {
 	for label, card := range map[string]string{
-		"the cell's column and another column": `"{/place as n}{n.tag} {n.zip}"`,
-		"the whole row":                        `"{/place as n}{n} {n.zip}"`,
+		"the whole row alone":                  `"{/place as n}{n}"`,
+		"the cell's column and the key":        `"{/place as n}{n.tag} {n.name}"`,
+		"a cell drawing from another category": `"{/place as n}{n.tag} {n.zip}"`,
 	} {
 		t.Run(label, func(t *testing.T) {
-			files["card.json"] = card
-			if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files))); err != nil {
+			tag := "{/place.zip}"
+			if strings.Contains(label, "another category") {
+				tag = "{/other.word}"
+			}
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
+				"place.json": `{"format":"{zip}/{tag}","rows":"place.tsv","key":"name"}`,
+				"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(4)}\t" + tag + "\n",
+				"other.json": `{"format":"{word}","word":["x","y"]}`,
+				"card.json":  card,
+			})))
+			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
 		})
