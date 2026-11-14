@@ -1815,3 +1815,17 @@ Read most (opens and searches):
 - `readme_test.go` 5
 - `compose.yaml` 2
 - `todo.md` 1
+
+## Reading cost, chunk d2c47490999b, finished 2026-11-14T16:10:10Z
+
+61473 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `release-tooling/patch_release_test.py` 5
+- `README.md` 4
+- `compose.yaml` 2
+- `doc.go` 1
+- `doc_test.go` 1
+- `readme_test.go` 1
+- `release-tooling/patch_release.py` 1
