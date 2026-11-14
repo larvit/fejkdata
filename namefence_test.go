@@ -158,6 +158,10 @@ func TestAReadOfANameIsRefusedBesideAReadThatDrawsAfreshAFieldItReadsFromThePick
 			"cat":  `{"format":"{w.a}","w":{"format":"{a.b}","a":{"format":"{b}","b":["x","y","z","q"]}}}`,
 			"card": `"{/cat as n}{n}|{n.w}"`,
 		}, []string{"{n}", "{w.a}", "{n.w}", "{a.b}", "{n.w.a}"}},
+		"the name is bound below its head": {map[string]string{
+			"cat":  `{"format":"{w}","w":{"format":"{v.a}","v":{"format":"{a}","a":["x","y"]}}}`,
+			"card": `"{/cat.w as n}{n}|{n.v}"`,
+		}, []string{"read {n.v.a} in place of {n.v}"}},
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := loadFence(t, c.files)
@@ -170,6 +174,7 @@ func TestAReadOfANameLoadsBesideAReadWhoseFormatReadsOneFieldOneWay(t *testing.T
 	const cat = `{"format":"{w.a}","w":{"format":"{a}","a":["x","y","z","q"],"b":["p"]}}`
 	for label, c := range map[string]struct{ cat, card string }{
 		"the field is constant":                  {`{"format":"{w.a}","w":{"format":"{a}","a":"x"}}`, `"{/cat as n}{n}|{n.w}"`},
+		"the field is a choice of constants":     {`{"format":"{w.a}","w":[{"format":"{a}","a":"k"},{"format":"{a}","a":"k"}]}`, `"{/cat as n}{n}|{n.w}"`},
 		"the field is read through the name too": {cat, `"{/cat as n}{n}|{n.w}|{n.w.a}"`},
 		"only the whole is read":                 {cat, `"{/cat as n}{n}|{n}"`},
 		"only the field is read":                 {cat, `"{/cat as n}{n.w}|{n.w}"`},
@@ -354,6 +359,12 @@ func TestReadsOfANameLoadWhereTheirSharedLevelsDrawNothingThatCouldDiffer(t *tes
 		"a template and a field of it": {
 			`{"format":"{w} {w.z}","w":{"format":"{a}","a":["x"],"z":["m"]}}`,
 			`"{/cat as n}{n}|{n.w.z}"`, "x m"},
+		"a field of a template and the template": {
+			`{"format":"{w.z} {w}","w":{"format":"{a}","a":["x"],"z":["m"]}}`,
+			`"{/cat as n}{n}|{n.w.z}"`, "m x"},
+		"a name's path read down to a level with only a constant below": {
+			`{"format":"{w.a.b as r}{r}","w":{"format":"{a}","a":{"format":"{b}","b":"k"}}}`,
+			`"{/cat as n}{n}|{n.w.a}"`, "k"},
 		"a plain template's field bound to a name": {
 			`{"format":"{a.b as r}{r}","a":{"format":"{b}","b":["x"],"z":["m","n"]}}`,
 			`"{/cat as n}{n}|{n.a.z}"`, "x"},
@@ -397,6 +408,18 @@ func TestReadsOfANameAreRefusedWhereASharedChoiceCouldDrawApart(t *testing.T) {
 		"a field read twice, where a reference draws it afresh too": {
 			`{"format":"{w}-{w} {/cat.w}","w":["x","y"]}`,
 			`"{/cat as n}{n}|{n.w}"`, `renders field "w" twice`},
+		"one path read twice, down to a leaf that draws": {
+			`{"format":"{w.a}-{w.a}","w":{"format":"{a}","a":{"format":"{b}","b":["x","y"]}}}`,
+			`"{/cat as n}{n}|{n.w.a.b}"`, `renders field "w" twice`},
+		"two fields of a choice below the field read": {
+			`{"format":"{w.a.a} {w.a.b}","w":{"format":"{a}","a":[` + item + `,` + item + `]}}`,
+			`"{/cat as n}{n}|{n.w.a.z}"`, `renders field "w" twice`},
+		"a name's path ending on a template that draws": {
+			`{"format":"{w.a as r}{r}","w":{"format":"{a}","a":{"format":"{b}","b":["x","y"]}}}`,
+			`"{/cat as n}{n}|{n.w.a}"`, `so {n.w.a} would read another draw`},
+		"a read landing above a name's path, after a read passing it": {
+			`{"format":"{w.a as r}{r}","w":{"format":"{a}","a":["x","y"],"z":["m"]}}`,
+			`"{/cat as n}{n}|{n.w.z}|{n.w}"`, `so {n.w} would read another draw`},
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := loadFence(t, map[string]string{"cat": c.cat, "card": c.card})
