@@ -16,11 +16,10 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
-- `nn_NO`, Norwegian in the Nynorsk standard, with `nn_NO.month` and `nn_NO.weekday`, Unicode
-  CLDR's names such as `januar` and `tysdag`, and `nn_NO.title`, `dr.` and `professor`. Its
-  `person`, `fodselsnummer`, `phone`, `email`, `company`, `address` and `date` print what
-  `nb_NO` and `geo.NO` print, since both standards spell names, places, ids and phone numbers
-  alike. `nnno.Modules()` returns `nbno`'s modules too.
+- `nn_NO`, Norwegian in the Nynorsk standard: `nn_NO.month` and `nn_NO.weekday`, Unicode CLDR's
+  names such as `januar` and `tysdag`, `nn_NO.title`, and `person`, `fodselsnummer`, `phone`,
+  `email`, `company`, `address` and `date`, which draw what `nb_NO` and `geo.NO` draw.
+  `nnno.Modules()` returns `nbno`'s modules too.
 
 ### Fixed
 
