@@ -624,7 +624,9 @@ program passing `Modules()` cannot leave the places out. `svse.FS` alone loads f
 providing `geo.SE`'s paths, and without one `sv_SE.address` fails at first reach with
 `no entry "geo"`; until `todo.md` item 196 names the missing module in that error, the bare
 `FS` works against goal 5.2. Every package exports `Modules()`, so one spelling loads any of
-them; a data package imports only the packages it reads.
+them; a data package imports only the packages it reads. Revised 2026-11-14, for
+`nn_NO`, which reads `nb_NO`'s names and id: a locale also imports another locale of its
+own country that it reads, and its `Modules()` returns that one's modules too.
 
 ## The default embed holds every Swedish postort the import can place, with all its streets, and, of the US places that hold most of a postal code's land, every state capital, every place of 100,000 or more and a population-weighted tenth, each with a quarter of its streets, at least ten
 

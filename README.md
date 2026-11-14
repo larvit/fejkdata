@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places. Each address takes its street and
   postal code from one town ([`geo`](#geo)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
@@ -615,9 +615,9 @@ template calls. `--no-shipped-data` leaves out the modules passed to
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
 its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/en_US`, `data/fi_FI`, `data/nb_NO`,
-`data/sv_SE`), one per country's tree of places (`data/geo/DK`, `data/geo/FI`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
+`data/nn_NO`, `data/sv_SE`), one per country's tree of places (`data/geo/DK`, `data/geo/FI`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`dadk`, `enus`, `fifi`, `nbno`, `svse`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `enus`, `fifi`, `nbno`, `nnno`, `svse`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -681,7 +681,7 @@ What `sv_SE` and `en_US` do not share: `en_US.address` carries a `region` column
 one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
-The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `da_DK.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
+The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
 #### Names and sex
 
@@ -1134,6 +1134,20 @@ A number's `block` is one of those prefixes and its `subscriber` the last four d
 `34 56`. A number is valid, not real: it lies in a block Nkom has assigned, and a real subscriber
 may hold it. A bound number reads `national`, `46 12 34 56`, and `international`,
 `+47 46 12 34 56`. The page names no country-code form, so fejkdata puts `+47` before the same pairs.
+
+### `nn_NO`
+
+`nn_NO`, Norwegian in the Nynorsk standard, carries `address`, `company`, `date`, `email`, `fodselsnummer`,
+`month`, `person`, `phone`, `title` and `weekday`. Names, places, streets, ids and phone numbers are spelled alike in
+both standards, so `nn_NO.person` draws `nb_NO`'s names, `nn_NO.fodselsnummer`, `nn_NO.phone`, `nn_NO.email` and
+`nn_NO.company` draw `nb_NO`'s, `nn_NO.address` prints `geo.NO.address`, and `nn_NO.date` is `nb_NO.date`'s spelling.
+`nn_NO.company` draws any legal form, and has no `.as` or `.enk` beside it. To make a number agree with a sex, bind
+`nb_NO.sex` as the [fødselsnummer matched to a sex](#fødselsnummer-matched-to-a-sex) section shows.
+
+`nn_NO.month` and `nn_NO.weekday` are Unicode CLDR's Nynorsk names. `{/nn_NO.month[1]}` is `januar` and `[12]` is
+`desember`; `{/nn_NO.weekday[2]}` is `tysdag` and `[7]` is `søndag`, Monday first as ISO 8601 numbers them.
+`nn_NO.title` holds `dr.` and `professor`, the same words as `nb_NO.title`, and has no `parent`, so it is selected as
+`nn_NO.title[dr.]`. All of them are real names, apart from the persons, who are invented.
 
 ### `sv_SE`
 
