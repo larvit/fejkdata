@@ -2256,7 +2256,6 @@ How the README serves goal 11:
 ## Layout
 
 ```
-doc.go          the package doc
 fejkdata.go     Generator, New, options, List
 datatype.go     DataType, what a record column holds
 render.go       Fake
