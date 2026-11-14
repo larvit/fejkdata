@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 460`
+`Next ID = 461`
 
 ## Items
 
@@ -19,6 +19,7 @@
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
 | 328 | 0.6.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 451 | 0.6.0 |  |  | **Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.1 |
+| 460 | 0.6.0 |  |  | **Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.** | 2 | 1 | 1 | 2 | 3 | 1 by 3 | 1.8 |
 | 324 | 0.6.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
 | 325 | 0.6.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 458 | 0.6.0 | 453 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
@@ -267,6 +268,16 @@ Find the numbering plan and its licence first.
 `fi_FI.henkilotunnus` draws numbers DVV issues to no one, as the decision "The Finnish id draws DVV's unissued 900 to 999" records, which names this variant as a later item. A checker that treats endings from 900 as synthetic ("keinohenkilötunnus", per the Vero API FAQ on testing) may refuse them, so a hand fixture for such a checker needs numbers of the issued range. Goal 3 asks the best category to offer more than one kind. A drawn number may be a living person's, so the README says so beside the variant, as it does for the Danish `cpr`, and the default stays 900 to 999 for goal 3.3.
 
 `{hetu(x)}` draws 900 to 999 only, so the item decides how the variant takes the range, records it in `docs/decisions.md` and revises the decision above. Recommended: a second argument to `{hetu(x)}` naming the range, beside a path such as `fi_FI.henkilotunnus-issued`, since the control character and century sign are the same and a second builtin adds a name for one meaning. Bench the path's and the argument's spelling with the README's audience before it ships. The individual number stays of the parity `x` reads, and 001 stays undrawn, as DVV issues from 002.
+
+### 460. Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.
+
+Measured on 2026-11-13 at 94474007, in containers of 2 CPUs and 2 GB, with a release build of Go 1.27.4.
+
+- The library with all `en_US` modules takes about 110 to 130 ms to build a generator, the first `en_US.address` draw about 20 to 30 ms more, and the process peaks near 154 MB. With the same templates over a 208 KB trimmed copy of the US data, it takes about 6 ms, draws the first address in under 1 ms and peaks near 32 MB.
+- The CLI takes 2.6 to 4.8 ms for a name, an email, a phone number or a uuid, and 120 to 160 ms and about 78 MB for one `en_US.address`. A Swedish person and address take about 62 ms.
+- A steady-state draw takes about 10 µs either way, so the cost is the first reach of the large street data, not the draws after it.
+
+The item ends when the choice, the strategies it weighed and their measured gains and costs are recorded where the project keeps such choices, and the items that build it are filed. It changes no shipped data and no output.
 
 ### 324. Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.
 
