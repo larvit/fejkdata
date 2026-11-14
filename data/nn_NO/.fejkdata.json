@@ -1,0 +1,15 @@
+{
+	"index": {
+		"nn_NO.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"nn_NO.company": {"paths":["","legal"]},
+		"nn_NO.date": {"paths":[""]},
+		"nn_NO.email": {"paths":["","domain","local"]},
+		"nn_NO.fodselsnummer": {"paths":[""]},
+		"nn_NO.month": {"paths":["","code","name"]},
+		"nn_NO.person": {"paths":["","first","last","prefix","sex"]},
+		"nn_NO.phone": {"paths":["","international","national"]},
+		"nn_NO.title": {"paths":["","name","share"]},
+		"nn_NO.weekday": {"paths":["","code","name"]}
+	},
+	"namespace": "nn_NO"
+}

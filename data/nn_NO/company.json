@@ -1,0 +1,4 @@
+{
+  "format": "{/nb_NO.company as c}{c}",
+  "legal": "{c.legal}"
+}
