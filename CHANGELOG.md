@@ -9,6 +9,19 @@ with its replacement, and each removed path, column or flag.
 
 ### Breaking
 
+- `{/place as n}{n.tag} {n.zip}` fails to load where a `tag` cell of the table `place` reads
+  `{/place.zip}`. It loaded and printed two postal codes that could differ, as a template's
+  field reading the same reference was already refused. Drop `{n.zip}`, or write
+  `{/place.zip}` for a second draw.
+
+## 0.5.0 - 2026-11-20` from 0.5.0 on; the releases before it keep
+their brackets. A release's `Breaking` section comes first and names each rejected spelling
+with its replacement, and each removed path, column or flag.
+
+## Unreleased
+
+### Breaking
+
 - A read of a name fails to load where a table cell it renders reads a reference that draws
   afresh a path another read of the name reads from the pick. `{/place as n}{n.tag} {n.zip}`
   loaded and printed two postal codes where a `tag` cell of `place` read `{/place.zip}`. Drop
