@@ -99,7 +99,7 @@ Save this record as `person.json`. Its `format` draws one sex, one last name and
 ```
 
 ```sh
-fejkdata --seed 1 --today 2026-01-15 --format csv < person.json    # a header, then one person
+fejkdata --seed 1 --today 2026-01-15 --format csv < person.json    # a header, then one person, the same every day
 fejkdata --format csv --repeat 1000000 < person.json > people.csv  # a million rows
 fejkdata --format sql --table people --repeat 1000000 < person.json > people.sql
 ```
@@ -924,9 +924,9 @@ Renders e.g. `Eila Kirjavainen, 260163-9405`.
 #### Henkilötunnus of the issued range
 
 `fi_FI.henkilotunnus-issued` draws the same dates with an individual number from 002 to 899, the range DVV
-issues, such as `160432-581J`, for a checker that refuses the numbers from 900. Such a number is valid, and may be a living
+issues, such as `160432-581J`. It is for a checker that refuses the numbers from 900. Such a number is valid, and may be a living
 person's, so keep it out of anything that reaches a real system. To make one agree with a bound sex, write
-`{hetu(s.individ.digit,'issued')}` in the template above.
+`{hetu(s.individ.digit,'issued')}` for `{hetu(s.individ.digit)}` in the template above.
 
 ### `geo`
 
@@ -942,7 +942,7 @@ The `geo` namespace holds one tree per country under its alpha-2 code: five [lin
 
 #### Across countries
 
-What ports across countries is the five table names, the `name` column, selection by name, and the `address` record's columns `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`, where `region` is a US state's abbreviation and elsewhere the region's name; every other column is the country's own, `code` on a Swedish region but `abbr` on a US one.
+What ports across countries is the five table names, their `name` column, selection by name, and the `address` record's columns: `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`. The record's `region` is a US state's abbreviation, and elsewhere the region's name. Every other column of a table is the country's own, `code` on a Swedish region but `abbr` on a US one.
 
 #### Danish places
 
@@ -1279,9 +1279,9 @@ bound sex gives a name and a number that agree:
 
 Renders e.g. `Love Fogelström, 670711-2394`.
 
-Each age band is a column: `child` for those who turn 0 to 17 in the year of `--today`, `adult` for 18 to 64,
+Each age band is a column: `child` for those who turn 0 to 17 in the year of `--today` or `WithToday`, `adult` for 18 to 64,
 `senior` for 65 to 99 and `centenarian` for 100 to 113, which always carries the `+`. `sv_SE.personnummer.centenarian` draws one of
-either sex, and `sv_SE.sex[f].personnummer.centenarian` or `{s.personnummer.centenarian}` a woman's. For a mix of your own, weigh
+either sex, `sv_SE.sex[f].personnummer.centenarian` a woman's and `{s.personnummer.centenarian}` one of the bound sex. For a mix of your own, weigh
 the columns in a choice:
 
 ```json
@@ -1291,8 +1291,8 @@ the columns in a choice:
 ]
 ```
 
-Renders e.g. `251006-2389`. `sv_SE.personnummer-date` is the date and separator the mixed number starts with, the
-four bands by their weights.
+Renders e.g. `251006-2389`. `sv_SE.personnummer-date` is the date and separator that `sv_SE.personnummer`
+starts with: one of the four bands, drawn by its share of the population.
 
 #### Swedish companies
 
