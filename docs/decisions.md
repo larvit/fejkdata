@@ -1828,3 +1828,28 @@ The file holds no street on Åland, so Åland's maakunta and kunnat ship no plac
 2026-11-13, in the chunk that added `geo.FI`, from a bench of two readers. Serves goal 2.1.
 
 A street's `swedish-name` is the Swedish name Posti gives it most often in its postitoimipaikka, the first in the alphabet winning a tie. Where Posti gives none, it is the Finnish name: a TSV cell can't be empty, and a Swedish address writes the Finnish name of a street that has no Swedish one. Both readers chose the spelling `swedish-name` over `name-sv`. Valid while a street table names one language per column.
+
+## A table's parent column is read in one pass over its runs, and a parent's rows load on demand where one pass leaves a first reach over 100 ms
+
+2026-11-14, in the chunk that measured the cold start. Serves goal 12. Carried out by `todo.md` items 464 and 465.
+
+The first reach of a country's streets is the cost; `New` and every later draw are not. Measured at ffc056f9 with Go 1.27.4 in a container: `New` took 0.3 ms with `en_US`'s modules and 1 to 2 ms with every shipped module, the first `en_US.address` took 126 to 142 ms and peaked near 80 MB, and the second took 20 µs. In the CLI, a name or a uuid took 5 to 7 ms, `en_US.address` 150 ms, `geo.FI.address` 87 ms, `sv_SE.address` 75 ms and `geo.NO.address` 48 ms. A CPU profile of 40 first draws put 72% in loading the table family and 13% in building the row lookup on the first draw. For `geo.US`'s 475,272 street rows, 10.8 MB in 1,716 parents grouped together, the phases were:
+
+| Phase | Time |
+|---|---|
+| Split the cells | 24 to 33 ms |
+| Parse the weights | about 25 ms |
+| Prove each parent weighs above 0 | about 20 ms |
+| Link each row to its parent | about 18 ms |
+| Build the row lookup | about 19 ms |
+
+The strategies, with what a spike measured:
+
+- **One pass over the runs of equal parent cells** does the last three phases in 3.7 ms, about 53 ms saved, so the first `en_US.address` should take 75 to 90 ms. It adds a second path for a table whose parent's rows are not adjacent, as anyone's data may be. Chosen first: it is the smallest change, helps every table, and changes no format or output.
+- **Load a parent's rows on first reach, from an index `go generate` writes**: the index is 1,716 lines and 55 KB, read in 0.3 ms, and one parent's streets parse in 19 µs. The item's 208 KB trimmed copy of the US data took about 6 ms and peaked near 32 MB. It makes a render's cost follow the parent reached, but it touches `rows`' whole-table indexes, keeps an index current, and may change what a draw over the whole street table draws, since a parent is then drawn by its total weight. Chosen second, and built only if the first leaves a CLI's first `en_US.address` at 100 ms or more, the limit under which an interface's answer feels instant (Nielsen, *Usability Engineering*, 1993). The 2026-10-11 decision above accepted 145 ms beside a test run; a hand fixture author at a shell feels it.
+- **Split the cells and weights over two goroutines** took 32 ms down to 20 ms. It saves at most 12 ms and leaves the proofs. Rejected.
+- **Skip the proofs for shipped data** saves about 38 ms, but loads a shipped module differently from anyone else's, which goal 8.1 forbids. Rejected.
+- **Ship fewer streets** would parse a tenth of the file in 2.5 ms, but ships less data, against goal 2 and the 2026-10-11 decision above. Rejected.
+- **A binary table** would load faster, but data would no longer be hand-editable, against goal 7. Rejected, not measured.
+
+Valid while a shipped table is a TSV that loads whole, and a CLI run reads one country's streets.
