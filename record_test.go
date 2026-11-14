@@ -664,15 +664,15 @@ func TestRecordTemplateRejectsATopLevelRepeat(t *testing.T) {
 // author types: a choice has no columns, and the error names the record that gives it one.
 func TestRecordOfAChoiceNamesTheWrapper(t *testing.T) {
 	f := shipped(t, WithSeed(1))
-	want := `{"format":"","personnummer":"{/sv_SE.personnummer}"}`
-	_, err := f.FakeRecord("sv_SE.personnummer")
+	want := `{"format":"","personnummer-12":"{/sv_SE.personnummer-12}"}`
+	_, err := f.FakeRecord("sv_SE.personnummer-12")
 	if err == nil || !strings.Contains(err.Error(), want) {
-		t.Fatalf("FakeRecord(sv_SE.personnummer) = %v, want it to name %s", err, want)
+		t.Fatalf("FakeRecord(sv_SE.personnummer-12) = %v, want it to name %s", err, want)
 	}
 	if !errors.Is(err, ErrNoColumns) {
-		t.Errorf("FakeRecord(sv_SE.personnummer) = %v, want it to match ErrNoColumns", err)
+		t.Errorf("FakeRecord(sv_SE.personnummer-12) = %v, want it to match ErrNoColumns", err)
 	}
-	if _, err := f.FakeRecordTemplate(`{"format":"","personnummer":"{/sv_SE.personnummer}"}`); err != nil {
+	if _, err := f.FakeRecordTemplate(`{"format":"","personnummer-12":"{/sv_SE.personnummer-12}"}`); err != nil {
 		t.Fatalf("the named wrapper does not render: %v", err)
 	}
 }

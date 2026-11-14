@@ -319,8 +319,8 @@ func TestRunRecordRejectsATopLevelRepeat(t *testing.T) {
 // template is well-formed and only the data cannot serve it, so the code is 1.
 func TestRunRecordOfAPathWithNoColumns(t *testing.T) {
 	for category, wrapper := range map[string]string{
-		"sv_SE.personnummer": `{"format":"","personnummer":"{/sv_SE.personnummer}"}`,
-		"sv_SE.time":         `{"format":"","time":"{/sv_SE.time}"}`,
+		"sv_SE.personnummer-12": `{"format":"","personnummer-12":"{/sv_SE.personnummer-12}"}`,
+		"sv_SE.time":            `{"format":"","time":"{/sv_SE.time}"}`,
 	} {
 		t.Run(category, func(t *testing.T) {
 			code, out, errb := runOut("{/"+category+"}", "--format", "csv")
