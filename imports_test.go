@@ -127,8 +127,8 @@ func TestEveryListedPackageExists(t *testing.T) {
 func isShippedData(dir string) bool { return dir == "data" || strings.HasPrefix(dir, "data/") }
 
 // mayImportShippedData reports whether dir may import rel, a package under data/. The data package
-// imports them all, a locale data/<ll_CC> only data/geo/<CC>, and the root's tests any. misc and a
-// geo package import none.
+// imports them all, a locale data/<ll_CC> only data/geo/<CC> and the other locales of CC, and the
+// root's tests any. misc and a geo package import none.
 func mayImportShippedData(dir, rel string, testOnly bool) bool {
 	switch {
 	case !isShippedData(rel):
@@ -139,7 +139,11 @@ func mayImportShippedData(dir, rel string, testOnly bool) bool {
 		return testOnly
 	}
 	_, country, isLocale := strings.Cut(strings.TrimPrefix(dir, "data/"), "_")
-	return isShippedData(dir) && isLocale && rel == "data/geo/"+country
+	if !isShippedData(dir) || !isLocale {
+		return false
+	}
+	_, relCountry, relIsLocale := strings.Cut(strings.TrimPrefix(rel, "data/"), "_")
+	return rel == "data/geo/"+country || relIsLocale && relCountry == country
 }
 
 // eachPackage calls fn with every Go package in the module and its slash-separated directory.
