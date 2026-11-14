@@ -6,13 +6,21 @@
 
 `Bar = 0`
 
-`Next ID = 487`
+`Next ID = 495`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.3 |
+| 487 | 0.6.0 |  |  | **Split every function in `internal/engine/load`'s `columnread.go`, `format.go`, `name.go` and `node.go` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 2 | 2.7 |
+| 488 | 0.6.0 |  |  | **Split every function in `internal/engine/load`'s `path.go`, `pathvalues.go`, `read.go`, `record.go`, `resolve.go`, `reword.go` and `table.go` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 2 | 2.7 |
+| 491 | 0.6.0 |  |  | **Split every function in `internal/engine/fence` and its package `names` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 2 | 2.7 |
+| 492 | 0.6.0 |  |  | **Split every function in `cli` and the root package until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 3 | code health by 1 | 2.0 |
+| 494 | 0.6.0 |  |  | **Split every function in `internal/engine`, `internal/engine/render` and `internal/engine/tree` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 3 | code health by 1 | 2.0 |
+| 489 | 0.6.0 |  |  | **Split every function in `internal/grammar` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
+| 490 | 0.6.0 |  |  | **Split every function in `internal/builtinfunc` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
+| 493 | 0.6.0 |  |  | **Split every function in `internal/rows`, `internal/datafiles`, `internal/proven` and `internal/fejktest` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
+| 458 | 0.6.0 | 487, 488, 489, 490, 491, 492, 493, 494 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 6.5 |
 | 217 | 0.7.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 332 | 0.7.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 331 | 0.7.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -240,11 +248,43 @@
 
 ## Details
 
+### 487. Split every function in `internal/engine/load`'s `columnread.go`, `format.go`, `name.go` and `node.go` until gocyclo counts it at 7 or under.
+
+Step 1 of item 458. Nine functions count 8 to 10: `columnsAt`, `onlyRead`, `checkFieldRead`, `bindNames`, `answerReads`, `compileChoice`, `compileTemplate`, `repeatOf` and `compileItem`. The comprehension seats found `answerReads` hard: a recursive closure threading `besideField`, where building the error outweighs the check. Make it easier to read, not only shorter. Check with `gocyclo -over 7 -ignore _test internal/engine/load`.
+
+### 488. Split every function in `internal/engine/load`'s `path.go`, `pathvalues.go`, `read.go`, `record.go`, `resolve.go`, `reword.go` and `table.go` until gocyclo counts it at 7 or under.
+
+Step 2 of item 458. Twelve functions count 8 to 10: `ChildNamed`, `ownColumnReads`, `valueWalk.walk`, `oneOp`, `memberRead`, `newOp`, `compileRead`, `recordColumns`, `CompileTemplates`, `wordsOf`, `routeThrough` and `routeSteps`. The comprehension seats found `CompileTemplates` hard: six stages write `LoadFinds` in an order nothing states. Make it easier to read, not only shorter.
+
+### 491. Split every function in `internal/engine/fence` and its package `names` until gocyclo counts it at 7 or under.
+
+Step 5 of item 458. Ten functions count 8 to 10, in `datatype.go`, `fence.go`, `field.go`, `valueproof.go`, `where.go`, and in `names`' `refusedrawnapart.go` and `refuseskippeditem.go`. The comprehension seats found `sharedDraw` hard: a five-exit level walk whose verdict must match render's `LandsInPick`. Make it easier to read, not only shorter.
+
+### 492. Split every function in `cli` and the root package until gocyclo counts it at 7 or under.
+
+Step 6 of item 458. Seven functions count 8 to 10: `run`, `parseArgs`, `invocation.checkFlags`, `splitFlags`, `operandError` and `recordLines.write` in `cli`, and `structFields.gatherField` in `struct.go`.
+
+### 494. Split every function in `internal/engine`, `internal/engine/render` and `internal/engine/tree` until gocyclo counts it at 7 or under.
+
+Step 8 of item 458. Six functions count 8 to 10: `RecordAt`, `drawAcrossTables`, `render`, `expand`, `followStep` and `RenderEdges`.
+
+### 489. Split every function in `internal/grammar` until gocyclo counts it at 7 or under.
+
+Step 3 of item 458. Thirteen functions count 8 to 10, in `calc.go`, `format.go`, `identifier.go`, `path.go`, `reference.go`, `scan.go` and `where.go`.
+
+### 490. Split every function in `internal/builtinfunc` until gocyclo counts it at 7 or under.
+
+Step 4 of item 458. Nine functions count 8 to 10, in `adddays.go`, `builtins.go`, `calc.go`, `checksum.go`, `cpr.go`, `daybound.go`, `tick.go` and `transform.go`.
+
+### 493. Split every function in `internal/rows`, `internal/datafiles`, `internal/proven` and `internal/fejktest` until gocyclo counts it at 7 or under.
+
+Step 7 of item 458. Nine functions count 8 to 10: five of `Table`'s methods in `rows.go`, `decodeManifest`, `Literal`, `bound` and `ValidFnr`.
+
 ### 458. Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.
 
-`AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 74 functions.
+`AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor.
 
-They do not fit one chunk: break this item into steps, by package, before starting it. In the last step, change the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
+Items 487 to 494 split the 75 functions `gocyclo -over 7 -ignore _test .` listed on 2026-11-15, one package or a few small ones each. Each step is its own chunk: all eight in one would be a diff of thousands of lines over the whole engine, too large to review well. This last step changes the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7, and splits any function written since that goes over it.
 
 ### 332. Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.
 
