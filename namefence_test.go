@@ -487,3 +487,19 @@ func TestAReadOfATableRowLoadsWhereNoOtherReadReadsWhatACellDrawsAfresh(t *testi
 		})
 	}
 }
+
+func TestAReadOfANameIsRefusedAsDrawnAfreshWhereItsFormatReferencesItsOwnCategoryHoldingANameOfItsOwn(t *testing.T) {
+	_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
+		"a.json":    `{"format":"{/a.g}","g":{"format":"{w as r}{r}","w":["x","y"]}}`,
+		"card.json": `"{/a as n}{n} {n.g.w}"`,
+	})))
+	refusedNamingEach(t, err, []string{"{n}", "{/a.g}", "draws afresh", "{n.g.w}"})
+}
+
+func TestAReadOfANameIsRefusedForAFieldItRendersTwiceWhereItsFormatReadsTheFieldApartToo(t *testing.T) {
+	_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
+		"c.json":    `{"format":"{w as r}{r}{w}","w":{"format":"{a}-{a}","a":["x","y"]}}`,
+		"card.json": `"{/c as n}{n} {n.w.a}"`,
+	})))
+	refusedNamingEach(t, err, []string{"{n}", `renders field "a" twice`, "{n.w.a}"})
+}
