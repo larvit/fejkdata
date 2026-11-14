@@ -146,7 +146,8 @@ In [docs/decisions.md](docs/decisions.md):
 - One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`
 - `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
 - A Finnish street's `swedish-name` holds its Finnish name where Posti gives no Swedish one
-- A table's parent column is read in one pass over its runs of equal cells, and a parent's rows load on demand where one pass leaves the CLI's first `en_US.address` at 100 ms or more
+- A table's parent column is read in one pass over its runs of equal cells, and a table's rows load per parent from an index `go generate` writes
+- Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, not from a different draw
 
 # Scoring run
 
