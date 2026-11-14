@@ -1279,8 +1279,8 @@ bound sex gives a name and a number that agree:
 
 Renders e.g. `Love Fogelström, 670711-2394`.
 
-Each age band is a column: `child` for the ages 0 to 17, `adult` for 18 to 64, `senior` for 65 to 99 and
-`centenarian` for 100 to 113, which always carries the `+`. `sv_SE.personnummer.centenarian` draws one of
+Each age band is a column: `child` for those who turn 0 to 17 in the year of `--today`, `adult` for 18 to 64,
+`senior` for 65 to 99 and `centenarian` for 100 to 113, which always carries the `+`. `sv_SE.personnummer.centenarian` draws one of
 either sex, and `sv_SE.sex[f].personnummer.centenarian` or `{s.personnummer.centenarian}` a woman's. For a mix of your own, weigh
 the columns in a choice:
 

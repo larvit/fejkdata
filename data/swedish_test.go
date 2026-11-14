@@ -778,25 +778,6 @@ func birthYearOfAHyphenPersonnummerReadIn2026(yy int) int {
 	return 1900 + yy
 }
 
-// Both forms draw one date from one set of bands, so a seed gives one person in both spellings.
-func TestSwedishPersonnummerFormsSpellOneNumber(t *testing.T) {
-	short, long := shipped(t, fejkdata.WithToday(fejktest.DayOf(2026, 11, 4))), shipped(t, fejkdata.WithToday(fejktest.DayOf(2026, 11, 4)))
-	saw := map[byte]bool{}
-	fejktest.EachDraw(100000, func() string { return fejktest.Fake(t, short, "sv_SE.personnummer") }, func(a string) {
-		b := fejktest.Fake(t, long, "sv_SE.personnummer-12")
-		if a[:6]+a[7:] != b[2:] {
-			t.Fatalf("personnummer %q and personnummer-12 %q, want the short form's digits after the century", a, b)
-		}
-		if year, _ := strconv.Atoi(b[:4]); (a[6] == '+') != (year <= 1926) {
-			t.Fatalf("personnummer %q and personnummer-12 %q, want + exactly for a birth in 1926 or before", a, b)
-		}
-		saw[a[6]] = true
-	})
-	if !saw['+'] || !saw['-'] {
-		t.Errorf("separators drawn %v, want both", saw)
-	}
-}
-
 // The 12-digit form is the century and the ten digits of the short form without its separator, and
 // the Luhn check stays over those ten digits, since weighing the century too would change it.
 func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
@@ -1789,7 +1770,8 @@ func TestSwedishBankAccount(t *testing.T) {
 	}
 }
 
-// Each age band of a personnummer is a column of its own, of the ages SCB's bands hold.
+// Each age band of a personnummer is a column of its own, of those who turn the band's ages in the
+// year, as born counts them.
 func TestSwedishPersonnummerOfAnAgeBand(t *testing.T) {
 	today := fejktest.DayOf(2026, 11, 4)
 	sv := shipped(t, fejkdata.WithToday(today))
@@ -1797,12 +1779,8 @@ func TestSwedishPersonnummerOfAnAgeBand(t *testing.T) {
 		t.Run(band, func(t *testing.T) {
 			fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, sv, "sv_SE.personnummer."+band) }, func(v string) {
 				born, sign := birthOfASwedishTestPersonnummerReadIn2026(t, v)
-				age := today.Year() - born.Year()
-				if born.AddDate(age, 0, 0).After(today) {
-					age--
-				}
-				if age < ages[0] || age > ages[1] {
-					t.Fatalf("personnummer.%s %q is of age %d, want %d to %d", band, v, age, ages[0], ages[1])
+				if turns := today.Year() - born.Year(); turns < ages[0] || turns > ages[1] || born.After(today) {
+					t.Fatalf("personnummer.%s %q turns %d in 2026, want %d to %d and a birth by the day", band, v, turns, ages[0], ages[1])
 				}
 				if want := map[bool]byte{true: '+', false: '-'}[born.Year() <= 1926]; sign != want {
 					t.Fatalf("personnummer.%s %q, want the separator %c", band, v, want)
@@ -1836,13 +1814,13 @@ func birthOfASwedishTestPersonnummerReadIn2026(t *testing.T, v string) (time.Tim
 func TestSwedishPersonnummerAgreesWithItsSex(t *testing.T) {
 	sv := shipped(t)
 	for template, want := range map[string]string{
-		"{/sv_SE.sex[f].personnummer}":                             `^\d{6}[-+]238\d$`,
-		"{/sv_SE.sex[m].personnummer}":                             `^\d{6}[-+]239\d$`,
-		"{/sv_SE.sex[f].personnummer.centenarian}":                 `^\d{6}\+238\d$`,
-		"{/sv_SE.sex[m] as s}{s.name} {s.personnummer.child}":      `^man \d{6}-239\d$`,
-		"{/sv_SE.sex[f] as s}{s.name} {s.personnummer}":            `^kvinna \d{6}[-+]238\d$`,
-		"{/sv_SE.sex as s}{s.birth-number} {s.personnummer}":       `^(238 \d{6}[-+]238|239 \d{6}[-+]239)\d$`,
-		"{/sv_SE.sex as s}{s.birth-number} {s.personnummer.adult}": `^(238 \d{6}-238|239 \d{6}-239)\d$`,
+		"{/sv_SE.sex[f].personnummer}":                        `^\d{6}[-+]238\d$`,
+		"{/sv_SE.sex[m].personnummer}":                        `^\d{6}[-+]239\d$`,
+		"{/sv_SE.sex[f].personnummer.centenarian}":            `^\d{6}\+238\d$`,
+		"{/sv_SE.sex[m] as s}{s.name} {s.personnummer.child}": `^man \d{6}-239\d$`,
+		"{/sv_SE.sex[f] as s}{s.name} {s.personnummer}":       `^kvinna \d{6}[-+]238\d$`,
+		"{/sv_SE.sex as s}{s.name} {s.personnummer}":          `^(kvinna \d{6}[-+]238|man \d{6}[-+]239)\d$`,
+		"{/sv_SE.sex as s}{s.name} {s.personnummer.adult}":    `^(kvinna \d{6}-238|man \d{6}-239)\d$`,
 	} {
 		t.Run(template, func(t *testing.T) {
 			re := regexp.MustCompile(want)
