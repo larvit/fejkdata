@@ -13,8 +13,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 169 | 0.6.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
-| 453 | 0.6.0 |  | owner | **Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
-| 452 | 0.6.0 | 453 | defect | **Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.** | 2 | 2 | 2 | 4 | 3 | 3.1 by 2, 4.6 by 2 | 12.5 |
+| 452 | 0.6.0 |  | defect | **Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.** | 2 | 2 | 2 | 4 | 3 | 3.1 by 2, 4.6 by 2 | 12.5 |
 | 343 | 0.6.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 9.4 |
 | 66 | 0.6.0 |  |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 354 | 0.6.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
@@ -28,7 +27,7 @@
 | 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
 | 18 | 0.6.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
 | 27 | 0.6.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip` into one `misc.ip`, and `en_US.version` and `sv_SE.version` into one `misc.version`, each pair today byte-identical.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.7 |
-| 458 | 0.6.0 | 453 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
+| 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 7.3 |
@@ -55,7 +54,7 @@
 | 406 | 0.8.0 |  |  | **Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.** | 2 | 1 | 1 | 2 | 2 | 1 by 2, 4 by 2 | 2.8 |
 | 260 | 0.8.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.7 |
 | 261 | 0.8.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.7 |
-| 164 | 0.8.0 | 453 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 4 by 3 | 2.7 |
+| 164 | 0.8.0 |  |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 4 by 3 | 2.7 |
 | 262 | 0.8.0 |  |  | **Add `misc.bloodtype`, weighted by its global distribution.** | 1 | 2 | 1 | 2 | 1 | 1 by 1, 2 by 1, 3.2 by 1 | 2.6 |
 | 50 | 0.8.0 |  |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.6 |
 | 52 | 0.8.0 |  |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.6 |
@@ -237,27 +236,9 @@
 
 Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
 
-### 453. Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.
-
-The two scoring runs on PR #377 at 34b284d0 left Locality at 5.75 and 5.88, Shape at 6.50 both times, Self-sufficiency at 6.63 both times and the overall at 6.63 both times, under the floor of 7.0. Item 421 gave each name rule a file; what the seats still found hard is what the rules share. Every rule reads the routes `routeWalk.walk` emits, and decides by index arithmetic over a route's `levels`, a read's tail and `pickReads.bound`, whose layout `placedAt` and `tree.PickKey` fix elsewhere. A reader holds that layout in every rule file.
-
-Give the route a type that answers the rules' questions by name: what it keeps, where it draws afresh, which level it addresses, where two routes part. The index conventions then live in that one type, beside the invariant that `levels` is one longer than the tail, and a rule reads without `namefence.go` and `tree/pick.go` open beside it. Give the walk's `(at, inPick)` state one named value too, so the node cases of `routeWalk.walk` say what each does to it. No refusal, error text or rule order changes.
-
-The places the seats named, which this item restructures:
-
-- `internal/engine/fence/namefence.go:134` `routeWalk.walk`: five of the eight seats of the two runs; route kinds, the in-pick flag and the `seen` key held at once, with the meaning decided in `placedAt`, and the table-cell gap explained only by an item number.
-- `internal/engine/fence/refusefreshdraw.go:21` `refuseFreshDraw` with `:78` `readAddressing` and `:90` `rendersField`: five seats; a queue across categories, a selector special case and `p.bound` slicing explained only at `pickReads`.
-- `internal/engine/tree/pick.go:83` `LevelsUnder` with `:97` `LandsInPick`: six seats; the one keying rule load, fence and render share, in another package than its fence readers.
-- `internal/engine/fence/refusekeptandfreshfield.go:76` `readsFieldApart`: four seats; level slicing against `tail[:j]`, resting on an index identity one comment states.
-- `internal/engine/fence/refusedrawnapart.go:39` `sharedDraw`: three seats; each case holds only because the cases above it returned.
-
-Out of scope: `tree/loadfinds.go`'s two phases, and `render/pick.go:151` `namedPick.readPath` with `render/env.go`'s frame stack. Seven of the eight seats named `readPath` under Locality although item 423 reworked its memo; it is the next floor item's, since this one already changes every name rule.
-
-The architecture pass of 0.5.0's release review added two parts. Make `sharedDraw` return a named case, so its cases no longer depend on their order. Move the name rules, `drawsalong.go`, `namefence.go`, `readinsidefield.go` and the five `refuse*.go` files, into a package `internal/engine/fence/names`, and revise the decision that places every fence in `internal/engine/fence`. Items 452 and 164 wait for this one, since each would change every rule again.
-
 ### 452. Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.
 
-`fence/namefence.go` `walkRoutes` steps into a node's children by `tree.RenderEdges`, and skips a `*tree.TableColumn` on purpose, to keep what item 421 found. So no refusal rule sees a read inside a table cell.
+`fence/names/routewalk.go` `routeWalk.walk` steps into a node's children by `tree.RenderEdges`, and skips a `*tree.TableColumn` on purpose, to keep what item 421 found. So no refusal rule sees a read inside a table cell.
 
 Found by probe on 2026-11-12: with `place.json` `{"format":"{zip}/{tag}","rows":"place.tsv","key":"name"}` and `place.tsv` holding the row `Stockholm`, `1{digits(4)}`, `{/place.zip}`, the template `{/place as n}{n.tag} {n.zip}` loads and prints two different postal codes, such as `19166 15556`. The same shape in a template's fields, `"zip":"1{digits(4)}","tag":"{/place.zip}"`, is refused by `refuseFreshDraw`: "`{n.tag}` reaches `{/place.zip}`, which draws afresh a path `{n.zip}` reads from the pick".
 
@@ -277,7 +258,7 @@ Drop the `*tree.TableColumn` case in `walkRoutes` so a cell's reads become route
 
 ### 459. Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.
 
-Stability round 1 of item 456 found that removing `walkTemplate`'s `staysInCategory` guard (`internal/engine/fence/namefence.go`) survives every test. References are walked again in `refsReached`, and the rules compare routes by node, so a case the guard changes is not obvious: find one, such as a reference back into the pick's own category, and pin it, or record at the guard why it is a cost bound alone.
+Stability round 1 of item 456 found that removing `walkTemplate`'s `staysInCategory` guard (`internal/engine/fence/names/routewalk.go`) survives every test. References are walked again in `refsReached`, and the rules compare routes by node, so a case the guard changes is not obvious: find one, such as a reference back into the pick's own category, and pin it, or record at the guard why it is a cost bound alone.
 
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 
@@ -319,7 +300,7 @@ Posti's postcode file names each postitoimipaikka in Swedish too (field 49, 30 c
 
 `AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 74 functions.
 
-They do not fit one chunk: break this item into steps, by package, before starting it. It waits for item 453, which reworks the name fence's functions this would split. In the last step, change the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
+They do not fit one chunk: break this item into steps, by package, before starting it. In the last step, change the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
 
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 
