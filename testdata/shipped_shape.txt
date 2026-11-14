@@ -1,6 +1,8 @@
 da_DK.address	format "{/geo.DK.address as a}{a}"	reads geo.DK.address
 da_DK.address.locality	string
+da_DK.address.municipality	string
 da_DK.address.postal-code	string
+da_DK.address.region	string
 da_DK.address.street	string
 da_DK.address.street-number	string
 da_DK.company	format "{registered as r}{r}"	reads da_DK.company da_DK.company-coined da_DK.company-word da_DK.first-name da_DK.last-name geo.DK.locality
@@ -68,6 +70,7 @@ da_DK.title.name	string
 da_DK.title.share	string
 en_US.address	format "{/geo.US.address as a}{a}"	reads geo.US.address
 en_US.address.locality	string
+en_US.address.municipality	string
 en_US.address.postal-code	string
 en_US.address.region	string
 en_US.address.street	string
@@ -155,7 +158,9 @@ en_US.word.verb	string
 en_US.word.verb.present
 fi_FI.address	format "{/geo.FI.address as a}{a}"	reads geo.FI.address
 fi_FI.address.locality	string
+fi_FI.address.municipality	string
 fi_FI.address.postal-code	string
+fi_FI.address.region	string
 fi_FI.address.street	string
 fi_FI.address.street-number	string
 fi_FI.company	format "{registered as r}{r}"	reads fi_FI.company fi_FI.company-coined fi_FI.company-word fi_FI.first-name fi_FI.last-name
@@ -233,7 +238,9 @@ fi_FI.title.name	string
 fi_FI.title.share	string
 geo.DK.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DK.locality
 geo.DK.address.locality	string
+geo.DK.address.municipality	string
 geo.DK.address.postal-code	string
+geo.DK.address.region	string
 geo.DK.address.street	string
 geo.DK.address.street-number	string
 geo.DK.locality	format "{name}"	key name	weight population	parent municipality
@@ -303,7 +310,9 @@ geo.DK.street.locality	string
 geo.DK.street.name	string
 geo.FI.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.FI.locality
 geo.FI.address.locality	string
+geo.FI.address.municipality	string
 geo.FI.address.postal-code	string
+geo.FI.address.region	string
 geo.FI.address.street	string
 geo.FI.address.street-number	string
 geo.FI.locality	format "{name}"	key name	weight population	parent municipality
@@ -377,7 +386,9 @@ geo.FI.street.name	string
 geo.FI.street.swedish-name	string
 geo.NO.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.NO.locality
 geo.NO.address.locality	string
+geo.NO.address.municipality	string
 geo.NO.address.postal-code	string
+geo.NO.address.region	string
 geo.NO.address.street	string
 geo.NO.address.street-number	string
 geo.NO.locality	format "{name}"	key name	weight population	parent municipality
@@ -447,7 +458,9 @@ geo.NO.street.locality	string
 geo.NO.street.name	string
 geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.locality
 geo.SE.address.locality	string
+geo.SE.address.municipality	string
 geo.SE.address.postal-code	string
+geo.SE.address.region	string
 geo.SE.address.street	string
 geo.SE.address.street-number	string
 geo.SE.locality	format "{name}"	key name	weight population	parent municipality
@@ -513,6 +526,7 @@ geo.SE.street.name	string
 geo.SE.street.segments	string
 geo.US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.locality
 geo.US.address.locality	string
+geo.US.address.municipality	string
 geo.US.address.postal-code	string
 geo.US.address.region	string
 geo.US.address.street	string
@@ -675,7 +689,9 @@ misc.version.pre	string
 misc.version.suffix	string
 nb_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
 nb_NO.address.locality	string
+nb_NO.address.municipality	string
 nb_NO.address.postal-code	string
+nb_NO.address.region	string
 nb_NO.address.street	string
 nb_NO.address.street-number	string
 nb_NO.birth-day	format "{ddmm}"
@@ -751,7 +767,9 @@ nb_NO.title.name	string
 nb_NO.title.share	string
 nn_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
 nn_NO.address.locality	string
+nn_NO.address.municipality	string
 nn_NO.address.postal-code	string
+nn_NO.address.region	string
 nn_NO.address.street	string
 nn_NO.address.street-number	string
 nn_NO.company	format "{/nb_NO.company as c}{c}"	reads nb_NO.company
@@ -780,7 +798,9 @@ nn_NO.weekday.code	string
 nn_NO.weekday.name	string
 sv_SE.address	format "{/geo.SE.address as a}{a}"	reads geo.SE.address
 sv_SE.address.locality	string
+sv_SE.address.municipality	string
 sv_SE.address.postal-code	string
+sv_SE.address.region	string
 sv_SE.address.street	string
 sv_SE.address.street-number	string
 sv_SE.bankaccount	format "{clearing}-{number}"	key clearing
