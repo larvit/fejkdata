@@ -558,9 +558,13 @@ The code still takes a `name` option and selects by it; `todo.md` item 41 brings
 2026-09-17, Lilleman auf Larv.
 
 A descendant is drawn inside the nearest pinned ancestor, so every ancestor row must
-lead to a row at every level below it, or a render could find nothing to draw. The
-import script drops or fills such rows; the alternative, falling back to a free draw,
-would break the consistency the link exists for without saying so.
+lead to a row at every level below it, or a render could find nothing to draw. Each geo
+import meets it by dropping a locality with no street or no postal code and logging it.
+An import of a whole country (`geo-se.py`, `geo-no.py`, `geo-fi.py`, `geo-dk.py`) then
+exits if that leaves a municipality or region with no child, since that loses a real
+place. `geo-us.py` ships a sample, so it drops and logs a county with no place and a
+state with no county. The alternative, falling back to a free draw, would break the
+consistency the link exists for without saying so.
 
 ## A table is a record of string columns
 
