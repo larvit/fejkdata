@@ -60,11 +60,10 @@ func (w *routeWalk) walk(n tree.Node, p place) {
 	case *tree.Choice:
 		// An item stands where its choice stands, since the pick keeps the item drawn.
 		w.walkEdges(n, p)
-	case *tree.TableColumn:
-		// A cell is not walked: no rule sees what a cell reads.
 	default:
 		// Anything else renders apart. A table's format does: the pick pins the row, so its
-		// columns read one row whichever read renders them.
+		// columns read one row whichever read renders them. So does a cell, which reads what
+		// another cell of the row, or a reference, reads.
 		w.walkEdges(n, apart)
 	}
 }
