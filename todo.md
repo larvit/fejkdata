@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 474`
+`Next ID = 475`
 
 ## Items
 
@@ -18,9 +18,10 @@
 | 217 | 0.7.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 332 | 0.7.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 331 | 0.7.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 474 | 0.7.0 |  | decision | **Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 2.1 by 4 | 2.2 |
 | 333 | 0.7.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 329 | 0.7.0 | 217 |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
-| 330 | 0.7.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
+| 330 | 0.7.0 | 329, 474 |  | **Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.5 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 6.1 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 6.1 |
@@ -110,7 +111,7 @@
 | 193 | 0.8.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.4 |
 | 393 | 0.8.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 6 | 0.4 |
 | 407 | 0.8.0 |  |  | **Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.** | 3 | 2 | 2 | 5 | 6 | 1 by 3 | 0.3 |
-| 218 | 0.8.0 |  | decision | **Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
+| 218 | 0.8.0 |  | decision | **Replace each country's invented streets with its real streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
 | 129 | 0.8.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
 | 41 | 0.8.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 4 by 4 | 0.2 |
 | 186 | 0.8.0 |  | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 4 | 1 | 3 | 6 | 7 | 1 by 3 | 0.2 |
@@ -251,13 +252,17 @@ Find the issuer's rules, and a test series if it publishes one, first.
 
 Find the numbering plan and its licence first.
 
+### 474. Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.
+
+Applies the decision "A country with no open address register covering it whole draws invented streets", as the project principle for `da_DK.company` and `fi_FI.company` draws names. Each name shape weighs the same, and the README's Data section marks the country's streets invented (item 254's labels). Item 330 is its first user; items 271, 280, 285 and 325 may take it too where no open register covers the country. Item 218 replaces the invented streets with real ones.
+
 ### 329. Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.
 
 GeoNames publishes Germany's postal codes.
 
-### 330. Give `geo/DE`'s places their streets.
+### 330. Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.
 
-Each Land publishes its own address data. Where open registers cover every Land, they are its street source; else it ships without streets (decision: no open address register covering it whole), and this item goes.
+Each Land publishes its own address data. Where open registers cover every Land, they are its street source; else it draws invented streets (decision: no open address register covering it whole).
 
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 
@@ -614,9 +619,9 @@ Three of the bench's readers feared a category named `run` clashing with `{/run.
 
 A fixture often needs a fixed mix: of 200 issues, 4 in progress, 30 done and the rest to do. A weighted choice gives about 4, and the count shifts with the seed, so a test asserting on it needs a loader to fix the counts. A dealt choice is a deck, drawn without replacement. Decide what a render past the last card does: refuse at `New` where the repeat is known to exceed the deck, start a fresh deck, or fall back to the weights; and which renders share one deck: the run, as `{seq()}` shares one counter, or each `repeat`. The deck is per-generator state beside `seq()`'s counters, so the same seed and date still give the same output (goal 9). A writer panel picks the spelling.
 
-### 218. Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.
+### 218. Replace each country's invented streets with its real streets, once the maintainer accepts ODbL data or the country opens a register.
 
-Ends the decision "A country with no open address register covering it whole ships its places and postal codes without streets".
+Ends the decision "A country with no open address register covering it whole draws invented streets".
 
 ### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 
@@ -1008,7 +1013,7 @@ The Base Adresse Nationale (Licence Ouverte 2.0) names each address's commune an
 
 ### 275. Add `geo/CN` with China's places and postal codes, and `zh_CN.address` printing them.
 
-`rows.Pins` holds eight pins inline, enough for a five-deep geo tree. If CN's tree runs deeper, raise that number to keep a render off the heap. Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+`rows.Pins` holds eight pins inline, enough for a five-deep geo tree. If CN's tree runs deeper, raise that number to keep a render off the heap. Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 279. Add `geo/MX` with Mexico's places and postal codes, and `es_MX.address` printing them.
 
@@ -1020,23 +1025,23 @@ IBGE's CNEFE lists every address with its CEP.
 
 ### 304. Add `geo/IN` with India's places and postal codes, and `hi_IN.address` printing them.
 
-India's PIN code directory is open data on data.gov.in. It ships without streets (decision: no open address register covering it whole).
+India's PIN code directory is open data on data.gov.in. It draws invented streets (decision: no open address register covering it whole).
 
 ### 308. Add `geo/EG` with Egypt's places and postal codes, and `ar_EG.address` printing them.
 
-Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 312. Add `geo/BD` with Bangladesh's places and postal codes, and `bn_BD.address` printing them.
 
-Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 316. Add `geo/ID` with Indonesia's places and postal codes, and `id_ID.address` printing them.
 
-Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 320. Add `geo/PK` with Pakistan's places and postal codes, and `ur_PK.address` printing them.
 
-Find an open source of its places and postal codes, and that source's licence, first. It ships without streets (decision: no open address register covering it whole).
+Find an open source of its places and postal codes, and that source's licence, first. It draws invented streets (decision: no open address register covering it whole).
 
 ### 271. Give `geo/FR`'s places their streets.
 
