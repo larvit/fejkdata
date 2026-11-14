@@ -35,7 +35,7 @@ func columnReadOf(t *tree.Template, l *tree.LoadFinds) *tree.ColumnRead {
 // of a choice. It is nil where a step has no field to follow, where a template on the way repeats,
 // or where an item of a choice is no template. It runs before checkNameReads, so a read that fence
 // will refuse comes back nil.
-func columnsAt(n tree.Node, tail []string) (columns []tree.Node) {
+func columnsAt(n tree.Node, tail []string) []tree.Node {
 	if len(tail) == 0 {
 		return []tree.Node{n}
 	}
@@ -47,13 +47,18 @@ func columnsAt(n tree.Node, tail []string) (columns []tree.Node) {
 		}
 		return columnsAt(field, tail[1:])
 	case *tree.Choice:
-		for _, it := range n.Items() {
-			below := columnsAt(it, tail)
-			if below == nil {
-				return nil
-			}
-			columns = append(columns, below...)
+		return itemColumnsAt(n, tail)
+	}
+	return nil
+}
+
+func itemColumnsAt(c *tree.Choice, tail []string) (columns []tree.Node) {
+	for _, it := range c.Items() {
+		below := columnsAt(it, tail)
+		if below == nil {
+			return nil
 		}
+		columns = append(columns, below...)
 	}
 	return columns
 }
@@ -65,14 +70,16 @@ func onlyRead(t *tree.Template, l *tree.LoadFinds) (tree.Read, bool) {
 		return tree.Read{}, false
 	}
 	o, one := PrintedOp(l.Of(t).Compiled().Ops())
-	if !one {
+	if !one || !isPlainRead(o) {
 		return tree.Read{}, false
 	}
+	return o.Alternatives()[0], true
+}
+
+// isPlainRead is whether o reads one path, unfiltered, undistinct and not joined.
+func isPlainRead(o tree.Op) bool {
 	tok, reads := o.Token(), o.Alternatives()
-	if tok.Kind != grammar.PathRead || len(reads) != 1 || tok.Where != nil || tok.Distinct != nil || reads[0].ReadsJoined() {
-		return tree.Read{}, false
-	}
-	return reads[0], true
+	return tok.Kind == grammar.PathRead && len(reads) == 1 && tok.Where == nil && tok.Distinct == nil && !reads[0].ReadsJoined()
 }
 
 // columnSource is the node a starts from (nil where a reads no node), the category holding

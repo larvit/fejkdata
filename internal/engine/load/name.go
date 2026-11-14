@@ -14,32 +14,48 @@ import (
 // template, the scope its names live in. It refuses a name bound twice along one chain of
 // scopes, a name a field spells too, and a read no field or name answers.
 func bindNames(root tree.Node, l *tree.LoadFinds) error {
-	var scopes []*tree.NameScope
-	var gather func(n tree.Node, scope *tree.NameScope, item bool, where string) error
-	gather = func(n tree.Node, scope *tree.NameScope, item bool, where string) error {
-		if t, isTemplate := n.(*tree.Template); n == root || isTemplate && (t.Repeat() > 1 || item) {
-			scope = tree.NewNameScope(scope, n)
-			scopes = append(scopes, scope)
-		}
-		switch t := n.(type) {
-		case *tree.Template:
-			l.SetNameScope(t, scope)
-			if err := bindAll(scope, t, where); err != nil {
-				return err
-			}
-		case *tree.Choice:
-			l.SetChoiceScope(t, scope)
-		}
-		_, isChoice := n.(*tree.Choice)
-		return eachContained(n, where, func(c ContainedNode, where string) error { return gather(c.Node, scope, isChoice, where) })
-	}
-	if err := gather(root, nil, false, ""); err != nil {
+	g := scopeGatherer{root: root, l: l}
+	if err := g.gather(root, nil, false, ""); err != nil {
 		return err
 	}
-	if err := refuseShadowed(scopes[1:]); err != nil {
+	if err := refuseShadowed(g.scopes[1:]); err != nil {
 		return err
 	}
-	return answerReads(root, scopes, l)
+	return answerReads(root, g.scopes, l)
+}
+
+// scopeGatherer collects, in scopes, every scope it opens under root.
+type scopeGatherer struct {
+	root   tree.Node
+	l      *tree.LoadFinds
+	scopes []*tree.NameScope
+}
+
+// gather binds the names of n and of every node below it. scope is the scope around n, and item
+// says n is an item of a choice.
+func (g *scopeGatherer) gather(n tree.Node, scope *tree.NameScope, item bool, where string) error {
+	if g.opensScope(n, item) {
+		scope = tree.NewNameScope(scope, n)
+		g.scopes = append(g.scopes, scope)
+	}
+	switch t := n.(type) {
+	case *tree.Template:
+		g.l.SetNameScope(t, scope)
+		if err := bindAll(scope, t, where); err != nil {
+			return err
+		}
+	case *tree.Choice:
+		g.l.SetChoiceScope(t, scope)
+	}
+	_, isChoice := n.(*tree.Choice)
+	return eachContained(n, where, func(c ContainedNode, where string) error { return g.gather(c.Node, scope, isChoice, where) })
+}
+
+// opensScope is whether n opens a scope of its own: the root, a repeated template and a template
+// that is an item of a choice do.
+func (g *scopeGatherer) opensScope(n tree.Node, item bool) bool {
+	t, isTemplate := n.(*tree.Template)
+	return n == g.root || isTemplate && (t.Repeat() > 1 || item)
 }
 
 // refuseShadowed refuses a name that one of scopes binds and a scope around it binds too.
@@ -87,40 +103,60 @@ func eachContained(n tree.Node, where string, fn func(c ContainedNode, where str
 // field spelling a name. A refusal searches scopes, every scope of the category, for a name bound
 // where the read cannot see it.
 func answerReads(root tree.Node, scopes []*tree.NameScope, l *tree.LoadFinds) error {
-	var answer func(n tree.Node, where string, up besideField) error
-	answer = func(n tree.Node, where string, up besideField) error {
-		t, isTemplate := n.(*tree.Template)
-		err := eachContained(n, where, func(c ContainedNode, where string) error {
-			inner := up
-			switch n.(type) {
-			case *tree.Template:
-				inner = besideField{t: t, scope: l.Of(t).NameScope(), field: c.name}
-			case *tree.Choice:
-				inner.inItem = true
-			}
-			return answer(c.Node, where, inner)
-		})
-		if err != nil || !isTemplate {
-			return err
-		}
-		sc := l.Of(t).NameScope()
-		for _, name := range tree.SortedNames(t.Fields()) {
-			if b := sc.Lookup(name); b != nil {
-				holder := "the root template"
-				if where != "" {
-					holder = strings.TrimSuffix(where, ": ")
-				}
-				return fmt.Errorf("%stoken {%s}: name %q is a field of %s too; options, fields and names share one namespace, so rename one", b.Where(), b.Body(), name, holder)
-			}
-		}
-		for _, u := range t.Unbound() {
-			if sc.Lookup(u.Head()) == nil {
-				return unanswered(where, u, sc, scopes, up)
-			}
-		}
-		return nil
+	return readAnswerer{scopes: scopes, l: l}.answer(root, "", besideField{})
+}
+
+type readAnswerer struct {
+	scopes []*tree.NameScope
+	l      *tree.LoadFinds
+}
+
+// answer answers the reads below n, then n's own where n is a template. up locates n from above.
+func (a readAnswerer) answer(n tree.Node, where string, up besideField) error {
+	err := eachContained(n, where, func(c ContainedNode, where string) error {
+		return a.answer(c.Node, where, a.below(n, c.name, up))
+	})
+	t, isTemplate := n.(*tree.Template)
+	if err != nil || !isTemplate {
+		return err
 	}
-	return answer(root, "", besideField{})
+	sc := a.l.Of(t).NameScope()
+	if err := refuseFieldNamed(t, sc, where); err != nil {
+		return err
+	}
+	for _, u := range t.Unbound() {
+		if sc.Lookup(u.Head()) == nil {
+			return unanswered(where, u, sc, a.scopes, up)
+		}
+	}
+	return nil
+}
+
+// below locates a node under field of n, where up locates n.
+func (a readAnswerer) below(n tree.Node, field string, up besideField) besideField {
+	switch n := n.(type) {
+	case *tree.Template:
+		return besideField{t: n, scope: a.l.Of(n).NameScope(), field: field}
+	case *tree.Choice:
+		up.inItem = true
+	}
+	return up
+}
+
+// refuseFieldNamed refuses a field of t spelling a name that sc sees.
+func refuseFieldNamed(t *tree.Template, sc *tree.NameScope, where string) error {
+	for _, name := range tree.SortedNames(t.Fields()) {
+		b := sc.Lookup(name)
+		if b == nil {
+			continue
+		}
+		holder := "the root template"
+		if where != "" {
+			holder = strings.TrimSuffix(where, ": ")
+		}
+		return fmt.Errorf("%stoken {%s}: name %q is a field of %s too; options, fields and names share one namespace, so rename one", b.Where(), b.Body(), name, holder)
+	}
+	return nil
 }
 
 // besideField locates a template from above: t is the nearest template containing it, scope
