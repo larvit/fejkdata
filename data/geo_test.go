@@ -311,7 +311,7 @@ func geoLocalityParents(t *testing.T, dir, regionColumn string) map[string]bool 
 
 func TestShippedAddressNamesTheMunicipalityAndRegionOfItsLocality(t *testing.T) {
 	t.Parallel()
-	for _, c := range shippedAddressLocales {
+	for _, c := range append(slices.Clone(shippedAddressLocales), struct{ locale, country, template, largest string }{locale: "nn_NO", country: "NO"}) {
 		t.Run(c.locale, func(t *testing.T) {
 			t.Parallel()
 			regionColumn := "name"

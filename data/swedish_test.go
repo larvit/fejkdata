@@ -696,17 +696,29 @@ func TestShippedLastNameComposition(t *testing.T) {
 // docs/research/research-age-bands.md: 0-17 20.36%, 18-64 58.80%, 65-99 20.81%, 100 or more 0.028%.
 // Read on 2026-11-04, the bands are the birth years 2009-2026, 1962-2008, 1927-1961 and 1913-1926.
 func TestSwedishBirthDatesWeighAgesByPopulation(t *testing.T) {
-	for path, layout := range map[string]string{"sv_SE.personnummer-12": "20060102", "sv_SE.person.birthdate": "2006-01-02"} {
+	inLayout := func(layout string) func(*testing.T, string) time.Time {
+		return func(t *testing.T, v string) time.Time {
+			born, err := time.Parse(layout, v[:min(len(v), len(layout))])
+			if err != nil {
+				t.Fatalf("%q holds no calendar date: %v", v, err)
+			}
+			return born
+		}
+	}
+	shortForm := func(t *testing.T, v string) time.Time {
+		born, _ := birthOfASwedishTestPersonnummerReadIn2026(t, v)
+		return born
+	}
+	for path, birth := range map[string]func(*testing.T, string) time.Time{
+		"sv_SE.personnummer-12": inLayout("20060102"), "sv_SE.person.birthdate": inLayout("2006-01-02"), "sv_SE.personnummer": shortForm,
+	} {
 		t.Run(path, func(t *testing.T) {
 			const draws = 200000
 			sv := shipped(t, fejkdata.WithToday(fejktest.DayOf(2026, 11, 4)))
 			bands := [4]int{}
 			oldest, youngest := [4]int{9999, 9999, 9999, 9999}, [4]int{}
 			fejktest.EachDraw(draws, func() string { return fejktest.Fake(t, sv, path) }, func(v string) {
-				born, err := time.Parse(layout, v[:min(len(v), len(layout))])
-				if err != nil {
-					t.Fatalf("%s %q holds no calendar date: %v", path, v, err)
-				}
+				born := birth(t, v)
 				band := ageBandOfABirthYearReadIn2026(born.Year())
 				bands[band]++
 				oldest[band], youngest[band] = min(oldest[band], born.Year()), max(youngest[band], born.Year())
@@ -1770,8 +1782,7 @@ func TestSwedishBankAccount(t *testing.T) {
 	}
 }
 
-// Each age band of a personnummer is a column of its own, of those who turn the band's ages in the
-// year, as born counts them.
+// A band's column holds those who turn its ages in the year of today, as born counts an age.
 func TestSwedishPersonnummerOfAnAgeBand(t *testing.T) {
 	today := fejktest.DayOf(2026, 11, 4)
 	sv := shipped(t, fejkdata.WithToday(today))
