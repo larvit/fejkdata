@@ -803,6 +803,26 @@ three to six sentences. WordNet's licence asks for its notice and disclaimer on 
 `data/en_US/WORDNET-LICENSE.txt` holds them, the `en_US` module embeds the file, and the release archives and
 packages carry it.
 
+#### Social Security numbers and ITINs
+
+`en_US.ssn` and `en_US.itin` print `area-group-serial`, such as `123-45-6789`, and each has the
+columns `area`, `group` and `serial`. Both are valid, not synthetic: they pass the rules the
+issuer publishes, but fejkdata draws no test series, so a number may be a living person's.
+Every number the rules allow is equally likely.
+
+- `en_US.ssn` draws the area from `001` to `665` and `667` to `899`, the group from `01` to
+  `99` and the serial from `0001` to `9999`. The Social Security Administration (SSA) [assigns
+  no area 000, 666 or 900 to 999](https://www.ssa.gov/employer/randomization.html), and
+  [no group 00 or serial 0000](https://www.ssa.gov/employer/randomizationfaqs.html). About 890
+  million numbers exist, so a fixture of some tens of thousands of rows starts to repeat one.
+- `en_US.itin` draws the area from `900` to `999`, the group from `50` to `65`, `70` to `88`, `90`
+  to `92` or `94` to `99`, and the serial from `0001` to `9999`, the ranges of the Internal
+  Revenue Service's [Individual Taxpayer Identification
+  Number](https://www.irs.gov/irm/part3/irm_03-021-263r). About 44 million numbers exist, so a
+  fixture of a few thousand rows starts to repeat one.
+
+A `UNIQUE` column takes `{seq()}` or a category of your own.
+
 #### US phone exchanges
 
 `en_US.phone` draws its exchange from `en_US.phone-exchange`,
