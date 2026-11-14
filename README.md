@@ -2160,7 +2160,8 @@ internal/datafiles/ the walk of a data tree: its folders, its category files and
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
 internal/engine/ the load pipeline every entry point runs, a source's index and the lazy load of an indexed category on the first call reaching it, the draw of a caller's path and record, and the vocabulary the engine is written in
-internal/engine/fence/ the proofs and fences a finished tree passes at load: no reference cycle, no repeat past the cap, names that keep one pick, where clauses that read no name they bind, filter no draw read through a path and have enough values to draw, {adddays()} day counts, record columns whose items agree on a datatype, and what a typed column, calc operand or struct field can hold
+internal/engine/fence/ the proofs and fences a finished tree passes at load: no reference cycle, no repeat past the cap, where clauses that read no name they bind, filter no draw read through a path and have enough values to draw, {adddays()} day counts, record columns whose items agree on a datatype, and what a typed column, calc operand or struct field can hold
+internal/engine/fence/names/ the rules that refuse a read of a name that could not keep one pick, and the walk of a pick's routes they share
 internal/engine/load/ compiling JSON into nodes, its formats into ops, binding names, resolving references, linking tables, and the paths List advertises
 internal/engine/render/ drawing a compiled tree: choices, format strings, expansions, paths and table steps, named picks and the frames they render in, where and reword draws, and a record's columns
 internal/engine/tree/ the node types of the template tree, what a load found for them, and the methods every other package reads or sets a node through

@@ -1080,9 +1080,9 @@ The scoring runs are in [the comprehension history](comprehension-history.md). T
 
 The nine-seat panel at depth 1 and the four-seat scoring run of 2026-11-11 read commit 3f909f1. `larv-review needs-scoring-run` called no run on that commit, so the history doesn't hold them. The four seats: Navigation 7.13, Locality 5.63, Shape 6.50, Self-sufficiency 6.88, overall 6.38. The nine: Navigation 7.11, Locality 5.78, Shape 6.56, Self-sufficiency 6.72, overall 6.44. Against the nine-seat panel on b9d1af6 every mean fell, Navigation from 7.33, Locality from 6.17, Shape from 6.67, Self-sufficiency from 6.83 and the overall from 6.67, and Locality is lowest again. Nearly every seat found the named picks hardest: `checkNameRead`, `sharedDraw` and `refuseFreshDraw` in `fence/namefence.go`, `readName` and `enter` in `render`, `LandsInPick`, `drawSteps`, and the `LoadFinds` phase around `Finish`. Four also named `render`, `load.RenderEdges` and `fence.walkRoutes` as three lists of one node's children, kept in step by a comment. Items 421 to 430 hold what the seats named, and item 421 starts lifting Locality to the floor. Valid while the comprehension floor's target is 7.0.
 
-## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, drawing in `internal/engine/render`, and the pipeline and lazy loading in `internal/engine`, with the root the public API and its options; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
+## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, with the name rules in its package `names`, drawing in `internal/engine/render`, and the pipeline and lazy loading in `internal/engine`, with the root the public API and its options; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
 
-2026-10-05, Lilleman auf Larv; revised 2026-11-11, three times. Serves code health. On 2026-10-09 the
+2026-10-05, Lilleman auf Larv; revised 2026-11-11, three times, and 2026-11-14. Serves code health. On 2026-10-09 the
 maintainer chose to regroup the engine into packages, untangled first, over naming the root
 files by area; this is the plan for that choice, made with the systems architect.
 
@@ -1118,7 +1118,9 @@ repeat fences among them, since they check the finished graph; `render` draws. `
 `render` each import `tree` and leaf libraries, and neither imports the other. `fence` imports
 `load` as well as `tree`, since the fences walk the graph `load` built, read its names and
 compile a path as it does; an import one way keeps the stages acyclic, and `render` imports
-neither. `internal/engine` holds the pipeline and lazy loading, and the entry points' walks of a
+neither. The rules that refuse a read of a name sit in `fence/names`: they share the walk of a
+pick's routes and its types, which no other fence reads, and `fence` and the pipeline call the
+package's two entry points. `internal/engine` holds the pipeline and lazy loading, and the entry points' walks of a
 caller's path and record, importing `tree`, `load`, `fence`, `render` and the leaf libraries.
 The root keeps only the public API and its options: it imports `internal/engine`, `tree`, whose
 folder its generator holds, and leaf libraries, never a stage, and builds `Record` from
