@@ -23,7 +23,6 @@ func weightedSum(digits string, weights []int) int {
 	return sum
 }
 
-// spanishControl is the control digit of the Banco de España: weights 1 2 4 8 5 10 9 7 3 6.
 func spanishControl(ten string) byte {
 	switch dc := 11 - weightedSum(ten, []int{1, 2, 4, 8, 5, 10, 9, 7, 3, 6})%11; dc {
 	case 10:
@@ -110,5 +109,18 @@ func TestSwedishIBANDrawsEveryListedBank(t *testing.T) {
 	}
 	if len(seen) != len(swedishIBANIDs) {
 		t.Errorf("iban(SE) drew %d distinct IBAN IDs, want the %d listed", len(seen), len(swedishIBANIDs))
+	}
+}
+
+func TestIBANDrawsEveryDigit(t *testing.T) {
+	f := emptyGenerator(1)
+	seen := map[byte]bool{}
+	for range 200 {
+		for _, c := range []byte(mustRender(t, f, `"{iban(DE)}"`)[4:]) {
+			seen[c] = true
+		}
+	}
+	if len(seen) != 10 {
+		t.Errorf("iban(DE) drew %d distinct digits in 200 draws, want 10", len(seen))
 	}
 }

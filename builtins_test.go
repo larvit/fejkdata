@@ -244,7 +244,7 @@ func TestBuiltinArgsWithinTheLimitsCompile(t *testing.T) {
 }
 
 func TestBuiltinIBAN(t *testing.T) {
-	wantLen := map[string]int{"SE": 24, "DE": 22, "NO": 15}
+	wantLen := map[string]int{"BE": 16, "DE": 22, "DK": 18, "ES": 24, "FI": 18, "NO": 15, "SE": 24}
 	f := emptyGenerator(1)
 	for cc, n := range wantLen {
 		t.Run(cc, func(t *testing.T) {
