@@ -29,7 +29,7 @@ func refuseFreshDraw(nr nameRead) error {
 		if !drawsAlong(target.Start(), path, true) {
 			continue
 		}
-		if by, other := nr.pick.readAddressing(read, keyOf(underSelector(target, path)), reached, nr.names); other {
+		if by, other := nr.pick.readAddressing(read, nr.pick.keyAt(path), reached, nr.names); other {
 			return fmt.Errorf("{%s} reaches {%s}, which draws afresh a path {%s} reads from the pick, so {%s} and {%s} could differ; drop {%s}, or write {%s} for a second draw",
 				read.Spelling(), reached.ref.Spelling(), by, read.Spelling(), by, by, secondDraw(b, by))
 		}
@@ -64,20 +64,11 @@ func refsReached(routes []route) []refReach {
 	return found
 }
 
-// underSelector is path, from a binding's start, as a key spells it. A key holds the selector of a
-// binding such as {/region[01] as r}, and a walk of the tree passes no selector.
-func underSelector(target tree.NameTarget, path []string) []string {
-	if len(target.Tail()) > 0 && grammar.IsSelector(target.Tail()[0]) {
-		return slices.Concat(target.Tail()[:1], path)
-	}
-	return path
-}
-
 // readAddressing is the spelling of a read other than self that lands on or passes key, or lands on
 // a level whose render reads reached.leaf, the node at key, and doesn't render reached.ref.
 func (p pickReads) readAddressing(self *tree.Read, key tree.PickKey, reached refReach, names resolvedNames) (string, bool) {
 	for _, r := range p.reads {
-		if r != self && (slices.Contains(r.Levels()[p.bound:], key) || rendersField(names, r, reached)) {
+		if r != self && (p.addresses(r, key) || rendersField(names, r, reached)) {
 			return r.Spelling(), true
 		}
 	}
@@ -93,7 +84,7 @@ func rendersField(names resolvedNames, read *tree.Read, reached refReach) bool {
 		return false
 	}
 	return slices.ContainsFunc(routes, func(r route) bool {
-		if r.a.Kind() != tree.FreshRead || grammar.IsRef(r.a.Head()) {
+		if !readsField(r.a) {
 			return false
 		}
 		return slices.ContainsFunc(r.a.Leaves(), func(l tree.Node) bool {

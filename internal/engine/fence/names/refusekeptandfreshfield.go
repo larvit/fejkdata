@@ -2,11 +2,8 @@ package names
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/larvit/fejkdata/internal/engine/tree"
-	"github.com/larvit/fejkdata/internal/grammar"
-	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // fieldRead is a field read that draws afresh. Field of is the read of the name whose render makes it.
@@ -26,7 +23,7 @@ func freshFieldReads(reads []*tree.Read, addressed map[tree.PickKey]string) map[
 		}
 		walked[read.Key()] = true
 		for _, r := range routesUnder(read.Leaves(), read.Key(), addressed) {
-			if r.kind != routeFresh {
+			if !r.drawsAfresh() {
 				continue
 			}
 			for _, level := range r.levels {
@@ -43,12 +40,12 @@ func freshFieldReads(reads []*tree.Read, addressed map[tree.PickKey]string) map[
 func refuseKeptAndFreshField(nr nameRead) error {
 	b := nr.read.Named()
 	for _, x := range nr.routes {
-		if x.kind != routeKept {
+		if !x.kept() {
 			continue
 		}
 		if u, shared, apart := drawnAfresh(x, nr.names.fresh[b]); apart {
 			read, other := nr.read.Spelling(), u.of.Spelling()
-			keep := spellingThrough(b, b.Target(), shared)
+			keep := nr.pick.spellingOf(shared)
 			return fmt.Errorf("{%s} reads {%s} from the pick, but {%s} renders {%s}, the same field, afresh, so {%s} and {%s} could differ; read {%s} in place of {%s} to keep one draw, or write {%s} for a second draw",
 				read, x.a.Spelling(), other, u.a.Spelling(), read, other, keep, other, secondDraw(b, other))
 		}
@@ -72,22 +69,11 @@ func drawnAfresh(x route, byLevel map[tree.PickKey][]fieldRead) (fieldRead, tree
 // readsFieldApart reports whether x, which the pick keeps, and u, which draws afresh, read a field
 // they could draw apart: they share a level, and the walk to the deepest one they share meets a
 // choice or table, or one ends there on something that isn't a constant. It returns that level.
-// u.levels[0] is u's head, so u.levels[j] is where the walk of u's tail[:j] ends.
 func readsFieldApart(x route, u fieldRead) (shared tree.PickKey, apart bool) {
-	for j := len(u.levels) - 1; j >= 0; j-- {
-		if slices.Contains(x.levels, u.levels[j]) {
-			oneEndsHere := x.levels[len(x.levels)-1] == u.levels[j] || j == len(u.levels)-1
-			return u.levels[j], drawsAlong(u.in.StartOf(u.a.Head(), u.in.Refs()), u.a.Tail()[:j], oneEndsHere)
-		}
+	shared, share := u.deepestShared(x)
+	if !share {
+		return "", false
 	}
-	return "", false
-}
-
-// spellingThrough is how to read level, a key in the pick of b, through b's name.
-func spellingThrough(b *tree.NameBinding, target tree.NameTarget, level tree.PickKey) string {
-	segs, err := grammar.SplitPath(string(level))
-	if err != nil || len(segs) < len(target.Tail()) {
-		panic(invariant.Broken("level %q of name %q is not a path under its binding", level, b.Name()))
-	}
-	return grammar.JoinSegments(append([]string{b.Name()}, segs[len(target.Tail()):]...))
+	oneEndsHere := x.landsOn(shared) || u.landsOn(shared)
+	return shared, u.drawsDownTo(shared, oneEndsHere)
 }
