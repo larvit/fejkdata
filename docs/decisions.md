@@ -614,7 +614,7 @@ its ZIPs would shape the two trees differently, so both draw inside the pinned l
 and an address agrees at that level. A street's own code is the exact pairing to add
 when a source carries it.
 
-## A locale package imports its country's geo package, and its `Modules()` returns both
+## A locale package imports the data packages it reads, and its `Modules()` returns them all
 
 2026-09-24, Lilleman auf Larv; revised 2026-10-11, when the shipped data became Go packages,
 from a bench of a Go test author, a data author and a custom-CLI builder, 3 to 0. Serves
@@ -624,9 +624,10 @@ program passing `Modules()` cannot leave the places out. `svse.FS` alone loads f
 providing `geo.SE`'s paths, and without one `sv_SE.address` fails at first reach with
 `no entry "geo"`; until `todo.md` item 196 names the missing module in that error, the bare
 `FS` works against goal 5.2. Every package exports `Modules()`, so one spelling loads any of
-them; a data package imports only the packages it reads. Revised 2026-11-14, for
-`nn_NO`, which reads `nb_NO`'s names and id: a locale also imports another locale of its
-own country that it reads, and its `Modules()` returns that one's modules too.
+them; a data package imports only the packages it reads. A locale that reads another locale of its
+own country, as `nn_NO` reads `nb_NO` (revised 2026-11-14, Lilleman auf Larv), imports that
+one instead, and reaches the country's `geo` package through the other's `Modules()`:
+`nnno` imports `nbno` and not `geono`.
 
 ## The default embed holds every Swedish postort the import can place, with all its streets, and, of the US places that hold most of a postal code's land, every state capital, every place of 100,000 or more and a population-weighted tenth, each with a quarter of its streets, at least ten
 

@@ -80,7 +80,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A cell may read a reference, and each row its own
 - A path is walked once without drawing before it is walked for real
 - A country's postal codes and streets are siblings under its locality
-- A locale package imports its country's geo package, and its `Modules()` returns both
+- A locale package imports the data packages it reads, and its `Modules()` returns them all
 - The default embed holds every Swedish postort the import can place, with all its streets, and, of the US places that hold most of a postal code's land, every state capital, every place of 100,000 or more and a population-weighted tenth, each with a quarter of its streets, at least ten
 - A locale's `address` binds its country's record once and prints it whole
 - A postort's kommun comes from its name, its tätort, the SCB småort holding its centre or its codes, never from distance
