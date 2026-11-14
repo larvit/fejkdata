@@ -957,9 +957,11 @@ postdistrikt Gudhjem, on Bornholm. A Danish street sits under each postdistrikt 
 is written in lower case, as in `12a`. Posti's files hold no street on Åland, so Åland ships no place. Posti
 writes a postitoimipaikka in capitals, `HEINOLA KK`, and `geo.FI` writes it as a place name, `Heinola kk`.
 A kunta's `code` is three digits, `091`, and a maakunta's two, `01`, as Statistics Finland writes them.
-A street's `swedish-name` is the Swedish name Posti gives it most often in its postitoimipaikka, such as
-`Nylandsvägen` for `Uudenmaantie`. Where Posti gives none, `swedish-name` holds the Finnish name. A Finnish street sits under each postitoimipaikka where
-Posti lists it.
+A locality, a municipality and a street each have a `swedish-name`. A postitoimipaikka's is the Swedish name
+Posti gives most of its postinumerot, written as a place name, such as `Helsingfors` for `Helsinki`. A kunta's is
+Statistics Finland's, such as `Åbo` for `Turku`. A street's is the one Posti gives it most often in its
+postitoimipaikka, such as `Nylandsvägen` for `Uudenmaantie`. Where the source gives none, `swedish-name` holds the
+Finnish name. A Finnish street sits under each postitoimipaikka where Posti lists it.
 
 #### Norwegian places
 

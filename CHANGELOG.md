@@ -37,6 +37,10 @@ with its replacement, and each removed path, column or flag.
 - `fi_FI.henkilotunnus-issued` and `{hetu(x,'issued')}` draw a henkilötunnus with an individual
   number from 002 to 899, the range DVV issues, for a checker that refuses 900 to 999. Such a
   number may be a living person's.
+- `geo.FI.locality` and `geo.FI.municipality` have a `swedish-name` column, as `geo.FI.street` has:
+  `Helsingfors` for the postitoimipaikka and the kunta `Helsinki`, `Åbo` for `Turku`. A
+  postitoimipaikka's is Posti's, a kunta's Statistics Finland's, and each is its Finnish name where the
+  source gives no Swedish one.
 
 ### Changed
 
