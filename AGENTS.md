@@ -91,7 +91,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A table owns the spelling of a selector on it
 - A builtin reads the date the caller gives, never the clock, so `born` bounds a date by an age
 - `New` requires `WithToday`, and `--today` defaults to the system's date
-- `sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`
+- `sv_SE.personnummer` and `sv_SE.personnummer-12` draw four age bands, up to age 113; `personnummer` is a table under `sex` with a column per band, and `personnummer-12` has no `ten`
 - `misc` is what every locale shares
 - A register's canonical spelling loses to the one its domain writes
 - `misc.territory` is the spine, and a `misc` table naming a territory links to it
@@ -108,7 +108,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The Swedish ids draw Skatteverket's test series
 - The Norwegian id draws Skatteetaten's synthetic series
 - The Danish id draws valid CPR numbers over the last hundred years
-- The Finnish id draws DVV's unissued 900 to 999
+- The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
 - A path draws through its compiled steps

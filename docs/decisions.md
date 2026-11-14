@@ -747,7 +747,7 @@ since it collides with `{date()}` and `sv_SE.date`. `born` won three to two over
 and `turns` were wanted least. A date is required even where no template reads it, since a load cannot
 promise that the data never will. Valid while goal 9.1 stands.
 
-## `sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`
+## `sv_SE.personnummer` and `sv_SE.personnummer-12` draw four age bands, up to age 113; `personnummer` is a table under `sex` with a column per band, and `personnummer-12` has no `ten`
 
 2026-11-04, Lilleman auf Larv.
 
@@ -761,6 +761,15 @@ layout, and `{luhn(9)}` keeps it out of the check digit. A panel of three reader
 980 and 981, so a date before 2013, which can draw a birth before 1900, falls outside the test series,
 and so does a birth in a year Skatteverket hasn't published. Valid while the callers' dates lie from 2013
 up to the years Skatteverket has published, and while no Swede passes 113.
+
+Goal 3.1: a category renders the same whoever references it, so `sv_SE.personnummer` can't read a sex its
+caller picked. It is a table under `sex` instead, one row per sex, so `sex[f].personnummer` and a bound
+`{s.personnummer}` carry that sex's birth number. Each band is a column, `child`, `adult`, `senior` and
+`centenarian`, and `number`, the table's format, starts with `sv_SE.personnummer-date`, the four bands
+by their weights. A panel of three readers, seated as a validator-facing author, a hand fixture author
+and a Go test author, chose `personnummer.child` over `personnummer[child]`, `personnummer-child` and
+`personnummer.0-17`, and `{s.personnummer}` over `{s.birth-number.personnummer}` and
+`personnummer-f`. A row's cells draw apart, so its CSV columns hold six unrelated values.
 
 ## `misc` is what every locale shares
 
@@ -891,8 +900,8 @@ A Luhn-valid personnummer over a random birth number may be a living person's; 2
 `samordningsnummer` use those. They sit in a `birth-number` table under `sex`, not in a
 column of it, so a pick of a sex can read the number, and `sex` keeps one shape across
 locales. `sv_SE.person`'s `personnummer` and `samordningsnummer` read the number through the
-person's pick of a sex, so each agrees with that sex. `todo.md` item 28 makes
-`sv_SE.personnummer` read a named pick's sex the same way. A
+person's pick of a sex, so each agrees with that sex, and `sv_SE.personnummer`, a table under
+`sex`, reads it in each row's cells. A
 samordningsnummer's day is the birthday plus 60: `sv_SE.samordningsnummer` draws it from 61 to
 88, valid in every month, and `sv_SE.person` computes it from the birth date it binds.
 
@@ -973,7 +982,7 @@ fixture authors picked the spellings. All four chose `cpr` for the path and `{cp
 function, since Danes write it, and all four chose `individ` over `parity` for the table, the
 name `nb_NO` uses for the same job.
 
-## The Finnish id draws DVV's unissued 900 to 999
+## The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 
 2026-11-12, Lilleman auf Larv.
 
@@ -987,7 +996,16 @@ refuse them; the README says so, as it does for the fødselsnummer. This follows
 Norwegian ids, which draw an issuer's test series, and not the Danish, whose office publishes
 none.
 
-Valid while DVV issues no number from 900. A variant over 002 to 899 is a later item.
+Valid while DVV issues no number from 900.
+
+A hand fixture for a checker that refuses the synthetic endings needs the issued range, and goal 3
+asks the best category to offer more than one kind. `fi_FI.henkilotunnus-issued` draws 002 to 899
+through `{hetu(x,'issued')}`: the sign and the control character are the same, so a second builtin
+would add a name for one meaning. A panel of three readers, seated as a validator-facing author, a
+hand fixture author and a Go test author, chose `henkilotunnus-issued` over `-real`, `-valid` and
+`.issued`, and `'issued'` over a number range, a bare word and `{hetu-issued(x)}`. A drawn number
+may be a living person's, which the README says beside it; the default stays 900 to 999 for goal
+3.3.
 
 The control character, the century signs and the parity of the individual number are DVV's. The
 sign is the latest year not after today that bears the year digits, as `{cpr(x)}` takes its
