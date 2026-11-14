@@ -6,16 +6,17 @@
 
 `Bar = 0`
 
-`Next ID = 464`
+`Next ID = 466`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 169 | 0.6.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
-| 460 | 0.6.0 |  |  | **Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.** | 2 | 1 | 1 | 2 | 3 | 1 by 3 | 1.8 |
 | 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
+| 464 | 0.6.0 |  | decision | **Read a table's parent column in one pass over its runs of equal cells, in the parent-weight proof, the link check and the row lookup.** | 2 | 1 | 3 | 4 | 3 | 1 by 2 | 1.2 |
 | 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
+| 465 | 0.6.0 | 464 | decision | **Load a shipped table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 7.3 |
@@ -225,25 +226,23 @@
 
 Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
 
-### 460. Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.
-
-Measured on 2026-11-13 at 94474007, in containers of 2 CPUs and 2 GB, with a release build of Go 1.27.4.
-
-- The library with all `en_US` modules takes about 110 to 130 ms to build a generator, the first `en_US.address` draw about 20 to 30 ms more, and the process peaks near 154 MB. With the same templates over a 208 KB trimmed copy of the US data, it takes about 6 ms, draws the first address in under 1 ms and peaks near 32 MB.
-- The CLI takes 2.6 to 4.8 ms for a name, an email, a phone number or a uuid, and 120 to 160 ms and about 78 MB for one `en_US.address`. A Swedish person and address take about 62 ms.
-- A steady-state draw takes about 10 µs either way, so the cost is the first reach of the large street data, not the draws after it.
-
-The item ends when the choice, the strategies it weighed and their measured gains and costs are recorded where the project keeps such choices, and the items that build it are filed. It changes no shipped data and no output.
-
 ### 454. Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.
 
 Posti's postcode file names each postitoimipaikka in Swedish too (field 49, 30 characters), and Statistics Finland's classification names each kunta in Swedish. Add a `swedish-name` column to the locality and municipality tables, as the street table has, falling back to the Finnish name where no Swedish one exists, and recase Posti's Swedish names as `recased` does the Finnish ones.
+
+### 464. Read a table's parent column in one pass over its runs of equal cells, in the parent-weight proof, the link check and the row lookup.
+
+Loading `geo.US`'s street rows spends about 20 ms in `proveWeightUnderEachParent`, 18 ms in `Link` and 19 ms in `builtLookup`, about 57 ms of the 126 to 142 ms the first `en_US.address` takes, each over a map keyed by the parent string with a map operation per row. The rows of every shipped table sit grouped by parent, so one pass that starts a run where a row's parent cell differs from the cell above it, and holds one map entry per run, took 3.7 ms for all three in a spike. A table whose parent's rows are not adjacent keeps today's per-row path, since data from anyone else may order its rows any way. It changes no output and no error text: a test with scattered parents loads and fails as it does today. When it lands, re-measure the CLI's first `en_US.address` and record the number in the decision "A table's parent column is read in one pass over its runs, and a parent's rows load on demand where one pass leaves a first reach over 100 ms".
 
 ### 458. Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.
 
 `AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 74 functions.
 
 They do not fit one chunk: break this item into steps, by package, before starting it. In the last step, change the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
+
+### 465. Load a shipped table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest.
+
+Blocked by 464. Build it only if, after 464, the CLI's first `en_US.address` still takes 100 ms or more (the limit under which an interface's answer feels instant, Nielsen 1993); otherwise drop it with `Drop item 465: <why>`. A spike's index for `geo.US`'s streets holds one line per parent, its key, first byte, last byte, row count and total weight: 1,716 lines, 55 KB. Reading it took 0.3 ms and parsing one locality's streets 19 µs, against 24 to 33 ms to parse all 475k rows. The index states what the proofs of the whole file prove (every parent key is a key of the parent table and every parent weighs above 0); `go generate` proves them and a test keeps the index current, as `TestShippedManifestsAreCurrent` does for the manifests. A table without an index, such as anyone else's, loads whole as today, so a shipped module still loads as anyone else's does (goal 8.1). Risks to settle first: `Len`, `Cell(row, col)` and `Draw` in `internal/rows` assume the whole table, and a draw over the whole street table with no locality (`{geo.US.street}` alone) would draw a parent by its total weight, then a row under it, which spreads the same but may round differently, so a seeded output could change; check the seeded pins and re-pin a changed one as its own commit. Where it changes `loadReached` in `internal/engine/lazy.go`, make it easier to read: today its worklist grows inside the loop from three sources. Success: the CLI's first `en_US.address` under 20 ms and its peak under 40 MB, from 126 to 142 ms and 80 MB.
 
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 
