@@ -1788,3 +1788,69 @@ func TestSwedishBankAccount(t *testing.T) {
 		})
 	}
 }
+
+// Each age band of a personnummer is a column of its own, of the ages SCB's bands hold.
+func TestSwedishPersonnummerOfAnAgeBand(t *testing.T) {
+	today := fejktest.DayOf(2026, 11, 4)
+	sv := shipped(t, fejkdata.WithToday(today))
+	for band, ages := range map[string][2]int{"child": {0, 17}, "adult": {18, 64}, "senior": {65, 99}, "centenarian": {100, 113}} {
+		t.Run(band, func(t *testing.T) {
+			fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, sv, "sv_SE.personnummer."+band) }, func(v string) {
+				born, sign := birthOfASwedishTestPersonnummerReadIn2026(t, v)
+				age := today.Year() - born.Year()
+				if born.AddDate(age, 0, 0).After(today) {
+					age--
+				}
+				if age < ages[0] || age > ages[1] {
+					t.Fatalf("personnummer.%s %q is of age %d, want %d to %d", band, v, age, ages[0], ages[1])
+				}
+				if want := map[bool]byte{true: '+', false: '-'}[born.Year() <= 1926]; sign != want {
+					t.Fatalf("personnummer.%s %q, want the separator %c", band, v, want)
+				}
+			})
+		})
+	}
+}
+
+// birthOfASwedishTestPersonnummerReadIn2026 fails the test unless v is a Luhn-valid personnummer
+// of the test series, and returns its birth date and separator.
+func birthOfASwedishTestPersonnummerReadIn2026(t *testing.T, v string) (time.Time, byte) {
+	t.Helper()
+	d := fejktest.DigitsOnly(v)
+	if !regexp.MustCompile(`^\d{6}[-+]23[89]\d$`).MatchString(v) || !fejktest.LuhnValid(d) {
+		t.Fatalf("personnummer %q, want a Luhn-valid YYMMDD-23[89]C, or + for -", v)
+	}
+	day, err := time.Parse("060102", d[:6])
+	if err != nil {
+		t.Fatalf("personnummer %q holds no calendar date: %v", v, err)
+	}
+	year := birthYearOfAHyphenPersonnummerReadIn2026(day.Year() % 100)
+	if v[6] == '+' {
+		year -= 100
+	}
+	return fejktest.DayOf(year, day.Month(), day.Day()), v[6]
+}
+
+// A personnummer read under a sex carries that sex's birth number, 238 for a woman and 239 for a
+// man, through a selected row and through a name alike.
+func TestSwedishPersonnummerAgreesWithItsSex(t *testing.T) {
+	sv := shipped(t)
+	for template, want := range map[string]string{
+		"{/sv_SE.sex[f].personnummer}":                             `^\d{6}[-+]238\d$`,
+		"{/sv_SE.sex[m].personnummer}":                             `^\d{6}[-+]239\d$`,
+		"{/sv_SE.sex[f].personnummer.centenarian}":                 `^\d{6}\+238\d$`,
+		"{/sv_SE.sex[m] as s}{s.name} {s.personnummer.child}":      `^man \d{6}-239\d$`,
+		"{/sv_SE.sex[f] as s}{s.name} {s.personnummer}":            `^kvinna \d{6}[-+]238\d$`,
+		"{/sv_SE.sex as s}{s.birth-number} {s.personnummer}":       `^(238 \d{6}[-+]238|239 \d{6}[-+]239)\d$`,
+		"{/sv_SE.sex as s}{s.birth-number} {s.personnummer.adult}": `^(238 \d{6}-238|239 \d{6}-239)\d$`,
+	} {
+		t.Run(template, func(t *testing.T) {
+			re := regexp.MustCompile(want)
+			fejktest.EachDraw(500, func() string { return fejktest.FakeTemplate(t, sv, template) }, func(v string) {
+				if !re.MatchString(v) || !fejktest.LuhnValid(fejktest.DigitsOnly(v[strings.LastIndex(v, " ")+1:])) {
+					t.Fatalf("%s rendered %q, want a Luhn-valid match of %s", template, v, want)
+				}
+			})
+		})
+	}
+}
