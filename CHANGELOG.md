@@ -40,9 +40,8 @@ with its replacement, and each removed path, column or flag.
 
 ### Changed
 
-- A table's parent column is read in one pass over its runs of equal cells, so loading a
-  country's streets takes about 60 ms less: the CLI's first `en_US.address` takes about 110 ms
-  instead of 170. A render's output and every load error stay as they were.
+- Loading a country's streets is faster: on one machine the CLI's first `en_US.address` took
+  about 110 ms where it took 170 ms. A render's output and every load error stay as they were.
 
 ### Fixed
 
