@@ -655,7 +655,7 @@ run printing the first `en_US.address` took 145 ms, `sv_SE.address` 95 ms and
 `misc.territory` 3 ms, then within goal 12; its 12.2 now asks for under 100 ms. `--place-share`, `--street-share` and
 `--min-streets` on the import scripts build another set. Valid while the first reach of
 a country stays unnoticed beside a test run; it works against goal 12.2 until `todo.md`
-items 464 and 465 land.
+item 465 lands.
 
 ## A locale's `address` binds its country's record once and prints it whole
 
@@ -1842,7 +1842,7 @@ A street's `swedish-name` is the Swedish name Posti gives it most often in its p
 
 ## A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 
-2026-11-14, in the chunk that measured the cold start. Serves goals 12.1, that a render's cost grows only with the data it reaches, and 12.2, that the first value of any category appears in under 100 ms. Revised the same day, after a study of bulk speed and data growth: loading by block, first built only if one pass left the CLI's first `en_US.address` at 100 ms or more, is now unconditional and covers every table larger than one block. Carried out by `todo.md` items 464, 465, 470, 471 and 472.
+2026-11-14, in the chunk that measured the cold start. Serves goals 12.1, that a render's cost grows only with the data it reaches, and 12.2, that the first value of any category appears in under 100 ms. Revised the same day, after a study of bulk speed and data growth: loading by block, first built only if one pass left the CLI's first `en_US.address` at 100 ms or more, is now unconditional and covers every table larger than one block. Carried out by `todo.md` items 465, 470, 471 and 472; item 464 shipped in 0.6.0.
 
 The first reach of a country's streets is the cost; `New` and every later draw are not. Measured at 12c96997 with Go 1.27.4 in a container: `New` took 0.3 ms with `en_US`'s modules and 1 to 2 ms with every shipped module, the library's first `en_US.address` took 126 to 142 ms and peaked near 80 MB, and its second took 20 µs. In the CLI, a name or a uuid took 5 to 7 ms; `en_US.address` took 150 ms and peaked near 80 MB, `geo.FI.address` 87 ms and 53 MB, `sv_SE.address` 75 ms and 37 MB, and `geo.NO.address` 48 ms. A CPU profile of 40 first draws put 72% in loading the tables a category reads and 13% in building the row lookup on the first draw. For `geo.US`'s 475,271 street rows, 10.8 MB under 1,716 localities, the phases were:
 

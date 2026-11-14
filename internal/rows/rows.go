@@ -27,8 +27,9 @@ type Table[O any] struct {
 	nameIndex   int
 	weightIndex int
 	parentIndex int
-	weights     []float64 // nil when uniform
-	cum         []float64 // cumulative weights, nil when uniform
+	parentRuns  []parentRun // nil without a parent column
+	weights     []float64   // nil when uniform
+	cum         []float64   // cumulative weights, nil when uniform
 	byKey       map[string]int
 	parent      *Table[O]
 	once        sync.Once
@@ -39,6 +40,12 @@ type Table[O any] struct {
 type Options struct {
 	Key, Name, Parent, Weight string
 }
+
+// parentRun is rows from up to, not including, to, whose parent cell is the same: a run ends
+// where the cell differs from the one above it, so a key whose rows are scattered has several.
+type parentRun struct{ from, to int }
+
+func (t *Table[O]) runKey(run parentRun) string { return t.Cell(run.from, t.parentIndex) }
 
 // rowLookup is what selection and linked draws look up, built on the first draw
 // that needs it.
@@ -164,6 +171,7 @@ func (t *Table[O]) bindOptions() error {
 	if t.nameIndex >= 0 && t.keyIndex < 0 && t.parentIndex < 0 {
 		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column, or a parent inside which each name is one row; add key")
 	}
+	t.readParentRuns()
 	if err := t.proveKeys(); err != nil {
 		return err
 	}
@@ -171,6 +179,28 @@ func (t *Table[O]) bindOptions() error {
 		return err
 	}
 	return t.sumWeights()
+}
+
+// readParentRuns reads the parent column once, into the runs that the weight proof, the link
+// check and the row lookup each walk with one map operation per run instead of one per row.
+func (t *Table[O]) readParentRuns() {
+	if t.parentIndex < 0 {
+		return
+	}
+	starts := func(r int) bool { return r == 0 || t.Cell(r, t.parentIndex) != t.Cell(r-1, t.parentIndex) }
+	n := 0
+	for r := 0; r < t.Len(); r++ {
+		if starts(r) {
+			n++
+		}
+	}
+	t.parentRuns = make([]parentRun, 0, n)
+	for r := 0; r < t.Len(); r++ {
+		if starts(r) {
+			t.parentRuns = append(t.parentRuns, parentRun{from: r})
+		}
+		t.parentRuns[len(t.parentRuns)-1].to = r + 1
+	}
 }
 
 // proveNamesInsideParent proves a name without a key names one row inside its parent.
@@ -250,16 +280,21 @@ func (t *Table[O]) proveWeightUnderEachParent() error {
 	if t.parentIndex < 0 {
 		return nil
 	}
-	sums, keys := map[string]float64{}, []string{}
-	for r := range t.weights {
-		k := t.Cell(r, t.parentIndex)
-		if _, seen := sums[k]; !seen {
-			keys = append(keys, k)
+	at, keys, sums := map[string]int{}, []string{}, []float64{}
+	for _, run := range t.parentRuns {
+		k := t.runKey(run)
+		i, seen := at[k]
+		if !seen {
+			i = len(keys)
+			at[k] = i
+			keys, sums = append(keys, k), append(sums, 0)
 		}
-		sums[k] += t.weights[r]
+		for r := run.from; r < run.to; r++ {
+			sums[i] += t.weights[r]
+		}
 	}
-	for _, k := range keys {
-		if sums[k] == 0 {
+	for i, k := range keys {
+		if sums[i] == 0 {
 			return fmt.Errorf("%s: every row under %s %q weighs 0, so none is drawn there", t.file, t.header[t.parentIndex], k)
 		}
 	}
@@ -294,10 +329,10 @@ func (t *Table[O]) Link(p *Table[O], sibling func(name string) *Table[O]) error 
 		return err
 	}
 	linked := make(map[string]bool, p.Len())
-	for r := 0; r < t.Len(); r++ {
-		k := t.Cell(r, t.parentIndex)
+	for _, run := range t.parentRuns {
+		k := t.runKey(run)
 		if _, ok := p.byKey[k]; !ok {
-			return fmt.Errorf("%s line %d: %s %q is no key of %s", t.file, r+2, name, k, p.file)
+			return fmt.Errorf("%s line %d: %s %q is no key of %s", t.file, run.from+2, name, k, p.file)
 		}
 		linked[k] = true
 	}
@@ -375,9 +410,16 @@ func (t *Table[O]) builtLookup() *rowLookup {
 		}
 		if t.parentIndex >= 0 {
 			t.lookup.rowsByParent = map[string][]int{}
-			for r := 0; r < t.Len(); r++ {
-				k := t.Cell(r, t.parentIndex)
-				t.lookup.rowsByParent[k] = append(t.lookup.rowsByParent[k], r)
+			for _, run := range t.parentRuns {
+				k := t.runKey(run)
+				rows, seen := t.lookup.rowsByParent[k]
+				if !seen {
+					rows = make([]int, 0, run.to-run.from)
+				}
+				for r := run.from; r < run.to; r++ {
+					rows = append(rows, r)
+				}
+				t.lookup.rowsByParent[k] = rows
 			}
 			if t.weights != nil {
 				t.lookup.childCum = make(map[string][]float64, len(t.lookup.rowsByParent))

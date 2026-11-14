@@ -38,6 +38,12 @@ with its replacement, and each removed path, column or flag.
   number from 002 to 899, the range DVV issues, for a checker that refuses 900 to 999. Such a
   number may be a living person's.
 
+### Changed
+
+- A table's parent column is read in one pass over its runs of equal cells, so loading a
+  country's streets takes about 60 ms less: the CLI's first `en_US.address` takes about 110 ms
+  instead of 170. A render's output and every load error stay as they were.
+
 ### Fixed
 
 - `{iban(CC)}` draws the account check digits of BE, ES, FI and NO, and an SE IBAN with the

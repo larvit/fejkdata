@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 464 | 0.6.0 |  | decision | **Read a table's parent column in one pass over its runs of equal cells, in the parent-weight proof, the link check and the row lookup.** | 2 | 1 | 3 | 4 | 3 | 12.2 by 5 | 1.7 |
 | 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.4 |
 | 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.3 |
 | 217 | 0.7.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
@@ -241,10 +240,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 464. Read a table's parent column in one pass over its runs of equal cells, in the parent-weight proof, the link check and the row lookup.
-
-Loading `geo.US`'s street rows spends about 20 ms in `proveWeightUnderEachParent`, 18 ms in `Link` and 19 ms in `builtLookup`, about 57 ms of the 126 to 142 ms the library's first `en_US.address` takes, each over a map keyed by the parent string with a map operation per row. The five street tables hold their rows grouped by parent, so one pass that starts a run where a row's parent cell differs from the cell above it, and holds one map entry per run, took 3.7 ms for all three in a spike. 18 of the 32 shipped tables with a parent column are scattered, the largest 13,724 rows (`geo/SE/postal-code.tsv`), as may be any data from anyone else; one pass over their runs must cost no more than today's per-row maps. Merging a key's runs in one path would leave a single path to keep; settle that first. It changes no output and no error text: a test with scattered parents loads and fails as it does today. When it lands, re-measure the CLI's first `en_US.address` and record the number in item 465's detail, whose success target starts from it.
 
 ### 454. Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.
 
@@ -825,7 +820,7 @@ The options, for the maintainer to choose:
 - Proof: the index states what the whole file's proofs prove (every parent key is a key of the parent table, every parent weighs above 0). `go generate` proves them and a test keeps the index current, as `TestShippedManifestsAreCurrent` does for the manifests. A stale index fails at load: it holds the table's byte length, checked when the table loads, and each block's parse checks its row count and parent key against it, so a hand-edited TSV beside an old index is a load error naming the table, never another parent's rows. Any module may carry an index, so a shipped module still loads as anyone else's does (goal 8.1); a table without one loads whole.
 - Risk: `Len`, `Cell(row, col)` and `Draw` in `internal/rows` assume the whole table. A draw over the whole street table with no locality (`{/geo.US.street}` alone) would draw a parent by its total weight, then a row under it. Storing each parent's starting cumulative weight in the index, and summing a block's weights in file order, may keep seeded output; that is a design claim no spike checked. Check the seeded pins, and re-pin a changed one as its own commit.
 - Readability: the comprehension seats found the worklist in `loadReached` (`internal/engine/lazy.go`) hard to read, and it grows through `batch.load`; where this changes either, make it easier to read.
-- Success: the CLI's first `en_US.address` under 20 ms and its peak under 40 MB, from 150 ms and 80 MB, and no first reach whose cost grows with the shipped data.
+- Success: the CLI's first `en_US.address` under 20 ms and its peak under 40 MB, from 110 ms (92 to 159 ms over 20 runs, after item 464, where the CLI took 142 to 235 ms before) and 80 MB, and no first reach whose cost grows with the shipped data.
 - It ships alone: its R is above 5.
 
 ### 470. Hold a parsed block of a table as its text and its row offsets, not one string per cell.
