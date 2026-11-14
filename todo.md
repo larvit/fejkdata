@@ -731,7 +731,7 @@ The options, for the maintainer to choose:
 
 - Measured on 16 CPUs with Go 1.27.4, for a comparable ten-column US CSV row: gofakeit v7.18.4 ran at 426 to 465 thousand rows a second (6 allocations a row), fejkdata at 79 to 85 thousand, faker-js 10.6.0 at 75 to 81 thousand, Mimesis 22.2.0 at 72 to 75 thousand and Faker 40.54.0 at 3.1 thousand. gofakeit's own `BENCHMARKS.md` gives 1,084 ns for an address and 3,466 ns for a person, on an Apple M1 Max.
 - gofakeit's values don't hold together (a Texas city under the state WY, the street "South Avenuehaven"); fejkdata's do. Say so beside the numbers.
-- Run it after items 466 to 469, and state what it measures then.
+- Run it after items 466 to 469, and state what it measures then. Pin every tool to one CPU and show fejkdata's all-CPU row beside it, labelled, so the table never sets one tool's CPUs against another's.
 - Prose in the README or `docs/` follows the project's prose rules.
 
 ### 468. Set the CLI's GC target to 400 unless `GOGC` is set.
