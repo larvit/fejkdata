@@ -1788,3 +1788,19 @@ Read most (opens and searches):
 - `internal/engine/fence/fence.go` 1
 - `internal/engine/fence/where.go` 1
 - `internal/engine/inline.go` 1
+
+## Reading cost, chunk 2f02c613ee08, finished 2026-11-14T15:38:58Z
+
+56842 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `namefence_test.go` 6
+- `internal/engine/fence/names/routewalk.go` 3
+- `compose.yaml` 2
+- `internal/engine/fence/names/refusefreshdraw.go` 2
+- `internal/engine/fence/names/rules.go` 2
+- `README.md` 1
+- `internal/engine/fence/names/route.go` 1
+- `internal/engine/tree/renderedge.go` 1
+- `todo.md` 1
