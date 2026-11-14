@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 466`
+`Next ID = 474`
 
 ## Items
 
@@ -16,7 +16,6 @@
 | 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
 | 464 | 0.6.0 |  | decision | **Read a table's parent column in one pass over its runs of equal cells, in the parent-weight proof, the link check and the row lookup.** | 2 | 1 | 3 | 4 | 3 | 1 by 2 | 1.2 |
 | 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
-| 465 | 0.6.0 | 464 | decision | **Load a shipped table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 7.3 |
@@ -123,6 +122,15 @@
 | 328 | 0.10.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
 | 324 | 0.10.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
 | 325 | 0.10.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
+| 472 | 0.11.0 |  | question | **Decide how the shipped data is split into files and modules before it reaches the first size wall.** | 1 | 2 | 1 | 2 | 1 | 2 by 3 | 2.6 |
+| 471 | 0.11.0 |  | decision | **Prove each shipped module in its own test package, so the test cache skips the data that didn't change.** | 2 | 2 | 1 | 3 | 4 | code health by 2, 1 by 1 | 3.7 |
+| 466 | 0.11.0 |  | decision | **Number a pick's memo slots at load and index child rows by parent row, so a render allocates no per-pick map.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 12 by 2 | 3.2 |
+| 468 | 0.11.0 |  | decision | **Set the CLI's GC target to 400 unless `GOGC` is set.** | 1 | 2 | 2 | 3 | 1 | 1 by 2 | 1.9 |
+| 467 | 0.11.0 |  | decision | **Render a record into one reused buffer, and write `CSVLine` into one buffer, so a row costs one allocation for its text.** | 2 | 1 | 2 | 3 | 3 | 1 by 2 | 1.2 |
+| 469 | 0.11.0 | 466, 467 | decision | **Render `--repeat` rows on every CPU, each row drawn from a seed derived from the run's seed and its row number, so the bytes don't depend on the number of CPUs.** | 4 | 2 | 3 | 7 | 8 | 1 by 5 | 0.2 |
+| 473 | 0.11.0 | 469 | decision | **Publish a bulk-throughput benchmark beside gofakeit, faker-js, Mimesis and Faker, with the command that reproduces each row.** | 3 | 2 | 1 | 4 | 4 | 1 by 4 | 1.6 |
+| 465 | 0.11.0 |  | decision | **Load a table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest, for every large table.** | 4 | 2 | 3 | 7 | 8 | 1 by 4 | 0.1 |
+| 470 | 0.11.0 | 465 | decision | **Hold a parsed block of a table as its text and its row offsets, not one string per cell.** | 3 | 1 | 3 | 5 | 6 | 1 by 2 | 0.3 |
 | 348 | 1.0.0 |  | question | **Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 3 | 2.8 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 4.8 |
 | 70 | 1.0.0 |  |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 2 | 2 | 5 | 6 | 1 by 6 | 0.8 |
@@ -239,16 +247,6 @@ Loading `geo.US`'s street rows spends about 20 ms in `proveWeightUnderEachParent
 `AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 74 functions.
 
 They do not fit one chunk: break this item into steps, by package, before starting it. In the last step, change the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
-
-### 465. Load a shipped table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest.
-
-Build this only if, after 464, the CLI's first `en_US.address` still takes 100 ms or more, as the decision named in 464 says; otherwise drop it with `Drop item 465: <why>`.
-
-- Index: a spike's index for `geo.US`'s streets holds one line per parent — key, first byte, last byte, row count and total weight — 1,716 lines and 55 KB. Reading it took 0.3 ms and parsing one locality's streets 19 µs, against 24 to 33 ms to parse all 475,271 rows.
-- Proof: the index states what the whole file's proofs prove (every parent key is a key of the parent table, every parent weighs above 0). `go generate` proves them and a test keeps the index current, as `TestShippedManifestsAreCurrent` does for the manifests. Any module may carry an index, so a shipped module still loads as anyone else's does (goal 8.1); a table without one loads whole.
-- Risk: `Len`, `Cell(row, col)` and `Draw` in `internal/rows` assume the whole table. A draw over the whole street table with no locality (`{/geo.US.street}` alone) would draw a parent by its total weight, then a row under it. That gives each row the same probability, but the floating-point sums differ, so a seed may pick a different row; check the seeded pins and re-pin a changed one as its own commit.
-- Readability: the comprehension seats found the worklist in `loadReached` (`internal/engine/lazy.go`) hard to read, and it grows through `batch.load`; where this changes either, make it easier to read.
-- Success: the CLI's first `en_US.address` under 20 ms and its peak under 40 MB, from 150 ms and 80 MB.
 
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 
@@ -684,6 +682,80 @@ Read them from the register the streets item names, Staðfangaskrá, where it ho
 ### 325. Give `geo/IS`'s places their streets.
 
 Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
+
+### 472. Decide how the shipped data is split into files and modules before it reaches the first size wall.
+
+The walls, with today's distance to each:
+
+- Module zip: Go limits it to 500 MiB (`golang.org/x/mod/zip`). Today's tracked files take 36.9 MB, about 13 times below.
+- One file: GitHub blocks a file over 100 MiB and warns at 50 MiB (GitHub's docs). `geo/US/street.tsv` is 10.8 MB, about 9 times below.
+- Pages: a GitHub Pages site is limited to 1 GB (GitHub's docs), and it holds the apt, dnf and apk repositories; about 10 times below, an estimate.
+- CLI binary: 40.1 MB, 85% of it data, so about 380 MB at 10 times the data, an estimate.
+- Build: a full rebuild takes 4.7 s, so the build is not a wall.
+
+The options, for the maintainer to choose:
+
+1. Split a table's file by its parent, and a flat table into fixed-size files. The study recommends this one.
+2. Move the data into modules per region.
+3. Build a CLI per region.
+4. Deflate a block per parent. A spike shrank `geo/US/street.tsv` from 10.8 to 3.05 MB, but a parent's first reach took 40 to 65 µs against 13 to 24 µs, and a draw across every parent 250 to 320 ms per million against 146 to 156 ms. It needs a second loader, and the repository and the module zip carry the data twice. A binary form `go generate` derives from the TSV keeps goal 7.
+
+### 471. Prove each shipped module in its own test package, so the test cache skips the data that didn't change.
+
+- `go test ./data/...` takes 57 to 61 s and 1.0 GB without `-race` today, and would take about 10 minutes at 10 times the data, an estimate.
+- Item 465's index moves the whole-table proofs to generate and test time (goal 5.3), so each module's own package must run them as a test.
+
+### 466. Number a pick's memo slots at load and index child rows by parent row, so a render allocates no per-pick map.
+
+- Profile of the README's eight-column person record: garbage collection marks about 19% of the time, `mallocgc` 16%, and string-keyed maps about 20%: the per-pick memo in `renderAt` and `variantOf`, `rows.drawUnder` and `parentRow`. Of a row's allocations, `strings.Builder` growth makes 31%, the memo maps 21% and pick frames 28%.
+- A spike that turned the memo maps into small inline arrays and indexed child rows by parent row, with item 467's changes, took the record from 11.8 to 13.6 µs and 53.8 allocations a row to 8.8 to 10.3 µs and 28.8. `sv_SE.address` ran 22% faster, `sv_SE.person` 19% and a ten-column US record 14%, byte for byte the same on six templates of 200,000 rows each.
+- A plain swap of a map for a slice gained only 3 to 9%: the slots must be numbered at load.
+- Files: `internal/engine/render/pick.go` and `internal/rows/rows.go`.
+- Readability: the comprehension seats found `drawMemo` and `namedPick.readPath` in `internal/engine/render/pick.go` hard to read, `drawMemo` for its one map per syntax feature; where this changes either, make it easier to read.
+- Success: no output byte changes, and the performance gate asserts the allocations a row takes, as the decision "The performance gate asserts allocations, not wall-clock time" says. That assertion is goal 12's move.
+
+### 468. Set the CLI's GC target to 400 unless `GOGC` is set.
+
+- On the README's record, a million rows took 10.6 to 11.2 s where 12.6 to 13.5 s was, and `sv_SE.person` 7.7 to 9.3 s where 9.9 to 11.1 s was. Peak memory rose from 64 MB to 134 to 149 MB. Output bytes don't change.
+- `GOGC=off` took 5.3 GB, and `GOMEMLIMIT` alone gained nothing.
+- The library sets no GC target: that is its caller's.
+- Where the README's CLI part states the memory the CLI uses, state the new figure.
+
+### 467. Render a record into one reused buffer, and write `CSVLine` into one buffer, so a row costs one allocation for its text.
+
+- `strings.Builder` growth makes 31% of a row's allocations, and `CSVLine` takes 5.5% of its time. Rendering a record into a reused buffer may save a further 15 to 25%, an estimate no spike measured.
+- The bytes stay the same.
+- Not blocked by 466: this changes the builders in `internal/engine/render/render.go` and the root's `record.go`, and 466 the memo in `internal/engine/render/pick.go` and `internal/rows`. Should the two meet in one function, land 466 first.
+
+### 469. Render `--repeat` rows on every CPU, each row drawn from a seed derived from the run's seed and its row number, so the bytes don't depend on the number of CPUs.
+
+- A spike on 16 CPUs with the README's record ran at 68 to 82 thousand rows a second on 1 worker, 137 thousand on 2, 296 to 303 thousand on 4, 572 to 648 thousand on 8 and 677 to 853 thousand on 16. With items 466 to 468 that may reach about 0.9 million rows a second on 8 workers, an estimate never measured with all of them together.
+- It changes seeded output once, which the README's Versioning section allows in any release, a patch too. `{seq()}` and `--emit` keep one serial path.
+- It needs a public bulk API in the library, lazy loading that is safe across goroutines, and a test that the bytes are equal at 1, 2 and 8 workers.
+- It ships alone: its R is above 5.
+
+### 473. Publish a bulk-throughput benchmark beside gofakeit, faker-js, Mimesis and Faker, with the command that reproduces each row.
+
+- Measured on 16 CPUs with Go 1.27.4, for a comparable ten-column US CSV row: gofakeit v7.18.4 ran at 426 to 465 thousand rows a second (6 allocations a row), fejkdata at 79 to 85 thousand, faker-js 10.6.0 at 75 to 81 thousand, Mimesis 22.2.0 at 72 to 75 thousand and Faker 40.54.0 at 3.1 thousand. gofakeit's own `BENCHMARKS.md` gives 1,084 ns for an address and 3,466 ns for a person, on an Apple M1 Max.
+- gofakeit's values don't hold together (a Texas city under the state WY, the street "South Avenuehaven"); fejkdata's do. Say so beside the numbers.
+- Run it after items 466 to 469, and state what it measures then.
+- Prose in the README or `docs/` follows the project's prose rules.
+
+### 465. Load a table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest, for every large table.
+
+- Scope: every large table. A table with a parent column gets one index line per parent; a flat table, with none, gets fixed-size blocks.
+- Index: a spike's index for `geo.US`'s streets holds one line per parent — key, first byte, last byte, row count and total weight — 1,716 lines and 55 KB. Reading it took 0.3 ms and parsing one locality's streets 19 µs, against 24 to 33 ms to parse all 475,271 rows.
+- Growth: a later spike took the first reach of one locality to 13 to 30 µs at 1, 5 and 10 times today's US street table, with the index at 67 KB at 1 times and 669 KB at 10 times. Today's loader takes 645 to 688 ms and 276 MB at 5 times, and 1.32 to 1.50 s and 552 MB at 10 times.
+- Proof: the index states what the whole file's proofs prove (every parent key is a key of the parent table, every parent weighs above 0). `go generate` proves them and a test keeps the index current, as `TestShippedManifestsAreCurrent` does for the manifests. Any module may carry an index, so a shipped module still loads as anyone else's does (goal 8.1); a table without one loads whole.
+- Risk: `Len`, `Cell(row, col)` and `Draw` in `internal/rows` assume the whole table. A draw over the whole street table with no locality (`{/geo.US.street}` alone) would draw a parent by its total weight, then a row under it. Storing each parent's starting cumulative weight in the index, and summing a block's weights in file order, may keep seeded output; that is a design claim no spike checked. Check the seeded pins, and re-pin a changed one as its own commit.
+- Readability: the comprehension seats found the worklist in `loadReached` (`internal/engine/lazy.go`) hard to read, and it grows through `batch.load`; where this changes either, make it easier to read.
+- Success: the CLI's first `en_US.address` under 20 ms and its peak under 40 MB, from 150 ms and 80 MB, and no first reach whose cost grows with the shipped data.
+- It ships alone: its R is above 5.
+
+### 470. Hold a parsed block of a table as its text and its row offsets, not one string per cell.
+
+- Today a street row keeps about 110 bytes: a `[]string` of 16-byte cells, plus lookups. Text and row offsets would keep about 27 bytes, an estimate no spike measured.
+- After item 465, a run that reaches every parent still keeps 40 MB at today's US streets, and 275 to 407 MB at 10 times them.
 
 ### 348. Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".
 
