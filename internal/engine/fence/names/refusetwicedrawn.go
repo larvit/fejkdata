@@ -1,4 +1,4 @@
-package fence
+package names
 
 import "fmt"
 

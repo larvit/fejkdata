@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/larvit/fejkdata/internal/engine/fence"
+	"github.com/larvit/fejkdata/internal/engine/fence/names"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
@@ -50,7 +51,7 @@ func categoryPipeline(sites []categorySite, root map[string]tree.Node, l *tree.L
 
 // run loads, then fences. resolve binds what each template's tokens read, and refuses a name or
 // reference that can't resolve. load.SettleRecords fixes each record's columns, and Finish writes
-// what the load found into the nodes, so every fence reads finished nodes. fence.RefuseReadsInsideFields
+// what the load found into the nodes, so every fence reads finished nodes. names.RefuseReadsInsideFields
 // comes before the cycle check: a name read inside the field bound to it is also a reference cycle,
 // and its error says how to fix the read. The cycle check comes before fence.Templates and
 // fence.CheckNodes, whose walks recurse unguarded.
@@ -61,7 +62,7 @@ func (p pipeline) run() error {
 	}
 	load.SettleRecords(p.nodes, p.finds)
 	p.finds.Finish()
-	if err := fence.RefuseReadsInsideFields(ts); err != nil {
+	if err := names.RefuseReadsInsideFields(ts); err != nil {
 		return err
 	}
 	if err := fence.CheckNoCycles(p.nodes); err != nil {

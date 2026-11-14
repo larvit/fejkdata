@@ -1,4 +1,4 @@
-package fence
+package names
 
 import (
 	"github.com/larvit/fejkdata/internal/engine/load"
