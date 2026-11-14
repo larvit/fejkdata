@@ -514,7 +514,7 @@ links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/dat
 are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
 own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
 with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
-`postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no
+`postal-code`, `locality`, `municipality` and `region`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no
 `WithDataFS` or `WithDataPath` names the data to load, and where `WithSeed` or `WithToday` is missing.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
@@ -677,8 +677,7 @@ and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `en_US` adds `ssn`, `itin`,
 `phone-exchange` (the three digits after the area code), `paragraph`, `word-adj`, `word-adv`, `word-noun` and `word-verb`.
 
-What `sv_SE` and `en_US` do not share: `en_US.address` carries a `region` column the Swedish
-one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
+What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
 The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
@@ -943,7 +942,7 @@ The `geo` namespace holds one tree per country under its alpha-2 code: five [lin
 
 #### Across countries
 
-What ports across countries is the five table names, the `name` column, selection by name, and the `address` record's columns `street`, `street-number`, `postal-code` and `locality`; every other column is the country's own, `code` on a Swedish region but `abbr` on a US one.
+What ports across countries is the five table names, the `name` column, selection by name, and the `address` record's columns `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`, where `region` is a US state's abbreviation and elsewhere the region's name; every other column is the country's own, `code` on a Swedish region but `abbr` on a US one.
 
 #### Danish places
 

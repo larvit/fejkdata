@@ -15,7 +15,6 @@
 | 169 | 0.6.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 460 | 0.6.0 |  |  | **Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.** | 2 | 1 | 1 | 2 | 3 | 1 by 3 | 1.8 |
 | 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
-| 18 | 0.6.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
 | 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
