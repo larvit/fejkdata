@@ -26,9 +26,9 @@ def baf(code: str = "", street: str = "", swedish: str = "", low: str = "", low_
     return " " * 13 + f"{code:5}" + " " * 84 + f"{street:30}{swedish:30}" + " " * 25 + f"{low:>5}{low_letter:1}" + " " * 7 + f"{high:>5}{high_letter:1}" + " " * 7 + kunta
 
 
-def pcf(code: str, town: str, kind: str) -> str:
+def pcf(code: str, town: str, kind: str, swedish: str = "") -> str:
     """A line of Posti's PCF, each field at the position Posti's record description gives."""
-    return " " * 13 + f"{code:5}{town:30}" + " " * 62 + kind
+    return " " * 13 + f"{code:5}{town:30}{swedish:30}" + " " * 32 + kind
 
 
 class Homes(unittest.TestCase):
@@ -104,6 +104,11 @@ class Recased(unittest.TestCase):
             with self.subTest(posti=posti):
                 self.assertEqual(geo_fi.recased(posti, {"II"}), want)
 
+    def test_a_swedish_abbreviation_stays_lower_case(self) -> None:
+        for posti, want in [("INGÅ ST", "Ingå st"), ("SJUNDEÅ KBY", "Sjundeå kby"), ("HANGÖ NORRA", "Hangö Norra")]:
+            with self.subTest(posti=posti):
+                self.assertEqual(geo_fi.recased(posti, set()), want)
+
 
 class HouseNumbers(unittest.TestCase):
     def baf(self, low: str, low_letter: str, high: str, high_letter: str) -> str:
@@ -144,11 +149,29 @@ class NormalCodes(unittest.TestCase):
         self.assertEqual(geo_fi.normal_codes(lines, {"139": {"name": "Ii", "region": "17"}}), {"04400": "Järvenpää", "91101": "Yli-Ii"})
 
 
+class SwedishPlaces(unittest.TestCase):
+    KUNNAT = {"139": {"name": "Ii", "swedish-name": "Ii", "region": "17"}}
+
+    def test_a_postitoimipaikka_takes_the_swedish_name_posti_gives_it_written_as_a_place_name(self) -> None:
+        lines = [pcf("00100", "HELSINKI", "1", "HELSINGFORS"), pcf("91101", "YLI-II", "1", "YLI-II"), pcf("10600", "INKOO AS", "1", "INGÅ ST")]
+        self.assertEqual(geo_fi.swedish_places(lines, self.KUNNAT), {"Helsinki": "Helsingfors", "Yli-Ii": "Yli-Ii", "Inkoo as": "Ingå st"})
+
+    def test_a_postitoimipaikka_without_a_swedish_name_keeps_its_finnish_one(self) -> None:
+        self.assertEqual(geo_fi.swedish_places([pcf("04400", "JÄRVENPÄÄ", "1")], self.KUNNAT), {"Järvenpää": "Järvenpää"})
+
+    def test_a_postinumero_that_is_not_normal_names_nothing(self) -> None:
+        self.assertEqual(geo_fi.swedish_places([pcf("00101", "HELSINKI", "2", "HELSINGFORS")], self.KUNNAT), {})
+
+    def test_the_swedish_name_most_postinumerot_give_wins(self) -> None:
+        lines = [pcf("00100", "HELSINKI", "1", "HELSINGFORS"), pcf("00101", "HELSINKI", "1", "HELSINGFORS"), pcf("00102", "HELSINKI", "1", "HELSINKI")]
+        self.assertEqual(geo_fi.swedish_places(lines, self.KUNNAT), {"Helsinki": "Helsingfors"})
+
+
 class Mainland(unittest.TestCase):
     def test_aland_and_its_kunnat_are_left_out(self) -> None:
-        regions, municipalities = geo_fi.mainland({"01": "Uusimaa", "21": "Ahvenanmaa"}, {"186": {"name": "Järvenpää", "region": "01"}, "478": {"name": "Maarianhamina", "region": "21"}}, {"MK01": 1700, "MK21": 30, "KU186": 46, "KU478": 11})
+        regions, municipalities = geo_fi.mainland({"01": "Uusimaa", "21": "Ahvenanmaa"}, {"186": {"name": "Järvenpää", "swedish-name": "Träskända", "region": "01"}, "478": {"name": "Maarianhamina", "swedish-name": "Mariehamn", "region": "21"}}, {"MK01": 1700, "MK21": 30, "KU186": 46, "KU478": 11})
         self.assertEqual(regions, {"01": {"code": "01", "name": "Uusimaa", "population": 1700, "timezone": "Europe/Helsinki"}})
-        self.assertEqual(municipalities, {"186": {"code": "186", "name": "Järvenpää", "region": "01", "population": 46}})
+        self.assertEqual(municipalities, {"186": {"code": "186", "name": "Järvenpää", "swedish-name": "Träskända", "region": "01", "population": 46}})
 
 
 class Tally(unittest.TestCase):
@@ -193,8 +216,8 @@ class Localities(unittest.TestCase):
     def test_a_locality_holds_its_postinumerot_with_residents_and_sums_them(self) -> None:
         points = {"00100": {"lat": 60.0, "lon": 25.0}, "00101": {"lat": 62.0, "lon": 27.0}, "00102": {"lat": 61.0, "lon": 26.0}}
         codes_of = {"Helsinki": {"00100", "00101", "00102"}, "Tyhjälä": {"99990"}, "Pisteetön": {"99991"}}
-        places, postal_codes = geo_fi.localities(codes_of, {"00100": 10, "00102": 5, "99991": 7}, {"Helsinki": "091", "Tyhjälä": "148", "Pisteetön": "148"}, points)
-        self.assertEqual(places, {"Helsinki": {"name": "Helsinki", "municipality": "091", "population": 15, "lat": "60.5000", "lon": "25.5000"}})
+        places, postal_codes = geo_fi.localities(codes_of, {"00100": 10, "00102": 5, "99991": 7}, {"Helsinki": "091", "Tyhjälä": "148", "Pisteetön": "148"}, points, {"Helsinki": "Helsingfors"})
+        self.assertEqual(places, {"Helsinki": {"name": "Helsinki", "swedish-name": "Helsingfors", "municipality": "091", "population": 15, "lat": "60.5000", "lon": "25.5000"}})
         self.assertEqual(postal_codes, {"Helsinki": {"00100": 10, "00102": 5}})
 
 
