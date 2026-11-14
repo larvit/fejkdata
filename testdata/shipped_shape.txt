@@ -868,8 +868,15 @@ sv_SE.person.prefix	string null
 sv_SE.person.samordningsnummer	string
 sv_SE.person.samordningsnummer.birthday
 sv_SE.person.sex	string
-sv_SE.personnummer	reads sv_SE.birth-number
+sv_SE.personnummer	format "{number}"	parent sex	reads sv_SE.personnummer-date sv_SE.sex
 sv_SE.personnummer-12	reads sv_SE.birth-number
+sv_SE.personnummer-date
+sv_SE.personnummer.adult	string
+sv_SE.personnummer.centenarian	string
+sv_SE.personnummer.child	string
+sv_SE.personnummer.number	string
+sv_SE.personnummer.senior	string
+sv_SE.personnummer.sex	string
 sv_SE.phone	reads sv_SE.phone-area
 sv_SE.phone-area	format "{area}"	key area	reads sv_SE.phone-subscriber
 sv_SE.phone-area.area	string
@@ -906,6 +913,13 @@ sv_SE.sex.first-name.count
 sv_SE.sex.first-name.name
 sv_SE.sex.first-name.sex
 sv_SE.sex.name	string
+sv_SE.sex.personnummer
+sv_SE.sex.personnummer.adult
+sv_SE.sex.personnummer.centenarian
+sv_SE.sex.personnummer.child
+sv_SE.sex.personnummer.number
+sv_SE.sex.personnummer.senior
+sv_SE.sex.personnummer.sex
 sv_SE.sni	format "{code} {name}"	key code
 sv_SE.sni.code	string
 sv_SE.sni.name	string
