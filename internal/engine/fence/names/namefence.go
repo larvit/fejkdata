@@ -1,4 +1,4 @@
-package fence
+package names
 
 import (
 	"fmt"
@@ -10,12 +10,15 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// checkNameReads refuses a read of a name that could disagree with another read of it, or that reads
-// a name of a choice's item it never renders.
-func checkNameReads(label string, t *tree.Template, names resolvedNames) error {
-	for _, r := range load.NamedReads(t, tree.AfterFinish) {
-		if err := checkNameRead(t, r.Read, names); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", label, r.Op.Token().Body, err)
+// RefuseReads refuses, in the templates of ts, a read of a name that could disagree with another
+// read of it, or that reads a name of a choice's item it never renders.
+func RefuseReads(ts []load.TemplateSite) error {
+	names := namesOf(ts)
+	for _, s := range ts {
+		for _, r := range load.NamedReads(s.Template, tree.AfterFinish) {
+			if err := checkNameRead(s.Template, r.Read, names); err != nil {
+				return fmt.Errorf("%s: token {%s}: %w", s.Label, r.Op.Token().Body, err)
+			}
 		}
 	}
 	return nil
