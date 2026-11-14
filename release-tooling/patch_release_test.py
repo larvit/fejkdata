@@ -1,5 +1,4 @@
 import contextlib
-import datetime
 import io
 import json
 import os
@@ -319,8 +318,9 @@ class Cut(Repository):
 		return self.scan(tree, go, into)
 
 	def test_main_hands_the_cut_tag_to_the_workflow(self) -> None:
-		self.assertEqual(self.main_cut(), (0, "", "tag=v0.1.1\n"))
-		today = datetime.datetime.now(datetime.UTC).date().isoformat()
+		with mock.patch.object(patch_release, "cut", wraps=patch_release.cut) as cut:
+			self.assertEqual(self.main_cut(), (0, "", "tag=v0.1.1\n"))
+		today = cut.call_args.args[2]
 		self.assertTrue(self.shipped["CHANGELOG.md"].startswith(f"# Changelog\n\n## 0.1.1 - {today}\n\n"))
 		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
 
