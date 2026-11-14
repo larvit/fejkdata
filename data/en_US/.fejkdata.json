@@ -1,6 +1,6 @@
 {
 	"index": {
-		"en_US.address": {"paths":["","locality","postal-code","region","street","street-number"]},
+		"en_US.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"en_US.color": {"paths":[""]},
 		"en_US.company": {"paths":["","base","suffix"]},
 		"en_US.date": {"paths":[""]},

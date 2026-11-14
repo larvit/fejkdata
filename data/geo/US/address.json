@@ -8,6 +8,7 @@
     { "format": "{int(10,99)}{int(100,999)}", "weight": 0.3 }
   ],
   "locality": "{l.name}",
+  "municipality": "{l..municipality.name}",
   "region": "{l..municipality..region.abbr}",
   "postal-code": "{l.postal-code.code}"
 }

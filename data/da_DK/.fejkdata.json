@@ -1,6 +1,6 @@
 {
 	"index": {
-		"da_DK.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"da_DK.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"da_DK.company": {"paths":["","aps","aps.name","as","as.name","enk","enk.name","is","is.name","ks","ks.name","legal","registered","registered.legal"]},
 		"da_DK.company-coined": {"paths":["","a","b"]},
 		"da_DK.company-word": {"paths":[""]},

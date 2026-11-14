@@ -1,6 +1,6 @@
 {
 	"index": {
-		"sv_SE.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"sv_SE.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"sv_SE.bankaccount": {"paths":["","bank","clearing","number"]},
 		"sv_SE.bankgiro": {"paths":[""]},
 		"sv_SE.birth-number": {"parent":"sex","paths":["","number","sex"]},
