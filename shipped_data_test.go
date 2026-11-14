@@ -69,6 +69,23 @@ func TestAShippedCategoryRenders(t *testing.T) {
 	}
 }
 
+func TestIPAndVersionLiveInMiscAlone(t *testing.T) {
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatalf("New() = %v", err)
+	}
+	for _, p := range []string{"misc.ip", "misc.version"} {
+		if got := fejktest.Fake(t, f, p); got == "" {
+			t.Errorf("%s rendered empty", p)
+		}
+	}
+	for _, p := range []string{"sv_SE.ip", "en_US.ip", "sv_SE.version", "en_US.version"} {
+		if got, err := f.Fake(p); err == nil {
+			t.Errorf("Fake(%q) = %q, want it refused, since misc holds it", p, got)
+		}
+	}
+}
+
 func TestWithDataPathLayersOverShipped(t *testing.T) {
 	dir := writeData(t, map[string]string{"sv_SE/word": `"only-mine"`, "greeting": `"hej"`})
 	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay)
