@@ -12,23 +12,24 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 459 | 0.6.0 |  |  | **Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.** | 2 | 1 | 1 | 2 | 2 | code health by 2 | 6.5 |
-| 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
-| 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
+| 169 | 0.6.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 453 | 0.6.0 |  | owner | **Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 3.3 |
-| 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
-| 328 | 0.6.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
+| 452 | 0.6.0 | 453 | defect | **Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.** | 2 | 2 | 2 | 4 | 3 | 3.1 by 2, 4.6 by 2 | 12.5 |
+| 343 | 0.6.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 9.4 |
+| 66 | 0.6.0 |  |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
+| 354 | 0.6.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
+| 459 | 0.6.0 |  |  | **Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.** | 2 | 1 | 1 | 2 | 2 | code health by 2 | 6.5 |
+| 113 | 0.6.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 2.8 |
+| 334 | 0.6.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
+| 28 | 0.6.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 2.1 |
 | 451 | 0.6.0 |  |  | **Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.1 |
+| 376 | 0.6.0 |  |  | **Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 3 by 2 | 1.9 |
 | 460 | 0.6.0 |  |  | **Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.** | 2 | 1 | 1 | 2 | 3 | 1 by 3 | 1.8 |
-| 324 | 0.6.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
-| 325 | 0.6.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
+| 454 | 0.6.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
+| 18 | 0.6.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
+| 27 | 0.6.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip` into one `misc.ip`, and `en_US.version` and `sv_SE.version` into one `misc.version`, each pair today byte-identical.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.7 |
 | 458 | 0.6.0 | 453 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 3 | 1 | 1 | 3 | 9 | code health by 5 | 0.4 |
-| 334 | 0.7.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.2 |
-| 169 | 0.8.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.8 |
-| 452 | 0.8.0 | 453 | defect | **Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.** | 2 | 2 | 2 | 4 | 3 | 3.1 by 2, 4.6 by 2 | 12.5 |
-| 343 | 0.8.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 9.4 |
-| 354 | 0.8.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 7.8 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.3 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 7.3 |
 | 40 | 0.8.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 6.5 |
@@ -37,7 +38,6 @@
 | 350 | 0.8.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.9 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.8 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 4.3 |
-| 27 | 0.8.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip` into one `misc.ip`, and `en_US.version` and `sv_SE.version` into one `misc.version`, each pair today byte-identical.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.7 |
 | 15 | 0.8.0 | 27 |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 4.1 |
 | 22 | 0.8.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 4.1 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.7 |
@@ -52,7 +52,6 @@
 | 457 | 0.8.0 |  |  | **Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.9 |
 | 257 | 0.8.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 2.9 |
 | 389 | 0.8.0 |  |  | **Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2 by 1, 3 by 2 | 2.9 |
-| 113 | 0.8.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 2.8 |
 | 406 | 0.8.0 |  |  | **Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.** | 2 | 1 | 1 | 2 | 2 | 1 by 2, 4 by 2 | 2.8 |
 | 260 | 0.8.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.7 |
 | 261 | 0.8.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.7 |
@@ -81,7 +80,6 @@
 | 266 | 0.8.0 |  |  | **Add `misc.password`, `hash`, `jwt`, `slug`, `hostname`, `avatar` and `placeholderimage`.** | 1 | 1 | 1 | 1 | 3 | 1 by 1, 2 by 3 | 2.2 |
 | 196 | 0.8.0 |  | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 6 | 2.2 |
 | 263 | 0.8.0 |  |  | **Add `misc.color` names with their hex, rgb, hsl and cmyk forms.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 1 | 2.2 |
-| 28 | 0.8.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 2.1 |
 | 405 | 0.8.0 |  |  | **Let `repeat` take a range, such as 5 to 15, drawing the count on each render.** | 2 | 1 | 1 | 2 | 3 | 1 by 2, 4 by 2 | 2.1 |
 | 13 | 0.8.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 3.2 by 2 | 2.1 |
 | 165 | 0.8.0 |  |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 2.0 |
@@ -93,13 +91,11 @@
 | 115 | 0.8.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.0 |
 | 408 | 0.8.0 |  |  | **List every shipped path in the README's Data section with an example value and whether it is real, plausible or valid, and where it comes from.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 2.0 |
 | 259 | 0.8.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 1.9 |
-| 376 | 0.8.0 |  |  | **Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 3 by 2 | 1.9 |
 | 267 | 0.8.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.8 |
 | 32 | 0.8.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.7 |
 | 264 | 0.8.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.7 |
 | 268 | 0.8.0 |  |  | **Add `misc.lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword` and `quote`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.7 |
 | 387 | 0.8.0 |  |  | **Let a template draw a number from a bounded normal distribution, so durations and start times cluster without weighted ranges.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.7 |
-| 454 | 0.8.0 |  |  | **Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2 | 1.6 |
 | 91 | 0.8.0 |  |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 4 | 1.6 |
 | 109 | 0.8.0 |  | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 1 | 2 | 1 | 2 | 4 | code health by 1 | 1.6 |
 | 23 | 0.8.0 |  |  | **Give every other shipped category that could reach something real a path that never does.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.3 by 6 | 1.6 |
@@ -108,7 +104,6 @@
 | 163 | 0.8.0 |  |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 1 | 2 | 3 | 2 | 1 by 2 | 1.6 |
 | 269 | 0.8.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.5 |
 | 161 | 0.8.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.4 |
-| 18 | 0.8.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
 | 29 | 0.8.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.3 |
 | 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 1.1 |
 | 56 | 0.8.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.9 |
@@ -126,7 +121,6 @@
 | 129 | 0.8.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
 | 41 | 0.8.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 4 by 4 | 0.3 |
 | 186 | 0.8.0 |  | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 4 | 1 | 3 | 6 | 7 | 1 by 3 | 0.2 |
-| 66 | 0.9.0 |  |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 7.8 |
 | 67 | 0.9.0 |  |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 2 | 2 | code health by 2 | 6.5 |
 | 64 | 0.9.0 |  |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 2 | 1 | 2 | 4 | code health by 2 | 3.3 |
 | 62 | 0.9.0 |  |  | **Add `{btc()}` and `{eth()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 2 by 2, 3 by 2 | 1.8 |
@@ -134,6 +128,12 @@
 | 63 | 0.9.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 3 by 6 | 0.9 |
 | 68 | 0.9.0 |  | decision | **Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub.** | 1 | 3 | 2 | 4 | 1 | 1.1 by 1 | 0.9 |
 | 65 | 0.9.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.6 |
+| 205 | 0.10.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.3 |
+| 327 | 0.10.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.3 |
+| 326 | 0.10.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.9 |
+| 328 | 0.10.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.2 |
+| 324 | 0.10.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.5 |
+| 325 | 0.10.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.5 |
 | 348 | 1.0.0 |  | question | **Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 3 | 2.8 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 4.8 |
 | 70 | 1.0.0 |  |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 2 | 2 | 5 | 6 | 1 by 6 | 0.8 |
@@ -233,13 +233,9 @@
 
 ## Details
 
-### 459. Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.
+### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
 
-Stability round 1 of item 456 found that removing `walkTemplate`'s `staysInCategory` guard (`internal/engine/fence/namefence.go`) survives every test. References are walked again in `refsReached`, and the rules compare routes by node, so a case the guard changes is not obvious: find one, such as a reference back into the pick's own category, and pin it, or record at the guard why it is a cost bound alone.
-
-### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
+Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
 
 ### 453. Reach the comprehension floor: lift Locality so a name rule asks a route what it keeps, draws and addresses, and no rule slices `levels`, a tail or `bound` itself.
 
@@ -259,52 +255,6 @@ Out of scope: `tree/loadfinds.go`'s two phases, and `render/pick.go:151` `namedP
 
 The architecture pass of 0.5.0's release review added two parts. Make `sharedDraw` return a named case, so its cases no longer depend on their order. Move the name rules, `drawsalong.go`, `namefence.go`, `readinsidefield.go` and the five `refuse*.go` files, into a package `internal/engine/fence/names`, and revise the decision that places every fence in `internal/engine/fence`. Items 452 and 164 wait for this one, since each would change every rule again.
 
-### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
-
-Find the numbering plan and its licence first.
-
-### 451. Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.
-
-`fi_FI.henkilotunnus` draws numbers DVV issues to no one, as the decision "The Finnish id draws DVV's unissued 900 to 999" records, which names this variant as a later item. A checker that treats endings from 900 as synthetic ("keinohenkilötunnus", per the Vero API FAQ on testing) may refuse them, so a hand fixture for such a checker needs numbers of the issued range. Goal 3 asks the best category to offer more than one kind. A drawn number may be a living person's, so the README says so beside the variant, as it does for the Danish `cpr`, and the default stays 900 to 999 for goal 3.3.
-
-`{hetu(x)}` draws 900 to 999 only, so the item decides how the variant takes the range, records it in `docs/decisions.md` and revises the decision above. Recommended: a second argument to `{hetu(x)}` naming the range, beside a path such as `fi_FI.henkilotunnus-issued`, since the control character and century sign are the same and a second builtin adds a name for one meaning. Bench the path's and the argument's spelling with the README's audience before it ships. The individual number stays of the parity `x` reads, and 001 stays undrawn, as DVV issues from 002.
-
-### 460. Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.
-
-Measured on 2026-11-13 at 94474007, in containers of 2 CPUs and 2 GB, with a release build of Go 1.27.4.
-
-- The library with all `en_US` modules takes about 110 to 130 ms to build a generator, the first `en_US.address` draw about 20 to 30 ms more, and the process peaks near 154 MB. With the same templates over a 208 KB trimmed copy of the US data, it takes about 6 ms, draws the first address in under 1 ms and peaks near 32 MB.
-- The CLI takes 2.6 to 4.8 ms for a name, an email, a phone number or a uuid, and 120 to 160 ms and about 78 MB for one `en_US.address`. A Swedish person and address take about 62 ms.
-- A steady-state draw takes about 10 µs either way, so the cost is the first reach of the large street data, not the draws after it.
-
-The item ends when the choice, the strategies it weighed and their measured gains and costs are recorded where the project keeps such choices, and the items that build it are filed. It changes no shipped data and no output.
-
-### 324. Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.
-
-Read them from the register the streets item names, Staðfangaskrá, where it holds them; else find an open source first.
-
-### 325. Give `geo/IS`'s places their streets.
-
-Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
-
-### 458. Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.
-
-`AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 74 functions.
-
-They do not fit one chunk: break this item into steps, by package, before starting it. It waits for item 453, which reworks the name fence's functions this would split. In the last step, change the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
-
-### 334. Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.
-
-Nynorsk is Norway's second written standard, the official form in some municipalities. Names, places, streets, ids and phone numbers read the same in both standards, so only the words that differ need a source of their own.
-
-### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
-
-Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
-
-### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
-
-The decision says that where no Go version fixes a vulnerability yet, the maintainer drops the vulnerabilities job from the release job's `needs`. The release job's `if` in `.github/workflows/test.yml` also requires `needs.vulnerabilities.result == 'success'`, and a job missing from `needs` is no success, so the release job would be skipped, not run. A skipped job isn't red, so nothing would ship and nothing would say why. Rewording the decision is the maintainer's call. The principles review of item 336 found it.
-
 ### 452. Refuse at `New` a read of a name whose render reaches a table cell that draws afresh a path another read of the name reads from the pick; today the name fence walks no cell.
 
 `fence/namefence.go` `walkRoutes` steps into a node's children by `tree.RenderEdges`, and skips a `*tree.TableColumn` on purpose, to keep what item 421 found. So no refusal rule sees a read inside a table cell.
@@ -317,9 +267,63 @@ Drop the `*tree.TableColumn` case in `walkRoutes` so a cell's reads become route
 
 `## Data` in `README.md`, from its heading to the next `## ` heading, holds the locale categories, the linked tables, the `sv_SE` personnummer recipe, the `nb_NO` fodselsnummer paragraphs and the `geo` namespace with no sub-heading, and every `[Data](#data)` link, and each `[index](#data)` link, points at the whole section. The prose reviewer of PR #249 found that the `nb_NO` fodselsnummer text uses "bound sex" and "as a personnummer does", which lines further down explain. The split keeps every README example `readme_test.go` runs passing, and every in-README link resolving, each to the sub-heading it means.
 
+### 66. Cut the README's Layout block to the lines that say what a file name cannot.
+
+`doc.go` restates its name.
+
 ### 354. Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.
 
 `release-tooling/patch_release_test.py` `test_main_hands_the_cut_tag_to_the_workflow` reads the wall clock after `patch_release.main` read it at `patch_release.py:270`, and asserts the changelog's date equals its own. A gate run that crosses UTC midnight between the two reads fails. Applies the technical principles' test bullet: a test is deterministic. Found by the principles pass of PR #267.
+
+### 459. Test that the name fence lists no read that a reference or a reference-bound name renders among the pick's routes.
+
+Stability round 1 of item 456 found that removing `walkTemplate`'s `staysInCategory` guard (`internal/engine/fence/namefence.go`) survives every test. References are walked again in `refsReached`, and the rules compare routes by node, so a case the guard changes is not obvious: find one, such as a reference back into the pick's own category, and pin it, or record at the guard why it is a cost bound alone.
+
+### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
+
+`iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 3 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
+
+### 334. Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.
+
+Nynorsk is Norway's second written standard, the official form in some municipalities. Names, places, streets, ids and phone numbers read the same in both standards, so only the words that differ need a source of their own.
+
+### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
+
+Today `sv_SE.personnummer` draws its own sex, so a chosen sex and a number agree only through the README Data section's template, which reads both through one bound `sex`. `sv_SE.person` reads its own sex and birth date in its `personnummer` field in `data/sv_SE/person.json`, so this item may follow that shape.
+
+### 451. Add a `fi_FI` henkilötunnus variant over DVV's issued individual numbers 002 to 899, beside `fi_FI.henkilotunnus`, which draws 900 to 999.
+
+`fi_FI.henkilotunnus` draws numbers DVV issues to no one, as the decision "The Finnish id draws DVV's unissued 900 to 999" records, which names this variant as a later item. A checker that treats endings from 900 as synthetic ("keinohenkilötunnus", per the Vero API FAQ on testing) may refuse them, so a hand fixture for such a checker needs numbers of the issued range. Goal 3 asks the best category to offer more than one kind. A drawn number may be a living person's, so the README says so beside the variant, as it does for the Danish `cpr`, and the default stays 900 to 999 for goal 3.3.
+
+`{hetu(x)}` draws 900 to 999 only, so the item decides how the variant takes the range, records it in `docs/decisions.md` and revises the decision above. Recommended: a second argument to `{hetu(x)}` naming the range, beside a path such as `fi_FI.henkilotunnus-issued`, since the control character and century sign are the same and a second builtin adds a name for one meaning. Bench the path's and the argument's spelling with the README's audience before it ships. The individual number stays of the parity `x` reads, and 001 stays undrawn, as DVV issues from 002.
+
+### 376. Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.
+
+The category weighs four age bands in one choice, and a template can reach only the whole. A test of a system's handling of the `+` has to draw until one comes, at 0.028%. Bench the spelling with the README's audience: a table selector, a path per band or a builtin. The decision "`sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`" sets the bands and weights.
+
+### 460. Choose, from measurements, how to cut the library's init and the CLI's cold start on the shipped data, and record the choice with its numbers.
+
+Measured on 2026-11-13 at 94474007, in containers of 2 CPUs and 2 GB, with a release build of Go 1.27.4.
+
+- The library with all `en_US` modules takes about 110 to 130 ms to build a generator, the first `en_US.address` draw about 20 to 30 ms more, and the process peaks near 154 MB. With the same templates over a 208 KB trimmed copy of the US data, it takes about 6 ms, draws the first address in under 1 ms and peaks near 32 MB.
+- The CLI takes 2.6 to 4.8 ms for a name, an email, a phone number or a uuid, and 120 to 160 ms and about 78 MB for one `en_US.address`. A Swedish person and address take about 62 ms.
+- A steady-state draw takes about 10 µs either way, so the cost is the first reach of the large street data, not the draws after it.
+
+The item ends when the choice, the strategies it weighed and their measured gains and costs are recorded where the project keeps such choices, and the items that build it are filed. It changes no shipped data and no output.
+
+### 454. Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.
+
+Posti's postcode file names each postitoimipaikka in Swedish too (field 49, 30 characters), and Statistics Finland's classification names each kunta in Swedish. Add a `swedish-name` column to the locality and municipality tables, as the street table has, falling back to the Finnish name where no Swedish one exists, and recase Posti's Swedish names as `recased` does the Finnish ones.
+
+### 458. Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.
+
+`AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor. `gocyclo -over 7 -ignore _test .` lists 74 functions.
+
+They do not fit one chunk: break this item into steps, by package, before starting it. It waits for item 453, which reworks the name fence's functions this would split. In the last step, change the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
+
+### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
+
+The decision says that where no Go version fixes a vulnerability yet, the maintainer drops the vulnerabilities job from the release job's `needs`. The release job's `if` in `.github/workflows/test.yml` also requires `needs.vulnerabilities.result == 'success'`, and a job missing from `needs` is no success, so the release job would be skipped, not run. A skipped job isn't red, so nothing would ship and nothing would say why. Rewording the decision is the maintainer's call. The principles review of item 336 found it.
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
@@ -429,10 +433,6 @@ Templates; the check-digit rules are facts.
 
 From a real-world use case, a scheduler's fixtures, whose author called it niche, and it would have replaced most of one fixture's template. No register publishes how often each rule is used, so it draws evenly, as the decision "A table whose register publishes no frequency draws evenly" states, rather than the weighted mix the author asked for.
 
-### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
-
-`iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 3 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
-
 ### 406. Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.
 
 A record's columns are flat, so a parent with an array of children renders as a text template whose format spells JSON, such as `{{"summary":"{s}"}}`. A drawn value holding `"`, `\` or a newline breaks that JSON, as a company name or a sentence may. The transform writes the value with JSON's string escapes, beside `lowercase`, `uppercase`, `ascii` and `slugify`. A writer panel picks its name.
@@ -523,10 +523,6 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 A table and its templates, from CSS Color 4 (W3C) and the XKCD colour survey (CC0).
 
-### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
-
-Today `sv_SE.personnummer` draws its own sex, so a chosen sex and a number agree only through the README Data section's template, which reads both through one bound `sex`. `sv_SE.person` reads its own sex and birth date in its `personnummer` field in `data/sv_SE/person.json`, so this item may follow that shape.
-
 ### 405. Let `repeat` take a range, such as 5 to 15, drawing the count on each render.
 
 An epic holds 5 to 15 stories, an order 1 to 8 lines. Today `repeat` is one integer, so a varied count takes a weighted choice of templates that differ only in their `repeat`. The repeat cap counts a range's upper bound. A writer panel picks the spelling, such as `"repeat": [5, 15]`; the README's Repeat section and the decision "The repeat cap bounds renders, not bytes" name it. Pairs with item 404, for a parent with a varying number of children.
@@ -571,10 +567,6 @@ Goal 3 says the docs say which kind each value is, but today that sits in prose 
 
 Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
 
-### 376. Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.
-
-The category weighs four age bands in one choice, and a template can reach only the whole. A test of a system's handling of the `+` has to draw until one comes, at 0.028%. Bench the spelling with the README's audience: a table selector, a path per band or a builtin. The decision "`sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`" sets the bands and weights.
-
 ### 267. Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.
 
 Tables, from Project Gutenberg's catalog, MusicBrainz and USDA, each CC0.
@@ -590,10 +582,6 @@ Tables or choices, from lorem ipsum and lists an LLM writes.
 ### 387. Let a template draw a number from a bounded normal distribution, so durations and start times cluster without weighted ranges.
 
 From a real-world use case, a scheduler's fixtures: durations cluster around 2 hours and starts around 08:00. A weighted choice of `{int()}` ranges fills a typed column today, coarsely. Bounds are required, so a typed column's proof and `calc`'s still hold. A writer panel picks the spelling, between a third argument to `{int()}` and a function of its own, and what a draw outside the bounds does.
-
-### 454. Give `geo.FI`'s postitoimipaikat and kunnat their Swedish names, such as Helsingfors and Åbo.
-
-Posti's postcode file names each postitoimipaikka in Swedish too (field 49, 30 characters), and Statistics Finland's classification names each kunta in Swedish. Add a `swedish-name` column to the locality and municipality tables, as the street table has, falling back to the Finnish name where no Swedish one exists, and recase Posti's Swedish names as `recased` does the Finnish ones.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
@@ -711,10 +699,6 @@ Split it into items for the CLI, struct tags and the library before starting.
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Its functions get the date `WithToday` gives. `cli.Main`'s signature grows here, which a minor before 1.0 allows.
 
-### 66. Cut the README's Layout block to the lines that say what a file name cannot.
-
-`doc.go` restates its name.
-
 ### 67. Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.
 
 The `gh` rule opens by restating the decision "GitHub is canonical, and the module path names it", a second copy that drifts. The comprehension rule packs the gate, its exceptions, the round and the at-or-above-7.0 regime into one line, and uses "depth 1", "nine-seat", "four-seat" and "answers it in one run" without saying what they mean.
@@ -742,6 +726,22 @@ Gitea converts a repository to a mirror only by re-creating it, so until that ru
 ### 65. Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.
 
 The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
+
+### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
+
+Find the issuer's rules, and a test series if it publishes one, first.
+
+### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
+
+Find the numbering plan and its licence first.
+
+### 324. Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.
+
+Read them from the register the streets item names, Staðfangaskrá, where it holds them; else find an open source first.
+
+### 325. Give `geo/IS`'s places their streets.
+
+Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
 
 ### 348. Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".
 
