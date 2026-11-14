@@ -78,6 +78,13 @@ func compileItem(v any, pos position) (tree.Node, error) {
 		return compileChoice(v, pos)
 	case map[string]any:
 		return compileTemplate(v, pos)
+	}
+	return compileScalar(v, pos)
+}
+
+// compileScalar compiles a JSON null, number or boolean.
+func compileScalar(v any, pos position) (tree.Node, error) {
+	switch v := v.(type) {
 	case nil:
 		if !pos.column() {
 			return compileString("")
@@ -143,30 +150,38 @@ func compileChoice(items []any, pos position) (tree.Node, error) {
 	if pos.column() {
 		itemPos = pos
 	}
-	compiled := make([]tree.Node, len(items))
-	cum := make([]float64, len(items))
+	compiled, cum, err := compileItems(items, itemPos)
+	if err != nil {
+		return nil, err
+	}
+	return tree.NewChoice(compiled, cum, sharedPaths(compiled, true)), nil
+}
+
+// compileItems compiles each of items at pos. cum is their cumulative weights, or nil where every
+// weight is 1.
+func compileItems(items []any, pos position) (compiled []tree.Node, cum []float64, err error) {
+	compiled = make([]tree.Node, len(items))
+	cum = make([]float64, len(items))
 	var total float64
 	weighted := false
 	for i, raw := range items {
 		w, err := weightOf(raw)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		if w != 1 {
 			weighted = true
 		}
 		total += w
 		cum[i] = total
-		if compiled[i], err = compileItem(raw, itemPos); err != nil {
-			return nil, err
+		if compiled[i], err = compileItem(raw, pos); err != nil {
+			return nil, nil, err
 		}
 	}
 	if !weighted {
-		cum = nil
-	} else if err := checkWeightSum(total); err != nil {
-		return nil, err
+		return compiled, nil, nil
 	}
-	return tree.NewChoice(compiled, cum, sharedPaths(compiled, true)), nil
+	return compiled, cum, checkWeightSum(total)
 }
 
 // compileLoneItem compiles a choice of one item, which is that item.
@@ -193,6 +208,19 @@ func checkWeightSum(total float64) error {
 	return nil
 }
 
+// fieldPosition is the position of a field of a template at p that does not repeat.
+func (p position) fieldPosition() position {
+	switch p {
+	case atTop:
+		return inColumn
+	case atGoTop:
+		return inGoColumn
+	case inColumn, inColumnField:
+		return inColumnField
+	}
+	return inFormat
+}
+
 func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
 	if _, isTable := m["rows"]; isTable {
 		return nil, fmt.Errorf("rows names a TSV beside a category's file, so only a category is a table; an inline template has no file beside it")
@@ -203,14 +231,7 @@ func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
 	}
 	fieldPos := inFormat
 	if o.repeat == 1 {
-		switch pos {
-		case atTop:
-			fieldPos = inColumn
-		case atGoTop:
-			fieldPos = inGoColumn
-		case inColumn, inColumnField:
-			fieldPos = inColumnField
-		}
+		fieldPos = pos.fieldPosition()
 	}
 	fields, lets, err := compileFields(m, fieldPos)
 	if err != nil {
@@ -317,13 +338,18 @@ func repeatOf(m map[string]any) (int, error) {
 	if err := notTiny("repeat", rv, r); err != nil {
 		return 0, err
 	}
-	if math.IsNaN(r) || math.IsInf(r, 0) || r < 0 || r != math.Trunc(r) {
+	if !isCount(r) {
 		return 0, fmt.Errorf("repeat must be an integer of 0 or more, got %v", rv)
 	}
 	if r > MaxRepeat { // caps the renders one repeat asks for; fence.RepeatCheck bounds what nested ones multiply to
 		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, MaxRepeat)
 	}
 	return int(r), nil
+}
+
+// isCount is whether r is an integer of 0 or more.
+func isCount(r float64) bool {
+	return !math.IsNaN(r) && !math.IsInf(r, 0) && r >= 0 && r == math.Trunc(r)
 }
 
 // weightOf reads a node's "weight" (default 1) from its raw JSON form. Only

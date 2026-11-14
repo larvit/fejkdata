@@ -155,25 +155,30 @@ func checkFieldRead(spelling string, fields map[string]tree.Node, wholeToken boo
 	}
 	field, ok := fields[a.head]
 	if !ok {
-		if a.head == "" {
-			return false, fmt.Errorf("a name is never empty, so this token can name no field")
-		}
-		if isOption(a.head) {
-			return false, fmt.Errorf("%q is an option and can never be a field", a.head)
-		}
-		if len(fields) == 0 {
-			hint := ""
-			if wholeToken && grammar.CheckPathIdentifiers(spelling) == nil {
-				hint = fmt.Sprintf(" — write {/%s} to reference the data", spelling)
-			}
-			return true, fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.head, hint)
-		}
-		return true, fmt.Errorf("no field %q", a.head)
+		return noFieldNamed(a.head, spelling, len(fields) == 0, wholeToken)
 	}
 	if err := provePath(field, a.tail, a.head, 0); err != nil {
 		return false, fmt.Errorf("field %q: %w", a.head, err)
 	}
 	return false, nil
+}
+
+// noFieldNamed is checkFieldRead's answer where no field is named head.
+func noFieldNamed(head, spelling string, noFields, wholeToken bool) (missing bool, err error) {
+	if head == "" {
+		return false, fmt.Errorf("a name is never empty, so this token can name no field")
+	}
+	if isOption(head) {
+		return false, fmt.Errorf("%q is an option and can never be a field", head)
+	}
+	if !noFields {
+		return true, fmt.Errorf("no field %q", head)
+	}
+	hint := ""
+	if wholeToken && grammar.CheckPathIdentifiers(spelling) == nil {
+		hint = fmt.Sprintf(" — write {/%s} to reference the data", spelling)
+	}
+	return true, fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", head, hint)
 }
 
 // tokenReads lists the spellings t reads: own, a token's alternatives or the operands a call's builtin reads,
