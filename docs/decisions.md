@@ -1840,6 +1840,8 @@ The file holds no street on Åland, so Åland's maakunta and kunnat ship no plac
 
 A street's `swedish-name` is the Swedish name Posti gives it most often in its postitoimipaikka, the first in the alphabet winning a tie. Where Posti gives none, it is the Finnish name: a TSV cell can't be empty, and a Swedish address writes the Finnish name of a street that has no Swedish one. Both readers chose the spelling `swedish-name` over `name-sv`. Valid while a street table names one language per column.
 
+A postitoimipaikka's and a kunta's `swedish-name` follow it, as does `geo.FI`'s import: Posti's Swedish name of a postitoimipaikka is recased as its Finnish name is, the Swedish `ST` and `KBY` staying lower case as `AS` and `KK` do, and a kunta's is Statistics Finland's.
+
 ## A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 
 2026-11-14, in the chunk that measured the cold start. Serves goals 12.1, that a render's cost grows only with the data it reaches, and 12.2, that the first value of any category appears in under 100 ms. Revised the same day, after a study of bulk speed and data growth: loading by block, first built only if one pass left the CLI's first `en_US.address` at 100 ms or more, is now unconditional and covers every table larger than one block. Carried out by `todo.md` items 465, 470, 471 and 472.
