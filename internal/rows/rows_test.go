@@ -1,6 +1,7 @@
 package rows
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -156,5 +157,119 @@ func TestProveStepUpRefusesATableWithNoParent(t *testing.T) {
 	country, _ := family(t)
 	if err := country.ProveStepUp([]string{"x"}); err == nil {
 		t.Error("ProveStepUp from a table with no parent passed")
+	}
+}
+
+func TestParseRefusesAParentWhoseScatteredRowsAllWeighZero(t *testing.T) {
+	data := "country\tcity\tw\nSE\tLund\t0\nNO\tBergen\t1\nSE\tBorg\t0\nDK\tAarhus\t0\nNO\tOslo\t2\n"
+	_, err := Parse("o", "city", "g.city", "city.tsv", data, Options{Parent: "country", Weight: "w"})
+	want := `city.tsv: every row under country "SE" weighs 0, so none is drawn there`
+	if err == nil || err.Error() != want {
+		t.Errorf("Parse = %v, want %q", err, want)
+	}
+}
+
+func TestParseAcceptsAParentWhoseWeightIsSpreadOverScatteredRuns(t *testing.T) {
+	data := "country\tcity\tw\nSE\tLund\t0\nNO\tBergen\t1\nSE\tBorg\t3\n"
+	if _, err := Parse("o", "city", "g.city", "city.tsv", data, Options{Parent: "country", Weight: "w"}); err != nil {
+		t.Errorf("Parse = %v, want SE's second run to carry its weight", err)
+	}
+}
+
+func TestLinkNamesTheFirstLineOfAParentNoKeyHas(t *testing.T) {
+	country := parse(t, "country", "code\nSE\nNO\n", Options{Key: "code"})
+	city := parse(t, "city", "country\tname\nSE\tLund\nNO\tBergen\nXX\tA\nSE\tBorg\nYY\tB\n", Options{Parent: "country"})
+	want := "city.tsv line 4: country \"XX\" is no key of country.tsv"
+	if err := city.Link(country, func(string) *Table[string] { return nil }); err == nil || err.Error() != want {
+		t.Errorf("Link = %v, want %q", err, want)
+	}
+}
+
+func TestLinkNamesTheFirstParentRowNoChildLinksTo(t *testing.T) {
+	country := parse(t, "country", "code\nSE\nNO\nDK\nFI\n", Options{Key: "code"})
+	city := parse(t, "city", "country\tname\nSE\tLund\nNO\tBergen\nSE\tBorg\n", Options{Parent: "country"})
+	want := "city.tsv links no row to country \"DK\"; every country row needs one, or drop line 4 of country.tsv"
+	if err := city.Link(country, func(string) *Table[string] { return nil }); err == nil || err.Error() != want {
+		t.Errorf("Link = %v, want %q", err, want)
+	}
+}
+
+func TestDrawInReachesEveryScatteredRowOfTheParent(t *testing.T) {
+	country := parse(t, "country", "code\nSE\nNO\n", Options{Key: "code"})
+	city := parse(t, "city", "country\tname\tw\nSE\tLund\t1\nNO\tBergen\t1\nSE\tBorg\t1\nNO\tOslo\t0\nSE\tMalmö\t1\n", Options{Name: "name", Parent: "country", Weight: "w"})
+	if err := city.Link(country, func(string) *Table[string] { return nil }); err != nil {
+		t.Fatal(err)
+	}
+	s := drawstate.New(1, time.Time{})
+	seen := map[string]bool{}
+	for i := 0; i < 200; i++ {
+		var p Pins[string]
+		if err := p.PinRow(country, 0); err != nil {
+			t.Fatal(err)
+		}
+		r := city.DrawIn(s, &p)
+		if city.Cell(r, 0) != "SE" {
+			t.Fatalf("DrawIn inside SE drew a city of %s", city.Cell(r, 0))
+		}
+		seen[city.Cell(r, 1)] = true
+	}
+	if len(seen) != 3 {
+		t.Errorf("DrawIn inside SE drew %v, want Lund, Borg and Malmö", seen)
+	}
+	for i := 0; i < 200; i++ {
+		var p Pins[string]
+		if err := p.PinRow(country, 1); err != nil {
+			t.Fatal(err)
+		}
+		if r := city.DrawIn(s, &p); city.Cell(r, 1) != "Bergen" {
+			t.Fatalf("DrawIn inside NO drew %s, whose weight is 0 or whose parent is SE", city.Cell(r, 1))
+		}
+	}
+}
+
+func parentTSV(parents, perParent int, scattered bool) (country, city string) {
+	var c, t strings.Builder
+	c.WriteString("code\n")
+	t.WriteString("country\tname\tw\n")
+	for p := 0; p < parents; p++ {
+		fmt.Fprintf(&c, "P%d\n", p)
+	}
+	for i := 0; i < parents*perParent; i++ {
+		p := i / perParent
+		if scattered {
+			p = i % parents
+		}
+		fmt.Fprintf(&t, "P%d\tn%d\t1\n", p, i)
+	}
+	return c.String(), t.String()
+}
+
+func BenchmarkParseAndLinkAParentColumn(b *testing.B) {
+	for _, shape := range []struct {
+		name      string
+		scattered bool
+	}{{"grouped", false}, {"scattered", true}} {
+		b.Run(shape.name, func(b *testing.B) {
+			countryData, cityData := parentTSV(2000, 50, shape.scattered)
+			b.ReportAllocs()
+			for i := 0; i < b.N; i++ {
+				country, err := Parse("o", "country", "g.country", "country.tsv", countryData, Options{Key: "code"})
+				if err != nil {
+					b.Fatal(err)
+				}
+				city, err := Parse("o", "city", "g.city", "city.tsv", cityData, Options{Name: "name", Parent: "country", Weight: "w"})
+				if err != nil {
+					b.Fatal(err)
+				}
+				if err := city.Link(country, func(string) *Table[string] { return nil }); err != nil {
+					b.Fatal(err)
+				}
+				var p Pins[string]
+				if err := p.PinRow(country, 0); err != nil {
+					b.Fatal(err)
+				}
+				city.DrawIn(drawstate.New(1, time.Time{}), &p)
+			}
+		})
 	}
 }
