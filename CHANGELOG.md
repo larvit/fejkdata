@@ -27,6 +27,10 @@ with its replacement, and each removed path, column or flag.
   `child`, `adult`, `senior` and `centenarian` draw one age band each, as in
   `sv_SE.personnummer.centenarian`, and `sv_SE.personnummer-date` is the date and separator a
   number starts with. A seed draws another number than it did.
+- Every `address` record, of a locale and of a `geo` country, has the columns `municipality` and
+  `region`: `{/sv_SE.address as a}{a.locality}, {a.municipality}, {a.region}` prints
+  `Kiruna, Kiruna, Norrbottens län`. `--format csv` writes them as columns too. Only
+  `en_US.address` had a `region`, a state's abbreviation, and it gains `municipality`, the county.
 - `fi_FI.henkilotunnus-issued` and `{hetu(x,'issued')}` draw a henkilötunnus with an individual
   number from 002 to 899, the range DVV issues, for a checker that refuses 900 to 999. Such a
   number may be a living person's.
