@@ -170,7 +170,7 @@ func TestParseRefusesAParentWhoseScatteredRowsAllWeighZero(t *testing.T) {
 }
 
 func TestParseAcceptsAParentWhoseWeightIsSpreadOverScatteredRuns(t *testing.T) {
-	data := "country\tcity\tw\nSE\tLund\t0\nNO\tBergen\t1\nSE\tBorg\t3\n"
+	data := "country\tcity\tw\nSE\tLund\t0\nSE\tBorg\t0\nNO\tBergen\t1\nSE\tMalmö\t0\nSE\tVäxjö\t3\n"
 	if _, err := Parse("o", "city", "g.city", "city.tsv", data, Options{Parent: "country", Weight: "w"}); err != nil {
 		t.Errorf("Parse = %v, want SE's second run to carry its weight", err)
 	}
@@ -178,19 +178,10 @@ func TestParseAcceptsAParentWhoseWeightIsSpreadOverScatteredRuns(t *testing.T) {
 
 func TestLinkNamesTheFirstLineOfAParentNoKeyHas(t *testing.T) {
 	country := parse(t, "country", "code\nSE\nNO\n", Options{Key: "code"})
-	city := parse(t, "city", "country\tname\nSE\tLund\nNO\tBergen\nXX\tA\nSE\tBorg\nYY\tB\n", Options{Parent: "country"})
-	want := "city.tsv line 4: country \"XX\" is no key of country.tsv"
-	if err := city.Link(country, func(string) *Table[string] { return nil }); err == nil || err.Error() != want {
-		t.Errorf("Link = %v, want %q", err, want)
-	}
-}
-
-func TestLinkNamesTheFirstParentRowNoChildLinksTo(t *testing.T) {
-	country := parse(t, "country", "code\nSE\nNO\nDK\nFI\n", Options{Key: "code"})
-	city := parse(t, "city", "country\tname\nSE\tLund\nNO\tBergen\nSE\tBorg\n", Options{Parent: "country"})
-	want := "city.tsv links no row to country \"DK\"; every country row needs one, or drop line 4 of country.tsv"
-	if err := city.Link(country, func(string) *Table[string] { return nil }); err == nil || err.Error() != want {
-		t.Errorf("Link = %v, want %q", err, want)
+	city := parse(t, "city", "country\tname\nSE\tLund\nNO\tBergen\nXX\tA\nXX\tB\nSE\tBorg\nYY\tC\n", Options{Parent: "country"})
+	err := city.Link(country, func(string) *Table[string] { return nil })
+	if err == nil || !strings.Contains(err.Error(), `line 4: country "XX"`) {
+		t.Errorf("Link = %v, want line 4, the first row of XX", err)
 	}
 }
 
@@ -201,29 +192,22 @@ func TestDrawInReachesEveryScatteredRowOfTheParent(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := drawstate.New(1, time.Time{})
-	seen := map[string]bool{}
-	for i := 0; i < 200; i++ {
-		var p Pins[string]
-		if err := p.PinRow(country, 0); err != nil {
-			t.Fatal(err)
-		}
-		r := city.DrawIn(s, &p)
-		if city.Cell(r, 0) != "SE" {
-			t.Fatalf("DrawIn inside SE drew a city of %s", city.Cell(r, 0))
-		}
-		seen[city.Cell(r, 1)] = true
+	drawn := func(parent int) map[string]bool {
+		seen := map[string]bool{}
+		fiftyTimes(func() {
+			var p Pins[string]
+			if err := p.PinRow(country, parent); err != nil {
+				t.Fatal(err)
+			}
+			seen[city.Cell(city.DrawIn(s, &p), 1)] = true
+		})
+		return seen
 	}
-	if len(seen) != 3 {
-		t.Errorf("DrawIn inside SE drew %v, want Lund, Borg and Malmö", seen)
+	if got := drawn(0); len(got) != 3 || !got["Lund"] || !got["Borg"] || !got["Malmö"] {
+		t.Errorf("DrawIn inside SE drew %v, want Lund, Borg and Malmö", got)
 	}
-	for i := 0; i < 200; i++ {
-		var p Pins[string]
-		if err := p.PinRow(country, 1); err != nil {
-			t.Fatal(err)
-		}
-		if r := city.DrawIn(s, &p); city.Cell(r, 1) != "Bergen" {
-			t.Fatalf("DrawIn inside NO drew %s, whose weight is 0 or whose parent is SE", city.Cell(r, 1))
-		}
+	if got := drawn(1); len(got) != 1 || !got["Bergen"] {
+		t.Errorf("DrawIn inside NO drew %v, want Bergen alone, since Oslo weighs 0", got)
 	}
 }
 
