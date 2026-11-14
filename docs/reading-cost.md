@@ -1908,3 +1908,14 @@ Read most (opens and searches):
 - `data/en_US/fs.go` 1
 - `data/geo/US/.fejkdata.json` 1
 - `data/geo/US/address.json` 1
+
+## Reading cost, chunk a0ec13885100, finished 2026-11-14T23:16:20Z
+
+55597 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/rows/rows.go` 6
+- `internal/rows/rows_test.go` 3
+- `compose.yaml` 2
+- `README.md` 1
