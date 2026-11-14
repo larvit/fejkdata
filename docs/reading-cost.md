@@ -1919,3 +1919,20 @@ Read most (opens and searches):
 - `internal/rows/rows_test.go` 3
 - `compose.yaml` 2
 - `README.md` 1
+
+## Reading cost, chunk 1934fb8d4cbf, finished 2026-11-14T23:44:23Z
+
+79062 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `compose.yaml` 4
+- `data-import/geo-fi.py` 3
+- `data/finnish_test.go` 3
+- `README.md` 2
+- `data-import/geo.py` 2
+- `data/geo/FI/locality.tsv` 2
+- `data/geo/FI/municipality.tsv` 2
+- `data/geo/FI/locality.json` 1
+- `data/geo/FI/municipality.json` 1
+- `data/geo/FI/region.tsv` 1
