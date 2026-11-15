@@ -12,8 +12,7 @@ import (
 // NodeSet is the set of nodes one fence covers, walked by calling it with fn.
 type NodeSet = func(fn func(label string, n tree.Node) error) error
 
-// Templates runs the template fences over the finished templates of ts, each over every template
-// before the next.
+// Templates runs the template fences over the finished templates of ts.
 func Templates(ts []load.TemplateSite) error {
 	for _, fence := range []func([]load.TemplateSite) error{
 		proveDrawLengths, refuseSelfReads, refuseFilteredTails, names.RefuseReads, proveCalcsAndAddDays,
