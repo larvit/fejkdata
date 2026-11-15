@@ -54,8 +54,8 @@ func containsWord(s, word string) bool {
 
 // cutWord cuts a token's body around its first " "+word outside a selector and a quote, where the
 // word ends the body or a space follows it. A quote opens only inside a clause; inClause says body
-// starts inside one. Otherwise a clause opens at the first word, where or distinct, found with
-// no quote open.
+// starts inside one. Otherwise a clause opens at the first of three words found with no quote
+// open: word itself, where or distinct.
 func cutWord(body, word string, inClause bool) (head, rest string, found bool) {
 	opens := 0
 	if !inClause {
