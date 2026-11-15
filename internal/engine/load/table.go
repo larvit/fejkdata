@@ -240,9 +240,8 @@ func routeThrough(t *tree.Table, tail []string, fromRow bool) (tableRoute, error
 	return tableRoute{sel: sel, draw: drawsRow(sel, readsRow, tail), then: past(t, tail, readsRow, column, child)}, nil
 }
 
-// drawsRow is whether a route draws its table's row: where it reads one, and no selector, here or
-// further down tail, pins it. A selector further down pins the table by ancestry; drawing first
-// could draw a row the selector is not inside.
+// drawsRow is whether a route draws its table's row. A selector further down tail picks the row by
+// ancestry, so drawing first could draw a row outside it.
 func drawsRow(sel string, readsRow bool, tail []string) bool {
 	return sel == "" && readsRow && !grammar.HasSelector(tail)
 }
