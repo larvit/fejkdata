@@ -23,6 +23,16 @@ func TestParseCalcPlacesEachOperandAtItsFirstReading(t *testing.T) {
 	}
 }
 
+func TestParseCalcReadsANumberThatStartsWithADot(t *testing.T) {
+	c, err := ParseCalc(".5 * 2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := (CalcBin{'*', CalcNum(0.5), CalcNum(2)}); !reflect.DeepEqual(c.Expr, want) {
+		t.Errorf("ParseCalc = %#v, want %#v", c.Expr, want)
+	}
+}
+
 func TestParseCalcRefusesAnUnfinishedExpression(t *testing.T) {
 	for _, expr := range []string{"", " ", "1 +", "(1", "1 2", "a.b", "postal-code *"} {
 		t.Run(strconv.Quote(expr), func(t *testing.T) {

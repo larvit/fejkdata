@@ -38,6 +38,12 @@ func TestParseFormatReadsEachTokenKind(t *testing.T) {
 	}
 }
 
+func TestParseFormatRefusesACallBoundWithAs(t *testing.T) {
+	if toks, err := ParseFormat("{f(x) as n}"); err == nil {
+		t.Errorf("ParseFormat = %+v, want an error", toks)
+	}
+}
+
 func TestParseFormatRefusesUnbalancedBraces(t *testing.T) {
 	for _, format := range []string{"{a", "a}", "{a{b}}", "{f(}"} {
 		t.Run(format, func(t *testing.T) {
