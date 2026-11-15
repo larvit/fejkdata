@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names and persons, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places. Each address takes its street and
   postal code from one town ([`geo`](#geo)).
@@ -614,10 +614,10 @@ template calls. `--no-shipped-data` leaves out the modules passed to
 ### Shipped modules
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
-its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/en_US`, `data/fi_FI`, `data/nb_NO`,
+its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/de_DE`, `data/en_US`, `data/fi_FI`, `data/nb_NO`,
 `data/nn_NO`, `data/sv_SE`), one per country's tree of places (`data/geo/DK`, `data/geo/FI`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`dadk`, `enus`, `fifi`, `nbno`, `nnno`, `svse`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `dede`, `enus`, `fifi`, `nbno`, `nnno`, `svse`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -790,6 +790,20 @@ A number's `block` is one of those prefixes and its `subscriber` the last five d
 allocates, and the plan says "mainly" because numbers move between fixed and mobile networks.
 Neither the order nor the authority's guide to it lists the numbers assigned to providers. A bound
 number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
+
+### `de_DE`
+
+`de_DE`, German, carries `first-name`, `last-name`, `person`, `sex` and `title`, built like [`da_DK`'s](#da_dk):
+`de_DE.sex` is `Frau` and `Mann`, and `de_DE.title` is `Dr.`, `Prof.` and `Prof. Dr.`. Renders e.g. `Emilia Hesse`.
+No open register publishes Germany's name counts. The first names are the city of Munich's open data
+["Vornamen von Neugeborenen"](https://opendata.muenchen.de/dataset/vornamen-von-neugeborenen), the children
+of each sex born to people living in Munich in 2013 to 2025, each name weighing the sum of the counts published for it. The
+files give a name of five or fewer children as a phrase, not a number, so a name never published as a number is missing.
+They show the names of those born since 2013, and Munich's. The last names are a language model's recall of
+names common in Germany: the commoner ones come first, from the most to the least common, each weighing
+700000 over the square root of its rank, and the rarer ones share one weight. These weights are estimates. `de_DE.sex` carries
+Germany's population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the first names
+credits "Datenquelle: Landeshauptstadt München, Statistisches Amt", and one showing the sex counts "Source: Eurostat".
 
 ### `en_US`
 

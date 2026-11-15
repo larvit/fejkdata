@@ -5,6 +5,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), with headings 
 their brackets. A release's `Breaking` section comes first and names each rejected spelling
 with its replacement, and each removed path, column or flag.
 
+## Unreleased
+
+### Added
+
+- `de_DE`, German, with `de_DE.person` and the tables it reads: `de_DE.first-name`, `de_DE.last-name`,
+  `de_DE.sex` (`Frau` and `Mann`) and `de_DE.title` (`Dr.`, `Prof.` and `Prof. Dr.`). A first name that
+  girls and boys both bear has a row under each sex, and a person's first name and sex agree. The first
+  names are the city of Munich's open data of newborns' names for 2013 to 2025, weighing a name by the sum
+  of the counts published for it, and `sex` carries Germany's population on 1 January 2025 from Eurostat.
+  The last names are a language model's recall of names common in Germany, with estimated weights, as no
+  open register of them was found. A program showing the first names credits "Datenquelle: Landeshauptstadt
+  München, Statistisches Amt", and one showing the sex counts "Source: Eurostat". The Go package is
+  `github.com/larvit/fejkdata/data/de_DE`, and the CLI carries it.
+
 ## 0.6.0 - 2026-11-15
 
 ### Breaking
