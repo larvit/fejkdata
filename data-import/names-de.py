@@ -3,15 +3,15 @@
     data-import/names-de.py [--cache DIR] [--out DIR]
 
 - The first names are the city of Munich's open data "Vornamen von Neugeborenen" (Datenlizenz Deutschland -
-  Namensnennung 2.0, "Datenquelle: Landeshauptstadt München, Statistisches Amt"), the children of each sex that
-  people living in Munich bore at the end of each year from 2013 to 2025. A name's count is the sum of the numbers
-  the files publish for it. The 2016 file ends in a row of a DOS end-of-file mark and nothing else, which is dropped. A file replaces a count of 4 or 5 or fewer with a phrase, so a name that is never
-  published as a number has no row. A name that girls and boys both bear has a row under each sex. A label that is
-  not a name in letters, as `tsv.NAME` says, is dropped.
+  Namensnennung 2.0, "Datenquelle: Landeshauptstadt München, Statistisches Amt"): for each year from 2013 to
+  2025, the children of each sex whom people living in Munich bore that year. A name's count is the sum of the
+  numbers the files publish for it. A file gives a count below 5 (2025: below 6) as a phrase, so a name never
+  published as a number has no row. A name that girls and boys both bear has a row under each sex. A label that
+  is not a name in letters, as `tsv.NAME` says, is dropped.
 - The last names are a language model's recall of names common in Germany, as no open register publishes them.
-  The first of them run from the most to the least common, and each has the count 700000 over the square root of
-  its rank. The rarer ones that follow, in no order, share the count of the last rank. These counts are
-  estimates, no published figure.
+  `LAST_RECALLED` lists the commoner ones from the most to the least common, then a line `=`, then the rarer
+  ones in no order. A commoner name has the count 700000 over the square root of its rank, and the rarer ones
+  share the count of the last rank. These counts are estimates, not published figures.
 """
 import argparse
 import csv
@@ -97,12 +97,12 @@ def firsts(cache: str) -> list[dict[str, object]]:
     """The rows (name, sex, count): each name and sex with the sum of the numbers that Munich publishes for it."""
     counts: dict[tuple[str, str], int] = {}
     for year, path in FILES.items():
-        text = source.fetch(BASE + path, cache, f"munich-vornamen-{year}.csv", magic=b"").decode("utf-8-sig")
+        text = source.fetch(BASE + path, cache, f"munich-vornamen-{year}.csv").decode("utf-8-sig")
         rows = list(csv.reader(io.StringIO(text)))
         if [c.strip() for c in rows[0]] != ["vorname", "anzahl", "geschlecht"]:
             sys.exit(f"{year}: the columns are {rows[0]}, not vorname, anzahl and geschlecht")
         for row in rows[1:]:
-            if not any(c.strip("\x1a ") for c in row):
+            if not any(c.strip("\x1a ") for c in row):  # the DOS end-of-file row that ends the 2016 to 2019 files
                 continue
             name, count, sex = (c.strip() for c in row)
             if sex not in SEX:
@@ -113,7 +113,7 @@ def firsts(cache: str) -> list[dict[str, object]]:
 
 
 def lasts() -> list[dict[str, object]]:
-    """The rows (name, count) of the recalled last names, the ranked ones with the count 700000 over the square root of their rank."""
+    """The rows (name, count) of the recalled last names."""
     ordered, _, rarer = (part.split() for part in LAST_RECALLED.partition("\n=\n"))
     names = ordered + rarer
     dupes = sorted({n for n in names if names.count(n) > 1})
