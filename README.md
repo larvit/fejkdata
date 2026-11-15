@@ -2395,7 +2395,7 @@ docker compose run --rm test    # go test -race
 docker compose run --rm bench   # benchmarks
 docker compose run --rm build   # compile the library
 docker compose run --rm vet     # go vet
-docker compose run --rm cyclo   # cyclomatic complexity over 10 (test files excluded)
+docker compose run --rm cyclo   # cyclomatic complexity over 7 (test files excluded)
 docker compose run --rm dev     # interactive shell
 ```
 

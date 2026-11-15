@@ -14,7 +14,7 @@
   before paraphrasing it, and name the register you read before claiming none
   publishes a spelling.
 - A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one.
-- Cyclomatic complexity is gated at 10: split a function that would go over it.
+- Cyclomatic complexity is gated at 7: split a function that would go over it.
 
 ## Project principles
 
