@@ -253,7 +253,8 @@ func (t *Table[O]) proveKeys() error {
 	return t.proveNamesAreNotKeys()
 }
 
-// proveNamesAreNotKeys proves no row's name is the key of another row, which a selector reads first.
+// proveNamesAreNotKeys proves no row's name is the key of another row: a selector reads keys first,
+// so such a name could never select its row.
 func (t *Table[O]) proveNamesAreNotKeys() error {
 	for r := 0; r < t.Len() && t.nameIndex >= 0; r++ {
 		if n := t.Cell(r, t.nameIndex); t.byKey[n] != r {
@@ -444,7 +445,7 @@ func (t *Table[O]) builtLookup() *rowLookup {
 	return &t.lookup
 }
 
-// groupByParent lists each parent key's rows, with their running weights where the table weighs.
+// groupByParent lists each parent key's rows, and, in a table with a weight column, their cumulative weights.
 func (t *Table[O]) groupByParent() {
 	t.lookup.rowsByParent = map[string][]int{}
 	for _, run := range t.parentRuns {

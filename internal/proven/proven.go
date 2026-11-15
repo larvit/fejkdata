@@ -78,7 +78,7 @@ func bound(n grammar.CalcNode, operand func(name string) Facts) (Facts, string) 
 	panic(invariant.Broken("calc node %T has no bound", n))
 }
 
-// boundBin bounds an operation from the bounds of its sides, or returns the first side's doubt.
+// boundBin bounds an operation from the bounds of its two sides, or returns the doubt of the left side, else of the right, else of the operation.
 func boundBin(n grammar.CalcBin, operand func(name string) Facts) (Facts, string) {
 	l, doubt := bound(n.L, operand)
 	if doubt != "" {
@@ -186,7 +186,7 @@ var (
 	numberText  = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$`)
 )
 
-// calcFacts proves the number calc reads text as, or that it reads none.
+// calcFacts proves the number calc reads text as, or that text is not a number.
 func calcFacts(text string) Facts {
 	f, err := strconv.ParseFloat(strings.TrimSpace(text), 64)
 	if err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
