@@ -46,7 +46,7 @@ func splitAtDot(segs []string, path string, start, i, open int) ([]string, int, 
 }
 
 // withLastSegment appends path[start:], the last segment, unless it is empty and follows a "..". It
-// refuses a path whose selector is still open at open.
+// refuses a path whose selector, opened at index open, never closes.
 func withLastSegment(segs []string, path string, start, open int) ([]string, error) {
 	if open >= 0 {
 		return nil, fmt.Errorf(`%q opens a selector with "[" and never closes it with "]"`, path)

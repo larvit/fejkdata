@@ -31,7 +31,7 @@ func RefShape(name string) (sigil, rest string, err error) {
 	return sigil, rest, nil
 }
 
-// cutSigil splits a reference into its sigil, / or .. or ., and the text after it.
+// cutSigil splits a reference into its sigil ("/", ".." or ".") and the text after it.
 func cutSigil(name string) (sigil, rest string) {
 	switch {
 	case strings.HasPrefix(name, "/"):
