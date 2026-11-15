@@ -393,7 +393,7 @@ ISO 3166 reserves it for Western Sahara and the root zone has never been delegat
 
 ### 462. Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.
 
-The scoring run at ca568bcb (PR #381) left Locality at 5.63, Shape 6.50, Self-sufficiency 6.38 and Overall 6.25, under the floor of 7.0. Three of four seats named the same render unit for Locality:
+The two scoring runs at b4a99eb2 (PR #404) left Locality at 6.13, Shape 6.88, Self-sufficiency 6.88 and Overall 6.63, under the floor of 7.0; the run at ca568bcb (PR #381) had left Locality at 5.63. Both runs' seats named the same render unit for Locality, and every seat of the second run named `LoadFinds`' nil `AfterFinish` too:
 
 - Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frame stack, mark, base and frames kept in the memo, all held at once
 - Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames are pushed into a shared stack, cached in another pick's memo and found again by `openOwn`
@@ -402,7 +402,7 @@ The scoring run at ca568bcb (PR #381) left Locality at 5.63, Shape 6.50, Self-su
 
 Give the frames a pick enters one owner: a value the pick holds and hands to a read, so `readPath` needs no `base` mark, `openOwn` scans no shared `frameStack`, and `renderEnv.entered` clears no pick out of sight. Group `drawMemo`'s maps by what they keep per level, so a new clause adds a field to one named value, not a fifth map. No render output, seed or allocation count changes; the performance gate holds.
 
-The seats' other Locality places, for the floor item after this one: `internal/engine/tree/pick.go:83` `LevelsUnder` (all four seats: load and render must build identical pick keys), `internal/engine/pipeline.go:58` `pipeline.run` with `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of` and the nil `AfterFinish` (stage order held by a comment), and `internal/engine/lazy.go:133` `batch.load`.
+The seats' other Locality places, for the floor item after this one (`AfterFinish` is the first of them now, named by all eight seats of PR #404's runs): `internal/engine/tree/pick.go:83` `LevelsUnder` (all four seats: load and render must build identical pick keys), `internal/engine/pipeline.go:58` `pipeline.run` with `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of` and the nil `AfterFinish` (stage order held by a comment), and `internal/engine/lazy.go:133` `batch.load`.
 
 ### 255. Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.
 

@@ -1982,3 +1982,95 @@ Inherited architect, would restructure first:
 - Navigation, Locality: `data-import/geo-se.py:252` `streets`: a street's postort is assigned by distance, and that can't be told from an engine bug without running something
 - Self-sufficiency, Navigation: `README.md:613` "Data": 540 lines of per-locale prose inside a 2405-line README that is also the navigation map
 - Shape: `internal/engine/fence/names/rules.go:54` `nameRules`: five refusal rules over 13 files, and every new syntax feature adds here
+
+## 2026-11-15T15:14:37Z, item-458 at b4a99eb2
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6 | 7 | 6.5 |
+| Mid A | 7.5 | 6 | 7 | 6.5 | 6.5 |
+| Maintainability senior | 7 | 6 | 6.5 | 7 | 6.5 |
+| Inherited architect | 7.5 | 6.5 | 7 | 7.5 | 7 |
+| Mean | 7.25 | 6.00 | 6.63 | 7.00 | 6.63 |
+
+Junior A, hardest first:
+
+- Self-sufficiency, Locality: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: four concepts held at once across files, and why a landing read with a draw below counts as shared stays opaque
+- Self-sufficiency, Locality: `internal/engine/tree/pick.go:83` `LevelsUnder`: aligning fresh and named read keys took two rereads, plus a parameter that only spares an allocation
+- Locality, Shape: `internal/engine/fence/names/refusekeptandfreshfield.go:40` `refuseKeptAndFreshField`: a three-deep search whose error takes ten arguments
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: a shared mutable frame stack with marks, a base cutoff and frames kept in another pick's memo
+- Locality, Shape: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: a nil sentinel decides where data comes from, and a wrong choice panics at runtime
+- Shape: `internal/engine/load/path.go:105` `compileStep`: six parameters with in/out pointers
+- Shape: `internal/engine/load/format.go:92` `checkRead`: an error that sometimes means a name may yet answer
+
+Mid A, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/tree/pick.go:83` `LevelsUnder`: three coordinate frames to hold, understood only after reading render and fence/names
+- Locality: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: three early returns resting on vocabulary from three other files
+- Self-sufficiency: `internal/engine/fence/names/refusekeptandfreshfield.go:72` `readsFieldApart`: completeness of the rule can't be judged without the README's Names section
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames pushed, cached in another pick's memo and popped to a mark
+- Locality: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: the phase can't be seen at a call site
+- Shape: `internal/engine/load/table.go:227` `routeThrough`: four booleans and four positions decide select, draw or step
+
+Maintainability senior, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/tree/pick.go:83` `LevelsUnder`: two coordinate systems and an allocation trick inside the rule that load and render must agree on
+- Locality: `internal/engine/fence/names/refusedrawnapart.go:36` `sharedDraw`: each branch depends on vocabulary from three other files
+- Locality: `internal/engine/render/env.go:36` `frameStack.enter`: which frame a name resolves in depends on stack depth, a memo and a -1 sentinel
+- Locality, Shape: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: a nil pointer used as a phase switch, hidden in call signatures
+- Locality: `internal/grammar/where.go:58` `cutWord`: a scan predicate mutates the scanner's quote state
+- Shape: `internal/engine/load/node.go:51` `position`: six values whose differences hide in one-line constant comments
+- Locality: `internal/engine/pipeline.go:58` `pipeline.run`: the stage order decides correctness and only a comment guards it
+
+Inherited architect, would restructure first:
+
+- Locality, Shape: `internal/engine/tree/loadfinds.go:12` `LoadFinds`: phase-dependent `Of` with a nil `AfterFinish` sentinel and a panic on the wrong phase threads every load and fence function
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: hidden state in `enteredFrames` and `steppedDown` kept across reads
+- Shape: `internal/engine/load/node.go:66` `compileItem`: 17 files and about 180 functions in `engine/load` with no package doc
+- Navigation: `internal/engine/fence/fence.go:16` fence verbs: prove, refuse and check name one concept
+- Shape: `internal/engine/render/env.go:19` `frameStack`: also holds the reword fakes map, which the name hides
+- Navigation: `data-import/geo-se.py:269` `main`: shared modules and scripts sit flat together
+
+## 2026-11-15T15:18:51Z, item-458 rerun at b4a99eb2
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7.5 | 6 | 7 | 7 | 6.5 |
+| Maintainability senior | 7.5 | 6.5 | 7 | 7 | 7 |
+| Inherited architect | 7.5 | 6.5 | 7 | 7.5 | 7 |
+| Mean | 7.38 | 6.13 | 6.88 | 6.88 | 6.63 |
+
+Junior A, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: four outcomes at once, and why "addressed" stops the walk needs the PickKey doc
+- Locality, Self-sufficiency: `internal/engine/tree/pick.go:83` `LevelsUnder`: fresh and named levels, `at` and addressed keys took three rereads
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames pushed into a memo owned by another pick and found again through `base`
+- Locality, Self-sufficiency: `internal/engine/fence/names/refusekeptandfreshfield.go:40` `refuseKeptAndFreshField`: kept, fresh and deepest shared level held at once
+- Locality: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: a nil pointer decides whether a function reads in-progress finds or finished nodes
+- Shape: `internal/engine/load/path.go:105` `compileStep`: six parameters, one only for error text
+
+Mid A, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: three conditions over four helpers in other files, with a double negative in `rendersField`
+- Locality: `internal/engine/tree/pick.go:83` `LevelsUnder`: a key built outside only to spare an allocation
+- Locality: `internal/engine/render/env.go:36` `frameStack.enter`: a shared stack under a value-copied env, with `base`, `mark` and a -1 sentinel
+- Locality: `internal/engine/render/path.go:57` `drawAcrossTables`: `climbed` carries state between steps, and a nil `keptDraws` means draw fresh
+- Locality: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: reads as real state at call sites
+
+Maintainability senior, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: a static model of render's pick rules that nothing in the types ties to them
+- Locality: `internal/engine/tree/pick.go:83` `LevelsUnder`: one keying rule load, render and the fences must all agree on
+- Locality: `internal/engine/fence/names/routewalk.go:51` `routeWalk.walk`: one route followed through three files
+- Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frame base, mark, `enteredFrames` and `steppedDown` mutated through a pointer
+- Shape: `internal/engine/load/path.go:105` `compileStep`: six parameters, its roles clear only after `compiledPath`
+- Shape: `internal/engine/load/node.go:51` `position`: six values whose rules are spread across the compile functions
+
+Inherited architect, would restructure first:
+
+- Locality: `internal/engine/tree/loadfinds.go:52` `AfterFinish`: a named nil marks the phase, so every reader of load or fence must know which phase it runs in
+- Locality: `internal/engine/render/pick.go:51` `drawMemo`: hidden memo and frame state one read leaves for another
+- Locality, Navigation: `internal/engine/fence/names/rules.go:54` `nameRules`: every new token feature threads through five rules over pick-key levels
+- Navigation: `data-import/geo-se.py:252` `streets`: nothing signposts the fork between data and engine for a mismatched postort
+- Shape: `internal/engine/inline.go:103` `LoadStruct`: "inline" holds a struct load that is not an inline template
