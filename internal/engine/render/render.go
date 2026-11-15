@@ -42,16 +42,21 @@ func render(s *drawstate.State, n tree.Node, env renderEnv) string {
 	case *tree.TableRow:
 		return expand(s, n.RenderedFormat(), env)
 	case *tree.TableColumn:
-		row := env.rowOf(n.Table())
-		if cell := n.RenderedCell(row); cell != nil {
-			return render(s, cell, env)
-		}
-		return n.Table().Rows().Cell(row, n.Index())
+		return renderColumn(s, n, env)
 	case *tree.Template:
 		return renderTemplate(s, n, env)
 	default:
 		panic(invariant.Broken("uncompiled node %T", n))
 	}
+}
+
+// renderColumn renders column c of the row env holds for c's table.
+func renderColumn(s *drawstate.State, c *tree.TableColumn, env renderEnv) string {
+	row := env.rowOf(c.Table())
+	if cell := c.RenderedCell(row); cell != nil {
+		return render(s, cell, env)
+	}
+	return c.Table().Rows().Cell(row, c.Index())
 }
 
 // renderTemplate renders t, inside the name scope t opens where it binds names of its own.
@@ -111,17 +116,22 @@ func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 		case tok.Kind == grammar.PathRead:
 			b.WriteString(readField(s, t, env, o.Alternatives()[s.IntN(len(o.Alternatives()))]).text)
 		case tok.Kind == grammar.BuiltinCall:
-			var operands []string
-			if len(o.Operands()) > 0 {
-				operands = make([]string, len(o.Operands()))
-				for j, a := range o.Operands() {
-					operands[j] = readField(s, t, env, a).text
-				}
-			}
-			b.WriteString(o.Call()(s, b.String(), operands)) // b.String() is the output so far
+			b.WriteString(o.Call()(s, b.String(), readOperands(s, t, env, o))) // b.String() is the output so far
 		}
 	}
 	return b.String()
+}
+
+// readOperands renders each operand of o's call, or returns nil where it has none.
+func readOperands(s *drawstate.State, t *tree.Template, env renderEnv, o *tree.Op) []string {
+	if len(o.Operands()) == 0 {
+		return nil
+	}
+	operands := make([]string, len(o.Operands()))
+	for j, a := range o.Operands() {
+		operands[j] = readField(s, t, env, a).text
+	}
+	return operands
 }
 
 // readField renders one read of a token. A read is kept in a name's pick when it reads the name, or

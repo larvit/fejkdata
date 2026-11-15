@@ -64,10 +64,7 @@ func drawAcrossTables(s *drawstate.State, n tree.Node, steps []tree.PathStep, pi
 			n = fieldOf(n, st)
 			continue
 		}
-		t, ok := n.(*tree.Table)
-		if !ok {
-			panic(invariant.Broken("step %d: a table's step of kind %d on %T", st.At, st.Kind, n))
-		}
+		t := tableOf(n, st)
 		switch {
 		case st.Kind == tree.StepParent:
 			climbed = t.Rows().Parent()
@@ -78,6 +75,14 @@ func drawAcrossTables(s *drawstate.State, n tree.Node, steps []tree.PathStep, pi
 		n = followStep(t, s, st, pins)
 	}
 	return n, pins
+}
+
+func tableOf(n tree.Node, st tree.PathStep) *tree.Table {
+	t, ok := n.(*tree.Table)
+	if !ok {
+		panic(invariant.Broken("step %d: a table's step of kind %d on %T", st.At, st.Kind, n))
+	}
+	return t
 }
 
 func fieldOf(n tree.Node, st tree.PathStep) tree.Node {
