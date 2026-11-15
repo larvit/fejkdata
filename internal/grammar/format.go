@@ -22,36 +22,42 @@ type scanUnit struct {
 func eachScanUnit(format string, fn func(scanUnit) error) error {
 	rs := []rune(format)
 	for i := 0; i < len(rs); i++ {
-		var u scanUnit
-		switch c := rs[i]; c {
-		case '{':
-			if i+1 < len(rs) && rs[i+1] == '{' {
-				u.char = '{'
-				i++
-				break
-			}
-			end, err := tokenEnd(rs, i, format)
-			if err != nil {
-				return err
-			}
-			u.isToken, u.body = true, string(rs[i+1:end])
-			i = end
-		case '}':
-			if i+1 < len(rs) && rs[i+1] == '}' {
-				u.char = '}'
-				i++
-				break
-			}
-			return fmt.Errorf("lone '}' in %q; a literal brace is written }}", format)
-		default:
-			u.char = c
+		u, last, err := scanOne(rs, i, format)
+		if err != nil {
+			return err
 		}
+		i = last
 		if err := fn(u); err != nil {
 			return err
 		}
 	}
 	return nil
 }
+
+// scanOne scans the unit of rs that starts at index i, and returns it with the index of its last rune.
+func scanOne(rs []rune, i int, format string) (u scanUnit, last int, err error) {
+	c := rs[i]
+	switch c {
+	case '{':
+		if doubled(rs, i) {
+			return scanUnit{char: c}, i + 1, nil
+		}
+		end, err := tokenEnd(rs, i, format)
+		if err != nil {
+			return scanUnit{}, 0, err
+		}
+		return scanUnit{isToken: true, body: string(rs[i+1 : end])}, end, nil
+	case '}':
+		if doubled(rs, i) {
+			return scanUnit{char: c}, i + 1, nil
+		}
+		return scanUnit{}, 0, fmt.Errorf("lone '}' in %q; a literal brace is written }}", format)
+	}
+	return scanUnit{char: c}, i, nil
+}
+
+// doubled reports whether the rune after index i repeats the one at i.
+func doubled(rs []rune, i int) bool { return i+1 < len(rs) && rs[i+1] == rs[i] }
 
 // tokenEnd returns the index of the "}" closing the token that the "{" at open in format starts.
 func tokenEnd(rs []rune, open int, format string) (int, error) {
@@ -108,31 +114,35 @@ func ParseFormat(format string) ([]Token, error) {
 			return nil
 		}
 		flush()
-		if c, found := cutClauses(u.body); found {
-			tok, err := clauseToken(u.body, c)
-			toks = append(toks, tok)
-			return err
-		}
-		if ref, name, binds := cutOutside(u.body, AsWord); binds && indexOutside(u.body, '(') < 0 {
-			toks = append(toks, Token{Kind: NameBind, Body: u.body, BoundRef: ref, Bound: name})
-			return nil
-		}
-		if indexOutside(u.body, '(') < 0 {
-			toks = append(toks, Token{Kind: PathRead, Body: u.body, Arms: splitOutside(u.body, '|')})
-			return nil
-		}
-		name, args, ok := FuncCall(u.body)
-		if !ok {
-			return fmt.Errorf("malformed function token {%s}", u.body)
-		}
-		toks = append(toks, Token{Kind: BuiltinCall, Body: u.body, Fn: name, Args: args})
-		return nil
+		tok, err := bodyToken(u.body)
+		toks = append(toks, tok)
+		return err
 	})
 	if err != nil {
 		return nil, err
 	}
 	flush()
 	return toks, nil
+}
+
+// bodyToken parses the body of a {…} token: a path or name read with its clauses, a name bound, a
+// path read, or a call.
+func bodyToken(body string) (Token, error) {
+	if c, found := cutClauses(body); found {
+		return clauseToken(body, c)
+	}
+	isCall := indexOutside(body, '(') >= 0
+	if ref, name, binds := cutOutside(body, AsWord); binds && !isCall {
+		return Token{Kind: NameBind, Body: body, BoundRef: ref, Bound: name}, nil
+	}
+	if !isCall {
+		return Token{Kind: PathRead, Body: body, Arms: splitOutside(body, '|')}, nil
+	}
+	name, args, ok := FuncCall(body)
+	if !ok {
+		return Token{}, fmt.Errorf("malformed function token {%s}", body)
+	}
+	return Token{Kind: BuiltinCall, Body: body, Fn: name, Args: args}, nil
 }
 
 // FuncCall splits a "{token}" body shaped name(args) into its parts; ok is false

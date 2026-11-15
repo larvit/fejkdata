@@ -124,10 +124,7 @@ func clauseToken(body string, c clauses) (Token, error) {
 	if indexOutside(c.head, '(') >= 0 {
 		return callClauseToken(body, c)
 	}
-	tok := Token{Kind: PathRead, Body: body, Arms: []string{c.head}}
-	if c.binds {
-		tok = Token{Kind: NameBind, Body: body, BoundRef: c.head, Bound: c.name}
-	}
+	tok := clauseHeadToken(body, c)
 	var err error
 	if c.filters {
 		if tok.Where, err = ParseWhere(c.where); err != nil {
@@ -140,6 +137,15 @@ func clauseToken(body string, c clauses) (Token, error) {
 		}
 	}
 	return tok, nil
+}
+
+// clauseHeadToken is the token of a clause body's head, before its clauses are parsed: a read of the
+// path, or a bind of it to the name.
+func clauseHeadToken(body string, c clauses) Token {
+	if c.binds {
+		return Token{Kind: NameBind, Body: body, BoundRef: c.head, Bound: c.name}
+	}
+	return Token{Kind: PathRead, Body: body, Arms: []string{c.head}}
 }
 
 // distinctClause parses the distinct clause of the token body, refusing one that neither joins nor
@@ -198,23 +204,38 @@ func parseDistinct(clause string) (*Distinct, error) {
 		return nil, fmt.Errorf("distinct %s: %w", clause, err)
 	}
 	p := &whereParser{lx: lx}
-	l, ok := p.next()
-	n, convErr := strconv.Atoi(l.text)
-	if !ok || l.quoted || convErr != nil || n < 1 {
+	n, ok := distinctCount(p)
+	if !ok {
 		return nil, fmt.Errorf("distinct %s: \"distinct\" takes a whole number of 1 or more, such as {w distinct 3 joined ','}", clause)
 	}
 	d := &Distinct{N: n}
-	if p.word("joined") {
-		sep, ok := p.next()
-		if !ok || !sep.quoted {
-			return nil, fmt.Errorf("distinct %s: \"joined\" takes a quoted separator, such as {w distinct 2 joined ','}", clause)
-		}
-		d.Joins, d.Sep = true, sep.text
+	if err := parseJoined(p, clause, d); err != nil {
+		return nil, err
 	}
 	if !p.done() {
 		return nil, fmt.Errorf("distinct %s: %s follows the count, where only \"joined\" and a quoted separator may", clause, p.peek())
 	}
 	return d, nil
+}
+
+// distinctCount reads the whole number of 1 or more that opens a distinct clause.
+func distinctCount(p *whereParser) (int, bool) {
+	l, ok := p.next()
+	n, err := strconv.Atoi(l.text)
+	return n, ok && !l.quoted && err == nil && n >= 1
+}
+
+// parseJoined reads the optional joined and its quoted separator into d.
+func parseJoined(p *whereParser, clause string, d *Distinct) error {
+	if !p.word("joined") {
+		return nil
+	}
+	sep, ok := p.next()
+	if !ok || !sep.quoted {
+		return fmt.Errorf("distinct %s: \"joined\" takes a quoted separator, such as {w distinct 2 joined ','}", clause)
+	}
+	d.Joins, d.Sep = true, sep.text
+	return nil
 }
 
 type whereLexeme struct {
@@ -348,16 +369,21 @@ func (p *whereParser) length() (Length, error) {
 		return Length{}, fmt.Errorf("\"length\" takes a whole number or a name, such as {w where length 5} or {w where length k}")
 	}
 	if startsNumber(l.text) {
-		n, err := strconv.Atoi(l.text)
-		if err != nil || n < 0 {
-			return Length{}, fmt.Errorf("length %s is no whole number of 0 or more", l.text)
-		}
-		return Length{N: n}, nil
+		return numberLength(l.text)
 	}
 	if err := CheckIdentifier(withoutMember(l.text)); err != nil {
 		return Length{}, fmt.Errorf("length %s: %w", l.text, err)
 	}
 	return Length{Name: l.text}, nil
+}
+
+// numberLength is the whole number of 0 or more that text spells.
+func numberLength(text string) (Length, error) {
+	n, err := strconv.Atoi(text)
+	if err != nil || n < 0 {
+		return Length{}, fmt.Errorf("length %s is no whole number of 0 or more", text)
+	}
+	return Length{N: n}, nil
 }
 
 // withoutMember is name without a member's key, as m of m[1]; the key is checked where the name
@@ -385,21 +411,27 @@ func (p *whereParser) stringList(quoted, names *[]string) error {
 
 // listItem appends the lexeme l of a not-list to quoted or names; ok is false past the clause's end.
 func listItem(l whereLexeme, ok bool, quoted, names *[]string) error {
-	switch {
-	case ok && l.quoted:
+	if ok && l.quoted {
 		*quoted = append(*quoted, l.text)
-	case ok && slices.Contains(whereKeywords, l.text):
-		return fmt.Errorf("\"not\" takes quoted strings or names, such as {w where not 'cat', n}, and %q is a word of the clause, so a name read here needs another spelling", l.text)
+		return nil
+	}
+	switch {
 	case !ok || l.text == ",":
 		return errors.New("\"not\" takes quoted strings or names, such as {w where not 'cat', n}")
+	case slices.Contains(whereKeywords, l.text):
+		return fmt.Errorf("\"not\" takes quoted strings or names, such as {w where not 'cat', n}, and %q is a word of the clause, so a name read here needs another spelling", l.text)
 	case startsNumber(l.text):
 		return fmt.Errorf("not %s: quote a string, as '%s'; a bare word is a name", l.text, l.text)
-	default:
-		if err := CheckIdentifier(withoutMember(l.text)); err != nil {
-			return fmt.Errorf("not %s: %w", l.text, err)
-		}
-		*names = append(*names, l.text)
 	}
+	return appendNotName(names, l.text)
+}
+
+// appendNotName appends the name a not-list holds to names, refusing text that is no name.
+func appendNotName(names *[]string, text string) error {
+	if err := CheckIdentifier(withoutMember(text)); err != nil {
+		return fmt.Errorf("not %s: %w", text, err)
+	}
+	*names = append(*names, text)
 	return nil
 }
 
@@ -419,18 +451,24 @@ func (p *whereParser) fallback(w *Where, clause string) error {
 
 // fallbackOf reads the lexeme l after else of clause; ok is false past the clause's end.
 func fallbackOf(l whereLexeme, ok bool, clause string) (*Fallback, error) {
-	switch {
-	case ok && !l.quoted && slices.Contains(whereKeywords, l.text):
-		return nil, fmt.Errorf("where %s: \"else\" takes a quoted fallback or a name, such as {w where not 'cat' else 'none'}, and %q is a word of the clause, so a name read here needs another spelling", clause, l.text)
-	case !ok || !l.quoted && (l.text == "," || startsNumber(l.text)):
-		return nil, fmt.Errorf("where %s: \"else\" takes a quoted fallback or a name, such as {w where not 'cat' else 'none'}", clause)
-	case l.quoted:
+	if ok && l.quoted {
 		return &Fallback{Text: l.text}, nil
 	}
-	if err := CheckIdentifier(withoutMember(l.text)); err != nil {
-		return nil, fmt.Errorf("where %s: else %s: %w", clause, l.text, err)
+	switch {
+	case !ok || l.text == "," || startsNumber(l.text):
+		return nil, fmt.Errorf("where %s: \"else\" takes a quoted fallback or a name, such as {w where not 'cat' else 'none'}", clause)
+	case slices.Contains(whereKeywords, l.text):
+		return nil, fmt.Errorf("where %s: \"else\" takes a quoted fallback or a name, such as {w where not 'cat' else 'none'}, and %q is a word of the clause, so a name read here needs another spelling", clause, l.text)
 	}
-	return &Fallback{Name: l.text}, nil
+	return nameFallback(l.text, clause)
+}
+
+// nameFallback is the fallback that reads the name text, refusing text that is no name.
+func nameFallback(text, clause string) (*Fallback, error) {
+	if err := CheckIdentifier(withoutMember(text)); err != nil {
+		return nil, fmt.Errorf("where %s: else %s: %w", clause, text, err)
+	}
+	return &Fallback{Name: text}, nil
 }
 
 func startsNumber(word string) bool { return word[0] == '-' || word[0] >= '0' && word[0] <= '9' }

@@ -11,14 +11,7 @@ func IsRef(name string) bool { return strings.HasPrefix(name, ".") || strings.Ha
 
 // RefShape splits a reference into its sigil and the dotted path after it.
 func RefShape(name string) (sigil, rest string, err error) {
-	switch {
-	case strings.HasPrefix(name, "/"):
-		sigil, rest = "/", name[1:]
-	case strings.HasPrefix(name, ".."):
-		sigil, rest = "..", name[2:]
-	default:
-		sigil, rest = ".", name[1:]
-	}
+	sigil, rest = cutSigil(name)
 	if rest == "" {
 		return "", "", fmt.Errorf("reference has no path")
 	}
@@ -36,6 +29,17 @@ func RefShape(name string) (sigil, rest string, err error) {
 		return "", "", err
 	}
 	return sigil, rest, nil
+}
+
+// cutSigil splits a reference into its sigil, / or .. or ., and the text after it.
+func cutSigil(name string) (sigil, rest string) {
+	switch {
+	case strings.HasPrefix(name, "/"):
+		return "/", name[1:]
+	case strings.HasPrefix(name, ".."):
+		return "..", name[2:]
+	}
+	return ".", name[1:]
 }
 
 // IsLonePath reports whether body, the text after a reference's /, is one path and nothing

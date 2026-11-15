@@ -9,21 +9,43 @@ type scanner struct{ quotes bool }
 // first index match reports true for, or -1. match may set sc.quotes, so quotes count from where a
 // clause opens.
 func (sc *scanner) find(s string, match func(i int) bool) int {
-	depth, quoted := 0, false
+	var st scanState
 	for i := 0; i < len(s); i++ {
-		switch c := s[i]; {
-		case quoted:
-			quoted = c != '\''
-		case c == '[':
-			depth++
-		case c == ']' && depth > 0:
-			depth--
-		case depth > 0:
-		case c == '\'' && sc.quotes:
-			quoted = true
-		case match(i):
+		if !st.inside(s[i], sc.quotes) && match(i) {
 			return i
 		}
 	}
 	return -1
+}
+
+// scanState is where a scan stands: how many selectors are open, and whether a quote is.
+type scanState struct {
+	depth  int
+	quoted bool
+}
+
+// inside moves past c and reports whether it belongs to a selector or a quote, and so is no place
+// for a match; quotes says whether a quote may open here.
+func (st *scanState) inside(c byte, quotes bool) bool {
+	switch {
+	case st.quoted:
+		st.quoted = c != '\''
+	case st.depth > 0 || c == '[':
+		st.selector(c)
+	case c == '\'' && quotes:
+		st.quoted = true
+	default:
+		return false
+	}
+	return true
+}
+
+// selector moves past c, a byte inside a selector or the "[" that opens one.
+func (st *scanState) selector(c byte) {
+	switch c {
+	case '[':
+		st.depth++
+	case ']':
+		st.depth--
+	}
 }

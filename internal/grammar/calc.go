@@ -112,22 +112,31 @@ func (p *calcParser) factor() (CalcNode, error) {
 	}
 	switch c := p.rs[p.pos]; {
 	case c == '-':
-		p.pos++
-		x, err := p.factor()
-		if err != nil {
-			return nil, err
-		}
-		return CalcNeg{x}, nil
+		return p.negation()
 	case c == '(':
 		return p.group()
-	case c == '.' || c >= '0' && c <= '9':
+	case isNumberStart(c):
 		return p.number()
-	case c == '_' || unicode.IsLetter(c):
+	case isIdentStart(c):
 		return p.ident()
 	default:
 		return nil, fmt.Errorf("unexpected %q", string(c))
 	}
 }
+
+// negation reads a "-" and the factor it negates.
+func (p *calcParser) negation() (CalcNode, error) {
+	p.pos++
+	x, err := p.factor()
+	if err != nil {
+		return nil, err
+	}
+	return CalcNeg{x}, nil
+}
+
+func isNumberStart(c rune) bool { return c == '.' || c >= '0' && c <= '9' }
+
+func isIdentStart(c rune) bool { return c == '_' || unicode.IsLetter(c) }
 
 // group reads a parenthesised expression, from its "(" to its ")".
 func (p *calcParser) group() (CalcNode, error) {
@@ -166,18 +175,8 @@ func (p *calcParser) number() (CalcNode, error) {
 // operand.
 func (p *calcParser) ident() (CalcNode, error) {
 	start := p.pos
-	for p.pos < len(p.rs) {
-		if c := p.rs[p.pos]; c == '_' || unicode.IsLetter(c) || unicode.IsDigit(c) {
-			p.pos++
-		} else {
-			break
-		}
-	}
-	if p.pos < len(p.rs) && p.rs[p.pos] == '[' {
-		if end := slices.Index(p.rs[p.pos:], ']'); end > 0 {
-			p.pos += end + 1
-		}
-	}
+	p.skipWord()
+	p.skipKey()
 	name := string(p.rs[start:p.pos])
 	at := slices.Index(p.operands, name)
 	if at < 0 {
@@ -185,4 +184,21 @@ func (p *calcParser) ident() (CalcNode, error) {
 		p.operands = append(p.operands, name)
 	}
 	return CalcVar{name, at}, nil
+}
+
+// skipWord moves past letters, digits and '_'.
+func (p *calcParser) skipWord() {
+	for p.pos < len(p.rs) && (isIdentStart(p.rs[p.pos]) || unicode.IsDigit(p.rs[p.pos])) {
+		p.pos++
+	}
+}
+
+// skipKey moves past a member's key in brackets, where one closes.
+func (p *calcParser) skipKey() {
+	if p.pos >= len(p.rs) || p.rs[p.pos] != '[' {
+		return
+	}
+	if end := slices.Index(p.rs[p.pos:], ']'); end > 0 {
+		p.pos += end + 1
+	}
 }
