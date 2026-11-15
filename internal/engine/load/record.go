@@ -33,7 +33,7 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 	return columns
 }
 
-// wholeFieldNames is, for each field of t that a name of t binds whole, the first such name.
+// wholeFieldNames maps each field of t that a name of t binds whole to the first such name.
 func wholeFieldNames(t *tree.Template, l *tree.LoadFinds) map[tree.Node]*tree.NameBinding {
 	whole := map[tree.Node]*tree.NameBinding{}
 	for _, tok := range t.Tokens() {

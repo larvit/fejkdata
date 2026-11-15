@@ -73,7 +73,7 @@ func compileFormats(ts []TemplateSite, l *tree.LoadFinds) error {
 //  4. buildOps gives each op its call and draw. It needs every format compiled, since an adddays
 //     call takes the layout its date operand prints in.
 //  5. setColumnReads and setAddressed find the column each template reads, and what each name's
-//     reads address, from the finished ops.
+//     reads address, from the compiled reads.
 func CompileTemplates(ts []TemplateSite, root map[string]tree.Node, l *tree.LoadFinds) error {
 	if err := resolveAllRefs(ts, root, l); err != nil {
 		return err
@@ -119,7 +119,7 @@ func setAddressed(ts []TemplateSite, l *tree.LoadFinds) {
 	}
 }
 
-// buildOps completes each op of ts, once every template's format is compiled, and gives l the draw
+// buildOps completes each op of ts, and gives l the draw
 // of each name bound to a token with a where or a distinct clause.
 func buildOps(ts []TemplateSite, l *tree.LoadFinds) error {
 	words := map[tree.WordsAt]*tree.WordList{}

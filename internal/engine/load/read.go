@@ -41,8 +41,7 @@ func checkSegments(r readSpelling) error {
 }
 
 // newOp returns parts whole: with its call, and with its draw where it has one. parts is an op whose
-// alternatives, operands and clause compileFormat built. An adddays call takes the one layout its date
-// operand prints in, so every template's format must be compiled first.
+// alternatives, operands and clause compileFormat built.
 func newOp(t *tree.Template, parts tree.Op, l *tree.LoadFinds, words map[tree.WordsAt]*tree.WordList) (tree.Op, error) {
 	o, err := withCall(parts, l)
 	if err != nil {
@@ -72,8 +71,8 @@ func withCall(o tree.Op, l *tree.LoadFinds) (tree.Op, error) {
 	return o.WithCall(call), nil
 }
 
-// drawOf is o's draw: none for a plain read or call, else the draw its reword call, or its where or
-// distinct clause, makes.
+// drawOf makes o's draw from its reword call or from its where or distinct clause; a token with
+// neither has none.
 func drawOf(t *tree.Template, o *tree.Op, l *tree.LoadFinds, words map[tree.WordsAt]*tree.WordList) (draw tree.TokenDraw, err error) {
 	tok := o.Token()
 	switch {

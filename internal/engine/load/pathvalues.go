@@ -39,7 +39,7 @@ func (w *valueWalk) walk(n tree.Node, tail []string, weight float64, pre, suf st
 	return w.walkNode(n, tail, weight, pre, suf)
 }
 
-// walkNode is walk inside n.
+// walkNode lists the values of n, once walk has marked n as seen.
 func (w *valueWalk) walkNode(n tree.Node, tail []string, weight float64, pre, suf string) error {
 	switch n := n.(type) {
 	case *tree.Choice:
@@ -123,8 +123,8 @@ func oneOp(t *tree.Template, l *tree.LoadFinds) (before string, op *tree.Op, aft
 	return before, op, after, nil
 }
 
-// refuseOwnDraw refuses tok where it draws apart from the read oneOp looks for: a call, or a read
-// through a clause of its own.
+// refuseOwnDraw refuses tok where it makes a draw of its own: a builtin call, or a read with a where
+// or distinct clause.
 func refuseOwnDraw(t *tree.Template, tok grammar.Token) error {
 	if tok.Kind == grammar.BuiltinCall {
 		return fmt.Errorf("%q renders {%s}, which draws anew each time", t.Format(), tok.Body)

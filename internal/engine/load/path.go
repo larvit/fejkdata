@@ -21,7 +21,7 @@ func ChildNamed(n tree.Node, seg string) (tree.Node, error) {
 	return nil, noChild(n, seg)
 }
 
-// refuseStepSyntax refuses seg where it is a selector or "..", which ChildNamed takes no step for.
+// refuseStepSyntax refuses seg where it is a selector or "..": ChildNamed takes neither step.
 func refuseStepSyntax(n tree.Node, seg string) error {
 	switch {
 	case grammar.IsSelector(seg):
@@ -47,7 +47,7 @@ func noChild(n tree.Node, seg string) error {
 		}
 		return fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.Name())
 	default:
-		panic(invariant.Broken("ChildNamed has no case for node %T", n))
+		panic(invariant.Broken("noChild has no case for node %T", n))
 	}
 	return fmt.Errorf("no field %q", seg)
 }
