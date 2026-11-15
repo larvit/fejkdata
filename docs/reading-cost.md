@@ -2006,3 +2006,20 @@ Read most (opens and searches):
 - `internal/grammar/identifier.go` 1
 - `internal/grammar/reference.go` 1
 - `todo.md` 1
+
+## Reading cost, chunk 948d6c14b7f9, finished 2026-11-15T14:12:27Z
+
+53463 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `compose.yaml` 3
+- `internal/builtinfunc/builtinfunc_test.go` 3
+- `adddays_test.go` 1
+- `internal/builtinfunc/adddays.go` 1
+- `internal/builtinfunc/builtins.go` 1
+- `internal/builtinfunc/calc.go` 1
+- `internal/builtinfunc/checksum.go` 1
+- `internal/builtinfunc/cpr.go` 1
+- `internal/builtinfunc/daybound.go` 1
+- `internal/builtinfunc/tick.go` 1
