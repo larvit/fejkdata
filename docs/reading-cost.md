@@ -1963,3 +1963,29 @@ Read most (opens and searches):
 - `internal/engine/fence/fence.go` 1
 - `internal/engine/fence/names/pathwalk.go` 1
 - `internal/engine/fence/names/refusedrawnapart.go` 1
+
+## Reading cost, chunk 490b9591314d, finished 2026-11-15T12:06:33Z
+
+52034 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `compose.yaml` 4
+- `cli/cli.go` 2
+- `cli/flags.go` 1
+- `cli/input.go` 1
+- `cli/records.go` 1
+- `struct.go` 1
+
+## Reading cost, chunk 277b42c12873, finished 2026-11-15T12:31:37Z
+
+45690 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `compose.yaml` 3
+- `internal/engine/render/render.go` 2
+- `internal/engine/record.go` 1
+- `internal/engine/render/path.go` 1
+- `internal/engine/render/table.go` 1
+- `internal/engine/tree/renderedge.go` 1
