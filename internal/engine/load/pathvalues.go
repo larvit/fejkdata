@@ -36,6 +36,11 @@ func (w *valueWalk) walk(n tree.Node, tail []string, weight float64, pre, suf st
 	}
 	w.seen[n] = true
 	defer delete(w.seen, n)
+	return w.walkNode(n, tail, weight, pre, suf)
+}
+
+// walkNode is walk inside n.
+func (w *valueWalk) walkNode(n tree.Node, tail []string, weight float64, pre, suf string) error {
 	switch n := n.(type) {
 	case *tree.Choice:
 		return w.walkChoice(n, tail, weight, pre, suf)
@@ -98,22 +103,36 @@ func oneOp(t *tree.Template, l *tree.LoadFinds) (before string, op *tree.Op, aft
 	ops := l.Of(t).Compiled().Ops()
 	for i := range ops {
 		o := &ops[i]
-		switch tok := o.Token(); {
-		case tok.Kind == grammar.LiteralRun && op == nil:
-			before += tok.Lit
-		case tok.Kind == grammar.LiteralRun:
-			after += tok.Lit
-		case tok.Kind == grammar.BuiltinCall:
-			return "", nil, "", fmt.Errorf("%q renders {%s}, which draws anew each time", t.Format(), tok.Body)
-		case tok.Where != nil || tok.Distinct != nil:
-			return "", nil, "", fmt.Errorf("%q renders {%s}, which draws through a clause of its own", t.Format(), tok.Body)
-		case op != nil:
-			return "", nil, "", fmt.Errorf("%q reads both {%s} and {%s}", t.Format(), op.Token().Body, tok.Body)
-		default:
-			op = o
+		tok := o.Token()
+		if tok.Kind == grammar.LiteralRun {
+			if op == nil {
+				before += tok.Lit
+			} else {
+				after += tok.Lit
+			}
+			continue
 		}
+		if err := refuseOwnDraw(t, tok); err != nil {
+			return "", nil, "", err
+		}
+		if op != nil {
+			return "", nil, "", fmt.Errorf("%q reads both {%s} and {%s}", t.Format(), op.Token().Body, tok.Body)
+		}
+		op = o
 	}
 	return before, op, after, nil
+}
+
+// refuseOwnDraw refuses tok where it draws apart from the read oneOp looks for: a call, or a read
+// through a clause of its own.
+func refuseOwnDraw(t *tree.Template, tok grammar.Token) error {
+	if tok.Kind == grammar.BuiltinCall {
+		return fmt.Errorf("%q renders {%s}, which draws anew each time", t.Format(), tok.Body)
+	}
+	if tok.Where != nil || tok.Distinct != nil {
+		return fmt.Errorf("%q renders {%s}, which draws through a clause of its own", t.Format(), tok.Body)
+	}
+	return nil
 }
 
 // walkRead walks one alternative a of the op t reads through: a path from a field or a reference, or through a
@@ -157,17 +176,24 @@ func ownColumnReads(t *tree.Table, l *tree.LoadFinds) (parts []rowPart, own bool
 			parts = append(parts, rowPart{lit: tok.Lit})
 			continue
 		}
-		if tok.Kind != grammar.PathRead || tok.Where != nil || tok.Distinct != nil || len(o.Alternatives()) != 1 {
-			return nil, false
-		}
-		a := o.Alternatives()[0]
-		c, isColumn := t.FormatTemplate().Fields()[a.Head()].(*tree.TableColumn)
-		if !isColumn || a.Kind() != tree.FreshRead || len(a.Tail()) > 0 {
+		c, ok := ownColumn(t, o)
+		if !ok {
 			return nil, false
 		}
 		parts = append(parts, rowPart{column: c})
 	}
 	return parts, true
+}
+
+// ownColumn is the column of t that o reads, where o reads only that column, fresh and unfiltered.
+func ownColumn(t *tree.Table, o tree.Op) (*tree.TableColumn, bool) {
+	tok := o.Token()
+	if tok.Kind != grammar.PathRead || tok.Where != nil || tok.Distinct != nil || len(o.Alternatives()) != 1 {
+		return nil, false
+	}
+	a := o.Alternatives()[0]
+	c, isColumn := t.FormatTemplate().Fields()[a.Head()].(*tree.TableColumn)
+	return c, isColumn && a.Kind() == tree.FreshRead && len(a.Tail()) == 0
 }
 
 // walkRows lists each row of t as parts spell it, weighed by the row, as a draw over the whole table

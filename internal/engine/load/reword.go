@@ -32,16 +32,21 @@ func wordsOf(t *tree.Template, a tree.Read, l *tree.LoadFinds, built map[tree.Wo
 	if err := w.walk(at.Start(), a.Tail(), 1, "", ""); err != nil {
 		return nil, fmt.Errorf("its words are read whole at load, and %w", err)
 	}
-	var letters []weightedText
-	for _, v := range w.out {
-		if v.text != "" && !strings.ContainsFunc(v.text, func(r rune) bool { return !unicode.IsLetter(r) }) {
-			letters = append(letters, v)
-		}
-	}
+	letters := lettersOnly(w.out)
 	if len(letters) == 0 {
 		return nil, fmt.Errorf("%s holds no word made of letters alone", a.Spelling())
 	}
 	words := tree.NewWordList(newLengthIndex(letters), at)
 	built[at] = words
 	return words, nil
+}
+
+// lettersOnly is the values that are made of letters alone, and not empty.
+func lettersOnly(values []weightedText) (letters []weightedText) {
+	for _, v := range values {
+		if v.text != "" && !strings.ContainsFunc(v.text, func(r rune) bool { return !unicode.IsLetter(r) }) {
+			letters = append(letters, v)
+		}
+	}
+	return letters
 }
