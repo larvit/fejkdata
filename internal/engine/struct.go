@@ -15,7 +15,6 @@ import (
 // and proves each column holds only what its field's Go type can. A failed lazy load matches
 // ErrLoad.
 func LoadStruct(root *tree.Folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) (Record, error) {
-	tags["format"] = jsonvalue.String("")
 	l := tree.NewLoadFinds()
 	n, err := load.CompileStruct(tags, l)
 	if err != nil {

@@ -1121,7 +1121,9 @@ part of the same structs. Moving them while that holds would spread the knot acr
 packages, so the untangling comes first. The draw state, the grammar, `DataType`, what a
 proof knows of a value, the builtins, the reading of data files and a table's rows read no
 engine type, so each sits in its own package under `internal/`, the leaf libraries, behind
-the import list `imports_test.go` checks.
+the import list `imports_test.go` checks. That list is a gate on the source, like the
+cyclomatic one, not a test of behaviour, so the principle against a test that reads the
+source doesn't cover it.
 
 How load finishes a value. The node graph is cyclic by design, since a category may
 reference itself, so a node must exist before its references resolve. Compile builds each
