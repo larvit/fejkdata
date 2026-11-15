@@ -122,7 +122,7 @@ func expand(s *drawstate.State, t *tree.Template, env renderEnv) string {
 	return b.String()
 }
 
-// readOperands renders each operand of o's call, or returns nil where it has none.
+// readOperands renders each operand of o's call.
 func readOperands(s *drawstate.State, t *tree.Template, env renderEnv, o *tree.Op) []string {
 	if len(o.Operands()) == 0 {
 		return nil
