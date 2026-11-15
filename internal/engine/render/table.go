@@ -9,9 +9,7 @@ import (
 func followStep(t *tree.Table, s *drawstate.State, st tree.PathStep, pins *tree.PinSet) tree.Node {
 	switch st.Kind {
 	case tree.StepSelect:
-		if err := pins.PinRow(t.Rows(), st.Row); err != nil {
-			panic(invariant.Broken("%s[%s]: %v", t.Rows().Segment(), st.Name, err))
-		}
+		pinSelected(t, st, pins)
 		return t
 	case tree.StepDraw:
 		t.Rows().DrawIn(s, pins)
@@ -26,4 +24,10 @@ func followStep(t *tree.Table, s *drawstate.State, st tree.PathStep, pins *tree.
 		return t.Rows().Parent().Owner()
 	}
 	panic(invariant.Broken("followStep has no case for step kind %d", st.Kind))
+}
+
+func pinSelected(t *tree.Table, st tree.PathStep, pins *tree.PinSet) {
+	if err := pins.PinRow(t.Rows(), st.Row); err != nil {
+		panic(invariant.Broken("%s[%s]: %v", t.Rows().Segment(), st.Name, err))
+	}
 }

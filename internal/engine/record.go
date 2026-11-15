@@ -61,6 +61,11 @@ func RecordAt(s *drawstate.State, root *tree.Folder, path string) (Record, error
 	} else if len(tail) > 0 {
 		return Record{}, fmt.Errorf("%s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
+	return recordAtNode(path, segments, n, row)
+}
+
+// recordAtNode is the record n makes in row, or an error naming path.
+func recordAtNode(path string, segments []string, n tree.Node, row render.Row) (Record, error) {
 	record, err := recordOf(n)
 	if errors.Is(err, ErrNoColumns) && err != holdsOnlyLets {
 		ns := grammar.IdentifierSegments(segments)

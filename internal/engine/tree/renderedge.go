@@ -34,11 +34,7 @@ type RenderEdge struct {
 func RenderEdges(n Node) []RenderEdge {
 	switch n := n.(type) {
 	case *Choice:
-		es := make([]RenderEdge, len(n.items))
-		for i := range n.items {
-			es[i] = RenderEdge{To: n.RenderedItem(i), Label: fmt.Sprintf("[%d]", i)}
-		}
-		return es
+		return choiceEdges(n)
 	case *Template:
 		return templateEdges(n)
 	case *Table:
@@ -52,6 +48,15 @@ func RenderEdges(n Node) []RenderEdge {
 	default:
 		panic(invariant.Broken("RenderEdges has no case for node %T", n))
 	}
+}
+
+// choiceEdges is an edge to each item of c, labelled by its index.
+func choiceEdges(c *Choice) []RenderEdge {
+	es := make([]RenderEdge, len(c.items))
+	for i := range c.items {
+		es[i] = RenderEdge{To: c.RenderedItem(i), Label: fmt.Sprintf("[%d]", i)}
+	}
+	return es
 }
 
 // templateEdges is an edge to each leaf of each read t's ops make, labelled by the read's spelling.
