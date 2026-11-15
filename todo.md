@@ -724,7 +724,7 @@ Gitea converts a repository to a mirror only by re-creating it, so until that ru
 
 ### 65. Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.
 
-The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
+The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a flag, an exit code, an exported name, a fence, a builtin and the lowest Go. Write the wider check in `release-tooling/`'s tested Python, and move the workflows' other branching bash there with it: which paths count as a code change and the gate's condition in `test.yml`, the latest-tag test and the version checks in `packages.yml`. The 0.6.0 release review found that no test runs any of it, and a wrong pathspec skips the test job without a failure.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 

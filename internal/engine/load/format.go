@@ -71,12 +71,12 @@ func checkReads(t grammar.Token, fields map[string]tree.Node, operands bool) ([]
 	wholeToken := !operands && len(own)+len(clause) == 1
 	var unbound []tree.UnboundRead
 	for _, spelling := range own {
-		noField, err := checkRead(t, spelling, fields, wholeToken)
-		if err != nil {
-			return nil, err
+		c := checkRead(t, spelling, fields, wholeToken)
+		if c.refused != nil {
+			return nil, c.refused
 		}
-		if noField != nil {
-			unbound = append(unbound, unboundRead(t, spelling, noField))
+		if c.noField != nil {
+			unbound = append(unbound, unboundRead(t, spelling, c.noField))
 		}
 	}
 	inClause, err := checkClauseReads(t, clause, fields, wholeToken)
@@ -88,35 +88,40 @@ func checkReads(t grammar.Token, fields map[string]tree.Node, operands bool) ([]
 func checkClauseReads(t grammar.Token, clause []clauseSpelling, fields map[string]tree.Node, wholeToken bool) ([]tree.UnboundRead, error) {
 	var unbound []tree.UnboundRead
 	for _, c := range clause {
-		noField, err := checkRead(t, c.spelling, fields, wholeToken)
-		if err != nil {
-			return nil, err
+		found := checkRead(t, c.spelling, fields, wholeToken)
+		if found.refused != nil {
+			return nil, found.refused
 		}
-		if noField != nil {
+		if found.noField != nil {
 			unbound = append(unbound, unboundRead(t, c.spelling, c.unbound()))
 		}
 	}
 	return unbound, nil
 }
 
-// checkRead proves spelling, one read of t, is a reference or a path into a field. err refuses
-// the read. noField is no refusal yet: it says no field holds the read's head, which a name bound
-// around the template may still answer.
-func checkRead(t grammar.Token, spelling string, fields map[string]tree.Node, wholeToken bool) (noField, err error) {
+// readCheck is what checking one read against a template's fields found. The zero value is a
+// read proved; at most one of its fields is set.
+type readCheck struct {
+	// refused is the error that refuses the read.
+	refused error
+	// noField says no field holds the read's head, and is the refusal that stands unless a name
+	// bound around the template answers the read.
+	noField error
+}
+
+// checkRead proves spelling, one read of t, is a reference or a path into a field.
+func checkRead(t grammar.Token, spelling string, fields map[string]tree.Node, wholeToken bool) readCheck {
 	if grammar.IsRef(spelling) {
 		if _, _, err := grammar.RefShape(spelling); err != nil {
-			return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
+			return readCheck{refused: fmt.Errorf("token {%s}: %w", t.Body, err)}
 		}
-		return nil, nil // resolveRefs checks its target once the tree is assembled
+		return readCheck{} // resolveRefs checks its target once the tree is assembled
 	}
-	missing, err := checkFieldRead(spelling, fields, wholeToken)
-	if missing {
-		return err, nil
+	c := checkFieldRead(spelling, fields, wholeToken)
+	if c.refused != nil {
+		c.refused = fmt.Errorf("token {%s}: %w", t.Body, c.refused)
 	}
-	if err != nil {
-		return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
-	}
-	return nil, nil
+	return c
 }
 
 // unboundRead is spelling, a read of t whose head no field holds, with the refusal that stands
@@ -154,47 +159,46 @@ func checkBound(ref string, fields map[string]tree.Node) error {
 		_, _, err := grammar.RefShape(ref)
 		return err
 	}
-	missing, err := checkFieldRead(ref, fields, false)
-	if missing {
-		return fmt.Errorf("%w; a binding names a field, or a reference, which starts with /, . or ..", err)
+	c := checkFieldRead(ref, fields, false)
+	if c.noField != nil {
+		return fmt.Errorf("%w; a binding names a field, or a reference, which starts with /, . or ..", c.noField)
 	}
-	return err
+	return c.refused
 }
 
 // checkFieldRead validates one read of a sibling field against a template's fields.
 // wholeToken says the spelling is the token's entire body, so {/name} would render
-// the same value and can be offered as the reference spelling. missing says no
-// field holds the head, which a name may yet answer.
-func checkFieldRead(spelling string, fields map[string]tree.Node, wholeToken bool) (missing bool, err error) {
+// the same value and can be offered as the reference spelling.
+func checkFieldRead(spelling string, fields map[string]tree.Node, wholeToken bool) readCheck {
 	a := splitRead(spelling, nil)
 	if err := checkSegments(a); err != nil {
-		return false, err
+		return readCheck{refused: err}
 	}
 	field, ok := fields[a.head]
 	if !ok {
 		return noFieldNamed(a.head, spelling, len(fields) == 0, wholeToken)
 	}
 	if err := provePath(field, a.tail, a.head, 0); err != nil {
-		return false, fmt.Errorf("field %q: %w", a.head, err)
+		return readCheck{refused: fmt.Errorf("field %q: %w", a.head, err)}
 	}
-	return false, nil
+	return readCheck{}
 }
 
-func noFieldNamed(head, spelling string, noFields, wholeToken bool) (missing bool, err error) {
+func noFieldNamed(head, spelling string, noFields, wholeToken bool) readCheck {
 	if head == "" {
-		return false, fmt.Errorf("a name is never empty, so this token can name no field")
+		return readCheck{refused: fmt.Errorf("a name is never empty, so this token can name no field")}
 	}
 	if isOption(head) {
-		return false, fmt.Errorf("%q is an option and can never be a field", head)
+		return readCheck{refused: fmt.Errorf("%q is an option and can never be a field", head)}
 	}
 	if !noFields {
-		return true, fmt.Errorf("no field %q", head)
+		return readCheck{noField: fmt.Errorf("no field %q", head)}
 	}
 	hint := ""
 	if wholeToken && grammar.CheckPathIdentifiers(spelling) == nil {
 		hint = fmt.Sprintf(" — write {/%s} to reference the data", spelling)
 	}
-	return true, fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", head, hint)
+	return readCheck{noField: fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", head, hint)}
 }
 
 // tokenReads lists the spellings t reads: own, a token's alternatives or the operands a call's builtin reads,
