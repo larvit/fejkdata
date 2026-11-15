@@ -344,6 +344,15 @@ func TestFakeStructTakesTheDatatypeItsGoTypeSets(t *testing.T) {
 	}
 }
 
+func TestFakeStructRendersAFieldUnderAColumnAsText(t *testing.T) {
+	v := struct {
+		A string `fake:"{\"format\":\"[{x}{y}]\",\"x\":{\"format\":\"abc\",\"datatype\":\"integer\"},\"y\":null}"`
+	}{}
+	if err := structData(t).FakeStruct(&v); err != nil || v.A != "[abc]" {
+		t.Errorf("FakeStruct = %+v, %v, want [abc]: a field under a column a Go type types is a value a format renders", v, err)
+	}
+}
+
 type structOfBareValues struct {
 	N int    `fake:"[5, 6]"`
 	B bool   `fake:"[true, false]"`
