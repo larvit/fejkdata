@@ -1989,3 +1989,20 @@ Read most (opens and searches):
 - `internal/engine/render/path.go` 1
 - `internal/engine/render/table.go` 1
 - `internal/engine/tree/renderedge.go` 1
+
+## Reading cost, chunk e0b297ca4259, finished 2026-11-15T13:26:17Z
+
+80475 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/grammar/where.go` 5
+- `internal/grammar/format.go` 4
+- `internal/grammar/calc.go` 2
+- `internal/grammar/path.go` 2
+- `internal/grammar/scan.go` 2
+- `README.md` 1
+- `compose.yaml` 1
+- `internal/grammar/identifier.go` 1
+- `internal/grammar/reference.go` 1
+- `todo.md` 1
