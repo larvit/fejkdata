@@ -163,7 +163,6 @@ func checkFieldRead(spelling string, fields map[string]tree.Node, wholeToken boo
 	return false, nil
 }
 
-// noFieldNamed is checkFieldRead's answer where no field is named head.
 func noFieldNamed(head, spelling string, noFields, wholeToken bool) (missing bool, err error) {
 	if head == "" {
 		return false, fmt.Errorf("a name is never empty, so this token can name no field")

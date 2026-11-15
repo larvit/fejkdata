@@ -95,7 +95,7 @@ func compileScalar(v any, pos position) (tree.Node, error) {
 	case bool:
 		return compileBare(strconv.FormatBool(v), pos, datatype.Boolean)
 	}
-	panic(invariant.Broken("compileItem has no case for the JSON value %T", v))
+	panic(invariant.Broken("compileScalar has no case for the JSON value %T", v))
 }
 
 // compileBare compiles the text of a bare JSON number or boolean as a format string, refusing it in
@@ -347,7 +347,6 @@ func repeatOf(m map[string]any) (int, error) {
 	return int(r), nil
 }
 
-// isCount is whether r is an integer of 0 or more.
 func isCount(r float64) bool {
 	return !math.IsNaN(r) && !math.IsInf(r, 0) && r >= 0 && r == math.Trunc(r)
 }
