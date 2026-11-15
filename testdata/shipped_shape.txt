@@ -68,6 +68,29 @@ da_DK.sex.name	string
 da_DK.title	format "{name}"	key name	weight share
 da_DK.title.name	string
 da_DK.title.share	string
+de_DE.first-name	format "{name}"	name name	weight count	parent sex
+de_DE.first-name.count	string
+de_DE.first-name.name	string
+de_DE.first-name.sex	string
+de_DE.last-name	format "{name}"	key name	weight count
+de_DE.last-name.count	string
+de_DE.last-name.name	string
+de_DE.person	format "{prefix}{first} {last}"	reads de_DE.first-name de_DE.last-name de_DE.title
+de_DE.person.first	string
+de_DE.person.last	string
+de_DE.person.prefix	string null
+de_DE.person.sex	string
+de_DE.sex	format "{name}"	key code	name name	weight count
+de_DE.sex.code	string
+de_DE.sex.count	string
+de_DE.sex.first-name
+de_DE.sex.first-name.count
+de_DE.sex.first-name.name
+de_DE.sex.first-name.sex
+de_DE.sex.name	string
+de_DE.title	format "{name}"	key name	weight share
+de_DE.title.name	string
+de_DE.title.share	string
 en_US.address	format "{/geo.US.address as a}{a}"	reads geo.US.address
 en_US.address.locality	string
 en_US.address.municipality	string
