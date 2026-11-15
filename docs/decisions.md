@@ -1628,6 +1628,22 @@ its rank; the rarer ones follow in no order and share the count of the last rank
 never outweighs the twentieth. The sex counts are Statistics Denmark's table FOLK1A.
 Valid while no good source of Danish name counts is found; a bulk file replaces the recall.
 
+## `de_DE`'s first names are Munich's newborns and its last names a language model's recall
+
+2026-11-15. Goal 3.2.
+
+Germany's statistics office publishes no name counts. The one open source of German first names
+with counts by sex is a city's: the city of Munich publishes each year's newborns under the
+Datenlizenz Deutschland, Namensnennung 2.0, for 2013 to 2025. Pooling its thirteen files gives
+about a thousand names, and a name weighs the sum of the numbers published for it; a file prints a
+count of five or fewer as a phrase, so a name published only so has no row. The names are Munich's
+and those of children born since 2013, not Germany's whole population. No open register publishes
+German surnames, and the lists on the web are Wikipedia's (CC BY-SA) and a genealogy wiki's. So the
+last names are a language model's recall of names common in Germany, the commoner ones first and
+each weighing 700000 over the square root of its rank, the rarer ones sharing the last rank's weight.
+The sex counts are Eurostat's table demo_pjan for Germany. Valid while no open register of German
+names with counts for the whole population is found; one replaces the file or the recall.
+
 ## `da_DK.company` weighs its legal forms by Statistics Denmark's enterprises and draws its names from a language model's recall
 
 2026-11-08, the maintainer. Goal 3.2. Applies the project principle on company categories.

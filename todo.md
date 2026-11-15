@@ -12,25 +12,24 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 217 | 0.7.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
-| 332 | 0.7.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
-| 331 | 0.7.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 332 | 0.7.0 |  |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 331 | 0.7.0 |  |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 474 | 0.7.0 |  | decision | **Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 2.1 by 4 | 2.2 |
 | 475 | 0.7.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 2 | 1.9 |
-| 333 | 0.7.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
-| 329 | 0.7.0 | 217 |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 333 | 0.7.0 |  |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 329 | 0.7.0 |  |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 476 | 0.7.0 |  |  | **Add `sv_SE.paragraph` from `sv_SE.sentence`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2.1 by 1 | 1.2 |
 | 477 | 0.7.0 |  |  | **Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 478 | 0.7.0 |  |  | **Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 479 | 0.7.0 |  |  | **Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 480 | 0.7.0 |  |  | **Add `fi_FI`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
-| 481 | 0.7.0 | 217 |  | **Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
+| 481 | 0.7.0 |  |  | **Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 330 | 0.7.0 | 329, 474 |  | **Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 482 | 0.7.0 |  |  | **Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 483 | 0.7.0 |  |  | **Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 484 | 0.7.0 |  |  | **Add `da_DK`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 485 | 0.7.0 |  |  | **Add `fi_FI`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
-| 486 | 0.7.0 | 217 |  | **Add `de_DE`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
+| 486 | 0.7.0 |  |  | **Add `de_DE`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.5 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 6.1 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 6.1 |

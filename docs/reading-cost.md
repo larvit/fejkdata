@@ -2049,3 +2049,7 @@ Read most (opens and searches):
 - `AGENTS.md` 2
 - `release-tooling/carried_test.py` 2
 - `docs/decisions.md` 1
+
+## Reading cost, chunk 4800b6dad4c4, finished 2026-11-15T20:49:23Z
+
+43112 new input tokens before the first commit.
