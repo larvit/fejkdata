@@ -123,25 +123,25 @@ func asciiFold(s string) string {
 	return b.String()
 }
 
-// slug builds a slug, with every run of other characters one dash and none at the start.
+// slug writes a-z and 0-9 as given and each run of any other runes as one dash, never at the start.
 type slug struct {
-	b      strings.Builder
-	dashed bool
+	b         strings.Builder
+	afterChar bool
 }
 
 func (s *slug) add(c rune) {
 	switch {
 	case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
 		s.b.WriteRune(c)
-		s.dashed = false
-	case !s.dashed:
+		s.afterChar = true
+	case s.afterChar:
 		s.b.WriteByte('-')
-		s.dashed = true
+		s.afterChar = false
 	}
 }
 
 func slugify(in string) string {
-	s := slug{dashed: true}
+	var s slug
 	for _, r := range in {
 		switch fold := asciiFolds[r]; {
 		case r <= unicode.MaxASCII:
