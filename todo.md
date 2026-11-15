@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 458 | 0.6.0 |  |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 6.5 |
 | 217 | 0.7.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 332 | 0.7.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 331 | 0.7.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -239,12 +238,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 458. Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.
-
-`AGENTS.md` gates cyclomatic complexity at 10. technical-principles.md ("About seven things per level") sets a ceiling of seven, and functions of 8 to 10 branches are still where the comprehension panel scores Locality under the 7.0 floor.
-
-Items 488 to 494 split the 66 functions that `gocyclo -over 7 -ignore _test .` still lists, one package or a few small ones each. Each is its own chunk: all seven in one would be a diff of thousands of lines over the whole engine, too large to review well. This item, the last, first splits each function that has gone over 7 since they shipped, then changes the Dockerfile's gocyclo line, compose.yaml's `cyclo` service, the README's Development line and `AGENTS.md`'s rule to 7.
 
 ### 332. Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.
 
