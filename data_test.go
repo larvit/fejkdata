@@ -295,10 +295,10 @@ func TestShippedPersonNames(t *testing.T) {
 		}
 	})
 	t.Run("female first names are a weighted register", func(t *testing.T) {
-		for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK"} {
+		for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK", "de_DE"} {
 			t.Run(locale, func(t *testing.T) {
 				seen := femaleFirstNamesDrawnBesidePeopleOfTheirSex(t, f, locale)
-				if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" || !seen["Kari"] && locale == "nb_NO" || !seen["Mette"] && locale == "da_DK" {
+				if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" || !seen["Kari"] && locale == "nb_NO" || !seen["Mette"] && locale == "da_DK" || !seen["Anna"] && locale == "de_DE" {
 					t.Fatalf("%s female first names: %d distinct in 2000, want a weighted register", locale, len(seen))
 				}
 			})
@@ -322,7 +322,7 @@ func femaleFirstNamesDrawnBesidePeopleOfTheirSex(t *testing.T, f *Generator, loc
 // from one pick, and that two names bound to one person category are two people.
 func TestShippedPersonIsOneNamedPick(t *testing.T) {
 	f := shipped(t, WithSeed(9))
-	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK"} {
+	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK", "de_DE"} {
 		t.Run(locale, func(t *testing.T) {
 			if !twoPeopleOf300RendersDrawApart(t, f, locale) {
 				t.Errorf("%s: two names bound to person drew one first name in 300 renders, want two people", locale)
@@ -431,6 +431,8 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 		"nb_NO.sex[m].count": "2836917",
 		"da_DK.sex[f].count": "3029291",
 		"da_DK.sex[m].count": "2996312",
+		"de_DE.sex[f].count": "42335439",
+		"de_DE.sex[m].count": "41241701",
 		"en_US.sex[f].count": "171773106",
 		"en_US.sex[m].count": "168337882",
 	} {
