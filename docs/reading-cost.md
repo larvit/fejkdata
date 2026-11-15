@@ -1936,3 +1936,13 @@ Read most (opens and searches):
 - `data/geo/FI/locality.json` 1
 - `data/geo/FI/municipality.json` 1
 - `data/geo/FI/region.tsv` 1
+
+## Reading cost, chunk 7e43e07e319e, finished 2026-11-15T11:06:26Z
+
+54744 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 6
+- `compose.yaml` 2
+- `README.md` 1
