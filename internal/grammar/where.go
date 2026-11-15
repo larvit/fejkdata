@@ -225,7 +225,7 @@ func distinctCount(p *whereParser) (int, bool) {
 	return n, ok && !l.quoted && err == nil && n >= 1
 }
 
-// parseJoined reads the optional joined and its quoted separator into d.
+// parseJoined reads the optional word "joined" and its quoted separator into d.
 func parseJoined(p *whereParser, clause string, d *Distinct) error {
 	if !p.word("joined") {
 		return nil
@@ -426,7 +426,7 @@ func listItem(l whereLexeme, ok bool, quoted, names *[]string) error {
 	return appendNotName(names, l.text)
 }
 
-// appendNotName appends the name a not-list holds to names, refusing text that is no name.
+// appendNotName appends text, a name in a not-list, to names, refusing text that is no name.
 func appendNotName(names *[]string, text string) error {
 	if err := CheckIdentifier(withoutMember(text)); err != nil {
 		return fmt.Errorf("not %s: %w", text, err)

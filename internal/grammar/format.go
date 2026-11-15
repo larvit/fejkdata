@@ -56,7 +56,6 @@ func scanOne(rs []rune, i int, format string) (u scanUnit, last int, err error) 
 	return scanUnit{char: c}, i, nil
 }
 
-// doubled reports whether the rune after index i repeats the one at i.
 func doubled(rs []rune, i int) bool { return i+1 < len(rs) && rs[i+1] == rs[i] }
 
 // tokenEnd returns the index of the "}" closing the token that the "{" at open in format starts.
@@ -125,7 +124,7 @@ func ParseFormat(format string) ([]Token, error) {
 	return toks, nil
 }
 
-// bodyToken parses the body of a {…} token: a path or name read with its clauses, a name bound, a
+// bodyToken parses the body of a {…} token: one carrying a where or distinct clause, a name bound, a
 // path read, or a call.
 func bodyToken(body string) (Token, error) {
 	if c, found := cutClauses(body); found {

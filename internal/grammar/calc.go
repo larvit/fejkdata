@@ -186,14 +186,13 @@ func (p *calcParser) ident() (CalcNode, error) {
 	return CalcVar{name, at}, nil
 }
 
-// skipWord moves past letters, digits and '_'.
 func (p *calcParser) skipWord() {
 	for p.pos < len(p.rs) && (isIdentStart(p.rs[p.pos]) || unicode.IsDigit(p.rs[p.pos])) {
 		p.pos++
 	}
 }
 
-// skipKey moves past a member's key in brackets, where one closes.
+// skipKey moves past a member's key in brackets, where the "]" closes it.
 func (p *calcParser) skipKey() {
 	if p.pos >= len(p.rs) || p.rs[p.pos] != '[' {
 		return

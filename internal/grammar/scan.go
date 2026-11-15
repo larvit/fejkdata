@@ -18,7 +18,7 @@ func (sc *scanner) find(s string, match func(i int) bool) int {
 	return -1
 }
 
-// scanState is where a scan stands: how many selectors are open, and whether a quote is.
+// scanState is where a scan stands: how many selectors are open, and whether a quote is open.
 type scanState struct {
 	depth  int
 	quoted bool
