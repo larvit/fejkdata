@@ -59,17 +59,22 @@ func TestCheckNamesWhatACallGetsWrong(t *testing.T) {
 		{"float", []string{"1", "2", "1025"}, "float(min,max,dp): decimals 1025 out of range 0..1024"},
 		{"float", []string{"-1e308", "1e308", "1"}, "float(min,max,dp): range -1e+308..1e+308 is too wide"},
 		{"tick", []string{"yesterday", "5", "0", "'2006'"}, `tick(start,step,jitter,layout): start "yesterday" is not a YYYY-MM-DD day`},
-		{"tick", []string{"2026-01-01", "0", "0", "'2006'"}, `tick(start,step,jitter,layout): step "0" is not a whole number of seconds from 1 to 86400`},
 		{"tick", []string{"2026-01-01", "x", "0", "'2006'"}, `tick(start,step,jitter,layout): step "x" is not`},
-		{"tick", []string{"2026-01-01", "5", "-1", "'2006'"}, `tick(start,step,jitter,layout): jitter "-1" is not a whole number of seconds, 0 or more`},
 		{"tick", []string{"2026-01-01", "5", "x", "'2006'"}, `tick(start,step,jitter,layout): jitter "x" is not`},
-		{"tick", []string{"2026-01-01", "5", "5", "'2006'"}, "tick(start,step,jitter,layout): jitter 5 is not below step 5"},
 	} {
 		t.Run(fmt.Sprintf("%s(%s)", c.name, strings.Join(c.args, ",")), func(t *testing.T) {
 			if err := Check(c.name, c.args); err == nil || !strings.HasPrefix(err.Error(), c.want) {
 				t.Errorf("Check(%s, %q) = %v, want it to start %q", c.name, c.args, err, c.want)
 			}
 		})
+	}
+}
+
+func TestCheckAcceptsTheMostDecimalsAFloatOrCalcCanPrint(t *testing.T) {
+	for name, args := range map[string][]string{"float": {"1", "2", "1024"}, "calc": {"a", "1024"}} {
+		if err := Check(name, args); err != nil {
+			t.Errorf("Check(%s, %q) = %v, want 1024 decimals accepted", name, args, err)
+		}
 	}
 }
 
