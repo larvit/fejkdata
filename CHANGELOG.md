@@ -16,7 +16,8 @@ with its replacement, and each removed path, column or flag.
   of the counts published for it, and `sex` carries Germany's population on 1 January 2025 from Eurostat.
   The last names are a language model's recall of names common in Germany, with estimated weights, as no
   open register of them was found. A program showing the first names credits "Datenquelle: Landeshauptstadt
-  München, Statistisches Amt", and one showing the sex counts "Source: Eurostat". The Go package is
+  München, Statistisches Amt", names the licence Datenlizenz Deutschland – Namensnennung 2.0 (`dl-de/by-2-0`),
+  links the dataset and says the files are summed; one showing the sex counts credits "Source: Eurostat". The Go package is
   `github.com/larvit/fejkdata/data/de_DE`, and the CLI carries it.
 
 ## 0.6.0 - 2026-11-15

@@ -685,9 +685,10 @@ The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date
 #### Names and sex
 
 `first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
-SCB, Statistics Norway, DVV, Statistics Finland, the SSA and the Census Bureau, and for Denmark from Statistics Denmark's top 20 and a
+SCB, Statistics Norway, DVV, Statistics Finland, the SSA and the Census Bureau, for Germany from the city of Munich's newborn names and a
+language model's recall, and for Denmark from Statistics Denmark's top 20 and a
 language model's recall (the weights of the recalled names are estimates). `sex` counts the people of each
-sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026 and
+sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026, Germany's on 1 January 2025 (Eurostat) and
 the United States' on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
@@ -793,17 +794,22 @@ number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
 ### `de_DE`
 
-`de_DE`, German, carries `first-name`, `last-name`, `person`, `sex` and `title`, built like [`da_DK`'s](#da_dk):
-`de_DE.sex` is `Frau` and `Mann`, and `de_DE.title` is `Dr.`, `Prof.` and `Prof. Dr.`. Renders e.g. `Emilia Hesse`.
+`de_DE`, German, carries `first-name`, `last-name`, `person`, `sex` and `title`. `sex` is `Frau` and `Mann`, `title` is
+`Dr.`, `Prof.` and `Prof. Dr.`, drawn whatever the sex. `{/de_DE.person}` renders e.g. `Emilia Hesse`.
+
 No open register publishes Germany's name counts. The first names are the city of Munich's open data
-["Vornamen von Neugeborenen"](https://opendata.muenchen.de/dataset/vornamen-von-neugeborenen), the children
-of each sex born to people living in Munich in 2013 to 2025, each name weighing the sum of the counts published for it. The
-files give a name of five or fewer children as a phrase, not a number, so a name never published as a number is missing.
-They show the names of those born since 2013, and Munich's. The last names are a language model's recall of
-names common in Germany: the commoner ones come first, from the most to the least common, each weighing
-700000 over the square root of its rank, and the rarer ones share one weight. These weights are estimates. `de_DE.sex` carries
-Germany's population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the first names
-credits "Datenquelle: Landeshauptstadt München, Statistisches Amt", and one showing the sex counts "Source: Eurostat".
+["Vornamen von Neugeborenen"](https://opendata.muenchen.de/dataset/vornamen-von-neugeborenen): the children
+of each sex born to people living in Munich, 2013 to 2025, each name weighing the sum of the counts the files
+publish for it. So the names are the newborns' of one city since 2013, not those of Germany's adults. A file
+gives a count below 5 (2025: below 6) as a phrase, not a number, so a name never published as a number is
+missing. The last names are a language model's recall of names common in Germany: the commoner ones are
+ranked, each weighing 700000 over the square root of its rank, and the rarer ones share one weight. These weights
+are estimates. `de_DE.sex` carries Germany's population on 1 January 2025 from Eurostat's table `demo_pjan`.
+
+A program showing the first names credits "Datenquelle: Landeshauptstadt München, Statistisches Amt", names the
+licence [Datenlizenz Deutschland – Namensnennung 2.0](https://www.govdata.de/dl-de/by-2-0) (`dl-de/by-2-0`), links
+the [dataset](https://opendata.muenchen.de/dataset/vornamen-von-neugeborenen), and says the data was changed: the
+files are summed per name and sex. One showing the sex counts credits "Source: Eurostat".
 
 ### `en_US`
 
