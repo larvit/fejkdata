@@ -51,8 +51,6 @@ func (g *scopeGatherer) gather(n tree.Node, scope *tree.NameScope, item bool, wh
 	return eachContained(n, where, func(c ContainedNode, where string) error { return g.gather(c.Node, scope, isChoice, where) })
 }
 
-// opensScope is whether n opens a scope of its own: the root, a repeated template and a template
-// that is an item of a choice do.
 func (g *scopeGatherer) opensScope(n tree.Node, item bool) bool {
 	t, isTemplate := n.(*tree.Template)
 	return n == g.root || isTemplate && (t.Repeat() > 1 || item)
@@ -111,7 +109,7 @@ type readAnswerer struct {
 	l      *tree.LoadFinds
 }
 
-// answer answers the reads below n, then n's own where n is a template. up locates n from above.
+// answer answers the reads below n, then, if n is a template, n's own. up locates n from above.
 func (a readAnswerer) answer(n tree.Node, where string, up besideField) error {
 	err := eachContained(n, where, func(c ContainedNode, where string) error {
 		return a.answer(c.Node, where, a.below(n, c.name, up))
@@ -132,7 +130,7 @@ func (a readAnswerer) answer(n tree.Node, where string, up besideField) error {
 	return nil
 }
 
-// below locates a node under field of n, where up locates n.
+// below locates a node in the field named field of n, given up, which locates n.
 func (a readAnswerer) below(n tree.Node, field string, up besideField) besideField {
 	switch n := n.(type) {
 	case *tree.Template:

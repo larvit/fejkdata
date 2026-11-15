@@ -208,7 +208,7 @@ func checkWeightSum(total float64) error {
 	return nil
 }
 
-// fieldPosition is the position of a field of a template at p that does not repeat.
+// fieldPosition is the position of a field of a template that sits at p and renders once.
 func (p position) fieldPosition() position {
 	switch p {
 	case atTop:

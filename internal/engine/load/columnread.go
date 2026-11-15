@@ -76,7 +76,7 @@ func onlyRead(t *tree.Template, l *tree.LoadFinds) (tree.Read, bool) {
 	return o.Alternatives()[0], true
 }
 
-// isPlainRead is whether o reads one path, unfiltered, undistinct and not joined.
+// isPlainRead is whether o reads one path, with no where or distinct clause, and not joined.
 func isPlainRead(o tree.Op) bool {
 	tok, reads := o.Token(), o.Alternatives()
 	return tok.Kind == grammar.PathRead && len(reads) == 1 && tok.Where == nil && tok.Distinct == nil && !reads[0].ReadsJoined()
