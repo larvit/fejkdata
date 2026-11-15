@@ -14,7 +14,9 @@ import (
 // NodeSet is the set of nodes one fence covers, walked by calling it with fn.
 type NodeSet = func(fn func(label string, n tree.Node) error) error
 
-// GoStruct is a struct type whose fields type the columns of Record, where the data would.
+// GoStruct is the Go struct a record was loaded for. Each field of Type sets the datatype of
+// its column of Record, which a datatype option sets in a record loaded from data. Label names
+// the struct in an error.
 type GoStruct struct {
 	Label  string
 	Type   reflect.Type
@@ -22,7 +24,7 @@ type GoStruct struct {
 }
 
 // Check runs every fence over a finished load: nodes and their templates ts. Columns are typed
-// by the data, or by typedBy where it is set. The order holds three dependencies.
+// by the data, or by typedBy where it is set.
 // names.RefuseReadsInsideFields comes before the cycle check: a name read inside the field bound
 // to it is also a reference cycle, and its error says how to fix the read. The cycle check comes
 // before Templates and checkNodes, whose walks recurse unguarded. A struct's fields are checked

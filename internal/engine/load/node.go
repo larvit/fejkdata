@@ -23,8 +23,8 @@ func Compile(v jsonvalue.Value, l *tree.LoadFinds) (tree.Node, error) {
 	return compileFrom(v, atTop, l)
 }
 
-// CompileStruct compiles the template a Go struct's tags spell: an empty format, whose fields are
-// its columns.
+// CompileStruct compiles the template a Go struct's tags spell. Its format is empty, and its
+// fields are its columns.
 func CompileStruct(tags map[string]jsonvalue.Value, l *tree.LoadFinds) (*tree.Template, error) {
 	template := maps.Clone(tags)
 	template["format"] = jsonvalue.String("")
@@ -55,10 +55,10 @@ func CompileCategory(c datafiles.Category, l *tree.LoadFinds) (tree.Node, error)
 }
 
 // position is where a JSON value sits, which decides whether it may carry a datatype or
-// be null. The zero position, inFormat, is a value a format renders, which may neither.
+// be null. The zero position, inFormat, is a value a format renders, which may do neither.
 type position struct {
 	place place
-	// typedByGo is a struct's tags or a column of them, which a Go field's type types.
+	// typedByGo is a struct's tags or a column of them: a Go field's type sets the datatype.
 	typedByGo bool
 }
 
@@ -84,9 +84,10 @@ var (
 // column reports a column or a field under one, which may be null or typed.
 func (p position) column() bool { return p.place == placeColumn || p.place == placeUnderColumn }
 
-// fieldPosition is the position of a field of a template that sits at p and renders once: a
-// column under a top, a field under a column the data types, and else a value a format renders,
-// as every field under a column a Go type types is.
+// fieldPosition is the position of a field of a template that sits at p and renders once. Under
+// a top, the field is a column. Under a column whose datatype the data sets, it is a field under
+// a column. Anywhere else it is a value a format renders, also under a column whose datatype a Go
+// field sets.
 func (p position) fieldPosition() position {
 	switch {
 	case p.place == placeTop:

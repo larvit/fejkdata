@@ -76,9 +76,9 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 // the path a named read's does. Where p binds a category whose format reads {first}, the {first}
 // that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
 //
-// It holds the length of the template's key, not the key: on a render that key is the one the
-// render's env holds, and a pick keeps Levels' keys, so holding it would move every render's env
-// to the heap.
+// It holds the length of the template's key, and cuts the key itself from its own. On a render
+// the template's key is the one the render's env holds. A pick keeps the keys Levels returns, so
+// a PlacedRead holding the template's key would move every render's env to the heap.
 type PlacedRead struct {
 	key    PickKey
 	atLen  int

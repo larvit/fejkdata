@@ -1121,9 +1121,9 @@ part of the same structs. Moving them while that holds would spread the knot acr
 packages, so the untangling comes first. The draw state, the grammar, `DataType`, what a
 proof knows of a value, the builtins, the reading of data files and a table's rows read no
 engine type, so each sits in its own package under `internal/`, the leaf libraries, behind
-the import list `imports_test.go` checks. That list is a gate on the source, like the
-cyclomatic one, not a test of behaviour, so the principle against a test that reads the
-source doesn't cover it.
+the import list `imports_test.go` checks. That list is a static check of the source, like the
+cyclomatic one, not a test of behaviour, so the technical principle "Assert the outcome",
+which bans a test that reads the source, doesn't cover it.
 
 How load finishes a value. The node graph is cyclic by design, since a category may
 reference itself, so a node must exist before its references resolve. Compile builds each
@@ -1134,7 +1134,7 @@ two types would double every node type for a guarantee that `tree` being the onl
 to write a node's fields already gives. So a read of a template's or a name binding's load
 finds before `Finish` doesn't fail to compile. It is an `invariant` panic that names the phase.
 A load stage reads finds through its load's `LoadFinds`, and a stage after the load reads
-the finished nodes: where a `load` helper serves both, it takes the read as a function, `LoadFinds.Compiled` or `Template.Compiled`. A load reads the categories finished before it and doesn't write them. A child table is therefore linked without writing its parent: the
+the finished nodes: where a `load` helper serves both, it takes the read as a function, such as `LoadFinds.Compiled` or `Template.Compiled`. A load reads the categories finished before it and doesn't write them. A child table is therefore linked without writing its parent: the
 parent's children come from its folder, so a lazy load that fails leaves every finished
 table as it was. Two writers besides `Finish` remain: a load puts each folder's children as
 it reaches them, and `load.LinkTable` gives each table its `siblings`, through a `tree` method.

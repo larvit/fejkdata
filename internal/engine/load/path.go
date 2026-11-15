@@ -100,9 +100,9 @@ type pathPos struct {
 func (p pathPos) more() bool { return len(p.tail) > 0 || p.fromRow }
 
 // compileStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
-// it, and appends the step to steps: a field, or the route through a table. It takes steps and
-// returns them, where it could append to w.steps, so the buffer CallerPathSteps is handed stays on
-// its caller's stack: what w holds escapes with the error naming a level.
+// it, and appends the step to steps: a field, or the route through a table. It returns steps
+// and never keeps them in w. CallerPathSteps hands it a buffer on its caller's stack, and a
+// buffer kept in w moves to the heap, which costs every draw an allocation.
 func (w *compiledPath) compileStep(at *pathPos, steps []tree.PathStep) ([]tree.PathStep, error) {
 	i := len(w.tail) - len(at.tail)
 	switch x := at.n.(type) {
