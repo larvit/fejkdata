@@ -26,6 +26,7 @@ func TestRunTakesNoOperand(t *testing.T) {
 		{[]string{"geo.US.locality[O'Fallon].name"}, `echo '{/geo.US.locality[O'\''Fallon].name}' | fejkdata`},
 		{[]string{"en_US.address"}, "echo '{/en_US.address}' | fejkdata"},
 		{[]string{`C:\temp {/sv_SE.person}`}, `printf '%s' 'C:\temp {/sv_SE.person}' | fejkdata`},
+		{[]string{"x as p"}, "echo 'id: {int(1,999)}' | fejkdata"},
 		{[]string{"-"}, "drop it"},
 		{[]string{file}, "fejkdata < " + file},
 	} {

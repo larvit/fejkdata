@@ -176,6 +176,10 @@ func TestRunIgnoresAFlagWithNoEffect(t *testing.T) {
 		{"", []string{"--list"}, []string{"--table", "t"}},
 		{"{/users}", nil, []string{"--table", "t"}},
 		{"{/users}", []string{"--format", "json"}, []string{"--table", "t"}},
+		{"{/users}", nil, []string{"--table="}},
+		{"{/users}", []string{"--format", "csv"}, []string{"--table="}},
+		{"{/users}", []string{"--format", "json"}, []string{"--table="}},
+		{"", []string{"--list", "--format", "json"}, []string{"--separator", ","}},
 	} {
 		t.Run(argsName(c.base)+" + "+argsName(c.ignored), func(t *testing.T) {
 			args := append([]string{"--seed", "1", "--data-path", dir}, c.base...)
