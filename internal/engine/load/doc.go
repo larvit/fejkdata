@@ -14,7 +14,8 @@
 //  5. Settle fixes each record's columns: SettleRecords in record.go, with columnread.go finding
 //     the column a template reads.
 //
-// Every pass writes what it finds into the load's tree.LoadFinds, and reads another pass's finds
-// through it. LoadFinds.Finish then writes them into the nodes, and internal/engine/fence proves
+// Compile builds the nodes, and Link sets a table's siblings on the table. Bind, Resolve and
+// Settle write what they find into the load's tree.LoadFinds, and read another pass's finds
+// through it. LoadFinds.Finish then writes those into the nodes, and internal/engine/fence proves
 // the finished tree. graph.go walks a node tree for any pass.
 package load
