@@ -1,4 +1,4 @@
-"""Rebuild data/sv_SE/sex.tsv, nb_NO/sex.tsv, da_DK/sex.tsv, de_DE/sex.tsv, fi_FI/sex.tsv and en_US/sex.tsv: the people of each sex.
+"""Rebuild data/sv_SE/sex.tsv, nb_NO/sex.tsv, da_DK/sex.tsv, fi_FI/sex.tsv, de_DE/sex.tsv and en_US/sex.tsv: the people of each sex.
 
     data-import/sex-population.py [--cache DIR] [--out-dir DIR]
 
@@ -6,13 +6,13 @@
 - nb_NO: Statistics Norway's StatBank table 07459, the population on 1 January 2026, all ages summed
   (CC BY 4.0, "Kilde: Statistisk sentralbyrå")
 - da_DK: Statistics Denmark's table FOLK1A, the population on 1 January 2026 (CC BY 4.0, "Kilde: Danmarks Statistik")
+- fi_FI: Statistics Finland's table 11rb, the population on 31 December 2025 (CC BY 4.0, "Source: Statistics Finland")
 - de_DE: Eurostat's table demo_pjan, the population of Germany on 1 January 2025, from the Federal Statistical
   Office (CC BY 4.0, "Source: Eurostat")
-- fi_FI: Statistics Finland's table 11rb, the population on 31 December 2025 (CC BY 4.0, "Source: Statistics Finland")
 - en_US: the Census Bureau's national population estimates by age and sex, the resident population on
   1 July 2024 (vintage 2024, public domain)
 
-The names are ours: `kvinna` and `man`, `kvinne` and `mann`, `kvinde` and `mand`, `Frau` and `Mann`, `nainen` and `mies`, `female` and `male`.
+The names are ours: `kvinna` and `man`, `kvinne` and `mann`, `kvinde` and `mand`, `nainen` and `mies`, `Frau` and `Mann`, `female` and `male`.
 """
 import argparse
 import csv
@@ -34,7 +34,7 @@ CENSUS = "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/nat
 ROOT = Path(__file__).resolve().parent.parent / "data"
 CACHE = Path(__file__).resolve().parent / "cache"
 JSON = {"Content-Type": "application/json"}
-NAMES = {"sv_SE": ("kvinna", "man"), "nb_NO": ("kvinne", "mann"), "da_DK": ("kvinde", "mand"), "de_DE": ("Frau", "Mann"), "fi_FI": ("nainen", "mies"), "en_US": ("female", "male")}
+NAMES = {"sv_SE": ("kvinna", "man"), "nb_NO": ("kvinne", "mann"), "da_DK": ("kvinde", "mand"), "fi_FI": ("nainen", "mies"), "de_DE": ("Frau", "Mann"), "en_US": ("female", "male")}
 
 
 def post(url: str, cache: str, name: str, query: object) -> Any:
@@ -115,7 +115,7 @@ def main() -> None:
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--out-dir", default=str(ROOT))
     a = p.parse_args()
-    for locale, read in (("sv_SE", sweden), ("nb_NO", norway), ("da_DK", denmark), ("de_DE", germany), ("fi_FI", finland), ("en_US", america)):
+    for locale, read in (("sv_SE", sweden), ("nb_NO", norway), ("da_DK", denmark), ("fi_FI", finland), ("de_DE", germany), ("en_US", america)):
         (women, men), (woman, man) = read(a.cache), NAMES[locale]
         tsv.write(Path(a.out_dir) / locale / "sex.tsv", ["code", "name", "count"], [{"code": "f", "name": woman, "count": women}, {"code": "m", "name": man, "count": men}])
 

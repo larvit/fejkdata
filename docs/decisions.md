@@ -1630,17 +1630,23 @@ Valid while no good source of Danish name counts is found; a bulk file replaces 
 
 ## `de_DE`'s first names are Munich's newborns and its last names a language model's recall
 
-2026-11-15. Goal 3.2.
+2026-11-15, in the chunk that added `de_DE`. Goal 3.2.
 
-Germany's statistics office publishes no name counts. The one open source of German first names
-with counts by sex is a city's: the city of Munich publishes each year's newborns under the
-Datenlizenz Deutschland, Namensnennung 2.0, for 2013 to 2025. Pooling its thirteen files gives
-about a thousand names, and a name weighs the sum of the numbers published for it; a file prints a
-count of five or fewer as a phrase, so a name published only so has no row. The names are Munich's
-and those of children born since 2013, not Germany's whole population. No open register publishes
-German surnames, and the lists on the web are Wikipedia's (CC BY-SA) and a genealogy wiki's. So the
-last names are a language model's recall of names common in Germany, the commoner ones first and
-each weighing 700000 over the square root of its rank, the rarer ones sharing the last rank's weight.
+Germany's statistics office publishes no name counts. Cities publish their newborns' first names with
+counts by sex, among them Munich, Bonn and Moers, and none covers Germany. Munich's thirteen yearly
+files, 2013 to 2025, share one layout and one licence, the Datenlizenz Deutschland, Namensnennung 2.0, so
+they alone are pooled: that gives about a thousand names, and a name weighs the sum of the numbers
+published for it. Adding another city's files is a later widening. A file replaces a count below 5 (2025:
+below 6) with a phrase, so a name published only so has no row. The names are those of children
+born since 2013 to people living in Munich, not Germany's whole population.
+
+No open register publishes German surnames, and the lists on the web are Wikipedia's (CC BY-SA) and a
+genealogy wiki's. So the last names are a language model's recall of names common in Germany. The
+commoner ones come ranked, from the most to the least common, and the rarer ones share the last rank's
+weight. A ranked name weighs 700000 over the square root of its rank: the weights fall with the rank, as
+surname counts do, but slowly enough that the 220th still draws, at a fifteenth of the first's
+weight. The figure is an estimate.
+
 The sex counts are Eurostat's table demo_pjan for Germany. Valid while no open register of German
 names with counts for the whole population is found; one replaces the file or the recall.
 
