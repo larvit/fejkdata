@@ -1630,7 +1630,7 @@ Valid while no good source of Danish name counts is found; a bulk file replaces 
 
 ## `de_DE`'s first names are Munich's newborns
 
-2026-11-15, in the chunk that added `de_DE`. Goal 3.2. Its last names apply the project principle on name tables.
+2026-11-15, in the chunk that added `de_DE`. Goal 3.2. `de_DE`'s last names apply the project principle on name tables.
 
 Germany's statistics office publishes no name counts. Cities publish their newborns' first names with
 counts by sex, among them Munich, Bonn and Moers, and none covers Germany. Munich's thirteen yearly
