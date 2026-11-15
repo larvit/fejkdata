@@ -90,8 +90,12 @@ func splitFlags(arg string) ([]flagArg, error) {
 	if name, _, _ := strings.Cut(arg[1:], "="); len(name) > 1 && flagByLong(name) != nil {
 		return nil, fmt.Errorf("unknown flag %s; use --%s", arg, name)
 	}
+	return splitShort(arg[1:])
+}
+
+// splitShort reads letters as bundled short flags, the first that takes a value taking the rest.
+func splitShort(letters string) ([]flagArg, error) {
 	var flags []flagArg
-	letters := arg[1:]
 	for i, r := range letters {
 		letter := string(r)
 		def := flagByShort(letter)
@@ -124,17 +128,27 @@ func parseArgs(argv []string) (invocation, error) {
 			in.args = append(in.args, arg)
 			continue
 		}
-		flags, err := splitFlags(arg)
-		if err != nil {
+		var err error
+		if i, err = setFlags(&in, arg, argv, i); err != nil {
 			return in, err
-		}
-		for _, fl := range flags {
-			if i, err = setFlag(&in, fl, argv, i); err != nil {
-				return in, err
-			}
 		}
 	}
 	return in, nil
+}
+
+// setFlags sets the flags that argv[i] spells on in, and returns the index of the last argument
+// it read.
+func setFlags(in *invocation, arg string, argv []string, i int) (int, error) {
+	flags, err := splitFlags(arg)
+	if err != nil {
+		return i, err
+	}
+	for _, fl := range flags {
+		if i, err = setFlag(in, fl, argv, i); err != nil {
+			return i, err
+		}
+	}
+	return i, nil
 }
 
 // setFlag sets fl on in, reading the argument after argv[i] where fl takes a value and has none
@@ -162,10 +176,16 @@ func (in invocation) checkFlags() error {
 	if _, ok := recordFormats[in.format]; !ok && in.format != "text" {
 		return fmt.Errorf("--format takes %s, got %q", formatNames(), in.format)
 	}
-	if target := recordFormats[in.format].target; in.tableSet && in.table == "" && target != "" {
-		return fmt.Errorf("--table names the %s target, so it cannot be empty", target)
+	return in.checkRecordFlags()
+}
+
+// checkRecordFlags rejects --table and --separator where the format cannot use them.
+func (in invocation) checkRecordFlags() error {
+	f, records := recordFormats[in.format]
+	if in.tableSet && in.table == "" && f.target != "" {
+		return fmt.Errorf("--table names the %s target, so it cannot be empty", f.target)
 	}
-	if f, records := recordFormats[in.format]; records && in.separatorSet && !in.list {
+	if records && in.separatorSet && !in.list {
 		return fmt.Errorf("--separator joins text renders; --format %s %s", in.format, f.writes)
 	}
 	return nil
