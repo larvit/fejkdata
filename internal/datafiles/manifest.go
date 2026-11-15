@@ -72,7 +72,7 @@ func decodeManifest(b []byte) (Manifest, error) {
 	return m, errors.Join(errs...)
 }
 
-// decodeKeys reads the manifest's top-level keys in order, collecting each key's mistakes.
+// decodeKeys reads the manifest's top-level keys in sorted order, collecting each key's mistakes in that order.
 func decodeKeys(top map[string]any) (Manifest, []error) {
 	var m Manifest
 	var errs []error
