@@ -30,6 +30,14 @@ func TestLiteralSaysWhichDatatypesItsTextIs(t *testing.T) {
 	}
 }
 
+func TestLiteralIsIntegralOnlyForAWholeNumber(t *testing.T) {
+	for text, want := range map[string]bool{"42": true, "1.5": false} {
+		if got := Literal(text).Integral; got != want {
+			t.Errorf("Literal(%q).Integral = %v, want %v", text, got, want)
+		}
+	}
+}
+
 func eachDatatypeFromInteger(check func(d datatype.DataType)) {
 	for d := datatype.Integer; d < datatype.Count; d++ {
 		check(d)
@@ -69,6 +77,7 @@ func TestOfCalcDoubtsWhatItsOperandsDoNotProve(t *testing.T) {
 		"big * 100": "(big * 100) is not proven within 1e300",
 		"big":       "",
 		"word + 1":  `operand "word": it is text`,
+		"1 + word":  `operand "word": it is text`,
 		"-(a - 10)": "",
 	} {
 		t.Run(expr, func(t *testing.T) {

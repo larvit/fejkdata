@@ -177,7 +177,7 @@ func TestValidFnrAcceptsAPublishedTestNumber(t *testing.T) {
 }
 
 func TestValidFnrRejectsAWrongCheckDigitOrLength(t *testing.T) {
-	for _, bad := range []string{"10108000399", "10108000388", "1010800039", "10108000398x"} {
+	for _, bad := range []string{"10108000399", "10108000388", "1010800039", "10108000398x", ":0108000346", "/0108000346"} {
 		t.Run(bad, func(t *testing.T) {
 			if fejktest.ValidFnr(bad) {
 				t.Errorf("%s is no valid fødselsnummer", bad)
