@@ -172,7 +172,7 @@ func lengthBounds(r tree.Read) ([2]float64, error) {
 	return [2]float64{p.Lo, p.Hi}, nil
 }
 
-// sharedNameShortfall checks the length lo and hi both read from one name, at each whole value b spans.
+// sharedNameShortfall refuses a whole value in b, the range of the one name that both ends of the length read, at which fewer than count values pass.
 func (v lengthProof) sharedNameShortfall(b [2]float64) error {
 	for n := b[0]; n <= b[1]; n++ {
 		if passing := v.passing(n, n); passing < v.count {

@@ -84,7 +84,7 @@ func (p *valueProof) proveNode(n tree.Node) proven.Facts {
 	case *tree.NullItem:
 		return proven.NeverNumber(`it reads a null, which renders "" outside its own column`)
 	}
-	panic(invariant.Broken("prove has no case for node %T", n))
+	panic(invariant.Broken("proveNode has no case for node %T", n))
 }
 
 // proveCells proves a table column over every cell it may render.
@@ -242,7 +242,7 @@ func zeroDivisor(n grammar.CalcNode, operand func(name string) proven.Facts) (st
 	return "", false
 }
 
-// foldsToZero says whether r folds to zero from operands that are each one value.
+// foldsToZero says whether r is a constant zero: it folds to zero, and every operand it reads is one value.
 func foldsToZero(r grammar.CalcNode, operand func(name string) proven.Facts) bool {
 	varies := false
 	v, doubt := proven.OfCalc(r, func(name string) proven.Facts {
