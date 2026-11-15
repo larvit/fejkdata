@@ -12,32 +12,44 @@ import (
 
 // ChildNamed is the child tree.Child finds, else an error saying why seg names nothing under n.
 func ChildNamed(n tree.Node, seg string) (tree.Node, error) {
-	switch {
-	case grammar.IsSelector(seg):
-		return nil, fmt.Errorf("%s is not a table, so it has no row to select", grammar.SelectorOf(seg))
-	case seg == "..":
-		if c, ok := n.(*tree.TableColumn); ok {
-			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.Name())
-		}
-		return nil, fmt.Errorf(`".." steps up only from a table's row; name any other level by its path from the data root`)
+	if err := refuseStepSyntax(n, seg); err != nil {
+		return nil, err
 	}
 	if child, ok := tree.Child(n, seg); ok {
 		return child, nil
 	}
+	return nil, noChild(n, seg)
+}
+
+// refuseStepSyntax refuses seg where it is a selector or "..", which ChildNamed takes no step for.
+func refuseStepSyntax(n tree.Node, seg string) error {
+	switch {
+	case grammar.IsSelector(seg):
+		return fmt.Errorf("%s is not a table, so it has no row to select", grammar.SelectorOf(seg))
+	case seg == "..":
+		if c, ok := n.(*tree.TableColumn); ok {
+			return fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.Name())
+		}
+		return fmt.Errorf(`".." steps up only from a table's row; name any other level by its path from the data root`)
+	}
+	return nil
+}
+
+// noChild says why seg names no child of n.
+func noChild(n tree.Node, seg string) error {
 	switch n := n.(type) {
 	case *tree.Folder:
-		return nil, NoEntry{seg}
-	case *tree.Template:
+		return NoEntry{seg}
+	case *tree.Template, *tree.NullItem:
 	case *tree.TableColumn:
 		if n.Name() == n.Table().Rows().Options().Parent {
-			return nil, fmt.Errorf("no field %q: %q is the link column, holding its parent's key; to read the row it links to, step up with ..%s.%s", seg, n.Name(), n.Name(), seg)
+			return fmt.Errorf("no field %q: %q is the link column, holding its parent's key; to read the row it links to, step up with ..%s.%s", seg, n.Name(), n.Name(), seg)
 		}
-		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.Name())
-	case *tree.NullItem:
+		return fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.Name())
 	default:
 		panic(invariant.Broken("ChildNamed has no case for node %T", n))
 	}
-	return nil, fmt.Errorf("no field %q", seg)
+	return fmt.Errorf("no field %q", seg)
 }
 
 // compiledPath walks a path and proves it reaches a node whichever way the draws go: every

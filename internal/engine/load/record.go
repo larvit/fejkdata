@@ -22,6 +22,19 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 	if !t.IsRecord() || len(t.Fields()) == 0 {
 		return nil
 	}
+	whole := wholeFieldNames(t, l)
+	var columns []tree.RecordColumn
+	for _, name := range tree.SortedNames(t.Fields()) {
+		if !t.Lets()[name] {
+			field := t.Fields()[name]
+			columns = append(columns, tree.NewRecordColumn(name, ColumnDatatype(field, l), field, whole[field]))
+		}
+	}
+	return columns
+}
+
+// wholeFieldNames is, for each field of t that a name of t binds whole, the first such name.
+func wholeFieldNames(t *tree.Template, l *tree.LoadFinds) map[tree.Node]*tree.NameBinding {
 	whole := map[tree.Node]*tree.NameBinding{}
 	for _, tok := range t.Tokens() {
 		if tok.Kind != grammar.NameBind {
@@ -32,14 +45,7 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 			whole[target.Start()] = b
 		}
 	}
-	var columns []tree.RecordColumn
-	for _, name := range tree.SortedNames(t.Fields()) {
-		if !t.Lets()[name] {
-			field := t.Fields()[name]
-			columns = append(columns, tree.NewRecordColumn(name, ColumnDatatype(field, l), field, whole[field]))
-		}
-	}
-	return columns
+	return whole
 }
 
 // ColumnDatatype is the datatype a column holds, which its first item decides: fence.CheckColumns

@@ -65,9 +65,32 @@ func compileFormats(ts []TemplateSite, l *tree.LoadFinds) error {
 	return nil
 }
 
-// CompileTemplates resolves each template's references and its names' targets, compiles its format
-// and each op's call and draw, and finds what each name's reads address.
+// CompileTemplates compiles ts into l in stages, each reading what the stages before it wrote:
+//
+//  1. resolveAllRefs resolves each template's references.
+//  2. setNameTargets finds what each name binds, from its binder's references.
+//  3. compileFormats compiles each format against its references and its names' targets.
+//  4. buildOps gives each op its call and draw. It needs every format compiled, since an adddays
+//     call takes the layout its date operand prints in.
+//  5. setColumnReads and setAddressed find the column each template reads, and what each name's
+//     reads address, from the finished ops.
 func CompileTemplates(ts []TemplateSite, root map[string]tree.Node, l *tree.LoadFinds) error {
+	if err := resolveAllRefs(ts, root, l); err != nil {
+		return err
+	}
+	setNameTargets(ts, l)
+	if err := compileFormats(ts, l); err != nil {
+		return err
+	}
+	if err := buildOps(ts, l); err != nil {
+		return err
+	}
+	setColumnReads(ts, l)
+	setAddressed(ts, l)
+	return nil
+}
+
+func resolveAllRefs(ts []TemplateSite, root map[string]tree.Node, l *tree.LoadFinds) error {
 	for _, s := range ts {
 		refs, err := resolveRefs(s.Template, s.Folder, s.Label, root)
 		if err != nil {
@@ -75,22 +98,25 @@ func CompileTemplates(ts []TemplateSite, root map[string]tree.Node, l *tree.Load
 		}
 		l.SetRefs(s.Template, refs)
 	}
+	return nil
+}
+
+func setNameTargets(ts []TemplateSite, l *tree.LoadFinds) {
 	for b, target := range nameTargets(ts, l) {
 		l.SetTarget(b, target)
 	}
-	if err := compileFormats(ts, l); err != nil {
-		return err
-	}
-	if err := buildOps(ts, l); err != nil {
-		return err
-	}
+}
+
+func setColumnReads(ts []TemplateSite, l *tree.LoadFinds) {
 	for _, s := range ts {
 		l.SetReadsColumn(s.Template, columnReadOf(s.Template, l))
 	}
+}
+
+func setAddressed(ts []TemplateSite, l *tree.LoadFinds) {
 	for b, keys := range tree.AddressedKeys(ReadsOfNames(ts, l), l) {
 		l.SetAddressed(b, keys)
 	}
-	return nil
 }
 
 // buildOps completes each op of ts, once every template's format is compiled, and gives l the draw

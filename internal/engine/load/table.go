@@ -236,12 +236,15 @@ func routeThrough(t *tree.Table, tail []string, fromRow bool) (tableRoute, error
 	if err != nil {
 		return tableRoute{}, err
 	}
-	selected := sel != ""
-	readsRow := selected || fromRow || len(tail) > 0
-	// A selector further down pins this table by ancestry; drawing first could draw a row the
-	// selector is not inside.
-	pinnedBelow := grammar.HasSelector(tail)
-	return tableRoute{sel: sel, draw: !selected && readsRow && !pinnedBelow, then: past(t, tail, readsRow, column, child)}, nil
+	readsRow := sel != "" || fromRow || len(tail) > 0
+	return tableRoute{sel: sel, draw: drawsRow(sel, readsRow, tail), then: past(t, tail, readsRow, column, child)}, nil
+}
+
+// drawsRow is whether a route draws its table's row: where it reads one, and no selector, here or
+// further down tail, pins it. A selector further down pins the table by ancestry; drawing first
+// could draw a row the selector is not inside.
+func drawsRow(sel string, readsRow bool, tail []string) bool {
+	return sel == "" && readsRow && !grammar.HasSelector(tail)
 }
 
 // past is where a route goes after t: t itself where it reads no row, else the row, the linked
@@ -281,22 +284,26 @@ func routeSteps(steps []tree.PathStep, pins *tree.PinSet, t *tree.Table, r table
 	if r.draw {
 		steps = append(steps, tree.PathStep{Kind: tree.StepDraw, At: at})
 	}
-	switch next := r.then.n.(type) {
-	case *tree.Table:
-		switch {
-		case r.up:
-			steps = append(steps, tree.PathStep{Kind: tree.StepParent, At: at})
-		case next != t:
-			steps = append(steps, tree.PathStep{Kind: tree.StepChild, At: at, Name: next.Rows().Segment()})
-		}
-	case *tree.TableRow:
-		steps = append(steps, tree.PathStep{Kind: tree.StepRow, At: at})
-	case *tree.TableColumn:
-		steps = append(steps, tree.PathStep{Kind: tree.StepColumn, At: at, Name: next.Name()})
-	default:
-		panic(invariant.Broken("%s: a route onto %T", t.Rows().Segment(), r.then.n))
+	if step, ok := stepOnto(t, r, at); ok {
+		steps = append(steps, step)
 	}
 	return steps, nil
+}
+
+// stepOnto is the step r takes from t onto r.then, at at; ok is false where r stays on t.
+func stepOnto(t *tree.Table, r tableRoute, at int) (step tree.PathStep, ok bool) {
+	switch next := r.then.n.(type) {
+	case *tree.Table:
+		if r.up {
+			return tree.PathStep{Kind: tree.StepParent, At: at}, true
+		}
+		return tree.PathStep{Kind: tree.StepChild, At: at, Name: next.Rows().Segment()}, next != t
+	case *tree.TableRow:
+		return tree.PathStep{Kind: tree.StepRow, At: at}, true
+	case *tree.TableColumn:
+		return tree.PathStep{Kind: tree.StepColumn, At: at, Name: next.Name()}, true
+	}
+	panic(invariant.Broken("%s: a route onto %T", t.Rows().Segment(), r.then.n))
 }
 
 func splitSelector(t *tree.Table, tail []string) (sel string, rest []string, err error) {

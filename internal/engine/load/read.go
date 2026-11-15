@@ -44,34 +44,47 @@ func checkSegments(r readSpelling) error {
 // alternatives, operands and clause compileFormat built. An adddays call takes the one layout its date
 // operand prints in, so every template's format must be compiled first.
 func newOp(t *tree.Template, parts tree.Op, l *tree.LoadFinds, words map[tree.WordsAt]*tree.WordList) (tree.Op, error) {
-	tok := parts.Token()
-	o := parts
-	if tok.Kind == grammar.BuiltinCall {
-		call := builtinfunc.Prep(tok.Fn, tok.Args)
-		if tok.Fn == builtinfunc.AddDaysName {
-			layout, err := addDaysLayout(o.Operands()[0], l)
-			if err != nil {
-				return tree.Op{}, err
-			}
-			call = builtinfunc.AddDays(layout, tok.Args)
-		}
-		o = o.WithCall(call)
+	o, err := withCall(parts, l)
+	if err != nil {
+		return tree.Op{}, err
 	}
-	var draw tree.TokenDraw
-	var err error
-	switch {
-	case tok.Kind == grammar.BuiltinCall && tok.Fn == builtinfunc.RewordName:
-		draw, err = rewordDrawOf(t, &o, l, words)
-	case tok.Where == nil && tok.Distinct == nil:
-	case tok.Kind == grammar.BuiltinCall:
-		draw, err = newAlphabetDraw(&o)
-	default:
-		draw, err = valueDrawOf(t, &o, l)
-	}
+	draw, err := drawOf(t, &o, l, words)
 	if err != nil {
 		return tree.Op{}, err
 	}
 	return o.WithDraw(draw), nil
+}
+
+// withCall is o with its call, where its token calls a builtin.
+func withCall(o tree.Op, l *tree.LoadFinds) (tree.Op, error) {
+	tok := o.Token()
+	if tok.Kind != grammar.BuiltinCall {
+		return o, nil
+	}
+	call := builtinfunc.Prep(tok.Fn, tok.Args)
+	if tok.Fn == builtinfunc.AddDaysName {
+		layout, err := addDaysLayout(o.Operands()[0], l)
+		if err != nil {
+			return tree.Op{}, err
+		}
+		call = builtinfunc.AddDays(layout, tok.Args)
+	}
+	return o.WithCall(call), nil
+}
+
+// drawOf is o's draw: none for a plain read or call, else the draw its reword call, or its where or
+// distinct clause, makes.
+func drawOf(t *tree.Template, o *tree.Op, l *tree.LoadFinds, words map[tree.WordsAt]*tree.WordList) (draw tree.TokenDraw, err error) {
+	tok := o.Token()
+	switch {
+	case tok.Kind == grammar.BuiltinCall && tok.Fn == builtinfunc.RewordName:
+		return rewordDrawOf(t, o, l, words)
+	case tok.Where == nil && tok.Distinct == nil:
+		return draw, nil
+	case tok.Kind == grammar.BuiltinCall:
+		return newAlphabetDraw(o)
+	}
+	return valueDrawOf(t, o, l)
 }
 
 func compileReads(t *tree.Template, spellings []string, l *tree.LoadFinds) ([]tree.Read, error) {
@@ -94,15 +107,20 @@ func compileReads(t *tree.Template, spellings []string, l *tree.LoadFinds) ([]tr
 func compileRead(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Read, error) {
 	tl := l.Of(t)
 	r := splitRead(spelling, tl.Refs().BySpelling())
-	if !isName(t, r.head, l) {
-		start := t.StartOf(r.head, tl.Refs())
-		if start == nil {
-			panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))
-		}
-		w := CompilePath(start, r.tail)
-		return tree.NewRead(r.text, r.head, r.tail, tree.FreshLevels(r.head, r.tail), w.steps, w.Leaves), nil
+	if isName(t, r.head, l) {
+		return compileNamedRead(t, r, l)
 	}
-	b := tl.NameScope().Lookup(r.head)
+	start := t.StartOf(r.head, tl.Refs())
+	if start == nil {
+		panic(invariant.Broken("{%s} reads a head nothing resolved", r.text))
+	}
+	w := CompilePath(start, r.tail)
+	return tree.NewRead(r.text, r.head, r.tail, tree.FreshLevels(r.head, r.tail), w.steps, w.Leaves), nil
+}
+
+// compileNamedRead compiles r, a read through a name, into a path from what that name binds.
+func compileNamedRead(t *tree.Template, r readSpelling, l *tree.LoadFinds) (tree.Read, error) {
+	b := l.Of(t).NameScope().Lookup(r.head)
 	tail, member := r.tail, 0
 	if b.Distinct() != nil {
 		var err error
@@ -129,12 +147,10 @@ func compileRead(t *tree.Template, spelling string, l *tree.LoadFinds) (tree.Rea
 // joined.
 func memberRead(b *tree.NameBinding, a readSpelling) (int, error) {
 	n := b.Distinct().N
-	switch {
-	case len(a.tail) == 0 && !b.Distinct().Joins:
-		return 0, fmt.Errorf("name %q holds %d distinct members: read one, as {%s[1]}, or add joined ',' after distinct %d to read them as one", b.Name(), n, b.Name(), n)
-	case len(a.tail) == 0:
-		return 0, nil
-	case len(a.tail) > 1 || !grammar.IsSelector(a.tail[0]):
+	if len(a.tail) == 0 {
+		return 0, readsAllMembers(b)
+	}
+	if len(a.tail) > 1 || !grammar.IsSelector(a.tail[0]) {
 		return 0, fmt.Errorf("name %q holds distinct members, each read whole, as {%s[1]}", b.Name(), b.Name())
 	}
 	k, err := strconv.Atoi(grammar.SelectorOf(a.tail[0]))
@@ -142,4 +158,13 @@ func memberRead(b *tree.NameBinding, a readSpelling) (int, error) {
 		return 0, fmt.Errorf("name %q holds %d members, {%s[1]} to {%s[%d]}", b.Name(), n, b.Name(), b.Name(), n)
 	}
 	return k, nil
+}
+
+// readsAllMembers refuses a read of all of b's distinct members unless they are joined.
+func readsAllMembers(b *tree.NameBinding) error {
+	if b.Distinct().Joins {
+		return nil
+	}
+	n := b.Distinct().N
+	return fmt.Errorf("name %q holds %d distinct members: read one, as {%s[1]}, or add joined ',' after distinct %d to read them as one", b.Name(), n, b.Name(), n)
 }
