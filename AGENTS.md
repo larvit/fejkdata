@@ -19,6 +19,7 @@
 ## Project principles
 
 - A company category whose country has no open bulk file of company names weighs its legal forms by the counts the country's statistics office publishes, and draws its names from a language model's recall. Each name shape and word weighs the same. Goal 3.2. Applied by `da_DK.company` and `fi_FI.company`.
+- A name table whose country has no open bulk file of name counts for its whole population keeps the counts a source does publish, and draws every other name from a language model's recall: the commoner names ranked from the most to the least common, each weighing a function of its rank that the decision states and never more than a published count, then the rarer names in no order sharing the last rank's weight. The README and `DATA-LICENSES.md` call these weights estimates. Goal 3.2. Applied by `da_DK.first-name`, `da_DK.last-name` and `de_DE.last-name`.
 
 # Decisions
 
@@ -135,8 +136,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `en_US.word` holds WordNet's words, under one short path per part of speech, and its notice ships with them
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
-- `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall
-- `de_DE`'s first names are Munich's newborns and its last names a language model's recall
+- `de_DE`'s first names are Munich's newborns
 - A record's `let` fields write no column
 - No database or HTTP sink is built in
 - A date offset is `adddays(d,n)`, and its `d` reads `date` or `born` calls in one layout that reads back

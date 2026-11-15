@@ -1613,7 +1613,7 @@ Valid while goals 5.4 and 12.1 hold.
 
 ## `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall
 
-2026-11-08, the maintainer. Goal 3.2.
+2026-11-08, the maintainer. Goal 3.2. Applies the project principle on name tables.
 
 Statistics Denmark publishes the top 20 girls' names, boys' names and last names of the people
 living in Denmark, and a count one name at a time; it offers no bulk table. Wikidata's Danish
@@ -1628,9 +1628,9 @@ its rank; the rarer ones follow in no order and share the count of the last rank
 never outweighs the twentieth. The sex counts are Statistics Denmark's table FOLK1A.
 Valid while no good source of Danish name counts is found; a bulk file replaces the recall.
 
-## `de_DE`'s first names are Munich's newborns and its last names a language model's recall
+## `de_DE`'s first names are Munich's newborns
 
-2026-11-15, in the chunk that added `de_DE`. Goal 3.2.
+2026-11-15, in the chunk that added `de_DE`. Goal 3.2. Its last names apply the project principle on name tables.
 
 Germany's statistics office publishes no name counts. Cities publish their newborns' first names with
 counts by sex, among them Munich, Bonn and Moers, and none covers Germany. Munich's thirteen yearly
