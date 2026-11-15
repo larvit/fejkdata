@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/httpstatus.tsv from the IANA HTTP Status Code Registry.
 
     data-import/httpstatus.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

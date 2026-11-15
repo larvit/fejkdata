@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/ssyk.tsv from SCB's SSYK 2012 (Källa: SCB).
 
     data-import/ssyk-se.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

@@ -1,10 +1,10 @@
 """What a release carries, as one tree names it: its Go, the modules go.mod requires, and GoReleaser."""
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
-GO_VERSION = re.compile(r"^ARG GO_VERSION=(\d+)\.(\d+)\.(\d+)$", re.M)
+GO_VERSION = re.compile(r"^ARG GO_VERSION=(\d+)\.(\d+)\.(\d+)$", re.MULTILINE)
 GORELEASER = re.compile(r"goreleaser/goreleaser-action@\S+\s+with:\s+version: (\S+)")
 
 
@@ -86,7 +86,7 @@ def due(released: Carried, main: Carried) -> Carried | None:
 
 
 def set_go(text: str, version: str) -> str:
-	changed = re.sub(r"^ARG GO_VERSION=\S+$", f"ARG GO_VERSION={version}", text, flags=re.M)
+	changed = re.sub(r"^ARG GO_VERSION=\S+$", f"ARG GO_VERSION={version}", text, flags=re.MULTILINE)
 	changed = re.sub(r"golang:\$\{GO_VERSION:-[^}]+\}", f"golang:${{GO_VERSION:-{version}}}", changed)
 	if changed == text:
 		raise ValueError("a file names no Go version to set")
@@ -94,7 +94,7 @@ def set_go(text: str, version: str) -> str:
 
 
 def set_goreleaser(text: str, version: str) -> str:
-	changed, count = re.subn(r"^FROM goreleaser/goreleaser:\S+", f"FROM goreleaser/goreleaser:{version}", text, flags=re.M)
+	changed, count = re.subn(r"^FROM goreleaser/goreleaser:\S+", f"FROM goreleaser/goreleaser:{version}", text, flags=re.MULTILINE)
 	if not count:
 		raise ValueError("a file names no GoReleaser image to set")
 	return changed

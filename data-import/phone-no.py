@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/nb_NO/phone-mobile.tsv and phone-fixed.tsv from Nkom's E.164 register.
 
     data-import/phone-no.py [--source URL_OR_FILE] [--cache DIR] [--out-mobile FILE] [--out-fixed FILE]

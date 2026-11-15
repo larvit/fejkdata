@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/geo/DK/*.tsv and address.json from Danmarks Adresseregister (DAR), Danmarks Statistik and GeoNames.
 
     data-import/geo-dk.py [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]
@@ -74,8 +73,7 @@ def dar_pages(path: Path) -> None:
         page = 1
         while True:
             rows = json.loads(source.download(ADDRESSES.format(PAGE, page), b"["))
-            for r in rows:
-                out.write(f"{r['adgangsadressebetegnelse']}\t{r.get('husnummertekst', '')}\t{r['vejmidte']}\n")
+            out.writelines(f"{r['adgangsadressebetegnelse']}\t{r.get('husnummertekst', '')}\t{r['vejmidte']}\n" for r in rows)
             print(f"DAR page {page}: {len(rows)} addresses", file=sys.stderr)
             if len(rows) < PAGE:
                 break

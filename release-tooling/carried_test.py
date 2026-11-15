@@ -29,7 +29,7 @@ class TheRepositorysPackagesYml(unittest.TestCase):
 
 	def test_names_the_goreleaser_both_dockerfiles_build_with(self) -> None:
 		(version,) = carried.GORELEASER.findall(repository_file(".github/workflows/packages.yml"))
-		image = re.compile(r"^FROM goreleaser/goreleaser:(\S+) ", re.M)
+		image = re.compile(r"^FROM goreleaser/goreleaser:(\S+) ", re.MULTILINE)
 		for dockerfile in ["Dockerfile", "release-tooling/package-repos.Dockerfile"]:
 			self.assertEqual(image.findall(repository_file(dockerfile)), [version], dockerfile)
 
@@ -44,12 +44,12 @@ class TheRepositorysComposeFile(unittest.TestCase):
 			self.assertEqual(re.findall(tool, compose), [gated])
 
 	def test_gives_every_service_a_memory_limit_and_the_same_swap_limit(self) -> None:
-		(services,) = re.findall(r"^services:\n(.*?)^volumes:", repository_file("compose.yaml"), re.M | re.S)
-		blocks = re.split(r"^  (?=[\w-]+:\n)", services, flags=re.M)[1:]
+		(services,) = re.findall(r"^services:\n(.*?)^volumes:", repository_file("compose.yaml"), re.MULTILINE | re.DOTALL)
+		blocks = re.split(r"^  (?=[\w-]+:\n)", services, flags=re.MULTILINE)[1:]
 		self.assertGreater(len(blocks), 0)
 		for block in blocks:
 			name = block.split(":")[0]
-			memory, swap = re.search(r"^    mem_limit: (\S+)$", block, re.M), re.search(r"^    memswap_limit: (\S+)$", block, re.M)
+			memory, swap = re.search(r"^    mem_limit: (\S+)$", block, re.MULTILINE), re.search(r"^    memswap_limit: (\S+)$", block, re.MULTILINE)
 			assert memory, f"{name} sets no mem_limit"
 			assert swap, f"{name} sets no memswap_limit"
 			self.assertEqual(memory[1], swap[1], f"{name} lets swap exceed its memory limit")

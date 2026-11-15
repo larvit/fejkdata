@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/protocol.tsv from the IANA Protocol Numbers registry.
 
     data-import/protocol.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

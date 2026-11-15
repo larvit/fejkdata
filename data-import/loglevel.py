@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/loglevel.tsv from RFC 5424 and POSIX <syslog.h>.
 
     data-import/loglevel.py [--source URL_OR_FILE] [--posix URL_OR_FILE] [--cache DIR] [--out FILE]
@@ -21,9 +20,9 @@ POSIX = "https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/syslog.h.html
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "loglevel.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "keyword", "severity"]
-TABLE = re.compile(r"Table 1\.\s+Syslog Message Facilities(.*?)Table 2\.\s+Syslog Message Severities", re.S)
-ROW = re.compile(r"^ +(\d) +([A-Z][a-z]+): ", re.M)
-SECTION = re.compile(r"severity level portion of the.*?macros:(.*?)The following shall be declared as functions", re.S)
+TABLE = re.compile(r"Table 1\.\s+Syslog Message Facilities(.*?)Table 2\.\s+Syslog Message Severities", re.DOTALL)
+ROW = re.compile(r"^ +(\d) +([A-Z][a-z]+): ", re.MULTILINE)
+SECTION = re.compile(r"severity level portion of the.*?macros:(.*?)The following shall be declared as functions", re.DOTALL)
 MACRO = re.compile(r"\bLOG_([A-Z]+)\b")
 EXPECTED = 8
 

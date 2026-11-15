@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/sni.tsv from SCB's SNI 2025 (Källa: SCB).
 
     data-import/sni-se.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

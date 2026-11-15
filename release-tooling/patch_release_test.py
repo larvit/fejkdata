@@ -15,7 +15,20 @@ import changelog
 import go_release_notes
 import patch_release
 import publish_release
-from fixtures import COMPOSE, DOCKERFILE, GO_MOD, GORELEASER, MAIN, NEW_GO_MOD, NOTES, PACKAGE_REPOS, PACKAGES, RELEASED, SECTION, carrying
+from fixtures import (
+	COMPOSE,
+	DOCKERFILE,
+	GO_MOD,
+	GORELEASER,
+	MAIN,
+	NEW_GO_MOD,
+	NOTES,
+	PACKAGE_REPOS,
+	PACKAGES,
+	RELEASED,
+	SECTION,
+	carrying,
+)
 
 
 class NextPatch(unittest.TestCase):
@@ -355,8 +368,10 @@ class Cut(Repository):
 			self.cut(),
 			(
 				0,
-				"No patch due: main's go.mod changes more than module versions since v0.1.0,"
-				" so its modules wait for a release the maintainer cuts.\n",
+				(
+					"No patch due: main's go.mod changes more than module versions since v0.1.0,"
+					" so its modules wait for a release the maintainer cuts.\n"
+				),
 			),
 		)
 		self.published.assert_not_called()

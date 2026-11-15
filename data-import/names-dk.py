@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/da_DK/first-name.tsv and last-name.tsv from Statistics Denmark's top 20 and a language model's recall.
 
     data-import/names-dk.py [--out DIR]

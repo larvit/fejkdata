@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/useragent.tsv from microlinkhq/top-user-agents (MIT).
 
     data-import/useragent.py [--source URL] [--cache DIR] [--out FILE]

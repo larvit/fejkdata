@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild the month and weekday tables of data/sv_SE and data/nn_NO, and data/sv_SE/territory.tsv, from Unicode CLDR's names.
 
     data-import/cldr.py [--cldr URL_OR_DIR] [--cache DIR] [--data-dir DIR]

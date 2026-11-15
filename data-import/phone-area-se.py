@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/phone-area.tsv from PTS's numbering plan.
 
     data-import/phone-area-se.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
@@ -21,17 +20,17 @@ SOURCE = "https://pts.se/globalassets/globala-block/nummertillstand/the-swedish-
 OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE" / "phone-area.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 AREA_CODES = 264
-STREAM = re.compile(rb"(?<!end)stream\r?\n(.*?)endstream", re.S)
-PLACED_TEXT = re.compile(rb"([\d.-]+) ([\d.-]+) ?Tm(.*?)ET", re.S)
-ARRAY = re.compile(rb"\[(.*?)\]\s*TJ", re.S)
-STRING = re.compile(rb"\(((?:\\.|[^\\)])*)\)", re.S)
+STREAM = re.compile(rb"(?<!end)stream\r?\n(.*?)endstream", re.DOTALL)
+PLACED_TEXT = re.compile(rb"([\d.-]+) ([\d.-]+) ?Tm(.*?)ET", re.DOTALL)
+ARRAY = re.compile(rb"\[(.*?)\]\s*TJ", re.DOTALL)
+STRING = re.compile(rb"\(((?:\\.|[^\\)])*)\)", re.DOTALL)
 # A row's name runs up to the next row or the date heading the next page. One row, 586's, has no hyphen before "Area".
 ROW = re.compile(r"(\d+) \(NDC\) (\d+) (\d+) Geographic number(?: -)? Area code for (.+?)(?= \d+ \(NDC\)| \d{4}-\d{2}-\d{2} )")
 
 
 def unescaped(string: bytes) -> str:
     string = re.sub(rb"\\(\d{3})", lambda m: bytes([int(m[1], 8)]), string)
-    return re.sub(rb"\\(.)", rb"\1", string, flags=re.S).decode("cp1252", "replace")
+    return re.sub(rb"\\(.)", rb"\1", string, flags=re.DOTALL).decode("cp1252", "replace")
 
 
 def page_lines(content: bytes) -> list[str]:

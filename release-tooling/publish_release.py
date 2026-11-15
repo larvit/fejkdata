@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Publish the release that CHANGELOG.md's top heading names, tagging SHA.
 
 A heading is `## Unreleased` or `## 0.5.0 - 2026-11-20`. The headings of the releases up to 0.4.0 have brackets, as in
@@ -16,7 +15,7 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-SECTION = re.compile(r"^## \[?(?P<name>[^\]\s]+)\]?[^\n]*\n?(?P<body>.*?)(?=^## |\Z)", re.M | re.S)
+SECTION = re.compile(r"^## \[?(?P<name>[^\]\s]+)\]?[^\n]*\n?(?P<body>.*?)(?=^## |\Z)", re.MULTILINE | re.DOTALL)
 """A changelog section: its heading's name, Unreleased or a version, and its body."""
 VERSION = re.compile(r"\d+\.\d+\.\d+")
 HEADING = re.compile(r" {0,3}##(?=[ \t]|$)")

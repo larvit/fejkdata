@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/currency.tsv from datasets/currency-codes (PDDL) and CLDR's symbols (Unicode).
 
     data-import/currency.py [--source URL_OR_FILE] [--symbols URL_OR_FILE ...] [--cache DIR] [--out FILE]

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/sex.tsv, nb_NO/sex.tsv, da_DK/sex.tsv, fi_FI/sex.tsv and en_US/sex.tsv: the people of each sex.
 
     data-import/sex-population.py [--cache DIR] [--out-dir DIR]

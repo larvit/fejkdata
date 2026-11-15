@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/tld.tsv from the IANA Root Zone Database.
 
     data-import/tld.py [--source URL_OR_FILE] [--zone URL_OR_FILE] [--cache DIR] [--out FILE]
@@ -26,7 +25,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["tld", "type", "unicode"]
 TYPES = ("country-code", "generic", "generic-restricted", "infrastructure", "sponsored")
 BIDI = {0x200E: None, 0x200F: None}
-ROW = re.compile(r'<a href="/domains/root/db/([^"]+)\.html">([^<]+)</a>.*?</td>\s*<td>([^<]*)</td>\s*<td>(.*?)</td>', re.S)
+ROW = re.compile(r'<a href="/domains/root/db/([^"]+)\.html">([^<]+)</a>.*?</td>\s*<td>([^<]*)</td>\s*<td>(.*?)</td>', re.DOTALL)
 
 
 def rows(page: str) -> Iterator[dict[str, str]]:

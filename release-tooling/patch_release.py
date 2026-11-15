@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Own CHANGELOG.md's release sections: cut a patch of the last release carrying what main carries, and keep main in step.
 
   patch_release.py last
@@ -38,8 +37,8 @@ import sys
 import tempfile
 import urllib.error
 import urllib.parse
-from collections.abc import Iterator
-from typing import Callable, NamedTuple
+from collections.abc import Callable, Iterator
+from typing import NamedTuple
 
 import carried
 import changelog
@@ -87,7 +86,7 @@ def write(path: str, text: str) -> None:
 
 
 def run(*argv: str, cwd: str | None = None, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess[str]:
-	done = subprocess.run(argv, cwd=cwd, capture_output=True, text=True)
+	done = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, check=False)
 	if done.returncode not in ok:
 		raise ValueError(f"`{' '.join(argv[:2])}` failed: {(done.stderr or done.stdout).strip()}")
 	return done

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/geo/NO/*.tsv and address.json from Kartverket's address register (CC BY 4.0) and SSB (CC BY 4.0).
 
     data-import/geo-no.py [--addresses URL_OR_FILE] [--cache DIR] [--date YYYY-MM-DD] [--min-streets N] [--street-share F] [--out DIR]

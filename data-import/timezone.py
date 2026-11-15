@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/timezone.tsv from the IANA tzdb tarball (public domain) and GeoNames (CC BY 4.0).
 
     data-import/timezone.py [--source URL_OR_FILE] [--cities URL_OR_FILE] [--cache DIR] [--out FILE] [--territories FILE]
