@@ -7,7 +7,8 @@
 - GitHub is where the project lives, so `gh` is the tool: merges are fast-forward
   only, `gh pr merge --rebase` where the branch is already on top of main.
 - Until the repository has 10 GitHub stars, CodeRabbit reviews a pull request only when
-  asked: once a PR is marked ready, comment `@coderabbitai review`.
+  asked: once a PR is marked ready, comment `@coderabbitai review`. Its verdict lands in the
+  `CodeRabbit` check and its walkthrough comment, and any finding as a review comment.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - Prose naming a source states what that source states: read the register's own field
   before paraphrasing it, and name the register you read before claiming none
