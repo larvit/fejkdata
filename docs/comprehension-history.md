@@ -2074,3 +2074,35 @@ Inherited architect, would restructure first:
 - Locality, Navigation: `internal/engine/fence/names/rules.go:54` `nameRules`: every new token feature threads through five rules over pick-key levels
 - Navigation: `data-import/geo-se.py:252` `streets`: nothing signposts the fork between data and engine for a mismatched postort
 - Shape: `internal/engine/inline.go:103` `LoadStruct`: "inline" holds a struct load that is not an inline template
+
+## 2026-11-15T16:41:02Z, PR #405 at 969f3d0e, against 6e467781
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | better | better |
+| Inherited architect | better | better | better | better | better |
+
+Mid A, decided by:
+
+- Locality, Shape: `internal/engine/fence/fence.go:32` `Check`: owns the whole fence order and says why; the base wrote it into `pipeline.run`, which called five exported fence functions
+- Locality: `internal/engine/pipeline.go:33` `pipeline.typedBy`: the field check runs inside `Check`, where the base's `typedByGo` flag left `LoadStruct` to call it afterwards
+- Locality, Shape: `internal/engine/tree/loadfinds.go:50` `LoadFinds.Of`: the nil `AfterFinish` sentinel is gone, and callers pass what they read
+- Navigation, Self-sufficiency: `internal/engine/load/doc.go:1` `package load`: lists the load passes in order with the file and function of each
+- Navigation, Locality: `internal/engine/struct.go:17` `LoadStruct`: has its own file, and no longer writes into the caller's tags map
+- Shape: `internal/engine/load/format.go:104` `readCheck`: names the two outcomes the base's `(missing bool, err error)` pair hid
+- Locality: `internal/engine/tree/pick.go:82` `PlacedRead`: builds the key once, so `Key()` and `Levels()` can't disagree; the `atLen` slicing is subtle
+- Shape: `internal/engine/load/node.go:59` `position`: two axes where the base had a flat six-value enum; `placeFormat` beside `inFormat` costs a little
+
+Inherited architect, decided by:
+
+- Navigation, Self-sufficiency: `internal/engine/load/doc.go:1` `package load`: a map of the load package for a reader coming in cold from a symptom
+- Locality, Shape, Navigation: `internal/engine/fence/fence.go:32` `Check`: one entry point holds the order and its reasons, and no caller can skip a step
+- Locality: `internal/engine/struct.go:17` `LoadStruct`: the tags map is cloned, and the field check moves inside the pipeline
+- Locality, Shape: `internal/engine/tree/loadfinds.go:59` `Compiled`: each call site shows whether it reads during the load or after Finish; the comment in `load/record.go` now names `fence.Check` where the base named `CheckNoCycles`
+- Locality: `internal/engine/tree/pick.go:89` `ReadAt`: keeps the key and the levels consistent; its note about the heap is cryptic
+- Locality: `internal/grammar/where.go:59` `cutWord`: two scans, where the base's callback set `sc.quotes` partway through one
+- Shape, Locality: `internal/engine/load/path.go:106` `compileStep`: a method taking two parameters where the base had a free function taking six
+- Shape: `internal/engine/load/node.go:59` `position`: the place and whether Go types the struct are two axes
+- Shape: `internal/engine/load/format.go:104` `readCheck`: a named struct replaces the implicit pair
