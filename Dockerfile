@@ -51,7 +51,7 @@ COPY data/ /data/
 RUN python3 -m unittest discover -s /data-import -p '*_test.py' && touch /tested
 
 FROM python:3.15.2-slim AS python-lint
-COPY --from=ghcr.io/astral-sh/ruff:0.14.5-alpine /usr/local/bin/ruff /usr/local/bin/ruff
+COPY --from=ghcr.io/astral-sh/ruff:0.17.5-alpine /usr/local/bin/ruff /usr/local/bin/ruff
 RUN pip install --no-cache-dir mypy==2.4.1
 COPY data-import/ /python/data-import/
 COPY release-tooling/ /python/release-tooling/
