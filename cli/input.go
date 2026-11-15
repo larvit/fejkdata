@@ -25,7 +25,8 @@ func operandError(arg, name string) error {
 	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, templateExample(arg, name))
 }
 
-// templateExample is the command that pipes in the template arg most likely stands for.
+// templateExample is the command that pipes in the template arg is most likely a try at, or a stock
+// example where arg looks like none.
 func templateExample(arg, name string) string {
 	ref := "{/" + strings.TrimPrefix(arg, "/") + "}"
 	_, argLone := loneReference(arg)

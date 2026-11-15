@@ -198,8 +198,8 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 	return 0
 }
 
-// render reads stdin's template, loads the data and writes the renders, or the data's paths
-// under --list, which reads no template.
+// render reads stdin's template, loads the data and writes the renders. Under --list it reads no
+// stdin and writes the data's paths instead.
 func (in invocation) render(name string, modules []fs.FS, sys system, stdin io.Reader, stdout io.Writer) error {
 	var src input
 	if !in.list {
