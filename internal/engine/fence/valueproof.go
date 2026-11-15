@@ -64,25 +64,27 @@ func (p *valueProof) prove(n tree.Node) proven.Facts {
 	if p.memo == nil {
 		p.memo = map[tree.Node]proven.Facts{}
 	}
-	var v proven.Facts
-	switch n := n.(type) {
-	case *tree.Choice:
-		v = p.proveUnion(n.Items())
-	case *tree.Template:
-		v = p.proveTemplate(n)
-	case *tree.TableColumn:
-		v = p.proveCells(n)
-	case *tree.Table:
-		v = p.prove(n.RowNode())
-	case *tree.TableRow:
-		v = proven.Unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.Table().FormatTemplate().Format(), n.Table().Rows().Segment()))
-	case *tree.NullItem:
-		v = proven.NeverNumber(`it reads a null, which renders "" outside its own column`)
-	default:
-		panic(invariant.Broken("prove has no case for node %T", n))
-	}
+	v := p.proveNode(n)
 	p.memo[n] = v
 	return v
+}
+
+func (p *valueProof) proveNode(n tree.Node) proven.Facts {
+	switch n := n.(type) {
+	case *tree.Choice:
+		return p.proveUnion(n.Items())
+	case *tree.Template:
+		return p.proveTemplate(n)
+	case *tree.TableColumn:
+		return p.proveCells(n)
+	case *tree.Table:
+		return p.prove(n.RowNode())
+	case *tree.TableRow:
+		return proven.Unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.Table().FormatTemplate().Format(), n.Table().Rows().Segment()))
+	case *tree.NullItem:
+		return proven.NeverNumber(`it reads a null, which renders "" outside its own column`)
+	}
+	panic(invariant.Broken("prove has no case for node %T", n))
 }
 
 // proveCells proves a table column over every cell it may render.
@@ -141,25 +143,37 @@ func (p *valueProof) proveTemplate(t *tree.Template) proven.Facts {
 // proveOp proves what o renders: the one op that prints, in a template that is not fixed text.
 func (p *valueProof) proveOp(o tree.Op) proven.Facts {
 	tok := o.Token()
-	body, name, args := tok.Body, tok.Fn, tok.Args
 	switch {
 	case tok.Kind == grammar.LiteralRun:
 		return proven.Literal(tok.Lit)
-	case tok.Kind == grammar.PathRead && (tok.Distinct != nil || slices.ContainsFunc(o.Alternatives(), tree.Read.ReadsJoined)):
-		return joinedText(body)
+	case tok.Kind == grammar.PathRead && joinsMembers(o):
+		return joinedText(tok.Body)
 	case p.mayFallBack(o):
-		return fallsBack(body)
+		return fallsBack(tok.Body)
 	case tok.Kind == grammar.PathRead:
 		return p.proveUnion(o.AlternativeLeaves())
-	case name == builtinfunc.CalcName:
-		return p.proveCalc(o)
-	case builtinfunc.IsTransform(name):
-		return proven.Unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
 	}
-	if v, numeric := builtinfunc.ProveNumber(name, body, args); numeric {
+	return p.proveCall(o)
+}
+
+// joinsMembers says whether the path read o prints a distinct draw's members joined.
+func joinsMembers(o tree.Op) bool {
+	return o.Token().Distinct != nil || slices.ContainsFunc(o.Alternatives(), tree.Read.ReadsJoined)
+}
+
+// proveCall proves what the builtin call o prints.
+func (p *valueProof) proveCall(o tree.Op) proven.Facts {
+	tok := o.Token()
+	switch {
+	case tok.Fn == builtinfunc.CalcName:
+		return p.proveCalc(o)
+	case builtinfunc.IsTransform(tok.Fn):
+		return proven.Unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", tok.Body))
+	}
+	if v, numeric := builtinfunc.ProveNumber(tok.Fn, tok.Body, tok.Args); numeric {
 		return v
 	}
-	return proven.Printing(body, datatype.String, proven.Facts{NotOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
+	return proven.Printing(tok.Body, datatype.String, proven.Facts{NotOperand: fmt.Sprintf("{%s} prints text, not a number", tok.Body)})
 }
 
 func (p *valueProof) proveCalc(o tree.Op) proven.Facts {
@@ -217,13 +231,7 @@ func zeroDivisor(n grammar.CalcNode, operand func(name string) proven.Facts) (st
 	case grammar.CalcNeg:
 		return zeroDivisor(n.X, operand)
 	case grammar.CalcBin:
-		varies := false
-		v, doubt := proven.OfCalc(n.R, func(name string) proven.Facts {
-			f := operand(name)
-			varies = varies || f.Lo != f.Hi
-			return f
-		})
-		if n.Operator == '/' && doubt == "" && !varies && v.Lo == 0 && v.Hi == 0 {
+		if n.Operator == '/' && foldsToZero(n.R, operand) {
 			return grammar.CalcText(n.R), true
 		}
 		if d, zero := zeroDivisor(n.L, operand); zero {
@@ -232,6 +240,17 @@ func zeroDivisor(n grammar.CalcNode, operand func(name string) proven.Facts) (st
 		return zeroDivisor(n.R, operand)
 	}
 	return "", false
+}
+
+// foldsToZero says whether r folds to zero from operands that are each one value.
+func foldsToZero(r grammar.CalcNode, operand func(name string) proven.Facts) bool {
+	varies := false
+	v, doubt := proven.OfCalc(r, func(name string) proven.Facts {
+		f := operand(name)
+		varies = varies || f.Lo != f.Hi
+		return f
+	})
+	return doubt == "" && !varies && v.Lo == 0 && v.Hi == 0
 }
 
 // proveRead proves what a prints: one of its leaves, or text where it reads a distinct draw's members

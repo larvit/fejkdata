@@ -32,11 +32,11 @@ func refuseDrawnApart(nr nameRead) error {
 
 // sharedDraw reports whether a read of one name shares, with a second name bound to target, a draw
 // that could differ, and returns that read. Parameter above is target's path under the first name's
-// pick. It walks target's path from its start, a level at a time. A level no read of the first
-// name addresses ends the walk, and the kind of any other level (levelKind) says whether the walk
-// ends there or steps down.
+// pick. It walks target's path from its start, a level at a time, and ends at the first level that
+// is no read's address, or that isn't an innerLevel: there it shares a draw unless the level is a
+// constantLeaf. An innerLevel that a read lands on, with a draw somewhere below, ends it too.
 func sharedDraw(pick pickReads, target tree.NameTarget, above []string) (by string, shares bool) {
-	for w := walkFrom(target.Start(), target.Tail()); ; {
+	for w := walkFrom(target.Start(), target.Tail()); ; w.step() {
 		key := keyOf(above, w.walked())
 		by, addressed := pick.addresser(key)
 		if !addressed {
@@ -45,19 +45,12 @@ func sharedDraw(pick pickReads, target tree.NameTarget, above []string) (by stri
 			// deeper level is addressed either.
 			return "", false
 		}
-		switch w.kind() {
-		case drawLevel:
-			return by, true
-		case constantLeaf:
-			return by, false
-		case varyingLeaf:
-			return by, true
-		case innerLevel:
-			// A read landing here renders every level below, addressed or not.
-			if lander, lands := pick.landingOn(key); lands && w.drawsBelow() {
-				return lander, true
-			}
-			w.step()
+		if kind := w.kind(); kind != innerLevel {
+			return by, kind != constantLeaf
+		}
+		// A read landing here renders every level below, addressed or not.
+		if lander, lands := pick.landingOn(key); lands && w.drawsBelow() {
+			return lander, true
 		}
 	}
 }

@@ -32,10 +32,8 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column tree.Node)
 	}
 	kind := FieldKinds[elem.Kind()]
 	items, _ := load.ColumnItems(column)
-	for _, it := range items {
-		if it.DataType() != nil && *it.DataType() != kind.Datatype {
-			return fmt.Errorf("%s: its Go type %s sets the datatype %s; drop \"datatype\"", label, ft, kind.Datatype)
-		}
+	if err := refuseDeclaredDatatype(label, ft, kind, items); err != nil {
+		return err
 	}
 	if ft.Kind() != reflect.Pointer && p.proveColumn(column).Nullable {
 		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
@@ -44,6 +42,16 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column tree.Node)
 		return nil
 	}
 	return p.checkFieldValues(label, ft, elem.Kind(), items)
+}
+
+// refuseDeclaredDatatype rejects an item that declares a datatype other than the one ft's kind sets.
+func refuseDeclaredDatatype(label string, ft reflect.Type, kind FieldKind, items []*tree.Template) error {
+	for _, it := range items {
+		if it.DataType() != nil && *it.DataType() != kind.Datatype {
+			return fmt.Errorf("%s: its Go type %s sets the datatype %s; drop \"datatype\"", label, ft, kind.Datatype)
+		}
+	}
+	return nil
 }
 
 // checkFieldValues rejects an item that a field of Go type ft, of the non-string kind k, cannot
