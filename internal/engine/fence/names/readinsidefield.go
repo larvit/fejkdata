@@ -11,7 +11,7 @@ import (
 // to it.
 func RefuseReadsInsideFields(ts []load.TemplateSite) error {
 	for _, s := range ts {
-		for _, r := range load.NamedReads(s.Template, tree.AfterFinish) {
+		for _, r := range load.NamedReads(s.Template.Compiled()) {
 			b := r.Read.Named()
 			if !b.BindsField() {
 				continue

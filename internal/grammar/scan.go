@@ -6,9 +6,8 @@ package grammar
 type scanner struct{ quotes bool }
 
 // find calls match with each index of s outside a selector and a quote, in order, and returns the
-// first index match reports true for, or -1. match may set sc.quotes, so quotes count from where a
-// clause opens.
-func (sc *scanner) find(s string, match func(i int) bool) int {
+// first index match reports true for, or -1.
+func (sc scanner) find(s string, match func(i int) bool) int {
 	var st scanState
 	for i := 0; i < len(s); i++ {
 		if !st.inside(s[i], sc.quotes) && match(i) {

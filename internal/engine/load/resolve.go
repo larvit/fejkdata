@@ -114,7 +114,7 @@ func setColumnReads(ts []TemplateSite, l *tree.LoadFinds) {
 }
 
 func setAddressed(ts []TemplateSite, l *tree.LoadFinds) {
-	for b, keys := range tree.AddressedKeys(ReadsOfNames(ts, l), l) {
+	for b, keys := range tree.AddressedKeys(ReadsOfNames(ts, l.Compiled), l) {
 		l.SetAddressed(b, keys)
 	}
 }

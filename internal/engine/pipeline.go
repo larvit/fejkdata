@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/larvit/fejkdata/internal/engine/fence"
-	"github.com/larvit/fejkdata/internal/engine/fence/names"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 )
@@ -30,8 +29,8 @@ type pipeline struct {
 	nodes   fence.NodeSet
 	finds   *tree.LoadFinds
 	resolve func() ([]load.TemplateSite, error)
-	// Set by a caller that proves the columns against their Go types itself.
-	typedByGo bool
+	// The struct whose fields type the columns; nil where the data types them.
+	typedBy *fence.GoStruct
 }
 
 // categoryPipeline is the pipeline over the categories of one load, their references
@@ -51,10 +50,7 @@ func categoryPipeline(sites []categorySite, root map[string]tree.Node, l *tree.L
 
 // run loads, then fences. resolve binds what each template's tokens read, and refuses a name or
 // reference that can't resolve. load.SettleRecords fixes each record's columns, and Finish writes
-// what the load found into the nodes, so every fence reads finished nodes. names.RefuseReadsInsideFields
-// comes before the cycle check: a name read inside the field bound to it is also a reference cycle,
-// and its error says how to fix the read. The cycle check comes before fence.Templates and
-// fence.CheckNodes, whose walks recurse unguarded.
+// what the load found into the nodes, so every fence reads finished nodes.
 func (p pipeline) run() error {
 	ts, err := p.resolve()
 	if err != nil {
@@ -62,21 +58,7 @@ func (p pipeline) run() error {
 	}
 	load.SettleRecords(p.nodes, p.finds)
 	p.finds.Finish()
-	if err := names.RefuseReadsInsideFields(ts); err != nil {
-		return err
-	}
-	if err := fence.CheckNoCycles(p.nodes); err != nil {
-		return err
-	}
-	if err := fence.Templates(ts); err != nil {
-		return err
-	}
-	if !p.typedByGo {
-		if err := fence.CheckColumns(p.nodes); err != nil {
-			return err
-		}
-	}
-	return fence.CheckNodes(p.nodes)
+	return fence.Check(p.nodes, ts, p.typedBy)
 }
 
 func linkTables(sites []categorySite) error {

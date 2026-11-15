@@ -14,7 +14,7 @@ import (
 func RefuseReads(ts []load.TemplateSite) error {
 	names := namesOf(ts)
 	for _, s := range ts {
-		for _, r := range load.NamedReads(s.Template, tree.AfterFinish) {
+		for _, r := range load.NamedReads(s.Template.Compiled()) {
 			if err := checkNameRead(s.Template, r.Read, names); err != nil {
 				return fmt.Errorf("%s: token {%s}: %w", s.Label, r.Op.Token().Body, err)
 			}

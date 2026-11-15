@@ -37,7 +37,7 @@ func freshRead(spelling string) tree.Read {
 	return tree.NewRead(spelling, r.head, r.tail, tree.FreshLevels(r.head, r.tail), nil, nil)
 }
 
-func TestAFreshReadsLevelsUnderAKeySpellThePathANamedReadKeys(t *testing.T) {
+func TestAFreshReadsLevelsAtAKeySpellThePathANamedReadKeys(t *testing.T) {
 	for name, c := range map[string]struct {
 		at    tree.PickKey
 		a     tree.Read
@@ -50,9 +50,9 @@ func TestAFreshReadsLevelsUnderAKeySpellThePathANamedReadKeys(t *testing.T) {
 		"a path under a key":          {"a.b", freshRead("street.name"), []string{"a", "b", "street", "name"}, []tree.PickKey{"a.b.street", "a.b.street.name"}},
 	} {
 		t.Run(name, func(t *testing.T) {
-			got := tree.LevelsUnder(c.at, c.a, tree.KeyUnder(c.at, c.a))
+			got := tree.ReadAt(c.at, c.a).Levels()
 			if !slices.Equal(got, c.want) {
-				t.Errorf("%s: LevelsUnder(%q) = %q, want %q", name, c.at, got, c.want)
+				t.Errorf("%s: ReadAt(%q).Levels() = %q, want %q", name, c.at, got, c.want)
 			}
 			named := tree.NamedLevels(c.named)
 			if tail := named[len(named)-len(c.want):]; !slices.Equal(tail, c.want) {

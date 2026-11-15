@@ -194,7 +194,7 @@ func unanswered(where string, u tree.UnboundRead, seen *tree.NameScope, scopes [
 	if visible := visibleNames(seen); len(visible) > 0 {
 		return fmt.Errorf("%stoken {%s}: no field or name %q; the names bound here are %s", where, u.Body(), u.Head(), strings.Join(visible, ", "))
 	}
-	return fmt.Errorf("%s%w", where, u.Err())
+	return fmt.Errorf("%s%w", where, u.Refusal())
 }
 
 // outOfSight refuses u, which reads the name b binds inside sc. sc is a repeat or a choice's item,
@@ -205,9 +205,9 @@ func outOfSight(where string, u tree.UnboundRead, sc *tree.NameScope, b *tree.Na
 		at = "an item of the root choice"
 	}
 	if sc.Kind() == tree.ScopeChoiceItem {
-		return fmt.Errorf("%s%w; name %q is bound at %s, inside an item of a choice, which a read outside that item cannot see; bind it outside the choice", where, u.Err(), u.Head(), at)
+		return fmt.Errorf("%s%w; name %q is bound at %s, inside an item of a choice, which a read outside that item cannot see; bind it outside the choice", where, u.Refusal(), u.Head(), at)
 	}
-	return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.Err(), u.Head(), at)
+	return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.Refusal(), u.Head(), at)
 }
 
 // visibleNames is every name that seen or a scope around it binds, sorted and quoted.
@@ -235,9 +235,9 @@ type namedReadAt struct {
 	Read *tree.Read
 }
 
-// NamedReads is every read of a name t's format makes, in format order.
-func NamedReads(t *tree.Template, l *tree.LoadFinds) []namedReadAt {
-	ops := l.Of(t).Compiled().Ops()
+// NamedReads is every read of a name a compiled format makes, in format order.
+func NamedReads(compiled tree.FormatOps) []namedReadAt {
+	ops := compiled.Ops()
 	var out []namedReadAt
 	for i := range ops {
 		o := &ops[i]
@@ -250,11 +250,12 @@ func NamedReads(t *tree.Template, l *tree.LoadFinds) []namedReadAt {
 	return out
 }
 
-// ReadsOfNames is every read of each name in ts, in the order ts lists them.
-func ReadsOfNames(ts []TemplateSite, l *tree.LoadFinds) map[*tree.NameBinding][]*tree.Read {
+// ReadsOfNames is every read of each name in ts, in the order ts lists them. compiled is
+// LoadFinds.Compiled while a load runs, Template.Compiled once it has finished.
+func ReadsOfNames(ts []TemplateSite, compiled func(*tree.Template) tree.FormatOps) map[*tree.NameBinding][]*tree.Read {
 	reads := map[*tree.NameBinding][]*tree.Read{}
 	for _, s := range ts {
-		for _, r := range NamedReads(s.Template, l) {
+		for _, r := range NamedReads(compiled(s.Template)) {
 			reads[r.Read.Named()] = append(reads[r.Read.Named()], r.Read)
 		}
 	}

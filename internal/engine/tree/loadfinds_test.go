@@ -33,7 +33,6 @@ func TestAReadOfAnUnfinishedTemplatePanicsNamingThePhase(t *testing.T) {
 		"OwnScope":           func() { unfinished.OwnScope() },
 		"ReadsColumn":        func() { unfinished.ReadsColumn() },
 		"Refs":               func() { unfinished.Refs() },
-		"Of after Finish":    func() { tree.AfterFinish.Of(unfinished) },
 		"Of of another load": func() { tree.NewLoadFinds().Of(unfinished) },
 	}
 	for name, read := range cases {
@@ -48,10 +47,10 @@ func TestAReadOfAnUnfinishedTemplatePanicsNamingThePhase(t *testing.T) {
 func TestAReadOfAnUnfinishedBindingPanicsNamingThePhase(t *testing.T) {
 	unfinished := unfinishedBinding()
 	cases := map[string]func(){
-		"Addressed":            func() { unfinished.Addressed() },
-		"Target":               func() { unfinished.Target() },
-		"Values":               func() { unfinished.Values() },
-		"Binding after Finish": func() { tree.AfterFinish.Binding(unfinished) },
+		"Addressed":               func() { unfinished.Addressed() },
+		"Target":                  func() { unfinished.Target() },
+		"Values":                  func() { unfinished.Values() },
+		"Binding of another load": func() { tree.NewLoadFinds().Binding(unfinished) },
 	}
 	for name, read := range cases {
 		t.Run(name, func(t *testing.T) {

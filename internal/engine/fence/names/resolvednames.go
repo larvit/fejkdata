@@ -26,7 +26,7 @@ func (names resolvedNames) pathTo(from, want tree.Node) ([]string, bool) {
 }
 
 func namesOf(ts []load.TemplateSite) resolvedNames {
-	reads := load.ReadsOfNames(ts, tree.AfterFinish)
+	reads := load.ReadsOfNames(ts, (*tree.Template).Compiled)
 	names := resolvedNames{reads: reads, paths: map[tree.Node]map[tree.Node][]string{}, fresh: map[*tree.NameBinding]map[tree.PickKey][]fieldRead{}}
 	for b, bound := range reads {
 		names.fresh[b] = freshFieldReads(bound, b.Addressed())

@@ -393,7 +393,7 @@ ISO 3166 reserves it for Western Sahara and the root zone has never been delegat
 
 ### 462. Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.
 
-The two scoring runs at b4a99eb2 (PR #404) left Locality at 6.13, Shape 6.88, Self-sufficiency 6.88 and Overall 6.63, under the floor of 7.0; the run at ca568bcb (PR #381) had left Locality at 5.63. Both runs' seats named the same render unit for Locality, and every seat of the second run named `LoadFinds`' nil `AfterFinish` too:
+The two scoring runs at b4a99eb2 (PR #404) left Locality at 6.13, Shape 6.88, Self-sufficiency 6.88 and Overall 6.63, under the floor of 7.0; the run at ca568bcb (PR #381) had left Locality at 5.63. Both runs' seats named the same render unit for Locality:
 
 - Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frame stack, mark, base and frames kept in the memo, all held at once
 - Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames are pushed into a shared stack, cached in another pick's memo and found again by `openOwn`
@@ -402,7 +402,7 @@ The two scoring runs at b4a99eb2 (PR #404) left Locality at 6.13, Shape 6.88, Se
 
 Give the frames a pick enters one owner: a value the pick holds and hands to a read, so `readPath` needs no `base` mark, `openOwn` scans no shared `frameStack`, and `renderEnv.entered` clears no pick out of sight. Group `drawMemo`'s maps by what they keep per level, so a new clause adds a field to one named value, not a fifth map. No render output, seed or allocation count changes; the performance gate holds.
 
-The seats' other Locality places, for the floor item after this one (`AfterFinish` is the first of them now, named by all eight seats of PR #404's runs): `internal/engine/tree/pick.go:83` `LevelsUnder` (all four seats: load and render must build identical pick keys), `internal/engine/pipeline.go:58` `pipeline.run` with `internal/engine/tree/loadfinds.go:56` `LoadFinds.Of` and the nil `AfterFinish` (stage order held by a comment), and `internal/engine/lazy.go:133` `batch.load`.
+`render.frameStack` also holds the reword fakes, which its name hides: rename it, or move `fakes` out, in this item. The seats' other Locality place, for the floor item after this one: `internal/engine/lazy.go:133` `batch.load`.
 
 ### 255. Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.
 
@@ -422,7 +422,7 @@ They cover `scb_smaorter`, `inside` and `population_of` in `geo-se.py` too, wher
 
 ### 457. Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.
 
-A script under `data-import/` is named with a hyphen, as `geo-se.py`, and a module with an underscore, as `company_names.py`. A test reaches a script only through `geo_test.script`, which loads it by file path. `mutate-changes` (mutmut 3) cannot map such a file to its mutants: on the chunk that shipped mypy it stopped with "tests recorded trampoline hits but none match any mutant key", so it tested no mutant in any of the three Python folders. The comprehension panel names the same split as a place: "hyphen against underscore tells script from module, stated nowhere", which `geo.py`'s docstring now states. Rename the scripts, update each command the README lists and the Dockerfile's stages, drop `geo_test.script`, and check that `mutate-changes` then runs over `data-import/`, `release-tooling/` and `vulnerability-filing/`. Related: item 168 adds the tests the mutants need.
+A script under `data-import/` is named with a hyphen, as `geo-se.py`, and a module with an underscore, as `company_names.py`. A test reaches a script only through `geo_test.script`, which loads it by file path. `mutate-changes` (mutmut 3) cannot map such a file to its mutants: on the chunk that shipped mypy it stopped with "tests recorded trampoline hits but none match any mutant key", so it tested no mutant in any of the three Python folders. The comprehension panel names the same split as a place: "hyphen against underscore tells script from module, stated nowhere", which `geo.py`'s docstring now states. Rename the scripts, update each command the README lists and the Dockerfile's stages, drop `geo_test.script`, and check that `mutate-changes` then runs over `data-import/`, `release-tooling/` and `vulnerability-filing/`. While renaming, move the six shared modules, `geo.py`, `source.py`, `tsv.py`, `xlsx.py`, `cldr.py` and `company_names.py`, with their tests, into one folder under `data-import/` named for what it holds, and leave the scripts at the top: the 0.6.0 release review found that a reader must open each of the 44 files to tell a module from a script. Related: item 168 adds the tests the mutants need.
 
 ### 257. Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.
 

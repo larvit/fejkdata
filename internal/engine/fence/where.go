@@ -14,7 +14,7 @@ import (
 // refuseFilteredTails refuses a path through a name holding a filtered draw, which is read whole.
 func refuseFilteredTails(ts []load.TemplateSite) error {
 	for _, s := range ts {
-		for _, r := range load.NamedReads(s.Template, tree.AfterFinish) {
+		for _, r := range load.NamedReads(s.Template.Compiled()) {
 			if r.Read.Named().Values() != nil && len(r.Read.Tail()) > 0 {
 				return fmt.Errorf("%s: token {%s}: name %q holds a filtered draw, which is read whole: {%s}", s.Label, r.Op.Token().Body, r.Read.Head(), r.Read.Head())
 			}

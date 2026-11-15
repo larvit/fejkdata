@@ -37,7 +37,7 @@ func TestALoadFailingBeforeFinishWritesNoNode(t *testing.T) {
 	} {
 		t.Run(src, func(t *testing.T) {
 			n, l := compileInput(t, src)
-			if err := loadInline(tree.NewFolder(), n, l, "t", false); err == nil || !strings.Contains(err.Error(), want) {
+			if err := loadInline(tree.NewFolder(), n, l, "t", nil); err == nil || !strings.Contains(err.Error(), want) {
 				t.Fatalf("loadInline() = %v, want an error holding %q", err, want)
 			}
 			if wroteTemplateOrAField(n.(*tree.Template)) {
@@ -53,7 +53,7 @@ func TestFinishWritesEachNodeOnce(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := loadInline(tree.NewFolderOf(map[string]tree.Node{"w": w.n}), n, l, "t", false); err != nil {
+	if err := loadInline(tree.NewFolderOf(map[string]tree.Node{"w": w.n}), n, l, "t", nil); err != nil {
 		t.Fatal(err)
 	}
 	root := n.(*tree.Template)

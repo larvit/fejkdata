@@ -10,9 +10,9 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// CheckColumns rejects a record column whose items hold different datatypes, checking a column
+// checkColumns rejects a record column whose items hold different datatypes, checking a column
 // after the other categories' columns its items read, so a column read is named before its readers.
-func CheckColumns(s NodeSet) error {
+func checkColumns(s NodeSet) error {
 	checked := map[tree.Node]bool{}
 	var check func(label, name string, column tree.Node) error
 	check = func(label, name string, column tree.Node) error {
@@ -48,9 +48,9 @@ func checkItemsAgree(label, name string, column tree.Node, items []*tree.Templat
 	if len(items) == 0 {
 		return nil
 	}
-	first := load.ColumnDatatype(column, tree.AfterFinish)
+	first := load.ColumnDatatype(column, (*tree.Template).ReadsColumn)
 	for _, it := range items[1:] {
-		if d := load.ItemDatatype(it, tree.AfterFinish); d != first {
+		if d := load.ItemDatatype(it, (*tree.Template).ReadsColumn); d != first {
 			return fmt.Errorf("%s: field %q: %w", label, name, disagreement(items[0], first, it, d))
 		}
 	}
@@ -70,7 +70,7 @@ func kindOf(t *tree.Template) itemKind {
 	switch {
 	case t.DataType() != nil:
 		return kindDeclares
-	case load.ItemDatatype(t, tree.AfterFinish) != datatype.String:
+	case load.ItemDatatype(t, (*tree.Template).ReadsColumn) != datatype.String:
 		return kindReads
 	}
 	return kindText

@@ -27,7 +27,7 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 	for _, name := range tree.SortedNames(t.Fields()) {
 		if !t.Lets()[name] {
 			field := t.Fields()[name]
-			columns = append(columns, tree.NewRecordColumn(name, ColumnDatatype(field, l), field, whole[field]))
+			columns = append(columns, tree.NewRecordColumn(name, ColumnDatatype(field, l.ReadsColumn), field, whole[field]))
 		}
 	}
 	return columns
@@ -48,21 +48,25 @@ func wholeFieldNames(t *tree.Template, l *tree.LoadFinds) map[tree.Node]*tree.Na
 	return whole
 }
 
-// ColumnDatatype is the datatype a column holds, which its first item decides: fence.CheckColumns
+// ReadsColumn is the column a template reads, if it only reads one: LoadFinds.ReadsColumn while
+// a load runs, Template.ReadsColumn once it has finished.
+type ReadsColumn func(*tree.Template) *tree.ColumnRead
+
+// ColumnDatatype is the datatype a column holds, which its first item decides: fence.Check
 // refuses a column whose items disagree. A column with no item, such as a table's column or one only
-// ever null, is a string. So is a column that reads itself back, which fence.CheckNoCycles later
+// ever null, is a string. So is a column that reads itself back, which fence.Check later
 // refuses.
-func ColumnDatatype(n tree.Node, l *tree.LoadFinds) datatype.DataType {
-	return columnDatatype(n, l, map[tree.Node]bool{})
+func ColumnDatatype(n tree.Node, readsColumn ReadsColumn) datatype.DataType {
+	return columnDatatype(n, readsColumn, map[tree.Node]bool{})
 }
 
-func columnDatatype(n tree.Node, l *tree.LoadFinds, seen map[tree.Node]bool) datatype.DataType {
+func columnDatatype(n tree.Node, readsColumn ReadsColumn, seen map[tree.Node]bool) datatype.DataType {
 	items, _ := ColumnItems(n)
 	if len(items) == 0 || seen[n] {
 		return datatype.String
 	}
 	seen[n] = true
-	return itemDatatype(items[0], l, seen)
+	return itemDatatype(items[0], readsColumn, seen)
 }
 
 // ColumnItems is a column's template items, its choices unwrapped, and whether one is null.
@@ -88,17 +92,17 @@ func ColumnItems(n tree.Node) (items []*tree.Template, nullable bool) {
 }
 
 // ItemDatatype is the datatype a column item declares, else that of the column it reads.
-func ItemDatatype(t *tree.Template, l *tree.LoadFinds) datatype.DataType {
-	return itemDatatype(t, l, map[tree.Node]bool{})
+func ItemDatatype(t *tree.Template, readsColumn ReadsColumn) datatype.DataType {
+	return itemDatatype(t, readsColumn, map[tree.Node]bool{})
 }
 
-func itemDatatype(t *tree.Template, l *tree.LoadFinds, seen map[tree.Node]bool) datatype.DataType {
-	r := l.Of(t).ReadsColumn()
+func itemDatatype(t *tree.Template, readsColumn ReadsColumn, seen map[tree.Node]bool) datatype.DataType {
+	r := readsColumn(t)
 	switch {
 	case t.DataType() != nil:
 		return *t.DataType()
 	case r != nil:
-		return columnDatatype(r.Column(), l, seen)
+		return columnDatatype(r.Column(), readsColumn, seen)
 	}
 	return datatype.String
 }

@@ -54,19 +54,24 @@ func containsWord(s, word string) bool {
 
 // cutWord cuts a token's body around its first " "+word outside a selector and a quote, where the
 // word ends the body or a space follows it. A quote opens only inside a clause; inClause says body
-// starts inside one.
+// starts inside one. Otherwise the first scan, with no quotes, finds where a clause opens, and the
+// second scans the clause for the word.
 func cutWord(body, word string, inClause bool) (head, rest string, found bool) {
-	sc := scanner{quotes: inClause}
-	i := sc.find(body, func(i int) bool {
-		if atWord(body, i, word) {
-			return true
+	opens := 0
+	if !inClause {
+		opens = scanner{}.find(body, func(i int) bool {
+			return atWord(body, i, word) || atWord(body, i, whereWord) || atWord(body, i, distinctWord)
+		})
+		if opens < 0 {
+			return body, "", false
 		}
-		sc.quotes = sc.quotes || atWord(body, i, whereWord) || atWord(body, i, distinctWord)
-		return false
-	})
+	}
+	clause := body[opens:]
+	i := scanner{quotes: true}.find(clause, func(i int) bool { return atWord(clause, i, word) })
 	if i < 0 {
 		return body, "", false
 	}
+	i += opens
 	return body[:i], strings.TrimPrefix(body[i+1+len(word):], " "), true
 }
 
@@ -80,7 +85,7 @@ func atWord(body string, i int, word string) bool {
 // lastAsOutside cuts clause around its last " as " outside a quote and a selector.
 func lastAsOutside(clause string) (before, name string, found bool) {
 	at := -1
-	(&scanner{quotes: true}).find(clause, func(i int) bool {
+	scanner{quotes: true}.find(clause, func(i int) bool {
 		if strings.HasPrefix(clause[i:], AsWord) {
 			at = i
 		}

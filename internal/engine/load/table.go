@@ -118,7 +118,7 @@ func compileCell(cell string) (*tree.Template, error) {
 		return nil, err
 	}
 	if len(n.Unbound()) > 0 {
-		return nil, n.Unbound()[0].Err()
+		return nil, n.Unbound()[0].Refusal()
 	}
 	return n, nil
 }
@@ -145,7 +145,7 @@ func compileRowFormat(t *tree.Table, rs *tree.RowsTable, format string) (*tree.T
 		return nil, err
 	}
 	if len(unbound) > 0 {
-		return nil, unbound[0].Err()
+		return nil, unbound[0].Refusal()
 	}
 	return tree.NewTemplate(tree.TemplateSyntax{Format: format, Tokens: toks, Fields: fields, Repeat: 1, IsRecord: true}), nil
 }
