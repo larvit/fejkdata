@@ -8,9 +8,9 @@
 //  2. Bind gives each name its scope: bindNames in name.go, called by the compile.
 //  3. Link ties a table to its parent table: LinkTable in table.go.
 //  4. Resolve ties each reference and name to what it names, then compiles each format into ops:
-//     CompileTemplates in resolve.go, whose doc lists its steps. It reads reference.go for a
-//     reference, name.go for a name, read.go for an op's reads, and where.go, alphabetdraw.go,
-//     adddays.go, reword.go and pathvalues.go for what one kind of token draws.
+//     CompileTemplates in resolve.go, whose doc lists its steps. reference.go resolves a
+//     reference, name.go a name and read.go an op's reads; adddays.go, alphabetdraw.go,
+//     pathvalues.go, reword.go and where.go each resolve what one kind of token draws.
 //  5. Settle fixes each record's columns: SettleRecords in record.go, with columnread.go finding
 //     the column a template reads.
 //

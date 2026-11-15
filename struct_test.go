@@ -349,7 +349,7 @@ func TestFakeStructRendersAFieldUnderAColumnAsText(t *testing.T) {
 		A string `fake:"{\"format\":\"[{x}{y}]\",\"x\":{\"format\":\"abc\",\"datatype\":\"integer\"},\"y\":null}"`
 	}{}
 	if err := structData(t).FakeStruct(&v); err != nil || v.A != "[abc]" {
-		t.Errorf("FakeStruct = %+v, %v, want [abc]: a field under a column a Go type types is a value a format renders", v, err)
+		t.Errorf("FakeStruct = %+v, %v, want [abc]: a field under a struct's column is a value a format renders", v, err)
 	}
 }
 
