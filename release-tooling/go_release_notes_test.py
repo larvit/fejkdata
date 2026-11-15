@@ -96,9 +96,9 @@ class Fetch(unittest.TestCase):
 			TimeoutError("The read operation timed out"),
 		)
 		for err in dropped:
-			with self.subTest(err=err), mock.patch("urllib.request.urlopen", side_effect=err):
-				with self.assertRaisesRegex(ValueError, "^cannot read Go 1.28's release notes: "):
-					go_release_notes.fetch("1.28")
+			with self.subTest(err=err), mock.patch("urllib.request.urlopen", side_effect=err), \
+				self.assertRaisesRegex(ValueError, "^cannot read Go 1.28's release notes: "):
+				go_release_notes.fetch("1.28")
 
 	def test_a_stalled_server_times_out(self) -> None:
 		with mock.patch("urllib.request.urlopen", side_effect=TimeoutError) as urlopen, self.assertRaises(ValueError):

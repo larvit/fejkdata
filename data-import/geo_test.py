@@ -4,6 +4,7 @@ import tempfile
 import types
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 import geo
 
@@ -150,7 +151,7 @@ class NormalCodes(unittest.TestCase):
 
 
 class SwedishPlaces(unittest.TestCase):
-    KUNNAT = {"139": {"name": "Ii", "swedish-name": "Ijo", "region": "17"}}
+    KUNNAT: ClassVar[dict[str, dict[str, str]]] = {"139": {"name": "Ii", "swedish-name": "Ijo", "region": "17"}}
 
     def places(self, lines: list[str]) -> dict[str, str]:
         return dict(geo_fi.swedish_places(lines, geo_fi.normal_codes(lines, self.KUNNAT), self.KUNNAT))
@@ -178,7 +179,7 @@ class Mainland(unittest.TestCase):
 
 
 class Tally(unittest.TestCase):
-    CODES = {"04400": "Järvenpää", "99800": "Inari"}
+    CODES: ClassVar[dict[str, str]] = {"04400": "Järvenpää", "99800": "Inari"}
 
     def test_a_range_without_a_swedish_name_counts_none(self) -> None:
         lines = [baf("04400", "Laurilantie"), baf("04400", "Laurilantie"), baf("04400", "Laurilantie", "Laurilavägen")]

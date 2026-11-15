@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/language.tsv from datasets/language-codes (PDDL), the LoC ISO 639-2 register.
 
     data-import/language.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

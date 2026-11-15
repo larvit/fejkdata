@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/nb_NO/company.json, company-coined.json and company-word.{json,tsv} from Enhetsregisteret.
 
     data-import/company-no.py [--register URL_OR_FILE] [--cache DIR] [--out DIR]
@@ -44,7 +43,19 @@ from typing import NamedTuple
 
 import source
 import tsv
-from company_names import FORM_MIN, Usage, Vocabulary, column, common, legal_item, quoted, split, trade_words, weighted, word_usage
+from company_names import (
+    FORM_MIN,
+    Usage,
+    Vocabulary,
+    column,
+    common,
+    legal_item,
+    quoted,
+    split,
+    trade_words,
+    weighted,
+    word_usage,
+)
 
 REGISTER = "https://data.brreg.no/enhetsregisteret/api/enheter/lastned/csv"
 ROOT = Path(__file__).resolve().parent.parent / "data"
@@ -172,7 +183,7 @@ def form_block(form: str, shapes: Mapping[Shape, int]) -> str:
 
 
 def company_json(registered: Mapping[str, int], shapes: Mapping[str, Mapping[Shape, int]]) -> str:
-    forms = [legal_item("{.company.%s}" % f.lower(), "" if f in NO_WORDING else f, registered[f]) for f in sorted(FORMS, key=lambda f: (-registered[f], f))]
+    forms = [legal_item("{.company." + f.lower() + "}", "" if f in NO_WORDING else f, registered[f]) for f in sorted(FORMS, key=lambda f: (-registered[f], f))]
     blocks = [form_block(f, shapes[f]) for f in FORMS]
     return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
 

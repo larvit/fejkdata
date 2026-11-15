@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/mimetype.tsv from mime-db (MIT), the IANA media type registry with extensions.
 
     data-import/mimetype.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

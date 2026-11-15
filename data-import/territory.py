@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/territory.tsv from datasets/country-codes (PDDL).
 
     data-import/territory.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

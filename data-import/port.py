@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/port.tsv from the IANA Service Name and Transport Protocol Port Number Registry.
 
     data-import/port.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

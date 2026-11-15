@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Open a pull request to main that holds what `patch_release.py plan` changed in todo.md and CHANGELOG.md, and merges itself.
 
 With no change, closes a pull request still proposing one. Run in a checkout of main, with
@@ -10,7 +9,8 @@ import os
 import subprocess
 import sys
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import patch_release
 

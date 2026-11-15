@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/company-word.tsv and company.json from Bolagsverket's company register and statistics.
 
     data-import/company-se.py [--register URL_OR_FILE] [--statistics URL_OR_FILE] [--cache DIR] [--out DIR]
@@ -24,7 +23,16 @@ from pathlib import Path
 
 import source
 import tsv
-from company_names import Vocabulary, column, common, legal_item, split, trade_words, weighted, word_usage
+from company_names import (
+    Vocabulary,
+    column,
+    common,
+    legal_item,
+    split,
+    trade_words,
+    weighted,
+    word_usage,
+)
 
 REGISTER = "https://vardefulla-datamangder.bolagsverket.se/bolagsverket/bolagsverket_bulkfil.zip"
 STATISTICS = "https://www.bolagsverket.se/statistik/ftgstat_oppna.csv"
@@ -140,14 +148,14 @@ def lines(key: str, items: Iterable[str]) -> list[str]:
 
 
 def written_format(form: str, where: str, wording: str) -> str:
-    ref = "{.company.%s.name}" % form.lower()
+    ref = "{.company." + form.lower() + ".name}"
     return f"{ref} {wording}" if where == "after" else f"{wording} {ref}"
 
 
 def registered_items(form: str, wordings: Mapping[Wording, int] | None, registered: int) -> list[str]:
     """The items of `registered` for one form: its registrations split by how often each wording is written."""
     if not wordings:
-        return [legal_item("{.company.%s}" % form.lower(), "", registered)]
+        return [legal_item("{.company." + form.lower() + "}", "", registered)]
     kept = common(wordings)
     total = sum(c for _, c in kept)
     return [legal_item(written_format(form, where, w), w, round(registered * c / total, 2)) for (where, w), c in kept]

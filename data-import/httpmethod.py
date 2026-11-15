@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/misc/httpmethod.tsv from the IANA HTTP Method Registry.
 
     data-import/httpmethod.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

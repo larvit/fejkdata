@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/nb_NO/first-name.tsv and last-name.tsv from Statistics Norway's name counts (CC BY 4.0, "Kilde: Statistisk sentralbyrå").
 
     data-import/names-no.py [--year YEAR] [--cache DIR] [--out DIR]

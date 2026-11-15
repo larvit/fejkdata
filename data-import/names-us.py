@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/en_US/first-name.tsv and last-name.tsv from SSA baby names and the Census 2010 surnames (public domain).
 
     data-import/names-us.py [--names URL_OR_FILE] [--surnames URL_OR_FILE] [--from-year YEAR] [--first N] [--last N] [--cache DIR] [--out DIR]

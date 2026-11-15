@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/en_US/word.json and word-noun.tsv, word-verb.tsv, word-adj.tsv and word-adv.tsv from WordNet 3.0.
 
     data-import/word-us.py [--wordnet URL_OR_FILE] [--rude URL_OR_FILE] [--cache DIR] [--out DIR]
@@ -30,7 +29,7 @@ RUDE_DOMAINS = {"disparagement", "ethnic_slur", "obscenity"}
 PARTS = ("noun", "verb", "adj", "adv")
 # The verbs whose third person the spelling rule gets wrong.
 IRREGULAR = {"be": "is", "have": "has", "quiz": "quizzes", "stomach": "stomachs", "whiz": "whizzes"}
-IRREGULAR.update({v: v + "s" for v in "bravo bunco crescendo decrescendo demo disco ditto kayo mambo solo tango velcro".split()})
+IRREGULAR.update({v: v + "s" for v in ["bravo", "bunco", "crescendo", "decrescendo", "demo", "disco", "ditto", "kayo", "mambo", "solo", "tango", "velcro"]})
 
 
 def present(verb: str) -> str:

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/geo/FI/*.tsv and address.json from Posti's postal code files, Statistics Finland and GeoNames.
 
     data-import/geo-fi.py [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]

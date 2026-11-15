@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/first-name.tsv and last-name.tsv from SCB's whole-population name counts (CC0, "Källa: SCB").
 
     data-import/names-se.py [--source URL_OR_FILE] [--first N] [--last N] [--cache DIR] [--out DIR]

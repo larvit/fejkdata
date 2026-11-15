@@ -207,7 +207,7 @@ class Script(unittest.TestCase):
 			stand_in.chmod(stand_in.stat().st_mode | stat.S_IXUSR)
 
 	def script(self) -> subprocess.CompletedProcess[str]:
-		return subprocess.run([sys.executable, str(Path(__file__).with_name("propose_plan.py"))], env=self.env, capture_output=True, text=True)
+		return subprocess.run([sys.executable, str(Path(__file__).with_name("propose_plan.py"))], env=self.env, capture_output=True, text=True, check=False)
 
 	def test_exits_0_after_proposing_with_the_repository_and_token_it_was_given(self) -> None:
 		done = self.script()

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/bankaccount.tsv from Bankinfrastruktur i Sverige AB's list of clearing numbers.
 
     data-import/bankaccount-se.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

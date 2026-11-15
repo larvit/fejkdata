@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/da_DK/phone-mobile.tsv and phone-fixed.tsv from Denmark's numbering plan.
 
     data-import/phone-dk.py [--out-mobile FILE] [--out-fixed FILE]

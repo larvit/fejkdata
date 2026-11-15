@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/car.tsv from Mobility Sweden's report of new passenger car registrations (Källa: Mobility Sweden).
 
     data-import/car-se.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]

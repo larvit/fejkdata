@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/geo/SE/*.tsv from SCB (CC0), GeoNames (CC BY 4.0) and Trafikverket NVDB (CC0).
 
     TRAFIKVERKET_API_KEY=… data-import/geo-se.py [--key-file FILE] [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]
@@ -6,6 +5,7 @@
 import collections
 import csv
 import io
+import itertools
 import json
 import math
 import os
@@ -104,7 +104,7 @@ def inside(lon: float, lat: float, rings: Iterable[Sequence[Point]]) -> bool:
     edges there, and a hole's ring, crossed too, puts the point back outside."""
     odd = False
     for ring in rings:
-        for (x1, y1), (x2, y2) in zip(ring, ring[1:]):
+        for (x1, y1), (x2, y2) in itertools.pairwise(ring):
             if (y1 > lat) != (y2 > lat) and lon < (x2 - x1) * (lat - y1) / (y2 - y1) + x1:
                 odd = not odd
     return odd
@@ -120,7 +120,7 @@ class Areas[T]:
         for value, rings in areas:
             edges: dict[int, list[tuple[Point, Point]]] = collections.defaultdict(list)
             for ring in rings:
-                for a, b in zip(ring, ring[1:]):
+                for a, b in itertools.pairwise(ring):
                     for band in range(int(min(a[1], b[1]) // self.BAND), int(max(a[1], b[1]) // self.BAND) + 1):
                         edges[band].append((a, b))
             lons = [p[0] for ring in rings for p in ring]

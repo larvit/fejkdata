@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/sv_SE/word.json and word-noun.tsv, word-verb.tsv, word-adj.tsv and word-adv.tsv from SALDO's morphology.
 
     data-import/word-se.py [--saldo URL_OR_FILE] [--rude URL_OR_FILE] [--cache DIR] [--out DIR]
@@ -11,9 +10,9 @@ list of rude words. SALDO gives no frequency, so each word is drawn evenly, and 
 import argparse
 import io
 import re
-import xml.etree.ElementTree as ElementTree
 from collections.abc import Collection, Iterator, Mapping
 from pathlib import Path
+from xml.etree import ElementTree
 
 import source
 import tsv

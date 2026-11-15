@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rebuild data/fi_FI/first-name.tsv and last-name.tsv from DVV's name statistics (CC BY 4.0, "Lähde: Digi- ja väestötietovirasto").
 
     data-import/names-fi.py [--etunimet URL_OR_FILE] [--sukunimet URL_OR_FILE] [--first N] [--last N] [--cache DIR] [--out DIR]

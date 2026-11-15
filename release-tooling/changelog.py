@@ -1,13 +1,13 @@
 """CHANGELOG.md's release sections: the one a patch adds, and keeping main's in step with the releases."""
 
 import re
-from typing import Callable
+from collections.abc import Callable
 
 import carried
 import publish_release
 
 VULNERABILITY = re.compile(r"GO-\d+-\d+")
-BULLET = re.compile(r"^- .*\n(?:[ \t]+\S.*\n)*", re.M)
+BULLET = re.compile(r"^- .*\n(?:[ \t]+\S.*\n)*", re.MULTILINE)
 
 
 def changes(released: carried.Carried, patch: carried.Carried) -> list[str]:
@@ -57,7 +57,7 @@ def unreleased(changelog: str) -> re.Match[str] | None:
 def under_unreleased(changelog: str, heading: str) -> re.Match[str] | None:
 	"""Unreleased's subsection under the heading, with what it holds and the blank lines after them."""
 	section = unreleased(changelog)
-	subsection = re.compile(rf"^### {heading}\n(?P<held>.*?)(?=^### |\Z)", re.M | re.S)
+	subsection = re.compile(rf"^### {heading}\n(?P<held>.*?)(?=^### |\Z)", re.MULTILINE | re.DOTALL)
 	return subsection.search(changelog, section.start("body"), section.end()) if section else None
 
 

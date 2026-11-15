@@ -5,9 +5,10 @@ import sys
 import tempfile
 import unittest
 import urllib.error
+from collections.abc import Callable
 from contextlib import redirect_stderr, redirect_stdout
 from email.message import Message
-from typing import Any, Callable
+from typing import Any
 from unittest import mock
 
 import publish_release
@@ -49,9 +50,9 @@ class TagGuard(unittest.TestCase):
 	def publish(self, responses: dict[str, Any]) -> tuple[int, list[dict[str, Any]]]:
 		created: list[dict[str, Any]] = []
 		with mock.patch.object(publish_release, "request", forge(responses, created)), \
-			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-			with open("CHANGELOG.md", encoding="utf-8") as f:
-				code, self.tag = publish_release.publish(f.read(), SHA)
+			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()), \
+			open("CHANGELOG.md", encoding="utf-8") as f:
+			code, self.tag = publish_release.publish(f.read(), SHA)
 		return code, created
 
 	def test_a_tag_at_another_commit_publishes_nothing(self) -> None:
@@ -137,7 +138,7 @@ class TagGuard(unittest.TestCase):
 			with self.subTest(text=text):
 				with open("CHANGELOG.md", "w", encoding="utf-8") as f:
 					f.write(text)
-				run = subprocess.run([sys.executable, publish_release.__file__, "check"], capture_output=True, text=True)
+				run = subprocess.run([sys.executable, publish_release.__file__, "check"], capture_output=True, text=True, check=False)
 				self.assertEqual((run.returncode, "Unrelesed" in run.stderr), (code, code == 1))
 
 	def test_main_names_only_a_published_tag_to_ci(self) -> None:
