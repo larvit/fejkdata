@@ -57,8 +57,8 @@ func newBareModule(t *testing.T, module string, opts ...Option) *Generator {
 }
 
 func TestNewMissingDirectory(t *testing.T) {
-	_, err := New(WithSeed(1), onTestDay, WithDataPath("data/de_DE"))
-	if err == nil || !strings.Contains(err.Error(), "de_DE") || !errors.Is(err, fs.ErrNotExist) {
+	_, err := New(WithSeed(1), onTestDay, WithDataPath("data/xx_XX"))
+	if err == nil || !strings.Contains(err.Error(), "xx_XX") || !errors.Is(err, fs.ErrNotExist) {
 		t.Fatalf("New(missing) error = %v, want the real error, naming the path", err)
 	}
 }
