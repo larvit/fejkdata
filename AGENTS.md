@@ -6,9 +6,8 @@
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.
 - GitHub is where the project lives, so `gh` is the tool: merges are fast-forward
   only, `gh pr merge --rebase` where the branch is already on top of main.
-- CodeRabbit skips every pull request until the repository has 10 GitHub stars: check
-  its status once when a PR is marked ready, answer a review if one is there, and never
-  wait for one.
+- CodeRabbit reviews a pull request only when asked until the repository has 10 GitHub
+  stars: once a PR is marked ready, comment `@coderabbitai review` to summon it.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - Prose naming a source states what that source states: read the register's own field
   before paraphrasing it, and name the register you read before claiming none
