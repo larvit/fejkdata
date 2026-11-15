@@ -2036,3 +2036,16 @@ Read most (opens and searches):
 - `README.md` 2
 - `internal/proven/proven.go` 2
 - `internal/fejktest/ids.go` 1
+
+## Reading cost, chunk cf47ab0be377, finished 2026-11-15T15:29:52Z
+
+43308 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 5
+- `README.md` 4
+- `compose.yaml` 3
+- `AGENTS.md` 2
+- `release-tooling/carried_test.py` 2
+- `docs/decisions.md` 1
