@@ -26,6 +26,18 @@ func CheckIdentifier(name string) error {
 	if strings.Contains(name, AsWord) {
 		return fmt.Errorf("%q contains %q, which a token reads as binding a name; rename it", name, AsWord)
 	}
+	if err := checkClauseWords(name); err != nil {
+		return err
+	}
+	if i := strings.IndexAny(name, reservedInIdentifier); i >= 0 {
+		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",
+			name, name[i:i+1], reservedList)
+	}
+	return nil
+}
+
+// checkClauseWords rejects a name that a token would read as opening a where or distinct clause.
+func checkClauseWords(name string) error {
 	for _, w := range [...]struct{ word, opens string }{{whereWord, "a filter"}, {distinctWord, "a draw of distinct values"}} {
 		switch {
 		case strings.Contains(name, " "+w.word+" "):
@@ -33,10 +45,6 @@ func CheckIdentifier(name string) error {
 		case strings.HasSuffix(name, " "+w.word):
 			return fmt.Errorf("%q ends in %q, which a token reads as opening %s; rename it", name, " "+w.word, w.opens)
 		}
-	}
-	if i := strings.IndexAny(name, reservedInIdentifier); i >= 0 {
-		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",
-			name, name[i:i+1], reservedList)
 	}
 	return nil
 }

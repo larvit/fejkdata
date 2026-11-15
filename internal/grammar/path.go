@@ -29,25 +29,32 @@ func SplitPath(path string) ([]string, error) {
 			segs, i = stepUpAt(segs, path, i+1)
 			start = i + 1
 		case '.':
-			if open < 0 {
-				segs = append(segs, path[start:i])
-				segs, i = stepUpAt(segs, path, i)
-				start = i + 1
-			}
+			segs, start, i = splitAtDot(segs, path, start, i, open)
 		}
 	}
+	return withLastSegment(segs, path, start, open)
+}
+
+// splitAtDot ends the segment at the dot at i, unless a selector is open and the dot belongs to it.
+// It returns the segments, the start of the next segment and the index of the last dot consumed.
+func splitAtDot(segs []string, path string, start, i, open int) ([]string, int, int) {
+	if open >= 0 {
+		return segs, start, i
+	}
+	segs, i = stepUpAt(append(segs, path[start:i]), path, i)
+	return segs, i + 1, i
+}
+
+// withLastSegment appends path[start:], the last segment, unless it is empty and follows a "..". It
+// refuses a path whose selector is still open at open.
+func withLastSegment(segs []string, path string, start, open int) ([]string, error) {
 	if open >= 0 {
 		return nil, fmt.Errorf(`%q opens a selector with "[" and never closes it with "]"`, path)
 	}
-	return withLastSegment(segs, path, start), nil
-}
-
-// withLastSegment appends path[start:], the last segment, unless it is empty and follows a "..".
-func withLastSegment(segs []string, path string, start int) []string {
 	if start < len(path) || start == len(path) && (len(segs) == 0 || segs[len(segs)-1] != "..") {
-		return append(segs, path[start:])
+		return append(segs, path[start:]), nil
 	}
-	return segs
+	return segs, nil
 }
 
 // stepUpAt appends a ".." segment where the dot at i is the first of two, returning the
