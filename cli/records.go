@@ -107,14 +107,7 @@ func (f recordLines) write(record recordSource, repeat int, _ string, out *bufio
 		if err != nil {
 			return err
 		}
-		if i == 0 && f.header != nil {
-			out.WriteString(f.header(r))
-			out.WriteByte('\n')
-		}
-		if i > 0 {
-			out.WriteString(f.sep)
-		}
-		out.WriteString(f.line(r))
+		f.writeRow(out, i, r)
 	}
 	if f.close != "" {
 		out.WriteByte('\n')
@@ -122,6 +115,19 @@ func (f recordLines) write(record recordSource, repeat int, _ string, out *bufio
 	}
 	out.WriteByte('\n')
 	return out.Flush()
+}
+
+// writeRow writes the i-th record's line, after the header where it is the first and the separator
+// where it is not.
+func (f recordLines) writeRow(out *bufio.Writer, i int, r *fejkdata.Record) {
+	if i == 0 && f.header != nil {
+		out.WriteString(f.header(r))
+		out.WriteByte('\n')
+	}
+	if i > 0 {
+		out.WriteString(f.sep)
+	}
+	out.WriteString(f.line(r))
 }
 
 // writeSQL streams the records as INSERTs of up to sqlStatementRows rows, one statement per line.

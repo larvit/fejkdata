@@ -146,12 +146,14 @@ func (c *structFields) gatherFields(t reflect.Type, index []int) error {
 
 func (c *structFields) gatherField(sf reflect.StructField) error {
 	tag, tagged := sf.Tag.Lookup("fake")
+	if tagged {
+		if tag == "-" {
+			return nil
+		}
+		return c.addTag(sf, tag)
+	}
 	elem := structOf(sf.Type)
 	switch {
-	case tagged && tag == "-":
-		return nil
-	case tagged:
-		return c.addTag(sf, tag)
 	case elem == nil || c.visiting[elem]:
 		return nil
 	case sf.Anonymous:

@@ -1946,3 +1946,20 @@ Read most (opens and searches):
 - `todo.md` 6
 - `compose.yaml` 2
 - `README.md` 1
+
+## Reading cost, chunk 0479a54d73c0, finished 2026-11-15T11:40:08Z
+
+65416 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/engine/fence/valueproof.go` 4
+- `README.md` 2
+- `compose.yaml` 2
+- `internal/engine/fence/field.go` 2
+- `internal/engine/fence/where.go` 2
+- `CHANGELOG.md` 1
+- `internal/engine/fence/datatype.go` 1
+- `internal/engine/fence/fence.go` 1
+- `internal/engine/fence/names/pathwalk.go` 1
+- `internal/engine/fence/names/refusedrawnapart.go` 1

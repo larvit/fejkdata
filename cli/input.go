@@ -22,18 +22,22 @@ func operandError(arg, name string) error {
 	if fi, err := os.Stat(arg); err == nil && fi.Mode().IsRegular() {
 		return fmt.Errorf("%s; read a file from stdin: %s < %s", unexpected, name, shellQuoted(arg))
 	}
+	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, templateExample(arg, name))
+}
+
+// templateExample is the command that pipes in the template arg most likely stands for.
+func templateExample(arg, name string) string {
 	ref := "{/" + strings.TrimPrefix(arg, "/") + "}"
 	_, argLone := loneReference(arg)
 	inline, err := fejkdata.IsTemplate(arg)
 	_, refLone := loneReference(ref)
-	example := pipeHint(name)
 	switch {
 	case argLone || inline:
-		example = piped(arg, name)
+		return piped(arg, name)
 	case err == nil && refLone:
-		example = piped(ref, name)
+		return piped(ref, name)
 	}
-	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, example)
+	return pipeHint(name)
 }
 
 // inputError marks a failure that is the input's own fault — nothing piped in, a template

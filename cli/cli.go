@@ -192,24 +192,31 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 	if err := in.check(name); err != nil {
 		return misuse(stderr, name, err)
 	}
+	if err := in.render(name, modules, sys, stdin, stdout); err != nil {
+		return fail(stderr, name, err)
+	}
+	return 0
+}
+
+// render reads stdin's template, loads the data and writes the renders, or the data's paths
+// under --list, which reads no template.
+func (in invocation) render(name string, modules []fs.FS, sys system, stdin io.Reader, stdout io.Writer) error {
 	var src input
 	if !in.list {
+		var err error
 		if src, err = readStdin(stdin, name); err != nil {
-			return fail(stderr, name, err)
+			return err
 		}
 	}
 	f, err := fejkdata.New(in.options(modules, sys)...)
 	if err != nil {
-		return fail(stderr, name, err)
+		return err
 	}
 	if in.list {
 		writeLines(stdout, f.List())
-		return 0
+		return nil
 	}
-	if err := in.write(f, src, stdout); err != nil {
-		return fail(stderr, name, err)
-	}
-	return 0
+	return in.write(f, src, stdout)
 }
 
 func writeLines(w io.Writer, lines []string) {
