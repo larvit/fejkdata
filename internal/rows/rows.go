@@ -104,16 +104,8 @@ func (t *Table[O]) parseRows(data string) error {
 	if header == "" {
 		return fmt.Errorf("has no header line naming its columns")
 	}
-	t.header = strings.Split(header, "\t")
-	t.col = make(map[string]int, len(t.header))
-	for i, name := range t.header {
-		if err := grammar.CheckIdentifier(name); err != nil {
-			return fmt.Errorf("column %w", err)
-		}
-		if _, dup := t.col[name]; dup {
-			return fmt.Errorf("column %q is named twice", name)
-		}
-		t.col[name] = i
+	if err := t.nameColumns(header); err != nil {
+		return err
 	}
 	if header == data {
 		return fmt.Errorf("has no rows below its header; a table holds at least one row")
@@ -130,6 +122,22 @@ func (t *Table[O]) parseRows(data string) error {
 			break
 		}
 		rest = more
+	}
+	return nil
+}
+
+// nameColumns reads the header line into the column names, each a valid identifier used once.
+func (t *Table[O]) nameColumns(header string) error {
+	t.header = strings.Split(header, "\t")
+	t.col = make(map[string]int, len(t.header))
+	for i, name := range t.header {
+		if err := grammar.CheckIdentifier(name); err != nil {
+			return fmt.Errorf("column %w", err)
+		}
+		if _, dup := t.col[name]; dup {
+			return fmt.Errorf("column %q is named twice", name)
+		}
+		t.col[name] = i
 	}
 	return nil
 }
@@ -154,6 +162,24 @@ func (t *Table[O]) appendRow(row string, line int) error {
 // bindOptions resolves each option to its column, and proves what the options claim of the cells: a
 // key is unique, and a weight is a number of 0 or more.
 func (t *Table[O]) bindOptions() error {
+	if err := t.bindColumns(); err != nil {
+		return err
+	}
+	if t.nameIndex >= 0 && t.keyIndex < 0 && t.parentIndex < 0 {
+		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column, or a parent inside which each name is one row; add key")
+	}
+	t.readParentRuns()
+	if err := t.proveKeys(); err != nil {
+		return err
+	}
+	if err := t.proveNamesInsideParent(); err != nil {
+		return err
+	}
+	return t.sumWeights()
+}
+
+// bindColumns resolves the key, name, parent and weight options to their column indexes.
+func (t *Table[O]) bindColumns() error {
 	o := t.options
 	for _, opt := range []struct {
 		name, value string
@@ -168,17 +194,7 @@ func (t *Table[O]) bindOptions() error {
 		}
 		*opt.into = i
 	}
-	if t.nameIndex >= 0 && t.keyIndex < 0 && t.parentIndex < 0 {
-		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column, or a parent inside which each name is one row; add key")
-	}
-	t.readParentRuns()
-	if err := t.proveKeys(); err != nil {
-		return err
-	}
-	if err := t.proveNamesInsideParent(); err != nil {
-		return err
-	}
-	return t.sumWeights()
+	return nil
 }
 
 // readParentRuns splits the parent column into its runs, in row order.
@@ -234,6 +250,11 @@ func (t *Table[O]) proveKeys() error {
 		}
 		t.byKey[k] = r
 	}
+	return t.proveNamesAreNotKeys()
+}
+
+// proveNamesAreNotKeys proves no row's name is the key of another row, which a selector reads first.
+func (t *Table[O]) proveNamesAreNotKeys() error {
 	for r := 0; r < t.Len() && t.nameIndex >= 0; r++ {
 		if n := t.Cell(r, t.nameIndex); t.byKey[n] != r {
 			if other, isKey := t.byKey[n]; isKey {
@@ -253,13 +274,9 @@ func (t *Table[O]) sumWeights() error {
 	t.weights, t.cum = make([]float64, t.Len()), make([]float64, t.Len())
 	total := 0.0
 	for r := range t.cum {
-		cell := t.Cell(r, t.weightIndex)
-		w, err := strconv.ParseFloat(cell, 64)
-		if err != nil || math.IsInf(w, 0) || math.IsNaN(w) || w < 0 {
-			return fmt.Errorf("%s line %d: weight %q is not a number of 0 or more", t.file, r+2, cell)
-		}
-		if grammar.Underflows(cell, w) {
-			return fmt.Errorf("%s line %d: weight %s is too close to 0 to tell from it", t.file, r+2, cell)
+		w, err := t.parseWeight(r)
+		if err != nil {
+			return err
 		}
 		total += w
 		t.weights[r], t.cum[r] = w, total
@@ -271,6 +288,19 @@ func (t *Table[O]) sumWeights() error {
 		return fmt.Errorf("%s: every weight is 0, so no row is drawn", t.file)
 	}
 	return t.proveWeightUnderEachParent()
+}
+
+// parseWeight reads row r's weight, a number of 0 or more that does not underflow to 0.
+func (t *Table[O]) parseWeight(r int) (float64, error) {
+	cell := t.Cell(r, t.weightIndex)
+	w, err := strconv.ParseFloat(cell, 64)
+	if err != nil || math.IsInf(w, 0) || math.IsNaN(w) || w < 0 {
+		return 0, fmt.Errorf("%s line %d: weight %q is not a number of 0 or more", t.file, r+2, cell)
+	}
+	if grammar.Underflows(cell, w) {
+		return 0, fmt.Errorf("%s line %d: weight %s is too close to 0 to tell from it", t.file, r+2, cell)
+	}
+	return w, nil
 }
 
 // proveWeightUnderEachParent proves each parent key's rows weigh more than 0 together, so a draw
@@ -408,32 +438,38 @@ func (t *Table[O]) builtLookup() *rowLookup {
 			}
 		}
 		if t.parentIndex >= 0 {
-			t.lookup.rowsByParent = map[string][]int{}
-			for _, run := range t.parentRuns {
-				k := t.runKey(run)
-				rows, seen := t.lookup.rowsByParent[k]
-				if !seen {
-					rows = make([]int, 0, run.to-run.from)
-				}
-				for r := run.from; r < run.to; r++ {
-					rows = append(rows, r)
-				}
-				t.lookup.rowsByParent[k] = rows
-			}
-			if t.weights != nil {
-				t.lookup.childCum = make(map[string][]float64, len(t.lookup.rowsByParent))
-				for k, rows := range t.lookup.rowsByParent {
-					cum, total := make([]float64, len(rows)), 0.0
-					for i, r := range rows {
-						total += t.weights[r]
-						cum[i] = total
-					}
-					t.lookup.childCum[k] = cum
-				}
-			}
+			t.groupByParent()
 		}
 	})
 	return &t.lookup
+}
+
+// groupByParent lists each parent key's rows, with their running weights where the table weighs.
+func (t *Table[O]) groupByParent() {
+	t.lookup.rowsByParent = map[string][]int{}
+	for _, run := range t.parentRuns {
+		k := t.runKey(run)
+		rows, seen := t.lookup.rowsByParent[k]
+		if !seen {
+			rows = make([]int, 0, run.to-run.from)
+		}
+		for r := run.from; r < run.to; r++ {
+			rows = append(rows, r)
+		}
+		t.lookup.rowsByParent[k] = rows
+	}
+	if t.weights == nil {
+		return
+	}
+	t.lookup.childCum = make(map[string][]float64, len(t.lookup.rowsByParent))
+	for k, rows := range t.lookup.rowsByParent {
+		cum, total := make([]float64, len(rows)), 0.0
+		for i, r := range rows {
+			total += t.weights[r]
+			cum[i] = total
+		}
+		t.lookup.childCum[k] = cum
+	}
 }
 
 func (t *Table[O]) Draw(s *drawstate.State) int {

@@ -52,16 +52,24 @@ func CprYear(yy, seventh int) int {
 	}
 }
 
-func ValidFnr(s string) bool {
-	if len(s) != 11 {
-		return false
-	}
+func elevenDigits(s string) ([11]int, bool) {
 	var d [11]int
+	if len(s) != 11 {
+		return d, false
+	}
 	for i := range d {
 		if s[i] < '0' || s[i] > '9' {
-			return false
+			return d, false
 		}
 		d[i] = int(s[i] - '0')
+	}
+	return d, true
+}
+
+func ValidFnr(s string) bool {
+	d, ok := elevenDigits(s)
+	if !ok {
+		return false
 	}
 	check := func(weights []int, want int) bool {
 		sum := 0

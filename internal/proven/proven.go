@@ -73,17 +73,22 @@ func bound(n grammar.CalcNode, operand func(name string) Facts) (Facts, string) 
 		v.Lo, v.Hi = -v.Hi, -v.Lo
 		return v, doubt
 	case grammar.CalcBin:
-		l, doubt := bound(n.L, operand)
-		if doubt != "" {
-			return l, doubt
-		}
-		r, doubt := bound(n.R, operand)
-		if doubt != "" {
-			return r, doubt
-		}
-		return combine(n, l, r)
+		return boundBin(n, operand)
 	}
 	panic(invariant.Broken("calc node %T has no bound", n))
+}
+
+// boundBin bounds an operation from the bounds of its sides, or returns the first side's doubt.
+func boundBin(n grammar.CalcBin, operand func(name string) Facts) (Facts, string) {
+	l, doubt := bound(n.L, operand)
+	if doubt != "" {
+		return l, doubt
+	}
+	r, doubt := bound(n.R, operand)
+	if doubt != "" {
+		return r, doubt
+	}
+	return combine(n, l, r)
 }
 
 // combine bounds one operation from the bounds of its sides.
@@ -181,18 +186,32 @@ var (
 	numberText  = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$`)
 )
 
+// calcFacts proves the number calc reads text as, or that it reads none.
+func calcFacts(text string) Facts {
+	f, err := strconv.ParseFloat(strings.TrimSpace(text), 64)
+	if err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
+		return Facts{NotOperand: fmt.Sprintf("%q is not a number", text), Never: true}
+	}
+	return Bounded(f, f, f == math.Trunc(f))
+}
+
+// notInteger says why text is not an integer that fits int64, or returns "" when it is one.
+func notInteger(text string) string {
+	_, err := strconv.ParseInt(text, 10, 64)
+	switch {
+	case !integerText.MatchString(text):
+		return fmt.Sprintf("%q is not an integer", text)
+	case err != nil:
+		return fmt.Sprintf("%q is past the int64 range", text)
+	}
+	return ""
+}
+
 // Literal proves fixed text: the number calc reads it as, and each datatype it is.
 func Literal(text string) Facts {
-	var v Facts
-	if f, err := strconv.ParseFloat(strings.TrimSpace(text), 64); err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
-		v.NotOperand, v.Never = fmt.Sprintf("%q is not a number", text), true
-	} else {
-		v = Bounded(f, f, f == math.Trunc(f))
-	}
-	if _, err := strconv.ParseInt(text, 10, 64); !integerText.MatchString(text) {
-		v.Not[datatype.Integer] = fmt.Sprintf("%q is not an integer", text)
-	} else if err != nil {
-		v.Not[datatype.Integer] = fmt.Sprintf("%q is past the int64 range", text)
+	v := calcFacts(text)
+	if doubt := notInteger(text); doubt != "" {
+		v.Not[datatype.Integer] = doubt
 	}
 	if v.NotOperand != "" || !numberText.MatchString(text) {
 		v.Not[datatype.Number] = fmt.Sprintf("%q is not a number", text)

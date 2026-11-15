@@ -63,6 +63,17 @@ func decodeManifest(b []byte) (Manifest, error) {
 	if !isObject {
 		return Manifest{}, fmt.Errorf("a manifest must be an object, not %s", jsonvalue.Kind(raw.Any()))
 	}
+	m, errs := decodeKeys(top)
+	for _, p := range sortedKeys(m.Index) {
+		if m.Namespace != "" && !strings.HasPrefix(p, m.Namespace+".") {
+			errs = append(errs, fmt.Errorf("index entry %q lies outside the namespace %q", p, m.Namespace))
+		}
+	}
+	return m, errors.Join(errs...)
+}
+
+// decodeKeys reads the manifest's top-level keys in order, collecting each key's mistakes.
+func decodeKeys(top map[string]any) (Manifest, []error) {
 	var m Manifest
 	var errs []error
 	for _, k := range sortedKeys(top) {
@@ -79,12 +90,7 @@ func decodeManifest(b []byte) (Manifest, error) {
 			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index and namespace", k))
 		}
 	}
-	for _, p := range sortedKeys(m.Index) {
-		if m.Namespace != "" && !strings.HasPrefix(p, m.Namespace+".") {
-			errs = append(errs, fmt.Errorf("index entry %q lies outside the namespace %q", p, m.Namespace))
-		}
-	}
-	return m, errors.Join(errs...)
+	return m, errs
 }
 
 func decodeNamespace(v any) (string, error) {
