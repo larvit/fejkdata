@@ -123,30 +123,36 @@ func asciiFold(s string) string {
 	return b.String()
 }
 
-func slugify(s string) string {
-	var b strings.Builder
-	dashed := true
-	emit := func(c rune) {
-		switch {
-		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
-			b.WriteRune(c)
-			dashed = false
-		case !dashed:
-			b.WriteByte('-')
-			dashed = true
-		}
+// slug builds a slug, with every run of other characters one dash and none at the start.
+type slug struct {
+	b      strings.Builder
+	dashed bool
+}
+
+func (s *slug) add(c rune) {
+	switch {
+	case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
+		s.b.WriteRune(c)
+		s.dashed = false
+	case !s.dashed:
+		s.b.WriteByte('-')
+		s.dashed = true
 	}
-	for _, r := range s {
+}
+
+func slugify(in string) string {
+	s := slug{dashed: true}
+	for _, r := range in {
 		switch fold := asciiFolds[r]; {
 		case r <= unicode.MaxASCII:
-			emit(unicode.ToLower(r))
+			s.add(unicode.ToLower(r))
 		case fold == "":
-			emit('-')
+			s.add('-')
 		default:
 			for _, c := range fold {
-				emit(unicode.ToLower(c))
+				s.add(unicode.ToLower(c))
 			}
 		}
 	}
-	return strings.TrimSuffix(b.String(), "-")
+	return strings.TrimSuffix(s.b.String(), "-")
 }

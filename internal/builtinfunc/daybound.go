@@ -21,6 +21,10 @@ func parseDayBound(arg string) (dayBound, error) {
 		day, err := time.Parse(dayLayout, arg)
 		return dayBound{day: day}, err
 	}
+	return parseRelativeBound(arg, rest)
+}
+
+func parseRelativeBound(arg, rest string) (dayBound, error) {
 	if rest == "" {
 		return dayBound{relative: true}, nil
 	}

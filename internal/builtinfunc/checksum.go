@@ -151,31 +151,46 @@ func spanishControl(ten string) byte {
 // bban draws cc's account number: BE, ES, FI and NO with their account check digits, SE with a
 // listed IBAN ID, and any other country as random digits.
 func bban(r rng, cc string) string {
-	switch cc {
-	case "BE":
-		n := randomDigits(r, 10)
-		v, _ := strconv.Atoi(n)
-		if v %= 97; v == 0 {
-			v = 97
-		}
-		return fmt.Sprintf("%s%02d", n, v)
-	case "ES":
-		bank, account := randomDigits(r, 8), randomDigits(r, 10)
-		return bank + string([]byte{spanishControl("00" + bank), spanishControl(account)}) + account
-	case "FI":
-		n := randomDigits(r, 13)
-		return n + string(rune('0'+luhnCheck(n)))
-	case "NO":
-		for {
-			n := randomDigits(r, 10)
-			if c := mod11Check(n); c != "X" {
-				return n + c
-			}
-		}
-	case "SE":
-		return swedishIBANIDs[r.IntN(len(swedishIBANIDs))] + randomDigits(r, 17)
+	if draw, ok := bbanDraws[cc]; ok {
+		return draw(r)
 	}
 	return randomDigits(r, ibanLen[cc]-4)
+}
+
+var bbanDraws = map[string]func(rng) string{
+	"BE": belgianBBAN,
+	"ES": spanishBBAN,
+	"FI": finnishBBAN,
+	"NO": norwegianBBAN,
+	"SE": func(r rng) string { return swedishIBANIDs[r.IntN(len(swedishIBANIDs))] + randomDigits(r, 17) },
+}
+
+func belgianBBAN(r rng) string {
+	n := randomDigits(r, 10)
+	v, _ := strconv.Atoi(n)
+	if v %= 97; v == 0 {
+		v = 97
+	}
+	return fmt.Sprintf("%s%02d", n, v)
+}
+
+func spanishBBAN(r rng) string {
+	bank, account := randomDigits(r, 8), randomDigits(r, 10)
+	return bank + string([]byte{spanishControl("00" + bank), spanishControl(account)}) + account
+}
+
+func finnishBBAN(r rng) string {
+	n := randomDigits(r, 13)
+	return n + string(rune('0'+luhnCheck(n)))
+}
+
+func norwegianBBAN(r rng) string {
+	for {
+		n := randomDigits(r, 10)
+		if c := mod11Check(n); c != "X" {
+			return n + c
+		}
+	}
 }
 
 func iban(r rng, cc string) string {

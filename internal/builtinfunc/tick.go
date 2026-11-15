@@ -29,19 +29,34 @@ func tickArgs(a []string) error {
 	if _, err := parseTickStart(a[0]); err != nil {
 		return fmt.Errorf("tick(start,step,jitter,layout): start %q is not a YYYY-MM-DD day or a UTC timestamp such as 2026-01-01T00:00:00Z", a[0])
 	}
-	step, err := intArg(a[1])
-	if err != nil || step < 1 || step > maxTickStep {
-		return fmt.Errorf("tick(start,step,jitter,layout): step %q is not a whole number of seconds from 1 to %d", a[1], maxTickStep)
+	step, err := tickStepArg(a[1])
+	if err != nil {
+		return err
 	}
-	jitter, err := intArg(a[2])
+	if err := tickJitterArg(a[2], step); err != nil {
+		return err
+	}
+	_, err = layoutArg(a[3])
+	return err
+}
+
+func tickStepArg(arg string) (int, error) {
+	step, err := intArg(arg)
+	if err != nil || step < 1 || step > maxTickStep {
+		return 0, fmt.Errorf("tick(start,step,jitter,layout): step %q is not a whole number of seconds from 1 to %d", arg, maxTickStep)
+	}
+	return step, nil
+}
+
+func tickJitterArg(arg string, step int) error {
+	jitter, err := intArg(arg)
 	if err != nil || jitter < 0 {
-		return fmt.Errorf("tick(start,step,jitter,layout): jitter %q is not a whole number of seconds, 0 or more", a[2])
+		return fmt.Errorf("tick(start,step,jitter,layout): jitter %q is not a whole number of seconds, 0 or more", arg)
 	}
 	if jitter >= step {
 		return fmt.Errorf("tick(start,step,jitter,layout): jitter %d is not below step %d, so rows could swap order", jitter, step)
 	}
-	_, err = layoutArg(a[3])
-	return err
+	return nil
 }
 
 // tickPrep prints row n at start + (n-1) steps + a draw of 0 to jitter seconds. The rows are

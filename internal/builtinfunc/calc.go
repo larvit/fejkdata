@@ -56,13 +56,18 @@ func checkCalc(args []string) error {
 		return fmt.Errorf("calc(%q): %w", args[0], err)
 	}
 	if len(args) == 2 {
-		dp, err := intArg(args[1])
-		if err != nil {
-			return fmt.Errorf("calc decimals %w", err)
-		}
-		if dp < 0 || dp > maxDecimals {
-			return fmt.Errorf("calc decimals %d must be in 0..%d", dp, maxDecimals)
-		}
+		return checkCalcDecimals(args[1])
+	}
+	return nil
+}
+
+func checkCalcDecimals(arg string) error {
+	dp, err := intArg(arg)
+	if err != nil {
+		return fmt.Errorf("calc decimals %w", err)
+	}
+	if dp < 0 || dp > maxDecimals {
+		return fmt.Errorf("calc decimals %d must be in 0..%d", dp, maxDecimals)
 	}
 	return nil
 }
