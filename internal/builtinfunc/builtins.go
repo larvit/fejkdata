@@ -253,6 +253,10 @@ func floatArgs(a []string) error {
 	if err != nil {
 		return fmt.Errorf("float(min,max,dp): decimals %w", err)
 	}
+	return floatRange(lo, hi, dp, a)
+}
+
+func floatRange(lo, hi float64, dp int, a []string) error {
 	if err := finiteOrdered(lo, hi, a); err != nil {
 		return err
 	}

@@ -20,12 +20,8 @@ const AddDaysName = "adddays"
 const MaxDays = 1000000
 
 func addDaysArgs(a []string) error {
-	if len(a) < 2 || len(a) > 3 {
-		hint := ""
-		if len(a) > 3 && !holdsQuotedLayout(a[2:]) {
-			hint = fmt.Sprintf("; a layout holding a comma is quoted: '%s'", strings.Trim(strings.Join(a[2:], ", "), `'"`))
-		}
-		return fmt.Errorf("adddays takes 2 or 3 arguments, got %d%s", len(a), hint)
+	if err := addDaysArity(a); err != nil {
+		return err
 	}
 	for _, arg := range a[:2] {
 		if _, _, isCall := grammar.FuncCall(arg); isCall {
@@ -42,12 +38,29 @@ func addDaysArgs(a []string) error {
 	return nil
 }
 
+func addDaysArity(a []string) error {
+	if len(a) >= 2 && len(a) <= 3 {
+		return nil
+	}
+	hint := ""
+	if len(a) > 3 && !holdsQuotedLayout(a[2:]) {
+		hint = fmt.Sprintf("; a layout holding a comma is quoted: '%s'", strings.Trim(strings.Join(a[2:], ", "), `'"`))
+	}
+	return fmt.Errorf("adddays takes 2 or 3 arguments, got %d%s", len(a), hint)
+}
+
+// signsName reports whether n, which is no integer, starts with a sign and then something other
+// than a digit, so it reads as a signed name.
+func signsName(n string) bool {
+	return len(n) > 1 && strings.ContainsRune("+-", rune(n[0])) && !strings.ContainsRune("0123456789", rune(n[1]))
+}
+
 func dayCountArg(n string) error {
 	days, literal, err := literalDays(n)
 	switch {
 	case !literal:
 		return nil
-	case err != nil && len(n) > 1 && strings.ContainsRune("+-", rune(n[0])) && !strings.ContainsRune("0123456789", rune(n[1])):
+	case err != nil && signsName(n):
 		return fmt.Errorf("adddays(d,n): n %q signs a name, which adddays cannot read; draw it negative instead, such as {int(-30,-1)}", n)
 	case err != nil:
 		return fmt.Errorf("adddays(d,n): n %w; write a whole number of days", err)

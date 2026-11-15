@@ -36,17 +36,23 @@ func cprPrep([]string) Call {
 // cprSeventhDigits are the seventh digits CPR-kontoret's table of "Personnummerets opbygning"
 // gives a year, which together with the year digits name the century.
 func cprSeventhDigits(year int) string {
-	switch {
-	case year >= 1858 && year <= 1899, year >= 2037 && year <= 2057:
-		return "5678"
-	case year >= 1900 && year <= 1936:
-		return "0123"
-	case year >= 1937 && year <= 1999:
-		return "012349"
-	case year >= 2000 && year <= 2036:
-		return "456789"
+	for _, r := range cprSeventhByYears {
+		if year >= r.from && year <= r.to {
+			return r.digits
+		}
 	}
 	return ""
+}
+
+var cprSeventhByYears = [...]struct {
+	from, to int
+	digits   string
+}{
+	{1858, 1899, "5678"},
+	{1900, 1936, "0123"},
+	{1937, 1999, "012349"},
+	{2000, 2036, "456789"},
+	{2037, 2057, "5678"},
 }
 
 // cprTail completes a CPR number after its first seven digits: the given eighth digit, a ninth
