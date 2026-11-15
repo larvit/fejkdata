@@ -47,20 +47,20 @@ type BindingFinds struct {
 
 func (b *BindingFinds) Target() NameTarget { return b.target }
 
-// AfterFinish is the LoadFinds a stage passes once its load has finished: Of and Binding then
-// read only what Finish wrote into the nodes.
-var AfterFinish *LoadFinds
-
 // Of is what l holds for t, else what Finish wrote into t. Where Finish hasn't written t and
 // l doesn't hold it, Of panics, naming the phase.
 func (l *LoadFinds) Of(t *Template) *TemplateFinds {
-	if l != nil {
-		if tl, loading := l.templates[t]; loading {
-			return tl
-		}
+	if tl, loading := l.templates[t]; loading {
+		return tl
 	}
 	return t.found()
 }
+
+// Compiled is t's compiled format during l's load, as Template.Compiled is after it.
+func (l *LoadFinds) Compiled(t *Template) FormatOps { return l.Of(t).compiled }
+
+// ReadsColumn is the column t reads during l's load, as Template.ReadsColumn is after it.
+func (l *LoadFinds) ReadsColumn(t *Template) *ColumnRead { return l.Of(t).readsColumn }
 
 // template is what l holds for t, which must belong to l's load; it makes the entry on first use.
 func (l *LoadFinds) template(t *Template) *TemplateFinds {
@@ -75,10 +75,8 @@ func (l *LoadFinds) template(t *Template) *TemplateFinds {
 // Binding is what l holds for b, else what Finish wrote into b. Where Finish hasn't written b
 // and l doesn't hold it, Binding panics, naming the phase.
 func (l *LoadFinds) Binding(b *NameBinding) *BindingFinds {
-	if l != nil {
-		if bl, loading := l.bindings[b]; loading {
-			return bl
-		}
+	if bl, loading := l.bindings[b]; loading {
+		return bl
 	}
 	return b.found()
 }

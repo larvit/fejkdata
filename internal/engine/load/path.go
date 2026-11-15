@@ -77,7 +77,7 @@ func (w *compiledPath) walk(n tree.Node, tail []string) (tree.Node, error) {
 			return w.walkEvery(c, at.tail)
 		}
 		var err error
-		if w.steps, err = compileStep(&at, w.tail, w.head, w.headSpans, w.steps, &w.pins); err != nil {
+		if w.steps, err = w.compileStep(&at, w.steps); err != nil {
 			return nil, err
 		}
 	}
@@ -100,10 +100,11 @@ type pathPos struct {
 func (p pathPos) more() bool { return len(p.tail) > 0 || p.fromRow }
 
 // compileStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
-// it, and appends the step to steps: a field, or the route through a table. whole is the full
-// path; head and headSpans spell an error's level, as in compiledPath.
-func compileStep(at *pathPos, whole []string, head string, headSpans int, steps []tree.PathStep, pins *tree.PinSet) ([]tree.PathStep, error) {
-	i := len(whole) - len(at.tail)
+// it, and appends the step to steps: a field, or the route through a table. It takes steps and
+// returns them, where it could append to w.steps, so the buffer CallerPathSteps is handed stays on
+// its caller's stack: what w holds escapes with the error naming a level.
+func (w *compiledPath) compileStep(at *pathPos, steps []tree.PathStep) ([]tree.PathStep, error) {
+	i := len(w.tail) - len(at.tail)
 	switch x := at.n.(type) {
 	case *tree.Table:
 		r, err := routeThrough(x, at.tail, at.fromRow)
@@ -111,10 +112,10 @@ func compileStep(at *pathPos, whole []string, head string, headSpans int, steps 
 			return steps, err
 		}
 		*at = r.then
-		return routeSteps(steps, pins, x, r, i)
+		return routeSteps(steps, &w.pins, x, r, i)
 	case *tree.Template:
 		if x.Repeat() > 1 && !grammar.IsSelector(at.tail[0]) {
-			return steps, repeatLevelError(join(head, grammar.JoinSegments(whole[headSpans:i])))
+			return steps, repeatLevelError(join(w.head, grammar.JoinSegments(w.tail[w.headSpans:i])))
 		}
 	}
 	next, err := ChildNamed(at.n, at.tail[0])
@@ -154,7 +155,7 @@ func (w *compiledPath) walkEvery(c *tree.Choice, tail []string) (tree.Node, erro
 // draw takes. Where compiledPath walks every variant of a choice, it walks the first,
 // which carriedByAll lets stand for all.
 func CallerPathSteps(n tree.Node, tail []string, steps []tree.PathStep) ([]tree.PathStep, error) {
-	var pins tree.PinSet
+	w := compiledPath{tail: tail}
 	for at := (pathPos{n: n, tail: tail}); at.more(); {
 		if c, ok := at.n.(*tree.Choice); ok {
 			if err := carriedByAll(c, at.tail); err != nil {
@@ -164,7 +165,7 @@ func CallerPathSteps(n tree.Node, tail []string, steps []tree.PathStep) ([]tree.
 			continue
 		}
 		var err error
-		if steps, err = compileStep(&at, tail, "", 0, steps, &pins); err != nil {
+		if steps, err = w.compileStep(&at, steps); err != nil {
 			return nil, err
 		}
 	}

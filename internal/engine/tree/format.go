@@ -1,17 +1,19 @@
 package tree
 
 // UnboundRead is a token reading a head no field holds, which only a name bound around the
-// template can answer; err is the refusal where none does, and body is the token's.
+// template can answer; refusal is the error where none does, and body is the token's.
 type UnboundRead struct {
 	head, body string
-	err        error
+	refusal    error
 }
 
-func NewUnboundRead(head, body string, err error) UnboundRead { return UnboundRead{head, body, err} }
+func NewUnboundRead(head, body string, refusal error) UnboundRead {
+	return UnboundRead{head, body, refusal}
+}
 
 func (u UnboundRead) Body() string { return u.body }
 
-func (u UnboundRead) Err() error { return u.err }
+func (u UnboundRead) Refusal() error { return u.refusal }
 
 func (u UnboundRead) Head() string { return u.head }
 

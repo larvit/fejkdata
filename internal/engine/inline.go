@@ -3,9 +3,7 @@ package engine
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 
-	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/engine/fence"
 	"github.com/larvit/fejkdata/internal/engine/load"
@@ -42,7 +40,7 @@ func LoadTemplate(root *tree.Folder, input, label string) (Template, error) {
 	if err != nil {
 		return Template{}, err
 	}
-	if err := loadInline(root, n, l, label, false); err != nil {
+	if err := loadInline(root, n, l, label, nil); err != nil {
 		return Template{}, noDataNote(root, err)
 	}
 	return Template{n}, nil
@@ -60,7 +58,7 @@ func (t Template) Record() (Record, error) {
 	return Record{template: record}, nil
 }
 
-func loadInline(root *tree.Folder, n tree.Node, l *tree.LoadFinds, label string, typedByGo bool) error {
+func loadInline(root *tree.Folder, n tree.Node, l *tree.LoadFinds, label string, typedBy *fence.GoStruct) error {
 	nodes := inlineNodes(n, label)
 	if err := refuseFolderRefs(nodes); err != nil {
 		return err
@@ -69,10 +67,10 @@ func loadInline(root *tree.Folder, n tree.Node, l *tree.LoadFinds, label string,
 		return loadError{err}
 	}
 	return pipeline{
-		nodes:     nodes,
-		finds:     l,
-		resolve:   func() ([]load.TemplateSite, error) { return load.ResolveInlineTemplates(n, label, root.Children(), l) },
-		typedByGo: typedByGo,
+		nodes:   nodes,
+		finds:   l,
+		resolve: func() ([]load.TemplateSite, error) { return load.ResolveInlineTemplates(n, label, root.Children(), l) },
+		typedBy: typedBy,
 	}.run()
 }
 
@@ -95,34 +93,4 @@ func refuseFolderRefs(nodes fence.NodeSet) error {
 		}
 		return nil
 	})
-}
-
-// LoadStruct compiles the fake tags of the struct type t as one record, loads it against root,
-// and proves each column holds only what its field's Go type can. A failed lazy load matches
-// ErrLoad.
-func LoadStruct(root *tree.Folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) (Record, error) {
-	tags["format"] = jsonvalue.String("")
-	l := tree.NewLoadFinds()
-	n, err := load.CompileStruct(jsonvalue.Object(tags), l)
-	if err != nil {
-		return Record{}, fmt.Errorf("%s: %w", label, err)
-	}
-	if err := loadInline(root, n, l, label, true); err != nil {
-		return Record{}, noDataNote(root, err)
-	}
-	record, err := recordOf(n)
-	if err != nil {
-		return Record{}, fmt.Errorf("%s: %w", label, err)
-	}
-	if err := fence.CheckFields(label, t, record.Columns()); err != nil {
-		return Record{}, err
-	}
-	return Record{template: record}, nil
-}
-
-// FieldDataType is what a field of the Go kind k holds, and false where no fake tag fills that
-// kind.
-func FieldDataType(k reflect.Kind) (datatype.DataType, bool) {
-	kind, holds := fence.FieldKinds[k]
-	return kind.Datatype, holds
 }

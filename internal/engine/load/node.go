@@ -23,8 +23,12 @@ func Compile(v jsonvalue.Value, l *tree.LoadFinds) (tree.Node, error) {
 }
 
 // CompileStruct compiles the template a Go struct's tags spell, whose fields are its columns.
-func CompileStruct(v jsonvalue.Value, l *tree.LoadFinds) (tree.Node, error) {
-	return compileFrom(v, atGoTop, l)
+func CompileStruct(tags map[string]jsonvalue.Value, l *tree.LoadFinds) (*tree.Template, error) {
+	n, err := compileFrom(jsonvalue.Object(tags), atGoTop, l)
+	if err != nil {
+		return nil, err
+	}
+	return n.(*tree.Template), nil
 }
 
 func compileFrom(v jsonvalue.Value, pos position, l *tree.LoadFinds) (tree.Node, error) {
@@ -47,20 +51,42 @@ func CompileCategory(c datafiles.Category, l *tree.LoadFinds) (tree.Node, error)
 }
 
 // position is where a JSON value sits, which decides whether it may carry a datatype or
-// be null.
-type position int
+// be null. The zero position, inFormat, is a value a format renders, which may neither.
+type position struct {
+	// top is a category, an inline template or a struct's tags: its fields may be columns.
+	top bool
+	// column is a record column, a choice item standing in for one, or a field under one: it
+	// may be null or typed.
+	column bool
+	// typedByGo is a struct's tags or a column of them, which a Go field's type types.
+	typedByGo bool
+	// underColumn is a field of a template standing as a column.
+	underColumn bool
+}
 
-const (
-	inFormat      position = iota // rendered by a format, so neither
-	atTop                         // a category or an inline template, whose fields may be columns
-	inColumn                      // a column, or a choice item standing in for one
-	atGoTop                       // a struct's tags, whose fields are columns a Go type types
-	inGoColumn                    // a column a struct field's Go type types, or a choice item in one
-	inColumnField                 // a field of a template standing as a column: may be null or typed, a bare number stays text
+var (
+	inFormat = position{}
+	atTop    = position{top: true}
+	atGoTop  = position{top: true, typedByGo: true}
 )
 
-// column reports a position that is a record column.
-func (p position) column() bool { return p == inColumn || p == inGoColumn || p == inColumnField }
+// fieldPosition is the position of a field of a template that sits at p and renders once: a
+// column under a top, a field under a column the data types, and else a value a format renders,
+// as every field under a column a Go type types is.
+func (p position) fieldPosition() position {
+	switch {
+	case p.top:
+		return position{column: true, typedByGo: p.typedByGo}
+	case p.column && !p.typedByGo:
+		return position{column: true, underColumn: true}
+	}
+	return inFormat
+}
+
+// bareCouldBeTyped reports a position where a bare JSON number or boolean could be text or a
+// typed value: a column the data types. A Go type decides it in a struct, and under a column it
+// stays text.
+func (p position) bareCouldBeTyped() bool { return p.column && !p.typedByGo && !p.underColumn }
 
 // compileItem compiles one node; a weight on it skews only a choice drawing it.
 func compileItem(v any, pos position) (tree.Node, error) {
@@ -86,7 +112,7 @@ func compileItem(v any, pos position) (tree.Node, error) {
 func compileScalar(v any, pos position) (tree.Node, error) {
 	switch v := v.(type) {
 	case nil:
-		if !pos.column() {
+		if !pos.column {
 			return compileString("")
 		}
 		return &tree.NullItem{}, nil
@@ -101,7 +127,7 @@ func compileScalar(v any, pos position) (tree.Node, error) {
 // compileBare compiles the text of a bare JSON number or boolean as a format string, refusing it in
 // a record column, where it could also be a value of one of ds.
 func compileBare(text string, pos position, ds ...datatype.DataType) (tree.Node, error) {
-	if pos == inColumn {
+	if pos.bareCouldBeTyped() {
 		return nil, typedOrText(text, ds...)
 	}
 	return compileString(text)
@@ -147,7 +173,7 @@ func compileChoice(items []any, pos position) (tree.Node, error) {
 		return compileLoneItem(items[0], pos)
 	}
 	itemPos := inFormat
-	if pos.column() {
+	if pos.column {
 		itemPos = pos
 	}
 	compiled, cum, err := compileItems(items, itemPos)
@@ -208,19 +234,6 @@ func checkWeightSum(total float64) error {
 	return nil
 }
 
-// fieldPosition is the position of a field of a template that sits at p and renders once.
-func (p position) fieldPosition() position {
-	switch p {
-	case atTop:
-		return inColumn
-	case atGoTop:
-		return inGoColumn
-	case inColumn, inColumnField:
-		return inColumnField
-	}
-	return inFormat
-}
-
 func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
 	if _, isTable := m["rows"]; isTable {
 		return nil, fmt.Errorf("rows names a TSV beside a category's file, so only a category is a table; an inline template has no file beside it")
@@ -241,7 +254,7 @@ func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return tree.NewTemplate(tree.TemplateSyntax{Format: o.format, Tokens: toks, Fields: fields, Lets: lets, Repeat: o.repeat, Separator: o.separator, DataType: o.datatype, IsRecord: fieldPos.column(), Unbound: unbound}), nil
+	return tree.NewTemplate(tree.TemplateSyntax{Format: o.format, Tokens: toks, Fields: fields, Lets: lets, Repeat: o.repeat, Separator: o.separator, DataType: o.datatype, IsRecord: fieldPos.column, Unbound: unbound}), nil
 }
 
 type templateOptions struct {

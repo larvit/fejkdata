@@ -4,6 +4,8 @@
 package fence
 
 import (
+	"reflect"
+
 	"github.com/larvit/fejkdata/internal/engine/fence/names"
 	"github.com/larvit/fejkdata/internal/engine/load"
 	"github.com/larvit/fejkdata/internal/engine/tree"
@@ -11,6 +13,41 @@ import (
 
 // NodeSet is the set of nodes one fence covers, walked by calling it with fn.
 type NodeSet = func(fn func(label string, n tree.Node) error) error
+
+// GoStruct is a struct type whose fields type the columns of Record, where the data would.
+type GoStruct struct {
+	Label  string
+	Type   reflect.Type
+	Record *tree.Template
+}
+
+// Check runs every fence over a finished load: nodes and their templates ts. Columns are typed
+// by the data, or by typedBy where it is set. The order holds three dependencies.
+// names.RefuseReadsInsideFields comes before the cycle check: a name read inside the field bound
+// to it is also a reference cycle, and its error says how to fix the read. The cycle check comes
+// before Templates and checkNodes, whose walks recurse unguarded. A struct's fields are checked
+// last, once checkNodes has refused what no column may hold.
+func Check(nodes NodeSet, ts []load.TemplateSite, typedBy *GoStruct) error {
+	if err := names.RefuseReadsInsideFields(ts); err != nil {
+		return err
+	}
+	if err := checkNoCycles(nodes); err != nil {
+		return err
+	}
+	if err := Templates(ts); err != nil {
+		return err
+	}
+	if typedBy == nil {
+		if err := checkColumns(nodes); err != nil {
+			return err
+		}
+		return checkNodes(nodes)
+	}
+	if err := checkNodes(nodes); err != nil {
+		return err
+	}
+	return typedBy.checkFields()
+}
 
 // Templates runs the template fences over the finished templates of ts.
 func Templates(ts []load.TemplateSite) error {
@@ -37,9 +74,9 @@ func proveCalcsAndAddDays(ts []load.TemplateSite) error {
 	return nil
 }
 
-// CheckNodes runs the per-node fences over s, each over every node before the next,
+// checkNodes runs the per-node fences over s, each over every node before the next,
 // so which of several broken nodes is reported does not depend on the walk.
-func CheckNodes(s NodeSet) error {
+func checkNodes(s NodeSet) error {
 	mem := RenderCounts{}
 	if err := s(func(label string, n tree.Node) error { return RepeatCheck(label, n, mem) }); err != nil {
 		return err

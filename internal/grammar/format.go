@@ -162,7 +162,7 @@ func splitArgs(s string) []string {
 	}
 	var args []string
 	start := 0
-	(&scanner{quotes: true}).find(s, func(i int) bool {
+	scanner{quotes: true}.find(s, func(i int) bool {
 		if s[i] == ',' {
 			args, start = append(args, strings.TrimSpace(s[start:i])), i+1
 		}

@@ -11,12 +11,12 @@ import (
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// CheckFields refuses a column that can draw a value its field in struct type t cannot hold.
-func CheckFields(label string, t reflect.Type, columns []tree.RecordColumn) error {
+// checkFields refuses a column that can draw a value its field in the struct type cannot hold.
+func (g *GoStruct) checkFields() error {
 	proof := &valueProof{}
-	for _, c := range columns {
-		sf, _ := t.FieldByName(c.Name())
-		if err := proof.checkField(label+"."+c.Name(), sf.Type, c.Field()); err != nil {
+	for _, c := range g.Record.Columns() {
+		sf, _ := g.Type.FieldByName(c.Name())
+		if err := proof.checkField(g.Label+"."+c.Name(), sf.Type, c.Field()); err != nil {
 			return err
 		}
 	}

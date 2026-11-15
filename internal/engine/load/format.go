@@ -71,25 +71,38 @@ func checkReads(t grammar.Token, fields map[string]tree.Node, operands bool) ([]
 	wholeToken := !operands && len(own)+len(clause) == 1
 	var unbound []tree.UnboundRead
 	for _, spelling := range own {
-		u, err := checkRead(t, spelling, fields, wholeToken, nil)
+		noField, err := checkRead(t, spelling, fields, wholeToken)
 		if err != nil {
 			return nil, err
 		}
-		unbound = append(unbound, u...)
+		if noField != nil {
+			unbound = append(unbound, unboundRead(t, spelling, noField))
+		}
 	}
+	inClause, err := checkClauseReads(t, clause, fields, wholeToken)
+	return append(unbound, inClause...), err
+}
+
+// checkClauseReads is checkReads for the spellings t's where clause reads, whose refusal names
+// the clause's word.
+func checkClauseReads(t grammar.Token, clause []clauseSpelling, fields map[string]tree.Node, wholeToken bool) ([]tree.UnboundRead, error) {
+	var unbound []tree.UnboundRead
 	for _, c := range clause {
-		u, err := checkRead(t, c.spelling, fields, wholeToken, c.unbound)
+		noField, err := checkRead(t, c.spelling, fields, wholeToken)
 		if err != nil {
 			return nil, err
 		}
-		unbound = append(unbound, u...)
+		if noField != nil {
+			unbound = append(unbound, unboundRead(t, c.spelling, c.unbound()))
+		}
 	}
 	return unbound, nil
 }
 
-// checkRead proves spelling, one read of t, is a reference or a path into a field. Where no field holds
-// its head, it returns the read as unbound; its error is unbound() where the unbound func is not nil.
-func checkRead(t grammar.Token, spelling string, fields map[string]tree.Node, wholeToken bool, unbound func() error) ([]tree.UnboundRead, error) {
+// checkRead proves spelling, one read of t, is a reference or a path into a field. err refuses
+// the read. noField is no refusal yet: it says no field holds the read's head, which a name bound
+// around the template may still answer.
+func checkRead(t grammar.Token, spelling string, fields map[string]tree.Node, wholeToken bool) (noField, err error) {
 	if grammar.IsRef(spelling) {
 		if _, _, err := grammar.RefShape(spelling); err != nil {
 			return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
@@ -97,15 +110,19 @@ func checkRead(t grammar.Token, spelling string, fields map[string]tree.Node, wh
 		return nil, nil // resolveRefs checks its target once the tree is assembled
 	}
 	missing, err := checkFieldRead(spelling, fields, wholeToken)
-	switch {
-	case err == nil:
-		return nil, nil
-	case !missing:
-		return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
-	case unbound != nil:
-		err = unbound()
+	if missing {
+		return err, nil
 	}
-	return []tree.UnboundRead{tree.NewUnboundRead(splitRead(spelling, nil).head, t.Body, fmt.Errorf("token {%s}: %w", t.Body, err))}, nil
+	if err != nil {
+		return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
+	}
+	return nil, nil
+}
+
+// unboundRead is spelling, a read of t whose head no field holds, with the refusal that stands
+// where no name answers it either.
+func unboundRead(t grammar.Token, spelling string, refusal error) tree.UnboundRead {
+	return tree.NewUnboundRead(splitRead(spelling, nil).head, t.Body, fmt.Errorf("token {%s}: %w", t.Body, refusal))
 }
 
 // checkBind proves a {x as name} token is spelled once, binds a reference or a path into a

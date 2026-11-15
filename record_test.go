@@ -680,7 +680,7 @@ func TestRecordOfAChoiceNamesTheWrapper(t *testing.T) {
 func checkEachColumnHoldsItsField(t *testing.T, label string, tm *tree.Template) {
 	t.Helper()
 	for _, c := range tm.Columns() {
-		if c.Field() != tm.Fields()[c.Name()] || c.DataType() != load.ColumnDatatype(c.Field(), tree.AfterFinish) {
+		if c.Field() != tm.Fields()[c.Name()] || c.DataType() != load.ColumnDatatype(c.Field(), (*tree.Template).ReadsColumn) {
 			t.Errorf("%s: column %q holds field %v of datatype %s, want field %q's", label, c.Name(), c.Field(), c.DataType(), c.Name())
 		}
 	}

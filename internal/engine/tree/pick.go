@@ -6,7 +6,7 @@ import "github.com/larvit/fejkdata/internal/grammar"
 //
 // A level is one prefix of a read's path, and a read has one for each node it passes; a choice
 // and the variant drawn from it, or a table and its row, share one. A level's key is its path from
-// where the read starts, and LevelsUnder says where that is. A load gives each read one key per
+// where the read starts, and PlacedRead says where that is. A load gives each read one key per
 // level, in NamedLevels or FreshLevels.
 //
 // A name's addressed keys are the keys some read of it lands on or passes, from the level its
@@ -64,14 +64,9 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 	return keys
 }
 
-// KeyUnder is the key a pick keeps a's value under, the last of LevelsUnder's: a's key, moved
-// under at.
-func KeyUnder(at PickKey, a Read) PickKey { return at.Under(a.Key()) }
-
-// LevelsUnder is the levels of a as a pick keys them: each of a's levels, moved under at. a is a
-// fresh read in a template the pick renders, and at is that template's key. key is KeyUnder(at, a),
-// which the caller has built to look a's value up, and building it again would allocate. It is the one rule that lines a fresh read's
-// keys up with a named read's, and load and render both call it.
+// PlacedRead is a fresh read as a pick keys it: a read in a template the pick renders, with each
+// of its levels moved under that template's key. It is the one rule that lines a fresh read's keys
+// up with a named read's, and load and render both read it.
 //
 // The two kinds of read share a key because of where their levels start. A named read starts at
 // the node its name's target starts at, and may draw a variant there, so its levels start at that
@@ -80,12 +75,32 @@ func KeyUnder(at PickKey, a Read) PickKey { return at.Under(a.Key()) }
 // at is that template's path from the target's start, so moved under at, a fresh read's key spells
 // the path a named read's does. Where p binds a category whose format reads {first}, the {first}
 // that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
-func LevelsUnder(at PickKey, a Read, key PickKey) []PickKey {
-	levels := make([]PickKey, len(a.levels))
-	for i, l := range a.levels[:len(levels)-1] {
+//
+// It holds the length of the template's key, not the key: on a render that key is the one the
+// render's env holds, and a pick keeps Levels' keys, so holding it would move every render's env
+// to the heap.
+type PlacedRead struct {
+	key    PickKey
+	atLen  int
+	levels []PickKey
+}
+
+// ReadAt places a, a fresh read in a template the pick renders, under at, that template's key.
+func ReadAt(at PickKey, a Read) PlacedRead {
+	return PlacedRead{key: at.Under(a.Key()), atLen: len(at), levels: a.levels}
+}
+
+// Key is the key the pick keeps the read's value under, the last of Levels. Render looks a value
+// up by it before it builds the levels.
+func (p PlacedRead) Key() PickKey { return p.key }
+
+// Levels is the read's levels, each moved under the template's key.
+func (p PlacedRead) Levels() []PickKey {
+	at, levels := p.key[:p.atLen], make([]PickKey, len(p.levels))
+	for i, l := range p.levels[:len(levels)-1] {
 		levels[i] = at.Under(l)
 	}
-	levels[len(levels)-1] = key
+	levels[len(levels)-1] = p.key
 	return levels
 }
 
@@ -93,7 +108,7 @@ func LevelsUnder(at PickKey, a Read, key PickKey) []PickKey {
 // renders, at is that template's key, and by is the spelling of the read of the name that addresses
 // a. Load and render both call it, so they agree on what a pick keeps. A reference draws afresh and
 // a read through a name reads its own name's pick, so the pick keeps neither. It keeps any other
-// read where a read of the name addresses the first of LevelsUnder's keys, built here alone to spare the slice.
+// read where a read of the name addresses the first of PlacedRead.Levels' keys, built here alone to spare the slice.
 func LandsInPick(addressed map[PickKey]string, at PickKey, a Read) (by string, lands bool) {
 	if grammar.IsRef(a.Head()) || a.Kind() == NamedRead {
 		return "", false
