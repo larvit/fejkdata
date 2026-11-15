@@ -31,7 +31,7 @@ func refuseSkippedItem(nr nameRead) error {
 	return nil
 }
 
-// steppedInto reports whether a leaf of the read steps into the item whose scope is scope.
+// steppedInto reports whether a leaf of the read steps into the choice item that owns scope.
 func (nr nameRead) steppedInto(scope *tree.NameScope) bool {
 	for _, leaf := range nr.read.Leaves() {
 		if _, stepped := nr.names.pathTo(scope.Owner(), leaf); stepped {
