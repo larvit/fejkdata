@@ -12,10 +12,9 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 489 | 0.6.0 |  |  | **Split every function in `internal/grammar` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
 | 490 | 0.6.0 |  |  | **Split every function in `internal/builtinfunc` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
 | 493 | 0.6.0 |  |  | **Split every function in `internal/datafiles`, `internal/fejktest`, `internal/proven` and `internal/rows` until gocyclo counts it at 7 or under.** | 2 | 1 | 2 | 3 | 4 | code health by 1 | 1.4 |
-| 458 | 0.6.0 | 489, 490, 493 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 6.5 |
+| 458 | 0.6.0 | 490, 493 |  | **Gate cyclomatic complexity at 7 in both gocyclo lines, with every function over it split.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 6.5 |
 | 217 | 0.7.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 332 | 0.7.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 331 | 0.7.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -242,10 +241,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 489. Split every function in `internal/grammar` until gocyclo counts it at 7 or under.
-
-Part of item 458. gocyclo counts thirteen functions at 8 to 10, in `calc.go`, `format.go`, `identifier.go`, `path.go`, `reference.go`, `scan.go` and `where.go`.
 
 ### 490. Split every function in `internal/builtinfunc` until gocyclo counts it at 7 or under.
 
