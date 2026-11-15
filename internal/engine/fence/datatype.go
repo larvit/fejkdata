@@ -24,29 +24,37 @@ func CheckColumns(s NodeSet) error {
 		if err := checkReadColumns(label, name, items, check); err != nil {
 			return err
 		}
-		if len(items) == 0 {
-			return nil
-		}
-		first := load.ColumnDatatype(column, tree.AfterFinish)
-		for _, it := range items[1:] {
-			if d := load.ItemDatatype(it, tree.AfterFinish); d != first {
-				return fmt.Errorf("%s: field %q: %w", label, name, disagreement(items[0], first, it, d))
-			}
-		}
-		return nil
+		return checkItemsAgree(label, name, column, items)
 	}
 	return s(func(label string, n tree.Node) error {
 		t, ok := n.(*tree.Template)
 		if !ok || !t.IsRecord() {
 			return nil
 		}
-		for _, name := range tree.SortedNames(t.Fields()) {
-			if err := check(label, name, t.Fields()[name]); err != nil {
-				return err
-			}
-		}
-		return nil
+		return checkFields(label, t, check)
 	})
+}
+
+func checkFields(label string, t *tree.Template, check func(label, name string, column tree.Node) error) error {
+	for _, name := range tree.SortedNames(t.Fields()) {
+		if err := check(label, name, t.Fields()[name]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkItemsAgree(label, name string, column tree.Node, items []*tree.Template) error {
+	if len(items) == 0 {
+		return nil
+	}
+	first := load.ColumnDatatype(column, tree.AfterFinish)
+	for _, it := range items[1:] {
+		if d := load.ItemDatatype(it, tree.AfterFinish); d != first {
+			return fmt.Errorf("%s: field %q: %w", label, name, disagreement(items[0], first, it, d))
+		}
+	}
+	return nil
 }
 
 // itemKind is how a column item comes by its datatype, ranked in this order: none, read from a typed column, or declared.

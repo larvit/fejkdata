@@ -12,20 +12,20 @@ import (
 // NodeSet is the set of nodes one fence covers, walked by calling it with fn.
 type NodeSet = func(fn func(label string, n tree.Node) error) error
 
-// Templates runs the template fences over the finished templates of ts.
+// Templates runs the template fences over the finished templates of ts, each over every template
+// before the next.
 func Templates(ts []load.TemplateSite) error {
-	if err := proveDrawLengths(ts); err != nil {
-		return err
+	for _, fence := range []func([]load.TemplateSite) error{
+		proveDrawLengths, refuseSelfReads, refuseFilteredTails, names.RefuseReads, proveCalcsAndAddDays,
+	} {
+		if err := fence(ts); err != nil {
+			return err
+		}
 	}
-	if err := refuseSelfReads(ts); err != nil {
-		return err
-	}
-	if err := refuseFilteredTails(ts); err != nil {
-		return err
-	}
-	if err := names.RefuseReads(ts); err != nil {
-		return err
-	}
+	return nil
+}
+
+func proveCalcsAndAddDays(ts []load.TemplateSite) error {
 	proof := &valueProof{}
 	for _, s := range ts {
 		if err := proof.checkCalcs(s.Label, s.Template); err != nil {

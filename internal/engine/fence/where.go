@@ -28,22 +28,29 @@ func refuseFilteredTails(ts []load.TemplateSite) error {
 func refuseSelfReads(ts []load.TemplateSite) error {
 	for _, s := range ts {
 		for _, o := range s.Template.Compiled().Ops() {
-			if o.Token().Kind != grammar.NameBind || o.Draw() == nil {
-				continue
-			}
-			b := s.Template.NameScope().Bindings()[o.Token().Bound]
-			r := selfRead{b: b, names: map[*tree.NameBinding]bool{}, nodes: map[tree.Node]bool{}}
-			for _, a := range o.Clause() {
-				if !r.reaches(a) {
-					continue
-				}
-				via := ""
-				if a.Named() != b {
-					via = fmt.Sprintf(", and drawing %q reads %q", a.Head(), b.Name())
-				}
-				return fmt.Errorf("%s: token {%s}: its where clause reads %q%s, the name it binds, so the draw would read itself; bind what the clause reads to another name", s.Label, o.Token().Body, a.Head(), via)
+			if err := refuseSelfReadIn(s, o); err != nil {
+				return err
 			}
 		}
+	}
+	return nil
+}
+
+func refuseSelfReadIn(s load.TemplateSite, o tree.Op) error {
+	if o.Token().Kind != grammar.NameBind || o.Draw() == nil {
+		return nil
+	}
+	b := s.Template.NameScope().Bindings()[o.Token().Bound]
+	r := selfRead{b: b, names: map[*tree.NameBinding]bool{}, nodes: map[tree.Node]bool{}}
+	for _, a := range o.Clause() {
+		if !r.reaches(a) {
+			continue
+		}
+		via := ""
+		if a.Named() != b {
+			via = fmt.Sprintf(", and drawing %q reads %q", a.Head(), b.Name())
+		}
+		return fmt.Errorf("%s: token {%s}: its where clause reads %q%s, the name it binds, so the draw would read itself; bind what the clause reads to another name", s.Label, o.Token().Body, a.Head(), via)
 	}
 	return nil
 }
@@ -137,26 +144,40 @@ func (v lengthProof) proveEveryDrawPasses() error {
 		if e.Read() == nil {
 			continue
 		}
-		p := (&valueProof{}).proveRead(*e.Read())
-		switch {
-		case p.NotOperand != "":
-			return fmt.Errorf("length %s is not always a whole number: %s", e.Read().Spelling(), p.NotOperand)
-		case !p.Integral:
-			return fmt.Errorf("length %s is not always a whole number: it may print a fraction", e.Read().Spelling())
+		b, err := lengthBounds(*e.Read())
+		if err != nil {
+			return err
 		}
-		bounds[e.Read()] = [2]float64{p.Lo, p.Hi}
+		bounds[e.Read()] = b
 	}
 	if v.lo.Read() != nil && v.lo.Read() == v.hi.Read() {
-		for n := bounds[v.lo.Read()][0]; n <= bounds[v.lo.Read()][1]; n++ {
-			if passing := v.passing(n, n); passing < v.count {
-				return fmt.Errorf("where %s is %.0f, %s", v.lo.Read().Spelling(), n, v.shortfall(passing))
-			}
-		}
-		return nil
+		return v.sharedNameShortfall(bounds[v.lo.Read()])
 	}
 	lo, hi := narrowest(v.lo, v.hi, bounds)
 	if passing := v.passing(lo, hi); passing < v.count {
 		return v.rangeShortfall(lo, hi, passing)
+	}
+	return nil
+}
+
+// lengthBounds is the lowest and highest whole number r prints, refusing a read that may print anything else.
+func lengthBounds(r tree.Read) ([2]float64, error) {
+	p := (&valueProof{}).proveRead(r)
+	switch {
+	case p.NotOperand != "":
+		return [2]float64{}, fmt.Errorf("length %s is not always a whole number: %s", r.Spelling(), p.NotOperand)
+	case !p.Integral:
+		return [2]float64{}, fmt.Errorf("length %s is not always a whole number: it may print a fraction", r.Spelling())
+	}
+	return [2]float64{p.Lo, p.Hi}, nil
+}
+
+// sharedNameShortfall checks the length lo and hi both read from one name, at each whole value b spans.
+func (v lengthProof) sharedNameShortfall(b [2]float64) error {
+	for n := b[0]; n <= b[1]; n++ {
+		if passing := v.passing(n, n); passing < v.count {
+			return fmt.Errorf("where %s is %.0f, %s", v.lo.Read().Spelling(), n, v.shortfall(passing))
+		}
 	}
 	return nil
 }

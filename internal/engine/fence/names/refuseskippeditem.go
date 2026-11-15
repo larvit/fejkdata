@@ -23,12 +23,20 @@ func refuseSkippedItem(nr nameRead) error {
 		if scope.Kind() != tree.ScopeChoiceItem || nr.in.NameScope().Within(scope) {
 			continue
 		}
-		for _, leaf := range read.Leaves() {
-			if _, steppedInto := nr.names.pathTo(scope.Owner(), leaf); steppedInto {
-				return fmt.Errorf("{%s} steps into an item of a choice without rendering it, so name %q, bound in that item, has no pick there; bind %q outside the choice, or read {%s} whole",
-					read.Spelling(), x.Named().Name(), x.Named().Name(), read.Named().Name())
-			}
+		if nr.steppedInto(scope) {
+			return fmt.Errorf("{%s} steps into an item of a choice without rendering it, so name %q, bound in that item, has no pick there; bind %q outside the choice, or read {%s} whole",
+				read.Spelling(), x.Named().Name(), x.Named().Name(), read.Named().Name())
 		}
 	}
 	return nil
+}
+
+// steppedInto reports whether a leaf of the read steps into the item whose scope is scope.
+func (nr nameRead) steppedInto(scope *tree.NameScope) bool {
+	for _, leaf := range nr.read.Leaves() {
+		if _, stepped := nr.names.pathTo(scope.Owner(), leaf); stepped {
+			return true
+		}
+	}
+	return false
 }
