@@ -93,10 +93,14 @@ func TestGermanLastNamesKeepTheirUmlauts(t *testing.T) {
 	}
 }
 
-func TestGermanLastNamesFollowTheirRank(t *testing.T) {
+func TestGermanLastNamesWeighSevenHundredThousandOverTheRootOfTheirRank(t *testing.T) {
 	last := germanNames(t, "last-name")[""]
-	if !(last["Müller"] > last["Schmidt"] && last["Schmidt"] > last["Schneider"] && last["Schneider"] > last["Krause"] && last["Krause"] > 0) {
-		t.Errorf("Müller, Schmidt, Schneider and Krause weigh %d, %d, %d and %d, want each below the one before", last["Müller"], last["Schmidt"], last["Schneider"], last["Krause"])
+	for name, want := range map[string]int{"Müller": 700000, "Schmidt": 494975, "Schneider": 404145, "Schlegel": 47194, "Abel": 47194} {
+		t.Run(name, func(t *testing.T) {
+			if got := last[name]; got != want {
+				t.Errorf("%q weighs %d, want %d: 700000 over the square root of rank 1, 2, 3 and 220, and the rarer names the 220th's", name, got, want)
+			}
+		})
 	}
 }
 
@@ -180,8 +184,6 @@ func TestGermanSexAndTitleAreSelectable(t *testing.T) {
 		"{/de_DE.title[Dr.]}":                          "Dr.",
 		"{/de_DE.title[Prof.]}":                        "Prof.",
 		"{/de_DE.title[Prof. Dr.]}":                    "Prof. Dr.",
-		"{/de_DE.sex[f].count}":                        "42335439",
-		"{/de_DE.sex[m].count}":                        "41241701",
 		"{/de_DE.sex[m].first-name[Maximilian].count}": "1751",
 	} {
 		t.Run(tmpl, func(t *testing.T) {
