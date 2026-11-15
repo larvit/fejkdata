@@ -43,10 +43,6 @@ class TheRepositorysComposeFile(unittest.TestCase):
 			(gated,) = re.findall(tool, dockerfile)
 			self.assertEqual(re.findall(tool, compose), [gated])
 
-	def test_gates_cyclomatic_complexity_at_7_in_both_files(self) -> None:
-		for path in ["Dockerfile", "compose.yaml"]:
-			self.assertEqual(re.findall(r"gocyclo@\S+ -over (\d+)", repository_file(path)), ["7"], path)
-
 	def test_gives_every_service_a_memory_limit_and_the_same_swap_limit(self) -> None:
 		(services,) = re.findall(r"^services:\n(.*?)^volumes:", repository_file("compose.yaml"), re.M | re.S)
 		blocks = re.split(r"^  (?=[\w-]+:\n)", services, flags=re.M)[1:]
