@@ -2023,3 +2023,16 @@ Read most (opens and searches):
 - `internal/builtinfunc/cpr.go` 1
 - `internal/builtinfunc/daybound.go` 1
 - `internal/builtinfunc/tick.go` 1
+
+## Reading cost, chunk c70216cfe6ee, finished 2026-11-15T15:03:14Z
+
+60974 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/rows/rows.go` 5
+- `compose.yaml` 4
+- `internal/datafiles/manifest.go` 3
+- `README.md` 2
+- `internal/proven/proven.go` 2
+- `internal/fejktest/ids.go` 1
