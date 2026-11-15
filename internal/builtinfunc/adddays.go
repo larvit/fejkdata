@@ -49,8 +49,6 @@ func addDaysArity(a []string) error {
 	return fmt.Errorf("adddays takes 2 or 3 arguments, got %d%s", len(a), hint)
 }
 
-// signsName reports whether n, which is no integer, starts with a sign and then something other
-// than a digit, so it reads as a signed name.
 func signsName(n string) bool {
 	return len(n) > 1 && strings.ContainsRune("+-", rune(n[0])) && !strings.ContainsRune("0123456789", rune(n[1]))
 }
