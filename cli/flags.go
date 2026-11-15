@@ -93,7 +93,7 @@ func splitFlags(arg string) ([]flagArg, error) {
 	return splitShort(arg[1:])
 }
 
-// splitShort reads letters as bundled short flags, the first that takes a value taking the rest.
+// splitShort reads letters, a short flag argument without its dash, as the short flags it bundles.
 func splitShort(letters string) ([]flagArg, error) {
 	var flags []flagArg
 	for i, r := range letters {
@@ -129,17 +129,17 @@ func parseArgs(argv []string) (invocation, error) {
 			continue
 		}
 		var err error
-		if i, err = setFlags(&in, arg, argv, i); err != nil {
+		if i, err = setFlags(&in, argv, i); err != nil {
 			return in, err
 		}
 	}
 	return in, nil
 }
 
-// setFlags sets the flags that argv[i] spells on in, and returns the index of the last argument
-// it read.
-func setFlags(in *invocation, arg string, argv []string, i int) (int, error) {
-	flags, err := splitFlags(arg)
+// setFlags sets on in each flag that the flag argument argv[i] spells, and returns the index of the
+// last argument it read, which is a later one where a flag takes the next argument as its value.
+func setFlags(in *invocation, argv []string, i int) (int, error) {
+	flags, err := splitFlags(argv[i])
 	if err != nil {
 		return i, err
 	}
@@ -179,7 +179,8 @@ func (in invocation) checkFlags() error {
 	return in.checkRecordFlags()
 }
 
-// checkRecordFlags rejects --table and --separator where the format cannot use them.
+// checkRecordFlags rejects an empty --table under a format that writes to a table, and --separator
+// under a record format.
 func (in invocation) checkRecordFlags() error {
 	f, records := recordFormats[in.format]
 	if in.tableSet && in.table == "" && f.target != "" {
