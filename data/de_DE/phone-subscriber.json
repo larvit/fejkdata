@@ -1,0 +1,7 @@
+{
+  "format": "{digits-8}",
+  "digits-6": "{int(1,9)}{digits(5)}",
+  "digits-7": "{int(1,9)}{digits(6)}",
+  "digits-7-8": ["{int(1,9)}{digits(6)}", "{int(1,9)}{digits(7)}"],
+  "digits-8": "{int(1,9)}{digits(7)}"
+}
