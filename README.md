@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names and persons, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons and Steuer-IDs, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places. Each address takes its street and
   postal code from one town ([`geo`](#geo)).
@@ -794,7 +794,7 @@ number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
 ### `de_DE`
 
-`de_DE`, German, carries `first-name`, `last-name`, `person`, `sex` and `title`. `sex` is `Frau` and `Mann`, `title` is
+`de_DE`, German, carries `first-name`, `last-name`, `person`, `sex`, `steuer-id` and `title`. `sex` is `Frau` and `Mann`, `title` is
 `Dr.`, `Prof.` and `Prof. Dr.`, drawn whatever the sex. `{/de_DE.person}` renders e.g. `Emilia Hesse`.
 
 No open register publishes Germany's name counts. The first names are the city of Munich's open data
@@ -810,6 +810,16 @@ A program showing the first names credits "Datenquelle: Landeshauptstadt Münche
 licence [Datenlizenz Deutschland – Namensnennung 2.0](https://www.govdata.de/dl-de/by-2-0) (`dl-de/by-2-0`), links
 the [dataset](https://opendata.muenchen.de/dataset/vornamen-von-neugeborenen), and says the data was changed: the
 files are summed per name and sex. One showing the sex counts credits "Source: Eurostat".
+
+#### Steuer-ID
+
+`de_DE.steuer-id` is a Steueridentifikationsnummer of the test series that ELSTER keeps. The Federal
+Central Tax Office (BZSt) issues no number with a leading zero, and ELSTER's "Prüfung der Steuer- und
+Steueridentifikationsnummer" allows one only for a test number, so a number here is valid, and no person holds
+it. It has eleven digits. Of the first ten, one digit appears twice or three times, evenly between the two,
+and no digit appears three times in a row. The eleventh is the check digit of ISO 7064 MOD 11,10, which
+`{steuerid()}` computes by ELSTER's algorithm. A checker that refuses a leading zero refuses every number
+here.
 
 ### `en_US`
 
@@ -1702,6 +1712,7 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{float(min,max,dp)}` | sample | number in `[min, max]` with `dp` decimals |
 | `{hex(n)}` | sample | `n` lowercase hex digits |
 | `{base64(n)}` | sample | `n` random bytes, base64 |
+| `{steuerid()}` | sample | a German Steueridentifikationsnummer of ELSTER's test series, with a leading zero (see [Steuer-ID](#steuer-id)) |
 | `{uuid()}` | sample | UUID v7 (`misc.uuid` ships v4 as data) |
 | `{ulid()}` | sample | ULID, 26 Crockford base32 chars |
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
