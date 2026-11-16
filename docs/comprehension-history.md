@@ -2106,3 +2106,79 @@ Inherited architect, decided by:
 - Shape, Locality: `internal/engine/load/path.go:106` `compileStep`: a method taking two parameters where the base had a free function taking six
 - Shape: `internal/engine/load/node.go:59` `position`: the place and whether Go types the struct are two axes
 - Shape: `internal/engine/load/format.go:104` `readCheck`: a named struct replaces the implicit pair
+
+## 2026-11-16T16:39:06Z, PR #414 at daaa1020
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7.5 | 6 | 7 | 6.5 | 6.5 |
+| Maintainability senior | 8 | 6.5 | 7 | 7 | 7 |
+| Inherited architect | 7 | 6 | 6 | 7.5 | 6.5 |
+| Mean | 7.38 | 6.00 | 6.63 | 6.75 | 6.50 |
+
+Junior A, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/fence/names/refusefreshdraw.go:22` `refuseFreshDraw`: three conditions, a cross-category worklist and an exception to hold at once; needs the README's "Refused at `New`" open beside it
+- Locality: `internal/engine/render/env.go:36` `frameStack.enter`: whether a frame is pushed, reused or skipped depends on base, memo and the read entering the category
+- Self-sufficiency: `internal/engine/tree/pick.go:9` `PickKey`: named levels start at "" and fresh ones at the head; meaning mixed with a heap-escape rule
+- Shape: `internal/rows/rows.go:17` `Table`: nothing says why it is generic
+
+Mid A, hardest first:
+
+- Locality, Overall: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: four ideas in one short loop, needing three other files open
+- Locality: `internal/engine/fence/names/refusekeptandfreshfield.go:72` `readsFieldApart`: why oneEndsHere turns the leaf check on stays opaque
+- Shape: `internal/engine/load/node.go:59` `position`: `place` means a different thing in `fence/names/routewalk.go`
+- Self-sufficiency: `internal/engine/tree/pick.go:82` `PlacedRead`: the level model lives only here, met first in fence/names
+
+Maintainability senior, hardest first:
+
+- Locality: `internal/engine/render/pick.go:344` `namedPick.readPath`: frames from the stack or another pick's memo, order-dependent across three types
+- Locality: `internal/engine/lazy.go:142` `batch.load`: whether LoadFinds survives putBack is not stated
+- Shape: `data-import/word-dk.py:36` `lexemes`: `held` is a form here and a tag set in word-no.py
+- Self-sufficiency: `data-import/wordtables.py:17` `word_json`: tripled braces mix the template language with f-string escapes
+
+Inherited architect, would restructure first:
+
+- Locality: `internal/engine/tree/pick.go:112` `LandsInPick`: load-time fences and render must agree through it, unchecked
+- Locality: `internal/engine/render/render.go:33` `render`: a child must come from renderedge.go or the fences miss it, enforced only by a comment
+- Shape: `internal/rows/rows.go:60` `Parse`: rows.go mixes parsing, proofs, linking and drawing
+- Navigation: `README.md:1136` "Swedish places": the data-or-engine answer sits deep in a 2805-line README
+
+## 2026-11-16T16:42:29Z, PR #414 rerun at daaa1020
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Maintainability senior | 8 | 6.5 | 7 | 7 | 7 |
+| Inherited architect | 7.5 | 6.5 | 7 | 7.5 | 7 |
+| Mean | 7.38 | 6.00 | 6.75 | 6.63 | 6.50 |
+
+Junior A, hardest first:
+
+- Locality: `internal/engine/tree/pick.go:82` `PlacedRead`: load and render must agree on its keys, and its shape rests on a heap-escape reason
+- Locality: `internal/engine/render/pick.go:344` `namedPick.readPath`: frame stack, memo and pick state held at once
+- Locality: `internal/engine/tree/loadfinds.go:316` `found`: a two-phase contract nothing at the call site shows
+- Self-sufficiency: `internal/engine/fence/names/refusefreshdraw.go:223` `refuseFreshDraw`: needs the README's "Refused at `New`" list beside it
+
+Mid A, hardest first:
+
+- Locality, Overall: `internal/engine/tree/pick.go:82` `PlacedRead`: named and fresh levels line up only through hand-worked key arithmetic
+- Locality: `internal/engine/render/env.go:36` `frameStack.enter`: a shared frame stack changed under a by-value env
+- Shape: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: five rules in routes, levels and addressed keys, opaque below their summary
+- Self-sufficiency: `data-import/wordtables.py:17` `word_json`: tripled braces mix template braces, f-string escapes and JSON
+
+Maintainability senior, hardest first:
+
+- Locality: `internal/engine/fence/names/refusefreshdraw.go:98` `refuseFreshDraw`: each condition hides its own walk; why `rendersField` is exempt stays opaque
+- Locality: `internal/engine/load/path.go:384` `compiledPath.walkEvery`: slice aliasing whose break shows only in another file's allocation gate
+- Shape: `data-import/word-no.py:27` `parts`: positional triples of tag sets unpacked by position
+- Self-sufficiency: `internal/engine/doc.go:23` "Vocabulary": level and pick key only point to `tree.PickKey`
+
+Inherited architect, would restructure first:
+
+- Navigation: `data/modules.go:23` `go:generate`: the manifest generator is a test in `shipped_test.go`
+- Locality: `internal/engine/tree/loadfinds.go:11` `LoadFinds`: two-phase node state every load function reads through
+- Shape: `internal/engine/tree/node.go:69` `Template`: one name over three concepts
+- Self-sufficiency: `internal/engine/render/pick.go:224` `namedPick`: render has no package doc for the frame, pick and pin lifecycle
