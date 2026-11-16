@@ -12,12 +12,10 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 331 | 0.7.0 |  |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 474 | 0.7.0 |  | decision | **Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 2.1 by 4 | 2.2 |
 | 475 | 0.7.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 2 | 1.9 |
 | 333 | 0.7.0 |  |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 329 | 0.7.0 |  |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
-| 476 | 0.7.0 |  |  | **Add `sv_SE.paragraph` from `sv_SE.sentence`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2.1 by 1 | 1.2 |
 | 477 | 0.7.0 |  |  | **Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 478 | 0.7.0 |  |  | **Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 479 | 0.7.0 |  |  | **Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
@@ -237,10 +235,6 @@
 
 ## Details
 
-### 331. Add `de_DE.phone`, drawn from Germany's numbering plan.
-
-Find the numbering plan and its licence first.
-
 ### 474. Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.
 
 Applies the decision "A country with no open address register covering it whole draws invented streets", as the project principle for `da_DK.company` and `fi_FI.company` draws names. Each name shape weighs the same, and the README's Data section marks the country's streets invented (item 254's labels). Item 330 is its first user; items 271, 280, 285 and 325 may take it too where no open register covers the country. Item 218 replaces the invented streets with real ones.
@@ -252,10 +246,6 @@ CLDR is under the Unicode licence, as `sv_SE.month` and `sv_SE.weekday` take the
 ### 329. Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.
 
 GeoNames publishes Germany's postal codes.
-
-### 476. Add `sv_SE.paragraph` from `sv_SE.sentence`.
-
-Joins three to six sentences, as `en_US.paragraph` does.
 
 ### 477. Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
 
