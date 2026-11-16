@@ -87,7 +87,7 @@ func TestGeoDEDropsAPostalCodeInNoLand(t *testing.T) {
 
 func TestGeoDEDrawsALocalityByItsPostalCodes(t *testing.T) {
 	t.Parallel()
-	if got := readJSON(t, "geo/DE/locality.json")["weight"]; got != "postal-codes" {
+	if got := readJSON[map[string]any](t, "geo/DE/locality.json")["weight"]; got != "postal-codes" {
 		t.Errorf("geo/DE/locality.json weighs by %v, want the locality's postal-codes", got)
 	}
 	f := shipped(t, fejkdata.WithSeed(3))
@@ -190,7 +190,7 @@ func TestGeoDEStreetsAreInventedNamesDrawnEvenly(t *testing.T) {
 		}
 		seen[r["name"]] = true
 	}
-	street := readJSON(t, "geo/DE/street.json")
+	street := readJSON[map[string]any](t, "geo/DE/street.json")
 	for _, key := range []string{"weight", "parent"} {
 		if _, held := street[key]; held {
 			t.Errorf("geo/DE/street.json sets %q, want an even draw of a street no place owns", key)

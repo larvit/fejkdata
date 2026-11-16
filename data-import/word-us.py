@@ -68,4 +68,4 @@ def candidates(tarball: bytes) -> Iterator[wordtables.Candidate]:
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "en", OUT, FORMS, [wordtables.Source("wordnet", WORDNET, "WNdb-3.0.tar.gz", b"\x1f\x8b", "", candidates)])
+    wordtables.main(__doc__, "en", OUT, FORMS, [wordtables.Source(flag="wordnet", url=WORDNET, name="WNdb-3.0.tar.gz", magic=b"\x1f\x8b", candidates=candidates)])

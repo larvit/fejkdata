@@ -53,4 +53,4 @@ def candidates(cor: bytes) -> Iterator[wordtables.Candidate]:
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "da", OUT, FORMS, [wordtables.Source("cor", COR, "", b"COR.", "", candidates)])
+    wordtables.main(__doc__, "da", OUT, FORMS, [wordtables.Source(flag="cor", url=COR, magic=b"COR.", candidates=candidates)])

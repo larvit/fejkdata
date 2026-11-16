@@ -2,8 +2,8 @@
 import argparse
 import json
 from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
-from typing import NamedTuple
 
 import source
 import tsv
@@ -15,16 +15,17 @@ CACHE = Path(__file__).resolve().parent / "cache"
 Candidate = tuple[str, str, str]
 
 
-class Source(NamedTuple):
-    """One file an import reads: its flag, its URL, its name in the cache or "" for the URL's own, the bytes it opens with,
-    the folder under --out its tables go to, and the parser yielding its candidates."""
+@dataclass(frozen=True, kw_only=True)
+class Source:
+    """One file an import reads: its flag, its URL, the bytes it opens with, the parser yielding its candidates,
+    its name in the cache or "" for the URL's own, and the folder under --out its tables go to, "" for --out itself."""
 
     flag: str
     url: str
-    name: str
     magic: bytes
-    folder: str
     candidates: Callable[[bytes], Iterable[Candidate]]
+    name: str = ""
+    folder: str = ""
 
 
 def rude(language: str, cache: str | Path, url: str = "") -> set[str]:
@@ -33,22 +34,22 @@ def rude(language: str, cache: str | Path, url: str = "") -> set[str]:
     return {w.strip().lower() for w in listed if w.strip()}
 
 
-def lower(word: str, part: str) -> bool:
+def lower(word: str, _part: str) -> bool:
     """Lower-case letters alone, whatever the part of speech."""
     return word.isalpha() and word.islower()
 
 
-def rows(candidates: Iterable[Candidate], forms: Mapping[str, str], rude: Collection[str], spelled: Callable[[str, str], bool] = lower) -> dict[str, list[dict[str, str]]]:
+def rows(candidates: Iterable[Candidate], forms: Mapping[str, str], rude_words: Collection[str], spelled: Callable[[str, str], bool] = lower) -> dict[str, list[dict[str, str]]]:
     """Per part of speech, its rows sorted by word: the first candidate of each word that is spelled and not rude,
     and whose form is too where the part carries one."""
     found: dict[str, dict[str, dict[str, str]]] = {part: {} for part in forms}
     for part, word, form in candidates:
         column = forms[part]
-        if not spelled(word, part) or word.lower() in rude:
+        if not spelled(word, part) or word.lower() in rude_words:
             continue
         if not column:
             found[part].setdefault(word, {"word": word})
-        elif spelled(form, part) and form.lower() not in rude:
+        elif spelled(form, part) and form.lower() not in rude_words:
             found[part].setdefault(word, {"word": word, column: form})
     return {part: [words[w] for w in sorted(words)] for part, words in found.items()}
 
@@ -72,12 +73,12 @@ def word_json(forms: Mapping[str, str], counts: Mapping[str, int]) -> str:
     return '{\n  "format": "{any}",\n  "any": [\n' + items + "\n  ],\n" + ",\n".join(fields) + "\n}\n"
 
 
-def write(out: Path, forms: Mapping[str, str], rows: Mapping[str, Sequence[Mapping[str, str]]]) -> None:
+def write(out: Path, forms: Mapping[str, str], table: Mapping[str, Sequence[Mapping[str, str]]]) -> None:
     """Write each part's word-<part>.tsv and word-<part>.json, its form column after the word, and word.json."""
     for part, column in forms.items():
-        tsv.write(out / f"word-{part}.tsv", ["word", column] if column else ["word"], rows[part])
+        tsv.write(out / f"word-{part}.tsv", ["word", column] if column else ["word"], table[part])
         (out / f"word-{part}.json").write_text(inline({"format": "{word}", "rows": f"word-{part}.tsv"}) + "\n", encoding="utf-8")
-    (out / "word.json").write_text(word_json(forms, {part: len(rows[part]) for part in forms}), encoding="utf-8")
+    (out / "word.json").write_text(word_json(forms, {part: len(table[part]) for part in forms}), encoding="utf-8")
 
 
 def main(doc: str, language: str, out: Path, forms: Mapping[str, str], sources: Sequence[Source], spelled: Callable[[str, str], bool] = lower) -> None:

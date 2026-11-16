@@ -91,7 +91,7 @@ if __name__ == "__main__":
         OUT,
         FORMS,
         [
-            wordtables.Source("bokmal", BOKMAL, "", b"\x1f\x8b", "nb_NO", partial(candidates, variety="nb_NO")),
-            wordtables.Source("nynorsk", NYNORSK, "", b"\x1f\x8b", "nn_NO", partial(candidates, variety="nn_NO")),
+            wordtables.Source(flag="bokmal", url=BOKMAL, magic=b"\x1f\x8b", folder="nb_NO", candidates=partial(candidates, variety="nb_NO")),
+            wordtables.Source(flag="nynorsk", url=NYNORSK, magic=b"\x1f\x8b", folder="nn_NO", candidates=partial(candidates, variety="nn_NO")),
         ],
     )

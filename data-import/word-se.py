@@ -52,4 +52,4 @@ def candidates(saldo: bytes) -> Iterator[wordtables.Candidate]:
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "sv", OUT, FORMS, [wordtables.Source("saldo", SALDO, "saldom.xml", b"<LexicalResource", "", candidates)])
+    wordtables.main(__doc__, "sv", OUT, FORMS, [wordtables.Source(flag="saldo", url=SALDO, name="saldom.xml", magic=b"<LexicalResource", candidates=candidates)])

@@ -57,4 +57,4 @@ def candidates(dump: bytes) -> Iterator[wordtables.Candidate]:
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "de", OUT, FORMS, [wordtables.Source("lexemes", LEXEMES, "wikidata-lexemes.json.gz", b"\x1f\x8b", "", candidates)], spelled)
+    wordtables.main(__doc__, "de", OUT, FORMS, [wordtables.Source(flag="lexemes", url=LEXEMES, name="wikidata-lexemes.json.gz", magic=b"\x1f\x8b", candidates=candidates)], spelled)

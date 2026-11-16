@@ -11,23 +11,30 @@ import (
 	"github.com/larvit/fejkdata/data"
 )
 
-// shippedLocale is what the tests shared by the locales expect of one. A nil or empty field
-// leaves the locale out of that field's tests: its own file then holds what it tests instead.
+// shippedLocale is what the tests shared by the locales expect of one. A field makes the shared
+// tests of its categories run for the locale, and sharedCategories says which categories those are.
 type shippedLocale struct {
 	name string
-	// By part of speech, the column of its word table holding the word's form, or "" where it has none.
-	wordForms map[string]string
-	word      *regexp.Regexp
-	noun      *regexp.Regexp
-	months    []string
-	weekdays  []string
-	everyday  *everyday
-	person    *person
-	company   *company
+	// Its word tables by part of speech.
+	words    map[string]wordTable
+	months   []string
+	weekdays []string
+	everyday *everyday
+	names    *names
+	person   *person
+	company  *company
 	// Go's layout of the locale's date: "2.1.2006" pads neither the day nor the month.
 	dateLayout string
 	emailFold  *strings.Replacer
 	phone      *phone
+	// The categories of sharedCategories it ships with no field set here, since tests outside the shared ones hold them.
+	testedElsewhere []string
+}
+
+type wordTable struct {
+	// The column holding the word's form, or "" where the table has none.
+	form    string
+	spelled *regexp.Regexp
 }
 
 type everyday struct {
@@ -38,14 +45,22 @@ type everyday struct {
 	colors   []string
 }
 
+type names struct {
+	// First names borne by one sex alone, each with that sex, and first names borne by both.
+	ofOneSex    map[string]string
+	ofBothSexes []string
+}
+
 type person struct {
 	sexWords map[string]string
 	titles   []string
 }
 
+// A company's legal forms: the one whose names end in no legal form, and those whose names end in theirs.
 type company struct {
-	name  *regexp.Regexp
-	forms []legalForm
+	name     *regexp.Regexp
+	bare     legalForm
+	suffixed []legalForm
 }
 
 // A legal form a company draws: the code its country's register counts it under, the last step of
@@ -59,9 +74,10 @@ type legalForm struct {
 }
 
 type phone struct {
-	callingCode      string
-	dropsTrunkPrefix bool
-	fixed            func(t *testing.T) func(national string) bool
+	callingCode string
+	// What its national form opens with and its international form drops, or "".
+	trunkPrefix string
+	fixed       func(t *testing.T) func(national string) bool
 	// Its tables of area codes, each with the code in area and the code without its trunk 0 in ndc.
 	areaTables []string
 }
@@ -73,112 +89,119 @@ const (
 
 var (
 	lowerWord       = regexp.MustCompile(`^\p{Ll}+$`)
-	definiteForms   = map[string]string{"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
+	capitalisedWord = regexp.MustCompile(`^\p{Lu}\p{Ll}+$`)
+	asciiWord       = regexp.MustCompile(`^[a-z]+$`)
+	definiteForms   = map[string]wordTable{"noun": {"definite", lowerWord}, "verb": {"present", lowerWord}, "adj": {"definite", lowerWord}, "adv": {"", lowerWord}}
 	latinFolds      = strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
 	trunkAreaTables = []string{"phone-fixed", "phone-mobile"}
 )
 
 var shippedLocales = []shippedLocale{
 	{
-		name:      "da_DK",
-		wordForms: definiteForms,
-		word:      lowerWord,
-		noun:      lowerWord,
-		months:    []string{"januar", "februar", "marts", "april", "maj", "juni", "juli", "august", "september", "oktober", "november", "december"},
-		weekdays:  []string{"mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"},
-		everyday:  &everyday{`^\d{1,3}(\.\d{3})?(,\d{2})? kr\.$`, `^([01]\d|2[0-3])\.[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|dk)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grøn", "Rød"}},
-		person:    &person{map[string]string{"f": "kvinde", "m": "mand"}, []string{"dr.", "professor"}},
+		name:     "da_DK",
+		names:    &names{map[string]string{"Mette": "f", "Freja": "f", "Søren": "m", "Mads": "m"}, []string{"Kim"}},
+		words:    definiteForms,
+		months:   []string{"januar", "februar", "marts", "april", "maj", "juni", "juli", "august", "september", "oktober", "november", "december"},
+		weekdays: []string{"mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"},
+		everyday: &everyday{`^\d{1,3}(\.\d{3})?(,\d{2})? kr\.$`, `^([01]\d|2[0-3])\.[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|dk)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grøn", "Rød"}},
+		person:   &person{map[string]string{"f": "kvinde", "m": "mand"}, []string{"dr.", "professor"}},
 		// Statistics Denmark's table GF15, 2024: 132,403 sole proprietorships, 218,208 private limited companies,
 		// 30,750 public limited companies and 11,679 partnerships and limited partnerships, split evenly.
-		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (ApS|A/S|I/S|K/S))?$`), []legalForm{
-			{"ENK", "enk", "", 132403}, {"ApS", "aps", "ApS", 218208}, {"A/S", "as", "A/S", 30750}, {"I/S", "is", "I/S", 5840}, {"K/S", "ks", "K/S", 5839},
+		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (ApS|A/S|I/S|K/S))?$`), legalForm{"ENK", "enk", "", 132403}, []legalForm{
+			{"ApS", "aps", "ApS", 218208}, {"A/S", "as", "A/S", 30750}, {"I/S", "is", "I/S", 5840}, {"K/S", "ks", "K/S", 5839},
 		}},
 		// Dansk Sprognævn's answer SV00000046 gives 2.10.2003 and advises against 02.10.2003.
 		dateLayout: "2.1.2006",
 		emailFold:  latinFolds,
-		phone:      &phone{"+45", false, danishFixedPhone, nil},
+		phone:      &phone{"+45", "", danishFixedPhone, nil},
 	},
 	{
-		name:      "de_DE",
-		wordForms: map[string]string{"noun": "plural", "verb": "", "adj": "", "adv": ""},
-		word:      lowerWord,
-		noun:      regexp.MustCompile(`^\p{Lu}\p{Ll}+$`),
-		months:    []string{"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"},
-		weekdays:  []string{"Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"},
-		everyday:  &everyday{`^\d{1,3}(\.\d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|de)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blau", "Grün", "Rot"}},
-		person:    &person{map[string]string{"f": "Frau", "m": "Mann"}, []string{"Dr.", "Prof.", "Prof. Dr."}},
+		name:     "de_DE",
+		names:    &names{map[string]string{"Emilia": "f", "Marie": "f", "Maximilian": "m", "Felix": "m"}, []string{"Noa"}},
+		words:    map[string]wordTable{"noun": {"plural", capitalisedWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
+		months:   []string{"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"},
+		weekdays: []string{"Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"},
+		everyday: &everyday{`^\d{1,3}(\.\d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|de)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blau", "Grün", "Rot"}},
+		person:   &person{map[string]string{"f": "Frau", "m": "Mann"}, []string{"Dr.", "Prof.", "Prof. Dr."}},
 		// Destatis' Unternehmensregister, 2024: 2,062,752 sole proprietors, 440,951 partnerships and 861,720
 		// corporations, each group split evenly over the forms drawn.
-		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (KG|OHG|GmbH|UG \(haftungsbeschränkt\)|AG))?$`), []legalForm{
-			{"Einzelunternehmen", "einzel", "", 2062752}, {"KG", "kg", "KG", 220476}, {"OHG", "ohg", "OHG", 220475},
+		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (KG|OHG|GmbH|UG \(haftungsbeschränkt\)|AG))?$`), legalForm{"Einzelunternehmen", "einzel", "", 2062752}, []legalForm{
+			{"KG", "kg", "KG", 220476}, {"OHG", "ohg", "OHG", 220475},
 			{"GmbH", "gmbh", "GmbH", 287240}, {"UG (haftungsbeschränkt)", "ug", "UG (haftungsbeschränkt)", 287240}, {"AG", "ag", "AG", 287240},
 		}},
 		// DIN 5008 writes a date as TT.MM.JJJJ.
 		dateLayout: "02.01.2006",
 		emailFold:  strings.NewReplacer("ä", "a", "ö", "o", "ü", "u", "ß", "ss"),
-		phone:      &phone{"+49", true, germanFixedPhone, trunkAreaTables},
+		phone:      &phone{"+49", "0", germanFixedPhone, trunkAreaTables},
 	},
 	{
-		name:      "en_US",
-		wordForms: map[string]string{"noun": "", "verb": "present", "adj": "", "adv": ""},
-		word:      regexp.MustCompile(`^[a-z]+$`),
-		noun:      regexp.MustCompile(`^[a-z]+$`),
-		months:    []string{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
-		weekdays:  []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"},
+		name:       "en_US",
+		names:      &names{map[string]string{"Emily": "f", "Olivia": "f", "Liam": "m", "Noah": "m"}, []string{"Taylor"}},
+		words:      map[string]wordTable{"noun": {"", asciiWord}, "verb": {"present", asciiWord}, "adj": {"", asciiWord}, "adv": {"", asciiWord}},
+		months:     []string{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
+		weekdays:   []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"},
+		dateLayout: "01/02/2006",
+		// english_test.go holds its person, title and phone, and TestShippedDataCategories of ../data_test.go the rest.
+		testedElsewhere: []string{"color", "company", "email", "person", "phone", "price", "sex", "time", "title", "url", "username"},
 	},
 	{
-		name:      "fi_FI",
-		wordForms: map[string]string{"noun": "", "verb": "", "adj": "", "adv": ""},
-		word:      lowerWord,
-		noun:      lowerWord,
-		months:    []string{"tammikuu", "helmikuu", "maaliskuu", "huhtikuu", "toukokuu", "kesäkuu", "heinäkuu", "elokuu", "syyskuu", "lokakuu", "marraskuu", "joulukuu"},
-		weekdays:  []string{"maanantai", "tiistai", "keskiviikko", "torstai", "perjantai", "lauantai", "sunnuntai"},
-		everyday:  &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3])\.[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|fi)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Sininen", "Vihreä", "Punainen"}},
-		person:    &person{map[string]string{"f": "nainen", "m": "mies"}, []string{"tohtori", "professori"}},
-		company: &company{regexp.MustCompile(`^\p{L}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (Oy|Ky|Ay|osk))?$`), []legalForm{
-			{"Tmi", "tmi", "", 295203}, {"Oy", "oy", "Oy", 240524}, {"Ky", "ky", "Ky", 13356}, {"Ay", "ay", "Ay", 4726}, {"osk", "osk", "osk", 2811},
+		name:     "fi_FI",
+		names:    &names{map[string]string{"Anne": "f", "Aino": "f", "Juha": "m", "Matti": "m"}, []string{"Kim"}},
+		words:    map[string]wordTable{"noun": {"", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
+		months:   []string{"tammikuu", "helmikuu", "maaliskuu", "huhtikuu", "toukokuu", "kesäkuu", "heinäkuu", "elokuu", "syyskuu", "lokakuu", "marraskuu", "joulukuu"},
+		weekdays: []string{"maanantai", "tiistai", "keskiviikko", "torstai", "perjantai", "lauantai", "sunnuntai"},
+		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3])\.[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|fi)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Sininen", "Vihreä", "Punainen"}},
+		person:   &person{map[string]string{"f": "nainen", "m": "mies"}, []string{"tohtori", "professori"}},
+		company: &company{regexp.MustCompile(`^\p{L}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (Oy|Ky|Ay|osk))?$`), legalForm{"Tmi", "tmi", "", 295203}, []legalForm{
+			{"Oy", "oy", "Oy", 240524}, {"Ky", "ky", "Ky", 13356}, {"Ay", "ay", "Ay", 4726}, {"osk", "osk", "osk", 2811},
 		}},
 		dateLayout: "2.1.2006",
 		emailFold:  strings.NewReplacer("ä", "a", "ö", "o", "å", "a"),
-		phone:      &phone{"+358", true, finnishFixedPhone, trunkAreaTables},
+		phone:      &phone{"+358", "0", finnishFixedPhone, trunkAreaTables},
 	},
 	{
-		name:      "nb_NO",
-		wordForms: definiteForms,
-		word:      lowerWord,
-		noun:      lowerWord,
-		months:    []string{"januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"},
-		weekdays:  []string{"mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"},
-		everyday:  &everyday{`^\d{1,3}( \d{3})?(,\d{2})? kr$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|no)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grønn", "Rød"}},
-		person:    &person{map[string]string{"f": "kvinne", "m": "mann"}, []string{"dr.", "professor"}},
+		name:     "nb_NO",
+		names:    &names{map[string]string{"Kari": "f", "Nora": "f", "Ola": "m", "Jakob": "m"}, []string{"Kim"}},
+		words:    definiteForms,
+		months:   []string{"januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"},
+		weekdays: []string{"mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"},
+		everyday: &everyday{`^\d{1,3}( \d{3})?(,\d{2})? kr$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|no)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grønn", "Rød"}},
+		person:   &person{map[string]string{"f": "kvinne", "m": "mann"}, []string{"dr.", "professor"}},
 		// The active units of each form in Enhetsregisteret on 2026-10-22, leaving out the bankrupt, those being
 		// wound up and those forcibly dissolved.
-		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'-]*[\p{L}\p{N}]$`), []legalForm{
-			{"ENK", "enk", "", 465166}, {"AS", "as", "AS", 423370}, {"DA", "da", "DA", 9105}, {"SA", "sa", "SA", 6761},
+		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'-]*[\p{L}\p{N}]$`), legalForm{"ENK", "enk", "", 465166}, []legalForm{
+			{"AS", "as", "AS", 423370}, {"DA", "da", "DA", 9105}, {"SA", "sa", "SA", 6761},
 			{"ANS", "ans", "ANS", 6214}, {"ASA", "asa", "ASA", 205}, {"KS", "ks", "KS", 105},
 		}},
 		dateLayout: "02.01.2006",
 		emailFold:  latinFolds,
-		phone:      &phone{"+47", false, norwegianFixedPhone, nil},
+		phone:      &phone{"+47", "", norwegianFixedPhone, nil},
 	},
 	{
-		name:      "nn_NO",
-		wordForms: definiteForms,
-		word:      lowerWord,
-		noun:      lowerWord,
-		months:    []string{"januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"},
-		weekdays:  []string{"måndag", "tysdag", "onsdag", "torsdag", "fredag", "laurdag", "søndag"},
-		everyday:  &everyday{`^\d{1,3}( \d{3})?(,\d{2})? kr$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|no)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grøn", "Raud"}},
+		name:       "nn_NO",
+		words:      definiteForms,
+		months:     []string{"januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"},
+		weekdays:   []string{"måndag", "tysdag", "onsdag", "torsdag", "fredag", "laurdag", "søndag"},
+		everyday:   &everyday{`^\d{1,3}( \d{3})?(,\d{2})? kr$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|no)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grøn", "Raud"}},
+		dateLayout: "02.01.2006",
+		// nynorsk_test.go holds them: each reads Bokmål's.
+		testedElsewhere: []string{"company", "email", "person", "phone", "title"},
 	},
 	{
-		name:      "sv_SE",
-		wordForms: definiteForms,
-		word:      lowerWord,
-		noun:      lowerWord,
-		months:    []string{"januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"},
-		weekdays:  []string{"måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag", "söndag"},
+		name:       "sv_SE",
+		names:      &names{map[string]string{"Anna": "f", "Karin": "f", "Erik": "m", "Lars": "m"}, []string{"Kim"}},
+		words:      definiteForms,
+		months:     []string{"januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"},
+		weekdays:   []string{"måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag", "söndag"},
+		everyday:   &everyday{`^\d{1,3}( \d{3})?(,\d{2})? kr$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|se)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grön", "Röd"}},
+		person:     &person{map[string]string{"f": "kvinna", "m": "man"}, []string{"dr", "prof"}},
+		dateLayout: "2006-01-02",
+		// swedish_test.go holds its company and phone, and TestShippedDataCategories of ../data_test.go its email.
+		testedElsewhere: []string{"company", "email", "phone"},
 	},
 }
+
+func everyLocale(shippedLocale) bool { return true }
 
 func eachLocale(t *testing.T, has func(l shippedLocale) bool, test func(t *testing.T, l shippedLocale)) {
 	t.Helper()
@@ -189,11 +212,38 @@ func eachLocale(t *testing.T, has func(l shippedLocale) bool, test func(t *testi
 	}
 }
 
+// The categories the shared tests hold, each with what tells that a locale's entry makes those tests run for it.
+var sharedCategories = map[string]func(l shippedLocale) bool{
+	"word": hasWords, "sentence": hasWords, "paragraph": hasWords,
+	"month": hasCalendar, "weekday": hasCalendar,
+	"price": hasEveryday, "time": hasEveryday, "url": hasEveryday, "username": hasEveryday, "color": hasEveryday,
+	"first-name": hasNames, "last-name": hasNames,
+	"person": hasPerson, "sex": hasPerson, "title": hasPerson,
+	"company": hasCompany,
+	"date":    hasDate,
+	"email":   hasEmail,
+	"phone":   hasPhone,
+}
+
+// coveredCategories lists the shared categories its entry answers for: each whose field is set, then each it says other tests hold.
+func (l shippedLocale) coveredCategories() []string {
+	var covered []string
+	for category, has := range sharedCategories {
+		if has(l) {
+			covered = append(covered, category)
+		}
+	}
+	covered = append(covered, l.testedElsewhere...)
+	slices.Sort(covered)
+	return covered
+}
+
 var localeNamespace = regexp.MustCompile(`^[a-z]{2}_[A-Z]{2}$`)
 
-func shippedLocaleModules(t *testing.T) []string {
+// shippedLocaleCategories reads the manifests of data.Modules for each locale's categories, sorted.
+func shippedLocaleCategories(t *testing.T) map[string][]string {
 	t.Helper()
-	var names []string
+	categories := map[string][]string{}
 	for _, module := range data.Modules() {
 		raw, err := fs.ReadFile(module, ".fejkdata.json")
 		if err != nil {
@@ -205,22 +255,39 @@ func shippedLocaleModules(t *testing.T) []string {
 		if err := json.Unmarshal(raw, &manifest); err != nil {
 			t.Fatal(err)
 		}
-		for category := range manifest.Index {
-			if namespace, _, _ := strings.Cut(category, "."); localeNamespace.MatchString(namespace) && !slices.Contains(names, namespace) {
-				names = append(names, namespace)
+		for path := range manifest.Index {
+			if namespace, category, _ := strings.Cut(path, "."); localeNamespace.MatchString(namespace) {
+				categories[namespace] = append(categories[namespace], category)
 			}
 		}
 	}
-	slices.Sort(names)
-	return names
+	for _, shipped := range categories {
+		slices.Sort(shipped)
+	}
+	return categories
 }
 
 func TestShippedLocalesAreTheLocaleModulesOfModules(t *testing.T) {
-	var listed []string
+	var listed, modules []string
 	for _, l := range shippedLocales {
 		listed = append(listed, l.name)
 	}
-	if modules := shippedLocaleModules(t); !slices.Equal(listed, modules) {
+	for namespace := range shippedLocaleCategories(t) {
+		modules = append(modules, namespace)
+	}
+	slices.Sort(modules)
+	if !slices.Equal(listed, modules) {
 		t.Errorf("shippedLocales holds %v, want one entry per locale module of data.Modules, in order: %v", listed, modules)
 	}
+}
+
+func TestShippedLocaleCoversEachSharedCategoryItsModuleShipsOnce(t *testing.T) {
+	categories := shippedLocaleCategories(t)
+	eachLocale(t, everyLocale, func(t *testing.T, l shippedLocale) {
+		heldByOtherTestsAlone := func(category string) bool { return sharedCategories[category] == nil }
+		ships := slices.DeleteFunc(categories[l.name], heldByOtherTestsAlone)
+		if covered := l.coveredCategories(); !slices.Equal(covered, ships) {
+			t.Errorf("the entry sets a field or names testedElsewhere for %q, want each category the shared tests hold that the module ships, once: %q", covered, ships)
+		}
+	})
 }

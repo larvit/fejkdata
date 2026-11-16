@@ -10,6 +10,8 @@ import (
 
 func hasPhone(l shippedLocale) bool { return l.phone != nil }
 
+func hasPhoneAreaTables(l shippedLocale) bool { return hasPhone(l) && l.phone.areaTables != nil }
+
 func eachPhone(t *testing.T, locale string, check func(n string)) {
 	t.Helper()
 	f := shipped(t, fejkdata.WithSeed(11))
@@ -32,7 +34,7 @@ func TestLocalePhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
 }
 
 func TestLocalePhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
-	eachLocale(t, func(l shippedLocale) bool { return hasPhone(l) && l.phone.areaTables != nil }, func(t *testing.T, l shippedLocale) {
+	eachLocale(t, hasPhoneAreaTables, func(t *testing.T, l shippedLocale) {
 		for _, table := range l.phone.areaTables {
 			t.Run(table, func(t *testing.T) {
 				for _, row := range fejktest.TSVRows(t, l.name+"/"+table+".tsv") {
@@ -55,12 +57,8 @@ func TestLocalePhoneInternationalIsItsCallingCodeAndItsNationalForm(t *testing.T
 			if len(parts) != 3 || parts[0] != parts[1] {
 				t.Fatalf("%q: want the national form twice, then the international one", got)
 			}
-			behind := parts[0]
-			if l.phone.dropsTrunkPrefix {
-				behind = strings.TrimPrefix(behind, "0")
-			}
-			if parts[2] != l.phone.callingCode+" "+behind {
-				t.Fatalf("%q: want %s and the national form behind it, without its 0: %t", got, l.phone.callingCode, l.phone.dropsTrunkPrefix)
+			if parts[2] != l.phone.callingCode+" "+strings.TrimPrefix(parts[0], l.phone.trunkPrefix) {
+				t.Fatalf("%q: want %s and the national form behind it, without its trunk prefix %q", got, l.phone.callingCode, l.phone.trunkPrefix)
 			}
 		})
 	})
