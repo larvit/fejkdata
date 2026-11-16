@@ -1559,8 +1559,8 @@ of speech by its row count, per "A table whose register publishes no frequency d
 
 SALDO marks no word as rude, so the import drops exact matches of LDNOOBW's Swedish list (CC BY 4.0,
 widely used to filter generated text). It leaves compounds and any rude word the list lacks.
-Item 497 ends this filter: the project principle on a locale's `word` keeps rude words.
-Valid while no open Swedish source tags register.
+Valid while no open Swedish source tags register. Item 497 ends this filter: the project principle on a
+locale's `word` keeps rude words.
 
 ## `en_US.word` holds WordNet's words, under one short path per part of speech, and its notice ships with them
 
@@ -1587,7 +1587,7 @@ WordNet's sense counts cover a quarter of its lemmas, so `word` weighs a part of
 draws each word evenly, which keeps the spread this data exists to widen.
 Valid while no open English source gives a frequency for every word.
 
-## `nb_NO`, `nn_NO`, `da_DK`, `fi_FI` and `de_DE` hold their dictionary's words as `sv_SE.word` does, and `de_DE.word.noun` carries `plural`
+## `de_DE.word.noun` carries `plural`, where the other locales' nouns carry `definite`
 
 2026-11-16, the maintainer. Goal 3.2.
 
