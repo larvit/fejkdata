@@ -1843,3 +1843,30 @@ func TestSwedishPersonnummerAgreesWithItsSex(t *testing.T) {
 		})
 	}
 }
+
+func TestSwedishParagraphIsThreeToSixSentences(t *testing.T) {
+	t.Parallel()
+	sv := shipped(t, fejkdata.WithSeed(9))
+	paragraph := regexp.MustCompile(`^\p{Lu}[^.!?]*[.!?]( \p{Lu}[^.!?]*[.!?]){2,5}$`)
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, sv, "sv_SE.paragraph") }, func(p string) {
+		if !paragraph.MatchString(p) {
+			t.Fatalf("sv_SE.paragraph = %q, want three to six sentences", p)
+		}
+	})
+}
+
+func TestSwedishParagraphDrawsEachSentenceCountFromThreeToSix(t *testing.T) {
+	t.Parallel()
+	sv := shipped(t, fejkdata.WithSeed(9))
+	terminators := regexp.MustCompile(`[.!?]`)
+	counts := fejktest.TallyDraws(300, func() string {
+		return strconv.Itoa(len(terminators.FindAllString(fejktest.Fake(t, sv, "sv_SE.paragraph"), -1)))
+	})
+	for _, n := range []int{3, 4, 5, 6} {
+		t.Run(strconv.Itoa(n), func(t *testing.T) {
+			if counts[strconv.Itoa(n)] == 0 {
+				t.Errorf("300 paragraphs never held %d sentences (held %v)", n, counts)
+			}
+		})
+	}
+}
