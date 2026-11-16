@@ -36,6 +36,7 @@ LANDS = {
     "RP": "Rheinland-Pfalz", "SH": "Schleswig-Holstein", "SL": "Saarland", "SN": "Sachsen", "ST": "Sachsen-Anhalt",
     "TH": "Thüringen",
 }
+TRANSLITERATION = str.maketrans({"ä": "ae", "ö": "oe", "ü": "ue", "Ä": "Ae", "Ö": "Oe", "Ü": "Ue", "ß": "ss"})
 # The Kreis of each city state, whose places GeoNames names after the city and a district, "Hamburg Altona-Altstadt".
 CITY_STATES = {"02000": "Hamburg", "11000": "Berlin"}
 # A Kreis whose name GeoNames writes in English.
@@ -518,8 +519,9 @@ def kreis_names(rows: Iterable[Entry]) -> dict[str, str]:
 
 
 def slug(place: str) -> str:
-    """A place name in lower-case ASCII, its runs of other characters a hyphen: "Müllrose" is "mullrose"."""
-    ascii_name = unicodedata.normalize("NFKD", place.replace("ß", "ss")).encode("ascii", "ignore").decode()
+    """A place name in lower-case ASCII, the umlauts and ß written as German does without them, and each run of other
+    characters a hyphen: "Müllrose" is "muellrose"."""
+    ascii_name = unicodedata.normalize("NFKD", place.translate(TRANSLITERATION)).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "-", ascii_name.lower()).strip("-")
 
 
