@@ -44,6 +44,7 @@ da_DK.last-name.name	string
 da_DK.month	format "{name}"	key code	name name
 da_DK.month.code	string
 da_DK.month.name	string
+da_DK.paragraph	reads da_DK.sentence
 da_DK.person	format "{prefix}{first} {last}"	reads da_DK.first-name da_DK.last-name da_DK.title
 da_DK.person.first	string
 da_DK.person.last	string
@@ -61,6 +62,12 @@ da_DK.phone.subscriber	string
 da_DK.price	format "{amt}{ore} kr."
 da_DK.price.amt	string
 da_DK.price.ore	string
+da_DK.sentence	reads da_DK.word-adj da_DK.word-noun da_DK.word-verb
+da_DK.sentence.adj
+da_DK.sentence.det
+da_DK.sentence.noun
+da_DK.sentence.prep
+da_DK.sentence.verb
 da_DK.sex	format "{name}"	key code	name name	weight count
 da_DK.sex.code	string
 da_DK.sex.count	string
@@ -84,6 +91,26 @@ da_DK.username.n
 da_DK.weekday	format "{name}"	key code	name name
 da_DK.weekday.code	string
 da_DK.weekday.name	string
+da_DK.word	format "{any}"	reads da_DK.word-adj da_DK.word-adv da_DK.word-noun da_DK.word-verb
+da_DK.word-adj	format "{word}"
+da_DK.word-adj.definite	string
+da_DK.word-adj.word	string
+da_DK.word-adv	format "{word}"
+da_DK.word-adv.word	string
+da_DK.word-noun	format "{word}"
+da_DK.word-noun.definite	string
+da_DK.word-noun.word	string
+da_DK.word-verb	format "{word}"
+da_DK.word-verb.present	string
+da_DK.word-verb.word	string
+da_DK.word.adj	string
+da_DK.word.adj.definite
+da_DK.word.adv	string
+da_DK.word.any	string
+da_DK.word.noun	string
+da_DK.word.noun.definite
+da_DK.word.verb	string
+da_DK.word.verb.present
 de_DE.address	format "{/geo.DE.address as a}{a}"	reads geo.DE.address
 de_DE.address.locality	string
 de_DE.address.municipality	string
@@ -127,6 +154,7 @@ de_DE.last-name.name	string
 de_DE.month	format "{name}"	key code	name name
 de_DE.month.code	string
 de_DE.month.name	string
+de_DE.paragraph	reads de_DE.sentence
 de_DE.person	format "{prefix}{first} {last}"	reads de_DE.first-name de_DE.last-name de_DE.title
 de_DE.person.first	string
 de_DE.person.last	string
@@ -152,6 +180,8 @@ de_DE.phone.national
 de_DE.price	format "{amt},{cents} €"
 de_DE.price.amt	string
 de_DE.price.cents	string
+de_DE.sentence	reads de_DE.word-adj de_DE.word-adv de_DE.word-noun de_DE.word-verb
+de_DE.sentence.noun
 de_DE.sex	format "{name}"	key code	name name	weight count
 de_DE.sex.code	string
 de_DE.sex.count	string
@@ -173,6 +203,22 @@ de_DE.username.n
 de_DE.weekday	format "{name}"	key code	name name
 de_DE.weekday.code	string
 de_DE.weekday.name	string
+de_DE.word	format "{any}"	reads de_DE.word-adj de_DE.word-adv de_DE.word-noun de_DE.word-verb
+de_DE.word-adj	format "{word}"
+de_DE.word-adj.word	string
+de_DE.word-adv	format "{word}"
+de_DE.word-adv.word	string
+de_DE.word-noun	format "{word}"
+de_DE.word-noun.plural	string
+de_DE.word-noun.word	string
+de_DE.word-verb	format "{word}"
+de_DE.word-verb.word	string
+de_DE.word.adj	string
+de_DE.word.adv	string
+de_DE.word.any	string
+de_DE.word.noun	string
+de_DE.word.noun.plural
+de_DE.word.verb	string
 en_US.address	format "{/geo.US.address as a}{a}"	reads geo.US.address
 en_US.address.locality	string
 en_US.address.municipality	string
@@ -315,6 +361,7 @@ fi_FI.last-name.name	string
 fi_FI.month	format "{name}"	key code	name name
 fi_FI.month.code	string
 fi_FI.month.name	string
+fi_FI.paragraph	reads fi_FI.sentence
 fi_FI.person	format "{prefix}{first} {last}"	reads fi_FI.first-name fi_FI.last-name fi_FI.title
 fi_FI.person.first	string
 fi_FI.person.last	string
@@ -340,6 +387,9 @@ fi_FI.phone.national
 fi_FI.price	format "{amt},{cents} €"
 fi_FI.price.amt	string
 fi_FI.price.cents	string
+fi_FI.sentence	reads fi_FI.word-adj fi_FI.word-noun
+fi_FI.sentence.adj
+fi_FI.sentence.noun
 fi_FI.sex	format "{name}"	key code	name name	weight count
 fi_FI.sex.code	string
 fi_FI.sex.count	string
@@ -363,6 +413,20 @@ fi_FI.username.n
 fi_FI.weekday	format "{name}"	key code	name name
 fi_FI.weekday.code	string
 fi_FI.weekday.name	string
+fi_FI.word	format "{any}"	reads fi_FI.word-adj fi_FI.word-adv fi_FI.word-noun fi_FI.word-verb
+fi_FI.word-adj	format "{word}"
+fi_FI.word-adj.word	string
+fi_FI.word-adv	format "{word}"
+fi_FI.word-adv.word	string
+fi_FI.word-noun	format "{word}"
+fi_FI.word-noun.word	string
+fi_FI.word-verb	format "{word}"
+fi_FI.word-verb.word	string
+fi_FI.word.adj	string
+fi_FI.word.adv	string
+fi_FI.word.any	string
+fi_FI.word.noun	string
+fi_FI.word.verb	string
 geo.DE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DE.locality geo.DE.street
 geo.DE.address.locality	string
 geo.DE.address.municipality	string
@@ -930,6 +994,7 @@ nb_NO.last-name.name	string
 nb_NO.month	format "{name}"	key code	name name
 nb_NO.month.code	string
 nb_NO.month.name	string
+nb_NO.paragraph	reads nb_NO.sentence
 nb_NO.person	format "{prefix}{first} {last}"	reads nb_NO.first-name nb_NO.last-name nb_NO.title
 nb_NO.person.first	string
 nb_NO.person.last	string
@@ -947,6 +1012,12 @@ nb_NO.phone.subscriber	string
 nb_NO.price	format "{amt}{ore} kr"
 nb_NO.price.amt	string
 nb_NO.price.ore	string
+nb_NO.sentence	reads nb_NO.word-adj nb_NO.word-noun nb_NO.word-verb
+nb_NO.sentence.adj
+nb_NO.sentence.det
+nb_NO.sentence.noun
+nb_NO.sentence.prep
+nb_NO.sentence.verb
 nb_NO.sex	format "{name}"	key code	name name	weight count
 nb_NO.sex.code	string
 nb_NO.sex.count	string
@@ -970,6 +1041,26 @@ nb_NO.username.n
 nb_NO.weekday	format "{name}"	key code	name name
 nb_NO.weekday.code	string
 nb_NO.weekday.name	string
+nb_NO.word	format "{any}"	reads nb_NO.word-adj nb_NO.word-adv nb_NO.word-noun nb_NO.word-verb
+nb_NO.word-adj	format "{word}"
+nb_NO.word-adj.definite	string
+nb_NO.word-adj.word	string
+nb_NO.word-adv	format "{word}"
+nb_NO.word-adv.word	string
+nb_NO.word-noun	format "{word}"
+nb_NO.word-noun.definite	string
+nb_NO.word-noun.word	string
+nb_NO.word-verb	format "{word}"
+nb_NO.word-verb.present	string
+nb_NO.word-verb.word	string
+nb_NO.word.adj	string
+nb_NO.word.adj.definite
+nb_NO.word.adv	string
+nb_NO.word.any	string
+nb_NO.word.noun	string
+nb_NO.word.noun.definite
+nb_NO.word.verb	string
+nb_NO.word.verb.present
 nn_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
 nn_NO.address.locality	string
 nn_NO.address.municipality	string
@@ -988,6 +1079,7 @@ nn_NO.fodselsnummer	format "{/nb_NO.fodselsnummer as f}{f}"	reads nb_NO.fodselsn
 nn_NO.month	format "{name}"	key code	name name
 nn_NO.month.code	string
 nn_NO.month.name	string
+nn_NO.paragraph	reads nn_NO.sentence
 nn_NO.person	format "{prefix}{first} {last}"	reads nb_NO.first-name nb_NO.last-name nn_NO.title
 nn_NO.person.first	string
 nn_NO.person.last	string
@@ -997,6 +1089,12 @@ nn_NO.phone	format "{/nb_NO.phone as p}{p}"	reads nb_NO.phone
 nn_NO.phone.international	string
 nn_NO.phone.national	string
 nn_NO.price	format "{/nb_NO.price}"	reads nb_NO.price
+nn_NO.sentence	reads nn_NO.word-adj nn_NO.word-noun nn_NO.word-verb
+nn_NO.sentence.adj
+nn_NO.sentence.det
+nn_NO.sentence.noun
+nn_NO.sentence.prep
+nn_NO.sentence.verb
 nn_NO.time	format "{/nb_NO.time}"	reads nb_NO.time
 nn_NO.title	format "{name}"	key name	weight share
 nn_NO.title.name	string
@@ -1009,6 +1107,26 @@ nn_NO.username.n
 nn_NO.weekday	format "{name}"	key code	name name
 nn_NO.weekday.code	string
 nn_NO.weekday.name	string
+nn_NO.word	format "{any}"	reads nn_NO.word-adj nn_NO.word-adv nn_NO.word-noun nn_NO.word-verb
+nn_NO.word-adj	format "{word}"
+nn_NO.word-adj.definite	string
+nn_NO.word-adj.word	string
+nn_NO.word-adv	format "{word}"
+nn_NO.word-adv.word	string
+nn_NO.word-noun	format "{word}"
+nn_NO.word-noun.definite	string
+nn_NO.word-noun.word	string
+nn_NO.word-verb	format "{word}"
+nn_NO.word-verb.present	string
+nn_NO.word-verb.word	string
+nn_NO.word.adj	string
+nn_NO.word.adj.definite
+nn_NO.word.adv	string
+nn_NO.word.any	string
+nn_NO.word.noun	string
+nn_NO.word.noun.definite
+nn_NO.word.verb	string
+nn_NO.word.verb.present
 sv_SE.address	format "{/geo.SE.address as a}{a}"	reads geo.SE.address
 sv_SE.address.locality	string
 sv_SE.address.municipality	string
