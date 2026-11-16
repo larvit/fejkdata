@@ -88,6 +88,7 @@ de_DE.sex.first-name.count
 de_DE.sex.first-name.name
 de_DE.sex.first-name.sex
 de_DE.sex.name	string
+de_DE.steuer-id	format "{steuerid()}"
 de_DE.title	format "{name}"	key name	weight share
 de_DE.title.name	string
 de_DE.title.share	string
