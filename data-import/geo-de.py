@@ -3,22 +3,26 @@
     data-import/geo-de.py [--cache DIR] [--out DIR]
 
 - The regions, municipalities, localities and postal codes are GeoNames' DE.txt (CC BY 4.0). A region is a Land, named
-  as ISO 3166-2:DE names it, a municipality a Kreis, and a locality a place name within a Kreis. A Kreis takes the
-  name most of its rows spell, as the file spells some Kreise two ways. A row that names no Land, 87491 Jungholz,
-  which is Austrian, is dropped. So is a row with no accuracy, which is mostly a firm's or an office's own postal
-  code, such as "Agentur für Arbeit Cottbus". GeoNames publishes no population, so every table weighs a row by the
-  postal codes it holds, which is an estimate of its people.
-- The streets are a language model's recall of street names common in Germany, as no open register covers the country
-  whole: the Länder publish theirs on terms of their own, and Bavaria's are not open. geo.invented_streets checks
-  them. A street belongs to no place, and each name weighs the same.
+  as ISO 3166-2:DE names it, a municipality a Kreis, and a locality a place name within a Kreis, keyed by the Kreis's
+  code and the place name in ASCII. All of Hamburg and of Berlin is one place each, as a letter addresses it. A row
+  that names no Land, 87491 Jungholz, which is Austrian, is dropped. So is a row with no accuracy, GeoNames' measure of
+  how exactly it knows the point, as it is mostly a firm's or an office's own postal code, such as "Agentur für Arbeit
+  Cottbus". GeoNames publishes no population, so a locality weighs the postal codes it holds, and a Kreis and a Land
+  the sum of theirs: a count of postal codes, which favours small places over people.
+- The streets are a language model's recall of street names common in Germany, as no open register is known to cover the
+  country whole. geo.invented_streets checks them. A street belongs to no place, and each name weighs the same.
 """
 import argparse
 import collections
 import io
+import re
+import statistics
 import sys
+import unicodedata
 import zipfile
 from collections.abc import Iterable
 from pathlib import Path
+from typing import NamedTuple
 
 import geo
 import source
@@ -32,6 +36,10 @@ LANDS = {
     "RP": "Rheinland-Pfalz", "SH": "Schleswig-Holstein", "SL": "Saarland", "SN": "Sachsen", "ST": "Sachsen-Anhalt",
     "TH": "Thüringen",
 }
+# The Kreis of each city state, whose places GeoNames names after the city and a district, "Hamburg Altona-Altstadt".
+CITY_STATES = {"02000": "Hamburg", "11000": "Berlin"}
+# A Kreis whose name GeoNames writes in English.
+GERMAN_KREIS_NAMES = {"09564": "Kreisfreie Stadt Nürnberg"}
 
 STREETS_RECALLED = """
 Hauptstraße
@@ -457,60 +465,98 @@ Rheinlandstraße
 """
 
 
+class Entry(NamedTuple):
+    """A GeoNames row that places a postal code in a Land."""
+    postal_code: str
+    place: str
+    land: str
+    kreis_code: str
+    kreis: str
+    lat: float
+    lon: float
+
+
 def lines(cache: Path) -> list[str]:
     """The lines of GeoNames' DE.txt."""
     z = zipfile.ZipFile(io.BytesIO(source.fetch(geo.GEONAMES.format("DE"), cache, "DE.zip", magic=b"PK")))
     return z.read("DE.txt").decode("utf-8").splitlines()
 
 
-def kreis_names(counts: collections.Counter[tuple[str, str]]) -> dict[str, str]:
-    """Each Kreis code's name: the one most rows spell, the first in order in a tie. counts maps (code, name) to rows."""
-    best: dict[str, tuple[int, str]] = {}
-    for (code, name), n in sorted(counts.items()):
-        if code not in best or n > best[code][0]:
-            best[code] = (n, name)
-    return {code: name for code, (_, name) in best.items()}
+def entries(raw: Iterable[str]) -> list[Entry]:
+    """The rows of GeoNames' lines that place a postal code in a Land. A line's fields are GeoNames' postal code file:
+    the postal code is the second, the place the third, the Land's code the fifth, the Kreis its eighth (name) and ninth
+    (code), the point its tenth and eleventh, and the accuracy the twelfth."""
+    out: list[Entry] = []
+    for line in raw:
+        f = line.split("\t")
+        land, accuracy = f[4], f[11]
+        if not land or not accuracy:
+            continue
+        if land not in LANDS:
+            sys.exit(f"{f[1]} {f[2]}: the Land {land!r} is none of {', '.join(sorted(LANDS))}")
+        if not f[8]:
+            sys.exit(f"{f[1]} {f[2]}: names no Kreis")
+        out.append(Entry(f[1], CITY_STATES.get(f[8], f[2]), land, f[8], f[7], float(f[9]), float(f[10])))
+    return out
+
+
+def kreis_name(code: str, spelt: str) -> str:
+    """A Kreis's name as a German writes it: GeoNames' "Salzgitter, Stadt" is "Stadt Salzgitter"."""
+    if code in GERMAN_KREIS_NAMES:
+        return GERMAN_KREIS_NAMES[code]
+    name, comma, kind = spelt.partition(", ")
+    return f"{kind} {name}" if comma else spelt
+
+
+def kreis_names(rows: Iterable[Entry]) -> dict[str, str]:
+    """Each Kreis code's name. A code that GeoNames spells two ways exits, as there is no telling which is right."""
+    spelt: dict[str, str] = {}
+    for e in rows:
+        if spelt.setdefault(e.kreis_code, e.kreis) != e.kreis:
+            sys.exit(f"Kreis {e.kreis_code} is spelt {spelt[e.kreis_code]!r} and {e.kreis!r}")
+    return {code: kreis_name(code, name) for code, name in spelt.items()}
+
+
+def slug(place: str) -> str:
+    """A place name in lower-case ASCII, its runs of other characters a hyphen: "Müllrose" is "mullrose"."""
+    ascii_name = unicodedata.normalize("NFKD", place.replace("ß", "ss")).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", "-", ascii_name.lower()).strip("-")
+
+
+def localities_of(rows: Iterable[Entry]) -> tuple[list[geo.Row], list[geo.Row]]:
+    """The locality and postal-code rows: a locality is a place name within a Kreis, at the mean of its rows' points,
+    and holds every postal code any of those rows gives it. A code that two places in a Kreis share exits."""
+    held: dict[tuple[str, str], list[Entry]] = collections.defaultdict(list)
+    for e in rows:
+        held[(e.kreis_code, e.place)].append(e)
+    localities: list[geo.Row] = []
+    postal_codes: list[geo.Row] = []
+    named: dict[str, str] = {}
+    for kreis, place in sorted(held):
+        code = f"{kreis}-{slug(place)}"
+        if named.setdefault(code, place) != place:
+            sys.exit(f"{code}: both {named[code]!r} and {place!r}")
+        codes = {e.postal_code for e in held[(kreis, place)]}
+        lat, lon = statistics.fmean(e.lat for e in held[(kreis, place)]), statistics.fmean(e.lon for e in held[(kreis, place)])
+        localities.append({"code": code, "name": place, "municipality": kreis, "postal-codes": len(codes), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}"})
+        postal_codes += [{"code": c, "locality": code} for c in codes]
+    return localities, sorted(postal_codes, key=lambda r: (r["code"], r["locality"]))
 
 
 def places(raw: Iterable[str]) -> tuple[list[geo.Row], list[geo.Row], list[geo.Row], list[geo.Row]]:
-    """The region, municipality, locality and postal-code rows of GeoNames' lines, each sorted by key. A line's fields
-    are GeoNames' postal code file: the postal code is the second, the place the third, the Land's code the fifth, the
-    Kreis its eighth (name) and ninth (code), and the point its tenth and eleventh."""
-    land_of: dict[str, str] = {}
-    names: collections.Counter[tuple[str, str]] = collections.Counter()
-    points: dict[tuple[str, str], list[geo.Row]] = collections.defaultdict(list)
-    codes: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
-    for line in raw:
-        f = line.split("\t")
-        land, kreis, place = f[4], f[8], f[2]
-        if not land or not f[11]:
-            continue
-        if land not in LANDS:
-            sys.exit(f"{f[1]} {place}: the Land {land!r} is none of {', '.join(sorted(LANDS))}")
-        if not kreis:
-            sys.exit(f"{f[1]} {place}: names no Kreis")
-        land_of[kreis] = land
-        names[(kreis, f[7])] += 1
-        points[(kreis, place)].append({"lat": float(f[9]), "lon": float(f[10])})
-        codes[(kreis, place)].add(f[1])
-    kreise = kreis_names(names)
-    ordinal: dict[str, int] = collections.Counter()
-    localities: list[geo.Row] = []
-    postal_codes: list[geo.Row] = []
-    for kreis, place in sorted(codes):
-        ordinal[kreis] += 1
-        code = f"{kreis}-{ordinal[kreis]:03d}"
-        lat, lon = geo.centroid(points[(kreis, place)]) or (0.0, 0.0)
-        localities.append({"code": code, "name": place, "municipality": kreis, "postal-codes": len(codes[(kreis, place)]), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}"})
-        postal_codes += [{"code": c, "locality": code} for c in codes[(kreis, place)]]
-    weight: collections.Counter[str] = collections.Counter()
+    """The region, municipality, locality and postal-code rows of GeoNames' lines, each sorted by key."""
+    rows = entries(raw)
+    kreise = kreis_names(rows)
+    land_of = {e.kreis_code: e.land for e in rows}
+    localities, postal_codes = localities_of(rows)
+    in_kreis: collections.Counter[str] = collections.Counter()
     in_land: collections.Counter[str] = collections.Counter()
     for row in localities:
-        weight[row["municipality"]] += row["postal-codes"]
+        in_kreis[row["municipality"]] += row["postal-codes"]
         in_land[land_of[row["municipality"]]] += row["postal-codes"]
-    municipalities = [{"code": k, "name": kreise[k], "region": land_of[k], "postal-codes": weight[k]} for k in sorted(kreise)]
+    municipalities = [{"code": k, "name": kreise[k], "region": land_of[k], "postal-codes": in_kreis[k]} for k in sorted(kreise)]
     regions = [{"code": c, "name": LANDS[c], "postal-codes": in_land[c], "timezone": TIMEZONE} for c in sorted(in_land)]
-    return regions, municipalities, localities, sorted(postal_codes, key=lambda r: (r["code"], r["locality"]))
+    return regions, municipalities, localities, postal_codes
 
 
 def main() -> None:
