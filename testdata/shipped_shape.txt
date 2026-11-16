@@ -923,6 +923,7 @@ sv_SE.organisationsnummer.group	string
 sv_SE.organisationsnummer.head	string
 sv_SE.organisationsnummer.tail	string
 sv_SE.organisationsnummer.vat	string
+sv_SE.paragraph	reads sv_SE.sentence
 sv_SE.person	format "{birth as b}{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title
 sv_SE.person.birth
 sv_SE.person.birth.date
