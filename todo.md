@@ -308,7 +308,10 @@ ISO 3166 reserves it for Western Sahara and the root zone has never been delegat
 
 ### 462. Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.
 
-The two scoring runs at b4a99eb2 (PR #404) left Locality at 6.13, Shape 6.88, Self-sufficiency 6.88 and Overall 6.63, under the floor of 7.0; the run at ca568bcb (PR #381) had left Locality at 5.63. Both runs' seats named the same render unit for Locality:
+The two scoring runs at daaa1020 (PR #414) left Locality at 6.00, Shape 6.75, Self-sufficiency 6.63 and Overall 6.50, under the floor of 7.0; those at b4a99eb2 (PR #404) had left Locality at 6.13. Both pairs of runs named the same render unit for Locality, and the runs at daaa1020 named its frame stack too:
+
+- Locality: `internal/engine/render/env.go:36` `frameStack.enter`: whether a frame is pushed, reused from a memo or skipped depends on `base`, the memo and the read entering the category
+- Locality: `internal/engine/render/env.go:36` `frameStack.enter`: a shared frame stack changed under a by-value env
 
 - Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frame stack, mark, base and frames kept in the memo, all held at once
 - Locality: `internal/engine/render/pick.go:151` `namedPick.readPath`: frames are pushed into a shared stack, cached in another pick's memo and found again by `openOwn`
