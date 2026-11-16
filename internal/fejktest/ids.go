@@ -113,3 +113,47 @@ func LuhnValid(s string) bool {
 // character, per DVV's "Personal identity code" page: ddmmyy, a century sign, an individual number
 // and that character.
 const DVVControlTable = "0123456789ABCDEFHJKLMNPRSTUVWXY"
+
+// ValidSteuerID is the check on a Steueridentifikationsnummer in the BZSt's "Erzeugung von
+// Identifikationsnummern" and ELSTER's "Prüfung der Steuer- und Steueridentifikationsnummer": eleven
+// digits, of the first ten exactly one digit twice or three times and never three in a row, and an
+// eleventh that is the check digit of ISO 7064 MOD 11,10 over the first ten. It accepts a leading
+// zero, which ELSTER allows for a test number.
+func ValidSteuerID(s string) bool {
+	if len(s) != 11 {
+		return false
+	}
+	var count [10]int
+	for i := range len(s) {
+		if s[i] < '0' || s[i] > '9' {
+			return false
+		}
+		if i < 10 {
+			count[s[i]-'0']++
+		}
+	}
+	repeated := 0
+	for _, n := range count {
+		switch {
+		case n > 3:
+			return false
+		case n > 1:
+			repeated++
+		}
+	}
+	for i := 2; i < 10; i++ {
+		if s[i] == s[i-1] && s[i] == s[i-2] {
+			return false
+		}
+	}
+	product := 10
+	for i := range 10 {
+		sum := (int(s[i]-'0') + product) % 10
+		if sum == 0 {
+			sum = 10
+		}
+		product = 2 * sum % 11
+	}
+	check := (11 - product) % 10
+	return repeated == 1 && int(s[10]-'0') == check
+}
