@@ -171,7 +171,7 @@ class GermanPlaces(unittest.TestCase):
         lines = [geonames_de("01945", "Müller", "BB", "12066", "Landkreis"), geonames_de("01946", "Muller", "BB", "12066", "Landkreis")]
         with self.assertRaises(SystemExit) as raised:
             geo_de.places(lines)
-        self.assertIn("'Müller' and 'Muller'", str(raised.exception))
+        self.assertIn("'Muller' and 'Müller'", str(raised.exception))
 
     def test_every_place_of_a_city_state_is_the_city(self) -> None:
         lines = [
