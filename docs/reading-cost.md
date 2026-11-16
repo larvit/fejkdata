@@ -2104,3 +2104,20 @@ Read most (opens and searches):
 - `data/da_DK/phone-fixed.tsv` 1
 - `data/da_DK/phone-mobile.tsv` 1
 - `data/fi_FI/phone-fixed.json` 1
+
+## Reading cost, chunk fdda4dcc666b, finished 2026-11-16T02:23:43Z
+
+110731 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/geo_test.py` 6
+- `README.md` 5
+- `data/geo_test.go` 5
+- `compose.yaml` 4
+- `shipped_test.go` 4
+- `data-import/geo-dk.py` 3
+- `data-import/geo.py` 3
+- `data-import/company_names.py` 2
+- `data-import/names-de.py` 2
+- `data/german_test.go` 2
