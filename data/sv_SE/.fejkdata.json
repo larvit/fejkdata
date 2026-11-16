@@ -19,6 +19,7 @@
 		"sv_SE.licenseplate-letters": {"paths":["","letters"]},
 		"sv_SE.month": {"paths":["","code","name"]},
 		"sv_SE.organisationsnummer": {"paths":["","group","head","tail","vat"]},
+		"sv_SE.paragraph": {"paths":[""]},
 		"sv_SE.person": {"paths":["","birth","birth.date","birth.sign","birthdate","first","last","personnummer","prefix","samordningsnummer","samordningsnummer.birthday","sex"]},
 		"sv_SE.personnummer": {"parent":"sex","paths":["","adult","centenarian","child","number","senior","sex"]},
 		"sv_SE.personnummer-12": {"paths":[""]},
