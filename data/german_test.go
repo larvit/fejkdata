@@ -194,3 +194,15 @@ func TestGermanSexAndTitleAreSelectable(t *testing.T) {
 		})
 	}
 }
+
+func TestGermanSteuerIDIsAValidTestNumber(t *testing.T) {
+	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, f, "de_DE.steuer-id") }, func(got string) {
+		if !fejktest.ValidSteuerID(got) || got[0] != '0' {
+			t.Fatalf("de_DE.steuer-id = %q, want a valid number that starts with the 0 ELSTER keeps for test numbers", got)
+		}
+	})
+}
