@@ -109,9 +109,9 @@ class InventedStreets(unittest.TestCase):
             geo.invented_streets("\n\n")
 
 
-def geonames_de(code: str, place: str, land: str, kreis_code: str, kreis: str, lat: str = "50.0", lon: str = "10.0") -> str:
+def geonames_de(code: str, place: str, land: str, kreis_code: str, kreis: str, lat: str = "50.0", lon: str = "10.0", accuracy: str = "4") -> str:
     """A line of GeoNames' DE.txt, each field at the position GeoNames' readme gives."""
-    return "\t".join(["DE", code, place, "", land, "", "00", kreis, kreis_code, lat, lon, "4"])
+    return "\t".join(["DE", code, place, "", land, "", "00", kreis, kreis_code, lat, lon, accuracy])
 
 
 class GermanPlaces(unittest.TestCase):
@@ -159,6 +159,13 @@ class GermanPlaces(unittest.TestCase):
         self.assertNotIn("Jungholz", [r["name"] for r in localities])
         self.assertNotIn("87491", [r["code"] for r in postal_codes])
         self.assertEqual((len(regions), len(municipalities)), (2, 2))
+
+    def test_a_row_with_no_accuracy_is_a_postal_code_of_a_firm_or_an_office_and_is_dropped(self) -> None:
+        lines = [*self.LINES, geonames_de("01968", "Agentur für Arbeit Senftenberg", "BB", "12066", "Landkreis Oberspreewald-Lausitz", accuracy="")]
+        regions, _, localities, postal_codes = geo_de.places(lines)
+        self.assertNotIn("Agentur für Arbeit Senftenberg", [r["name"] for r in localities])
+        self.assertNotIn("01968", [r["code"] for r in postal_codes])
+        self.assertEqual(regions[0]["postal-codes"], 3)
 
     def test_an_unknown_land_code_exits_naming_it(self) -> None:
         with self.assertRaisesRegex(SystemExit, "XX"):
