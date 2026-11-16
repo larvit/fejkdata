@@ -84,6 +84,8 @@ func TestLocaleWordTablesHoldTheirSourcesWordsAndForms(t *testing.T) {
 		{"de_DE", "verb", "laufen", ""},
 		{"de_DE", "adj", "groß", ""},
 		{"de_DE", "adv", "oft", ""},
+		{"nb_NO", "verb", "avslå", "avslår"},
+		{"da_DK", "noun", "abessiner", "abessineren"},
 	} {
 		t.Run(c.locale+" "+c.part+" "+c.word, func(t *testing.T) {
 			if got, ok := localeWordForms(t, c.locale, c.part)[c.word]; !ok || got != c.form {
@@ -93,21 +95,39 @@ func TestLocaleWordTablesHoldTheirSourcesWordsAndForms(t *testing.T) {
 	}
 }
 
-func TestLocaleWordTablesDropTheRudeWordsListed(t *testing.T) {
-	t.Parallel()
-	for _, c := range []struct{ locale, noun string }{
-		{"nb_NO", "helvete"},
-		{"nn_NO", "helvete"},
-		{"da_DK", "lort"},
-		{"fi_FI", "kusi"},
-		{"de_DE", "Arsch"},
-	} {
-		t.Run(c.locale, func(t *testing.T) {
-			if _, ok := localeWordForms(t, c.locale, "noun")[c.noun]; ok {
-				t.Errorf("%s word-noun holds %q, a word on LDNOOBW's list", c.locale, c.noun)
+type absentWord struct{ locale, part, word string }
+
+func assertWordsAbsent(t *testing.T, absent []absentWord, why string) {
+	t.Helper()
+	for _, c := range absent {
+		t.Run(c.locale+" "+c.part+" "+c.word, func(t *testing.T) {
+			if _, ok := localeWordForms(t, c.locale, c.part)[c.word]; ok {
+				t.Errorf("%s word-%s holds %q, %s", c.locale, c.part, c.word, why)
 			}
 		})
 	}
+}
+
+func TestLocaleWordTablesDropTheRudeWordsListed(t *testing.T) {
+	t.Parallel()
+	assertWordsAbsent(t, []absentWord{
+		{"nb_NO", "noun", "helvete"},
+		{"nn_NO", "noun", "helvete"},
+		{"da_DK", "noun", "lort"},
+		{"fi_FI", "noun", "kusi"},
+		{"de_DE", "noun", "Arsch"},
+		{"de_DE", "noun", "Titte"},
+		{"da_DK", "verb", "lude"},
+	}, "a word on LDNOOBW's list, or whose form is")
+}
+
+func TestLocaleWordTablesHoldOnlyTheirSourcesHeadwords(t *testing.T) {
+	t.Parallel()
+	assertWordsAbsent(t, []absentWord{
+		{"nb_NO", "adj", "dumma"},
+		{"da_DK", "adv", "afsindig"},
+		{"da_DK", "noun", "aalborgenser"},
+	}, "a form or variant its source doesn't list as a headword of that part")
 }
 
 func TestLocaleNounTablesHoldTensOfThousandsOfNouns(t *testing.T) {
