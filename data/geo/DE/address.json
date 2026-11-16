@@ -1,0 +1,14 @@
+{
+  "format": "{street} {street-number}\n{postal-code} {locality}",
+  "street": "{/geo.DE.street}",
+  "street-number": [
+    { "format": "{int(1,9)}", "weight": 3 },
+    { "format": "{int(10,99)}", "weight": 5 },
+    { "format": "{int(100,199)}", "weight": 1 },
+    { "format": "{int(1,99)}{lower(1)}", "weight": 1 }
+  ],
+  "postal-code": "{.locality as l}{l.postal-code.code}",
+  "locality": "{l.name}",
+  "municipality": "{l..municipality.name}",
+  "region": "{l..municipality..region.name}"
+}

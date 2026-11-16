@@ -1,0 +1,11 @@
+{
+	"index": {
+		"geo.DE.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
+		"geo.DE.locality": {"parent":"municipality","paths":["","code","lat","lon","municipality","name","postal-code","postal-code.code","postal-code.locality","postal-codes"]},
+		"geo.DE.municipality": {"parent":"region","paths":["","code","locality","locality.code","locality.lat","locality.lon","locality.municipality","locality.name","locality.postal-code","locality.postal-code.code","locality.postal-code.locality","locality.postal-codes","name","postal-codes","region"]},
+		"geo.DE.postal-code": {"parent":"locality","paths":["","code","locality"]},
+		"geo.DE.region": {"paths":["","code","municipality","municipality.code","municipality.locality","municipality.locality.code","municipality.locality.lat","municipality.locality.lon","municipality.locality.municipality","municipality.locality.name","municipality.locality.postal-code","municipality.locality.postal-code.code","municipality.locality.postal-code.locality","municipality.locality.postal-codes","municipality.name","municipality.postal-codes","municipality.region","name","postal-codes","timezone"]},
+		"geo.DE.street": {"paths":["","name"]}
+	},
+	"namespace": "geo.DE"
+}

@@ -9,6 +9,12 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
+- `geo.DE`, Germany's places: Länder, Kreise, places and postal codes from GeoNames, weighing a row by the postal
+  codes it holds, as GeoNames publishes no population. `de_DE.address` prints one, such as
+  `Hauptstraße 12\n01945 Tettau`. The streets are invented: a language model's recall of street names common in
+  Germany, each drawn as often as another and belonging to no place, since no open register covers the country whole.
+  A program showing the places credits "Postal codes from GeoNames, www.geonames.org". The Go package is
+  `github.com/larvit/fejkdata/data/geo/DE`, which `data/de_DE` imports, and the CLI carries it.
 - `de_DE`, German, with `de_DE.person` and the tables it reads: `de_DE.first-name`, `de_DE.last-name`,
   `de_DE.sex` (`Frau` and `Mann`) and `de_DE.title` (`Dr.`, `Prof.` and `Prof. Dr.`). A first name that
   girls and boys both bear has a row under each sex, and a person's first name and sex agree. The first

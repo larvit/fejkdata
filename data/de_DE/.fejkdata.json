@@ -1,5 +1,6 @@
 {
 	"index": {
+		"de_DE.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"de_DE.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"de_DE.last-name": {"paths":["","count","name"]},
 		"de_DE.person": {"paths":["","first","last","prefix","sex"]},

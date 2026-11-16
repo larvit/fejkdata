@@ -1,0 +1,9 @@
+{
+  "format": "{/geo.DE.address as a}{a}",
+  "street": "{a.street}",
+  "street-number": "{a.street-number}",
+  "postal-code": "{a.postal-code}",
+  "locality": "{a.locality}",
+  "municipality": "{a.municipality}",
+  "region": "{a.region}"
+}
