@@ -3,8 +3,9 @@
     data-import/cldr.py [--cldr URL_OR_DIR] [--cache DIR] [--data-dir DIR]
 
 A month is numbered 1 to 12 and a weekday 1 (Monday) to 7 (Sunday), as ISO 8601 does. Each
-name is CLDR's stand-alone wide form, the one a list of names holds: Finnish declines the
-format form (`tammikuuta`, `maanantaina`), and the other languages spell both the same. The
+name is CLDR's stand-alone wide form, the one that names a month or weekday on its own. CLDR's other,
+format form is the one inside a date: Finnish declines it (`tammikuuta`, `maanantaina`), and the other
+languages spell both alike. The
 territory table holds one row for each alpha-2 code in data/misc/territory.tsv; when CLDR has no
 Swedish name for a code, the script exits with an error before it writes territory.tsv.
 """
