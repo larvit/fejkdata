@@ -9,5 +9,5 @@
   "noun": { "format": "{.word-noun as nounword}{nounword}", "definite": "{nounword.definite}" },
   "verb": { "format": "{.word-verb as verbword}{verbword}", "present": "{verbword.present}" },
   "adj": { "format": "{.word-adj as adjword}{adjword}", "definite": "{adjword.definite}" },
-  "adv": { "format": "{.word-adv as advword}{advword}" }
+  "adv": "{.word-adv}"
 }
