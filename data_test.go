@@ -11,9 +11,8 @@ import (
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
-// TestShippedDataCategories asserts every shipped locale emits only well-formed
-// values for each data category. en and sv patterns differ where the format is
-// locale-specific (date, time, company, price, ...); the rest are shared.
+// TestShippedDataCategories asserts en_US and sv_SE emit only well-formed values
+// for each category data/locales_test.go's shippedLocales doesn't test for them.
 func TestShippedDataCategories(t *testing.T) {
 	letters := regexp.MustCompile(`^[\pL'-]+$`)
 	color := regexp.MustCompile(`^(#[0-9a-f]{6}|[\pL ]+)$`)
@@ -29,22 +28,15 @@ func TestShippedDataCategories(t *testing.T) {
 		{"sentence",
 			regexp.MustCompile(`^[A-Z].* .*[.!?]$`),
 			regexp.MustCompile(`^[A-ZÅÄÖ].* .*[.!?]$`)},
-		{"date",
-			regexp.MustCompile(`^(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])/\d{4}$`),
-			regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`)},
-		{"time",
-			regexp.MustCompile(`^([1-9]|1[0-2]):[0-5]\d (AM|PM)$`),
-			regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d$`)},
+		{"time", regexp.MustCompile(`^([1-9]|1[0-2]):[0-5]\d (AM|PM)$`), nil},
 		{"email", email, email},
 		{"company",
 			regexp.MustCompile(`^.+ (Inc\.|LLC|Corp\.|Co\.|Group|Ltd\.)$`),
 			regexp.MustCompile(`^\pL.*[\pL\d.]$`)},
-		{"color", color, color},
-		{"url", url, url},
-		{"username", uname, uname},
-		{"price",
-			regexp.MustCompile(`^\$\d{1,3}(,\d{3})?\.\d{2}$`),
-			regexp.MustCompile(`^\d{1,3}( \d{3})?(,\d{2})? kr$`)},
+		{"color", color, nil},
+		{"url", url, nil},
+		{"username", uname, nil},
+		{"price", regexp.MustCompile(`^\$\d{1,3}(,\d{3})?\.\d{2}$`), nil},
 	}
 
 	f := shipped(t, WithSeed(1))
@@ -58,6 +50,9 @@ func TestShippedDataCategories(t *testing.T) {
 				})
 			})
 			t.Run("sv_SE", func(t *testing.T) {
+				if c.sv == nil {
+					t.Skip("data/locales_test.go's shippedLocales tests it")
+				}
 				fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "sv_SE."+c.path) }, func(v string) {
 					if !c.sv.MatchString(v) {
 						t.Fatalf("sv_SE %s = %q, want %s", c.path, v, c.sv)
