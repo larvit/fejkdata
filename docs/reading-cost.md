@@ -2070,3 +2070,20 @@ Read most (opens and searches):
 - `data-import/names-no.py` 2
 - `data-import/tsv.py` 2
 - `data/modules.go` 2
+
+## Reading cost, chunk 50b90dbdef48, finished 2026-11-16T00:44:07Z
+
+86860 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `data/danish_test.go` 2
+- `todo.md` 2
+- `CHANGELOG.md` 1
+- `DATA-LICENSES.md` 1
+- `cpr_test.go` 1
+- `data/de_DE/.fejkdata.json` 1
+- `data/de_DE/fs.go` 1
+- `data/german_test.go` 1
+- `internal/builtinfunc/builtins.go` 1
