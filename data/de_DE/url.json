@@ -1,0 +1,17 @@
+{
+  "format": "https://{host}{path}",
+  "host": ["example.com", "www.example.com", "example.org", "example.de", "www.example.de", "blog.example.net", "shop.example.de", "laden.example.com", "api.example.de", "dokumente.example.org", "nachrichten.example.net", "post.example.de"],
+  "path": [
+    { "format": "", "weight": 2 },
+    {
+      "format": "/{seg}",
+      "seg": ["ueber-uns", "produkte", "blog", "kontakt", "hilfe", "artikel", "anmelden", "neuigkeiten", "start", "suche", "warenkorb", "kasse", "agb", "datenschutz", "preise", "leistungen", "unternehmen", "karriere", "support", "konto", "einstellungen", "registrieren"]
+    },
+    {
+      "format": "/{seg}/{sub}",
+      "weight": 0.5,
+      "seg": ["blog", "produkte", "hilfe", "dokumente", "kategorie"],
+      "sub": ["uebersicht", "erste-schritte", "anleitung", "2024", "neueste", "archiv", "details"]
+    }
+  ]
+}

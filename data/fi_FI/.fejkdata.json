@@ -1,6 +1,7 @@
 {
 	"index": {
 		"fi_FI.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
+		"fi_FI.color": {"paths":[""]},
 		"fi_FI.company": {"paths":["","ay","ay.name","ky","ky.name","legal","osk","osk.name","oy","oy.name","registered","registered.legal","tmi","tmi.name"]},
 		"fi_FI.company-coined": {"paths":["","a","b"]},
 		"fi_FI.company-word": {"paths":[""]},
@@ -11,13 +12,19 @@
 		"fi_FI.henkilotunnus-issued": {"paths":["","birth"]},
 		"fi_FI.individ": {"parent":"sex","paths":["","digit","sex"]},
 		"fi_FI.last-name": {"paths":["","count","name"]},
+		"fi_FI.month": {"paths":["","code","name"]},
 		"fi_FI.person": {"paths":["","first","last","prefix","sex"]},
 		"fi_FI.phone": {"paths":["","international","national"]},
 		"fi_FI.phone-fixed": {"paths":["","area","name","ndc","subscriber"]},
 		"fi_FI.phone-mobile": {"paths":["","area","ndc","subscriber"]},
 		"fi_FI.phone-subscriber": {"paths":["","fixed-5-7","fixed-6-8","mobile-5-7","mobile-6-8"]},
+		"fi_FI.price": {"paths":["","amt","cents"]},
 		"fi_FI.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digit","individ.sex","name"]},
-		"fi_FI.title": {"paths":["","name","share"]}
+		"fi_FI.time": {"paths":[""]},
+		"fi_FI.title": {"paths":["","name","share"]},
+		"fi_FI.url": {"paths":["","host","path"]},
+		"fi_FI.username": {"paths":["","n"]},
+		"fi_FI.weekday": {"paths":["","code","name"]}
 	},
 	"namespace": "fi_FI"
 }

@@ -1,16 +1,28 @@
 {
 	"index": {
 		"de_DE.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
+		"de_DE.color": {"paths":[""]},
+		"de_DE.company": {"paths":["","ag","ag.name","einzel","einzel.name","gmbh","gmbh.name","kg","kg.name","legal","ohg","ohg.name","registered","registered.legal","ug","ug.name"]},
+		"de_DE.company-coined": {"paths":["","a","b"]},
+		"de_DE.company-word": {"paths":[""]},
+		"de_DE.date": {"paths":[""]},
+		"de_DE.email": {"paths":["","domain","local","local.n"]},
 		"de_DE.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"de_DE.last-name": {"paths":["","count","name"]},
+		"de_DE.month": {"paths":["","code","name"]},
 		"de_DE.person": {"paths":["","first","last","prefix","sex"]},
 		"de_DE.phone": {"paths":["","international","national"]},
 		"de_DE.phone-fixed": {"paths":["","area","name","ndc","subscriber"]},
 		"de_DE.phone-mobile": {"paths":["","area","ndc","subscriber"]},
 		"de_DE.phone-subscriber": {"paths":["","digits-6","digits-7","digits-7-8","digits-8"]},
+		"de_DE.price": {"paths":["","amt","cents"]},
 		"de_DE.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name"]},
 		"de_DE.steuer-id": {"paths":[""]},
-		"de_DE.title": {"paths":["","name","share"]}
+		"de_DE.time": {"paths":[""]},
+		"de_DE.title": {"paths":["","name","share"]},
+		"de_DE.url": {"paths":["","host","path"]},
+		"de_DE.username": {"paths":["","n"]},
+		"de_DE.weekday": {"paths":["","code","name"]}
 	},
 	"namespace": "de_DE"
 }

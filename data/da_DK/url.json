@@ -1,0 +1,17 @@
+{
+  "format": "https://{host}{path}",
+  "host": ["example.com", "www.example.com", "example.org", "example.dk", "www.example.dk", "blog.example.net", "butik.example.com", "shop.example.dk", "api.example.dk", "dokumenter.example.org", "nyheder.example.net", "post.example.dk"],
+  "path": [
+    { "format": "", "weight": 2 },
+    {
+      "format": "/{seg}",
+      "seg": ["om", "om-os", "produkter", "blog", "kontakt", "hjaelp", "artikler", "log-ind", "nyheder", "start", "soeg", "indkoebskurv", "kasse", "vilkaar", "privatliv", "priser", "tjenester", "virksomhed", "karriere", "support", "konto", "indstillinger", "tilmeld"]
+    },
+    {
+      "format": "/{seg}/{sub}",
+      "weight": 0.5,
+      "seg": ["blog", "produkter", "hjaelp", "dokumenter", "kategori"],
+      "sub": ["oversigt", "kom-i-gang", "guide", "2024", "seneste", "arkiv", "detaljer"]
+    }
+  ]
+}

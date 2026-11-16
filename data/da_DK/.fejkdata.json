@@ -1,6 +1,7 @@
 {
 	"index": {
 		"da_DK.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
+		"da_DK.color": {"paths":[""]},
 		"da_DK.company": {"paths":["","aps","aps.name","as","as.name","enk","enk.name","is","is.name","ks","ks.name","legal","registered","registered.legal"]},
 		"da_DK.company-coined": {"paths":["","a","b"]},
 		"da_DK.company-word": {"paths":[""]},
@@ -10,12 +11,18 @@
 		"da_DK.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"da_DK.individ": {"parent":"sex","paths":["","digit","sex"]},
 		"da_DK.last-name": {"paths":["","count","name"]},
+		"da_DK.month": {"paths":["","code","name"]},
 		"da_DK.person": {"paths":["","first","last","prefix","sex"]},
 		"da_DK.phone": {"paths":["","block","international","national","subscriber"]},
 		"da_DK.phone-fixed": {"paths":["","prefix"]},
 		"da_DK.phone-mobile": {"paths":["","prefix"]},
+		"da_DK.price": {"paths":["","amt","ore"]},
 		"da_DK.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digit","individ.sex","name"]},
-		"da_DK.title": {"paths":["","name","share"]}
+		"da_DK.time": {"paths":[""]},
+		"da_DK.title": {"paths":["","name","share"]},
+		"da_DK.url": {"paths":["","host","path"]},
+		"da_DK.username": {"paths":["","n"]},
+		"da_DK.weekday": {"paths":["","code","name"]}
 	},
 	"namespace": "da_DK"
 }

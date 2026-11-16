@@ -1,0 +1,17 @@
+{
+  "format": "https://{host}{path}",
+  "host": ["example.com", "www.example.com", "example.org", "example.fi", "www.example.fi", "blogi.example.net", "kauppa.example.fi", "shop.example.com", "api.example.fi", "ohjeet.example.org", "uutiset.example.net", "posti.example.fi"],
+  "path": [
+    { "format": "", "weight": 2 },
+    {
+      "format": "/{seg}",
+      "seg": ["tietoa", "yhteystiedot", "tuotteet", "blogi", "ohje", "artikkelit", "kirjaudu", "uutiset", "etusivu", "haku", "ostoskori", "kassa", "ehdot", "tietosuoja", "hinnat", "palvelut", "yritys", "ura", "tuki", "tili", "asetukset", "rekisteroidy"]
+    },
+    {
+      "format": "/{seg}/{sub}",
+      "weight": 0.5,
+      "seg": ["blogi", "tuotteet", "ohje", "asiakirjat", "luokka"],
+      "sub": ["yleiskatsaus", "aloita", "opas", "2024", "uusimmat", "arkisto", "tiedot"]
+    }
+  ]
+}
