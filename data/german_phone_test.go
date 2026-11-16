@@ -10,16 +10,16 @@ import (
 )
 
 // The 81 blocks of "Zugeteilte Rufnummernblöcke (Mobile Dienste)", the Bundesnetzagentur's list
-// RNB_csv.csv, without the trunk 0. The list writes 15591 with a space where it has a semicolon.
+// RNB_csv.csv, without the trunk 0.
 var germanMobileBlocks = strings.Fields(`
 	15019 15020 1511 1512 1514 1515 1516 1517 15180 15181 15182 15183 15184 15185 15186 15187 15188
 	15189 15310 15333 1520 1521 1522 1523 1525 1526 1529 15410 15510 15511 15550 15551 15552 15553
-	15554 15555 15556 15557 15558 15559 15560 15561 15562 15563 15564 15565 15566 15567 15568 15569
+	15554 15555 15556 15557 15558 15559 15560 15561 15562 15563 15564 15565 15566 15567 15568 15569 15591
 	15630 15636 15678 15679 15700 15701 15702 15703 15704 15706 1573 1575 1577 1578 1579 15888 1590
-	15591 160 162 163 170 171 172 173 174 175 176 177 178 179`)
+	160 162 163 170 171 172 173 174 175 176 177 178 179`)
 
 // The Ortsnetzkennzahlen of the Bundesnetzagentur's Vorwahlverzeichnis of 2022-07-27 that it marks
-// active, by length: its Berlin, Hamburg, Frankfurt and München; then three, four and five digits.
+// active, by the length of the code without its 0: Berlin, Hamburg, Frankfurt and München have two digits.
 var germanAreaCodesByLength = map[int]int{2: 4, 3: 85, 4: 3882, 5: 1229}
 
 func germanPhoneRows(t *testing.T, kind string) []map[string]string {

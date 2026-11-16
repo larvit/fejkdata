@@ -3,14 +3,11 @@
     data-import/phone-de.py [--source-mobile URL_OR_FILE] [--source-fixed URL_OR_FILE] [--cache DIR]
                             [--out-mobile FILE] [--out-fixed FILE]
 
-Mobile: "Zugeteilte Rufnummernblöcke (Mobile Dienste)", RNB_csv.csv, one block of the Nummernplan Mobile Dienste
-per row, written without the trunk 0. Nummernplan sections 2.3 and 2.4: a block of five digits leaves a
-subscriber number of six digits, one of four digits seven, one of three seven or eight. The list writes the block
-15591 with a space where it has a semicolon.
+Mobile: "Zugeteilte Rufnummernblöcke (Mobile Dienste)", RNB_csv.csv, one block per row; Nummernplan Mobile
+Dienste, sections 2.3 and 2.4. The list writes the block 15591 with a space where it has a semicolon.
 
-Fixed: the Vorwahlverzeichnis, a ZIP of one CSV of Ortsnetzkennzahlen with their Ortsnetz and an active flag.
-Only active codes are rows. Verfügung 25/2006, section 2.3: a number allocated now is ten digits long in the
-four two-digit areas and eleven elsewhere, so a subscriber number is that many digits shorter than the code.
+Fixed: the Vorwahlverzeichnis, a ZIP of one CSV of Ortsnetzkennzahlen, each with its Ortsnetz and an active
+flag; Verfügung 25/2006, section 2.3. Only active codes are rows.
 """
 import argparse
 import csv

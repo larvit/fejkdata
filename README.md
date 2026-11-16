@@ -669,13 +669,13 @@ as `example.com` into the template; `todo.md` plans the path.
 ### Locale categories
 
 `sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
-`last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`
+`last-name`, `paragraph`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`
 and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `personnummer-date`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
-`company-word`, `holiday`, `month`, `paragraph`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
+`company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
 `en_US` adds `ssn`, `itin`,
-`phone-exchange` (the three digits after the area code), `paragraph`, `word-adj`, `word-adv`, `word-noun` and `word-verb`.
+`phone-exchange` (the three digits after the area code), `word-adj`, `word-adv`, `word-noun` and `word-verb`.
 
 What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
@@ -827,25 +827,31 @@ of a few thousand rows starts to repeat one, and a `UNIQUE` column needs a categ
 
 #### German phone numbers
 
-`de_DE.phone` is a mobile number ten times as often as a fixed one: `01511 2345678` or, where it is
-fixed, `030 12345678`. Its `national` field is that form, and its `international` field is
-`+49 1511 2345678`, with the country code and without the 0 dialled before an area code. The code
-or mobile block and the subscriber number are split by one space, and the subscriber number is not grouped.
+`de_DE.phone` is a mobile number ten times as often as a fixed one, such as `01511 2345678` or
+`030 12345678`. Its `national` field is that spelling. Its `international` field is `+49 1511 2345678`:
+the country code, then the number without the 0 dialled before an area code. One space splits the area
+code or mobile block from the subscriber number, which is not grouped.
 
 `de_DE.phone-fixed` holds the 5200 Ortsnetzkennzahlen (area codes) that the Bundesnetzagentur's
-Vorwahlverzeichnis of 2022-07-27 marks active, such as `030` for Berlin, each with its `name`, its
-`ndc` (the code without the 0) and its `subscriber`. `de_DE.phone-mobile` holds the 81 blocks, such as `01511`
-and `015550`, that the Bundesnetzagentur's list of assigned mobile blocks names. A row is selected by its
-code, `phone-fixed[030]`. A code is drawn evenly, since the lists publish no frequency, so a village is
-as likely as Berlin. A number allocated now has ten digits after the 0 in Berlin, Hamburg, Frankfurt and
-München and eleven elsewhere, as section 2.3 of Verfügung 25/2006 gives. A mobile number has eleven, or
-ten or eleven for a block of three digits such as `0170`, as sections 2.3 and 2.4 of the Nummernplan Mobile
-Dienste give. The two lengths are equally likely. A subscriber number does not begin with 0. A number is valid, not
-real: a real subscriber may hold it.
+Vorwahlverzeichnis of 2022-07-27 marks active. A row has the code as `area`, such as `030`, the Ortsnetz
+as `name`, such as Berlin, the code without its 0 as `ndc`, and the `subscriber` number drawn after it.
+`de_DE.phone-mobile` holds the 81 blocks, such as `01511` and `015550`, that the Bundesnetzagentur's list
+of assigned mobile blocks names, with the columns `area`, `ndc` and `subscriber`.
+`de_DE.phone-subscriber` draws a subscriber number of six to eight digits as `digits-6` to `digits-8`. A
+row is selected by its area, `phone-fixed[030]`. A code is drawn evenly, since the lists publish no
+frequency, so a village is as likely as Berlin.
+
+A number allocated now has ten digits after the 0 in Berlin, Hamburg, Frankfurt and München and eleven
+elsewhere, as section 2.3 of Verfügung 25/2006 gives. A mobile number has eleven digits after the 0, or
+ten or eleven for a block of three digits such as `170`, as sections 2.3 and 2.4 of the Nummernplan
+Mobile Dienste give; both lengths are equally likely. A subscriber number never begins with 0 or 1,
+since the Verfügung's checks refuse a number that begins with 110, 112 or 115. A number is valid, and a
+real subscriber may hold it.
 
 A program showing the codes or blocks credits "Datenquelle: Bundesnetzagentur", names the licence
-[Datenlizenz Deutschland – Namensnennung 2.0](https://www.govdata.de/dl-de/by-2-0) (`dl-de/by-2-0`), links the
-[lists](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/ONRufnr/Einteilung_ONB/start.html),
+[Datenlizenz Deutschland – Namensnennung 2.0](https://www.govdata.de/dl-de/by-2-0) (`dl-de/by-2-0`), links
+the [mobile blocks](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/MobileDienste/RNB_csv.csv)
+and the [Vorwahlverzeichnis](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/ONRufnr/_DL/Vorwahlverzeichnis_ONB.zip.zip),
 and says the data was changed: each block and code is a row.
 
 ### `en_US`
