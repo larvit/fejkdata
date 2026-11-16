@@ -996,10 +996,8 @@ nn_NO.person.sex	string
 nn_NO.phone	format "{/nb_NO.phone as p}{p}"	reads nb_NO.phone
 nn_NO.phone.international	string
 nn_NO.phone.national	string
-nn_NO.price	format "{amt}{ore} kr"
-nn_NO.price.amt	string
-nn_NO.price.ore	string
-nn_NO.time	format "{time('15:04')}"
+nn_NO.price	format "{/nb_NO.price}"	reads nb_NO.price
+nn_NO.time	format "{/nb_NO.time}"	reads nb_NO.time
 nn_NO.title	format "{name}"	key name	weight share
 nn_NO.title.name	string
 nn_NO.title.share	string
