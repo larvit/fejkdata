@@ -12,13 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 475 | 0.7.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 2 | 1.9 |
-| 333 | 0.7.0 |  |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
-| 477 | 0.7.0 |  |  | **Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
-| 478 | 0.7.0 |  |  | **Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
-| 479 | 0.7.0 |  |  | **Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
-| 480 | 0.7.0 |  |  | **Add `fi_FI`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
-| 481 | 0.7.0 |  |  | **Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 482 | 0.7.0 |  |  | **Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 483 | 0.7.0 |  |  | **Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 484 | 0.7.0 |  |  | **Add `da_DK`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
@@ -233,30 +226,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 475. Add `en_US.month` and `en_US.weekday` names from CLDR.
-
-CLDR is under the Unicode licence, as `sv_SE.month` and `sv_SE.weekday` take theirs. [Source research](docs/research/research-sources-world.md).
-
-### 477. Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
-
-Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
-
-### 478. Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.
-
-Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
-
-### 479. Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
-
-Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in kroner (kr.), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
-
-### 480. Add `fi_FI`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
-
-Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in euro (€), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
-
-### 481. Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
-
-Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in euro (€), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
 
 ### 482. Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.
 
