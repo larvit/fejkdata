@@ -4,8 +4,8 @@
 
 COR₁ (Dansk Sprognævn, CC0) lists the forms of each lexeme of the Danish orthographic dictionary, tagged. A row is a
 noun, a verb, an adjective or an adverb that COR spells in lower-case letters alone, with a form of the same lexeme: a
-noun's definite singular, a verb's active present and an adjective's definite singular. Only the forms COR marks as
-the norm (N) count. A lexeme lacking that form is dropped, and so is one whose word or form is on LDNOOBW's Danish list
+noun's definite singular, a verb's active present and an adjective's definite singular. An adverb carries no form. Only the
+forms COR marks as the norm (N) count. A noun, verb or adjective lacking its form is dropped, and so is one whose word or form is on LDNOOBW's Danish list
 of rude words. COR gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
 import argparse

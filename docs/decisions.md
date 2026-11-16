@@ -1596,7 +1596,8 @@ evenly". Norsk ordbank (Språkbanken, CC BY 4.0) gives `nb_NO` Bokmål 2005 and 
 (Dansk Sprognævn, CC0) gives `da_DK` the words of Retskrivningsordbogen. Kotus's Nykysuomen sanalista
 (CC BY 4.0) gives `fi_FI` the headwords of Kielitoimiston sanakirja. Wikidata's lexemes (CC0) give `de_DE`
 its words and their forms. Each import drops
-the exact matches of LDNOOBW's list for its language, as the `sv_SE` import does.
+a word or form on LDNOOBW's list for its language, as the `sv_SE` import does; the German import compares
+in lower case, since the list writes its nouns in lower case too.
 
 The Norwegian and Danish tables carry the forms `sv_SE` does: `noun.definite`, `verb.present` and
 `adj.definite`. The Finnish list holds no inflected forms, so `fi_FI.word` carries none, and its sentences

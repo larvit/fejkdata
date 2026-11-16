@@ -20,7 +20,7 @@ type wordLocale struct {
 
 var (
 	lowerWord = regexp.MustCompile(`^\p{Ll}+$`)
-	// Each of these locales' word tables, by part of speech, and the column holding the word's form, if any.
+	// Each of these locales' word tables, by part of speech, the column holding the word's form, if any, and how a noun is spelled.
 	wordLocales = []wordLocale{
 		{"nb_NO", map[string]string{"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}, lowerWord},
 		{"nn_NO", map[string]string{"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}, lowerWord},
