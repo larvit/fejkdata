@@ -32,6 +32,7 @@ with its replacement, and each removed path, column or flag.
   plans publish no register of assigned numbers, so a number may be a real subscriber's. A program showing
   the codes or blocks credits "Datenquelle: Bundesnetzagentur", names the licence Datenlizenz Deutschland –
   Namensnennung 2.0 (`dl-de/by-2-0`), links the lists and says the data was changed.
+- `sv_SE.paragraph`, three to six `sv_SE.sentence` joined by a space, as `en_US.paragraph` joins its own.
 
 ## 0.6.0 - 2026-11-15
 

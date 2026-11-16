@@ -673,7 +673,7 @@ as `example.com` into the template; `todo.md` plans the path.
 and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `personnummer-date`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
-`company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
+`company-word`, `holiday`, `month`, `paragraph`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
 `en_US` adds `ssn`, `itin`,
 `phone-exchange` (the three digits after the area code), `paragraph`, `word-adj`, `word-adv`, `word-noun` and `word-verb`.
 
@@ -1391,7 +1391,7 @@ prints `hus huset`.
 
 The import drops the words on LDNOOBW's Swedish list of rude words, and other rude words remain, so
 read the output before showing it to anyone. `sv_SE.sentence` fills a fixed pattern with these words
-and doesn't make them agree, so its sentences aren't grammatical.
+and doesn't make them agree, so its sentences aren't grammatical. `sv_SE.paragraph` joins three to six sentences.
 
 ## Data format
 
