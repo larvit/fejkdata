@@ -15,8 +15,7 @@ with its replacement, and each removed path, column or flag.
   writes it: a price as `1.234,50 kr.` in Denmark and `1 234,50 €` in Finland, a time as `15.04` in Finland and `15:04` in
   Germany, and a colour name in the locale's language or, two draws in three, a hex code.
 - `de_DE.company`, drawing a sole proprietorship, a partnership or a corporation as often as Destatis counted legal units
-  of that kind in 2024, and splitting a group evenly over its forms, with `de_DE.email` and `de_DE.date`, such as
-  `02.04.2019`. A program showing the counts credits "© Statistisches Bundesamt (Destatis), 2025", names the licence
+  of that kind in 2024, and the forms of a group evenly. Also `de_DE.email` and `de_DE.date`, such as `02.04.2019`. A program showing the counts credits "© Statistisches Bundesamt (Destatis), 2025", names the licence
   Datenlizenz Deutschland – Namensnennung 2.0 (`dl-de/by-2-0`), links it, and says that the groups are split and the
   counts reduced to six legal forms.
 - `geo.DE`, Germany's Länder, Kreise, places and postal codes from GeoNames, with `de_DE.address` printing one

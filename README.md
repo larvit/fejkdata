@@ -685,10 +685,10 @@ too, written as the country writes them:
 
 | Locale | `price` | `time` |
 |---|---|---|
-| `nb_NO`, `nn_NO` | `1 234,50 kr` | `15:04` |
 | `da_DK` | `1.234,50 kr.` | `15.04` |
-| `fi_FI` | `1 234,50 €` | `15.04` |
 | `de_DE` | `1.234,50 €` | `15:04` |
+| `fi_FI` | `1 234,50 €` | `15.04` |
+| `nb_NO`, `nn_NO` | `1 234,50 kr` | `15:04` |
 
 A `url` and a `username` are made of the locale's own words, in ASCII, and a `color` is a colour name in the locale's
 language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `weekday` are Unicode CLDR's stand-alone
@@ -845,7 +845,7 @@ of a few thousand rows starts to repeat one, and a `UNIQUE` column needs a categ
 `de_DE.company` draws a sole proprietorship (Einzelunternehmen), a partnership or a corporation as often as Destatis
 counted legal units of that kind in 2024 (its Unternehmensregister table of legal units by legal form). The table counts
 partnerships and corporations only as groups, so a partnership is a `KG` or an `OHG` and a corporation a `GmbH`, a
-`UG (haftungsbeschränkt)` or an `AG`, each of a group as often as the others. A sole proprietorship's name has no
+`UG (haftungsbeschränkt)` or an `AG`, the forms of a group drawn evenly. A sole proprietorship's name has no
 abbreviation after it, and the others end in theirs, such as `… GmbH`. `de_DE.company.einzel`, `.kg`, `.ohg`, `.gmbh`, `.ug` and
 `.ag` each draw one form, and `{/de_DE.company as c}{c.legal}` prints the abbreviation of the same pick. No open
 bulk file of German company names was found, so the name's shapes and the words of `company-coined` and
