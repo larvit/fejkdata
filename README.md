@@ -12,10 +12,10 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, Steuer-IDs and phone numbers, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs and phone numbers, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
-  does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places. Each address takes its street and
-  postal code from one town ([`geo`](#geo)).
+  does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
+  place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
@@ -794,7 +794,7 @@ number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
 ### `de_DE`
 
-`de_DE`, German, carries `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex`, `steuer-id` and `title`. `sex` is `Frau` and `Mann`, `title` is
+`de_DE`, German, carries `address`, `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex`, `steuer-id` and `title`. `sex` is `Frau` and `Mann`, `title` is
 `Dr.`, `Prof.` and `Prof. Dr.`, drawn whatever the sex. `{/de_DE.person}` renders e.g. `Emilia Hesse`.
 
 No open register publishes Germany's name counts. The first names are the city of Munich's open data
@@ -993,19 +993,19 @@ person's, so keep it out of anything that reaches a real system. To make one agr
 
 ### `geo`
 
-The `geo` namespace holds one tree per country under its alpha-2 code: five [linked tables](#linked-tables) named alike, and an `address` record binding one locality and drawing its street and postal code inside it. The locale's `address` prints that record, and each of its columns describes the address printed.
+The `geo` namespace holds one tree per country under its alpha-2 code: five [linked tables](#linked-tables) named alike, and an `address` record binding one locality and drawing its postal code inside it, and its street too where the country's streets are real. The locale's `address` prints that record, and each of its columns describes the address printed.
 
 | Table | `geo.DE` | `geo.DK` | `geo.FI` | `geo.NO` | `geo.SE` | `geo.US` | Weight |
 |-------|----------|----------|----------|----------|----------|----------|--------|
 | `region` | Land, by code (`BY`) or name | region, by code or name | maakunta, by code or name | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population; DE: postal codes |
 | `municipality` | Kreis, by code or name | kommune, by code or name | kunta, by code or name, with its `swedish-name` | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | population; DE: postal codes |
-| `locality` | place name within a Kreis, by code: every one GeoNames gives an accuracy | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | postitoimipaikka, by name, with its `swedish-name`: every one with a street in Posti's basic address file under a normal postinumero with residents | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; FI: its postinumerot's residents; SE: tätort population, the kommun's where the postort names it, the småort's where one holds the postort's centre, else 200; US: place population; DE: its postal codes |
-| `postal-code` | Postleitzahl, one row per place it holds: every one GeoNames gives an accuracy | postnummer with a street address, by code | normal postinumero with a street and residents, by code | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DK and NO: addresses; FI: residents in Statistics Finland's Paavo; SE: one; US: address ranges; DE: one |
+| `locality` | place name within a Kreis, by code: every one with an accuracy, GeoNames' measure of how exactly it knows the point | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | postitoimipaikka, by name, with its `swedish-name`: every one with a street in Posti's basic address file under a normal postinumero with residents | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; FI: its postinumerot's residents; SE: tätort population, the kommun's where the postort names it, the småort's where one holds the postort's centre, else 200; US: place population; DE: its postal codes |
+| `postal-code` | Postleitzahl, one row per place it holds: every one with an accuracy | postnummer with a street address, by code | normal postinumero with a street and residents, by code | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DK and NO: addresses; FI: residents in Statistics Finland's Paavo; SE: one; US: address ranges; DE: one |
 | `street` | invented street name, belonging to no place | street name, every one in Danmarks Adresseregister | street name, every one [`geo-fi.py`](data-import/geo-fi.py)'s `street_name` accepts, with its `swedish-name` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DK and NO: addresses; FI: ranges in Posti's basic address file; SE: segments; US: address ranges; DE: one |
 
 #### Across countries
 
-What ports across countries is the five table names, their `name` column, selection by name, and the `address` record's columns: `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`. The record's `region` is a US state's abbreviation, and elsewhere the region's name. A place in `geo.DE` is selected by its code alone, since place names repeat. Every other column of a table is the country's own, `code` on a Swedish region but `abbr` on a US one.
+What ports across countries is the five table names, their `name` column, selection by name, and the `address` record's columns: `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`. The record's `region` is a US state's abbreviation, and elsewhere the region's name. A locality in `geo.DE` is selected by its code alone, since place names repeat. Every other column of a table is the country's own, `code` on a Swedish region but `abbr` on a US one.
 
 #### Danish places
 
@@ -1029,14 +1029,19 @@ Finnish name. A Finnish street sits under each postitoimipaikka where Posti list
 #### German places
 
 `de_DE.address` prints `geo.DE.address`, such as `Hauptstraße 12\n01945 Tettau`. The places and postal codes are
-[GeoNames](https://www.geonames.org/)' Postleitzahlen: a region is a Land, a municipality a Kreis, and a locality a place
-name within a Kreis, which a Kreis's `code` and a running number key, as `12066-002`. A row that GeoNames gives no accuracy
-is mostly a firm's or an office's own Postleitzahl and ships no place, nor does Jungholz, which is Austrian. GeoNames
-publishes no population, so each table weighs a row by the postal codes it holds, which only estimates its people.
+[GeoNames](https://www.geonames.org/)' Postleitzahlen. A region is a Land, a municipality a Kreis, and a locality a place
+name within a Kreis. A locality's `code` is its Kreis's `code` and its name in ASCII, with umlauts and ß written out, as
+`12066-tettau`, so a refresh of GeoNames' file leaves it where it was. A Kreis is named as a German writes it, `Stadt Salzgitter`
+for GeoNames' `Salzgitter, Stadt`. GeoNames writes a Landkreis with or without the word, `Landkreis Traunstein` but
+`Bamberg`, and `geo.DE` keeps that. All of Hamburg and of Berlin is one place each, as a letter addresses it. GeoNames gives each place an
+accuracy, its measure of how exactly it knows the point. A row without one is mostly a firm's or an office's own
+Postleitzahl and ships no place. Jungholz, which is Austrian, ships none either. GeoNames publishes no population, so a
+locality weighs the postal codes it holds, and a Kreis and a Land the sum of theirs. That counts postal codes, not people:
+small places and the Länder with many of them are drawn more often than their people warrant.
 
-The streets are invented. No open register covers Germany whole: the Länder publish theirs on terms of their own, and
-Bavaria's are not open. So `geo.DE.street` holds street names that a language model recalls as common in Germany, each
-drawn as often as another and belonging to no place, and a street sits beside any postal code. Its house numbers are
+The streets are invented. The Länder each publish their own address data, and no open register is known to cover all
+sixteen. So `geo.DE.street` holds street names that a language model recalls as common in Germany. Each is drawn as often as
+another and belongs to no place, so a street sits beside any postal code. The weights of the house-number lengths are
 estimates too.
 
 #### Norwegian places
