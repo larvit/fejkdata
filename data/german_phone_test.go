@@ -83,7 +83,7 @@ func TestShippedGermanPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 	for path, want := range map[string]string{
 		"de_DE.phone-fixed[030].name": "Berlin", "de_DE.phone-fixed[069].name": "Frankfurt am Main",
 		"de_DE.phone-fixed[0201].name": "Essen", "de_DE.phone-fixed[033051].name": "Nassenheide",
-		"de_DE.phone-mobile[0151].ndc": "151", "de_DE.phone-mobile[015550].ndc": "15550",
+		"de_DE.phone-mobile[01511].ndc": "1511", "de_DE.phone-mobile[015550].ndc": "15550",
 	} {
 		t.Run(path, func(t *testing.T) {
 			if got := fejktest.Fake(t, f, path); got != want {
