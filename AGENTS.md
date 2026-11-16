@@ -21,6 +21,7 @@
 - A company category whose country has no open bulk file of company names weighs its legal forms by the counts the country's statistics office publishes, and draws its names from a language model's recall. Each name shape and word weighs the same. Goal 3.2. Applied by `da_DK.company`, `de_DE.company` and `fi_FI.company`.
 - A name table for which no open bulk file of name counts exists, not even one covering part of the country, keeps any counts a source publishes, and draws every other name from a language model's recall. The commoner recalled names are ranked from the most to the least common. Each weighs a function of its rank, which the decision applying this principle states, and never more than the smallest published count. The rarer ones follow in no order and share one weight, no higher than the last ranked name's. The README and `DATA-LICENSES.md` call these weights estimates. Goal 3.2. Applied by `da_DK.first-name`, `da_DK.last-name` and `de_DE.last-name`.
 - A national id draws a series its issuer keeps for tests or never issues, where one is published. The README says which checker, if any, refuses it. Goal 3.3. Applied by `de_DE.steuer-id`, `fi_FI.henkilotunnus`, `nb_NO.fodselsnummer`, `nn_NO.fodselsnummer`, `sv_SE.personnummer`, `sv_SE.personnummer-12`, `sv_SE.samordningsnummer` and `sv_SE.samordningsnummer-12`.
+- A locale's `word` holds an open dictionary's words, one table per part of speech, under `noun`, `verb`, `adj` and `adv`, and draws each word evenly. It drops no word for being rude. Goal 3.2. Applied by `da_DK.word`, `de_DE.word`, `en_US.word`, `fi_FI.word`, `nb_NO.word`, `nn_NO.word` and `sv_SE.word`, whose imports drop rude words until item 497 ships.
 
 # Decisions
 
@@ -131,7 +132,6 @@ In [docs/decisions.md](docs/decisions.md):
 - A Swedish street's postal codes keep delivery digit 9
 - A Swedish postort with no published population of its own weighs 200
 - A Swedish road segment inside a tätort leans towards the postort the tätort is named after, by distance over the fourth root of its codes
-- `sv_SE.word` holds SALDO's words, under one short path per part of speech: `noun`, `verb`, `adj` and `adv`
 - `en_US.word` holds WordNet's words, under one short path per part of speech, and its notice ships with them
 - `nb_NO`, `nn_NO`, `da_DK`, `fi_FI` and `de_DE` hold their dictionary's words as `sv_SE.word` does, and `de_DE.word.noun` carries `plural`
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
