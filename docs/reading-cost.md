@@ -2083,7 +2083,24 @@ Read most (opens and searches):
 - `CHANGELOG.md` 1
 - `DATA-LICENSES.md` 1
 - `cpr_test.go` 1
-- `data/de_DE/.fejkdata.json` 1
-- `data/de_DE/fs.go` 1
-- `data/german_test.go` 1
 - `internal/builtinfunc/builtins.go` 1
+- `internal/builtinfunc/cpr.go` 1
+- `internal/builtinfunc/hetu.go` 1
+- `internal/fejktest/draws.go` 1
+
+## Reading cost, chunk fd7d70cfac58, finished 2026-11-16T01:39:03Z
+
+106919 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 4
+- `data/danish_test.go` 4
+- `data/finnish_test.go` 4
+- `DATA-LICENSES.md` 1
+- `data-import/phone-area-se.py` 1
+- `data-import/source.py` 1
+- `data-import/tsv.py` 1
+- `data/da_DK/phone-fixed.tsv` 1
+- `data/da_DK/phone-mobile.tsv` 1
+- `data/fi_FI/phone-fixed.json` 1
