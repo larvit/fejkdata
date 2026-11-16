@@ -1,9 +1,8 @@
 package builtinfunc
 
-// steuerID draws a Steueridentifikationsnummer of the series ELSTER keeps for tests, which the
-// BZSt never issues because it gives no issued number a leading zero. Beside that zero the ten
-// digits hold one digit twice or three times, three equal digits never in a row, and the eleventh
-// is the check digit of ISO 7064 MOD 11,10.
+// steuerID draws a Steueridentifikationsnummer of ELSTER's test series: the first of its ten digits is
+// 0, which the BZSt doesn't give any issued number. Among the ten, one digit appears twice or three times,
+// never three in a row, and the eleventh digit is the check digit of ISO 7064 MOD 11,10.
 func steuerID(r rng) string {
 	repeats := 2 + r.IntN(2)
 	for {
@@ -14,8 +13,8 @@ func steuerID(r rng) string {
 	}
 }
 
-// steuerDigits arranges a draw's first ten digits behind a zero, one digit repeated that many
-// times, and reports false for a draw that has no zero to place or puts three equal digits in a row.
+// steuerDigits draws the first ten digits, a zero first and one digit repeats times. It reports false
+// when the draw holds no zero or puts three equal digits in a row.
 func steuerDigits(r rng, repeats int) (digits [10]byte, ok bool) {
 	repeated := byte(r.IntN(10))
 	others := make([]byte, 0, 9)
@@ -67,8 +66,7 @@ func threeInARow(digits [10]byte) bool {
 	return false
 }
 
-// steuerCheck is ELSTER's algorithm for the eleventh digit: each digit joins a running product,
-// which starts at 10, modulo 10 with a zero read as 10, and the product doubles modulo 11.
+// steuerCheck is ELSTER's check digit, ISO 7064 MOD 11,10.
 func steuerCheck(digits [10]byte) int {
 	product := 10
 	for _, d := range digits {

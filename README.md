@@ -813,15 +813,17 @@ files are summed per name and sex. One showing the sex counts credits "Source: E
 
 #### Steuer-ID
 
-`de_DE.steuer-id` is a Steueridentifikationsnummer of the test series that ELSTER keeps. The Federal
-Central Tax Office (BZSt) issues no number with a leading zero, and ELSTER's "Prüfung der Steuer- und
-Steueridentifikationsnummer" allows one only for a test number, so a number here is valid, and no person holds
-it. It has eleven digits. Of the first ten, one digit appears twice or three times, evenly between the two,
-and no digit appears three times in a row. The eleventh is the check digit of ISO 7064 MOD 11,10, which
-`{steuerid()}` computes by ELSTER's algorithm, as in `02476291358`, one of ELSTER's own examples. A checker that refuses a
-leading zero refuses every number here, and fejkdata draws none without it. A number is one of about 36
-million, so a fixture of a few thousand rows starts to repeat one, and a `UNIQUE` column needs a category of
-your own.
+`de_DE.steuer-id` is a German tax identification number (Steueridentifikationsnummer), such as
+`02476291358`, from ELSTER's test numbers. ELSTER is the tax authorities' online portal. Every number starts
+with 0. The Federal Central Tax Office (BZSt) doesn't issue any number with a leading zero, and ELSTER's
+"Prüfung der Steuer- und Steueridentifikationsnummer" accepts a leading zero only in a test number. So a
+number here is valid and no person holds it, but a checker that refuses a leading zero refuses every one, and
+fejkdata draws none without it.
+
+A number has eleven digits. Among the first ten, one digit appears twice in half the numbers and three times
+in the other half. No digit appears three times in a row. The eleventh digit is the check digit of ISO 7064
+MOD 11,10. The category renders the builtin `{steuerid()}`. There are about 37 million numbers, so a fixture
+of a few thousand rows starts to repeat one, and a `UNIQUE` column needs a category of your own.
 
 ### `en_US`
 

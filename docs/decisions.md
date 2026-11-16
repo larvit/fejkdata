@@ -1920,13 +1920,12 @@ Valid while a row's cost is its allocations, not its weighted draw.
 2026-11-16, Lilleman auf Larv.
 
 Goal 3 (a valid id passes the check the real system applies) and goal 3.3 (a form that reaches
-nothing real) are both served. The BZSt's "Erzeugung von Identifikationsnummern" says an
-Identifikationsnummer has no leading zero, and ELSTER's "Prüfung der Steuer- und
-Steueridentifikationsnummer" allows one only for a test number. So `de_DE.steuer-id` draws a leading
-zero, and no drawn number is a person's. ELSTER's check and the other rules (one digit twice or three
-times among the first ten, never three in a row) are the same for a test number, so `{steuerid()}`
-computes the eleventh digit by ELSTER's algorithm and picks twice or three times evenly. This follows
-the Swedish, Norwegian and Finnish ids, which draw an issuer's test or unissued series. The README says
-that a checker refusing a leading zero refuses every number.
+nothing real) are both served. The Federal Central Tax Office's (BZSt) "Erzeugung von
+Identifikationsnummern" says an Identifikationsnummer has no leading zero, and "Prüfung der Steuer- und
+Steueridentifikationsnummer" of ELSTER, the tax authorities' online portal, allows one only for a test
+number. So `de_DE.steuer-id` draws a leading zero, and no drawn number is a person's. The check digit
+and the other rules (one digit twice or three times among the first ten, never three in a row) are the
+same for a test number, so `{steuerid()}` computes the eleventh digit by ELSTER's algorithm. This follows
+the Swedish, Norwegian and Finnish ids, which draw an issuer's test or unissued series.
 
-Valid while the BZSt issues no number with a leading zero.
+Valid while the BZSt doesn't issue any number with a leading zero.
