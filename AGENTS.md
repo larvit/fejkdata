@@ -20,6 +20,7 @@
 
 - A company category whose country has no open bulk file of company names weighs its legal forms by the counts the country's statistics office publishes, and draws its names from a language model's recall. Each name shape and word weighs the same. Goal 3.2. Applied by `da_DK.company` and `fi_FI.company`.
 - A name table for which no open bulk file of name counts exists, not even one covering part of the country, keeps any counts a source publishes, and draws every other name from a language model's recall. The commoner recalled names are ranked from the most to the least common. Each weighs a function of its rank, which the decision applying this principle states, and never more than the smallest published count. The rarer ones follow in no order and share one weight, no higher than the last ranked name's. The README and `DATA-LICENSES.md` call these weights estimates. Goal 3.2. Applied by `da_DK.first-name`, `da_DK.last-name` and `de_DE.last-name`.
+- A national id draws a series its issuer keeps for tests or never issues, where one is published; the README says which checker refuses it. Goal 3.3. Applied by `sv_SE.personnummer`, `sv_SE.samordningsnummer`, `nb_NO.fodselsnummer`, `fi_FI.henkilotunnus` and `de_DE.steuer-id`.
 
 # Decisions
 
@@ -106,11 +107,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `misc.tld` is a table of its own, and `misc.territory.tld` stays a column
 - `misc.territory` carries a currency code, it does not link to `misc.currency`
 - An extension may name two media types
-- The Swedish ids draw Skatteverket's test series
-- The Norwegian id draws Skatteetaten's synthetic series
 - The Danish id draws valid CPR numbers over the last hundred years
-- The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
-- The German id draws ELSTER's test series
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
 - A path draws through its compiled steps
