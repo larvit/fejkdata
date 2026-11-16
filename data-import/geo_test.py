@@ -111,7 +111,7 @@ class InventedStreets(unittest.TestCase):
 
 def geonames_de(code: str, place: str, land: str, kreis_code: str, kreis: str, lat: str = "50.0", lon: str = "10.0", accuracy: str = "4") -> str:
     """A line of GeoNames' DE.txt, each field at the position GeoNames' readme gives."""
-    return "\t".join(["DE", code, place, "", land, "", "00", kreis, kreis_code, lat, lon, accuracy])
+    return f"DE\t{code}\t{place}\t\t{land}\t\t00\t{kreis}\t{kreis_code}\t{lat}\t{lon}\t{accuracy}"
 
 
 class GermanPlaces(unittest.TestCase):
