@@ -722,7 +722,7 @@ Renders e.g. `Louice Kajsa Grönberg`. About one draw in 220 repeats the first n
 
 ### `da_DK`
 
-`da_DK`, Danish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `time`, `title`, `url`, `username` and `weekday`, built like [`nb_NO`'s](#nb_no):
+`da_DK`, Danish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](#nb_no):
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
@@ -823,7 +823,7 @@ and doesn't make them agree, so its sentences aren't grammatical. `da_DK.paragra
 
 ### `de_DE`
 
-`de_DE`, German, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sex`, `steuer-id`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `Frau` and `Mann`, `title` is
+`de_DE`, German, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `steuer-id`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `Frau` and `Mann`, `title` is
 `Dr.`, `Prof.` and `Prof. Dr.`, drawn whatever the sex. `{/de_DE.person}` renders e.g. `Emilia Hesse`.
 
 No open register publishes Germany's name counts. The first names are the city of Munich's open data
@@ -909,13 +909,13 @@ and says the data was changed: each block and code is a row.
 adjectives and adverbs whose lemma is letters alone, a noun's capitalised and the others' lower-case.
 Wikidata has no frequencies, so a word may be rare. `de_DE.word.noun`, `.verb`, `.adj` and `.adv` each
 draw one part of speech, and `de_DE.word.noun.plural` draws a noun and prints its nominative plural, such as
-`Häuser`. A noun Wikidata gives no plural is left out. Bind a noun to read it and its plural from one
+`Häuser`. A noun is left out where Wikidata gives it no plural of letters alone. Bind a noun to read it and its plural from one
 pick: `{/de_DE.word.noun as n}{n} {n.plural}` prints `Haus Häuser`.
 
 The import drops the words on LDNOOBW's German list of rude words, and other rude words remain, so
 read the output before showing it to anyone. `de_DE.sentence` builds on plurals, so it needs no
-gender: `Die Häuser sind groß.` A verb stands in its infinitive, which is its third person plural save
-for `sein`'s, so its sentences are grammatical but seldom make sense. `de_DE.paragraph`
+gender: `Die Häuser sind groß.` A verb stands whole in its infinitive, which reads as its third person plural
+for most verbs. A verb such as `anrufen` or `sein` then reads wrong, so some sentences aren't grammatical. `de_DE.paragraph`
 joins three to six sentences.
 
 ### `en_US`
@@ -971,7 +971,7 @@ may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, 
 
 ### `fi_FI`
 
-`fi_FI`, Finnish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sex`, `time`, `title`, `url`, `username` and `weekday`, built like [`nb_NO`'s](#nb_no).
+`fi_FI`, Finnish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](#nb_no).
 `fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
 2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
 and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
@@ -1016,15 +1016,17 @@ digits, such as `04300`, among them the machine-to-machine codes `049`, and the 
 
 #### Finnish words
 
-`fi_FI.word` draws evenly from about 102,000 entries of Nykysuomen sanalista, Kotus's list of the words
+`fi_FI.word` draws evenly from about 101,000 words of Nykysuomen sanalista, Kotus's list of the words
 in Kielitoimiston sanakirja: the nouns, verbs, adjectives and adverbs it spells in lower-case letters
 alone. A word the list files under two classes, such as a noun that is also an adjective, sits in both
 tables. The list has no frequencies, so a word may be rare. `fi_FI.word.noun`, `.verb`, `.adj` and `.adv`
-each draw one part of speech, in its base form: the list gives no inflected forms, so neither does fejkdata.
+each draw one part of speech. Each word is in its base form, since the list gives no inflected forms.
 
 The import drops the words on LDNOOBW's Finnish list of rude words, and other rude words remain, so
 read the output before showing it to anyone. `fi_FI.sentence` fills a fixed pattern that needs only base
-forms, such as `Tämä suuri talo on vanha.`, so its sentences are grammatical but seldom make sense. `fi_FI.paragraph` joins three to six sentences.
+forms, such as `Tämä suuri talo on vanha.` A plural noun such as `housut`, or an adjective that only stands before
+a noun, such as `viime`, then reads wrong, so some sentences aren't grammatical. `fi_FI.paragraph` joins three to six sentences.
+A program showing these words credits "Kotimaisten kielten keskus: Nykysuomen sanalista 2024, CC BY 4.0".
 
 #### Henkilötunnus
 
@@ -1227,8 +1229,8 @@ giving that name no territory — spell it as the text `"UTC"`.
 ### `nb_NO`
 
 `nb_NO`, Norwegian in the Bokmål standard, carries `address`, `birth-day`, `color`, `company`, `company-coined`,
-`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `month`, `person`,
-`phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `time`, `title`, `url`, `username` and `weekday`.
+`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `month`, `paragraph`, `person`,
+`phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`.
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
@@ -1320,11 +1322,12 @@ and its form from one pick: `{/nb_NO.word.noun as n}{n} {n.definite}` prints `hu
 The import drops the words on LDNOOBW's Norwegian list of rude words, and other rude words remain, so
 read the output before showing it to anyone. `nb_NO.sentence` fills a fixed pattern with these words
 and doesn't make them agree, so its sentences aren't grammatical. `nb_NO.paragraph` joins three to six sentences.
+A program showing these words credits "Språkbanken, Nasjonalbiblioteket: Norsk ordbank bokmål 2005, CC BY 4.0".
 
 ### `nn_NO`
 
 `nn_NO`, Norwegian in the Nynorsk standard, carries `address`, `color`, `company`, `date`, `email`, `fodselsnummer`,
-`month`, `person`, `phone`, `price`, `time`, `title`, `url`, `username` and `weekday`. Both standards spell names, places, streets, ids and phone
+`month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. Both standards spell names, places, streets, ids and phone
 numbers alike, so `nn_NO` reads `nb_NO`'s data and `geo.NO`. It has no table of names, `sex`, `birth-day`,
 `individ` or phone prefixes, and none of `nb_NO.company`'s forms such as `.as`: read those from `nb_NO`.
 
@@ -1333,7 +1336,7 @@ numbers alike, so `nn_NO` reads `nb_NO`'s data and `geo.NO`. It has no table of 
 `nn_NO.person`, `nn_NO.fodselsnummer`, `nn_NO.phone`, `nn_NO.email`, `nn_NO.company` and `nn_NO.date` draw what the
 `nb_NO` category of the same name draws, and are the same kind of value. `nn_NO.person` takes its prefix from
 `nn_NO.title`, and `nn_NO.address` prints `geo.NO.address`. Email local parts and company names hold Bokmål
-words, since no register of Nynorsk ones was found. To match a fødselsnummer to a sex, bind `nb_NO.sex` as
+words, read from `nb_NO`. To match a fødselsnummer to a sex, bind `nb_NO.sex` as
 [Fødselsnummer matched to a sex](#fødselsnummer-matched-to-a-sex) shows.
 
 #### Nynorsk months, weekdays and titles
@@ -1355,6 +1358,7 @@ and its form from one pick: `{/nn_NO.word.verb as v}{v} {v.present}` prints `kas
 The import drops the words on LDNOOBW's Norwegian list of rude words, and other rude words remain, so
 read the output before showing it to anyone. `nn_NO.sentence` fills a fixed pattern with these words
 and doesn't make them agree, so its sentences aren't grammatical. `nn_NO.paragraph` joins three to six sentences.
+A program showing these words credits "Språkbanken, Nasjonalbiblioteket: Norsk ordbank nynorsk 2012, CC BY 4.0".
 
 ### `sv_SE`
 
@@ -2683,8 +2687,8 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
   after a burst, so give `names-us.py` a copy of the Census `names.zip` with `--surnames`.
 - `geo-se.py` fetches SCB's småort polygons, about 120 MB, and its tätort polygons.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
-- `word-se.py` fetches SALDO's morphology, 254 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
+- `word-se.py` fetches SALDO's morphology, 254 MB.
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py

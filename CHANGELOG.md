@@ -9,8 +9,9 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
-- `word`, `sentence` and `paragraph` for `nb_NO`, `nn_NO`, `da_DK`, `fi_FI` and `de_DE`, with `word.noun`, `.verb`,
-  `.adj` and `.adv` drawing one part of speech, from Norsk ordbank (Språkbanken, CC BY 4.0), COR (Dansk Sprognævn,
+- `word`, `sentence` and `paragraph` for `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO`, with `word.noun`, `.verb`,
+  `.adj` and `.adv` drawing one part of speech and the tables `word-noun`, `word-verb`, `word-adj` and `word-adv` they
+  draw from, built from Norsk ordbank (Språkbanken, CC BY 4.0), COR (Dansk Sprognævn,
   CC0), Kotus's Nykysuomen sanalista (CC BY 4.0) and Wikidata's German lexemes (CC0). The Norwegian and Danish words
   carry a noun's and an adjective's `definite` and a verb's `present`, such as `huset` and `løper`, and a German
   noun its `plural`, such as `Häuser`; the Finnish list gives no forms. A program showing the Norwegian or Finnish
