@@ -276,7 +276,7 @@ func columnNames(columns map[string]json.RawMessage) []string {
 }
 
 func TestEveryLocaleAddressHoldsItsCountrysColumns(t *testing.T) {
-	for _, c := range append(slices.Clone(shippedAddressLocales), struct{ locale, country, template, largest string }{locale: "nn_NO", country: "NO"}) {
+	for _, c := range append(slices.Clone(shippedAddressLocales), struct{ locale, country, template, largest string }{locale: "nn_NO", country: "NO"}, struct{ locale, country, template, largest string }{locale: "de_DE", country: "DE"}) {
 		t.Run(c.locale, func(t *testing.T) {
 			got, want := columnNames(geoAddress(t, c.locale)), columnNames(geoAddress(t, "geo/"+c.country))
 			if !slices.Equal(got, want) {
