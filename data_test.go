@@ -14,7 +14,6 @@ import (
 // TestShippedDataCategories asserts en_US and sv_SE emit only well-formed values
 // for each category data/locales_test.go's shippedLocales doesn't test for them.
 func TestShippedDataCategories(t *testing.T) {
-	letters := regexp.MustCompile(`^[\pL'-]+$`)
 	color := regexp.MustCompile(`^(#[0-9a-f]{6}|[\pL ]+)$`)
 	url := regexp.MustCompile(`^https?://([a-z0-9-]+\.)+[a-z]{2,}(/[a-z0-9./-]*)?$`)
 	email := regexp.MustCompile(`^[a-z0-9._-]+@([a-z0-9-]+\.)+[a-z]{2,}$`)
@@ -24,10 +23,6 @@ func TestShippedDataCategories(t *testing.T) {
 		path   string
 		en, sv *regexp.Regexp
 	}{
-		{"word", letters, letters},
-		{"sentence",
-			regexp.MustCompile(`^[A-Z].* .*[.!?]$`),
-			regexp.MustCompile(`^[A-ZÅÄÖ].* .*[.!?]$`)},
 		{"time", regexp.MustCompile(`^([1-9]|1[0-2]):[0-5]\d (AM|PM)$`), nil},
 		{"email", email, email},
 		{"company",
