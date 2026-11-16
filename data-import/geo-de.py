@@ -527,7 +527,8 @@ def slug(place: str) -> str:
 
 def localities_of(rows: Iterable[Entry]) -> tuple[list[geo.Row], list[geo.Row]]:
     """The locality and postal-code rows: a locality is a place name within a Kreis, at the mean of its rows' points,
-    and holds every postal code any of those rows gives it. A code that two places in a Kreis share exits."""
+    and holds every postal code any of those rows gives it, so two villages of one name in a Kreis are one place.
+    A code that two places in a Kreis share exits."""
     held: dict[tuple[str, str], list[Entry]] = collections.defaultdict(list)
     for e in rows:
         held[(e.kreis_code, e.place)].append(e)
