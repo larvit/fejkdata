@@ -1,11 +1,30 @@
 """A locale's word tables: a TSV and the JSON category reading it per part of speech, and word.json, which draws from them."""
-from collections.abc import Mapping, Sequence
+import argparse
+import json
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from pathlib import Path
+from typing import NamedTuple
 
 import source
 import tsv
 
 RUDE = "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/"
+CACHE = Path(__file__).resolve().parent / "cache"
+
+# A part of speech, a word of it and the word's form, which is empty where the part carries none.
+Candidate = tuple[str, str, str]
+
+
+class Source(NamedTuple):
+    """One file an import reads: its flag, its URL, its name in the cache or "" for the URL's own, the bytes it opens with,
+    the folder under --out its tables go to, and the parser yielding its candidates."""
+
+    flag: str
+    url: str
+    name: str
+    magic: bytes
+    folder: str
+    candidates: Callable[[bytes], Iterable[Candidate]]
 
 
 def rude(language: str, cache: str | Path, url: str = "") -> set[str]:
@@ -14,15 +33,42 @@ def rude(language: str, cache: str | Path, url: str = "") -> set[str]:
     return {w.strip().lower() for w in listed if w.strip()}
 
 
+def lower(word: str, part: str) -> bool:
+    """Lower-case letters alone, whatever the part of speech."""
+    return word.isalpha() and word.islower()
+
+
+def rows(candidates: Iterable[Candidate], forms: Mapping[str, str], rude: Collection[str], spelled: Callable[[str, str], bool] = lower) -> dict[str, list[dict[str, str]]]:
+    """Per part of speech, its rows sorted by word: the first candidate of each word that is spelled and not rude,
+    and whose form is too where the part carries one."""
+    found: dict[str, dict[str, dict[str, str]]] = {part: {} for part in forms}
+    for part, word, form in candidates:
+        column = forms[part]
+        if not spelled(word, part) or word.lower() in rude:
+            continue
+        if not column:
+            found[part].setdefault(word, {"word": word})
+        elif spelled(form, part) and form.lower() not in rude:
+            found[part].setdefault(word, {"word": word, column: form})
+    return {part: [words[w] for w in sorted(words)] for part, words in found.items()}
+
+
+def inline(item: Mapping[str, str | int]) -> str:
+    """A JSON object on one line, padded inside its braces as the shipped files are."""
+    return "{ " + json.dumps(item, ensure_ascii=False)[1:-1] + " }"
+
+
 def word_json(forms: Mapping[str, str], counts: Mapping[str, int]) -> str:
     """word.json: `any` weighs a part of speech by its rows, and a part with a form binds its word, so the form reads that word's own."""
-    items = ",\n".join(f'    {{ "format": "{{.word-{part}}}", "weight": {counts[part]} }}' for part in forms)
+    items = ",\n".join("    " + inline({"format": "{.word-" + part + "}", "weight": counts[part]}) for part in forms)
     fields = []
     for part, column in forms.items():
+        name = part + "word"
         if column:
-            fields.append(f'  "{part}": {{ "format": "{{.word-{part} as {part}word}}{{{part}word}}", "{column}": "{{{part}word.{column}}}" }}')
+            field = inline({"format": "{.word-" + part + " as " + name + "}{" + name + "}", column: "{" + name + "." + column + "}"})
         else:
-            fields.append(f'  "{part}": "{{.word-{part}}}"')
+            field = json.dumps("{.word-" + part + "}")
+        fields.append(f"  {json.dumps(part)}: {field}")
     return '{\n  "format": "{any}",\n  "any": [\n' + items + "\n  ],\n" + ",\n".join(fields) + "\n}\n"
 
 
@@ -30,5 +76,21 @@ def write(out: Path, forms: Mapping[str, str], rows: Mapping[str, Sequence[Mappi
     """Write each part's word-<part>.tsv and word-<part>.json, its form column after the word, and word.json."""
     for part, column in forms.items():
         tsv.write(out / f"word-{part}.tsv", ["word", column] if column else ["word"], rows[part])
-        (out / f"word-{part}.json").write_text(f'{{ "format": "{{word}}", "rows": "word-{part}.tsv" }}\n', encoding="utf-8")
+        (out / f"word-{part}.json").write_text(inline({"format": "{word}", "rows": f"word-{part}.tsv"}) + "\n", encoding="utf-8")
     (out / "word.json").write_text(word_json(forms, {part: len(rows[part]) for part in forms}), encoding="utf-8")
+
+
+def main(doc: str, language: str, out: Path, forms: Mapping[str, str], sources: Sequence[Source], spelled: Callable[[str, str], bool] = lower) -> None:
+    """Run a word import: read its flags, fetch each source and LDNOOBW's list for the language, and write each source's tables."""
+    parser = argparse.ArgumentParser(description=doc.splitlines()[0])
+    parser.add_argument("--cache", default=str(CACHE))
+    for src in sources:
+        parser.add_argument(f"--{src.flag}", default=src.url)
+    parser.add_argument("--rude", default="")
+    parser.add_argument("--out", default=str(out))
+    args = parser.parse_args()
+    listed = rude(language, args.cache, args.rude)
+    for src in sources:
+        url = getattr(args, src.flag)
+        body = source.fetch(url, args.cache, src.name or Path(url).name, magic=src.magic)
+        write(Path(args.out) / src.folder, forms, rows(src.candidates(body), forms, listed, spelled))

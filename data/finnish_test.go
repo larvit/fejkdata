@@ -24,27 +24,8 @@ var (
 	dvvLast  = map[string]int{"Korhonen": 21144, "Virtanen": 20295, "Mäkinen": 18833, "Nieminen": 18669, "Mäkelä": 18117}
 )
 
-func finnishCounts(t *testing.T, file string) map[string]map[string]int {
-	t.Helper()
-	out := map[string]map[string]int{}
-	for _, row := range fejktest.TSVRows(t, "fi_FI/"+file+".tsv") {
-		n, err := strconv.Atoi(row["count"])
-		if err != nil || n < 1 {
-			t.Fatalf("%s row %v has no count", file, row)
-		}
-		if out[row["sex"]] == nil {
-			out[row["sex"]] = map[string]int{}
-		}
-		if _, dup := out[row["sex"]][row["name"]]; dup {
-			t.Fatalf("%s holds %q twice for sex %q", file, row["name"], row["sex"])
-		}
-		out[row["sex"]][row["name"]] = n
-	}
-	return out
-}
-
 func TestFinnishTopNamesAreDVVsCounts(t *testing.T) {
-	first, last := finnishCounts(t, "first-name"), finnishCounts(t, "last-name")[""]
+	first, last := nameCounts(t, "fi_FI", "first-name"), nameCounts(t, "fi_FI", "last-name")[""]
 	for _, c := range []struct {
 		what      string
 		got, want map[string]int
@@ -62,7 +43,7 @@ func TestFinnishTopNamesAreDVVsCounts(t *testing.T) {
 }
 
 func TestFinnishFirstNamesAreRowsUnderTheSexesThatBearThem(t *testing.T) {
-	first := finnishCounts(t, "first-name")
+	first := nameCounts(t, "fi_FI", "first-name")
 	if len(first) != 2 || first["f"] == nil || first["m"] == nil {
 		t.Fatalf("first-name.tsv holds sexes %v, want f and m", first)
 	}
@@ -71,63 +52,6 @@ func TestFinnishFirstNamesAreRowsUnderTheSexesThatBearThem(t *testing.T) {
 	}
 	if first["m"]["Anne"] != 0 || first["f"]["Juha"] != 0 {
 		t.Error("Anne is a boy's name or Juha a girl's, want each under the sex DVV counts it for")
-	}
-}
-
-func TestFinnishPersonIsATitleOrNoneAFirstNameOfItsSexAndALastName(t *testing.T) {
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
-	bySex := finnishCounts(t, "first-name")
-	first := map[string]map[string]int{"nainen": bySex["f"], "mies": bySex["m"]}
-	last := finnishCounts(t, "last-name")[""]
-	titles := map[string]int{}
-	fejktest.EachDraw(2000, func() string {
-		got, err := f.FakeTemplate("{/fi_FI.person as p}{p.sex}|{p.prefix}|{p.first}|{p.last}|{p}")
-		if err != nil {
-			t.Fatal(err)
-		}
-		return got
-	}, func(got string) {
-		cells := strings.Split(got, "|")
-		if len(cells) != 5 {
-			t.Fatalf("%q does not hold five cells", got)
-		}
-		sex, prefix, name, surname, whole := cells[0], cells[1], cells[2], cells[3], cells[4]
-		if first[sex][name] == 0 {
-			t.Fatalf("%q: %q is not a first name shipped for the sex %q, which is nainen or mies", got, name, sex)
-		}
-		if last[surname] == 0 {
-			t.Fatalf("%q: %q is not a shipped last name", got, surname)
-		}
-		if whole != prefix+name+" "+surname {
-			t.Fatalf("%q: the person is not its prefix, first name and last name", got)
-		}
-		titles[prefix]++
-	})
-	if titles["tohtori "] == 0 || titles["professori "] == 0 || titles[""] < 1800 || len(titles) != 3 {
-		t.Errorf("prefixes over 2000 persons = %q, want a few %q and %q beside many with none", titles, "tohtori ", "professori ")
-	}
-}
-
-func TestFinnishSexAndTitleAreSelectable(t *testing.T) {
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for tmpl, want := range map[string]string{
-		"{/fi_FI.sex[f]}":            "nainen",
-		"{/fi_FI.sex[m]}":            "mies",
-		"{/fi_FI.title[tohtori]}":    "tohtori",
-		"{/fi_FI.title[professori]}": "professori",
-	} {
-		t.Run(tmpl, func(t *testing.T) {
-			got, err := f.FakeTemplate(tmpl)
-			if err != nil || got != want {
-				t.Errorf("FakeTemplate(%q) = %q, %v, want %q", tmpl, got, err, want)
-			}
-		})
 	}
 }
 
@@ -187,10 +111,7 @@ const finnishHenkilotunnusDraws = 20000
 
 func eachFinnishHenkilotunnus(t *testing.T, check func(got string, b finnishBirth)) {
 	t.Helper()
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
+	f := shipped(t)
 	fejktest.EachDraw(finnishHenkilotunnusDraws, func() string { return fejktest.Fake(t, f, "fi_FI.henkilotunnus") }, func(got string) {
 		check(got, parseHenkilotunnus(t, got))
 	})
@@ -230,10 +151,7 @@ func TestFinnishHenkilotunnusFollowsStatisticsFinlandsShareAged65OrOver(t *testi
 }
 
 func TestFinnishHenkilotunnusAgreesWithABoundSexAndDrawsBoth(t *testing.T) {
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
+	f := shipped(t)
 	sexes := map[string]bool{}
 	fejktest.EachDraw(500, func() string {
 		got, err := f.FakeTemplate("{/fi_FI.sex as s}{s.name}|{/fi_FI.henkilotunnus.birth}{hetu(s.individ.digit)}")
@@ -340,15 +258,13 @@ func TestShippedFinnishPhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
 
 var finnishNationalPhone = regexp.MustCompile(`^(0\d{1,3}) (\d+(?: \d+)?)$`)
 
-func eachShippedFinnishPhone(t *testing.T, check func(n string)) {
-	t.Helper()
-	f := shipped(t, fejkdata.WithSeed(11))
-	fejktest.EachDraw(30000, func() string { return fejktest.Fake(t, f, "fi_FI.phone") }, check)
+func finnishFixedPhone(*testing.T) func(n string) bool {
+	return func(n string) bool { return finnishFixedAreas[strings.Fields(n)[0]] != "" }
 }
 
 func eachShippedFinnishPhoneInGroups(t *testing.T, check func(n, area string, length int)) {
 	t.Helper()
-	eachShippedFinnishPhone(t, func(n string) {
+	eachPhone(t, "fi_FI", func(n string) {
 		if m := finnishNationalPhone.FindStringSubmatch(n); m != nil {
 			check(n, m[1], len(m[1])-1+len(strings.ReplaceAll(m[2], " ", "")))
 		}
@@ -356,7 +272,7 @@ func eachShippedFinnishPhoneInGroups(t *testing.T, check func(n, area string, le
 }
 
 func TestShippedFinnishPhoneIsAnAreaCodeAndASubscriberNumberInGroups(t *testing.T) {
-	eachShippedFinnishPhone(t, func(n string) {
+	eachPhone(t, "fi_FI", func(n string) {
 		if !finnishNationalPhone.MatchString(n) {
 			t.Fatalf("phone %q is not an area code and a subscriber number in groups", n)
 		}
@@ -376,7 +292,7 @@ func TestShippedFinnishPhoneHasAnAllocatedAreaCodeAndTheDigitsThePlanAllowsIt(t 
 // numbering in a telecommunications area, and assigns no new range beginning with 12 to 19.
 func eachShippedFinnishFixedSubscriberNumber(t *testing.T, check func(n, subscriber string)) {
 	t.Helper()
-	eachShippedFinnishPhone(t, func(n string) {
+	eachPhone(t, "fi_FI", func(n string) {
 		m := finnishNationalPhone.FindStringSubmatch(n)
 		if _, fixed := finnishFixedAreas[m[1]]; fixed {
 			check(n, m[2])
@@ -407,7 +323,7 @@ func TestShippedFinnishPhoneDrawsAFixedSubscriberNumberBeginningWithEachDigitFro
 // Each kind and area code length has its own subscriber lengths, so each is counted apart.
 func TestShippedFinnishPhoneDrawsEveryLengthTheRegulationGivesForEachAreaCodeLength(t *testing.T) {
 	seen := map[string]map[int]bool{}
-	eachShippedFinnishPhone(t, func(n string) {
+	eachPhone(t, "fi_FI", func(n string) {
 		m := finnishNationalPhone.FindStringSubmatch(n)
 		kind := "mobile"
 		if _, fixed := finnishFixedAreas[m[1]]; fixed {
@@ -435,30 +351,6 @@ func TestShippedFinnishPhoneDrawsEveryLengthTheRegulationGivesForEachAreaCodeLen
 	}
 }
 
-func TestShippedFinnishPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
-	var nFixed int
-	eachShippedFinnishPhone(t, func(n string) {
-		if _, fixed := finnishFixedAreas[strings.Fields(n)[0]]; fixed {
-			nFixed++
-		}
-	})
-	if nFixed < 2580 || nFixed > 2880 {
-		t.Fatalf("30000 phones drew %d fixed, want about an eleventh, 2727 give or take 150", nFixed)
-	}
-}
-
-func TestShippedFinnishPhoneInternationalDropsTheTrunkZeroBehindTheCountryCode(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(5))
-	fejktest.EachDraw(300, func() string {
-		return fejktest.FakeTemplate(t, f, "{/fi_FI.phone as p}{p}|{p.national}|{p.international}")
-	}, func(got string) {
-		parts := strings.Split(got, "|")
-		if len(parts) != 3 || parts[0] != parts[1] || parts[2] != "+358 "+strings.TrimPrefix(parts[0], "0") {
-			t.Fatalf("%q: want the national form twice, then +358 and the national form without its 0", got)
-		}
-	})
-}
-
 func TestShippedFinnishPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(1))
 	for path, want := range map[string]string{
@@ -473,151 +365,6 @@ func TestShippedFinnishPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 	}
 }
 
-func eachShippedFinnishDate(t *testing.T, check func(got string)) {
-	t.Helper()
-	f := shipped(t, fejkdata.WithSeed(3))
-	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, "fi_FI.date") }, check)
-}
-
-func finnishDateYear(got string) int {
-	d, _ := time.Parse("2.1.2006", got)
-	return d.Year()
-}
-
-func TestShippedFinnishDateIsDayMonthYearWithDotsAndNoLeadingZeroFrom1970To2029(t *testing.T) {
-	date := regexp.MustCompile(`^([1-9]|[12]\d|3[01])\.([1-9]|1[0-2])\.\d{4}$`)
-	eachShippedFinnishDate(t, func(got string) {
-		d, err := time.Parse("2.1.2006", got)
-		if err != nil || !date.MatchString(got) || d.Year() < 1970 || d.Year() > 2029 {
-			t.Fatalf("date %q is not d.m.yyyy without leading zeros in 1970 to 2029: %v", got, err)
-		}
-	})
-}
-
-func TestShippedFinnishDateSpans1970To2029(t *testing.T) {
-	years := map[int]bool{}
-	eachShippedFinnishDate(t, func(got string) { years[finnishDateYear(got)] = true })
-	if !years[1970] || !years[2029] {
-		t.Errorf("500 dates drew the years %v, want 1970 and 2029 among them", years)
-	}
-}
-
-func TestShippedFinnishDatesIncludeADayOfOneDigit(t *testing.T) {
-	short := false
-	eachShippedFinnishDate(t, func(got string) { short = short || got[1] == '.' })
-	if !short {
-		t.Error("500 dates held no day of one digit, want one")
-	}
-}
-
-func TestShippedFinnishEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(4))
-	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, "fi_FI.email") }, func(got string) {
-		if !exampleEmail.MatchString(got) {
-			t.Fatalf("email %q is not lower-case ASCII at example.com, example.org or example.net", got)
-		}
-	})
-}
-
-func TestShippedFinnishEmailsAreMostlyDistinct(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(4))
-	seen := fejktest.TallyDraws(500, func() string { return fejktest.Fake(t, f, "fi_FI.email") })
-	if len(seen) < 400 {
-		t.Errorf("500 emails drew %d distinct, want 400 or more", len(seen))
-	}
-}
-
-func finnishNameSlugs(t *testing.T, file string) map[string]bool {
-	t.Helper()
-	fold := strings.NewReplacer("ä", "a", "ö", "o", "å", "a")
-	out := map[string]bool{}
-	for _, row := range fejktest.TSVRows(t, file) {
-		out[fold.Replace(strings.ToLower(row["name"]))] = true
-	}
-	return out
-}
-
-func TestShippedFinnishEmailHoldsAFirstAndALastNameInHalfItsAddresses(t *testing.T) {
-	firsts, lasts := finnishNameSlugs(t, "fi_FI/first-name.tsv"), finnishNameSlugs(t, "fi_FI/last-name.tsv")
-	trailingDigits := regexp.MustCompile(`\d+$`)
-	f := shipped(t, fejkdata.WithSeed(9))
-	seen := fejktest.TallyDraws(5000, func() string {
-		local, _, _ := strings.Cut(fejktest.Fake(t, f, "fi_FI.email"), "@")
-		return lastNameInEmail(trailingDigits.ReplaceAllString(local, ""), firsts, lasts)
-	})
-	named := 5000 - seen[""]
-	delete(seen, "")
-	assertShare(t, "addresses holding a first and a last name", named, 5000, 0.5)
-	if len(seen) < 40 {
-		t.Errorf("5000 emails held %d distinct last names, want 40 or more", len(seen))
-	}
-}
-
-var finnishLegalFormSuffix = regexp.MustCompile(` (Oy|Ky|Ay|osk)$`)
-
-func finnishLegalForm(company string) string {
-	if m := finnishLegalFormSuffix.FindStringSubmatch(company); m != nil {
-		return m[1]
-	}
-	return "Tmi"
-}
-
-func eachShippedFinnishCompany(t *testing.T, check func(got string)) {
-	t.Helper()
-	f := shipped(t, fejkdata.WithSeed(6))
-	fejktest.EachDraw(fejktest.ShareDraws, func() string { return fejktest.Fake(t, f, "fi_FI.company") }, check)
-}
-
-func TestShippedFinnishCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
-	t.Parallel()
-	name := regexp.MustCompile(`^\p{L}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (Oy|Ky|Ay|osk))?$`)
-	eachShippedFinnishCompany(t, func(got string) {
-		if !name.MatchString(got) || strings.HasSuffix(got, " Tmi") {
-			t.Fatalf("company %q is not a name that may end in a legal form", got)
-		}
-	})
-}
-
-func TestShippedFinnishCompanyEndsInALegalFormDrawnByStatisticsFinlandsEnterprises(t *testing.T) {
-	t.Parallel()
-	registered := map[string]int{"Tmi": 295203, "Oy": 240524, "Ky": 13356, "Ay": 4726, "osk": 2811}
-	total := registered["Tmi"] + registered["Oy"] + registered["Ky"] + registered["Ay"] + registered["osk"]
-	form := map[string]int{}
-	eachShippedFinnishCompany(t, func(got string) { form[finnishLegalForm(got)]++ })
-	for code, n := range registered {
-		t.Run(code, func(t *testing.T) {
-			assertShare(t, code+" of the companies", form[code], fejktest.ShareDraws, float64(n)/float64(total))
-		})
-	}
-}
-
-func TestShippedFinnishCompanyPathsDrawOneFormEach(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(7))
-	for path, suffix := range map[string]string{"tmi": "", "oy": " Oy", "ky": " Ky", "ay": " Ay", "osk": " osk"} {
-		t.Run(path, func(t *testing.T) {
-			fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, "fi_FI.company."+path) }, func(got string) {
-				if suffix == "" && finnishLegalFormSuffix.MatchString(got) || !strings.HasSuffix(got, suffix) {
-					t.Fatalf("fi_FI.company.%s = %q, want a name ending in %q, or in no legal form where that is empty", path, got, suffix)
-				}
-			})
-		})
-	}
-}
-
-func TestShippedFinnishCompanyLegalIsItsAbbreviation(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(7))
-	fejktest.EachDraw(200, func() string { return fejktest.FakeTemplate(t, f, "{/fi_FI.company as c}{c}|{c.legal}") }, func(got string) {
-		company, legal, _ := strings.Cut(got, "|")
-		want := finnishLegalForm(company)
-		if want == "Tmi" {
-			want = ""
-		}
-		if legal != want {
-			t.Fatalf("company %q has legal %q", company, legal)
-		}
-	})
-}
-
 func finnishCompanyShape(name string, words []string, firsts, lasts map[string]bool) []string {
 	var shapes []string
 	for _, w := range words {
@@ -629,15 +376,6 @@ func finnishCompanyShape(name string, words []string, firsts, lasts map[string]b
 		shapes = append(shapes, "first and last name")
 	}
 	return shapes
-}
-
-func finnishNames(t *testing.T, file string) map[string]bool {
-	t.Helper()
-	out := map[string]bool{}
-	for _, row := range fejktest.TSVRows(t, file) {
-		out[row["name"]] = true
-	}
-	return out
 }
 
 func tallyFinnishSoleTraderShapes(t *testing.T, f *fejkdata.Generator, draws int, words []string, firsts, lasts map[string]bool) map[string]int {
@@ -661,7 +399,7 @@ func TestShippedFinnishCompanyNamesAreBuiltOfNamesAndTradeWords(t *testing.T) {
 	if err := json.Unmarshal(src, &words); err != nil || len(words) < 20 {
 		t.Fatalf("company-word.json is %d words (%v), want an array of 20 or more", len(words), err)
 	}
-	firsts, lasts := finnishNames(t, "fi_FI/first-name.tsv"), finnishNames(t, "fi_FI/last-name.tsv")
+	firsts, lasts := nameColumnSet(t, "fi_FI/first-name.tsv"), nameColumnSet(t, "fi_FI/last-name.tsv")
 	const draws = 4000
 	seen := tallyFinnishSoleTraderShapes(t, shipped(t, fejkdata.WithSeed(8)), draws, words, firsts, lasts)
 	for _, shape := range []string{"last name and trade word", "first and last name"} {

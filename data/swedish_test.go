@@ -169,14 +169,6 @@ func drawnSwedishCompanyTally(t *testing.T) swedishCompanyTally {
 	return c
 }
 
-func assertShare(t *testing.T, what string, got, of int, want float64) {
-	t.Helper()
-	sd := math.Sqrt(want * (1 - want) / float64(of))
-	if g := float64(got) / float64(of); math.Abs(g-want) > 5*sd {
-		t.Errorf("%s: %d of %d (%.3f%%), want %.3f%% within %.3f%%", what, got, of, g*100, want*100, 5*sd*100)
-	}
-}
-
 // company-word.tsv holds a word only where the register repeats it, so no row names one company.
 func TestSwedishCompanyWordsAreRepeatedInTheRegister(t *testing.T) {
 	errorOnCompanyWordRowsTheRegisterDoesNotRepeat(t, swedishCompanyWordRows(t)[1:])
@@ -354,15 +346,6 @@ func drawsOfOldNumbersBelow(old map[string]int, limit int) int {
 		below += old[fmt.Sprintf("%03d", n)]
 	}
 	return below
-}
-
-func sortedNamesDrawn(seen map[string]int) []string {
-	got := make([]string, 0, len(seen))
-	for name := range seen {
-		got = append(got, name)
-	}
-	slices.Sort(got)
-	return got
 }
 
 // TestSwedishPersonnummer checks what the shape regex can't: the date is a real
@@ -881,61 +864,39 @@ func yearOfASamordningsnummer12(v string) int {
 	return y
 }
 
-func TestShippedSwedishCalendar(t *testing.T) {
+func TestShippedSwedishHolidays(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(3))
-	for path, want := range map[string]string{
-		"sv_SE.month[1]":                        "januari",
-		"sv_SE.month[2]":                        "februari",
-		"sv_SE.month[3]":                        "mars",
-		"sv_SE.month[4]":                        "april",
-		"sv_SE.month[5]":                        "maj",
-		"sv_SE.month[6]":                        "juni",
-		"sv_SE.month[7]":                        "juli",
-		"sv_SE.month[8]":                        "augusti",
-		"sv_SE.month[9]":                        "september",
-		"sv_SE.month[10]":                       "oktober",
-		"sv_SE.month[11]":                       "november",
-		"sv_SE.month[12]":                       "december",
-		"sv_SE.weekday[1]":                      "måndag",
-		"sv_SE.weekday[2]":                      "tisdag",
-		"sv_SE.weekday[3]":                      "onsdag",
-		"sv_SE.weekday[4]":                      "torsdag",
-		"sv_SE.weekday[5]":                      "fredag",
-		"sv_SE.weekday[6]":                      "lördag",
-		"sv_SE.weekday[7]":                      "söndag",
-		"sv_SE.holiday[nyarsdagen]":             "nyårsdagen",
-		"sv_SE.holiday[trettondedag-jul]":       "trettondedag jul",
-		"sv_SE.holiday[langfredagen]":           "långfredagen",
-		"sv_SE.holiday[paskdagen]":              "påskdagen",
-		"sv_SE.holiday[annandag-pask]":          "annandag påsk",
-		"sv_SE.holiday[forsta-maj]":             "första maj",
-		"sv_SE.holiday[kristi-himmelsfardsdag]": "Kristi himmelsfärdsdag",
-		"sv_SE.holiday[pingstdagen]":            "pingstdagen",
-		"sv_SE.holiday[nationaldagen]":          "nationaldagen",
-		"sv_SE.holiday[midsommardagen]":         "midsommardagen",
-		"sv_SE.holiday[alla-helgons-dag]":       "alla helgons dag",
-		"sv_SE.holiday[juldagen]":               "juldagen",
-		"sv_SE.holiday[annandag-jul]":           "annandag jul",
-	} {
-		t.Run(path, func(t *testing.T) {
-			if got := fejktest.Fake(t, f, path); got != want {
-				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+	holidays := map[string]string{
+		"nyarsdagen":             "nyårsdagen",
+		"trettondedag-jul":       "trettondedag jul",
+		"langfredagen":           "långfredagen",
+		"paskdagen":              "påskdagen",
+		"annandag-pask":          "annandag påsk",
+		"forsta-maj":             "första maj",
+		"kristi-himmelsfardsdag": "Kristi himmelsfärdsdag",
+		"pingstdagen":            "pingstdagen",
+		"nationaldagen":          "nationaldagen",
+		"midsommardagen":         "midsommardagen",
+		"alla-helgons-dag":       "alla helgons dag",
+		"juldagen":               "juldagen",
+		"annandag-jul":           "annandag jul",
+	}
+	var want []string
+	for key, name := range holidays {
+		want = append(want, name)
+		t.Run(key, func(t *testing.T) {
+			if got := fejktest.Fake(t, f, "sv_SE.holiday["+key+"]"); got != name {
+				t.Errorf("sv_SE.holiday[%s] = %q, want %q", key, got, name)
 			}
 		})
 	}
-	for path, want := range map[string][]string{
-		"sv_SE.month":   {"januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"},
-		"sv_SE.weekday": {"måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag", "söndag"},
-		"sv_SE.holiday": {"nyårsdagen", "trettondedag jul", "långfredagen", "påskdagen", "annandag påsk", "första maj", "Kristi himmelsfärdsdag", "pingstdagen", "nationaldagen", "midsommardagen", "alla helgons dag", "juldagen", "annandag jul"},
-	} {
-		t.Run(path, func(t *testing.T) {
-			got := sortedNamesDrawn(fejktest.TallyDraws(2000, func() string { return fejktest.Fake(t, f, path) }))
-			slices.Sort(want)
-			if !slices.Equal(got, want) {
-				t.Errorf("%s drew %v in 2000 draws, want exactly %v", path, got, want)
-			}
-		})
-	}
+	t.Run("drawn alone", func(t *testing.T) {
+		got := sortedNamesDrawn(fejktest.TallyDraws(2000, func() string { return fejktest.Fake(t, f, "sv_SE.holiday") }))
+		slices.Sort(want)
+		if !slices.Equal(got, want) {
+			t.Errorf("sv_SE.holiday drew %v in 2000 draws, want exactly %v", got, want)
+		}
+	})
 }
 
 func TestShippedSwedishTerritoryNamesEveryMiscTerritory(t *testing.T) {
@@ -1306,154 +1267,20 @@ func TestSwedishCompanyRegisteredFormsCarryEveryLegalWord(t *testing.T) {
 	}
 }
 
-func swedishWordForms(t *testing.T, table string) map[string]string {
-	t.Helper()
-	raw, err := os.ReadFile("sv_SE/" + table + ".tsv")
-	if err != nil {
-		t.Fatal(err)
-	}
-	forms := map[string]string{}
-	for _, line := range strings.Split(strings.TrimSpace(string(raw)), "\n")[1:] {
-		word, form, _ := strings.Cut(line, "\t")
-		forms[word] = form
-	}
-	return forms
-}
-
-func TestSwedishWordHoldsSaldoFormsPerPartOfSpeech(t *testing.T) {
-	t.Parallel()
-	for _, c := range []struct{ table, word, form string }{
-		{"word-noun", "hus", "huset"},
-		{"word-noun", "flicka", "flickan"},
-		{"word-verb", "springa", "springer"},
-		{"word-adj", "stor", "stora"},
-		{"word-adv", "ofta", ""},
-	} {
-		t.Run(c.table+" "+c.word, func(t *testing.T) {
-			if got, ok := swedishWordForms(t, c.table)[c.word]; !ok || got != c.form {
-				t.Errorf("%s holds %q with form %q (held: %v), want %q", c.table, c.word, got, ok, c.form)
-			}
-		})
-	}
-}
-
 func TestSwedishNounTableHoldsAsManyNounsAsSaldo(t *testing.T) {
 	t.Parallel()
-	if n := len(swedishWordForms(t, "word-noun")); n < 50000 {
+	if n := len(localeWordForms(t, "sv_SE", "noun")); n < 50000 {
 		t.Errorf("word-noun holds %d nouns, want SALDO's, tens of thousands", n)
-	}
-}
-
-func swedishWordSet(t *testing.T, table string) map[string]bool {
-	t.Helper()
-	held := map[string]bool{}
-	for word := range swedishWordForms(t, table) {
-		held[word] = true
-	}
-	return held
-}
-
-func swedishWordFormSet(t *testing.T, table string) map[string]bool {
-	t.Helper()
-	held := map[string]bool{}
-	for _, form := range swedishWordForms(t, table) {
-		held[form] = true
-	}
-	return held
-}
-
-func TestSwedishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
-	t.Parallel()
-	sv := shipped(t, fejkdata.WithSeed(5))
-	for _, c := range []struct {
-		path string
-		held map[string]bool
-	}{
-		{"sv_SE.word.noun", swedishWordSet(t, "word-noun")},
-		{"sv_SE.word.noun.definite", swedishWordFormSet(t, "word-noun")},
-		{"sv_SE.word.verb", swedishWordSet(t, "word-verb")},
-		{"sv_SE.word.verb.present", swedishWordFormSet(t, "word-verb")},
-		{"sv_SE.word.adj", swedishWordSet(t, "word-adj")},
-		{"sv_SE.word.adv", swedishWordSet(t, "word-adv")},
-	} {
-		t.Run(c.path, func(t *testing.T) {
-			fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, sv, c.path) }, func(got string) {
-				if !c.held[got] {
-					t.Fatalf("%s = %q, which its table does not hold", c.path, got)
-				}
-			})
-		})
-	}
-}
-
-func TestSwedishWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
-	t.Parallel()
-	sv := shipped(t, fejkdata.WithSeed(5))
-	nouns := swedishWordSet(t, "word-noun")
-	seen := fejktest.TallyDraws(2000, func() string {
-		if nouns[fejktest.Fake(t, sv, "sv_SE.word")] {
-			return "noun"
-		}
-		return "other"
-	})
-	if seen["noun"] == 0 || seen["other"] == 0 {
-		t.Errorf("sv_SE.word drew %v, want nouns and other parts of speech", seen)
-	}
-}
-
-func TestSwedishBoundWordReadsItsOwnForm(t *testing.T) {
-	t.Parallel()
-	sv := shipped(t, fejkdata.WithSeed(6))
-	for _, c := range []struct{ path, form, table string }{
-		{"sv_SE.word.noun", "definite", "word-noun"},
-		{"sv_SE.word.verb", "present", "word-verb"},
-		{"sv_SE.word.adj", "definite", "word-adj"},
-	} {
-		t.Run(c.path, func(t *testing.T) {
-			forms := swedishWordForms(t, c.table)
-			fejktest.EachDraw(200, func() string { return fejktest.FakeTemplate(t, sv, "{/"+c.path+" as w}{w}|{w."+c.form+"}") }, func(got string) {
-				word, form, _ := strings.Cut(got, "|")
-				if forms[word] != form {
-					t.Fatalf("%s %q printed %s %q, want its own, %q", c.path, word, c.form, form, forms[word])
-				}
-			})
-		})
-	}
-}
-
-func TestSwedishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
-	t.Parallel()
-	raw, err := os.ReadFile("sv_SE/word.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var word struct {
-		Any []struct {
-			Format string `json:"format"`
-			Weight int    `json:"weight"`
-		} `json:"any"`
-	}
-	if err := json.Unmarshal(raw, &word); err != nil {
-		t.Fatal(err)
-	}
-	if len(word.Any) != 4 {
-		t.Fatalf("any holds %d parts of speech, want 4", len(word.Any))
-	}
-	for _, part := range word.Any {
-		t.Run(strings.Trim(part.Format, "{.}"), func(t *testing.T) {
-			table := strings.Trim(part.Format, "{.}")
-			if rows := len(swedishWordForms(t, table)); part.Weight != rows {
-				t.Errorf("%s weighs %d, want its %d rows", table, part.Weight, rows)
-			}
-		})
 	}
 }
 
 func TestSwedishSentenceDrawsTheFormsItsPatternNeeds(t *testing.T) {
 	t.Parallel()
 	sv := shipped(t, fejkdata.WithSeed(7))
-	adj, noun := swedishWordFormSet(t, "word-adj"), swedishWordFormSet(t, "word-noun")
-	verbOfAQuestion := map[bool]map[string]bool{true: swedishWordSet(t, "word-verb"), false: swedishWordFormSet(t, "word-verb")}
+	_, adj := localeWordSets(t, "sv_SE", "adj")
+	_, noun := localeWordSets(t, "sv_SE", "noun")
+	verbs, presents := localeWordSets(t, "sv_SE", "verb")
+	verbOfAQuestion := map[bool]map[string]bool{true: verbs, false: presents}
 	fejktest.EachDraw(200, func() string { return fejktest.Fake(t, sv, "sv_SE.sentence") }, func(sentence string) {
 		adjs, nouns, verb, question := partsOfASwedishSentence(sentence)
 		if !verbOfAQuestion[question][verb] {
@@ -1840,33 +1667,6 @@ func TestSwedishPersonnummerAgreesWithItsSex(t *testing.T) {
 					t.Fatalf("%s rendered %q, want a Luhn-valid match of %s", template, v, want)
 				}
 			})
-		})
-	}
-}
-
-func TestSwedishParagraphIsThreeToSixSentences(t *testing.T) {
-	t.Parallel()
-	sv := shipped(t, fejkdata.WithSeed(9))
-	paragraph := regexp.MustCompile(`^\p{Lu}[^.!?]*[.!?]( \p{Lu}[^.!?]*[.!?]){2,5}$`)
-	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, sv, "sv_SE.paragraph") }, func(p string) {
-		if !paragraph.MatchString(p) {
-			t.Fatalf("sv_SE.paragraph = %q, want three to six sentences", p)
-		}
-	})
-}
-
-func TestSwedishParagraphDrawsEachSentenceCountFromThreeToSix(t *testing.T) {
-	t.Parallel()
-	sv := shipped(t, fejkdata.WithSeed(9))
-	terminators := regexp.MustCompile(`[.!?]`)
-	counts := fejktest.TallyDraws(300, func() string {
-		return strconv.Itoa(len(terminators.FindAllString(fejktest.Fake(t, sv, "sv_SE.paragraph"), -1)))
-	})
-	for _, n := range []int{3, 4, 5, 6} {
-		t.Run(strconv.Itoa(n), func(t *testing.T) {
-			if counts[strconv.Itoa(n)] == 0 {
-				t.Errorf("300 paragraphs never held %d sentences (held %v)", n, counts)
-			}
 		})
 	}
 }

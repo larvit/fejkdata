@@ -9,21 +9,17 @@ one of IRREGULAR. A word is dropped when every one of its senses is in WordNet's
 ethnic slurs or obscenity, or when it is on LDNOOBW's English list of rude words. WordNet's sense counts cover a quarter of
 its words, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
-import argparse
 import io
 import re
 import sys
 import tarfile
-from collections.abc import Collection, Iterator
+from collections.abc import Iterator
 from pathlib import Path
 
-import source
 import wordtables
 
 WORDNET = "https://wordnetcode.princeton.edu/3.0/WNdb-3.0.tar.gz"
 OUT = Path(__file__).resolve().parent.parent / "data" / "en_US"
-CACHE = Path(__file__).resolve().parent / "cache"
-LETTERS = re.compile(r"[a-z]+")
 RUDE_DOMAINS = {"disparagement", "ethnic_slur", "obscenity"}
 FORMS = {"noun": "", "verb": "present", "adj": "", "adv": ""}
 # The verbs whose third person the spelling rule gets wrong.
@@ -63,26 +59,13 @@ def rude_domains(tarball: bytes) -> set[str]:
     return {offset for offset, words, _ in synsets(tarball, "noun") if RUDE_DOMAINS & set(words)}
 
 
-def tables(tarball: bytes, rude: Collection[str]) -> dict[str, list[dict[str, str]]]:
+def candidates(tarball: bytes) -> Iterator[wordtables.Candidate]:
     domains = rude_domains(tarball)
-    rows: dict[str, list[dict[str, str]]] = {}
-    for part in FORMS:
+    for part, column in FORMS.items():
         senses = [(w, d) for _, words, d in synsets(tarball, part) for w in words]
-        kept = {w for w, d in senses if not d & domains}
-        words = sorted({w for w, _ in senses if LETTERS.fullmatch(w) and w in kept and w not in rude})
-        rows[part] = [{"word": w, "present": present(w)} if part == "verb" else {"word": w} for w in words]
-    return rows
+        for word in sorted({w for w, d in senses if not d & domains}):
+            yield part, word, present(word) if column else ""
 
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--cache", default=str(CACHE))
-    parser.add_argument("--wordnet", default=WORDNET)
-    parser.add_argument("--rude", default="")
-    parser.add_argument("--out", default=str(OUT))
-    args = parser.parse_args()
-    tarball = source.fetch(args.wordnet, args.cache, "WNdb-3.0.tar.gz", magic=b"\x1f\x8b")
-    wordtables.write(Path(args.out), FORMS, tables(tarball, wordtables.rude("en", args.cache, args.rude)))
 
 if __name__ == "__main__":
-    main()
+    wordtables.main(__doc__, "en", OUT, FORMS, [wordtables.Source("wordnet", WORDNET, "WNdb-3.0.tar.gz", b"\x1f\x8b", "", candidates)])

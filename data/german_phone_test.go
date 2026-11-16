@@ -95,12 +95,6 @@ func TestShippedGermanPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 
 var germanNationalPhone = regexp.MustCompile(`^(0\d{2,5}) ([2-9]\d{5,7})$`)
 
-func eachShippedGermanPhone(t *testing.T, check func(n string)) {
-	t.Helper()
-	f := shipped(t, fejkdata.WithSeed(11))
-	fejktest.EachDraw(30000, func() string { return fejktest.Fake(t, f, "de_DE.phone") }, check)
-}
-
 func germanAreaCodes(t *testing.T, kind string) map[string]bool {
 	t.Helper()
 	got := map[string]bool{}
@@ -110,8 +104,14 @@ func germanAreaCodes(t *testing.T, kind string) map[string]bool {
 	return got
 }
 
+func germanFixedPhone(t *testing.T) func(n string) bool {
+	t.Helper()
+	fixed := germanAreaCodes(t, "fixed")
+	return func(n string) bool { return fixed[strings.Fields(n)[0]] }
+}
+
 func TestShippedGermanPhoneIsAnAreaCodeAndASubscriberNumberWithoutAZeroOrAOneFirst(t *testing.T) {
-	eachShippedGermanPhone(t, func(n string) {
+	eachPhone(t, "de_DE", func(n string) {
 		if !germanNationalPhone.MatchString(n) {
 			t.Fatalf("phone %q is not a code, a space and a subscriber number of 6 to 8 digits not starting with 0 or 1", n)
 		}
@@ -124,7 +124,7 @@ func TestShippedGermanPhoneIsAnAreaCodeAndASubscriberNumberWithoutAZeroOrAOneFir
 func TestShippedGermanPhoneIsAsLongAsThePlansGive(t *testing.T) {
 	fixed, mobile := germanAreaCodes(t, "fixed"), germanAreaCodes(t, "mobile")
 	lengths := map[string]map[int]bool{}
-	eachShippedGermanPhone(t, func(n string) {
+	eachPhone(t, "de_DE", func(n string) {
 		m := germanNationalPhone.FindStringSubmatch(n)
 		if m == nil {
 			return
@@ -152,29 +152,4 @@ func TestShippedGermanPhoneIsAsLongAsThePlansGive(t *testing.T) {
 			t.Errorf("block %s drew lengths %v, want both 10 and 11", area, lengths[area])
 		}
 	}
-}
-
-func TestShippedGermanPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
-	fixed := germanAreaCodes(t, "fixed")
-	var nFixed int
-	eachShippedGermanPhone(t, func(n string) {
-		if fixed[strings.Fields(n)[0]] {
-			nFixed++
-		}
-	})
-	if nFixed < 2580 || nFixed > 2880 {
-		t.Fatalf("30000 phones drew %d fixed, want about an eleventh, 2727 give or take 150", nFixed)
-	}
-}
-
-func TestShippedGermanPhoneInternationalDropsTheTrunkZeroBehindTheCountryCode(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(5))
-	fejktest.EachDraw(300, func() string {
-		return fejktest.FakeTemplate(t, f, "{/de_DE.phone as p}{p}|{p.national}|{p.international}")
-	}, func(got string) {
-		parts := strings.Split(got, "|")
-		if len(parts) != 3 || parts[0] != parts[1] || parts[2] != "+49 "+strings.TrimPrefix(parts[0], "0") {
-			t.Fatalf("%q: want the national form twice, then +49 and the national form without its 0", got)
-		}
-	})
 }

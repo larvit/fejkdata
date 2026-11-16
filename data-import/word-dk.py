@@ -8,16 +8,13 @@ noun's definite singular, a verb's active present and an adjective's definite si
 forms COR marks as the norm (N) count. A noun, verb or adjective lacking its form is dropped, and so is one whose word or form is on LDNOOBW's Danish list
 of rude words. COR gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
-import argparse
-from collections.abc import Collection
+from collections.abc import Iterator
 from pathlib import Path
 
-import source
 import wordtables
 
 COR = "https://ordregister.dk/files/cor1.5.1.0.tsv"
 OUT = Path(__file__).resolve().parent.parent / "data" / "da_DK"
-CACHE = Path(__file__).resolve().parent / "cache"
 FORMS = {"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
 # COR's tag of a word and of its form, per part of speech; a noun's tag also names its gender, fk or itk.
 TAGS = {
@@ -29,8 +26,8 @@ TAGS = {
 
 
 def tagged(tag: str, wanted: set[str]) -> bool:
-    held = set(tag.split("."))
-    return bool(wanted) and wanted <= held and len(held - wanted) <= (1 if "sb" in wanted else 0)
+    tags = set(tag.split("."))
+    return bool(wanted) and wanted <= tags and len(tags - wanted) <= (1 if "sb" in wanted else 0)
 
 
 def lexemes(cor: str) -> dict[tuple[str, str], tuple[str, str]]:
@@ -42,37 +39,18 @@ def lexemes(cor: str) -> dict[tuple[str, str], tuple[str, str]]:
             continue
         lexeme, lemma, tag, form = cells[0].split(".")[1], cells[1], cells[3], cells[4]
         for part, (own, inflected) in TAGS.items():
-            word, held = found.get((lexeme, part), ("", ""))
+            word, first_form = found.get((lexeme, part), ("", ""))
             if tagged(tag, own) and form == lemma:
-                found[(lexeme, part)] = (form, held)
-            elif tagged(tag, inflected) and not held:
+                found[(lexeme, part)] = (form, first_form)
+            elif tagged(tag, inflected) and not first_form:
                 found[(lexeme, part)] = (word, form)
     return found
 
 
-def tables(cor: str, rude: Collection[str]) -> dict[str, list[dict[str, str]]]:
-    rows: dict[str, dict[str, dict[str, str]]] = {part: {} for part in FORMS}
-    for (_, part), (word, form) in lexemes(cor).items():
-        column = FORMS[part]
-        if not word.isalpha() or not word.islower() or word in rude:
-            continue
-        if not column:
-            rows[part].setdefault(word, {"word": word})
-        elif form.isalpha() and form.islower() and form not in rude:
-            rows[part].setdefault(word, {"word": word, column: form})
-    return {part: [held[w] for w in sorted(held)] for part, held in rows.items()}
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--cache", default=str(CACHE))
-    parser.add_argument("--cor", default=COR)
-    parser.add_argument("--rude", default="")
-    parser.add_argument("--out", default=str(OUT))
-    args = parser.parse_args()
-    cor = source.fetch(args.cor, args.cache, Path(args.cor).name, magic=b"COR.").decode("utf-8")
-    wordtables.write(Path(args.out), FORMS, tables(cor, wordtables.rude("da", args.cache, args.rude)))
+def candidates(cor: bytes) -> Iterator[wordtables.Candidate]:
+    for (_, part), (word, form) in lexemes(cor.decode("utf-8")).items():
+        yield part, word, form
 
 
 if __name__ == "__main__":
-    main()
+    wordtables.main(__doc__, "da", OUT, FORMS, [wordtables.Source("cor", COR, "", b"COR.", "", candidates)])

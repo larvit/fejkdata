@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/larvit/fejkdata"
 	"github.com/larvit/fejkdata/internal/fejktest"
@@ -98,84 +97,6 @@ func TestNorwegianLastNamesStartWithHansenJohansenOlsen(t *testing.T) {
 	}
 }
 
-type norwegianPerson struct{ raw, sex, prefix, first, last, whole string }
-
-func eachNorwegianPerson(t *testing.T, check func(p norwegianPerson)) {
-	t.Helper()
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fejktest.EachDraw(2000, func() string {
-		got, err := f.FakeTemplate("{/nb_NO.person as p}{p.sex}|{p.prefix}|{p.first}|{p.last}|{p}")
-		if err != nil {
-			t.Fatal(err)
-		}
-		return got
-	}, func(got string) {
-		cells := strings.Split(got, "|")
-		if len(cells) != 5 {
-			t.Fatalf("%q does not hold five cells", got)
-		}
-		check(norwegianPerson{got, cells[0], cells[1], cells[2], cells[3], cells[4]})
-	})
-}
-
-func TestNorwegianPersonHasAFirstNameOfItsSex(t *testing.T) {
-	bySex := norwegianFirstNamesBySex(t)
-	first := map[string]map[string]bool{"kvinne": bySex["f"], "mann": bySex["m"]}
-	eachNorwegianPerson(t, func(p norwegianPerson) {
-		if !first[p.sex][p.first] {
-			t.Fatalf("%q: %q is not a first name shipped for the sex %q, which is kvinne or mann", p.raw, p.first, p.sex)
-		}
-	})
-}
-
-func TestNorwegianPersonHasAShippedLastName(t *testing.T) {
-	last := nameColumnSet(t, "nb_NO/last-name.tsv")
-	eachNorwegianPerson(t, func(p norwegianPerson) {
-		if !last[p.last] {
-			t.Fatalf("%q: %q is not a shipped last name", p.raw, p.last)
-		}
-	})
-}
-
-func TestNorwegianPersonIsItsPrefixFirstNameAndLastName(t *testing.T) {
-	eachNorwegianPerson(t, func(p norwegianPerson) {
-		if p.whole != p.prefix+p.first+" "+p.last {
-			t.Fatalf("%q: the person is not its prefix, first name and last name", p.raw)
-		}
-	})
-}
-
-func TestNorwegianPersonMostlyBearsNoTitle(t *testing.T) {
-	titles := map[string]int{}
-	eachNorwegianPerson(t, func(p norwegianPerson) { titles[p.prefix]++ })
-	if titles["dr. "] == 0 || titles["professor "] == 0 || titles[""] < 1800 || len(titles) != 3 {
-		t.Errorf("prefixes over 2000 persons = %q, want a few %q and %q beside many with none", titles, "dr. ", "professor ")
-	}
-}
-
-func TestNorwegianSexAndTitleAreSelectable(t *testing.T) {
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for tmpl, want := range map[string]string{
-		"{/nb_NO.sex[f]}":           "kvinne",
-		"{/nb_NO.sex[m]}":           "mann",
-		"{/nb_NO.title[dr.]}":       "dr.",
-		"{/nb_NO.title[professor]}": "professor",
-	} {
-		t.Run(tmpl, func(t *testing.T) {
-			got, err := f.FakeTemplate(tmpl)
-			if err != nil || got != want {
-				t.Errorf("FakeTemplate(%q) = %q, %v, want %q", tmpl, got, err, want)
-			}
-		})
-	}
-}
-
 var norwegianMonthDays = [12]int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
 func TestNorwegianBirthDayIsADayOfAMonthPlus80Once(t *testing.T) {
@@ -219,10 +140,7 @@ func readNorwegianFnr(got string) norwegianFnr {
 
 func eachNorwegianFodselsnummer(t *testing.T, check func(got string)) {
 	t.Helper()
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
+	f := shipped(t)
 	fejktest.EachDraw(5000, func() string { return fejktest.Fake(t, f, "nb_NO.fodselsnummer") }, check)
 }
 
@@ -274,10 +192,7 @@ func TestNorwegianFodselsnummerDrawsBirthsBeforeAndFrom2000(t *testing.T) {
 
 func eachNorwegianFodselsnummerWithASex(t *testing.T, check func(got, sex, number string)) {
 	t.Helper()
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
+	f := shipped(t)
 	fejktest.EachDraw(500, func() string {
 		got, err := f.FakeTemplate("{/nb_NO.sex as s}{s.name}|{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}")
 		if err != nil {
@@ -329,40 +244,12 @@ var (
 	norwegianFixed  = regexp.MustCompile(`^[23567]\d( \d{2}){3}$`)
 )
 
-func eachShippedNorwegianPhone(t *testing.T, check func(n string)) {
-	t.Helper()
-	f := shipped(t, fejkdata.WithSeed(11))
-	fejktest.EachDraw(30000, func() string { return fejktest.Fake(t, f, "nb_NO.phone") }, check)
-}
+func norwegianFixedPhone(*testing.T) func(n string) bool { return norwegianFixed.MatchString }
 
 func TestShippedNorwegianPhoneIsAMobileOrAFixedNumberGroupedInTwos(t *testing.T) {
-	eachShippedNorwegianPhone(t, func(n string) {
+	eachPhone(t, "nb_NO", func(n string) {
 		if !norwegianMobile.MatchString(n) && !norwegianFixed.MatchString(n) {
 			t.Fatalf("phone %q is neither a mobile nor a fixed number grouped in twos", n)
-		}
-	})
-}
-
-func TestShippedNorwegianPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
-	var fixed int
-	eachShippedNorwegianPhone(t, func(n string) {
-		if norwegianFixed.MatchString(n) {
-			fixed++
-		}
-	})
-	if fixed < 2580 || fixed > 2880 {
-		t.Fatalf("30000 phones drew %d fixed, want about an eleventh, 2727 give or take 150", fixed)
-	}
-}
-
-func TestShippedNorwegianPhoneInternational(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(5))
-	fejktest.EachDraw(300, func() string {
-		return fejktest.FakeTemplate(t, f, "{/nb_NO.phone as p}{p}|{p.national}|{p.international}")
-	}, func(got string) {
-		parts := strings.Split(got, "|")
-		if len(parts) != 3 || parts[0] != parts[1] || parts[2] != "+47 "+parts[0] {
-			t.Fatalf("%q: want the national form twice, then +47 and the national form", got)
 		}
 	})
 }
@@ -405,93 +292,6 @@ func TestShippedNorwegianPhonePrefixIsNoRowWhereNkomHasNotAssignedItWhole(t *tes
 			if got, err := f.Fake(path); err == nil {
 				t.Errorf("%s = %q, but Nkom has not assigned all of it", path, got)
 			}
-		})
-	}
-}
-
-func eachShippedNorwegianDate(t *testing.T, check func(got string)) {
-	t.Helper()
-	f := shipped(t, fejkdata.WithSeed(3))
-	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, "nb_NO.date") }, check)
-}
-
-func TestShippedNorwegianDateIsDayMonthYearWithDotsFrom1970To2029(t *testing.T) {
-	eachShippedNorwegianDate(t, func(got string) {
-		d, err := time.Parse("02.01.2006", got)
-		if err != nil || d.Year() < 1970 || d.Year() > 2029 {
-			t.Fatalf("date %q is not dd.mm.yyyy in 1970 to 2029: %v", got, err)
-		}
-	})
-}
-
-func TestShippedNorwegianDateSpans1970To2029(t *testing.T) {
-	first, last := 9999, 0
-	eachShippedNorwegianDate(t, func(got string) {
-		d, _ := time.Parse("02.01.2006", got)
-		first, last = min(first, d.Year()), max(last, d.Year())
-	})
-	if first != 1970 || last != 2029 {
-		t.Errorf("500 dates span %d to %d, want 1970 to 2029", first, last)
-	}
-}
-
-func TestShippedNorwegianEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(4))
-	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, "nb_NO.email") }, func(got string) {
-		if !exampleEmail.MatchString(got) {
-			t.Fatalf("email %q is not lower-case ASCII at example.com, example.org or example.net", got)
-		}
-	})
-}
-
-func TestShippedNorwegianEmailsAreMostlyDistinct(t *testing.T) {
-	f := shipped(t, fejkdata.WithSeed(4))
-	seen := fejktest.TallyDraws(500, func() string { return fejktest.Fake(t, f, "nb_NO.email") })
-	if len(seen) < 400 {
-		t.Errorf("500 emails drew %d distinct, want 400 or more", len(seen))
-	}
-}
-
-var norwegianLegalFormSuffix = regexp.MustCompile(` (AS|DA|ANS|ASA|KS|SA)$`)
-
-func norwegianLegalForm(company string) string {
-	if m := norwegianLegalFormSuffix.FindStringSubmatch(company); m != nil {
-		return m[1]
-	}
-	return "ENK"
-}
-
-func eachShippedNorwegianCompany(t *testing.T, check func(got string)) {
-	t.Helper()
-	f := shipped(t, fejkdata.WithSeed(6))
-	fejktest.EachDraw(fejktest.ShareDraws, func() string { return fejktest.Fake(t, f, "nb_NO.company") }, check)
-}
-
-func TestShippedNorwegianCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
-	t.Parallel()
-	name := regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'-]*[\p{L}\p{N}]$`)
-	eachShippedNorwegianCompany(t, func(got string) {
-		if !name.MatchString(got) {
-			t.Fatalf("company %q is not a name that may end in a legal form", got)
-		}
-		if strings.HasSuffix(got, " ENK") {
-			t.Fatalf("company %q ends in ENK, which carries no abbreviation", got)
-		}
-	})
-}
-
-// The active units of each form in Enhetsregisteret on 2026-10-22, leaving out the bankrupt, those being
-// wound up and those forcibly dissolved.
-func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testing.T) {
-	t.Parallel()
-	registered := map[string]int{"ENK": 465166, "AS": 423370, "DA": 9105, "SA": 6761, "ANS": 6214, "ASA": 205, "KS": 105}
-	const draws = fejktest.ShareDraws
-	total := sumOfCounts(registered)
-	form := map[string]int{}
-	eachShippedNorwegianCompany(t, func(got string) { form[norwegianLegalForm(got)]++ })
-	for code, units := range registered {
-		t.Run(code, func(t *testing.T) {
-			assertShare(t, code+" of the companies", form[code], draws, float64(units)/float64(total))
 		})
 	}
 }
@@ -743,39 +543,14 @@ func TestNorwegianCoinedRootsHoldNoWordOfAPlace(t *testing.T) {
 	}
 }
 
-const norwegianCompanyLegalDraws = fejktest.ShareDraws / 10
-
-func eachNorwegianCompanyWithItsLegal(t *testing.T, check func(company, legal string)) {
-	t.Helper()
-	f := shipped(t, fejkdata.WithSeed(4))
-	fejktest.EachDraw(norwegianCompanyLegalDraws, func() string { return fejktest.FakeTemplate(t, f, "{/nb_NO.company as c}{c}|{c.legal}") }, func(got string) {
-		company, legal, _ := strings.Cut(got, "|")
-		check(company, legal)
-	})
-}
-
-// An ENK carries no abbreviation, so its legal is empty; every other form's name ends in its legal.
-func TestNorwegianCompanyLegalIsTheAbbreviationOfTheBoundCompany(t *testing.T) {
-	t.Parallel()
-	eachNorwegianCompanyWithItsLegal(t, func(company, legal string) {
-		m := norwegianLegalFormSuffix.FindStringSubmatch(company)
-		if legal == "" && m != nil {
-			t.Fatalf("company %q has an empty legal, yet ends in %q", company, m[1])
-		}
-		if legal != "" && (m == nil || m[1] != legal) {
-			t.Fatalf("company %q does not end in its legal %q", company, legal)
-		}
-	})
-}
-
 func TestNorwegianCompanyLegalIsEachOfTheCommonForms(t *testing.T) {
 	t.Parallel()
 	seen := map[string]int{}
-	eachNorwegianCompanyWithItsLegal(t, func(_, legal string) { seen[legal]++ })
+	eachCompanyWithItsLegal(t, "nb_NO", func(_, legal string) { seen[legal]++ })
 	for _, form := range []string{"", "AS", "DA", "SA", "ANS"} {
 		t.Run(fmt.Sprintf("legal %q", form), func(t *testing.T) {
 			if seen[form] == 0 {
-				t.Errorf("no company of %d has the legal %q", norwegianCompanyLegalDraws, form)
+				t.Errorf("no company of %d has the legal %q", companyLegalDraws, form)
 			}
 		})
 	}

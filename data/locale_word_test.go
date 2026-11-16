@@ -4,30 +4,13 @@ import (
 	"encoding/json"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/larvit/fejkdata"
 	"github.com/larvit/fejkdata/internal/fejktest"
-)
-
-type wordLocale struct {
-	name  string
-	forms map[string]string
-	noun  *regexp.Regexp
-}
-
-var (
-	lowerWord = regexp.MustCompile(`^\p{Ll}+$`)
-	// Each of these locales' word tables, by part of speech, the column holding the word's form, if any, and how a noun is spelled.
-	wordLocales = []wordLocale{
-		{"nb_NO", map[string]string{"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}, lowerWord},
-		{"nn_NO", map[string]string{"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}, lowerWord},
-		{"da_DK", map[string]string{"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}, lowerWord},
-		{"fi_FI", map[string]string{"noun": "", "verb": "", "adj": "", "adv": ""}, lowerWord},
-		{"de_DE", map[string]string{"noun": "plural", "verb": "", "adj": "", "adv": ""}, regexp.MustCompile(`^\p{Lu}\p{Ll}+$`)},
-	}
 )
 
 func localeWordForms(t *testing.T, locale, part string) map[string]string {
@@ -54,6 +37,38 @@ func localeWordSets(t *testing.T, locale, part string) (words, forms map[string]
 		forms[form] = true
 	}
 	return words, forms
+}
+
+func wordTableColumns(t *testing.T, locale, part string) []string {
+	t.Helper()
+	raw, err := os.ReadFile(locale + "/word-" + part + ".tsv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	header, _, _ := strings.Cut(string(raw), "\n")
+	return strings.Split(header, "\t")
+}
+
+func TestLocaleWordTablesAndWordJSONCarryTheFormsTheLocaleStates(t *testing.T) {
+	t.Parallel()
+	for _, l := range shippedLocales {
+		fields := readJSON(t, l.name+"/word.json")
+		for part, column := range l.wordForms {
+			t.Run(l.name+" "+part, func(t *testing.T) {
+				want := []string{"word"}
+				if column != "" {
+					want = append(want, column)
+				}
+				if got := wordTableColumns(t, l.name, part); !slices.Equal(got, want) {
+					t.Errorf("word-%s.tsv holds the columns %q, want %q", part, got, want)
+				}
+				field, _ := fields[part].(map[string]any)
+				if _, reads := field[column]; reads != (column != "") || column == "" && field != nil {
+					t.Errorf("word.json's %s is %v, want a field reading the form %q and no other", part, fields[part], column)
+				}
+			})
+		}
+	}
 }
 
 func TestLocaleWordTablesHoldTheirSourcesWordsAndForms(t *testing.T) {
@@ -86,6 +101,28 @@ func TestLocaleWordTablesHoldTheirSourcesWordsAndForms(t *testing.T) {
 		{"de_DE", "adv", "oft", ""},
 		{"nb_NO", "verb", "avslå", "avslår"},
 		{"da_DK", "noun", "abessiner", "abessineren"},
+		{"sv_SE", "noun", "hus", "huset"},
+		{"sv_SE", "noun", "flicka", "flickan"},
+		{"sv_SE", "verb", "springa", "springer"},
+		{"sv_SE", "adj", "stor", "stora"},
+		{"sv_SE", "adv", "ofta", ""},
+		{"en_US", "noun", "house", ""},
+		{"en_US", "noun", "river", ""},
+		{"en_US", "verb", "run", "runs"},
+		{"en_US", "verb", "carry", "carries"},
+		{"en_US", "verb", "go", "goes"},
+		{"en_US", "verb", "pass", "passes"},
+		{"en_US", "verb", "have", "has"},
+		{"en_US", "verb", "be", "is"},
+		{"en_US", "verb", "woo", "woos"},
+		{"en_US", "verb", "tattoo", "tattoos"},
+		{"en_US", "verb", "radio", "radios"},
+		{"en_US", "verb", "solo", "solos"},
+		{"en_US", "verb", "echo", "echoes"},
+		{"en_US", "verb", "veto", "vetoes"},
+		{"en_US", "verb", "stomach", "stomachs"},
+		{"en_US", "adj", "big", ""},
+		{"en_US", "adv", "often", ""},
 	} {
 		t.Run(c.locale+" "+c.part+" "+c.word, func(t *testing.T) {
 			if got, ok := localeWordForms(t, c.locale, c.part)[c.word]; !ok || got != c.form {
@@ -132,7 +169,7 @@ func TestLocaleWordTablesHoldOnlyTheirSourcesHeadwords(t *testing.T) {
 
 func TestLocaleNounTablesHoldTensOfThousandsOfNouns(t *testing.T) {
 	t.Parallel()
-	for _, l := range wordLocales {
+	for _, l := range shippedLocales {
 		t.Run(l.name, func(t *testing.T) {
 			if n := len(localeWordForms(t, l.name, "noun")); n < 20000 {
 				t.Errorf("%s word-noun holds %d nouns, want its source's, tens of thousands", l.name, n)
@@ -143,10 +180,10 @@ func TestLocaleNounTablesHoldTensOfThousandsOfNouns(t *testing.T) {
 
 func TestLocaleWordTablesHoldWordsOfLettersAlone(t *testing.T) {
 	t.Parallel()
-	for _, l := range wordLocales {
-		for part, column := range l.forms {
+	for _, l := range shippedLocales {
+		for part, column := range l.wordForms {
 			t.Run(l.name+" "+part, func(t *testing.T) {
-				spelled := lowerWord
+				spelled := l.word
 				if part == "noun" {
 					spelled = l.noun
 				}
@@ -163,8 +200,8 @@ func TestLocaleWordTablesHoldWordsOfLettersAlone(t *testing.T) {
 func TestLocaleWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, fejkdata.WithSeed(5))
-	for _, l := range wordLocales {
-		for part, column := range l.forms {
+	for _, l := range shippedLocales {
+		for part, column := range l.wordForms {
 			words, forms := localeWordSets(t, l.name, part)
 			paths := map[string]map[string]bool{l.name + ".word." + part: words}
 			if column != "" {
@@ -172,7 +209,7 @@ func TestLocaleWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 			}
 			for path, held := range paths {
 				t.Run(path, func(t *testing.T) {
-					fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, path) }, func(got string) {
+					fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, f, path) }, func(got string) {
 						if !held[got] {
 							t.Fatalf("%s = %q, which its table does not hold", path, got)
 						}
@@ -186,8 +223,8 @@ func TestLocaleWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 func TestLocaleBoundWordReadsItsOwnForm(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, fejkdata.WithSeed(6))
-	for _, l := range wordLocales {
-		for part, column := range l.forms {
+	for _, l := range shippedLocales {
+		for part, column := range l.wordForms {
 			if column == "" {
 				continue
 			}
@@ -208,7 +245,7 @@ func TestLocaleBoundWordReadsItsOwnForm(t *testing.T) {
 func TestLocaleWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, fejkdata.WithSeed(5))
-	for _, l := range wordLocales {
+	for _, l := range shippedLocales {
 		t.Run(l.name, func(t *testing.T) {
 			nouns, _ := localeWordSets(t, l.name, "noun")
 			seen := fejktest.TallyDraws(2000, func() string {
@@ -226,7 +263,7 @@ func TestLocaleWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
 
 func TestLocaleWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 	t.Parallel()
-	for _, l := range wordLocales {
+	for _, l := range shippedLocales {
 		t.Run(l.name, func(t *testing.T) {
 			raw, err := os.ReadFile(l.name + "/word.json")
 			if err != nil {
@@ -294,11 +331,11 @@ func TestLocaleSentenceIsMadeOfItsWordsAndItsPatternsOwn(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, fejkdata.WithSeed(7))
 	sentence := regexp.MustCompile(`^\p{Lu}[^.!?]*[.!?]$`)
-	for _, l := range wordLocales {
+	for _, l := range shippedLocales {
 		t.Run(l.name, func(t *testing.T) {
 			held := sentencePatternWords(t, l.name)
 			nouns := map[string]bool{}
-			for part := range l.forms {
+			for part := range l.wordForms {
 				words, forms := localeWordSets(t, l.name, part)
 				for w := range words {
 					held[w] = true
@@ -337,7 +374,7 @@ func TestLocaleParagraphDrawsThreeToSixSentences(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(9))
 	paragraph := regexp.MustCompile(`^\p{Lu}[^.!?]*[.!?]( \p{Lu}[^.!?]*[.!?]){2,5}$`)
 	terminators := regexp.MustCompile(`[.!?]`)
-	for _, l := range wordLocales {
+	for _, l := range shippedLocales {
 		t.Run(l.name, func(t *testing.T) {
 			counts := fejktest.TallyDraws(300, func() string {
 				p := fejktest.Fake(t, f, l.name+".paragraph")
