@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs and phone numbers, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -677,15 +677,23 @@ as `example.com` into the template; `todo.md` plans the path.
 `en_US` adds `ssn`, `itin`,
 `phone-exchange` (the three digits after the area code), `word-adj`, `word-adv`, `word-noun` and `word-verb`.
 
-`da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`
-too, written as the country writes them: a price in kroner (`1 234,50 kr` in Norway, `1.234,50 kr.` in Denmark) or in euro
-(`1 234,50 €` in Finland, `1.234,50 €` in Germany), a time as `15:04` in Norway and Germany and `15.04` in Denmark and
-Finland, and a url, username and colour name in the locale's own words, the usernames and url paths in ASCII. The
-month and weekday names are Unicode CLDR's stand-alone names for the language, so `{/fi_FI.month[1]}` is `tammikuu`,
-not the declined `tammikuuta`; they are real, the rest invented.
-
 What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
+
+`da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`
+too, written as the country writes them:
+
+| Locale | `price` | `time` |
+|---|---|---|
+| `nb_NO`, `nn_NO` | `1 234,50 kr` | `15:04` |
+| `da_DK` | `1.234,50 kr.` | `15.04` |
+| `fi_FI` | `1 234,50 €` | `15.04` |
+| `de_DE` | `1.234,50 €` | `15:04` |
+
+A `url` and a `username` are made of the locale's own words, in ASCII, and a `color` is a colour name in the locale's
+language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `weekday` are Unicode CLDR's stand-alone
+names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As for `sv_SE`, `month` is selected by 1 to 12
+and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
 
 The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date`, `de_DE.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
@@ -714,7 +722,7 @@ Renders e.g. `Louice Kajsa Grönberg`. About one draw in 220 repeats the first n
 
 ### `da_DK`
 
-`da_DK`, Danish, carries `address`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like [`nb_NO`'s](#nb_no):
+`da_DK`, Danish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `time`, `title`, `url`, `username` and `weekday`, built like [`nb_NO`'s](#nb_no):
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
@@ -801,7 +809,7 @@ number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
 ### `de_DE`
 
-`de_DE`, German, carries `address`, `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex`, `steuer-id` and `title`. `sex` is `Frau` and `Mann`, `title` is
+`de_DE`, German, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sex`, `steuer-id`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `Frau` and `Mann`, `title` is
 `Dr.`, `Prof.` and `Prof. Dr.`, drawn whatever the sex. `{/de_DE.person}` renders e.g. `Emilia Hesse`.
 
 No open register publishes Germany's name counts. The first names are the city of Munich's open data
@@ -834,21 +842,22 @@ of a few thousand rows starts to repeat one, and a `UNIQUE` column needs a categ
 
 #### German companies
 
-`de_DE.company` draws a legal form as often as Destatis counted legal units of it in 2024 (its Unternehmensregister
-table of legal units by legal form): sole proprietorship (Einzelunternehmen), partnership, or corporation. The table
-counts partnerships, such as `KG` and `OHG`, and corporations, such as `GmbH`, `UG (haftungsbeschränkt)` and `AG`,
-only as groups, so the forms of a group are drawn evenly. A sole proprietorship's name has no abbreviation after it, and
-the others end in theirs, such as `Nordholm Holding GmbH`. `de_DE.company.einzel`, `.kg`, `.ohg`, `.gmbh`, `.ug` and
+`de_DE.company` draws a sole proprietorship (Einzelunternehmen), a partnership or a corporation as often as Destatis
+counted legal units of that kind in 2024 (its Unternehmensregister table of legal units by legal form). The table counts
+partnerships and corporations only as groups, so a partnership is a `KG` or an `OHG` and a corporation a `GmbH`, a
+`UG (haftungsbeschränkt)` or an `AG`, each of a group as often as the others. A sole proprietorship's name has no
+abbreviation after it, and the others end in theirs, such as `… GmbH`. `de_DE.company.einzel`, `.kg`, `.ohg`, `.gmbh`, `.ug` and
 `.ag` each draw one form, and `{/de_DE.company as c}{c.legal}` prints the abbreviation of the same pick. No open
 bulk file of German company names was found, so the name's shapes and the words of `company-coined` and
 `company-word` are a language model's recall. Each name is made of those words, `de_DE`'s names and `geo.DE.locality`.
 A name is invented, and may also be a real company's. A program showing the counts credits "© Statistisches
-Bundesamt (Destatis), 2025".
+Bundesamt (Destatis), 2025", names the licence [Datenlizenz Deutschland – Namensnennung 2.0](https://www.govdata.de/dl-de/by-2-0)
+(`dl-de/by-2-0`), links it, and says that the groups are split and the counts reduced to six legal forms.
 
 #### German dates and emails
 
-`de_DE.date` is a date from 1970 to 2029 in the German spelling of DIN 5008, day, month and year with two digits each
-and dots between, such as `02.04.2019`. `de_DE.email` is built like `nb_NO.email`: half its local parts are a first and a
+`de_DE.date` is a date from 1970 to 2029 in the German spelling of DIN 5008, a two-digit day and month and a four-digit year
+with dots between, such as `02.04.2019`. `de_DE.email` is built like `nb_NO.email`: half its local parts are a first and a
 last name from `de_DE`'s names, folded to ASCII, `ä` to `a`, `ö` to `o`, `ü` to `u` and `ß` to `ss`.
 
 #### German phone numbers
@@ -933,7 +942,7 @@ may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, 
 
 ### `fi_FI`
 
-`fi_FI`, Finnish, carries `address`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex` and `title`, built like [`nb_NO`'s](#nb_no).
+`fi_FI`, Finnish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sex`, `time`, `title`, `url`, `username` and `weekday`, built like [`nb_NO`'s](#nb_no).
 `fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
 2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
 and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
@@ -1176,9 +1185,9 @@ giving that name no territory — spell it as the text `"UTC"`.
 
 ### `nb_NO`
 
-`nb_NO`, Norwegian in the Bokmål standard, carries `address`, `birth-day`, `company`, `company-coined`,
-`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `person`,
-`phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
+`nb_NO`, Norwegian in the Bokmål standard, carries `address`, `birth-day`, `color`, `company`, `company-coined`,
+`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `month`, `person`,
+`phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `time`, `title`, `url`, `username` and `weekday`.
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
@@ -1260,8 +1269,8 @@ may hold it. A bound number reads `national`, `46 12 34 56`, and `international`
 
 ### `nn_NO`
 
-`nn_NO`, Norwegian in the Nynorsk standard, carries `address`, `company`, `date`, `email`, `fodselsnummer`,
-`month`, `person`, `phone`, `title` and `weekday`. Both standards spell names, places, streets, ids and phone
+`nn_NO`, Norwegian in the Nynorsk standard, carries `address`, `color`, `company`, `date`, `email`, `fodselsnummer`,
+`month`, `person`, `phone`, `price`, `time`, `title`, `url`, `username` and `weekday`. Both standards spell names, places, streets, ids and phone
 numbers alike, so `nn_NO` reads `nb_NO`'s data and `geo.NO`. It has no table of names, `sex`, `birth-day`,
 `individ` or phone prefixes, and none of `nb_NO.company`'s forms such as `.as`: read those from `nb_NO`.
 
