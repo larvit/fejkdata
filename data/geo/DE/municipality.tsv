@@ -1,7 +1,7 @@
 code	name	region	postal-codes
 01001	Kreisfreie Stadt Flensburg	SH	5
 01002	Kreisfreie Stadt Kiel	SH	15
-01003	Lübeck, Hansestadt	SH	9
+01003	Hansestadt Lübeck	SH	9
 01004	Kreisfreie Stadt Neumünster	SH	4
 01051	Kreis Dithmarschen	SH	110
 01053	Kreis Herzogtum Lauenburg	SH	131
@@ -14,10 +14,10 @@ code	name	region	postal-codes
 01060	Kreis Segeberg	SH	95
 01061	Kreis Steinburg	SH	109
 01062	Kreis Stormarn	SH	52
-02000	Hamburg, Freie und Hansestadt	HH	383
+02000	Freie und Hansestadt Hamburg	HH	101
 03101	Kreisfreie Stadt Braunschweig	NI	15
-03102	Salzgitter, Stadt	NI	20
-03103	Wolfsburg, Stadt	NI	5
+03102	Stadt Salzgitter	NI	20
+03103	Stadt Wolfsburg	NI	5
 03151	Landkreis Gifhorn	NI	42
 03153	Landkreis Goslar	NI	23
 03154	Landkreis Helmstedt	NI	26
@@ -43,11 +43,11 @@ code	name	region	postal-codes
 03359	Landkreis Stade	NI	41
 03360	Uelzen	NI	28
 03361	Landkreis Verden	NI	12
-03401	Delmenhorst, Stadt	NI	4
-03402	Emden, Stadt	NI	3
-03403	Oldenburg (Oldenburg), Stadt	NI	9
-03404	Osnabrück, Stadt	NI	9
-03405	Wilhelmshaven, Stadt	NI	5
+03401	Stadt Delmenhorst	NI	4
+03402	Stadt Emden	NI	3
+03403	Stadt Oldenburg (Oldenburg)	NI	9
+03404	Stadt Osnabrück	NI	9
+03405	Stadt Wilhelmshaven	NI	5
 03451	Ammerland	NI	6
 03452	Landkreis Aurich	NI	100
 03453	Cloppenburg	NI	12
@@ -61,7 +61,7 @@ code	name	region	postal-codes
 03461	Wesermarsch	NI	8
 03462	Landkreis Wittmund	NI	28
 04011	Kreisfreie Stadt Bremen	HB	34
-04012	Bremerhaven, Stadt	HB	7
+04012	Stadt Bremerhaven	HB	7
 05111	Kreisfreie Stadt Düsseldorf	NW	37
 05112	Kreisfreie Stadt Duisburg	NW	25
 05113	Kreisfreie Stadt Essen	NW	32
@@ -88,7 +88,7 @@ code	name	region	postal-codes
 05374	Oberbergischer Kreis	NW	15
 05378	Rheinisch-Bergischer Kreis	NW	12
 05382	Rhein-Sieg-Kreis	NW	20
-05512	Bottrop, Stadt	NW	5
+05512	Stadt Bottrop	NW	5
 05513	Kreisfreie Stadt Gelsenkirchen	NW	13
 05515	Kreisfreie Stadt Münster	NW	14
 05554	Kreis Borken	NW	18
@@ -141,7 +141,7 @@ code	name	region	postal-codes
 06634	Schwalm-Eder-Kreis	HE	26
 06635	Landkreis Waldeck-Frankenberg	HE	26
 06636	Werra-Meißner-Kreis	HE	21
-07111	Koblenz, kreisfreie Stadt	RP	7
+07111	kreisfreie Stadt Koblenz	RP	7
 07131	Landkreis Ahrweiler	RP	74
 07132	Landkreis Altenkirchen	RP	115
 07133	Landkreis Bad Kreuznach	RP	115
@@ -152,21 +152,21 @@ code	name	region	postal-codes
 07140	Rhein-Hunsrück-Kreis	RP	137
 07141	Rhein-Lahn-Kreis	RP	133
 07143	Westerwaldkreis	RP	177
-07211	Trier, kreisfreie Stadt	RP	6
+07211	kreisfreie Stadt Trier	RP	6
 07231	Landkreis Bernkastel-Wittlich	RP	106
 07232	Eifelkreis Bitburg-Prüm	RP	227
 07233	Vulkaneifel	RP	109
 07235	Landkreis Trier-Saarburg	RP	101
-07311	Frankenthal (Pfalz), kreisfreie Stadt	RP	1
-07312	Kaiserslautern, kreisfreie Stadt	RP	5
+07311	kreisfreie Stadt Frankenthal (Pfalz)	RP	1
+07312	kreisfreie Stadt Kaiserslautern	RP	5
 07313	Kreisfreie Stadt Landau in der Pfalz	RP	1
-07314	Ludwigshafen am Rhein, kreisfreie Stadt	RP	7
-07315	Mainz, kreisfreie Stadt	RP	11
-07316	Neustadt an der Weinstraße, kreisfreie Stadt	RP	3
-07317	Pirmasens, kreisfreie Stadt	RP	3
-07318	Speyer, kreisfreie Stadt	RP	1
-07319	Worms, kreisfreie Stadt	RP	4
-07320	Zweibrücken, kreisfreie Stadt	RP	1
+07314	kreisfreie Stadt Ludwigshafen am Rhein	RP	7
+07315	kreisfreie Stadt Mainz	RP	11
+07316	kreisfreie Stadt Neustadt an der Weinstraße	RP	3
+07317	kreisfreie Stadt Pirmasens	RP	3
+07318	kreisfreie Stadt Speyer	RP	1
+07319	kreisfreie Stadt Worms	RP	4
+07320	kreisfreie Stadt Zweibrücken	RP	1
 07331	Landkreis Alzey-Worms	RP	66
 07332	Landkreis Bad Dürkheim	RP	46
 07333	Donnersbergkreis	RP	83
@@ -282,7 +282,7 @@ code	name	region	postal-codes
 09561	Kreisfreie Stadt Ansbach	BY	1
 09562	Kreisfreie Stadt Erlangen	BY	4
 09563	Kreisfreie Stadt Fürth	BY	5
-09564	Nuremberg	BY	29
+09564	Kreisfreie Stadt Nürnberg	BY	29
 09565	Kreisfreie Stadt Schwabach	BY	1
 09571	Landkreis Ansbach	BY	57
 09572	Landkreis Erlangen-Höchstadt	BY	25
@@ -323,7 +323,7 @@ code	name	region	postal-codes
 10044	Saarlouis	SL	13
 10045	Saarpfalz-Kreis	SL	7
 10046	St. Wendel	SL	8
-11000	Berlin, Stadt	BE	193
+11000	Stadt Berlin	BE	193
 12051	Kreisfreie Stadt Brandenburg an der Havel	BB	6
 12052	Kreisfreie Stadt Cottbus	BB	13
 12053	Frankfurt (Oder)	BB	4
@@ -350,7 +350,7 @@ code	name	region	postal-codes
 13074	Nordwestmecklenburg	MV	105
 13075	Vorpommern-Greifswald	MV	185
 13076	Ludwigslust-Parchim	MV	207
-14511	Chemnitz, Stadt	SN	17
+14511	Stadt Chemnitz	SN	17
 14521	Erzgebirgskreis	SN	71
 14522	Landkreis Mittelsachsen	SN	57
 14523	Vogtlandkreis	SN	41
@@ -377,11 +377,11 @@ code	name	region	postal-codes
 15089	Salzlandkreis	ST	90
 15090	Landkreis Stendal	ST	118
 15091	Landkreis Wittenberg	ST	122
-16051	Erfurt, Stadt	TH	12
-16052	Gera, Stadt	TH	6
-16053	Jena, Stadt	TH	4
+16051	Stadt Erfurt	TH	12
+16052	Stadt Gera	TH	6
+16053	Stadt Jena	TH	4
 16054	Kreisfreie Stadt Suhl	TH	5
-16055	Weimar, Stadt	TH	3
+16055	Stadt Weimar	TH	3
 16061	Eichsfeld	TH	83
 16062	Landkreis Nordhausen	TH	31
 16063	Wartburgkreis	TH	52
