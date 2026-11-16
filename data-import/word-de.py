@@ -5,7 +5,7 @@
 Wikidata's lexemes (CC0) give each German word its lexical category and its forms, each tagged with grammatical
 features. A row is a noun, a verb, an adjective or an adverb whose lemma is letters alone, a noun's capitalised and
 the others' lower-case. A noun carries its first nominative plural, and one without a plural in letters alone is
-dropped. A word on LDNOOBW's German list of rude words, in any case, is dropped, and so is a noun whose plural is on
+dropped. A word on LDNOOBW's German list of rude words, compared in lower case, is dropped, and so is a noun whose plural is on
 it. Wikidata gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
 import argparse

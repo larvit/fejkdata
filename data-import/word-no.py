@@ -1,11 +1,11 @@
 """Rebuild nb_NO's and nn_NO's word.json and word-noun.tsv, word-verb.tsv, word-adj.tsv and word-adv.tsv from Norsk ordbank.
 
-    data-import/word-no.py [--bokmal URL_OR_FILE] [--nynorsk URL_OR_FILE] [--cache DIR] [--out DIR]
+    data-import/word-no.py [--bokmal URL_OR_FILE] [--nynorsk URL_OR_FILE] [--rude URL_OR_FILE] [--cache DIR] [--out DIR]
 
 Norsk ordbank (Språkbanken, CC BY 4.0) lists every form of each lemma, tagged. A row is a common noun, a verb, an
 adjective or an adverb that the ordbank spells in lower-case letters alone, with a form from the same paradigm: a noun's
-definite singular, a verb's present and an adjective's definite singular. Only the forms the current norm holds count.
-A lemma lacking that form is dropped, and so is one whose word or form is on LDNOOBW's Norwegian list of rude words.
+definite singular, a verb's present and an adjective's definite singular. An adverb carries no form. Only the forms the current norm
+holds count. A noun, verb or adjective lacking its form is dropped, and so is one whose word or form is on LDNOOBW's Norwegian list of rude words.
 The ordbank gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
 import argparse
@@ -54,7 +54,7 @@ def lines(tarball: bytes, name: str) -> Iterator[list[str]]:
 def paradigms(tarball: bytes, name: str, tags: Mapping[str, tuple[set[str], set[str], set[str]]]) -> dict[tuple[str, str, str], tuple[set[str], list[str]]]:
     """Per lemma, part of speech and paradigm, in the order the list first names them, the spellings of the word and those of its form.
 
-    A form counts while the norm holds it, its end date 4000 and it normert, and a verb's passive never counts."""
+    A form counts while the norm holds it: its end date is 4000 and it is normert. A verb's passive never counts."""
     found: dict[tuple[str, str, str], tuple[set[str], list[str]]] = {}
     for _, lemma, form, tag, paradigm, _, _, until, norm in lines(tarball, name):
         held = set(tag.split())
