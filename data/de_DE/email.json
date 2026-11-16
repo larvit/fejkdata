@@ -10,8 +10,8 @@
     {
       "format": "{adj}{noun}{n}",
       "weight": 2,
-      "adj": ["blitz", "cool", "flink", "frech", "froh", "kuehn", "lustig", "mutig", "schlau", "schnell", "stark", "super", "turbo", "wild"],
-      "noun": ["adler", "baer", "fuchs", "hase", "hund", "igel", "katze", "kolibri", "maus", "ninja", "panda", "pirat", "robbe", "roboter", "uhu", "wolf"],
+      "adj": ["blitz", "cool", "flink", "frech", "froh", "clever", "lustig", "mutig", "schlau", "schnell", "stark", "super", "turbo", "wild"],
+      "noun": ["adler", "dachs", "fuchs", "hase", "hund", "igel", "katze", "kolibri", "maus", "ninja", "panda", "pirat", "robbe", "roboter", "uhu", "wolf"],
       "n": [{ "format": "", "weight": 2 }, "7", "13", "14", "42", "77", "99", "123", "420", "2024"]
     },
     {
