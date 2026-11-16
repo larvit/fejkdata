@@ -1587,7 +1587,7 @@ WordNet's sense counts cover a quarter of its lemmas, so `word` weighs a part of
 draws each word evenly, which keeps the spread this data exists to widen.
 Valid while no open English source gives a frequency for every word.
 
-## `de_DE.word.noun` carries `plural`, where the other locales' nouns carry `definite`
+## `de_DE.word.noun` carries `plural`, where the nouns of `nb_NO`, `nn_NO`, `da_DK` and `sv_SE` carry `definite`
 
 2026-11-16, the maintainer. Goal 3.2.
 
