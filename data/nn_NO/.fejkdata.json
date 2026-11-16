@@ -7,14 +7,21 @@
 		"nn_NO.email": {"paths":["","domain","local"]},
 		"nn_NO.fodselsnummer": {"paths":[""]},
 		"nn_NO.month": {"paths":["","code","name"]},
+		"nn_NO.paragraph": {"paths":[""]},
 		"nn_NO.person": {"paths":["","first","last","prefix","sex"]},
 		"nn_NO.phone": {"paths":["","international","national"]},
 		"nn_NO.price": {"paths":[""]},
+		"nn_NO.sentence": {"paths":["","adj","det","noun","prep","verb"]},
 		"nn_NO.time": {"paths":[""]},
 		"nn_NO.title": {"paths":["","name","share"]},
 		"nn_NO.url": {"paths":["","host","path"]},
 		"nn_NO.username": {"paths":["","n"]},
-		"nn_NO.weekday": {"paths":["","code","name"]}
+		"nn_NO.weekday": {"paths":["","code","name"]},
+		"nn_NO.word": {"paths":["","adj","adj.definite","adv","any","noun","noun.definite","verb","verb.present"]},
+		"nn_NO.word-adj": {"paths":["","definite","word"]},
+		"nn_NO.word-adv": {"paths":["","word"]},
+		"nn_NO.word-noun": {"paths":["","definite","word"]},
+		"nn_NO.word-verb": {"paths":["","present","word"]}
 	},
 	"namespace": "nn_NO"
 }

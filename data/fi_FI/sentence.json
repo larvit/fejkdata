@@ -1,0 +1,53 @@
+[
+  {
+    "format": "{lead} {adj} {noun} on {adj}{end}",
+    "weight": 3,
+    "lead": [
+      "Jokainen",
+      "Se",
+      "Tuo",
+      "Tämä",
+      "Yksi"
+    ],
+    "adj": "{.word-adj}",
+    "noun": "{.word-noun}",
+    "end": [
+      {
+        "format": ".",
+        "weight": 3
+      },
+      "!"
+    ]
+  },
+  {
+    "format": "{lead} {noun} on {adj} ja {adj}{end}",
+    "weight": 2,
+    "lead": [
+      "Jokainen",
+      "Se",
+      "Tuo",
+      "Tämä",
+      "Yksi"
+    ],
+    "adj": "{.word-adj}",
+    "noun": "{.word-noun}",
+    "end": [
+      {
+        "format": ".",
+        "weight": 3
+      },
+      "!"
+    ]
+  },
+  {
+    "format": "Onko {which} {adj} {noun} {adj}?",
+    "adj": "{.word-adj}",
+    "noun": "{.word-noun}",
+    "which": [
+      "jokainen",
+      "se",
+      "tuo",
+      "tämä"
+    ]
+  }
+]

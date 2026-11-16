@@ -1,0 +1,77 @@
+[
+  {
+    "format": "{lead} {adj} {noun} {verb} {prep} {det} {adj} {noun}{end}",
+    "weight": 4,
+    "lead": [
+      "Den",
+      "Denne",
+      "Det",
+      "Dette"
+    ],
+    "adj": "{.word-adj.definite}",
+    "noun": "{.word-noun}",
+    "verb": "{.word-verb.present}",
+    "prep": [
+      "bag",
+      "blandt",
+      "foran",
+      "forbi",
+      "gennem",
+      "hen over",
+      "langs",
+      "mod",
+      "nær",
+      "omkring",
+      "over",
+      "under",
+      "ved"
+    ],
+    "end": [
+      {
+        "format": ".",
+        "weight": 3
+      },
+      "!"
+    ],
+    "det": [
+      "den",
+      "det",
+      "denne",
+      "dette"
+    ]
+  },
+  {
+    "format": "{q} {det} {adj} {noun} {verb} {prep} {definite}?",
+    "q": [
+      "Hvor vil",
+      "Hvordan skal",
+      "Hvorfor skal",
+      "Hvornår kan",
+      "Kan",
+      "Må",
+      "Skal",
+      "Vil"
+    ],
+    "adj": "{.word-adj.definite}",
+    "noun": "{.word-noun}",
+    "verb": "{.word-verb}",
+    "prep": [
+      "bag",
+      "forbi",
+      "gennem",
+      "langs",
+      "mod",
+      "nær",
+      "omkring",
+      "over",
+      "under"
+    ],
+    "definite": "{.word-noun.definite}",
+    "det": [
+      "den",
+      "det",
+      "denne",
+      "dette"
+    ]
+  }
+]
