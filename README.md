@@ -20,7 +20,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
   requires a month of 1 to 12 refuses the fødselsnummer, and one that applies the extra checks of the
-  synthetic henkilötunnus refuses those; Danish CPR numbers that pass the
+  synthetic henkilötunnus refuses those; Steuer-IDs from ELSTER's test series, which a checker that refuses a leading zero refuses; Danish CPR numbers that pass the
   office's modulus 11 check, so a drawn one may be a living person's; Swedish
   organisationsnummer and VAT numbers that pass the format and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
   and ITINs in the ranges the SSA and the IRS assign, so a drawn one may be a real
@@ -818,8 +818,10 @@ Central Tax Office (BZSt) issues no number with a leading zero, and ELSTER's "Pr
 Steueridentifikationsnummer" allows one only for a test number, so a number here is valid, and no person holds
 it. It has eleven digits. Of the first ten, one digit appears twice or three times, evenly between the two,
 and no digit appears three times in a row. The eleventh is the check digit of ISO 7064 MOD 11,10, which
-`{steuerid()}` computes by ELSTER's algorithm. A checker that refuses a leading zero refuses every number
-here.
+`{steuerid()}` computes by ELSTER's algorithm, as in `02476291358`, one of ELSTER's own examples. A checker that refuses a
+leading zero refuses every number here, and fejkdata draws none without it. A number is one of about 36
+million, so a fixture of a few thousand rows starts to repeat one, and a `UNIQUE` column needs a category of
+your own.
 
 ### `en_US`
 
