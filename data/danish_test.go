@@ -1,8 +1,6 @@
 package data_test
 
 import (
-	"encoding/json"
-	"os"
 	"regexp"
 	"slices"
 	"strconv"
@@ -63,16 +61,6 @@ func TestDanishTopNamesAreStatisticsDenmarksCounts(t *testing.T) {
 	}
 }
 
-func TestDanishNameTablesHoldTwoHundredNamesOrMore(t *testing.T) {
-	for _, c := range danishNameSets(t) {
-		t.Run(c.what, func(t *testing.T) {
-			if len(c.got) < 200 {
-				t.Errorf("%s: %d names, want 200 or more", c.what, len(c.got))
-			}
-		})
-	}
-}
-
 func noOtherNameIsBorneByAsManyAsTheTwentieth(t *testing.T, c danishNameSet) {
 	t.Helper()
 	twentieth := 1 << 30
@@ -89,48 +77,6 @@ func noOtherNameIsBorneByAsManyAsTheTwentieth(t *testing.T, c danishNameSet) {
 func TestDanishOtherNamesAreRarerThanTheTwentieth(t *testing.T) {
 	for _, c := range danishNameSets(t) {
 		t.Run(c.what, func(t *testing.T) { noOtherNameIsBorneByAsManyAsTheTwentieth(t, c) })
-	}
-}
-
-func eachRowIsALetteredName(t *testing.T, file string) {
-	t.Helper()
-	name := regexp.MustCompile(`^[\pL]{2,}([ '-][\pL]{2,})*$`)
-	for _, row := range fejktest.TSVRows(t, "da_DK/"+file+".tsv") {
-		if !name.MatchString(row["name"]) {
-			t.Errorf("%s row %v is not a name in letters", file, row)
-		}
-	}
-}
-
-func TestDanishNamesAreLetters(t *testing.T) {
-	for _, file := range []string{"first-name", "last-name"} {
-		t.Run(file, func(t *testing.T) { eachRowIsALetteredName(t, file) })
-	}
-}
-
-func TestDanishFirstNamesHoldTheSexesFAndM(t *testing.T) {
-	first := nameCounts(t, "da_DK", "first-name")
-	if len(first) != 2 || first["f"] == nil || first["m"] == nil {
-		t.Errorf("first-name.tsv holds sexes %v, want f and m", first)
-	}
-}
-
-func TestDanishAGirlsNameIsNotABoysByAccident(t *testing.T) {
-	first := nameCounts(t, "da_DK", "first-name")
-	for name, sex := range map[string]string{"Mette": "f", "Freja": "f", "Søren": "m", "Mads": "m"} {
-		t.Run(name, func(t *testing.T) {
-			other := map[string]string{"f": "m", "m": "f"}[sex]
-			if first[sex][name] == 0 || first[other][name] != 0 {
-				t.Errorf("%s is not a name of sex %q alone", name, sex)
-			}
-		})
-	}
-}
-
-func TestDanishKimIsBorneByGirlsAndBoys(t *testing.T) {
-	first := nameCounts(t, "da_DK", "first-name")
-	if first["f"]["Kim"] == 0 || first["m"]["Kim"] == 0 {
-		t.Error("Kim is borne by girls and boys, want a row under each sex")
 	}
 }
 
@@ -559,13 +505,9 @@ func danishSoleProprietorshipShapes(t *testing.T, words []string, draws int) map
 
 func TestShippedDanishCompanyNamesAreBuiltOfNamesPlacesAndTradeWords(t *testing.T) {
 	t.Parallel()
-	src, err := os.ReadFile("da_DK/company-word.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var words []string
-	if err := json.Unmarshal(src, &words); err != nil || len(words) < 20 {
-		t.Fatalf("company-word.json is %d words (%v), want an array of 20 or more", len(words), err)
+	words := readJSON[[]string](t, "da_DK/company-word.json")
+	if len(words) < 20 {
+		t.Fatalf("company-word.json is %d words, want an array of 20 or more", len(words))
 	}
 	const draws = 4000
 	seen := danishSoleProprietorshipShapes(t, words, draws)

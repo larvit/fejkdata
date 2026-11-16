@@ -29,4 +29,4 @@ def candidates(kotus: bytes) -> Iterator[wordtables.Candidate]:
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "fi", OUT, FORMS, [wordtables.Source("kotus", KOTUS, "", b"Hakusana", "", candidates)])
+    wordtables.main(__doc__, "fi", OUT, FORMS, [wordtables.Source(flag="kotus", url=KOTUS, magic=b"Hakusana", candidates=candidates)])

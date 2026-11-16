@@ -80,14 +80,6 @@ func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 			}
 		})
 	}
-	t.Run("sv_SE.title is an unsexed honorific", func(t *testing.T) {
-		swedish := map[string]bool{"dr": true, "prof": true}
-		fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "sv_SE.title") }, func(got string) {
-			if !swedish[got] {
-				t.Fatalf("sv_SE.title = %q, want an unsexed Swedish honorific", got)
-			}
-		})
-	})
 }
 
 func TestEnglishWordTablesHoldAsManyWordsAsWordNet(t *testing.T) {

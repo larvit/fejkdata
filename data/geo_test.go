@@ -254,15 +254,7 @@ func geoAddressColumnsOf(dir string) []string {
 
 func geoAddress(t *testing.T, dir string) map[string]json.RawMessage {
 	t.Helper()
-	b, err := os.ReadFile(dir + "/address.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var address map[string]json.RawMessage
-	if err := json.Unmarshal(b, &address); err != nil {
-		t.Fatalf("%s/address.json: %v", dir, err)
-	}
-	return address
+	return readJSON[map[string]json.RawMessage](t, dir+"/address.json")
 }
 
 // A country's address holds the street columns where its tree ships streets, real or invented.

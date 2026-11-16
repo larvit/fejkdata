@@ -1,8 +1,6 @@
 package data_test
 
 import (
-	"encoding/json"
-	"os"
 	"regexp"
 	"slices"
 	"strconv"
@@ -42,16 +40,10 @@ func TestFinnishTopNamesAreDVVsCounts(t *testing.T) {
 	}
 }
 
-func TestFinnishFirstNamesAreRowsUnderTheSexesThatBearThem(t *testing.T) {
+func TestFinnishKimIsBorneByAsManyWomenAndMenAsDVVCounts(t *testing.T) {
 	first := nameCounts(t, "fi_FI", "first-name")
-	if len(first) != 2 || first["f"] == nil || first["m"] == nil {
-		t.Fatalf("first-name.tsv holds sexes %v, want f and m", first)
-	}
 	if first["f"]["Kim"] != 146 || first["m"]["Kim"] != 4872 {
 		t.Errorf("Kim is borne by %d women and %d men, want DVV's 146 and 4872", first["f"]["Kim"], first["m"]["Kim"])
-	}
-	if first["m"]["Anne"] != 0 || first["f"]["Juha"] != 0 {
-		t.Error("Anne is a boy's name or Juha a girl's, want each under the sex DVV counts it for")
 	}
 }
 
@@ -377,13 +369,9 @@ func tallyFinnishSoleTraderShapes(t *testing.T, f *fejkdata.Generator, draws int
 
 func TestShippedFinnishCompanyNamesAreBuiltOfNamesAndTradeWords(t *testing.T) {
 	t.Parallel()
-	src, err := os.ReadFile("fi_FI/company-word.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var words []string
-	if err := json.Unmarshal(src, &words); err != nil || len(words) < 20 {
-		t.Fatalf("company-word.json is %d words (%v), want an array of 20 or more", len(words), err)
+	words := readJSON[[]string](t, "fi_FI/company-word.json")
+	if len(words) < 20 {
+		t.Fatalf("company-word.json is %d words, want an array of 20 or more", len(words))
 	}
 	firsts, lasts := nameColumnSet(t, "fi_FI/first-name.tsv"), nameColumnSet(t, "fi_FI/last-name.tsv")
 	const draws = 4000

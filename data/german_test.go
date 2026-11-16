@@ -1,7 +1,6 @@
 package data_test
 
 import (
-	"regexp"
 	"strings"
 	"testing"
 
@@ -28,38 +27,6 @@ func TestGermanFirstNamesAreMunichsCounts(t *testing.T) {
 					t.Errorf("%q of sex %q is borne by %d, want Munich's %d", name, sex, got, want)
 				}
 			})
-		}
-	}
-}
-
-func TestGermanAGirlsNameIsNotABoysByAccident(t *testing.T) {
-	first := nameCounts(t, "de_DE", "first-name")
-	for name, sex := range map[string]string{"Emilia": "f", "Marie": "f", "Maximilian": "m", "Felix": "m"} {
-		t.Run(name, func(t *testing.T) {
-			other := map[string]string{"f": "m", "m": "f"}[sex]
-			if first[sex][name] == 0 || first[other][name] != 0 {
-				t.Errorf("%s is not a name of sex %q alone", name, sex)
-			}
-		})
-	}
-}
-
-func TestGermanNameTablesHoldTwoHundredNamesOrMore(t *testing.T) {
-	first, last := nameCounts(t, "de_DE", "first-name"), nameCounts(t, "de_DE", "last-name")[""]
-	for what, got := range map[string]map[string]int{"girls": first["f"], "boys": first["m"], "last names": last} {
-		if len(got) < 200 {
-			t.Errorf("%s: %d names, want 200 or more", what, len(got))
-		}
-	}
-}
-
-func TestGermanNamesAreLetters(t *testing.T) {
-	name := regexp.MustCompile(`^[\pL]{2,}([ '-][\pL]{2,})*$`)
-	for _, file := range []string{"first-name", "last-name"} {
-		for _, row := range fejktest.TSVRows(t, "de_DE/"+file+".tsv") {
-			if !name.MatchString(row["name"]) {
-				t.Errorf("%s row %v is not a name in letters", file, row)
-			}
 		}
 	}
 }
@@ -92,22 +59,10 @@ func TestGermanFirstNamesFollowTheirCounts(t *testing.T) {
 	}
 }
 
-func TestGermanSexAndTitleAreSelectable(t *testing.T) {
+func TestGermanFirstNameUnderItsSexReadsItsCount(t *testing.T) {
 	f := shipped(t)
-	for tmpl, want := range map[string]string{
-		"{/de_DE.sex[f]}":                              "Frau",
-		"{/de_DE.sex[m]}":                              "Mann",
-		"{/de_DE.title[Dr.]}":                          "Dr.",
-		"{/de_DE.title[Prof.]}":                        "Prof.",
-		"{/de_DE.title[Prof. Dr.]}":                    "Prof. Dr.",
-		"{/de_DE.sex[m].first-name[Maximilian].count}": "1751",
-	} {
-		t.Run(tmpl, func(t *testing.T) {
-			got, err := f.FakeTemplate(tmpl)
-			if err != nil || got != want {
-				t.Errorf("FakeTemplate(%q) = %q, %v, want %q", tmpl, got, err, want)
-			}
-		})
+	if got := fejktest.FakeTemplate(t, f, "{/de_DE.sex[m].first-name[Maximilian].count}"); got != "1751" {
+		t.Errorf("Maximilian under the sex m has the count %q, want Munich's 1751", got)
 	}
 }
 

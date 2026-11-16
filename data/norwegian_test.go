@@ -1,9 +1,7 @@
 package data_test
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"regexp"
 	"slices"
 	"sort"
@@ -40,37 +38,6 @@ func TestNorwegianNamesAreBorneBy200OrMore(t *testing.T) {
 				}
 			})
 		})
-	}
-}
-
-func norwegianFirstNamesBySex(t *testing.T) map[string]map[string]bool {
-	t.Helper()
-	bySex := map[string]map[string]bool{"f": {}, "m": {}}
-	eachNorwegianRow(t, "first-name", func(row map[string]string) {
-		if bySex[row["sex"]] == nil {
-			t.Fatalf("first-name.tsv row %v has a sex other than f and m", row)
-		}
-		bySex[row["sex"]][row["name"]] = true
-	})
-	return bySex
-}
-
-func TestNorwegianFirstNamesAreRowsUnderTheSexesThatBearThem(t *testing.T) {
-	bySex := norwegianFirstNamesBySex(t)
-	for name, sex := range map[string]string{"Kari": "f", "Nora": "f", "Ola": "m", "Jakob": "m"} {
-		t.Run(name, func(t *testing.T) {
-			other := map[string]string{"f": "m", "m": "f"}[sex]
-			if !bySex[sex][name] || bySex[other][name] {
-				t.Errorf("%s is not a name of sex %q alone", name, sex)
-			}
-		})
-	}
-}
-
-func TestNorwegianKimIsBorneByGirlsAndBoys(t *testing.T) {
-	bySex := norwegianFirstNamesBySex(t)
-	if !bySex["f"]["Kim"] || !bySex["m"]["Kim"] {
-		t.Error("Kim is borne by girls and boys, want a row under each sex")
 	}
 }
 
@@ -521,15 +488,7 @@ func norwegianPlaceWords(t *testing.T) map[string]bool {
 
 func norwegianCoinedRoots(t *testing.T) []string {
 	t.Helper()
-	b, err := os.ReadFile("nb_NO/company-coined.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var coined struct{ A []string }
-	if err := json.Unmarshal(b, &coined); err != nil {
-		t.Fatal(err)
-	}
-	return coined.A
+	return readJSON[struct{ A []string }](t, "nb_NO/company-coined.json").A
 }
 
 func TestNorwegianCoinedRootsHoldNoWordOfAPlace(t *testing.T) {

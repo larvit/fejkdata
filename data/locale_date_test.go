@@ -15,6 +15,8 @@ func padsItsDay(l shippedLocale) bool {
 	return strings.Contains(time.Date(1999, time.November, 5, 0, 0, 0, 0, time.UTC).Format(l.dateLayout), "05")
 }
 
+func writesItsDayUnpadded(l shippedLocale) bool { return hasDate(l) && !padsItsDay(l) }
+
 func eachDate(t *testing.T, locale string, check func(got string)) {
 	t.Helper()
 	f := shipped(t, fejkdata.WithSeed(3))
@@ -46,7 +48,7 @@ func TestLocaleDateSpans1970To2029(t *testing.T) {
 }
 
 func TestLocaleDatesWithoutPaddingIncludeADayOfOneDigit(t *testing.T) {
-	eachLocale(t, func(l shippedLocale) bool { return hasDate(l) && !padsItsDay(l) }, func(t *testing.T, l shippedLocale) {
+	eachLocale(t, writesItsDayUnpadded, func(t *testing.T, l shippedLocale) {
 		short := false
 		eachDate(t, l.name, func(got string) {
 			d, err := time.Parse(l.dateLayout, got)

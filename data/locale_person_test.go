@@ -1,13 +1,85 @@
 package data_test
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
+const fewestNames = 200
+
+var (
+	letteredName = regexp.MustCompile(`^[\pL]{2,}([ '-][\pL]{2,})*$`)
+	otherSex     = map[string]string{"f": "m", "m": "f"}
+)
+
+func hasNames(l shippedLocale) bool { return l.names != nil }
+
 func hasPerson(l shippedLocale) bool { return l.person != nil }
+
+func TestLocaleFirstNamesHoldTheSexesFAndM(t *testing.T) {
+	eachLocale(t, hasNames, func(t *testing.T, l shippedLocale) {
+		first := nameCounts(t, l.name, "first-name")
+		if len(first) != 2 || first["f"] == nil || first["m"] == nil {
+			t.Errorf("first-name.tsv holds sexes %v, want f and m", first)
+		}
+	})
+}
+
+func TestLocaleFirstNameOfOneSexIsNoRowUnderTheOther(t *testing.T) {
+	eachLocale(t, hasNames, func(t *testing.T, l shippedLocale) {
+		first := nameCounts(t, l.name, "first-name")
+		for name, sex := range l.names.ofOneSex {
+			t.Run(name, func(t *testing.T) {
+				if first[sex][name] == 0 || first[otherSex[sex]][name] != 0 {
+					t.Errorf("%s is not a name of sex %q alone", name, sex)
+				}
+			})
+		}
+	})
+}
+
+func TestLocaleFirstNameOfBothSexesIsARowUnderEach(t *testing.T) {
+	eachLocale(t, hasNames, func(t *testing.T, l shippedLocale) {
+		first := nameCounts(t, l.name, "first-name")
+		for _, name := range l.names.ofBothSexes {
+			t.Run(name, func(t *testing.T) {
+				if first["f"][name] == 0 || first["m"][name] == 0 {
+					t.Errorf("%s is borne by girls and boys, want a row under each sex", name)
+				}
+			})
+		}
+	})
+}
+
+func TestLocaleNameTablesHoldTwoHundredNamesOrMore(t *testing.T) {
+	eachLocale(t, hasNames, func(t *testing.T, l shippedLocale) {
+		first, last := nameCounts(t, l.name, "first-name"), nameCounts(t, l.name, "last-name")[""]
+		for what, got := range map[string]map[string]int{"girls": first["f"], "boys": first["m"], "last names": last} {
+			t.Run(what, func(t *testing.T) {
+				if len(got) < fewestNames {
+					t.Errorf("%d names, want %d or more", len(got), fewestNames)
+				}
+			})
+		}
+	})
+}
+
+func TestLocaleNamesAreLetters(t *testing.T) {
+	eachLocale(t, hasNames, func(t *testing.T, l shippedLocale) {
+		for _, file := range []string{"first-name", "last-name"} {
+			t.Run(file, func(t *testing.T) {
+				for name := range nameColumnSet(t, l.name+"/"+file+".tsv") {
+					if !letteredName.MatchString(name) {
+						t.Errorf("%s holds %q, which is not a name in letters", file, name)
+					}
+				}
+			})
+		}
+	})
+}
 
 type drawnPerson struct{ raw, sex, prefix, first, last, whole string }
 

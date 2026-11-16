@@ -1,7 +1,6 @@
 package data_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"os"
@@ -664,6 +663,16 @@ func TestShippedStreetIsARegisteredName(t *testing.T) {
 	})
 }
 
+func TestSwedishTitleIsAnUnsexedHonorific(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(4))
+	swedish := map[string]bool{"dr": true, "prof": true}
+	fejktest.EachDraw(50, func() string { return fejktest.Fake(t, f, "sv_SE.title") }, func(got string) {
+		if !swedish[got] {
+			t.Fatalf("sv_SE.title = %q, want an unsexed Swedish honorific", got)
+		}
+	})
+}
+
 func TestShippedLastNameComposition(t *testing.T) {
 	// last is a choice of patronymic {first}sson templates, compound
 	// {first}{last} templates and literal surnames.
@@ -1222,17 +1231,9 @@ type swedishRegisteredCompanyForm struct{ Format, Legal string }
 
 func swedishRegisteredCompanyForms(t *testing.T) []swedishRegisteredCompanyForm {
 	t.Helper()
-	raw, err := os.ReadFile("sv_SE/company.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var company struct {
+	return readJSON[struct {
 		Registered []swedishRegisteredCompanyForm `json:"registered"`
-	}
-	if err := json.Unmarshal(raw, &company); err != nil {
-		t.Fatal(err)
-	}
-	return company.Registered
+	}](t, "sv_SE/company.json").Registered
 }
 
 func TestSwedishCompanyRegisteredFormStartsOrEndsWithItsLegal(t *testing.T) {
