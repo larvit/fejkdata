@@ -1,7 +1,7 @@
 package data_test
 
 import (
-	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -9,14 +9,11 @@ import (
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
-var (
-	paddedDate   = regexp.MustCompile(`^(0[1-9]|[12]\d|3[01])\.(0[1-9]|1[0-2])\.\d{4}$`)
-	unpaddedDate = regexp.MustCompile(`^([1-9]|[12]\d|3[01])\.([1-9]|1[0-2])\.\d{4}$`)
-)
-
 func hasDate(l shippedLocale) bool { return l.dateLayout != "" }
 
-func padsItsDate(l shippedLocale) bool { return l.dateLayout == "02.01.2006" }
+func padsItsDay(l shippedLocale) bool {
+	return strings.Contains(time.Date(1999, time.November, 5, 0, 0, 0, 0, time.UTC).Format(l.dateLayout), "05")
+}
 
 func eachDate(t *testing.T, locale string, check func(got string)) {
 	t.Helper()
@@ -24,15 +21,11 @@ func eachDate(t *testing.T, locale string, check func(got string)) {
 	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, locale+".date") }, check)
 }
 
-func TestLocaleDateIsDayMonthYearWithDotsFrom1970To2029(t *testing.T) {
+func TestLocaleDateIsWrittenInItsLayoutFrom1970To2029(t *testing.T) {
 	eachLocale(t, hasDate, func(t *testing.T, l shippedLocale) {
-		shape := unpaddedDate
-		if padsItsDate(l) {
-			shape = paddedDate
-		}
 		eachDate(t, l.name, func(got string) {
 			d, err := time.Parse(l.dateLayout, got)
-			if err != nil || !shape.MatchString(got) || d.Year() < 1970 || d.Year() > 2029 {
+			if err != nil || d.Format(l.dateLayout) != got || d.Year() < 1970 || d.Year() > 2029 {
 				t.Fatalf("date %q is not %s in 1970 to 2029: %v", got, l.dateLayout, err)
 			}
 		})
@@ -53,9 +46,12 @@ func TestLocaleDateSpans1970To2029(t *testing.T) {
 }
 
 func TestLocaleDatesWithoutPaddingIncludeADayOfOneDigit(t *testing.T) {
-	eachLocale(t, func(l shippedLocale) bool { return hasDate(l) && !padsItsDate(l) }, func(t *testing.T, l shippedLocale) {
+	eachLocale(t, func(l shippedLocale) bool { return hasDate(l) && !padsItsDay(l) }, func(t *testing.T, l shippedLocale) {
 		short := false
-		eachDate(t, l.name, func(got string) { short = short || got[1] == '.' })
+		eachDate(t, l.name, func(got string) {
+			d, err := time.Parse(l.dateLayout, got)
+			short = short || err == nil && d.Day() < 10 && d.Format(l.dateLayout) == got
+		})
 		if !short {
 			t.Error("500 dates held no day of one digit, want one")
 		}

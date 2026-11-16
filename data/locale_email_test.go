@@ -27,9 +27,9 @@ func TestLocaleEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 func TestLocaleEmailsAreMostlyDistinct(t *testing.T) {
 	eachLocale(t, hasEmail, func(t *testing.T, l shippedLocale) {
 		f := shipped(t, fejkdata.WithSeed(4))
-		seen := fejktest.TallyDraws(500, func() string { return fejktest.Fake(t, f, l.name+".email") })
-		if len(seen) < 400 {
-			t.Errorf("500 emails drew %d distinct, want 400 or more", len(seen))
+		seen := fejktest.TallyDraws(5000, func() string { return fejktest.Fake(t, f, l.name+".email") })
+		if len(seen) < 4000 {
+			t.Errorf("5000 emails drew %d distinct, want 4000 or more", len(seen))
 		}
 	})
 }

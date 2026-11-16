@@ -66,18 +66,6 @@ func TestShippedGermanPhoneFixedHoldsEveryActiveOrtsnetzkennzahl(t *testing.T) {
 	}
 }
 
-func TestShippedGermanPhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
-	for _, kind := range []string{"fixed", "mobile"} {
-		t.Run(kind, func(t *testing.T) {
-			for _, row := range germanPhoneRows(t, kind) {
-				if row["ndc"] != strings.TrimPrefix(row["area"], "0") || row["area"][0] != '0' {
-					t.Errorf("phone-%s area %q has ndc %q, want the code without the trunk 0", kind, row["area"], row["ndc"])
-				}
-			}
-		})
-	}
-}
-
 func TestShippedGermanPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(1))
 	for path, want := range map[string]string{

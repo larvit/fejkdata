@@ -1,7 +1,6 @@
 package data_test
 
 import (
-	"encoding/json"
 	"os"
 	"regexp"
 	"slices"
@@ -144,19 +143,6 @@ func TestGeoDELocalityCodeIsItsKreisAndItsNameInASCII(t *testing.T) {
 	if names["12066-tettau"] != "Tettau" || names["05315-koeln"] == "" {
 		t.Errorf("12066-tettau is %q and 05315-koeln %q, want Tettau and a place", names["12066-tettau"], names["05315-koeln"])
 	}
-}
-
-func readJSON(t *testing.T, path string) map[string]any {
-	t.Helper()
-	b, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var out map[string]any
-	if err := json.Unmarshal(b, &out); err != nil {
-		t.Fatalf("%s: %v", path, err)
-	}
-	return out
 }
 
 var germanAddress = regexp.MustCompile(`^(.+) (\d{1,3}[a-z]?)\n(\d{5}) (.+)$`)

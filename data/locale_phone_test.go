@@ -31,6 +31,20 @@ func TestLocalePhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
 	})
 }
 
+func TestLocalePhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
+	eachLocale(t, func(l shippedLocale) bool { return hasPhone(l) && l.phone.areaTables != nil }, func(t *testing.T, l shippedLocale) {
+		for _, table := range l.phone.areaTables {
+			t.Run(table, func(t *testing.T) {
+				for _, row := range fejktest.TSVRows(t, l.name+"/"+table+".tsv") {
+					if !strings.HasPrefix(row["area"], "0") || row["ndc"] != row["area"][1:] {
+						t.Errorf("%s area %q has ndc %q, want the code without the trunk 0", table, row["area"], row["ndc"])
+					}
+				}
+			})
+		}
+	})
+}
+
 func TestLocalePhoneInternationalIsItsCallingCodeAndItsNationalForm(t *testing.T) {
 	eachLocale(t, hasPhone, func(t *testing.T, l shippedLocale) {
 		f := shipped(t, fejkdata.WithSeed(5))

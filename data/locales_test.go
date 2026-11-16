@@ -62,6 +62,8 @@ type phone struct {
 	callingCode      string
 	dropsTrunkPrefix bool
 	fixed            func(t *testing.T) func(national string) bool
+	// Its tables of area codes, each with the code in area and the code without its trunk 0 in ndc.
+	areaTables []string
 }
 
 const (
@@ -70,9 +72,10 @@ const (
 )
 
 var (
-	lowerWord     = regexp.MustCompile(`^\p{Ll}+$`)
-	definiteForms = map[string]string{"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
-	latinFolds    = strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
+	lowerWord       = regexp.MustCompile(`^\p{Ll}+$`)
+	definiteForms   = map[string]string{"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
+	latinFolds      = strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
+	trunkAreaTables = []string{"phone-fixed", "phone-mobile"}
 )
 
 var shippedLocales = []shippedLocale{
@@ -93,7 +96,7 @@ var shippedLocales = []shippedLocale{
 		// Dansk Sprognævn's answer SV00000046 gives 2.10.2003 and advises against 02.10.2003.
 		dateLayout: "2.1.2006",
 		emailFold:  latinFolds,
-		phone:      &phone{"+45", false, danishFixedPhone},
+		phone:      &phone{"+45", false, danishFixedPhone, nil},
 	},
 	{
 		name:      "de_DE",
@@ -113,7 +116,7 @@ var shippedLocales = []shippedLocale{
 		// DIN 5008 writes a date as TT.MM.JJJJ.
 		dateLayout: "02.01.2006",
 		emailFold:  strings.NewReplacer("ä", "a", "ö", "o", "ü", "u", "ß", "ss"),
-		phone:      &phone{"+49", true, germanFixedPhone},
+		phone:      &phone{"+49", true, germanFixedPhone, trunkAreaTables},
 	},
 	{
 		name:      "en_US",
@@ -137,7 +140,7 @@ var shippedLocales = []shippedLocale{
 		}},
 		dateLayout: "2.1.2006",
 		emailFold:  strings.NewReplacer("ä", "a", "ö", "o", "å", "a"),
-		phone:      &phone{"+358", true, finnishFixedPhone},
+		phone:      &phone{"+358", true, finnishFixedPhone, trunkAreaTables},
 	},
 	{
 		name:      "nb_NO",
@@ -156,7 +159,7 @@ var shippedLocales = []shippedLocale{
 		}},
 		dateLayout: "02.01.2006",
 		emailFold:  latinFolds,
-		phone:      &phone{"+47", false, norwegianFixedPhone},
+		phone:      &phone{"+47", false, norwegianFixedPhone, nil},
 	},
 	{
 		name:      "nn_NO",
