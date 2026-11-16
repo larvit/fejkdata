@@ -1914,3 +1914,19 @@ The path, in order, each step with what its spike measured:
 - **The alias method** for weighted draws gains at most 3% and changes seeded output. Rejected; a weighted draw stays a binary search over cumulative weights.
 
 Valid while a row's cost is its allocations, not its weighted draw.
+
+## The German id draws ELSTER's test series
+
+2026-11-16, Lilleman auf Larv.
+
+Goal 3 (a valid id passes the check the real system applies) and goal 3.3 (a form that reaches
+nothing real) are both served. The BZSt's "Erzeugung von Identifikationsnummern" says an
+Identifikationsnummer has no leading zero, and ELSTER's "Prüfung der Steuer- und
+Steueridentifikationsnummer" allows one only for a test number. So `de_DE.steuer-id` draws a leading
+zero, and no drawn number is a person's. ELSTER's check and the other rules (one digit twice or three
+times among the first ten, never three in a row) are the same for a test number, so `{steuerid()}`
+computes the eleventh digit by ELSTER's algorithm and picks twice or three times evenly. This follows
+the Swedish, Norwegian and Finnish ids, which draw an issuer's test or unissued series. The README says
+that a checker refusing a leading zero refuses every number.
+
+Valid while the BZSt issues no number with a leading zero.

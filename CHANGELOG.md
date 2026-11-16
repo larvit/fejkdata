@@ -19,6 +19,10 @@ with its replacement, and each removed path, column or flag.
   München, Statistisches Amt", names the licence Datenlizenz Deutschland – Namensnennung 2.0 (`dl-de/by-2-0`),
   links the dataset and says the files are summed; one showing the sex counts credits "Source: Eurostat". The Go package is
   `github.com/larvit/fejkdata/data/de_DE`, and the CLI carries it.
+- `de_DE.steuer-id`, a German Steueridentifikationsnummer of the test series that ELSTER keeps: eleven
+  digits with a leading zero, which the Federal Central Tax Office never issues, one digit twice or three
+  times among the first ten, and the check digit of ISO 7064 MOD 11,10. A checker that refuses a leading
+  zero refuses every number. The builtin `{steuerid()}` draws one.
 
 ## 0.6.0 - 2026-11-15
 

@@ -110,6 +110,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The Norwegian id draws Skatteetaten's synthetic series
 - The Danish id draws valid CPR numbers over the last hundred years
 - The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
+- The German id draws ELSTER's test series
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
 - A path draws through its compiled steps

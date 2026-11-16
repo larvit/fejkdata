@@ -5,18 +5,18 @@ package builtinfunc
 // digits hold one digit twice or three times, three equal digits never in a row, and the eleventh
 // is the check digit of ISO 7064 MOD 11,10.
 func steuerID(r rng) string {
+	repeats := 2 + r.IntN(2)
 	for {
-		digits, ok := steuerDigits(r)
+		digits, ok := steuerDigits(r, repeats)
 		if ok {
 			return string(digits[:]) + string(rune('0'+steuerCheck(digits)))
 		}
 	}
 }
 
-// steuerDigits arranges a draw's first ten digits behind a zero, and reports false for a draw that
-// has no zero to place or puts three equal digits in a row.
-func steuerDigits(r rng) (digits [10]byte, ok bool) {
-	repeats := 2 + r.IntN(2)
+// steuerDigits arranges a draw's first ten digits behind a zero, one digit repeated that many
+// times, and reports false for a draw that has no zero to place or puts three equal digits in a row.
+func steuerDigits(r rng, repeats int) (digits [10]byte, ok bool) {
 	repeated := byte(r.IntN(10))
 	others := make([]byte, 0, 9)
 	for d := range byte(10) {
