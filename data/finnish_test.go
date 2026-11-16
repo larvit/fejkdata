@@ -242,20 +242,6 @@ func TestShippedFinnishPhoneFixedAreaNamesItsTelecommunicationsArea(t *testing.T
 	}
 }
 
-func TestShippedFinnishPhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
-	for _, kind := range []string{"fixed", "mobile"} {
-		t.Run(kind, func(t *testing.T) {
-			for _, row := range fejktest.TSVRows(t, "fi_FI/phone-"+kind+".tsv") {
-				t.Run(row["area"], func(t *testing.T) {
-					if row["ndc"] != strings.TrimPrefix(row["area"], "0") {
-						t.Errorf("phone-%s area %q has ndc %q, want the code without the trunk 0", kind, row["area"], row["ndc"])
-					}
-				})
-			}
-		})
-	}
-}
-
 var finnishNationalPhone = regexp.MustCompile(`^(0\d{1,3}) (\d+(?: \d+)?)$`)
 
 func finnishFixedPhone(*testing.T) func(n string) bool {

@@ -31,6 +31,9 @@ func TestShippedCalendarsDrawEveryMonthAndWeekdayAlone(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(3))
 	for _, c := range shippedLocales {
 		for table, names := range map[string][]string{"month": c.months, "weekday": c.weekdays} {
+			if names == nil {
+				continue
+			}
 			path := c.name + "." + table
 			t.Run(path, func(t *testing.T) {
 				got := sortedNamesDrawn(fejktest.TallyDraws(2000, func() string { return fejktest.Fake(t, f, path) }))

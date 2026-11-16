@@ -49,12 +49,14 @@ func wordTableColumns(t *testing.T, locale, part string) []string {
 	return strings.Split(header, "\t")
 }
 
+func hasWords(l shippedLocale) bool { return l.wordForms != nil }
+
 func TestLocaleWordTablesAndWordJSONCarryTheFormsTheLocaleStates(t *testing.T) {
 	t.Parallel()
-	for _, l := range shippedLocales {
+	eachLocale(t, hasWords, func(t *testing.T, l shippedLocale) {
 		fields := readJSON(t, l.name+"/word.json")
 		for part, column := range l.wordForms {
-			t.Run(l.name+" "+part, func(t *testing.T) {
+			t.Run(part, func(t *testing.T) {
 				want := []string{"word"}
 				if column != "" {
 					want = append(want, column)
@@ -68,7 +70,7 @@ func TestLocaleWordTablesAndWordJSONCarryTheFormsTheLocaleStates(t *testing.T) {
 				}
 			})
 		}
-	}
+	})
 }
 
 func TestLocaleWordTablesHoldTheirSourcesWordsAndForms(t *testing.T) {
@@ -169,13 +171,11 @@ func TestLocaleWordTablesHoldOnlyTheirSourcesHeadwords(t *testing.T) {
 
 func TestLocaleNounTablesHoldTensOfThousandsOfNouns(t *testing.T) {
 	t.Parallel()
-	for _, l := range shippedLocales {
-		t.Run(l.name, func(t *testing.T) {
-			if n := len(localeWordForms(t, l.name, "noun")); n < 20000 {
-				t.Errorf("%s word-noun holds %d nouns, want its source's, tens of thousands", l.name, n)
-			}
-		})
-	}
+	eachLocale(t, hasWords, func(t *testing.T, l shippedLocale) {
+		if n := len(localeWordForms(t, l.name, "noun")); n < 20000 {
+			t.Errorf("%s word-noun holds %d nouns, want its source's, tens of thousands", l.name, n)
+		}
+	})
 }
 
 func TestLocaleWordTablesHoldWordsOfLettersAlone(t *testing.T) {
@@ -245,50 +245,46 @@ func TestLocaleBoundWordReadsItsOwnForm(t *testing.T) {
 func TestLocaleWordDrawsNounsAndOtherPartsOfSpeech(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, fejkdata.WithSeed(5))
-	for _, l := range shippedLocales {
-		t.Run(l.name, func(t *testing.T) {
-			nouns, _ := localeWordSets(t, l.name, "noun")
-			seen := fejktest.TallyDraws(2000, func() string {
-				if nouns[fejktest.Fake(t, f, l.name+".word")] {
-					return "noun"
-				}
-				return "other"
-			})
-			if seen["noun"] == 0 || seen["other"] == 0 {
-				t.Errorf("%s.word drew %v, want nouns and other parts of speech", l.name, seen)
+	eachLocale(t, hasWords, func(t *testing.T, l shippedLocale) {
+		nouns, _ := localeWordSets(t, l.name, "noun")
+		seen := fejktest.TallyDraws(2000, func() string {
+			if nouns[fejktest.Fake(t, f, l.name+".word")] {
+				return "noun"
 			}
+			return "other"
 		})
-	}
+		if seen["noun"] == 0 || seen["other"] == 0 {
+			t.Errorf("%s.word drew %v, want nouns and other parts of speech", l.name, seen)
+		}
+	})
 }
 
 func TestLocaleWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 	t.Parallel()
-	for _, l := range shippedLocales {
-		t.Run(l.name, func(t *testing.T) {
-			raw, err := os.ReadFile(l.name + "/word.json")
-			if err != nil {
-				t.Fatal(err)
+	eachLocale(t, hasWords, func(t *testing.T, l shippedLocale) {
+		raw, err := os.ReadFile(l.name + "/word.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		var word struct {
+			Any []struct {
+				Format string `json:"format"`
+				Weight int    `json:"weight"`
+			} `json:"any"`
+		}
+		if err := json.Unmarshal(raw, &word); err != nil {
+			t.Fatal(err)
+		}
+		if len(word.Any) != 4 {
+			t.Fatalf("any holds %d parts of speech, want 4", len(word.Any))
+		}
+		for _, part := range word.Any {
+			table := strings.Trim(part.Format, "{.}")
+			if rows := len(localeWordForms(t, l.name, strings.TrimPrefix(table, "word-"))); part.Weight != rows {
+				t.Errorf("%s weighs %d, want its %d rows", table, part.Weight, rows)
 			}
-			var word struct {
-				Any []struct {
-					Format string `json:"format"`
-					Weight int    `json:"weight"`
-				} `json:"any"`
-			}
-			if err := json.Unmarshal(raw, &word); err != nil {
-				t.Fatal(err)
-			}
-			if len(word.Any) != 4 {
-				t.Fatalf("any holds %d parts of speech, want 4", len(word.Any))
-			}
-			for _, part := range word.Any {
-				table := strings.Trim(part.Format, "{.}")
-				if rows := len(localeWordForms(t, l.name, strings.TrimPrefix(table, "word-"))); part.Weight != rows {
-					t.Errorf("%s weighs %d, want its %d rows", table, part.Weight, rows)
-				}
-			}
-		})
-	}
+		}
+	})
 }
 
 // The words a sentence pattern writes itself: those outside its references, in every string it holds.
@@ -331,42 +327,40 @@ func TestLocaleSentenceIsMadeOfItsWordsAndItsPatternsOwn(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, fejkdata.WithSeed(7))
 	sentence := regexp.MustCompile(`^\p{Lu}[^.!?]*[.!?]$`)
-	for _, l := range shippedLocales {
-		t.Run(l.name, func(t *testing.T) {
-			held := sentencePatternWords(t, l.name)
-			nouns := map[string]bool{}
-			for part := range l.wordForms {
-				words, forms := localeWordSets(t, l.name, part)
-				for w := range words {
-					held[w] = true
-				}
+	eachLocale(t, hasWords, func(t *testing.T, l shippedLocale) {
+		held := sentencePatternWords(t, l.name)
+		nouns := map[string]bool{}
+		for part := range l.wordForms {
+			words, forms := localeWordSets(t, l.name, part)
+			for w := range words {
+				held[w] = true
+			}
+			for w := range forms {
+				held[w] = true
+			}
+			if part == "noun" {
+				nouns = words
 				for w := range forms {
-					held[w] = true
-				}
-				if part == "noun" {
-					nouns = words
-					for w := range forms {
-						nouns[w] = true
-					}
+					nouns[w] = true
 				}
 			}
-			fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, l.name+".sentence") }, func(s string) {
-				if !sentence.MatchString(s) {
-					t.Fatalf("%s.sentence = %q, want one sentence, capitalised", l.name, s)
+		}
+		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, l.name+".sentence") }, func(s string) {
+			if !sentence.MatchString(s) {
+				t.Fatalf("%s.sentence = %q, want one sentence, capitalised", l.name, s)
+			}
+			hasNoun := false
+			for _, w := range strings.FieldsFunc(s, sentenceSeparator) {
+				if !held[w] {
+					t.Fatalf("%s.sentence = %q holds %q, a word neither its tables nor its pattern hold", l.name, s, w)
 				}
-				hasNoun := false
-				for _, w := range strings.FieldsFunc(s, sentenceSeparator) {
-					if !held[w] {
-						t.Fatalf("%s.sentence = %q holds %q, a word neither its tables nor its pattern hold", l.name, s, w)
-					}
-					hasNoun = hasNoun || nouns[w]
-				}
-				if !hasNoun {
-					t.Fatalf("%s.sentence = %q holds no noun of its table", l.name, s)
-				}
-			})
+				hasNoun = hasNoun || nouns[w]
+			}
+			if !hasNoun {
+				t.Fatalf("%s.sentence = %q holds no noun of its table", l.name, s)
+			}
 		})
-	}
+	})
 }
 
 func TestLocaleParagraphDrawsThreeToSixSentences(t *testing.T) {
@@ -374,20 +368,18 @@ func TestLocaleParagraphDrawsThreeToSixSentences(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(9))
 	paragraph := regexp.MustCompile(`^\p{Lu}[^.!?]*[.!?]( \p{Lu}[^.!?]*[.!?]){2,5}$`)
 	terminators := regexp.MustCompile(`[.!?]`)
-	for _, l := range shippedLocales {
-		t.Run(l.name, func(t *testing.T) {
-			counts := fejktest.TallyDraws(300, func() string {
-				p := fejktest.Fake(t, f, l.name+".paragraph")
-				if !paragraph.MatchString(p) {
-					t.Fatalf("%s.paragraph = %q, want three to six sentences", l.name, p)
-				}
-				return strconv.Itoa(len(terminators.FindAllString(p, -1)))
-			})
-			for _, n := range []string{"3", "4", "5", "6"} {
-				if counts[n] == 0 {
-					t.Errorf("300 paragraphs never held %s sentences (held %v)", n, counts)
-				}
+	eachLocale(t, hasWords, func(t *testing.T, l shippedLocale) {
+		counts := fejktest.TallyDraws(300, func() string {
+			p := fejktest.Fake(t, f, l.name+".paragraph")
+			if !paragraph.MatchString(p) {
+				t.Fatalf("%s.paragraph = %q, want three to six sentences", l.name, p)
 			}
+			return strconv.Itoa(len(terminators.FindAllString(p, -1)))
 		})
-	}
+		for _, n := range []string{"3", "4", "5", "6"} {
+			if counts[n] == 0 {
+				t.Errorf("300 paragraphs never held %s sentences (held %v)", n, counts)
+			}
+		}
+	})
 }
