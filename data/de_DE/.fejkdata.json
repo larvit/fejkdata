@@ -4,6 +4,7 @@
 		"de_DE.last-name": {"paths":["","count","name"]},
 		"de_DE.person": {"paths":["","first","last","prefix","sex"]},
 		"de_DE.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name"]},
+		"de_DE.steuer-id": {"paths":[""]},
 		"de_DE.title": {"paths":["","name","share"]}
 	},
 	"namespace": "de_DE"
