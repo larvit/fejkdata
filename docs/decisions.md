@@ -1586,6 +1586,25 @@ WordNet's sense counts cover a quarter of its lemmas, so `word` weighs a part of
 draws each word evenly, which keeps the spread this data exists to widen.
 Valid while no open English source gives a frequency for every word.
 
+## `nb_NO`, `nn_NO`, `da_DK`, `fi_FI` and `de_DE` hold their dictionary's words as `sv_SE.word` does, and `de_DE.word.noun` carries `plural`
+
+2026-11-16, the maintainer. Goal 3.2.
+
+Each locale's `word` holds an open dictionary's nouns, verbs, adjectives and adverbs under `noun`, `verb`, `adj`
+and `adv`, drawn evenly and weighed by row count, per "A table whose register publishes no frequency draws
+evenly". Norsk ordbank (Språkbanken, CC BY 4.0) gives `nb_NO` Bokmål 2005 and `nn_NO` Nynorsk 2012. COR₁
+(Dansk Sprognævn, CC0) gives `da_DK` the words of Retskrivningsordbogen. Kotus's Nykysuomen sanalista
+(CC BY 4.0) gives `fi_FI` the headwords of Kielitoimiston sanakirja. Wikidata's lexemes (CC0) give `de_DE`
+its words and their forms. Each import drops
+the exact matches of LDNOOBW's list for its language, as the `sv_SE` import does.
+
+The Norwegian and Danish tables carry the forms `sv_SE` does: `noun.definite`, `verb.present` and
+`adj.definite`. The Finnish list holds no inflected forms, so `fi_FI.word` carries none, and its sentences
+use base forms alone. A German definite form needs the noun's gender, so `de_DE.word.noun` carries
+`plural`, whose article is always `die`, and `de_DE.sentence` builds on plurals. A panel of three readers,
+seated as bulk, Go and data authors, chose `plural` over `pl` and `many`, 3 to 0.
+Valid while none of these languages has an open word list with a frequency for every word.
+
 ## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 
 2026-11-04, the maintainer. Goals 4.3 and 4.6.

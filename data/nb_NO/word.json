@@ -1,0 +1,13 @@
+{
+  "format": "{any}",
+  "any": [
+    { "format": "{.word-noun}", "weight": 113443 },
+    { "format": "{.word-verb}", "weight": 8399 },
+    { "format": "{.word-adj}", "weight": 19681 },
+    { "format": "{.word-adv}", "weight": 954 }
+  ],
+  "noun": { "format": "{.word-noun as nounword}{nounword}", "definite": "{nounword.definite}" },
+  "verb": { "format": "{.word-verb as verbword}{verbword}", "present": "{verbword.present}" },
+  "adj": { "format": "{.word-adj as adjword}{adjword}", "definite": "{adjword.definite}" },
+  "adv": "{.word-adv}"
+}

@@ -12,11 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 482 | 0.7.0 |  |  | **Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
-| 483 | 0.7.0 |  |  | **Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
-| 484 | 0.7.0 |  |  | **Add `da_DK`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
-| 485 | 0.7.0 |  |  | **Add `fi_FI`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
-| 486 | 0.7.0 |  |  | **Add `de_DE`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.5 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 6.1 |
 | 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 6.1 |
@@ -226,26 +221,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 482. Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.
-
-Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
-
-### 483. Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.
-
-Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
-
-### 484. Add `da_DK`'s word, sentence and paragraph, the words from a published word list.
-
-Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
-
-### 485. Add `fi_FI`'s word, sentence and paragraph, the words from a published word list.
-
-Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
-
-### 486. Add `de_DE`'s word, sentence and paragraph, the words from a published word list.
-
-Find an open word list for the language, and its licence, first; where none exists, ask. Build `word` under one short path per part of speech, as `sv_SE.word` and `en_US.word` do, then `sentence` from those words and `paragraph` from sentences, as `sv_SE.sentence` and `en_US.paragraph` do.
 
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
 

@@ -680,8 +680,8 @@ as `example.com` into the template; `todo.md` plans the path.
 What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
-`da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`
-too, written as the country writes them:
+`da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`, `time`, `url`,
+`username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too, written as the country writes them:
 
 | Locale | `price` | `time` |
 |---|---|---|
@@ -807,6 +807,20 @@ allocates, and the plan says "mainly" because numbers move between fixed and mob
 Neither the order nor the authority's guide to it lists the numbers assigned to providers. A bound
 number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
+#### Danish words
+
+`da_DK.word` draws evenly from about 60,000 words of COR, Dansk Sprognævn's central word register of
+Retskrivningsordbogen: the nouns, verbs, adjectives and adverbs it spells in lower-case letters alone,
+in the forms it marks as the norm. COR has no frequencies, so a word may be rare. `da_DK.word.noun`,
+`.verb`, `.adj` and `.adv` each draw one part of speech, and `da_DK.word.noun.definite`,
+`da_DK.word.verb.present` and `da_DK.word.adj.definite` print one form, such as `huset`, `løber` or
+`store`. Bind a word to read it and its form from one pick: `{/da_DK.word.noun as n}{n} {n.definite}`
+prints `hus huset`.
+
+The import drops the words on LDNOOBW's Danish list of rude words, and other rude words remain, so
+read the output before showing it to anyone. `da_DK.sentence` fills a fixed pattern with these words
+and doesn't make them agree, so its sentences aren't grammatical. `da_DK.paragraph` joins three to six sentences.
+
 ### `de_DE`
 
 `de_DE`, German, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sex`, `steuer-id`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `Frau` and `Mann`, `title` is
@@ -888,6 +902,21 @@ A program showing the codes or blocks credits "Datenquelle: Bundesnetzagentur", 
 the [mobile blocks](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/MobileDienste/RNB_csv.csv)
 and the [Vorwahlverzeichnis](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/ONRufnr/_DL/Vorwahlverzeichnis_ONB.zip.zip),
 and says the data was changed: each block and code is a row.
+
+#### German words
+
+`de_DE.word` draws evenly from about 205,000 words of Wikidata's German lexemes: the nouns, verbs,
+adjectives and adverbs whose lemma is letters alone, a noun's capitalised and the others' lower-case.
+Wikidata has no frequencies, so a word may be rare. `de_DE.word.noun`, `.verb`, `.adj` and `.adv` each
+draw one part of speech, and `de_DE.word.noun.plural` draws a noun and prints its nominative plural, such as
+`Häuser`. A noun Wikidata gives no plural is left out. Bind a noun to read it and its plural from one
+pick: `{/de_DE.word.noun as n}{n} {n.plural}` prints `Haus Häuser`.
+
+The import drops the words on LDNOOBW's German list of rude words, and other rude words remain, so
+read the output before showing it to anyone. `de_DE.sentence` builds on plurals, so it needs no
+gender: `Die Häuser sind groß.` A verb stands in its infinitive, which is its third person plural save
+for `sein`'s, so its sentences are grammatical but seldom make sense. `de_DE.paragraph`
+joins three to six sentences.
 
 ### `en_US`
 
@@ -984,6 +1013,18 @@ regulation gives, each length equally likely since the regulation publishes no f
 subscriber number begins with 2 to 8, the ranges section 11 reserves for it. A number is valid, not
 real: a real subscriber may hold it. The tables leave out the mobile codes the plan assigns as five
 digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
+
+#### Finnish words
+
+`fi_FI.word` draws evenly from about 102,000 entries of Nykysuomen sanalista, Kotus's list of the words
+in Kielitoimiston sanakirja: the nouns, verbs, adjectives and adverbs it spells in lower-case letters
+alone. A word the list files under two classes, such as a noun that is also an adjective, sits in both
+tables. The list has no frequencies, so a word may be rare. `fi_FI.word.noun`, `.verb`, `.adj` and `.adv`
+each draw one part of speech, in its base form: the list gives no inflected forms, so neither does fejkdata.
+
+The import drops the words on LDNOOBW's Finnish list of rude words, and other rude words remain, so
+read the output before showing it to anyone. `fi_FI.sentence` fills a fixed pattern that needs only base
+forms, such as `Tämä suuri talo on vanha.`, so its sentences are grammatical but seldom make sense. `fi_FI.paragraph` joins three to six sentences.
 
 #### Henkilötunnus
 
@@ -1267,6 +1308,19 @@ A number's `block` is one of those prefixes and its `subscriber` the last four d
 may hold it. A bound number reads `national`, `46 12 34 56`, and `international`,
 `+47 46 12 34 56`. The page names no country-code form, so fejkdata puts `+47` before the same pairs.
 
+#### Norwegian words
+
+`nb_NO.word` draws evenly from about 142,000 words of Norsk ordbank's Bokmål 2005, from Språkbanken:
+the common nouns, verbs, adjectives and adverbs it spells in lower-case letters alone, in the forms the
+current norm holds. The ordbank has no frequencies, so a word may be rare. `nb_NO.word.noun`, `.verb`,
+`.adj` and `.adv` each draw one part of speech, and `nb_NO.word.noun.definite`, `nb_NO.word.verb.present`
+and `nb_NO.word.adj.definite` print one form, such as `huset`, `løper` or `store`. Bind a word to read it
+and its form from one pick: `{/nb_NO.word.noun as n}{n} {n.definite}` prints `hus huset`.
+
+The import drops the words on LDNOOBW's Norwegian list of rude words, and other rude words remain, so
+read the output before showing it to anyone. `nb_NO.sentence` fills a fixed pattern with these words
+and doesn't make them agree, so its sentences aren't grammatical. `nb_NO.paragraph` joins three to six sentences.
+
 ### `nn_NO`
 
 `nn_NO`, Norwegian in the Nynorsk standard, carries `address`, `color`, `company`, `date`, `email`, `fodselsnummer`,
@@ -1288,6 +1342,19 @@ words, since no register of Nynorsk ones was found. To match a fødselsnummer to
 `desember`; `{/nn_NO.weekday[2]}` is `tysdag` and `[7]` is `søndag`, Monday first as ISO 8601 numbers them.
 `nn_NO.title` holds `dr.` and `professor`, and has no `parent`, so it is selected as `nn_NO.title[dr.]`.
 The month and weekday names are real.
+
+#### Nynorsk words
+
+`nn_NO.word` draws evenly from about 106,000 words of Norsk ordbank's Nynorsk 2012, from Språkbanken:
+the common nouns, verbs, adjectives and adverbs it spells in lower-case letters alone, in the forms the
+current norm holds. The ordbank has no frequencies, so a word may be rare. `nn_NO.word.noun`, `.verb`,
+`.adj` and `.adv` each draw one part of speech, and `nn_NO.word.noun.definite`, `nn_NO.word.verb.present`
+and `nn_NO.word.adj.definite` print one form, such as `huset`, `kastar` or `store`. Bind a word to read it
+and its form from one pick: `{/nn_NO.word.verb as v}{v} {v.present}` prints `kaste kastar`.
+
+The import drops the words on LDNOOBW's Norwegian list of rude words, and other rude words remain, so
+read the output before showing it to anyone. `nn_NO.sentence` fills a fixed pattern with these words
+and doesn't make them agree, so its sentences aren't grammatical. `nn_NO.paragraph` joins three to six sentences.
 
 ### `sv_SE`
 
@@ -2617,6 +2684,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `geo-se.py` fetches SCB's småort polygons, about 120 MB, and its tätort polygons.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
+- `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
@@ -2655,6 +2723,10 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/ssyk-
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timezone.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-de.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-dk.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fi.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-us.py
 ```

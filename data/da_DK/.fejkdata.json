@@ -12,17 +12,24 @@
 		"da_DK.individ": {"parent":"sex","paths":["","digit","sex"]},
 		"da_DK.last-name": {"paths":["","count","name"]},
 		"da_DK.month": {"paths":["","code","name"]},
+		"da_DK.paragraph": {"paths":[""]},
 		"da_DK.person": {"paths":["","first","last","prefix","sex"]},
 		"da_DK.phone": {"paths":["","block","international","national","subscriber"]},
 		"da_DK.phone-fixed": {"paths":["","prefix"]},
 		"da_DK.phone-mobile": {"paths":["","prefix"]},
 		"da_DK.price": {"paths":["","amt","ore"]},
+		"da_DK.sentence": {"paths":["","adj","det","noun","prep","verb"]},
 		"da_DK.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digit","individ.sex","name"]},
 		"da_DK.time": {"paths":[""]},
 		"da_DK.title": {"paths":["","name","share"]},
 		"da_DK.url": {"paths":["","host","path"]},
 		"da_DK.username": {"paths":["","n"]},
-		"da_DK.weekday": {"paths":["","code","name"]}
+		"da_DK.weekday": {"paths":["","code","name"]},
+		"da_DK.word": {"paths":["","adj","adj.definite","adv","any","noun","noun.definite","verb","verb.present"]},
+		"da_DK.word-adj": {"paths":["","definite","word"]},
+		"da_DK.word-adv": {"paths":["","word"]},
+		"da_DK.word-noun": {"paths":["","definite","word"]},
+		"da_DK.word-verb": {"paths":["","present","word"]}
 	},
 	"namespace": "da_DK"
 }

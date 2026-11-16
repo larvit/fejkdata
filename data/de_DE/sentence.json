@@ -1,0 +1,25 @@
+[
+  {
+    "format": "{lead} {noun} sind {adj}{end}",
+    "weight": 3,
+    "lead": ["Alle", "Die", "Diese", "Einige", "Keine", "Manche", "Viele"],
+    "noun": "{.word-noun.plural}",
+    "adj": "{.word-adj}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "{lead} {noun} {verb} {adv}{end}",
+    "weight": 2,
+    "lead": ["Alle", "Die", "Diese", "Einige", "Keine", "Manche", "Viele"],
+    "noun": "{.word-noun.plural}",
+    "verb": "{.word-verb}",
+    "adv": "{.word-adv}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "{q} die {noun} {adj}?",
+    "q": ["Bleiben", "Sind", "Wann sind", "Warum sind", "Werden", "Wo sind"],
+    "noun": "{.word-noun.plural}",
+    "adj": "{.word-adj}"
+  }
+]

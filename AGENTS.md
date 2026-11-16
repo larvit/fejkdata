@@ -133,6 +133,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A Swedish road segment inside a tätort leans towards the postort the tätort is named after, by distance over the fourth root of its codes
 - `sv_SE.word` holds SALDO's words, under one short path per part of speech: `noun`, `verb`, `adj` and `adv`
 - `en_US.word` holds WordNet's words, under one short path per part of speech, and its notice ships with them
+- `nb_NO`, `nn_NO`, `da_DK`, `fi_FI` and `de_DE` hold their dictionary's words as `sv_SE.word` does, and `de_DE.word.noun` carries `plural`
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
 - `de_DE`'s first names are Munich's newborns
