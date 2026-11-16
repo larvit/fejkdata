@@ -2,7 +2,6 @@ package data_test
 
 import (
 	"regexp"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -17,27 +16,8 @@ var munichCounts = map[string]map[string]int{
 	"m": {"Maximilian": 1751, "Felix": 1447, "Noah": 1166, "Alexander": 921, "Luca": 710, "Noa": 51},
 }
 
-func germanNames(t *testing.T, file string) map[string]map[string]int {
-	t.Helper()
-	out := map[string]map[string]int{}
-	for _, row := range fejktest.TSVRows(t, "de_DE/"+file+".tsv") {
-		n, err := strconv.Atoi(row["count"])
-		if err != nil || n < 1 {
-			t.Fatalf("%s row %v has no count", file, row)
-		}
-		if out[row["sex"]] == nil {
-			out[row["sex"]] = map[string]int{}
-		}
-		if _, dup := out[row["sex"]][row["name"]]; dup {
-			t.Fatalf("%s holds %q twice for sex %q", file, row["name"], row["sex"])
-		}
-		out[row["sex"]][row["name"]] = n
-	}
-	return out
-}
-
 func TestGermanFirstNamesAreMunichsCounts(t *testing.T) {
-	first := germanNames(t, "first-name")
+	first := nameCounts(t, "de_DE", "first-name")
 	if len(first) != 2 {
 		t.Fatalf("first-name.tsv holds sexes %v, want f and m", first)
 	}
@@ -53,7 +33,7 @@ func TestGermanFirstNamesAreMunichsCounts(t *testing.T) {
 }
 
 func TestGermanAGirlsNameIsNotABoysByAccident(t *testing.T) {
-	first := germanNames(t, "first-name")
+	first := nameCounts(t, "de_DE", "first-name")
 	for name, sex := range map[string]string{"Emilia": "f", "Marie": "f", "Maximilian": "m", "Felix": "m"} {
 		t.Run(name, func(t *testing.T) {
 			other := map[string]string{"f": "m", "m": "f"}[sex]
@@ -65,7 +45,7 @@ func TestGermanAGirlsNameIsNotABoysByAccident(t *testing.T) {
 }
 
 func TestGermanNameTablesHoldTwoHundredNamesOrMore(t *testing.T) {
-	first, last := germanNames(t, "first-name"), germanNames(t, "last-name")[""]
+	first, last := nameCounts(t, "de_DE", "first-name"), nameCounts(t, "de_DE", "last-name")[""]
 	for what, got := range map[string]map[string]int{"girls": first["f"], "boys": first["m"], "last names": last} {
 		if len(got) < 200 {
 			t.Errorf("%s: %d names, want 200 or more", what, len(got))
@@ -85,7 +65,7 @@ func TestGermanNamesAreLetters(t *testing.T) {
 }
 
 func TestGermanLastNamesKeepTheirUmlauts(t *testing.T) {
-	last := germanNames(t, "last-name")[""]
+	last := nameCounts(t, "de_DE", "last-name")[""]
 	for _, name := range []string{"Müller", "Schröder", "Köhler", "Weiß"} {
 		if last[name] == 0 {
 			t.Errorf("last-name.tsv has no %q", name)
@@ -94,7 +74,7 @@ func TestGermanLastNamesKeepTheirUmlauts(t *testing.T) {
 }
 
 func TestGermanLastNamesWeighSevenHundredThousandOverTheRootOfTheirRank(t *testing.T) {
-	last := germanNames(t, "last-name")[""]
+	last := nameCounts(t, "de_DE", "last-name")[""]
 	for name, want := range map[string]int{"Müller": 700000, "Schmidt": 494975, "Schneider": 404145, "Schlegel": 47194, "Abel": 47194} {
 		t.Run(name, func(t *testing.T) {
 			if got := last[name]; got != want {
@@ -104,69 +84,8 @@ func TestGermanLastNamesWeighSevenHundredThousandOverTheRootOfTheirRank(t *testi
 	}
 }
 
-type germanPerson struct{ raw, sex, prefix, first, last, whole string }
-
-func eachGermanPerson(t *testing.T, check func(p germanPerson)) {
-	t.Helper()
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fejktest.EachDraw(2000, func() string {
-		got, err := f.FakeTemplate("{/de_DE.person as p}{p.sex}|{p.prefix}|{p.first}|{p.last}|{p}")
-		if err != nil {
-			t.Fatal(err)
-		}
-		return got
-	}, func(got string) {
-		cells := strings.Split(got, "|")
-		if len(cells) != 5 {
-			t.Fatalf("%q does not hold five cells", got)
-		}
-		check(germanPerson{got, cells[0], cells[1], cells[2], cells[3], cells[4]})
-	})
-}
-
-func TestGermanPersonHasAFirstNameOfItsSex(t *testing.T) {
-	firsts := germanNames(t, "first-name")
-	first := map[string]map[string]int{"Frau": firsts["f"], "Mann": firsts["m"]}
-	eachGermanPerson(t, func(p germanPerson) {
-		if first[p.sex][p.first] == 0 {
-			t.Fatalf("%q: %q is not a first name shipped for the sex %q", p.raw, p.first, p.sex)
-		}
-	})
-}
-
-func TestGermanPersonHasAShippedLastName(t *testing.T) {
-	last := germanNames(t, "last-name")[""]
-	eachGermanPerson(t, func(p germanPerson) {
-		if last[p.last] == 0 {
-			t.Fatalf("%q: %q is not a shipped last name", p.raw, p.last)
-		}
-	})
-}
-
-func TestGermanPersonIsItsPrefixFirstNameAndLastName(t *testing.T) {
-	eachGermanPerson(t, func(p germanPerson) {
-		if p.whole != p.prefix+p.first+" "+p.last {
-			t.Fatalf("%q: the person is not its prefix, first name and last name", p.raw)
-		}
-	})
-}
-
-func TestGermanPersonMostlyBearsNoTitle(t *testing.T) {
-	titles := map[string]int{}
-	eachGermanPerson(t, func(p germanPerson) { titles[p.prefix]++ })
-	if titles["Dr. "] == 0 || titles["Prof. "] == 0 || titles["Prof. Dr. "] == 0 || titles[""] < 1800 || len(titles) != 4 {
-		t.Errorf("prefixes over 2000 persons = %q, want a few of Dr., Prof. and Prof. Dr. beside many with none", titles)
-	}
-}
-
 func TestGermanFirstNamesFollowTheirCounts(t *testing.T) {
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(5), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
+	f := shipped(t, fejkdata.WithSeed(5))
 	seen := fejktest.TallyDraws(20000, func() string { return fejktest.FakeTemplate(t, f, "{/de_DE.sex[m].first-name}") })
 	if 2*seen["Maximilian"] < 3*seen["Luca"] || seen["Luca"] == 0 {
 		t.Errorf("Maximilian and Luca drawn %d and %d times in 20000, want Maximilian about 2.5 times Luca, as 1751 is to 710", seen["Maximilian"], seen["Luca"])
@@ -174,10 +93,7 @@ func TestGermanFirstNamesFollowTheirCounts(t *testing.T) {
 }
 
 func TestGermanSexAndTitleAreSelectable(t *testing.T) {
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
+	f := shipped(t)
 	for tmpl, want := range map[string]string{
 		"{/de_DE.sex[f]}":                              "Frau",
 		"{/de_DE.sex[m]}":                              "Mann",
@@ -196,13 +112,33 @@ func TestGermanSexAndTitleAreSelectable(t *testing.T) {
 }
 
 func TestGermanSteuerIDIsAValidTestNumber(t *testing.T) {
-	f, err := fejkdata.New(withShipped(), fejkdata.WithSeed(1), onTestDay)
-	if err != nil {
-		t.Fatal(err)
-	}
+	f := shipped(t)
 	fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, f, "de_DE.steuer-id") }, func(got string) {
 		if !fejktest.ValidSteuerID(got) || got[0] != '0' {
 			t.Fatalf("de_DE.steuer-id = %q, want a valid number that starts with the 0 ELSTER keeps for test numbers", got)
 		}
 	})
+}
+
+func TestShippedGermanCompaniesAreMostlyDistinct(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(6))
+	seen := fejktest.TallyDraws(500, func() string { return fejktest.Fake(t, f, "de_DE.company") })
+	if len(seen) < 400 {
+		t.Errorf("500 companies drew %d distinct, want 400 or more", len(seen))
+	}
+}
+
+func TestShippedGermanEmailsAreMostlyDistinctAndFoldUmlauts(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(4))
+	seen := fejktest.TallyDraws(5000, func() string { return fejktest.Fake(t, f, "de_DE.email") })
+	if len(seen) < 4000 {
+		t.Errorf("5000 emails drew %d distinct, want 4000 or more", len(seen))
+	}
+	folded := false
+	for got := range seen {
+		folded = folded || strings.Contains(got, "muller") || strings.Contains(got, "schroder") || strings.Contains(got, "konig")
+	}
+	if !folded {
+		t.Error("5000 emails held no Müller, Schröder or König folded to ASCII, want one")
+	}
 }

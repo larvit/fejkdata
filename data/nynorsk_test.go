@@ -2,7 +2,6 @@ package data_test
 
 import (
 	"regexp"
-	"slices"
 	"strings"
 	"testing"
 
@@ -10,34 +9,12 @@ import (
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
-func TestShippedNynorskCalendar(t *testing.T) {
+func TestShippedNynorskTitleIsSelectable(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(3))
-	for path, want := range map[string]string{
-		"nn_NO.month[1]":         "januar",
-		"nn_NO.month[5]":         "mai",
-		"nn_NO.month[12]":        "desember",
-		"nn_NO.weekday[1]":       "måndag",
-		"nn_NO.weekday[2]":       "tysdag",
-		"nn_NO.weekday[6]":       "laurdag",
-		"nn_NO.weekday[7]":       "søndag",
-		"nn_NO.title[dr.]":       "dr.",
-		"nn_NO.title[professor]": "professor",
-	} {
-		t.Run(path, func(t *testing.T) {
-			if got := fejktest.Fake(t, f, path); got != want {
-				t.Errorf("Fake(%q) = %q, want %q", path, got, want)
-			}
-		})
-	}
-	for path, want := range map[string][]string{
-		"nn_NO.month":   {"januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"},
-		"nn_NO.weekday": {"måndag", "tysdag", "onsdag", "torsdag", "fredag", "laurdag", "søndag"},
-	} {
-		t.Run(path, func(t *testing.T) {
-			got := sortedNamesDrawn(fejktest.TallyDraws(2000, func() string { return fejktest.Fake(t, f, path) }))
-			slices.Sort(want)
-			if !slices.Equal(got, want) {
-				t.Errorf("%s drew %v in 2000 draws, want exactly %v", path, got, want)
+	for _, title := range []string{"dr.", "professor"} {
+		t.Run(title, func(t *testing.T) {
+			if got := fejktest.Fake(t, f, "nn_NO.title["+title+"]"); got != title {
+				t.Errorf("nn_NO.title[%s] = %q, want %q", title, got, title)
 			}
 		})
 	}

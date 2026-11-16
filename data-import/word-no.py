@@ -8,31 +8,36 @@ definite singular, a verb's present and an adjective's definite singular. An adv
 holds count. A noun, verb or adjective lacking its form is dropped, and so is one whose word or form is on LDNOOBW's Norwegian list of rude words.
 The ordbank gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
-import argparse
 import io
 import tarfile
-from collections.abc import Collection, Iterator, Mapping
+from collections.abc import Iterator, Mapping
+from functools import partial
 from pathlib import Path
+from typing import NamedTuple
 
-import source
 import wordtables
 
 BOKMAL = "https://www.nb.no/sbfil/leksikalske_databaser/ordbank/20220201_norsk_ordbank_nob_2005.tar.gz"
 NYNORSK = "https://www.nb.no/sbfil/leksikalske_databaser/ordbank/20220201_norsk_ordbank_nno_2012.tar.gz"
 OUT = Path(__file__).resolve().parent.parent / "data"
-CACHE = Path(__file__).resolve().parent / "cache"
 FORMS = {"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
 
 
-def parts(singular: str, definite: str) -> dict[str, tuple[set[str], set[str], set[str]]]:
-    """Per part of speech, the tags its every form carries, then those of its word and of its form.
+class Tags(NamedTuple):
+    """The tags every form of a part of speech carries, then those of its word and of its form."""
 
-    Bokmål tags a singular `ent` and a definite `be`, nynorsk `eint` and `bu`."""
+    every: set[str]
+    word: set[str]
+    form: set[str]
+
+
+def parts(singular: str, definite: str) -> dict[str, Tags]:
+    """Each part of speech's tags. Bokmål tags a singular `ent` and a definite `be`, nynorsk `eint` and `bu`."""
     return {
-        "noun": ({"subst", "appell"}, {singular, "ub"}, {singular, definite}),
-        "verb": ({"verb"}, {"inf"}, {"pres"}),
-        "adj": ({"adj", "pos"}, {"m/f", "ub", singular}, {definite, singular}),
-        "adv": ({"adv"}, set(), set()),
+        "noun": Tags({"subst", "appell"}, {singular, "ub"}, {singular, definite}),
+        "verb": Tags({"verb"}, {"inf"}, {"pres"}),
+        "adj": Tags({"adj", "pos"}, {"m/f", "ub", singular}, {definite, singular}),
+        "adv": Tags({"adv"}, set(), set()),
     }
 
 
@@ -51,54 +56,42 @@ def lines(tarball: bytes, name: str) -> Iterator[list[str]]:
             yield line.split("\t")
 
 
-def paradigms(tarball: bytes, name: str, tags: Mapping[str, tuple[set[str], set[str], set[str]]]) -> dict[tuple[str, str, str], tuple[set[str], list[str]]]:
+def paradigms(tarball: bytes, name: str, parts: Mapping[str, Tags]) -> dict[tuple[str, str, str], tuple[set[str], list[str]]]:
     """Per lemma, part of speech and paradigm, in the order the list first names them, the spellings of the word and those of its form.
 
     A form counts while the norm holds it: its end date is 4000 and it is normert. A verb's passive never counts."""
     found: dict[tuple[str, str, str], tuple[set[str], list[str]]] = {}
     for _, lemma, form, tag, paradigm, _, _, until, norm in lines(tarball, name):
-        held = set(tag.split())
-        if until != "4000" or norm != "normert" or "pass" in held:
+        tags = set(tag.split())
+        if until != "4000" or norm != "normert" or "pass" in tags:
             continue
-        for part, (every, word, inflected) in tags.items():
-            if every <= held:
+        for part, wanted in parts.items():
+            if wanted.every <= tags:
                 words, forms = found.setdefault((lemma, part, paradigm), (set(), []))
-                if word <= held:
+                if wanted.word <= tags:
                     words.add(form)
-                if inflected and inflected <= held:
+                if wanted.form and wanted.form <= tags:
                     forms.append(form)
     return found
 
 
-def tables(tarball: bytes, variety: str, rude: Collection[str]) -> dict[str, list[dict[str, str]]]:
-    lemmas_file, forms_file, tags = VARIETIES[variety]
+def candidates(tarball: bytes, variety: str) -> Iterator[wordtables.Candidate]:
+    lemmas_file, forms_file, wanted = VARIETIES[variety]
     lemmas = {lemma: word for _, lemma, word, *_ in lines(tarball, lemmas_file)}
-    rows: dict[str, dict[str, dict[str, str]]] = {part: {} for part in FORMS}
-    for (lemma, part, _), (words, forms) in paradigms(tarball, forms_file, tags).items():
-        word, column = lemmas.get(lemma, ""), FORMS[part]
-        form = forms[0] if forms else ""
-        if word not in words or not word.isalpha() or not word.islower() or word in rude:
-            continue
-        if not column:
-            rows[part].setdefault(word, {"word": word})
-        elif form.isalpha() and form.islower() and form not in rude:
-            rows[part].setdefault(word, {"word": word, column: form})
-    return {part: [held[w] for w in sorted(held)] for part, held in rows.items()}
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--cache", default=str(CACHE))
-    parser.add_argument("--bokmal", default=BOKMAL)
-    parser.add_argument("--nynorsk", default=NYNORSK)
-    parser.add_argument("--rude", default="")
-    parser.add_argument("--out", default=str(OUT))
-    args = parser.parse_args()
-    rude = wordtables.rude("no", args.cache, args.rude)
-    for variety, url in (("nb_NO", args.bokmal), ("nn_NO", args.nynorsk)):
-        tarball = source.fetch(url, args.cache, Path(url).name, magic=b"\x1f\x8b")
-        wordtables.write(Path(args.out) / variety, FORMS, tables(tarball, variety, rude))
+    for (lemma, part, _), (words, forms) in paradigms(tarball, forms_file, wanted).items():
+        word = lemmas.get(lemma, "")
+        if word in words:
+            yield part, word, forms[0] if forms else ""
 
 
 if __name__ == "__main__":
-    main()
+    wordtables.main(
+        __doc__,
+        "no",
+        OUT,
+        FORMS,
+        [
+            wordtables.Source("bokmal", BOKMAL, "", b"\x1f\x8b", "nb_NO", partial(candidates, variety="nb_NO")),
+            wordtables.Source("nynorsk", NYNORSK, "", b"\x1f\x8b", "nn_NO", partial(candidates, variety="nn_NO")),
+        ],
+    )

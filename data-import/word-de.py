@@ -8,20 +8,17 @@ the others' lower-case. A noun carries its first nominative plural, and one with
 dropped. A word on LDNOOBW's German list of rude words, compared in lower case, is dropped, and so is a noun whose plural is on
 it. Wikidata gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
-import argparse
 import gzip
 import io
 import json
-from collections.abc import Collection, Iterator, Mapping
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
-import source
 import wordtables
 
 LEXEMES = "https://dumps.wikimedia.org/wikidatawiki/entities/latest-lexemes.json.gz"
 OUT = Path(__file__).resolve().parent.parent / "data" / "de_DE"
-CACHE = Path(__file__).resolve().parent / "cache"
 FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
 GERMAN = "Q188"
 CATEGORIES = {"Q1084": "noun", "Q24905": "verb", "Q34698": "adj", "Q380057": "adv"}
@@ -52,30 +49,12 @@ def plural(lexeme: Mapping[str, Any]) -> str:
     return ""
 
 
-def tables(dump: bytes, rude: Collection[str]) -> dict[str, list[dict[str, str]]]:
-    rows: dict[str, dict[str, dict[str, str]]] = {part: {} for part in FORMS}
+def candidates(dump: bytes) -> Iterator[wordtables.Candidate]:
     for lexeme in german(dump):
         part = CATEGORIES.get(lexeme["lexicalCategory"], "")
-        word = lexeme["lemmas"].get("de", {}).get("value", "")
-        if not part or not spelled(word, part) or word.lower() in rude:
-            continue
-        if part != "noun":
-            rows[part].setdefault(word, {"word": word})
-        elif spelled(form := plural(lexeme), part) and form.lower() not in rude:
-            rows[part].setdefault(word, {"word": word, "plural": form})
-    return {part: [held[w] for w in sorted(held)] for part, held in rows.items()}
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--cache", default=str(CACHE))
-    parser.add_argument("--lexemes", default=LEXEMES)
-    parser.add_argument("--rude", default="")
-    parser.add_argument("--out", default=str(OUT))
-    args = parser.parse_args()
-    dump = source.fetch(args.lexemes, args.cache, "wikidata-lexemes.json.gz", magic=b"\x1f\x8b")
-    wordtables.write(Path(args.out), FORMS, tables(dump, wordtables.rude("de", args.cache, args.rude)))
+        if part:
+            yield part, lexeme["lemmas"].get("de", {}).get("value", ""), plural(lexeme) if FORMS[part] else ""
 
 
 if __name__ == "__main__":
-    main()
+    wordtables.main(__doc__, "de", OUT, FORMS, [wordtables.Source("lexemes", LEXEMES, "wikidata-lexemes.json.gz", b"\x1f\x8b", "", candidates)], spelled)

@@ -2795,9 +2795,11 @@ A pull request that adds a locale ships, in this order:
    [the paragraph on a change to the shipped data](#development) says.
 4. A raised `base` in `TestNoNewAllocRegression` (`perf_test.go`), where the new manifest paths
    take `New` past its 10% slack.
-5. Its README text: a `###` section under Data, with a `####` heading per feature, and its name in the "Data built in" bullet.
-6. A `CHANGELOG.md` entry under `Unreleased`.
-7. A [`DATA-LICENSES.md`](DATA-LICENSES.md) entry for each dataset the locale adds.
+5. Its entry in `shippedLocales` ([`data/locales_test.go`](data/locales_test.go)), the one table the
+   tests the locales share run over. A test fails while a locale in `data/modules.go` has none.
+6. Its README text: a `###` section under Data, with a `####` heading per feature, and its name in the "Data built in" bullet.
+7. A `CHANGELOG.md` entry under `Unreleased`.
+8. A [`DATA-LICENSES.md`](DATA-LICENSES.md) entry for each dataset the locale adds.
 
 ## License
 

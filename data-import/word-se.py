@@ -7,26 +7,22 @@ carries: a noun's definite singular, a verb's present and an adjective's definit
 a noun with no singular or a verb only in its s-form, is dropped, and so is one whose word or form is on LDNOOBW's Swedish
 list of rude words. SALDO gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
-import argparse
 import io
-import re
-from collections.abc import Collection, Iterator
+from collections.abc import Iterator
 from pathlib import Path
 from xml.etree import ElementTree
 
-import source
 import wordtables
 
 SALDO = "https://svn.spraakbanken.gu.se/sb-arkiv/pub/lmf/saldom/saldom.xml"
 OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE"
-CACHE = Path(__file__).resolve().parent / "cache"
-LETTERS = re.compile(r"[^\W\d_A-ZÅÄÖ]+")
-# SALDO's partOfSpeech: the path, the form's column, and SALDO's msd (its morphological tag) for that form and for the lemma.
+FORMS = {"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
+# SALDO's partOfSpeech: the path, and SALDO's msd (its morphological tag) for the part's form and for the lemma.
 PARTS = {
-    "nn": ("noun", "definite", "sg def nom", "sg indef nom"),
-    "vb": ("verb", "present", "pres ind aktiv", "inf aktiv"),
-    "av": ("adj", "definite", "pos def pl nom", "pos indef sg u nom"),
-    "ab": ("adv", "", "", ""),
+    "nn": ("noun", "sg def nom", "sg indef nom"),
+    "vb": ("verb", "pres ind aktiv", "inf aktiv"),
+    "av": ("adj", "pos def pl nom", "pos indef sg u nom"),
+    "ab": ("adv", "", ""),
 }
 
 
@@ -48,29 +44,12 @@ def entries(saldo: bytes) -> Iterator[tuple[str, str, dict[str, str]]]:
         entry.clear()
 
 
-def tables(saldo: bytes, rude: Collection[str]) -> dict[str, list[dict[str, str]]]:
-    rows: dict[str, dict[str, dict[str, str]]] = {part: {} for part, *_ in PARTS.values()}
+def candidates(saldo: bytes) -> Iterator[wordtables.Candidate]:
     for word, pos, forms in entries(saldo):
-        if pos not in PARTS or not LETTERS.fullmatch(word) or word in rude:
-            continue
-        part, column, msd, own = PARTS[pos]
-        if not column:
-            rows[part].setdefault(word, {"word": word})
-        elif forms.get(own) == word and msd in forms and LETTERS.fullmatch(forms[msd]) and forms[msd] not in rude:
-            rows[part].setdefault(word, {"word": word, column: forms[msd]})
-    return {part: [held[w] for w in sorted(held)] for part, held in rows.items()}
+        if pos in PARTS:
+            part, msd, own = PARTS[pos]
+            yield part, word, forms.get(msd, "") if forms.get(own) == word else ""
 
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--cache", default=str(CACHE))
-    parser.add_argument("--saldo", default=SALDO)
-    parser.add_argument("--rude", default="")
-    parser.add_argument("--out", default=str(OUT))
-    args = parser.parse_args()
-    saldo = source.fetch(args.saldo, args.cache, "saldom.xml", magic=b"<LexicalResource")
-    forms = {part: column for part, column, *_ in PARTS.values()}
-    wordtables.write(Path(args.out), forms, tables(saldo, wordtables.rude("sv", args.cache, args.rude)))
 
 if __name__ == "__main__":
-    main()
+    wordtables.main(__doc__, "sv", OUT, FORMS, [wordtables.Source("saldo", SALDO, "saldom.xml", b"<LexicalResource", "", candidates)])

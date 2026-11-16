@@ -208,6 +208,15 @@ func geoRows(t *testing.T, country, table string) [][]string {
 	return out
 }
 
+func geoNameSet(t *testing.T, country, table string) map[string]bool {
+	t.Helper()
+	out := map[string]bool{}
+	for _, r := range geoRows(t, country, table) {
+		out[r[0]] = true
+	}
+	return out
+}
+
 func geoCountryFolders(t *testing.T) []string {
 	t.Helper()
 	entries, err := os.ReadDir("geo")

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/larvit/fejkdata"
+	"github.com/larvit/fejkdata/data/en_US"
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
@@ -87,4 +88,89 @@ func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 			}
 		})
 	})
+}
+
+func TestEnglishWordTablesHoldAsManyWordsAsWordNet(t *testing.T) {
+	t.Parallel()
+	for part, least := range map[string]int{"noun": 40000, "verb": 5000, "adj": 10000, "adv": 2500} {
+		t.Run(part, func(t *testing.T) {
+			if n := len(localeWordForms(t, "en_US", part)); n < least {
+				t.Errorf("word-%s holds %d words, want WordNet's, %d or more", part, n, least)
+			}
+		})
+	}
+}
+
+func TestEnglishWordTablesDropProperNounsAndSlurs(t *testing.T) {
+	t.Parallel()
+	nouns := localeWordForms(t, "en_US", "noun")
+	for _, word := range []string{"paris", "texas", "einstein", "monday", "london", "abc", "dago", "wop", "yid"} {
+		t.Run(word, func(t *testing.T) {
+			if _, ok := nouns[word]; ok {
+				t.Errorf("word-noun holds %q, a proper noun, an acronym or a slur", word)
+			}
+		})
+	}
+}
+
+func TestEnglishNounTableKeepsTheCommonNouns(t *testing.T) {
+	t.Parallel()
+	nouns := localeWordForms(t, "en_US", "noun")
+	for _, word := range []string{"table", "city", "teacher", "boy", "queen", "tool"} {
+		t.Run(word, func(t *testing.T) {
+			if _, ok := nouns[word]; !ok {
+				t.Errorf("word-noun lacks %q", word)
+			}
+		})
+	}
+}
+
+func TestEnglishWordDrawsAWideSpreadOfWords(t *testing.T) {
+	t.Parallel()
+	en := shipped(t, fejkdata.WithSeed(8))
+	distinct := fejktest.TallyDraws(5000, func() string { return fejktest.Fake(t, en, "en_US.word") })
+	if len(distinct) < 3000 {
+		t.Errorf("5000 draws of en_US.word gave %d distinct words, want a dictionary's spread", len(distinct))
+	}
+}
+
+func TestEnglishSentenceDrawsTheWordsItsPatternNeeds(t *testing.T) {
+	t.Parallel()
+	en := shipped(t, fejkdata.WithSeed(7))
+	adj, _ := localeWordSets(t, "en_US", "adj")
+	noun, _ := localeWordSets(t, "en_US", "noun")
+	adv, _ := localeWordSets(t, "en_US", "adv")
+	verb, present := localeWordSets(t, "en_US", "verb")
+	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, en, "en_US.sentence") }, func(sentence string) {
+		w := strings.Fields(strings.ToLower(strings.TrimRight(sentence, ".!?")))
+		last := len(w) - 1
+		ok := noun[w[last]] && adj[w[last-1]]
+		if strings.HasSuffix(sentence, "?") {
+			ok = ok && verb[w[last-3]] && noun[w[last-4]] && adj[w[last-5]]
+		} else {
+			ok = ok && len(w) == 7 && present[w[3]] && ((adj[w[1]] && noun[w[2]]) || (noun[w[1]] && adv[w[2]]))
+		}
+		if !ok {
+			t.Errorf("sentence %q holds a word its pattern doesn't read from the tables", sentence)
+		}
+	})
+}
+
+func TestEnglishWordCarriesWordNetsNotice(t *testing.T) {
+	t.Parallel()
+	notice, err := enus.FS.ReadFile("WORDNET-LICENSE.txt")
+	if err != nil {
+		t.Fatalf("the en_US module doesn't carry WordNet's licence: %v", err)
+	}
+	for _, want := range []string{
+		"WordNet Release 3.0",
+		"WordNet 3.0 Copyright 2006 by Princeton University. All rights reserved.",
+		`PROVIDED "AS IS"`,
+	} {
+		t.Run(want, func(t *testing.T) {
+			if !strings.Contains(string(notice), want) {
+				t.Errorf("WordNet's licence in the en_US module lacks %q", want)
+			}
+		})
+	}
 }
