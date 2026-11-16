@@ -89,7 +89,7 @@ func TestGeoDEDropsAPostalCodeInNoLand(t *testing.T) {
 func TestGeoDEDrawsALocalityByItsPostalCodes(t *testing.T) {
 	t.Parallel()
 	if got := readJSON(t, "geo/DE/locality.json")["weight"]; got != "postal-codes" {
-		t.Errorf("geo/DE/locality.json weights by %v, want the locality's postal-codes", got)
+		t.Errorf("geo/DE/locality.json weighs by %v, want the locality's postal-codes", got)
 	}
 	f := shipped(t, fejkdata.WithSeed(3))
 	count := map[string]int{}
@@ -98,6 +98,51 @@ func TestGeoDEDrawsALocalityByItsPostalCodes(t *testing.T) {
 	}, func(got string) { count[got]++ })
 	if count["Berlin"] <= count["Tettau"] {
 		t.Errorf("drew Berlin %d times and Tettau %d, want the place with more postal codes drawn more", count["Berlin"], count["Tettau"])
+	}
+}
+
+func TestGeoDEKreiseAreNamedAsAGermanWritesThem(t *testing.T) {
+	t.Parallel()
+	names := map[string]string{}
+	for _, r := range fejktest.TSVRows(t, "geo/DE/municipality.tsv") {
+		names[r["code"]] = r["name"]
+		if strings.Contains(r["name"], ", ") {
+			t.Errorf("Kreis %s is %q, want GeoNames' \"Salzgitter, Stadt\" written \"Stadt Salzgitter\"", r["code"], r["name"])
+		}
+	}
+	for code, want := range map[string]string{"03102": "Stadt Salzgitter", "09564": "Kreisfreie Stadt Nürnberg", "02000": "Freie und Hansestadt Hamburg"} {
+		if names[code] != want {
+			t.Errorf("Kreis %s is %q, want %q", code, names[code], want)
+		}
+	}
+}
+
+func TestGeoDEHamburgAndBerlinAreOnePlaceEach(t *testing.T) {
+	t.Parallel()
+	got := map[string]string{}
+	for _, r := range fejktest.TSVRows(t, "geo/DE/locality.tsv") {
+		if r["municipality"] == "02000" || r["municipality"] == "11000" {
+			got[r["code"]] = r["name"]
+		}
+	}
+	want := map[string]string{"02000-hamburg": "Hamburg", "11000-berlin": "Berlin"}
+	if len(got) != 2 || got["02000-hamburg"] != "Hamburg" || got["11000-berlin"] != "Berlin" {
+		t.Errorf("the city states' places are %v, want %v: a letter addresses \"22767 Hamburg\"", got, want)
+	}
+}
+
+// A GeoNames refresh must not move a code to another place, so a locality's code is its Kreis and its name.
+func TestGeoDELocalityCodeIsItsKreisAndItsNameInASCII(t *testing.T) {
+	t.Parallel()
+	shape := regexp.MustCompile(`^\d{5}-[a-z0-9]+(-[a-z0-9]+)*$`)
+	for _, r := range fejktest.TSVRows(t, "geo/DE/locality.tsv") {
+		if !shape.MatchString(r["code"]) || !strings.HasPrefix(r["code"], r["municipality"]+"-") {
+			t.Fatalf("locality %q has the code %q, want its Kreis's code and its name in ASCII", r["name"], r["code"])
+		}
+	}
+	names, _ := germanPlaces(t)
+	if names["12066-tettau"] != "Tettau" || names["05315-koeln"] == "" {
+		t.Errorf("12066-tettau is %q and 05315-koeln %q, want Tettau and a place", names["12066-tettau"], names["05315-koeln"])
 	}
 }
 
