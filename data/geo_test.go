@@ -20,6 +20,12 @@ var shippedAddressLocales = []struct{ locale, country, template, largest string 
 	{"fi_FI", "FI", "{a.street}|{a.postal-code}|{a.locality}|", "Helsinki"},
 }
 
+// The locales whose address prints a country's record whole, so the checks of shippedAddressLocales' templates don't apply.
+var addressLocalesWithoutATemplate = []struct{ locale, country, template, largest string }{
+	{locale: "nn_NO", country: "NO"},
+	{locale: "de_DE", country: "DE"},
+}
+
 func eachNamedAddressBesideAStreet(t *testing.T, locale, template string, check func(got string, parts []string)) {
 	t.Helper()
 	f := shipped(t, fejkdata.WithSeed(3))
@@ -275,7 +281,7 @@ func columnNames(columns map[string]json.RawMessage) []string {
 }
 
 func TestEveryLocaleAddressHoldsItsCountrysColumns(t *testing.T) {
-	for _, c := range append(slices.Clone(shippedAddressLocales), struct{ locale, country, template, largest string }{locale: "nn_NO", country: "NO"}, struct{ locale, country, template, largest string }{locale: "de_DE", country: "DE"}) {
+	for _, c := range append(slices.Clone(shippedAddressLocales), addressLocalesWithoutATemplate...) {
 		t.Run(c.locale, func(t *testing.T) {
 			got, want := columnNames(geoAddress(t, c.locale)), columnNames(geoAddress(t, "geo/"+c.country))
 			if !slices.Equal(got, want) {
@@ -310,7 +316,7 @@ func geoLocalityParents(t *testing.T, dir, regionColumn string) map[string]bool 
 
 func TestShippedAddressNamesTheMunicipalityAndRegionOfItsLocality(t *testing.T) {
 	t.Parallel()
-	for _, c := range append(slices.Clone(shippedAddressLocales), struct{ locale, country, template, largest string }{locale: "nn_NO", country: "NO"}) {
+	for _, c := range append(slices.Clone(shippedAddressLocales), addressLocalesWithoutATemplate...) {
 		t.Run(c.locale, func(t *testing.T) {
 			t.Parallel()
 			regionColumn := "name"

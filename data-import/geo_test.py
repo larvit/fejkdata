@@ -163,15 +163,15 @@ class GermanPlaces(unittest.TestCase):
         self.assertEqual({k: localities[3][k] for k in ("lat", "lon")}, {"lat": "51.5000", "lon": "14.0000"})
 
     def test_a_locality_is_keyed_by_its_name_in_ascii(self) -> None:
-        for place, code in (("Müllrose", "mullrose"), ("Groß Köris", "gross-koris"), ("Jessen (Elster)", "jessen-elster")):
+        for place, code in (("Müllrose", "muellrose"), ("Groß Köris", "gross-koeris"), ("Jessen (Elster)", "jessen-elster")):
             with self.subTest(place=place):
                 self.assertEqual(geo_de.slug(place), code)
 
     def test_two_places_of_a_kreis_with_one_code_exit_naming_both(self) -> None:
-        lines = [geonames_de("01945", "Müller", "BB", "12066", "Landkreis"), geonames_de("01946", "Muller", "BB", "12066", "Landkreis")]
+        lines = [geonames_de("01945", "Müller", "BB", "12066", "Landkreis"), geonames_de("01946", "Mueller", "BB", "12066", "Landkreis")]
         with self.assertRaises(SystemExit) as raised:
             geo_de.places(lines)
-        self.assertIn("'Muller' and 'Müller'", str(raised.exception))
+        self.assertIn("'Mueller' and 'Müller'", str(raised.exception))
 
     def test_every_place_of_a_city_state_is_the_city(self) -> None:
         lines = [
