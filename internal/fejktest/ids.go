@@ -120,40 +120,57 @@ const DVVControlTable = "0123456789ABCDEFHJKLMNPRSTUVWXY"
 // eleventh that is the check digit of ISO 7064 MOD 11,10 over the first ten. It accepts a leading
 // zero, which ELSTER allows for a test number.
 func ValidSteuerID(s string) bool {
-	if len(s) != 11 {
-		return false
+	d, ok := steuerDigits(s)
+	return ok && oneDigitTwiceOrThrice(d) && !threeEqualInARow(d) && d[10] == steuerCheckDigit(d)
+}
+
+func steuerDigits(s string) (d [11]int, ok bool) {
+	if len(s) != len(d) {
+		return d, false
 	}
-	var count [10]int
-	for i := range len(s) {
+	for i := range d {
 		if s[i] < '0' || s[i] > '9' {
-			return false
+			return d, false
 		}
-		if i < 10 {
-			count[s[i]-'0']++
-		}
+		d[i] = int(s[i] - '0')
+	}
+	return d, true
+}
+
+func oneDigitTwiceOrThrice(d [11]int) bool {
+	var count [10]int
+	for _, x := range d[:10] {
+		count[x]++
 	}
 	repeated := 0
 	for _, n := range count {
-		switch {
-		case n > 3:
+		if n > 3 {
 			return false
-		case n > 1:
+		}
+		if n > 1 {
 			repeated++
 		}
 	}
+	return repeated == 1
+}
+
+func threeEqualInARow(d [11]int) bool {
 	for i := 2; i < 10; i++ {
-		if s[i] == s[i-1] && s[i] == s[i-2] {
-			return false
+		if d[i] == d[i-1] && d[i] == d[i-2] {
+			return true
 		}
 	}
+	return false
+}
+
+func steuerCheckDigit(d [11]int) int {
 	product := 10
-	for i := range 10 {
-		sum := (int(s[i]-'0') + product) % 10
+	for _, x := range d[:10] {
+		sum := (x + product) % 10
 		if sum == 0 {
 			sum = 10
 		}
 		product = 2 * sum % 11
 	}
-	check := (11 - product) % 10
-	return repeated == 1 && int(s[10]-'0') == check
+	return (11 - product) % 10
 }
