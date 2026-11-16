@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons and Steuer-IDs, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, Steuer-IDs and phone numbers, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places. Each address takes its street and
   postal code from one town ([`geo`](#geo)).
@@ -794,7 +794,7 @@ number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
 ### `de_DE`
 
-`de_DE`, German, carries `first-name`, `last-name`, `person`, `sex`, `steuer-id` and `title`. `sex` is `Frau` and `Mann`, `title` is
+`de_DE`, German, carries `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `sex`, `steuer-id` and `title`. `sex` is `Frau` and `Mann`, `title` is
 `Dr.`, `Prof.` and `Prof. Dr.`, drawn whatever the sex. `{/de_DE.person}` renders e.g. `Emilia Hesse`.
 
 No open register publishes Germany's name counts. The first names are the city of Munich's open data
@@ -824,6 +824,29 @@ A number has eleven digits. Among the first ten, one digit appears twice in half
 in the other half. No digit appears three times in a row. The eleventh digit is the check digit of ISO 7064
 MOD 11,10. The category renders the builtin `{steuerid()}`. There are about 37 million numbers, so a fixture
 of a few thousand rows starts to repeat one, and a `UNIQUE` column needs a category of your own.
+
+#### German phone numbers
+
+`de_DE.phone` is a mobile number ten times as often as a fixed one: `01511 2345678` or, where it is
+fixed, `030 12345678`. Its `national` field is that form, and its `international` field is
+`+49 1511 2345678`, with the country code and without the 0 dialled before an area code. The code
+or mobile block and the subscriber number are split by one space, and the subscriber number is not grouped.
+
+`de_DE.phone-fixed` holds the 5200 Ortsnetzkennzahlen (area codes) that the Bundesnetzagentur's
+Vorwahlverzeichnis of 2022-07-27 marks active, such as `030` for Berlin, each with its `name`, its
+`ndc` (the code without the 0) and its `subscriber`. `de_DE.phone-mobile` holds the 81 blocks, such as `01511`
+and `015550`, that the Bundesnetzagentur's list of assigned mobile blocks names. A row is selected by its
+code, `phone-fixed[030]`. A code is drawn evenly, since the lists publish no frequency, so a village is
+as likely as Berlin. A number allocated now has ten digits after the 0 in Berlin, Hamburg, Frankfurt and
+München and eleven elsewhere, as section 2.3 of Verfügung 25/2006 gives. A mobile number has eleven, or
+ten or eleven for a block of three digits such as `0170`, as sections 2.3 and 2.4 of the Nummernplan Mobile
+Dienste give. The two lengths are equally likely. A subscriber number does not begin with 0. A number is valid, not
+real: a real subscriber may hold it.
+
+A program showing the codes or blocks credits "Datenquelle: Bundesnetzagentur", names the licence
+[Datenlizenz Deutschland – Namensnennung 2.0](https://www.govdata.de/dl-de/by-2-0) (`dl-de/by-2-0`), links the
+[lists](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/ONRufnr/Einteilung_ONB/start.html),
+and says the data was changed: each block and code is a row.
 
 ### `en_US`
 
@@ -2561,6 +2584,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/licen
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/loglevel.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimetype.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-area-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-de.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-dk.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.py
