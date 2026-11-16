@@ -2121,3 +2121,20 @@ Read most (opens and searches):
 - `data-import/company_names.py` 2
 - `data-import/names-de.py` 2
 - `data/german_test.go` 2
+
+## Reading cost, chunk ed7ea74ce524, finished 2026-11-16T15:42:53Z
+
+87537 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `DATA-LICENSES.md` 3
+- `data-import/cldr.py` 2
+- `data/english_test.go` 2
+- `data/sv_SE/url.json` 2
+- `data/sv_SE/username.json` 2
+- `testdata/shipped_shape.txt` 2
+- `todo.md` 2
+- `CHANGELOG.md` 1
+- `compose.yaml` 1
