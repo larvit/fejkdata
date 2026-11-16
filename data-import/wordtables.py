@@ -1,4 +1,4 @@
-"""A locale's word tables: a TSV and its manifest per part of speech, and word.json, which draws from them."""
+"""A locale's word tables: a TSV and the JSON category reading it per part of speech, and word.json, which draws from them."""
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
@@ -15,7 +15,7 @@ def rude(language: str, cache: str | Path, url: str = "") -> set[str]:
 
 
 def word_json(forms: Mapping[str, str], counts: Mapping[str, int]) -> str:
-    """word.json: `any` weighs a part of speech by its rows, and a part with a form binds its word to read it."""
+    """word.json: `any` weighs a part of speech by its rows, and a part with a form binds its word, so the form reads that word's own."""
     items = ",\n".join(f'    {{ "format": "{{.word-{part}}}", "weight": {counts[part]} }}' for part in forms)
     fields = []
     for part, column in forms.items():

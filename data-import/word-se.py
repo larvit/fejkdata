@@ -10,15 +10,14 @@ list of rude words. SALDO gives no frequency, so each word is drawn evenly, and 
 import argparse
 import io
 import re
-from collections.abc import Collection, Iterator, Mapping
+from collections.abc import Collection, Iterator
 from pathlib import Path
 from xml.etree import ElementTree
 
 import source
-import tsv
+import wordtables
 
 SALDO = "https://svn.spraakbanken.gu.se/sb-arkiv/pub/lmf/saldom/saldom.xml"
-RUDE = "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/sv"
 OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE"
 CACHE = Path(__file__).resolve().parent / "cache"
 LETTERS = re.compile(r"[^\W\d_A-ZÅÄÖ]+")
@@ -62,31 +61,16 @@ def tables(saldo: bytes, rude: Collection[str]) -> dict[str, list[dict[str, str]
     return {part: [held[w] for w in sorted(held)] for part, held in rows.items()}
 
 
-def word_json(counts: Mapping[str, int]) -> str:
-    items = ",\n".join(f'    {{ "format": "{{.word-{part}}}", "weight": {n} }}' for part, n in counts.items())
-    fields = []
-    for part, column, *_ in PARTS.values():
-        form = f', "{column}": "{{{part}word.{column}}}"' if column else ""
-        fields.append(f'  "{part}": {{ "format": "{{.word-{part} as {part}word}}{{{part}word}}"{form} }}')
-    return '{\n  "format": "{any}",\n  "any": [\n' + items + "\n  ],\n" + ",\n".join(fields) + "\n}\n"
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--cache", default=str(CACHE))
     parser.add_argument("--saldo", default=SALDO)
-    parser.add_argument("--rude", default=RUDE)
+    parser.add_argument("--rude", default="")
     parser.add_argument("--out", default=str(OUT))
     args = parser.parse_args()
     saldo = source.fetch(args.saldo, args.cache, "saldom.xml", magic=b"<LexicalResource")
-    listed = source.fetch(args.rude, args.cache, "ldnoobw-sv.txt").decode("utf-8").split("\n")
-    rows = tables(saldo, {w.strip().lower() for w in listed})
-    out = Path(args.out)
-    for part, column, *_ in PARTS.values():
-        tsv.write(out / f"word-{part}.tsv", ["word", column] if column else ["word"], rows[part])
-        (out / f"word-{part}.json").write_text(f'{{ "format": "{{word}}", "rows": "word-{part}.tsv" }}\n', encoding="utf-8")
-    (out / "word.json").write_text(word_json({part: len(held) for part, held in rows.items()}), encoding="utf-8")
-
+    forms = {part: column for part, column, *_ in PARTS.values()}
+    wordtables.write(Path(args.out), forms, tables(saldo, wordtables.rude("sv", args.cache, args.rude)))
 
 if __name__ == "__main__":
     main()

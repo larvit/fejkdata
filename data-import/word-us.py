@@ -14,19 +14,18 @@ import io
 import re
 import sys
 import tarfile
-from collections.abc import Collection, Iterator, Mapping
+from collections.abc import Collection, Iterator
 from pathlib import Path
 
 import source
-import tsv
+import wordtables
 
 WORDNET = "https://wordnetcode.princeton.edu/3.0/WNdb-3.0.tar.gz"
-RUDE = "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en"
 OUT = Path(__file__).resolve().parent.parent / "data" / "en_US"
 CACHE = Path(__file__).resolve().parent / "cache"
 LETTERS = re.compile(r"[a-z]+")
 RUDE_DOMAINS = {"disparagement", "ethnic_slur", "obscenity"}
-PARTS = ("noun", "verb", "adj", "adv")
+FORMS = {"noun": "", "verb": "present", "adj": "", "adv": ""}
 # The verbs whose third person the spelling rule gets wrong.
 IRREGULAR = {"be": "is", "have": "has", "quiz": "quizzes", "stomach": "stomachs", "whiz": "whizzes"}
 IRREGULAR.update({v: v + "s" for v in ["bravo", "bunco", "crescendo", "decrescendo", "demo", "disco", "ditto", "kayo", "mambo", "solo", "tango", "velcro"]})
@@ -67,7 +66,7 @@ def rude_domains(tarball: bytes) -> set[str]:
 def tables(tarball: bytes, rude: Collection[str]) -> dict[str, list[dict[str, str]]]:
     domains = rude_domains(tarball)
     rows: dict[str, list[dict[str, str]]] = {}
-    for part in PARTS:
+    for part in FORMS:
         senses = [(w, d) for _, words, d in synsets(tarball, part) for w in words]
         kept = {w for w, d in senses if not d & domains}
         words = sorted({w for w, _ in senses if LETTERS.fullmatch(w) and w in kept and w not in rude})
@@ -75,33 +74,15 @@ def tables(tarball: bytes, rude: Collection[str]) -> dict[str, list[dict[str, st
     return rows
 
 
-def word_json(counts: Mapping[str, int]) -> str:
-    items = ",\n".join(f'    {{ "format": "{{.word-{part}}}", "weight": {n} }}' for part, n in counts.items())
-    fields = ",\n".join(
-        '  "verb": { "format": "{.word-verb as verbword}{verbword}", "present": "{verbword.present}" }'
-        if part == "verb"
-        else f'  "{part}": "{{.word-{part}}}"'
-        for part in PARTS
-    )
-    return '{\n  "format": "{any}",\n  "any": [\n' + items + "\n  ],\n" + fields + "\n}\n"
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--cache", default=str(CACHE))
     parser.add_argument("--wordnet", default=WORDNET)
-    parser.add_argument("--rude", default=RUDE)
+    parser.add_argument("--rude", default="")
     parser.add_argument("--out", default=str(OUT))
     args = parser.parse_args()
     tarball = source.fetch(args.wordnet, args.cache, "WNdb-3.0.tar.gz", magic=b"\x1f\x8b")
-    listed = source.fetch(args.rude, args.cache, "ldnoobw-en.txt").decode("utf-8").split("\n")
-    rows = tables(tarball, {w.strip().lower() for w in listed})
-    out = Path(args.out)
-    for part in PARTS:
-        tsv.write(out / f"word-{part}.tsv", ["word", "present"] if part == "verb" else ["word"], rows[part])
-        (out / f"word-{part}.json").write_text(f'{{ "format": "{{word}}", "rows": "word-{part}.tsv" }}\n', encoding="utf-8")
-    (out / "word.json").write_text(word_json({part: len(held) for part, held in rows.items()}), encoding="utf-8")
-
+    wordtables.write(Path(args.out), FORMS, tables(tarball, wordtables.rude("en", args.cache, args.rude)))
 
 if __name__ == "__main__":
     main()
