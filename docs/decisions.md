@@ -1683,6 +1683,25 @@ each shape and word weighing the same. An open bulk file of Finnish company name
 don't read a place. A later change may add a place from `geo/FI` and a trade word as a name's shape, as
 `da_DK.company` has.
 
+## `de_DE.company` weighs its legal forms by Destatis' legal units and draws its names from a language model's recall
+
+2026-11-16, Lilleman auf Larv. Goal 3.2. Applies the project principle on company categories; the choices below are the
+implementer's recommendation, not yet the maintainer's.
+
+Destatis' Statistisches Unternehmensregister table "Rechtliche Einheiten nach zusammengefassten Rechtsformen" counts the
+legal units of 2024: 2,062,752 sole proprietors, 440,951 partnerships and 861,720 corporations, and 178,442 of other
+forms. The company draws the first three groups by those counts. The table doesn't split a group, so a partnership is
+a `KG` or an `OHG` and a corporation a `GmbH`, a `UG (haftungsbeschränkt)` or an `AG`, each of a group as often as the
+others, as the Danish partnerships are split. That draws an `AG` as often as a `GmbH`, which the real counts don't, and a
+finer Destatis table replaces the split. The other forms, such as associations, foundations and the `GbR`, are not drawn,
+as the Finnish table's other forms are not. A sole proprietor's name has no abbreviation, as the Danish ENK's has none.
+
+No open bulk file of German company names was found. So the name shapes and the words of `company-coined` and
+`company-word` are a language model's recall of how German companies are named, each shape and word weighing the same.
+The names read `de_DE`'s names and `geo.DE.locality`. An open bulk file of German company names replaces them.
+
+`de_DE.email` folds `ü` to `u` as `ascii` does by ruby-i18n's table, so `Müller` is `muller` there.
+
 ## A record's `let` fields write no column
 
 2026-11-08, Lilleman auf Larv. Serves goal 4.7, read as: a template that means one thing loads,
