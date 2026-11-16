@@ -669,18 +669,25 @@ as `example.com` into the template; `todo.md` plans the path.
 ### Locale categories
 
 `sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
-`last-name`, `paragraph`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`
-and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
+`last-name`, `month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
+`weekday` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `personnummer-date`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
-`company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
+`company-word`, `holiday`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
 `en_US` adds `ssn`, `itin`,
 `phone-exchange` (the three digits after the area code), `word-adj`, `word-adv`, `word-noun` and `word-verb`.
+
+`da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`
+too, written as the country writes them: a price in kroner (`1 234,50 kr` in Norway, `1.234,50 kr.` in Denmark) or in euro
+(`1 234,50 €` in Finland, `1.234,50 €` in Germany), a time as `15:04` in Norway and Germany and `15.04` in Denmark and
+Finland, and a url, username and colour name in the locale's own words, the usernames and url paths in ASCII. The
+month and weekday names are Unicode CLDR's stand-alone names for the language, so `{/fi_FI.month[1]}` is `tammikuu`,
+not the declined `tammikuuta`; they are real, the rest invented.
 
 What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
-The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
+The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date`, `de_DE.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
 #### Names and sex
 
@@ -824,6 +831,25 @@ A number has eleven digits. Among the first ten, one digit appears twice in half
 in the other half. No digit appears three times in a row. The eleventh digit is the check digit of ISO 7064
 MOD 11,10. The category renders the builtin `{steuerid()}`. There are about 37 million numbers, so a fixture
 of a few thousand rows starts to repeat one, and a `UNIQUE` column needs a category of your own.
+
+#### German companies
+
+`de_DE.company` draws a legal form as often as Destatis counted legal units of it in 2024 (its Unternehmensregister
+table of legal units by legal form): sole proprietorship (Einzelunternehmen), partnership, or corporation. The table
+counts partnerships, such as `KG` and `OHG`, and corporations, such as `GmbH`, `UG (haftungsbeschränkt)` and `AG`,
+only as groups, so the forms of a group are drawn evenly. A sole proprietorship's name has no abbreviation after it, and
+the others end in theirs, such as `Nordholm Holding GmbH`. `de_DE.company.einzel`, `.kg`, `.ohg`, `.gmbh`, `.ug` and
+`.ag` each draw one form, and `{/de_DE.company as c}{c.legal}` prints the abbreviation of the same pick. No open
+bulk file of German company names was found, so the name's shapes and the words of `company-coined` and
+`company-word` are a language model's recall. Each name is made of those words, `de_DE`'s names and `geo.DE.locality`.
+A name is invented, and may also be a real company's. A program showing the counts credits "© Statistisches
+Bundesamt (Destatis), 2025".
+
+#### German dates and emails
+
+`de_DE.date` is a date from 1970 to 2029 in the German spelling of DIN 5008, day, month and year with two digits each
+and dots between, such as `02.04.2019`. `de_DE.email` is built like `nb_NO.email`: half its local parts are a first and a
+last name from `de_DE`'s names, folded to ASCII, `ä` to `a`, `ö` to `o`, `ü` to `u` and `ß` to `ss`.
 
 #### German phone numbers
 

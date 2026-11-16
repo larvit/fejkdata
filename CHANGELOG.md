@@ -9,6 +9,12 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
+- `en_US.month` and `en_US.weekday`, and for `nb_NO`, `da_DK`, `fi_FI` and `de_DE` the same two, Unicode CLDR's
+  stand-alone names such as `January`, `tirsdag`, `tammikuu` and `Donnerstag`, selected by 1 to 12 and 1 (Monday) to 7.
+- `price`, `time`, `url`, `username` and `color` for `nb_NO`, `nn_NO`, `da_DK`, `fi_FI` and `de_DE`, each as the
+  country writes it: `1 234,50 kr`, `15.04` and a colour name in the locale's own words.
+- `de_DE.company`, drawing a legal form as often as Destatis counted legal units of it in 2024, `de_DE.email` and
+  `de_DE.date`, such as `02.04.2019`. A program showing the counts credits "© Statistisches Bundesamt (Destatis), 2025".
 - `geo.DE`, Germany's Länder, Kreise, places and postal codes from GeoNames, with `de_DE.address` printing one
   place with a street and house number, such as `Hauptstraße 12\n01945 Tettau`. A place weighs the postal codes it
   holds, a count of postal codes rather than of people, as GeoNames publishes no population. The streets are invented: a
