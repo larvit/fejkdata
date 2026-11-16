@@ -1,0 +1,17 @@
+{
+  "format": "https://{host}{path}",
+  "host": ["example.com", "www.example.com", "example.org", "example.no", "www.example.no", "blogg.example.net", "butikk.example.com", "shop.example.no", "api.example.no", "dokumenter.example.org", "nyheter.example.net", "post.example.no"],
+  "path": [
+    { "format": "", "weight": 2 },
+    {
+      "format": "/{seg}",
+      "seg": ["om", "om-oss", "produkter", "blogg", "kontakt", "hjelp", "artikler", "logg-inn", "nyheter", "start", "sok", "handlekurv", "kasse", "vilkar", "personvern", "priser", "tjenester", "bedrift", "karriere", "support", "konto", "innstillinger", "registrer"]
+    },
+    {
+      "format": "/{seg}/{sub}",
+      "weight": 0.5,
+      "seg": ["blogg", "produkter", "hjelp", "dokumenter", "kategori"],
+      "sub": ["oversikt", "kom-i-gang", "guide", "2024", "siste", "arkiv", "detaljer"]
+    }
+  ]
+}

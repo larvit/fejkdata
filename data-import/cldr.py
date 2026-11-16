@@ -1,8 +1,10 @@
-"""Rebuild the month and weekday tables of data/sv_SE and data/nn_NO, and data/sv_SE/territory.tsv, from Unicode CLDR's names.
+"""Rebuild the month and weekday tables of every locale in LOCALES, and data/sv_SE/territory.tsv, from Unicode CLDR's names.
 
     data-import/cldr.py [--cldr URL_OR_DIR] [--cache DIR] [--data-dir DIR]
 
-A month is numbered 1 to 12 and a weekday 1 (Monday) to 7 (Sunday), as ISO 8601 does. The
+A month is numbered 1 to 12 and a weekday 1 (Monday) to 7 (Sunday), as ISO 8601 does. Each
+name is CLDR's stand-alone wide form, the one a list of names holds: Finnish declines the
+format form (`tammikuuta`, `maanantaina`), and the other languages spell both the same. The
 territory table holds one row for each alpha-2 code in data/misc/territory.tsv; when CLDR has no
 Swedish name for a code, the script exits with an error before it writes territory.tsv.
 """
@@ -20,7 +22,7 @@ CLDR = "https://raw.githubusercontent.com/unicode-org/cldr-json/48.0.0/cldr-json
 ROOT = Path(__file__).resolve().parent.parent / "data"
 CACHE = Path(__file__).resolve().parent / "cache"
 WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-LOCALES = {"sv": "sv_SE", "nn": "nn_NO"}
+LOCALES = {"da": "da_DK", "de": "de_DE", "en": "en_US", "fi": "fi_FI", "nb": "nb_NO", "nn": "nn_NO", "sv": "sv_SE"}
 
 
 def load(cldr: str, cache: str, package: str, lang: str, file: str) -> Any:
@@ -30,11 +32,11 @@ def load(cldr: str, cache: str, package: str, lang: str, file: str) -> Any:
 
 def calendar(lang: str, cldr: str, cache: str, out: Path) -> None:
     gregorian = load(cldr, cache, "cldr-dates-full", lang, "ca-gregorian")["dates"]["calendars"]["gregorian"]
-    months = gregorian["months"]["format"]["wide"]
+    months = gregorian["months"]["stand-alone"]["wide"]
     if sorted(months, key=int) != [str(i) for i in range(1, 13)]:
         sys.exit(f"CLDR numbers the months {sorted(months, key=int)}, not 1 to 12")
     tsv.write(out / "month.tsv", ["code", "name"], [{"code": m, "name": months[m]} for m in sorted(months, key=int)])
-    days = gregorian["days"]["format"]["wide"]
+    days = gregorian["days"]["stand-alone"]["wide"]
     if sorted(days) != sorted(WEEKDAYS):
         sys.exit(f"CLDR names the weekdays {sorted(days)}, not {sorted(WEEKDAYS)}")
     tsv.write(out / "weekday.tsv", ["code", "name"], [{"code": i + 1, "name": days[d]} for i, d in enumerate(WEEKDAYS)])

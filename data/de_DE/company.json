@@ -1,0 +1,36 @@
+{
+  "format": "{registered as r}{r}",
+  "legal": "{r.legal}",
+  "registered": [
+    { "format": "{.company.einzel}", "legal": "", "weight": 2062752 },
+    { "format": "{.company.kg}", "legal": "KG", "weight": 220476 },
+    { "format": "{.company.ohg}", "legal": "OHG", "weight": 220475 },
+    { "format": "{.company.gmbh}", "legal": "GmbH", "weight": 287240 },
+    { "format": "{.company.ug}", "legal": "UG (haftungsbeschränkt)", "weight": 287240 },
+    { "format": "{.company.ag}", "legal": "AG", "weight": 287240 }
+  ],
+  "einzel": {
+    "format": "{name}",
+    "name": ["{.first-name} {.last-name}", "{.first-name} {.last-name} {.company-word}", "{.last-name} {.company-word}", "{.company-coined} {.company-word}", "{/geo.DE.locality where not containing '(' and not containing '/'} {.company-word}"]
+  },
+  "kg": {
+    "format": "{name} KG",
+    "name": ["{.last-name} & {.last-name}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{/geo.DE.locality where not containing '(' and not containing '/'} {.company-word}", "{.company-coined}"]
+  },
+  "ohg": {
+    "format": "{name} OHG",
+    "name": ["{.last-name} & {.last-name}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{/geo.DE.locality where not containing '(' and not containing '/'} {.company-word}"]
+  },
+  "gmbh": {
+    "format": "{name} GmbH",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{/geo.DE.locality where not containing '(' and not containing '/'} {.company-word}", "{.first-name} {.last-name}", "{.company-coined} {.company-coined}"]
+  },
+  "ug": {
+    "format": "{name} UG (haftungsbeschränkt)",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{/geo.DE.locality where not containing '(' and not containing '/'} {.company-word}", "{.company-coined} {.company-coined}"]
+  },
+  "ag": {
+    "format": "{name} AG",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{/geo.DE.locality where not containing '(' and not containing '/'} {.company-word}", "{.company-coined} {.company-coined}"]
+  }
+}
