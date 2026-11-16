@@ -615,9 +615,9 @@ template calls. `--no-shipped-data` leaves out the modules passed to
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
 its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/de_DE`, `data/en_US`, `data/fi_FI`, `data/nb_NO`,
-`data/nn_NO`, `data/sv_SE`), one per country's tree of places (`data/geo/DK`, `data/geo/FI`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
+`data/nn_NO`, `data/sv_SE`), one per country's tree of places (`data/geo/DE`, `data/geo/DK`, `data/geo/FI`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`dadk`, `dede`, `enus`, `fifi`, `nbno`, `nnno`, `svse`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `dede`, `enus`, `fifi`, `nbno`, `nnno`, `svse`, `geode`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -995,17 +995,17 @@ person's, so keep it out of anything that reaches a real system. To make one agr
 
 The `geo` namespace holds one tree per country under its alpha-2 code: five [linked tables](#linked-tables) named alike, and an `address` record binding one locality and drawing its street and postal code inside it. The locale's `address` prints that record, and each of its columns describes the address printed.
 
-| Table | `geo.DK` | `geo.FI` | `geo.NO` | `geo.SE` | `geo.US` | Weight |
-|-------|----------|----------|----------|----------|----------|--------|
-| `region` | region, by code or name | maakunta, by code or name | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
-| `municipality` | kommune, by code or name | kunta, by code or name, with its `swedish-name` | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | postitoimipaikka, by name, with its `swedish-name`: every one with a street in Posti's basic address file under a normal postinumero with residents | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; FI: its postinumerot's residents; SE: tätort population, the kommun's where the postort names it, the småort's where one holds the postort's centre, else 200; US: place population |
-| `postal-code` | postnummer with a street address, by code | normal postinumero with a street and residents, by code | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DK and NO: addresses; FI: residents in Statistics Finland's Paavo; SE: one; US: address ranges |
-| `street` | street name, every one in Danmarks Adresseregister | street name, every one [`geo-fi.py`](data-import/geo-fi.py)'s `street_name` accepts, with its `swedish-name` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DK and NO: addresses; FI: ranges in Posti's basic address file; SE: segments; US: address ranges |
+| Table | `geo.DE` | `geo.DK` | `geo.FI` | `geo.NO` | `geo.SE` | `geo.US` | Weight |
+|-------|----------|----------|----------|----------|----------|----------|--------|
+| `region` | Land, by code (`BY`) or name | region, by code or name | maakunta, by code or name | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population; DE: postal codes |
+| `municipality` | Kreis, by code or name | kommune, by code or name | kunta, by code or name, with its `swedish-name` | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | population; DE: postal codes |
+| `locality` | place name within a Kreis, by code: every one GeoNames gives an accuracy | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | postitoimipaikka, by name, with its `swedish-name`: every one with a street in Posti's basic address file under a normal postinumero with residents | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; FI: its postinumerot's residents; SE: tätort population, the kommun's where the postort names it, the småort's where one holds the postort's centre, else 200; US: place population; DE: its postal codes |
+| `postal-code` | Postleitzahl, one row per place it holds: every one GeoNames gives an accuracy | postnummer with a street address, by code | normal postinumero with a street and residents, by code | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DK and NO: addresses; FI: residents in Statistics Finland's Paavo; SE: one; US: address ranges; DE: one |
+| `street` | invented street name, belonging to no place | street name, every one in Danmarks Adresseregister | street name, every one [`geo-fi.py`](data-import/geo-fi.py)'s `street_name` accepts, with its `swedish-name` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DK and NO: addresses; FI: ranges in Posti's basic address file; SE: segments; US: address ranges; DE: one |
 
 #### Across countries
 
-What ports across countries is the five table names, their `name` column, selection by name, and the `address` record's columns: `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`. The record's `region` is a US state's abbreviation, and elsewhere the region's name. Every other column of a table is the country's own, `code` on a Swedish region but `abbr` on a US one.
+What ports across countries is the five table names, their `name` column, selection by name, and the `address` record's columns: `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`. The record's `region` is a US state's abbreviation, and elsewhere the region's name. A place in `geo.DE` is selected by its code alone, since place names repeat. Every other column of a table is the country's own, `code` on a Swedish region but `abbr` on a US one.
 
 #### Danish places
 
@@ -1025,6 +1025,19 @@ Posti gives its postinumerot most often, written as a place name, such as `Helsi
 Statistics Finland's, such as `Åbo` for `Turku`. A street's is the one Posti gives it most often in its
 postitoimipaikka, such as `Nylandsvägen` for `Uudenmaantie`. Where the source gives none, `swedish-name` holds the
 Finnish name. A Finnish street sits under each postitoimipaikka where Posti lists it.
+
+#### German places
+
+`de_DE.address` prints `geo.DE.address`, such as `Hauptstraße 12\n01945 Tettau`. The places and postal codes are
+[GeoNames](https://www.geonames.org/)' Postleitzahlen: a region is a Land, a municipality a Kreis, and a locality a place
+name within a Kreis, which a Kreis's `code` and a running number key, as `12066-002`. A row that GeoNames gives no accuracy
+is mostly a firm's or an office's own Postleitzahl and ships no place, nor does Jungholz, which is Austrian. GeoNames
+publishes no population, so each table weighs a row by the postal codes it holds, which only estimates its people.
+
+The streets are invented. No open register covers Germany whole: the Länder publish theirs on terms of their own, and
+Bavaria's are not open. So `geo.DE.street` holds street names that a language model recalls as common in Germany, each
+drawn as often as another and belonging to no place, and a street sits beside any postal code. Its house numbers are
+estimates too.
 
 #### Norwegian places
 
@@ -2572,6 +2585,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-de.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-dk.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-fi.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-no.py

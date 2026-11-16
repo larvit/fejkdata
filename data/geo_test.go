@@ -250,8 +250,7 @@ func geoAddress(t *testing.T, dir string) map[string]json.RawMessage {
 	return address
 }
 
-// A country may ship without streets, as the decision on countries with no open address register
-// says, and then its address holds neither street column.
+// A country's address holds the street columns where its tree ships streets, real or invented.
 func TestEveryGeoAddressHoldsTheColumnsItsTreeHasTablesFor(t *testing.T) {
 	for _, dir := range geoCountryFolders(t) {
 		for _, c := range geoAddressColumnsOf(dir) {

@@ -42,8 +42,8 @@ func TestGeoDEHoldsTheSixteenLandsInGerman(t *testing.T) {
 	}
 }
 
-// GeoNames' DE.txt places the postal code 01945 in Tettau, Guteborn and Grünewald, all of
-// Landkreis Oberspreewald-Lausitz (12066) in Brandenburg.
+// GeoNames' DE.txt places the postal code 01945 in Tettau, Guteborn and Grünewald, among other
+// places, all of Landkreis Oberspreewald-Lausitz (12066) in Brandenburg.
 func TestGeoDEPostalCodeHoldsEveryPlaceGeoNamesNamesForIt(t *testing.T) {
 	t.Parallel()
 	names, byPostalCode := germanPlaces(t)
@@ -51,9 +51,10 @@ func TestGeoDEPostalCodeHoldsEveryPlaceGeoNamesNamesForIt(t *testing.T) {
 	for _, l := range byPostalCode["01945"] {
 		got = append(got, names[l])
 	}
-	slices.Sort(got)
-	if want := []string{"Grünewald", "Guteborn", "Tettau"}; !slices.Equal(got, want) {
-		t.Errorf("postal code 01945 holds %v, want %v", got, want)
+	for _, want := range []string{"Grünewald", "Guteborn", "Tettau"} {
+		if !slices.Contains(got, want) {
+			t.Errorf("postal code 01945 holds %v, want %s among them", got, want)
+		}
 	}
 	for _, r := range fejktest.TSVRows(t, "geo/DE/locality.tsv") {
 		if r["name"] == "Tettau" && r["municipality"] == "12066" {
@@ -123,7 +124,7 @@ func TestGermanAddressIsAStreetAndANumberThenAPostalCodeAndItsPlace(t *testing.T
 		streets[r["name"]] = true
 	}
 	f := shipped(t, fejkdata.WithSeed(3))
-	fejktest.EachDraw(2000, func() string { return fejktest.FakeTemplate(t, f, "{de_DE.address}") }, func(got string) {
+	fejktest.EachDraw(2000, func() string { return fejktest.FakeTemplate(t, f, "{/de_DE.address}") }, func(got string) {
 		m := germanAddress.FindStringSubmatch(got)
 		if m == nil {
 			t.Fatalf("de_DE.address printed %q, want \"<street> <number>\\n<postal code> <place>\"", got)

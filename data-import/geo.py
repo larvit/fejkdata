@@ -7,6 +7,7 @@ import argparse
 import collections
 import io
 import math
+import re
 import sys
 import zipfile
 from collections.abc import Iterable, Mapping
@@ -25,6 +26,8 @@ DATA = Path(__file__).resolve().parent.parent / "data" / "geo"
 CACHE = Path(__file__).resolve().parent / "cache"
 GEONAMES = "https://download.geonames.org/export/zip/{}.zip"
 NUMBER_RANGES = ((1, 9), (10, 99), (100, 999), (1000, 9999))
+# An invented street's name: a letter first, then letters, digits and the space, full stop, apostrophe and hyphen that join them.
+STREET = re.compile(r"^[^\W\d_][^\W_]*([ .'-]+[^\W_]+)*\.?$")
 COLUMNS = {
     "region": ["code", "name", "population", "timezone"],
     "municipality": ["code", "name", "region", "population"],
@@ -87,6 +90,23 @@ class Nearest[T]:
                 return best
             ring += 1
         return best
+
+
+def invented_streets(recalled: str) -> list[Row]:
+    """The rows of a country's invented streets, for a country with no open address register covering it whole. recalled
+    holds one street name a line, as a language model recalls streets common in the country; a blank line is skipped.
+    Each name weighs the same, so a row holds the name alone. Exits on a name listed twice, on one that is no street name,
+    and on an empty list."""
+    names = [line.strip() for line in recalled.splitlines() if line.strip()]
+    if not names:
+        sys.exit("street names: none listed")
+    for name in names:
+        if not STREET.match(name):
+            sys.exit(f"street names: {name!r} is not a street name")
+    dupes = sorted({n for n in names if names.count(n) > 1})
+    if dupes:
+        sys.exit(f"street names: listed twice: {', '.join(dupes)}")
+    return [{"name": name} for name in sorted(names)]
 
 
 def top_streets[K](count: Mapping[tuple[K, str], int], share: float, minimum: int, column: str) -> dict[K, list[Row]]:
