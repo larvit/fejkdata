@@ -20,6 +20,7 @@ def script(name: str) -> types.ModuleType:
 
 geo_dk = script("geo-dk")
 geo_fi = script("geo-fi")
+geo_de = script("geo-de")
 
 
 def baf(code: str = "", street: str = "", swedish: str = "", low: str = "", low_letter: str = "", high: str = "", high_letter: str = "", kunta: str = "091") -> str:
@@ -87,6 +88,81 @@ class WriteTables(unittest.TestCase):
             "postal-code": "code\tlocality\n1000\tAlby\n2000\tBorg\n",
             "street": "name\tlocality\taddresses\nGade\tAlby\t9\nTorvet\tBorg\t3\n",
         })
+
+
+class InventedStreets(unittest.TestCase):
+    def test_a_street_is_a_row_with_its_name_alone(self) -> None:
+        rows = geo.invented_streets("Am Markt\nStraße des 17. Juni\nSt.-Anna-Weg\nBahnhofstraße\n")
+        self.assertEqual(rows, [{"name": "Am Markt"}, {"name": "Bahnhofstraße"}, {"name": "St.-Anna-Weg"}, {"name": "Straße des 17. Juni"}])
+
+    def test_a_name_listed_twice_exits_naming_it(self) -> None:
+        with self.assertRaisesRegex(SystemExit, "Am Markt"):
+            geo.invented_streets("Am Markt\nBahnhofstraße\nAm Markt\n")
+
+    def test_a_name_that_is_no_street_exits_naming_it(self) -> None:
+        for bad in ("17. Juni", "Markt {x}", "Am\tMarkt", "_Weg"):
+            with self.subTest(bad=bad), self.assertRaisesRegex(SystemExit, "street"):
+                geo.invented_streets(f"Bahnhofstraße\n{bad}\n")
+
+    def test_no_name_exits(self) -> None:
+        with self.assertRaises(SystemExit):
+            geo.invented_streets("\n\n")
+
+
+def geonames_de(code: str, place: str, land: str, kreis_code: str, kreis: str, lat: str = "50.0", lon: str = "10.0") -> str:
+    """A line of GeoNames' DE.txt, each field at the position GeoNames' readme gives."""
+    return "\t".join(["DE", code, place, "", land, "", "00", kreis, kreis_code, lat, lon, "4"])
+
+
+class GermanPlaces(unittest.TestCase):
+    LINES: ClassVar[list[str]] = [
+        geonames_de("01945", "Tettau", "BB", "12066", "Landkreis Oberspreewald-Lausitz", "51.4333", "13.7333"),
+        geonames_de("01945", "Guteborn", "BB", "12066", "Landkreis Oberspreewald-Lausitz", "51.4167", "13.9333"),
+        geonames_de("01946", "Tettau", "BB", "12066", "Landkreis Oberspreewald-Lausitz", "51.4333", "13.7333"),
+        geonames_de("83362", "Surberg", "BY", "09189", "Landkreis Traunstein"),
+        geonames_de("83308", "Trostberg", "BY", "09189", "Landkreis Traunstein"),
+        geonames_de("83309", "Trostberg", "BY", "09189", "Traunstein"),
+        geonames_de("87491", "Jungholz", "", "", ""),
+    ]
+
+    def test_a_land_is_named_in_german_and_weighs_its_postal_code_rows(self) -> None:
+        regions, _, _, _ = geo_de.places(self.LINES)
+        self.assertEqual(regions, [
+            {"code": "BB", "name": "Brandenburg", "postal-codes": 3, "timezone": "Europe/Berlin"},
+            {"code": "BY", "name": "Bayern", "postal-codes": 3, "timezone": "Europe/Berlin"},
+        ])
+
+    def test_a_kreis_takes_the_name_most_of_its_rows_spell(self) -> None:
+        _, municipalities, _, _ = geo_de.places(self.LINES)
+        self.assertEqual(municipalities, [
+            {"code": "09189", "name": "Landkreis Traunstein", "region": "BY", "postal-codes": 3},
+            {"code": "12066", "name": "Landkreis Oberspreewald-Lausitz", "region": "BB", "postal-codes": 3},
+        ])
+
+    def test_a_locality_is_a_place_name_in_a_kreis_at_the_centre_of_its_rows(self) -> None:
+        _, _, localities, _ = geo_de.places(self.LINES)
+        self.assertEqual([(r["code"], r["name"], r["municipality"], r["postal-codes"]) for r in localities], [
+            ("09189-001", "Surberg", "09189", 1), ("09189-002", "Trostberg", "09189", 2),
+            ("12066-001", "Guteborn", "12066", 1), ("12066-002", "Tettau", "12066", 2),
+        ])
+        self.assertEqual({k: localities[3][k] for k in ("lat", "lon")}, {"lat": "51.4333", "lon": "13.7333"})
+
+    def test_a_postal_code_lists_every_locality_it_holds_once(self) -> None:
+        _, _, _, postal_codes = geo_de.places(self.LINES)
+        self.assertEqual(postal_codes, [
+            {"code": "01945", "locality": "12066-001"}, {"code": "01945", "locality": "12066-002"}, {"code": "01946", "locality": "12066-002"},
+            {"code": "83308", "locality": "09189-002"}, {"code": "83309", "locality": "09189-002"}, {"code": "83362", "locality": "09189-001"},
+        ])
+
+    def test_a_row_with_no_land_is_dropped(self) -> None:
+        regions, municipalities, localities, postal_codes = geo_de.places(self.LINES)
+        self.assertNotIn("Jungholz", [r["name"] for r in localities])
+        self.assertNotIn("87491", [r["code"] for r in postal_codes])
+        self.assertEqual((len(regions), len(municipalities)), (2, 2))
+
+    def test_an_unknown_land_code_exits_naming_it(self) -> None:
+        with self.assertRaisesRegex(SystemExit, "XX"):
+            geo_de.places([geonames_de("01945", "Tettau", "XX", "12066", "Landkreis")])
 
 
 class Parsed(unittest.TestCase):
