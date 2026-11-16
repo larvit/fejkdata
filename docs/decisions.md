@@ -1559,6 +1559,7 @@ of speech by its row count, per "A table whose register publishes no frequency d
 
 SALDO marks no word as rude, so the import drops exact matches of LDNOOBW's Swedish list (CC BY 4.0,
 widely used to filter generated text). It leaves compounds and any rude word the list lacks.
+Item 497 ends this filter: the project principle on a locale's `word` keeps rude words.
 Valid while no open Swedish source tags register.
 
 ## `en_US.word` holds WordNet's words, under one short path per part of speech, and its notice ships with them
@@ -1580,7 +1581,7 @@ rule, with `be`, `have`, `stomach`, `quiz`, `whiz` and the `-o` verbs that take 
 WordNet has no forms. The import drops a word whose every sense is in WordNet's usage domains of disparagement, ethnic
 slurs or obscenity, which tag slurs such as `dago` that LDNOOBW's English list lacks, and the exact matches
 of that list. A word with one tagged sense among others, such as `boy`, `queen` or `tool`, stays, so `gook` stays
-for its other sense.
+for its other sense. Item 497 ends both filters: the project principle on a locale's `word` keeps rude words.
 
 WordNet's sense counts cover a quarter of its lemmas, so `word` weighs a part of speech by its row count and
 draws each word evenly, which keeps the spread this data exists to widen.
@@ -1597,7 +1598,8 @@ evenly". Norsk ordbank (Språkbanken, CC BY 4.0) gives `nb_NO` Bokmål 2005 and 
 (CC BY 4.0) gives `fi_FI` the headwords of Kielitoimiston sanakirja. Wikidata's lexemes (CC0) give `de_DE`
 its words and their forms. Each import drops
 a word or form on LDNOOBW's list for its language, as the `sv_SE` import does; the German import compares
-in lower case, since the list writes its nouns in lower case too.
+in lower case, since the list writes its nouns in lower case too. Item 497 ends this filter: the project
+principle on a locale's `word` keeps rude words.
 
 The Norwegian and Danish tables carry the forms `sv_SE` does: `noun.definite`, `verb.present` and
 `adj.definite`. The Finnish list holds no inflected forms, so `fi_FI.word` carries none, and its sentences

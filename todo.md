@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 497`
+`Next ID = 498`
 
 ## Items
 
@@ -90,6 +90,7 @@
 | 269 | 0.8.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.3 |
 | 161 | 0.8.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.2 |
 | 29 | 0.8.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.1 |
+| 497 | 0.8.0 |  | owner | **Draw every word of each locale's `word` tables from its dictionary, rude words included.** | 3 | 2 | 2 | 5 | 6 | 3.2 by 2, code health by 2 | 1.1 |
 | 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 0.9 |
 | 495 | 0.8.0 |  |  | **Weigh `geo.DE`'s places and Länder by population, not by the postal codes they hold.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.2 by 3 | 0.9 |
 | 56 | 0.8.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.8 |
@@ -539,6 +540,12 @@ Choices and a template.
 ### 29. Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.
 
 Require the path step to reach a sibling category.
+
+### 497. Draw every word of each locale's `word` tables from its dictionary, rude words included.
+
+The human chose this when asked whether a locale's `word` should be a project principle: "Why without rude words? Skip that rule, just random instead and then make it a principle." The principle sits in `AGENTS.md`.
+
+Today seven imports drop rude words: `word-se.py`, `word-us.py`, `word-no.py` (nb_NO and nn_NO), `word-dk.py`, `word-fi.py` and `word-de.py` drop LDNOOBW's list for their language, through `wordtables.rude`, and `word-us.py` also drops WordNet's usage domains of disparagement, ethnic slurs and obscenity. Remove those filters and `wordtables.rude`, rerun the seven imports, and re-pin what moves. Drop the rude-word cases from `data/words_test.go` (`assertWordsAbsent`), and the README's "drops the words on LDNOOBW's … list" sentences, saying instead that the tables hold rude words, so read the output before showing it to anyone. Drop LDNOOBW from `DATA-LICENSES.md` and the `--rude` flag from the README's Development commands. Revise the three decisions that cite this item, and the principle's last clause in `AGENTS.md`. Add the CHANGELOG entry.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
