@@ -9,7 +9,7 @@ import (
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
-// The 80 blocks of "Zugeteilte Rufnummernblöcke (Mobile Dienste)", the Bundesnetzagentur's list
+// The 81 blocks of "Zugeteilte Rufnummernblöcke (Mobile Dienste)", the Bundesnetzagentur's list
 // RNB_csv.csv, without the trunk 0. The list writes 15591 with a space where it has a semicolon.
 var germanMobileBlocks = strings.Fields(`
 	15019 15020 1511 1512 1514 1515 1516 1517 15180 15181 15182 15183 15184 15185 15186 15187 15188
