@@ -23,6 +23,15 @@ with its replacement, and each removed path, column or flag.
   the Federal Central Tax Office doesn't give any number it issues. Of the first ten digits, one appears
   twice or three times, and the eleventh is the check digit of ISO 7064 MOD 11,10. A checker that refuses a
   leading zero refuses every number. The builtin `{steuerid()}` draws one.
+- `de_DE.phone`, a German phone number such as `01511 2345678`, mobile ten times as often as fixed. Its
+  `national` and `international` (`+49 1511 2345678`) fields are the two spellings of one number. It reads
+  `de_DE.phone-mobile`, the 81 blocks of the Bundesnetzagentur's list of assigned mobile blocks, and
+  `de_DE.phone-fixed`, the 5200 area codes its Vorwahlverzeichnis of 2022-07-27 marks active, each with its
+  Ortsnetz as `name`, selected as `phone-fixed[030]`. A number has the length the Bundesnetzagentur's
+  plans give a number allocated now, and its subscriber number is drawn by `de_DE.phone-subscriber`. The
+  plans publish no register of assigned numbers, so a number may be a real subscriber's. A program showing
+  the codes or blocks credits "Datenquelle: Bundesnetzagentur", names the licence Datenlizenz Deutschland –
+  Namensnennung 2.0 (`dl-de/by-2-0`), links the lists and says the data was changed.
 
 ## 0.6.0 - 2026-11-15
 
