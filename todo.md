@@ -6,22 +6,19 @@
 
 `Bar = 0`
 
-`Next ID = 495`
+`Next ID = 497`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 474 | 0.7.0 |  | decision | **Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 2.1 by 4 | 2.2 |
 | 475 | 0.7.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 2 | 1.9 |
 | 333 | 0.7.0 |  |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
-| 329 | 0.7.0 |  |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 477 | 0.7.0 |  |  | **Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 478 | 0.7.0 |  |  | **Add `nn_NO`'s price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 479 | 0.7.0 |  |  | **Add `da_DK`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 480 | 0.7.0 |  |  | **Add `fi_FI`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
 | 481 | 0.7.0 |  |  | **Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 2.1 by 2 | 1.2 |
-| 330 | 0.7.0 | 329, 474 |  | **Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 482 | 0.7.0 |  |  | **Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 483 | 0.7.0 |  |  | **Add `nn_NO`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
 | 484 | 0.7.0 |  |  | **Add `da_DK`'s word, sentence and paragraph, the words from a published word list.** | 3 | 2 | 1 | 4 | 5 | 1 by 2, 2.1 by 2, 3.2 by 2 | 1.1 |
@@ -101,10 +98,12 @@
 | 194 | 0.8.0 |  | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 5 by 4 | 1.3 |
 | 158 | 0.8.0 |  |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
 | 163 | 0.8.0 |  |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 1 | 2 | 3 | 2 | 1 by 2 | 1.3 |
+| 496 | 0.8.0 |  |  | **Name each `geo.DE` Kreis in one style, as Destatis's Gemeindeverzeichnis names it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 2 | 1.3 |
 | 269 | 0.8.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.3 |
 | 161 | 0.8.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.2 |
 | 29 | 0.8.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.1 |
 | 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 0.9 |
+| 495 | 0.8.0 |  |  | **Weigh `geo.DE`'s places and Länder by population, not by the postal codes they hold.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.2 by 3 | 0.9 |
 | 56 | 0.8.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.8 |
 | 53 | 0.8.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 4 by 2 | 0.7 |
 | 404 | 0.8.0 |  |  | **Let a template in a `repeat` or a choice item bind a name to a path through an enclosing name, `{l.street as s}`, so each render draws a fresh row inside the enclosing pick.** | 3 | 2 | 2 | 5 | 6 | 1 by 3, 4 by 4 | 0.7 |
@@ -235,17 +234,9 @@
 
 ## Details
 
-### 474. Draw an invented street in a country's `address` where no open register covers it, from a street-name list a language model recalls, and say in the README that it is invented.
-
-Applies the decision "A country with no open address register covering it whole draws invented streets", as the project principle for `da_DK.company` and `fi_FI.company` draws names. Each name shape weighs the same, and the README's Data section marks the country's streets invented (item 254's labels). Item 330 is its first user; items 271, 280, 285 and 325 may take it too where no open register covers the country. Item 218 replaces the invented streets with real ones.
-
 ### 475. Add `en_US.month` and `en_US.weekday` names from CLDR.
 
 CLDR is under the Unicode licence, as `sv_SE.month` and `sv_SE.weekday` take theirs. [Source research](docs/research/research-sources-world.md).
-
-### 329. Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.
-
-GeoNames publishes Germany's postal codes.
 
 ### 477. Add `nb_NO`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
 
@@ -266,10 +257,6 @@ Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do.
 ### 481. Add `de_DE`'s month, weekday, price, time, url, username and color, each as its sibling locales write it.
 
 Month and weekday names come from CLDR, as `sv_SE.month` and `sv_SE.weekday` do. A price is in euro (€), written as the country writes it. Time, url, username and color follow `sv_SE`'s files, with the locale's own words.
-
-### 330. Give `geo/DE`'s places their streets, real where open registers cover every Land, else invented.
-
-Each Land publishes its own address data. Where open registers cover every Land, they are its street source; else it draws invented streets (decision: no open address register covering it whole).
 
 ### 482. Add `nb_NO`'s word, sentence and paragraph, the words from a published word list.
 
@@ -590,6 +577,10 @@ A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a
 
 The README's Audience names a bulk fixture author writing millions of rows, and `-n 5000000` is misuse today, so they loop. The decision "The repeat cap bounds renders, not bytes" covers nested repeats in data, not `-n`. The README's Functions section justifies the builtin caps by a fat-fingered `hex(2000000000)`, a guess at a mistake under goal 4.7; the reason that holds is that one render may not allocate gigabytes. The goals audit of the narrowed goal 4.7 found it.
 
+### 496. Name each `geo.DE` Kreis in one style, as Destatis's Gemeindeverzeichnis names it.
+
+GeoNames spells a Kreis sometimes bare ("Heidekreis") and sometimes with its kind ("Landkreis Oberspreewald-Lausitz", "Stadt Salzgitter"), and `data-import/geo-de.py` keeps that mix, with one override for Nürnberg. Take the names, with their kind, from the Gemeindeverzeichnis by Kreis code, and drop the override.
+
 ### 269. Add `misc.direction`, `misc.continent` and `misc.ulid`.
 
 Choices and a template.
@@ -605,6 +596,10 @@ Require the path step to reach a sibling category.
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
 `New` and `NewTemplate` stop at the first, so data holding two mistakes takes two runs to fix. Split it into items before starting, one of them the shape a Go caller iterates and the CLI prints, and the order of an inline template's mistakes, which name no path; reword the README's "`New` refuses a mistake in the data" to every mistake.
+
+### 495. Weigh `geo.DE`'s places and Länder by population, not by the postal codes they hold.
+
+Today a locality weighs its postal-code count, which favours small places over the people living in them, as the README says. Destatis's Gemeindeverzeichnis publishes the population of each Gemeinde; match it to GeoNames' places by Kreis and name, and weigh a place by its people where the match holds. Decision: "A table whose register publishes no frequency draws evenly" does not apply, since a register does publish one.
 
 ### 56. Build on a manual run of `test.yml` on `main`.
 
