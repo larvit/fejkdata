@@ -93,7 +93,7 @@ func TestShippedGermanPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 	}
 }
 
-var germanNationalPhone = regexp.MustCompile(`^(0\d{2,5}) ([1-9]\d{5,7})$`)
+var germanNationalPhone = regexp.MustCompile(`^(0\d{2,5}) ([2-9]\d{5,7})$`)
 
 func eachShippedGermanPhone(t *testing.T, check func(n string)) {
 	t.Helper()
@@ -110,10 +110,10 @@ func germanAreaCodes(t *testing.T, kind string) map[string]bool {
 	return got
 }
 
-func TestShippedGermanPhoneIsAnAreaCodeAndASubscriberNumberWithoutAZeroFirst(t *testing.T) {
+func TestShippedGermanPhoneIsAnAreaCodeAndASubscriberNumberWithoutAZeroOrAOneFirst(t *testing.T) {
 	eachShippedGermanPhone(t, func(n string) {
 		if !germanNationalPhone.MatchString(n) {
-			t.Fatalf("phone %q is not a code, a space and a subscriber number of 6 to 8 digits not starting with 0", n)
+			t.Fatalf("phone %q is not a code, a space and a subscriber number of 6 to 8 digits not starting with 0 or 1", n)
 		}
 	})
 }
