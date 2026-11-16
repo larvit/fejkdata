@@ -9,7 +9,7 @@
 		"nn_NO.month": {"paths":["","code","name"]},
 		"nn_NO.person": {"paths":["","first","last","prefix","sex"]},
 		"nn_NO.phone": {"paths":["","international","national"]},
-		"nn_NO.price": {"paths":["","amt","ore"]},
+		"nn_NO.price": {"paths":[""]},
 		"nn_NO.time": {"paths":[""]},
 		"nn_NO.title": {"paths":["","name","share"]},
 		"nn_NO.url": {"paths":["","host","path"]},

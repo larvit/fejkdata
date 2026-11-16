@@ -2,7 +2,7 @@
   {
     "format": "{first}{sep}{last}{n}",
     "weight": 2,
-    "first": ["agnes", "anders", "anna", "astrid", "bjorn", "eirik", "emil", "emma", "erik", "frida", "hanne", "henrik", "ida", "ingrid", "jonas", "kari", "kristian", "lars", "linn", "magnus", "eirik", "gunnhild", "helga", "ola", "sigrid", "torbjorn", "vidar", "aslaug", "knut", "liv"],
+    "first": ["agnes", "anders", "anna", "astrid", "bjorn", "eirik", "emil", "emma", "erik", "frida", "hanne", "henrik", "ida", "ingrid", "jonas", "kari", "kristian", "lars", "linn", "magnus", "per", "gunnhild", "helga", "ola", "sigrid", "torbjorn", "vidar", "aslaug", "knut", "liv"],
     "last": ["aas", "bakke", "berg", "dahl", "eide", "foss", "haug", "hauge", "holm", "lie", "lund", "moen", "myr", "nes", "rud", "sand", "strand", "vik", "li", "nygard"],
     "sep": [{ "format": "", "weight": 2 }, ".", "_"],
     "n": [{ "format": "", "weight": 3 }, "1", "7", "23", "99", "2024"]

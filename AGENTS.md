@@ -18,7 +18,7 @@
 
 ## Project principles
 
-- A company category whose country has no open bulk file of company names weighs its legal forms by the counts the country's statistics office publishes, and draws its names from a language model's recall. Each name shape and word weighs the same. Goal 3.2. Applied by `da_DK.company` and `fi_FI.company`.
+- A company category whose country has no open bulk file of company names weighs its legal forms by the counts the country's statistics office publishes, and draws its names from a language model's recall. Each name shape and word weighs the same. Goal 3.2. Applied by `da_DK.company`, `de_DE.company` and `fi_FI.company`.
 - A name table for which no open bulk file of name counts exists, not even one covering part of the country, keeps any counts a source publishes, and draws every other name from a language model's recall. The commoner recalled names are ranked from the most to the least common. Each weighs a function of its rank, which the decision applying this principle states, and never more than the smallest published count. The rarer ones follow in no order and share one weight, no higher than the last ranked name's. The README and `DATA-LICENSES.md` call these weights estimates. Goal 3.2. Applied by `da_DK.first-name`, `da_DK.last-name` and `de_DE.last-name`.
 - A national id draws a series its issuer keeps for tests or never issues, where one is published. The README says which checker, if any, refuses it. Goal 3.3. Applied by `de_DE.steuer-id`, `fi_FI.henkilotunnus`, `nb_NO.fodselsnummer`, `nn_NO.fodselsnummer`, `sv_SE.personnummer`, `sv_SE.personnummer-12`, `sv_SE.samordningsnummer` and `sv_SE.samordningsnummer-12`.
 
