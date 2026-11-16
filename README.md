@@ -1031,7 +1031,7 @@ Finnish name. A Finnish street sits under each postitoimipaikka where Posti list
 `de_DE.address` prints `geo.DE.address`, such as `Hauptstraße 12\n01945 Tettau`. The places and postal codes are
 [GeoNames](https://www.geonames.org/)' Postleitzahlen. A region is a Land, a municipality a Kreis, and a locality a place
 name within a Kreis. A locality's `code` is its Kreis's `code` and its name in ASCII, with umlauts and ß written out, as
-`12066-tettau`, so a refresh of GeoNames' file leaves it where it was. A Kreis is named as a German writes it, `Stadt Salzgitter`
+`12066-tettau`, so a refresh of GeoNames' file leaves it where it was. Two villages of one name in a Kreis are one locality, at the mean of their points. A Kreis is named as a German writes it, `Stadt Salzgitter`
 for GeoNames' `Salzgitter, Stadt`. GeoNames writes a Landkreis with or without the word, `Landkreis Traunstein` but
 `Bamberg`, and `geo.DE` keeps that. All of Hamburg and of Berlin is one place each, as a letter addresses it. GeoNames gives each place an
 accuracy, its measure of how exactly it knows the point. A row without one is mostly a firm's or an office's own
