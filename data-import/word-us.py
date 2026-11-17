@@ -59,6 +59,11 @@ def rude_domains(tarball: bytes) -> set[str]:
     return {offset for offset, words, _ in synsets(tarball, "noun") if RUDE_DOMAINS & set(words)}
 
 
+def spelled(word: str, part: str) -> bool:
+    """Lower-case ASCII letters alone."""
+    return word.isascii() and wordtables.lower(word, part)
+
+
 def candidates(tarball: bytes) -> Iterator[wordtables.Candidate]:
     domains = rude_domains(tarball)
     for part, column in FORMS.items():
@@ -68,4 +73,4 @@ def candidates(tarball: bytes) -> Iterator[wordtables.Candidate]:
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "en", OUT, FORMS, [wordtables.Source(flag="wordnet", url=WORDNET, name="WNdb-3.0.tar.gz", magic=b"\x1f\x8b", candidates=candidates)])
+    wordtables.main(__doc__, "en", OUT, FORMS, [wordtables.Source(flag="wordnet", url=WORDNET, name="WNdb-3.0.tar.gz", magic=b"\x1f\x8b", candidates=candidates)], spelled)
