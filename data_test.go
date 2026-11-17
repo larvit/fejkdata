@@ -12,7 +12,7 @@ import (
 )
 
 // TestShippedDataCategories asserts en_US and sv_SE emit only well-formed values
-// for each category data/locales_test.go's shippedLocales doesn't test for them.
+// for each category the shared tests over data/locales_test.go's shippedLocales don't cover for them.
 func TestShippedDataCategories(t *testing.T) {
 	color := regexp.MustCompile(`^(#[0-9a-f]{6}|[\pL ]+)$`)
 	url := regexp.MustCompile(`^https?://([a-z0-9-]+\.)+[a-z]{2,}(/[a-z0-9./-]*)?$`)
@@ -46,7 +46,7 @@ func TestShippedDataCategories(t *testing.T) {
 			})
 			t.Run("sv_SE", func(t *testing.T) {
 				if c.sv == nil {
-					t.Skip("data/locales_test.go's shippedLocales tests it")
+					t.Skip("the shared tests over data/locales_test.go's shippedLocales cover it")
 				}
 				fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "sv_SE."+c.path) }, func(v string) {
 					if !c.sv.MatchString(v) {

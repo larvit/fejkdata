@@ -11,8 +11,8 @@ import (
 	"github.com/larvit/fejkdata/data"
 )
 
-// shippedLocale is what the tests shared by the locales expect of one. A field makes the shared
-// tests of its categories run for the locale, and sharedCategories says which categories those are.
+// shippedLocale is what the shared locale tests expect of a locale. A field runs the shared tests
+// of its categories for the locale; sharedCategories maps each category to its field.
 type shippedLocale struct {
 	name string
 	// Its word tables by part of speech.
@@ -27,7 +27,7 @@ type shippedLocale struct {
 	dateLayout string
 	emailFold  *strings.Replacer
 	phone      *phone
-	// The categories of sharedCategories it ships with no field set here, since tests outside the shared ones hold them.
+	// The shared categories it ships whose tests live outside the shared ones, so no field is set for them.
 	testedElsewhere []string
 }
 
@@ -65,7 +65,7 @@ type company struct {
 
 // A legal form a company draws: the code its country's register counts it under, the last step of
 // its path under company, the words a name of it ends in, "" for the form that prints none, and
-// how many units the source counts.
+// its units: the source's count, or its even share of the group the source counts it in.
 type legalForm struct {
 	code   string
 	path   string
@@ -106,7 +106,7 @@ var shippedLocales = []shippedLocale{
 		everyday: &everyday{`^\d{1,3}(\.\d{3})?(,\d{2})? kr\.$`, `^([01]\d|2[0-3])\.[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|dk)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grøn", "Rød"}},
 		person:   &person{map[string]string{"f": "kvinde", "m": "mand"}, []string{"dr.", "professor"}},
 		// Statistics Denmark's table GF15, 2024: 132,403 sole proprietorships, 218,208 private limited companies,
-		// 30,750 public limited companies and 11,679 partnerships and limited partnerships, split evenly.
+		// 30,750 public limited companies and 11,679 partnerships and limited partnerships, which I/S and K/S split evenly.
 		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (ApS|A/S|I/S|K/S))?$`), legalForm{"ENK", "enk", "", 132403}, []legalForm{
 			{"ApS", "aps", "ApS", 218208}, {"A/S", "as", "A/S", 30750}, {"I/S", "is", "I/S", 5840}, {"K/S", "ks", "K/S", 5839},
 		}},
@@ -141,7 +141,7 @@ var shippedLocales = []shippedLocale{
 		months:     []string{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
 		weekdays:   []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"},
 		dateLayout: "01/02/2006",
-		// english_test.go holds its person, title and phone, and TestShippedDataCategories of ../data_test.go the rest.
+		// english_test.go covers its person, sex, title and phone, and TestShippedDataCategories of ../data_test.go the rest.
 		testedElsewhere: []string{"color", "company", "email", "person", "phone", "price", "sex", "time", "title", "url", "username"},
 	},
 	{
@@ -184,7 +184,7 @@ var shippedLocales = []shippedLocale{
 		weekdays:   []string{"måndag", "tysdag", "onsdag", "torsdag", "fredag", "laurdag", "søndag"},
 		everyday:   &everyday{`^\d{1,3}( \d{3})?(,\d{2})? kr$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|no)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grøn", "Raud"}},
 		dateLayout: "02.01.2006",
-		// nynorsk_test.go holds them: each reads Bokmål's.
+		// nynorsk_test.go covers these, each against Bokmål's.
 		testedElsewhere: []string{"company", "email", "person", "phone", "title"},
 	},
 	{
@@ -196,7 +196,7 @@ var shippedLocales = []shippedLocale{
 		everyday:   &everyday{`^\d{1,3}( \d{3})?(,\d{2})? kr$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|se)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Blå", "Grön", "Röd"}},
 		person:     &person{map[string]string{"f": "kvinna", "m": "man"}, []string{"dr", "prof"}},
 		dateLayout: "2006-01-02",
-		// swedish_test.go holds its company and phone, and TestShippedDataCategories of ../data_test.go its email.
+		// swedish_test.go covers its company and phone, and TestShippedDataCategories of ../data_test.go its email.
 		testedElsewhere: []string{"company", "email", "phone"},
 	},
 }
@@ -212,7 +212,7 @@ func eachLocale(t *testing.T, has func(l shippedLocale) bool, test func(t *testi
 	}
 }
 
-// The categories the shared tests hold, each with what tells that a locale's entry makes those tests run for it.
+// Each category the shared tests cover, with the check that a locale's entry runs those tests.
 var sharedCategories = map[string]func(l shippedLocale) bool{
 	"word": hasWords, "sentence": hasWords, "paragraph": hasWords,
 	"month": hasCalendar, "weekday": hasCalendar,
@@ -225,7 +225,6 @@ var sharedCategories = map[string]func(l shippedLocale) bool{
 	"phone":   hasPhone,
 }
 
-// coveredCategories lists the shared categories its entry answers for: each whose field is set, then each it says other tests hold.
 func (l shippedLocale) coveredCategories() []string {
 	var covered []string
 	for category, has := range sharedCategories {
@@ -287,7 +286,7 @@ func TestShippedLocaleCoversEachSharedCategoryItsModuleShipsOnce(t *testing.T) {
 		heldByOtherTestsAlone := func(category string) bool { return sharedCategories[category] == nil }
 		ships := slices.DeleteFunc(categories[l.name], heldByOtherTestsAlone)
 		if covered := l.coveredCategories(); !slices.Equal(covered, ships) {
-			t.Errorf("the entry sets a field or names testedElsewhere for %q, want each category the shared tests hold that the module ships, once: %q", covered, ships)
+			t.Errorf("fields and testedElsewhere cover %q, want each shared category the module ships, once: %q", covered, ships)
 		}
 	})
 }

@@ -51,10 +51,9 @@ func TestLocaleCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
 	t.Parallel()
 	eachLocale(t, hasCompany, func(t *testing.T, l shippedLocale) {
 		t.Parallel()
-		bare := " " + l.company.bare.code
 		eachCompany(t, l.name, func(got string) {
-			if !l.company.name.MatchString(got) || strings.HasSuffix(got, bare) {
-				t.Fatalf("company %q is not a name that may end in a legal form, which%s is not", got, bare)
+			if !l.company.name.MatchString(got) || strings.HasSuffix(got, " "+l.company.bare.code) {
+				t.Fatalf("company %q is not a name, optionally ending in a legal form, that doesn't end in %q", got, l.company.bare.code)
 			}
 		})
 	})
