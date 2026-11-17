@@ -32,7 +32,7 @@ class Tags(NamedTuple):
 
 
 def parts(singular: str, definite: str) -> dict[str, Tags]:
-    """Each part of speech's tags. Bokmål tags a singular `ent` and a definite `be`, nynorsk `eint` and `bu`."""
+    """Bokmål tags a singular `ent` and a definite `be`, nynorsk `eint` and `bu`."""
     return {
         "noun": Tags({"subst", "appell"}, {singular, "ub"}, {singular, definite}),
         "verb": Tags({"verb"}, {"inf"}, {"pres"}),
@@ -56,7 +56,7 @@ def lines(tarball: bytes, name: str) -> Iterator[list[str]]:
             yield line.split("\t")
 
 
-def paradigms(tarball: bytes, name: str, parts: Mapping[str, Tags]) -> dict[tuple[str, str, str], tuple[set[str], list[str]]]:
+def paradigms(tarball: bytes, name: str, wanted: Mapping[str, Tags]) -> dict[tuple[str, str, str], tuple[set[str], list[str]]]:
     """Per lemma, part of speech and paradigm, in the order the list first names them, the spellings of the word and those of its form.
 
     A form counts while the norm holds it: its end date is 4000 and it is normert. A verb's passive never counts."""
@@ -65,12 +65,12 @@ def paradigms(tarball: bytes, name: str, parts: Mapping[str, Tags]) -> dict[tupl
         tags = set(tag.split())
         if until != "4000" or norm != "normert" or "pass" in tags:
             continue
-        for part, wanted in parts.items():
-            if wanted.every <= tags:
+        for part, of_part in wanted.items():
+            if of_part.every <= tags:
                 words, forms = found.setdefault((lemma, part, paradigm), (set(), []))
-                if wanted.word <= tags:
+                if of_part.word <= tags:
                     words.add(form)
-                if wanted.form and wanted.form <= tags:
+                if of_part.form and of_part.form <= tags:
                     forms.append(form)
     return found
 
