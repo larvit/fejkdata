@@ -2789,14 +2789,16 @@ cannot read it and the release holds no Delete scope.
 
 A pull request that adds a locale ships, in this order:
 
-1. The locale's package, added to [`data/modules.go`](data/modules.go).
-2. Its `.fejkdata.json`, from `generate`, committed with the data.
-3. The re-pin of `testdata/shipped_shape.txt` in a commit of its own, both as
+1. Its entry in `shippedLocales` ([`data/locales_test.go`](data/locales_test.go)), in name order,
+   in a commit of its own: the tests every locale shares run once per entry. The entry sets a field,
+   or names the category in `testedElsewhere`, for each shared category the locale ships, and a test
+   fails until it does, or while a locale in `data/modules.go` has no entry.
+2. The locale's package, added to [`data/modules.go`](data/modules.go).
+3. Its `.fejkdata.json`, from `generate`, committed with the data.
+4. The re-pin of `testdata/shipped_shape.txt` in a commit of its own, both as
    [the paragraph on a change to the shipped data](#development) says.
-4. A raised `base` in `TestNoNewAllocRegression` (`perf_test.go`), where the new manifest paths
+5. A raised `base` in `TestNoNewAllocRegression` (`perf_test.go`), where the new manifest paths
    take `New` past its 10% slack.
-5. Its entry in `shippedLocales` ([`data/locales_test.go`](data/locales_test.go)), the one table the
-   tests the locales share run over. A test fails while a locale in `data/modules.go` has none.
 6. Its README text: a `###` section under Data, with a `####` heading per feature, and its name in the "Data built in" bullet.
 7. A `CHANGELOG.md` entry under `Unreleased`.
 8. A [`DATA-LICENSES.md`](DATA-LICENSES.md) entry for each dataset the locale adds.
