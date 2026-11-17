@@ -2182,3 +2182,28 @@ Inherited architect, would restructure first:
 - Locality: `internal/engine/tree/loadfinds.go:11` `LoadFinds`: two-phase node state every load function reads through
 - Shape: `internal/engine/tree/node.go:69` `Template`: one name over three concepts
 - Self-sufficiency: `internal/engine/render/pick.go:224` `namedPick`: render has no package doc for the frame, pick and pin lifecycle
+
+## 2026-11-17T00:12:49Z, PR #416 at 068c3684, against 074d4cea
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | same | better |
+| Inherited architect | better | better | same | same | better |
+
+Mid A, decided by:
+
+- Navigation, Locality, Shape: `data/locales_test.go:99` `shippedLocales`: one table holds what the shared tests expect of each locale, and a guard test fails when a shipped shared category has no test, where the base copied the same tests per locale
+- Navigation, Shape: `data/locale_person_test.go:100` `TestLocalePersonHasAFirstNameOfItsSex`: each shared check has one home named by its category, and the per-locale files hold only what is particular to the country
+- Locality, Shape: `data-import/wordtables.py:42` `rows`: the rude filter, argument parsing and writing happen once, where six imports each had drifted copies
+- Shape: `data-import/word-no.py:26` `Tags`: a NamedTuple replaces a positional triple of tag sets
+- Navigation: `README.md:2787` "Add a locale": a first step points to `shippedLocales` and names the test that fails until a locale has an entry
+
+Inherited architect, decided by:
+
+- Navigation, Locality: `data-import/wordtables.py:42` `rows`: one function holds the spelling and rude-word rule the seven imports each copied, with drift between the copies
+- Navigation, Locality: `data/locales_test.go:99` `shippedLocales`: one entry per locale holds what the base spread over per-concept lists, guarded by a coverage test
+- Locality: `data-import/wordtables.py:15` `Candidate`: an empty form means both no form and a dropped word, which works only because `spelled("")` is false, a contract nobody states
+- Locality: `data-import/word-us.py:70` `main`: the shared `lower` admits non-ASCII lower-case letters where the base kept `[a-z]+` and the en_US test pins ASCII
+- Shape: `data/locales_test.go:106` `shippedLocales`: the `everyday`, `company` and `legalForm` literals are positional, so which regexp is which needs the type open
