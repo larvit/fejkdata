@@ -53,7 +53,7 @@ var partsOfSpeech = []string{"noun", "verb", "adj", "adv"}
 
 func hasWords(l shippedLocale) bool { return l.words != nil }
 
-// wordPart is one part of speech of a locale's word, with its table.
+// wordPart is one part of speech of a locale's word, with what its table should hold.
 type wordPart struct {
 	locale, part string
 	wordTable
@@ -337,7 +337,7 @@ func sentencePatternWords(t *testing.T, locale string) map[string]bool {
 
 func sentenceSeparator(r rune) bool { return strings.ContainsRune(" .,!?", r) }
 
-// localeWordsAndForms is every word and every form the locale's tables of those parts of speech hold.
+// localeWordsAndForms is every word and form the locale's tables of parts hold.
 func localeWordsAndForms(t *testing.T, locale string, parts ...string) map[string]bool {
 	t.Helper()
 	held := map[string]bool{}
