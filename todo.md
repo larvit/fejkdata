@@ -311,9 +311,9 @@ Find the open name statistics first: Statistics Estonia's name statistics. Check
 Touches:
 
 - `data/et_EE/`
-- `data/modules.go`: the locale list (small)
-- `data-import/`: a names script for Estonia
-- `README.md`: the locale lists
+- `data/modules.go`
+- `data-import/`
+- `README.md`
 - `DATA-LICENSES.md`
 
 ### 499. Add `et_EE`'s national personal id, the isikukood, with its check digits.
@@ -323,7 +323,7 @@ Find the issuer's rules, and a test series if it publishes one, first.
 Touches:
 
 - `data/et_EE/`
-- `README.md`: the locale categories
+- `README.md`: `### Locale categories`
 
 ### 503. Add `lv_LV` with its given names by sex, last names and titles, and `lv_LV.person`.
 
@@ -334,9 +334,9 @@ Find the open name statistics first: the Office of Citizenship and Migration Aff
 Touches:
 
 - `data/lv_LV/`
-- `data/modules.go`: the locale list (small)
-- `data-import/`: a names script for Latvia
-- `README.md`: the locale lists
+- `data/modules.go`
+- `data-import/`
+- `README.md`
 - `DATA-LICENSES.md`
 
 ### 504. Add `lv_LV`'s national personal id, the personas kods, with its check digits.
@@ -346,7 +346,7 @@ Find the issuer's rules, and a test series if it publishes one, first.
 Touches:
 
 - `data/lv_LV/`
-- `README.md`: the locale categories
+- `README.md`: `### Locale categories`
 
 ### 508. Add `lt_LT` with its given names by sex, last names and titles, and `lt_LT.person`.
 
@@ -357,9 +357,9 @@ Find the open name statistics first: the Register Centre's or Statistics Lithuan
 Touches:
 
 - `data/lt_LT/`
-- `data/modules.go`: the locale list (small)
-- `data-import/`: a names script for Lithuania
-- `README.md`: the locale lists
+- `data/modules.go`
+- `data-import/`
+- `README.md`
 - `DATA-LICENSES.md`
 
 ### 509. Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.
@@ -369,7 +369,7 @@ Find the issuer's rules, and a test series if it publishes one, first.
 Touches:
 
 - `data/lt_LT/`
-- `README.md`: the locale categories
+- `README.md`: `### Locale categories`
 
 ### 15. Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.
 
@@ -390,7 +390,7 @@ Use the regulator's published numbering plan, and prefer ranges reserved for fic
 Touches:
 
 - `data/et_EE/`
-- `README.md`: the locale categories (small)
+- `README.md`: `### Locale categories` (small)
 
 ### 505. Add `lv_LV.phone`, drawn from Latvia's numbering plan.
 
@@ -399,7 +399,7 @@ Use the regulator's published numbering plan, and prefer ranges reserved for fic
 Touches:
 
 - `data/lv_LV/`
-- `README.md`: the locale categories (small)
+- `README.md`: `### Locale categories` (small)
 
 ### 510. Add `lt_LT.phone`, drawn from Lithuania's numbering plan.
 
@@ -408,7 +408,7 @@ Use the regulator's published numbering plan, and prefer ranges reserved for fic
 Touches:
 
 - `data/lt_LT/`
-- `README.md`: the locale categories (small)
+- `README.md`: `### Locale categories` (small)
 
 ### 501. Add `et_EE.company`, `et_EE.email` and `et_EE.date`.
 
@@ -417,8 +417,8 @@ Draw company forms from the country's business register statistics where it publ
 Touches:
 
 - `data/et_EE/`
-- `README.md`: the locale categories (small)
-- `DATA-LICENSES.md` (small)
+- `README.md`: `### Locale categories` (small)
+- `DATA-LICENSES.md`
 
 ### 506. Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.
 
@@ -427,8 +427,8 @@ Draw company forms from the country's business register statistics where it publ
 Touches:
 
 - `data/lv_LV/`
-- `README.md`: the locale categories (small)
-- `DATA-LICENSES.md` (small)
+- `README.md`: `### Locale categories` (small)
+- `DATA-LICENSES.md`
 
 ### 511. Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.
 
@@ -437,8 +437,8 @@ Draw company forms from the country's business register statistics where it publ
 Touches:
 
 - `data/lt_LT/`
-- `README.md`: the locale categories (small)
-- `DATA-LICENSES.md` (small)
+- `README.md`: `### Locale categories` (small)
+- `DATA-LICENSES.md`
 
 ### 513. Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.
 
@@ -447,7 +447,7 @@ Follow the Nordic and German locales: a price in the country's currency format, 
 Touches:
 
 - `data/fr_FR/`
-- `README.md`: the locale categories
+- `README.md`: `### Locale categories`
 
 ### 514. Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.
 
@@ -456,8 +456,8 @@ Find an openly licensed France dictionary with parts of speech first, and check 
 Touches:
 
 - `data/fr_FR/`
-- `data-import/`: a word-list script for France
-- `README.md`: the locale categories
+- `data-import/`
+- `README.md`: `### Locale categories`
 - `DATA-LICENSES.md`
 
 ### 515. Add `et_EE.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Estonia writes it.
@@ -467,7 +467,7 @@ Follow the Nordic and German locales: a price in the country's currency format, 
 Touches:
 
 - `data/et_EE/`
-- `README.md`: the locale categories
+- `README.md`: `### Locale categories`
 
 ### 516. Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.
 
@@ -476,8 +476,8 @@ Find an openly licensed Estonia dictionary with parts of speech first, and check
 Touches:
 
 - `data/et_EE/`
-- `data-import/`: a word-list script for Estonia
-- `README.md`: the locale categories
+- `data-import/`
+- `README.md`: `### Locale categories`
 - `DATA-LICENSES.md`
 
 ### 517. Add `lv_LV.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Latvia writes it.
@@ -487,7 +487,7 @@ Follow the Nordic and German locales: a price in the country's currency format, 
 Touches:
 
 - `data/lv_LV/`
-- `README.md`: the locale categories
+- `README.md`: `### Locale categories`
 
 ### 518. Add `lv_LV.word` with its noun, verb, adjective and adverb forms, and `lv_LV.sentence` and `lv_LV.paragraph`.
 
@@ -496,8 +496,8 @@ Find an openly licensed Latvia dictionary with parts of speech first, and check 
 Touches:
 
 - `data/lv_LV/`
-- `data-import/`: a word-list script for Latvia
-- `README.md`: the locale categories
+- `data-import/`
+- `README.md`: `### Locale categories`
 - `DATA-LICENSES.md`
 
 ### 519. Add `lt_LT.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Lithuania writes it.
@@ -507,7 +507,7 @@ Follow the Nordic and German locales: a price in the country's currency format, 
 Touches:
 
 - `data/lt_LT/`
-- `README.md`: the locale categories
+- `README.md`: `### Locale categories`
 
 ### 520. Add `lt_LT.word` with its noun, verb, adjective and adverb forms, and `lt_LT.sentence` and `lt_LT.paragraph`.
 
@@ -516,8 +516,8 @@ Find an openly licensed Lithuania dictionary with parts of speech first, and che
 Touches:
 
 - `data/lt_LT/`
-- `data-import/`: a word-list script for Lithuania
-- `README.md`: the locale categories
+- `data-import/`
+- `README.md`: `### Locale categories`
 - `DATA-LICENSES.md`
 
 ### 270. Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.
@@ -532,8 +532,8 @@ Touches:
 
 - `data/geo/EE/`
 - `data/et_EE/`: `address.json`
-- `data-import/`: a places script for Estonia
-- `README.md`: the `geo` section
+- `data-import/`
+- `README.md`: `` ### `geo` ``
 - `DATA-LICENSES.md`
 
 ### 507. Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.
@@ -544,8 +544,8 @@ Touches:
 
 - `data/geo/LV/`
 - `data/lv_LV/`: `address.json`
-- `data-import/`: a places script for Latvia
-- `README.md`: the `geo` section
+- `data-import/`
+- `README.md`: `` ### `geo` ``
 - `DATA-LICENSES.md`
 
 ### 512. Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.
@@ -556,8 +556,8 @@ Touches:
 
 - `data/geo/LT/`
 - `data/lt_LT/`: `address.json`
-- `data-import/`: a places script for Lithuania
-- `README.md`: the `geo` section
+- `data-import/`
+- `README.md`: `` ### `geo` ``
 - `DATA-LICENSES.md`
 
 ### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
