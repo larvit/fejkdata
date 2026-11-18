@@ -6,23 +6,51 @@
 
 `Bar = 0`
 
-`Next ID = 498`
+`Next ID = 521`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 167 | 0.7.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 6.1 |
+| 195 | 0.7.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 6.1 |
+| 40 | 0.7.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
+| 95 | 0.7.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
+| 116 | 0.7.0 |  |  | **Turn a row index into its rows file's line in one function.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.5 |
+| 350 | 0.7.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.1 |
+| 210 | 0.7.0 |  |  | **Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
+| 273 | 0.7.0 | 210 |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 498 | 0.7.0 |  |  | **Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
+| 499 | 0.7.0 | 498 |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 503 | 0.7.0 |  |  | **Add `lv_LV` with its given names by sex, last names and titles, and `lv_LV.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
+| 504 | 0.7.0 | 503 |  | **Add `lv_LV`'s national personal id, the personas kods, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 508 | 0.7.0 |  |  | **Add `lt_LT` with its given names by sex, last names and titles, and `lt_LT.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
+| 509 | 0.7.0 | 508 |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 15 | 0.7.0 |  |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 3.4 |
+| 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
+| 272 | 0.7.0 | 210 |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 500 | 0.7.0 | 498 |  | **Add `et_EE.phone`, drawn from Estonia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 505 | 0.7.0 | 503 |  | **Add `lv_LV.phone`, drawn from Latvia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 510 | 0.7.0 | 508 |  | **Add `lt_LT.phone`, drawn from Lithuania's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 274 | 0.7.0 | 210 |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 501 | 0.7.0 | 498 |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 506 | 0.7.0 | 503 |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 511 | 0.7.0 | 508 |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 513 | 0.7.0 | 210 |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 514 | 0.7.0 | 210 |  | **Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 515 | 0.7.0 | 498 |  | **Add `et_EE.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Estonia writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 516 | 0.7.0 | 498 |  | **Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 517 | 0.7.0 | 503 |  | **Add `lv_LV.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Latvia writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 518 | 0.7.0 | 503 |  | **Add `lv_LV.word` with its noun, verb, adjective and adverb forms, and `lv_LV.sentence` and `lv_LV.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 519 | 0.7.0 | 508 |  | **Add `lt_LT.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Lithuania writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 520 | 0.7.0 | 508 |  | **Add `lt_LT.word` with its noun, verb, adjective and adverb forms, and `lt_LT.sentence` and `lt_LT.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 270 | 0.7.0 | 210 |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 502 | 0.7.0 | 498 |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 507 | 0.7.0 | 503 |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 512 | 0.7.0 | 508 |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.5 |
-| 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 6.1 |
-| 195 | 0.8.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 6.1 |
-| 40 | 0.8.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
-| 95 | 0.8.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
-| 116 | 0.8.0 |  |  | **Turn a row index into its rows file's line in one function.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.5 |
-| 350 | 0.8.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.1 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
-| 15 | 0.8.0 |  |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 3.4 |
-| 22 | 0.8.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
 | 256 | 0.8.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 3.0 |
 | 254 | 0.8.0 |  |  | **Say in the docs which of three kinds each category's values are: real, valid or invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 3 by 8 | 2.9 |
@@ -146,8 +174,6 @@
 | 86 | 1.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.5 |
 | 154 | 1.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 4.1 |
 | 243 | 1.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 4.1 |
-| 210 | 1.3.0 |  |  | **Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
-| 273 | 1.3.0 | 210 |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 206 | 1.3.0 | 345 |  | **Add `zh_CN` with its given names by sex, last names and titles, and `zh_CN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 277 | 1.3.0 | 206 |  | **Add `zh_CN`'s national personal id, the 18-digit resident identity card number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 208 | 1.3.0 |  |  | **Add `es_MX` with its given names by sex, last names and titles, and `es_MX.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
@@ -168,7 +194,6 @@
 | 250 | 1.3.0 |  |  | **Add `en_US.holiday`, the federal holidays.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 3.2 by 2 | 3.1 |
 | 244 | 1.3.0 |  |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 2.1 by 4, 3.2 by 3 | 2.7 |
 | 198 | 1.3.0 |  |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2, 3.3 by 3 | 2.6 |
-| 272 | 1.3.0 | 210 |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 276 | 1.3.0 | 206 |  | **Add `zh_CN.phone`, drawn from China's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 281 | 1.3.0 | 208 |  | **Add `es_MX.phone`, drawn from Mexico's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 286 | 1.3.0 | 212 |  | **Add `pt_BR.phone`, drawn from Brazil's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -179,7 +204,6 @@
 | 321 | 1.3.0 | 214 |  | **Add `ur_PK.phone`, drawn from Pakistan's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 248 | 1.3.0 |  |  | **Add `en_US.car`, a make and model from NHTSA vPIC.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 3.2 by 2 | 2.2 |
 | 246 | 1.3.0 |  |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2 | 1.8 |
-| 274 | 1.3.0 | 210 |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 278 | 1.3.0 | 206, 345 |  | **Add `zh_CN.company`, `zh_CN.email` and `zh_CN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 283 | 1.3.0 | 208 |  | **Add `es_MX.company`, `es_MX.email` and `es_MX.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 288 | 1.3.0 | 212 |  | **Add `pt_BR.company`, `pt_BR.email` and `pt_BR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
@@ -189,7 +213,6 @@
 | 319 | 1.3.0 | 213 |  | **Add `id_ID.company`, `id_ID.email` and `id_ID.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 323 | 1.3.0 | 214 |  | **Add `ur_PK.company`, `ur_PK.email` and `ur_PK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 247 | 1.3.0 |  |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 1.8 |
-| 270 | 1.3.0 | 210 |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 275 | 1.3.0 | 206 |  | **Add `geo/CN` with China's places and postal codes, and `zh_CN.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 279 | 1.3.0 | 208 |  | **Add `geo/MX` with Mexico's places and postal codes, and `es_MX.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 284 | 1.3.0 | 212 |  | **Add `geo/BR` with Brazil's places and postal codes, and `pt_BR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
@@ -222,10 +245,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
-
-The decision says that where no Go version fixes a vulnerability yet, the maintainer drops the vulnerabilities job from the release job's `needs`. The release job's `if` in `.github/workflows/test.yml` also requires `needs.vulnerabilities.result == 'success'`, and a job missing from `needs` is no success, so the release job would be skipped, not run. A skipped job isn't red, so nothing would ship and nothing would say why. Rewording the decision is the maintainer's call. The principles review of item 336 found it.
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
@@ -275,13 +294,82 @@ Today `containedNode`'s cell line in `graph.go`, `compileCells` in `table.go` an
 
 The decisions "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" and "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag" each record a paired ruling that found the project reads worse, and this item ends both costs. f90b4d6 is from before CI filed vulnerabilities into the plan, and 5aca8a1 from before it cut patches. The means: less of `todo.md`'s layout in the filer and the merge gate, one writer of `CHANGELOG.md`'s release sections, and fewer linked jobs between the gate, the release and the plan. The ruling against f90b4d6, on filing vulnerabilities into the plan, named the merge gate reading `todo.md`, the filer splicing `todo.md` as text, and a release waiting on vuln.go.dev. The ruling against 5aca8a1, on CI cutting patches, named two linked scripts, four linked jobs and several writers of `CHANGELOG.md`. A ruling against 5aca8a1 alone can't see the first loss, since 5aca8a1 already holds it. The seats' places from the 2026-10-14 and 2026-10-15 rulings name what to make easier to read: `vulnerability-filing/file_vulnerabilities.py` `ROW`, `file_items`, `plan` and `release_for`, `release-tooling/patch_release.py` `FILER`, `.github/workflows/test.yml` `release` and `plan` with their combined conditions, `.github/workflows/packages.yml` "Whether the tag is the latest release", which reads the latest release from a script named for patches, `Dockerfile`'s `vulnerability-filing` stage, which copies `todo.md` into the merge gate, and `CHANGELOG.md`'s three writers.
 
-### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
+### 210. Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.
 
-`isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
+France holds more French speakers than DR Congo: 64M to 49M on Wikipedia's "Geographical distribution of French speakers", which credits a 2022 OIF report but flags its table as not taken from that report.
 
-### 155. Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.
+### 273. Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.
 
-`{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn.
+Find the issuer's rules, and a test series if it publishes one, first.
+
+### 498. Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.
+
+Estonia is a small market on its own and a niche few fake-data tools cover, which is why it ships beside the larger France.
+
+Find the open name statistics first: Statistics Estonia's name statistics. Check each source's licence before importing, and record it in `DATA-LICENSES.md`. Spell the names as Estonian writes them.
+
+Touches:
+
+- `data/et_EE/`
+- `data/modules.go`: the locale list (small)
+- `data-import/`: a names script for Estonia
+- `README.md`: the locale lists
+- `DATA-LICENSES.md`
+
+### 499. Add `et_EE`'s national personal id, the isikukood, with its check digits.
+
+Find the issuer's rules, and a test series if it publishes one, first.
+
+Touches:
+
+- `data/et_EE/`
+- `README.md`: the locale categories
+
+### 503. Add `lv_LV` with its given names by sex, last names and titles, and `lv_LV.person`.
+
+Latvia is a small market on its own and a niche few fake-data tools cover, which is why it ships beside the larger France.
+
+Find the open name statistics first: the Office of Citizenship and Migration Affairs' name statistics on data.gov.lv. Check each source's licence before importing, and record it in `DATA-LICENSES.md`. Spell the names as Latvian writes them.
+
+Touches:
+
+- `data/lv_LV/`
+- `data/modules.go`: the locale list (small)
+- `data-import/`: a names script for Latvia
+- `README.md`: the locale lists
+- `DATA-LICENSES.md`
+
+### 504. Add `lv_LV`'s national personal id, the personas kods, with its check digits.
+
+Find the issuer's rules, and a test series if it publishes one, first.
+
+Touches:
+
+- `data/lv_LV/`
+- `README.md`: the locale categories
+
+### 508. Add `lt_LT` with its given names by sex, last names and titles, and `lt_LT.person`.
+
+Lithuania is a small market on its own and a niche few fake-data tools cover, which is why it ships beside the larger France.
+
+Find the open name statistics first: the Register Centre's or Statistics Lithuania's name statistics. Check each source's licence before importing, and record it in `DATA-LICENSES.md`. Spell the names as Lithuanian writes them.
+
+Touches:
+
+- `data/lt_LT/`
+- `data/modules.go`: the locale list (small)
+- `data-import/`: a names script for Lithuania
+- `README.md`: the locale lists
+- `DATA-LICENSES.md`
+
+### 509. Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.
+
+Find the issuer's rules, and a test series if it publishes one, first.
+
+Touches:
+
+- `data/lt_LT/`
+- `README.md`: the locale categories
 
 ### 15. Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.
 
@@ -290,6 +378,199 @@ Templates, from RFC 5737, RFC 1918 and RFC 9637, which are facts.
 ### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
 
 17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
+
+### 272. Add `fr_FR.phone`, drawn from France's numbering plan.
+
+Find the numbering plan and its licence first.
+
+### 500. Add `et_EE.phone`, drawn from Estonia's numbering plan.
+
+Use the regulator's published numbering plan, and prefer ranges reserved for fiction where one exists.
+
+Touches:
+
+- `data/et_EE/`
+- `README.md`: the locale categories (small)
+
+### 505. Add `lv_LV.phone`, drawn from Latvia's numbering plan.
+
+Use the regulator's published numbering plan, and prefer ranges reserved for fiction where one exists.
+
+Touches:
+
+- `data/lv_LV/`
+- `README.md`: the locale categories (small)
+
+### 510. Add `lt_LT.phone`, drawn from Lithuania's numbering plan.
+
+Use the regulator's published numbering plan, and prefer ranges reserved for fiction where one exists.
+
+Touches:
+
+- `data/lt_LT/`
+- `README.md`: the locale categories (small)
+
+### 501. Add `et_EE.company`, `et_EE.email` and `et_EE.date`.
+
+Draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
+
+Touches:
+
+- `data/et_EE/`
+- `README.md`: the locale categories (small)
+- `DATA-LICENSES.md` (small)
+
+### 506. Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.
+
+Draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
+
+Touches:
+
+- `data/lv_LV/`
+- `README.md`: the locale categories (small)
+- `DATA-LICENSES.md` (small)
+
+### 511. Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.
+
+Draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
+
+Touches:
+
+- `data/lt_LT/`
+- `README.md`: the locale categories (small)
+- `DATA-LICENSES.md` (small)
+
+### 513. Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.
+
+Follow the Nordic and German locales: a price in the country's currency format, a time in its clock style, `url` and `username` from the locale's own words in ASCII, a colour name in its language or a hex code, and `month` and `weekday` as Unicode CLDR's stand-alone names.
+
+Touches:
+
+- `data/fr_FR/`
+- `README.md`: the locale categories
+
+### 514. Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.
+
+Find an openly licensed France dictionary with parts of speech first, and check its licence before importing; record it in `DATA-LICENSES.md`. Where no open one exists, say so in the item's summary and ask the human.
+
+Touches:
+
+- `data/fr_FR/`
+- `data-import/`: a word-list script for France
+- `README.md`: the locale categories
+- `DATA-LICENSES.md`
+
+### 515. Add `et_EE.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Estonia writes it.
+
+Follow the Nordic and German locales: a price in the country's currency format, a time in its clock style, `url` and `username` from the locale's own words in ASCII, a colour name in its language or a hex code, and `month` and `weekday` as Unicode CLDR's stand-alone names.
+
+Touches:
+
+- `data/et_EE/`
+- `README.md`: the locale categories
+
+### 516. Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.
+
+Find an openly licensed Estonia dictionary with parts of speech first, and check its licence before importing; record it in `DATA-LICENSES.md`. Where no open one exists, say so in the item's summary and ask the human.
+
+Touches:
+
+- `data/et_EE/`
+- `data-import/`: a word-list script for Estonia
+- `README.md`: the locale categories
+- `DATA-LICENSES.md`
+
+### 517. Add `lv_LV.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Latvia writes it.
+
+Follow the Nordic and German locales: a price in the country's currency format, a time in its clock style, `url` and `username` from the locale's own words in ASCII, a colour name in its language or a hex code, and `month` and `weekday` as Unicode CLDR's stand-alone names.
+
+Touches:
+
+- `data/lv_LV/`
+- `README.md`: the locale categories
+
+### 518. Add `lv_LV.word` with its noun, verb, adjective and adverb forms, and `lv_LV.sentence` and `lv_LV.paragraph`.
+
+Find an openly licensed Latvia dictionary with parts of speech first, and check its licence before importing; record it in `DATA-LICENSES.md`. Where no open one exists, say so in the item's summary and ask the human.
+
+Touches:
+
+- `data/lv_LV/`
+- `data-import/`: a word-list script for Latvia
+- `README.md`: the locale categories
+- `DATA-LICENSES.md`
+
+### 519. Add `lt_LT.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Lithuania writes it.
+
+Follow the Nordic and German locales: a price in the country's currency format, a time in its clock style, `url` and `username` from the locale's own words in ASCII, a colour name in its language or a hex code, and `month` and `weekday` as Unicode CLDR's stand-alone names.
+
+Touches:
+
+- `data/lt_LT/`
+- `README.md`: the locale categories
+
+### 520. Add `lt_LT.word` with its noun, verb, adjective and adverb forms, and `lt_LT.sentence` and `lt_LT.paragraph`.
+
+Find an openly licensed Lithuania dictionary with parts of speech first, and check its licence before importing; record it in `DATA-LICENSES.md`. Where no open one exists, say so in the item's summary and ask the human.
+
+Touches:
+
+- `data/lt_LT/`
+- `data-import/`: a word-list script for Lithuania
+- `README.md`: the locale categories
+- `DATA-LICENSES.md`
+
+### 270. Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.
+
+The Base Adresse Nationale (Licence Ouverte 2.0) names each address's commune and code postal.
+
+### 502. Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.
+
+Candidate source: the Estonian Land Board's address data (Maa-amet ADS), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README, and ask the human before importing ODbL data.
+
+Touches:
+
+- `data/geo/EE/`
+- `data/et_EE/`: `address.json`
+- `data-import/`: a places script for Estonia
+- `README.md`: the `geo` section
+- `DATA-LICENSES.md`
+
+### 507. Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.
+
+Candidate source: the Latvian State Land Service's address register (VARIS) on data.gov.lv. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README, and ask the human before importing ODbL data.
+
+Touches:
+
+- `data/geo/LV/`
+- `data/lv_LV/`: `address.json`
+- `data-import/`: a places script for Latvia
+- `README.md`: the `geo` section
+- `DATA-LICENSES.md`
+
+### 512. Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.
+
+Candidate source: the Centre of Registers' address register (Adresų registras), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README, and ask the human before importing ODbL data.
+
+Touches:
+
+- `data/geo/LT/`
+- `data/lt_LT/`: `address.json`
+- `data-import/`: a places script for Lithuania
+- `README.md`: the `geo` section
+- `DATA-LICENSES.md`
+
+### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
+
+The decision says that where no Go version fixes a vulnerability yet, the maintainer drops the vulnerabilities job from the release job's `needs`. The release job's `if` in `.github/workflows/test.yml` also requires `needs.vulnerabilities.result == 'success'`, and a job missing from `needs` is no success, so the release job would be skipped, not run. A skipped job isn't red, so nothing would ship and nothing would say why. Rewording the decision is the maintainer's call. The principles review of item 336 found it.
+
+### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
+
+`isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
+
+### 155. Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.
+
+`{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn.
 
 ### 252. Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.
 
@@ -847,14 +1128,6 @@ Both phone formats carry the same 21-code `area` list, so an edit to one copy ca
 
 The IRS's prefix list is facts. [Source research](docs/research/research-sources-world.md).
 
-### 210. Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.
-
-France holds more French speakers than DR Congo: 64M to 49M on Wikipedia's "Geographical distribution of French speakers", which credits a 2022 OIF report but flags its table as not taken from that report.
-
-### 273. Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
-
 ### 206. Add `zh_CN` with its given names by sex, last names and titles, and `zh_CN.person`.
 
 Written in simplified characters.
@@ -935,10 +1208,6 @@ NAICS 2022 is public domain; SEC's `company_tickers.json` is free to reuse. [Sou
 
 `streets()` in `geo-us.py` fetches only each drawn place's main county, the one holding most of its people. A ZCTA in a place's other counties then has no address range and is dropped: New York, under Kings County, ships Brooklyn's codes, one Manhattan code and none on Staten Island, and its streets are mostly Brooklyn's. Whether a neighbouring county is fetched depends on which other places the draw picks. The fix reads every county in `localities`' `county_part`.
 
-### 272. Add `fr_FR.phone`, drawn from France's numbering plan.
-
-Find the numbering plan and its licence first.
-
 ### 276. Add `zh_CN.phone`, drawn from China's numbering plan.
 
 Find the numbering plan and its licence first.
@@ -982,10 +1251,6 @@ No national register defines the account number, and no research file covers Nac
 ### 247. Add `en_US.licenseplate`, drawn per state from that state's pattern.
 
 No open list of state patterns exists: write each state's pattern by hand and check it against that state's DMV. Wikipedia's list (CC BY-SA) and openalpr's (AGPL) may be read, never copied. [Source research](docs/research/research-sources-world.md).
-
-### 270. Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.
-
-The Base Adresse Nationale (Licence Ouverte 2.0) names each address's commune and code postal.
 
 ### 275. Add `geo/CN` with China's places and postal codes, and `zh_CN.address` printing them.
 
