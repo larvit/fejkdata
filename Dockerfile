@@ -24,7 +24,7 @@ RUN --mount=type=cache,target=/cache \
 FROM golang:${GO_VERSION} AS vulnerabilities
 WORKDIR /app
 COPY . .
-RUN go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 -scan module -format json > /report.json
+RUN go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 -scan module -format json > /report.json
 
 FROM scratch AS vulnerability-report
 COPY --from=vulnerabilities /report.json /
