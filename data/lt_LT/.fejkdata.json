@@ -1,0 +1,10 @@
+{
+	"index": {
+		"lt_LT.first-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"lt_LT.last-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"lt_LT.person": {"paths":["","first","last","prefix","sex"]},
+		"lt_LT.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","last-name","last-name.count","last-name.name","last-name.sex","name"]},
+		"lt_LT.title": {"paths":["","name","share"]}
+	},
+	"namespace": "lt_LT"
+}
