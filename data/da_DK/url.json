@@ -1,6 +1,8 @@
 {
   "format": "https://{host}{path}",
-  "host": ["example.com", "www.example.com", "example.org", "example.dk", "www.example.dk", "blog.example.net", "butik.example.com", "shop.example.dk", "api.example.dk", "dokumenter.example.org", "nyheder.example.net", "post.example.dk"],
+  "reserved": "https://{/da_DK.url.reserved-host}{/da_DK.url.path}",
+  "host": [{ "format": "{/da_DK.url.reserved-host}", "weight": 7 }, "example.dk", "www.example.dk", "shop.example.dk", "api.example.dk", "post.example.dk"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "blog.example.net", "butik.example.com", "dokumenter.example.org", "nyheder.example.net"] },
   "path": [
     { "format": "", "weight": 2 },
     {

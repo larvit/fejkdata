@@ -1,6 +1,8 @@
 {
   "format": "https://{host}{path}",
-  "host": ["example.com", "www.example.com", "example.org", "example.de", "www.example.de", "blog.example.net", "shop.example.de", "laden.example.com", "api.example.de", "dokumente.example.org", "nachrichten.example.net", "post.example.de"],
+  "reserved": "https://{/de_DE.url.reserved-host}{/de_DE.url.path}",
+  "host": [{ "format": "{/de_DE.url.reserved-host}", "weight": 7 }, "example.de", "www.example.de", "shop.example.de", "api.example.de", "post.example.de"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "blog.example.net", "laden.example.com", "dokumente.example.org", "nachrichten.example.net"] },
   "path": [
     { "format": "", "weight": 2 },
     {

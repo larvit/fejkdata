@@ -1,5 +1,6 @@
 {
   "format": "{/nb_NO.email as e}{e}",
   "local": "{e.local}",
-  "domain": "{e.domain}"
+  "domain": "{e.domain}",
+  "reserved": "{/nb_NO.email.reserved}"
 }

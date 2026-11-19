@@ -1,6 +1,8 @@
 {
   "format": "https://{host}{path}",
-  "host": ["example.com", "www.example.com", "example.org", "example.se", "www.example.se", "blogg.example.net", "butik.example.com", "shop.example.se", "api.example.se", "dokument.example.org", "nyheter.example.net", "mail.example.se"],
+  "reserved": "https://{/sv_SE.url.reserved-host}{/sv_SE.url.path}",
+  "host": [{ "format": "{/sv_SE.url.reserved-host}", "weight": 7 }, "example.se", "www.example.se", "shop.example.se", "api.example.se", "mail.example.se"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "blogg.example.net", "butik.example.com", "dokument.example.org", "nyheter.example.net"] },
   "path": [
     { "format": "", "weight": 2 },
     {
