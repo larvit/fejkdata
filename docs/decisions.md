@@ -32,8 +32,8 @@ teach the exported API belongs in the root's package doc.
 
 2026-09-02, Lilleman auf Larv.
 
-`format`, `weight`, `repeat`, `separator`, `datatype` and `hidden` are reserved; every other key
-is a field. Nesting fields under a key, or prefixing options, would tax every template to
+`format`, `weight`, `repeat`, `separator`, `datatype` and `hidden` are reserved, and so is `let`, the old
+name of `hidden`; every other key is a field. Nesting fields under a key, or prefixing options, would tax every template to
 guard against a misspelt option. `hidden` is the one option that holds fields, the ones that write
 no column ("A `hidden` field writes no column and is left out of the listing").
 
@@ -1830,14 +1830,17 @@ every locale. Its own words hold no `ae`, `oe` or `ue` spelling, so a local part
 ## A `hidden` field writes no column and is left out of the listing
 
 2026-11-08, Lilleman auf Larv, as `let`; widened 2026-11-19, and renamed `hidden` the same day.
-Serves goal 4.7, read as: a template that means one thing loads, goal 4.3, a name keeps one pick,
-goal 4.8, a clearer name replaces the old one, and goal 4, a reader tells a path meant to be read
-from a scaffold.
+Serves four goals:
+
+- 4.7, read as: a template that means one thing loads.
+- 4.3: a name keeps one pick.
+- 4.8: a clearer name replaces the old one.
+- 4: a reader tells a path meant to be read from a scaffold.
 
 A record wrote one column per field, so a field there only to be named by another, as
 `{"ride":…}` is by `{ride.fare}`, showed up as a column nobody asked for. `hidden` holds such
-fields: they bind and resolve as any field does and write no column. It costs one reserved key,
-and a field can no longer be named `hidden`. A key in `hidden` and beside it fails to load, so a
+fields: they bind and resolve as any field does and write no column. It costs two reserved
+keys: a field can no longer be named `hidden`, nor `let`, its old name. A key in `hidden` and beside it fails to load, so a
 field has one place, and an option name in `hidden` fails too. A record whose fields are all in
 `hidden` has no columns and is `ErrNoColumns`.
 
@@ -1858,15 +1861,19 @@ the README names or a domain gives a name, such as `phone.block`, an SSN's `area
 `email.local` choice, such as `first`, `last`, `sep` and `n`, stay listed too: the audit moved none
 that a choice's variants share.
 
-The option was `let` until 0.6.0, chosen on 2026-11-08 by a writer panel over `hidden`, `private`
-and `_`-prefixed names as the spelling readers took for a local binding. Once the listing left it
-out, fresh readers seated as the README's data author, hand fixture author and contributor, each
-shown the candidates in another order, ranked `hidden` first and `let` second all three times: a
-reader takes `hidden` for a field that is drawn and read by its path yet left out of columns and
-listings, as a dotfile is, and `let` for a binding scoped to its template that says nothing of
-either. Goal 4.8 has the clearer name replace the old one, so `let` is gone. A template written
-with `let` fails to load, and the error says the option is now named `hidden`. `local` and
-`scratch` lost: `local` reads as scope, which would refuse a read from another category.
+`let` is the option's old name: it shipped from 0.4.0 through 0.6.0, chosen on 2026-11-08 by a writer
+panel over `hidden`, `private` and `_`-prefixed names, as the spelling readers took for a local
+binding. Goal 4.8 has the clearer name replace the old one, so `let` is gone as an option. It stays
+reserved: a template written with `let` fails to load and the error says the option is now named
+`hidden`, because a bare `let` taken for a field would write a column and change what loads. A
+later major may free the word.
+
+The panel that chose `hidden` was three fresh readers, seated as the README's data author, hand
+fixture author and contributor, each shown `hidden`, `let`, `local` and `scratch` in another
+order. All three ranked `hidden` first and `let` second. A reader takes `hidden` for a field that is
+drawn and read by its path yet left out of columns and listings, as a dotfile is. A reader takes
+`let` for a binding scoped to its template, which says nothing about being left out of a listing.
+`local` reads as scope, which would refuse a read from another category.
 
 Valid while a data author reads `hidden` as "a field drawn and read, never listed".
 

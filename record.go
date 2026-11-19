@@ -224,8 +224,7 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 }
 
 // ErrNoColumns matches the error for a record with no fields, naming a choice or holding every
-// field in "hidden". For the first two, FakeRecord's error also names the one-column record to write
-// instead.
+// field in "hidden". FakeRecord's error also names the one-column record to write instead.
 var ErrNoColumns = engine.ErrNoColumns
 
 // renderRecord draws r.
