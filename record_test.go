@@ -697,7 +697,7 @@ func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 			return nil
 		}
 		records++
-		if want := len(tm.Fields()) - len(tm.Lets()); len(tm.Columns()) != want {
+		if want := len(tm.Fields()) - len(tm.Hiddens()); len(tm.Columns()) != want {
 			t.Errorf("%s: %d record columns, want one per field outside hidden, %d", label, len(tm.Columns()), want)
 		}
 		checkEachColumnHoldsItsField(t, label, tm)
