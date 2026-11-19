@@ -1171,7 +1171,7 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 
 `misc` carries `car`, `coordinate`, `creditcard`
 (Luhn-valid), `creditcard-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
-`httpstatus`, `iban-test`, `ip` (IPv4, or IPv6 one time in nine), `ipv6`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
+`httpstatus`, `iban-test`, `ip` (IPv4, or IPv6 one time in nine), `ipv6` (in `2001:db8::/32`), `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
 severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
 3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent`, `uuid` (v4) and `version` (such as `1.24.3` or `v2.0.1-rc.1`). Many
 carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
@@ -1182,13 +1182,20 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 `useragent` carry no key or name, so they are drawn from rather than selected in.
 `misc.useragent` carries `browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`, until an international source replaces them.
 
-#### Addresses that reach nothing
+#### Reserved addresses
 
-`misc.ip` draws any address, which a real host may hold, through its `wide4` and `wide6`. Its other
-sub-fields draw only addresses the public internet doesn't route: `documentation` is inside RFC 5737's `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24`,
-`private` inside RFC 1918's `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`, and `cidr` is a block
-of either, such as `192.168.7.0/24`. `misc.ipv6` is inside RFC 3849's `2001:db8::/32`. `misc.mac.local` sets the
-locally administered bit and clears the multicast bit, so no vendor holds it; `misc.mac` draws any.
+Five paths draw addresses set aside for documentation, private networks and local use. No vendor
+holds one, and the public internet doesn't route one, though a private address can reach a host on
+your own network:
+
+- `misc.ip.documentation`: inside RFC 5737's `192.0.2.0/24`, `198.51.100.0/24` or `203.0.113.0/24`.
+- `misc.ip.private`: inside RFC 1918's `10.0.0.0/8`, `172.16.0.0/12` or `192.168.0.0/16`.
+- `misc.ip.cidr`: a block inside one of those six ranges, such as `192.168.7.0/24`.
+- `misc.ipv6`: inside RFC 3849's `2001:db8::/32`, written as eight groups of one to four digits.
+- `misc.mac.local`: a locally administered unicast address, whose first octet's second hex digit is `2`, `6`, `a` or `e`.
+
+`documentation` and `private` never end in `.0` or `.255`. `misc.ip` and `misc.mac` draw addresses a real host may
+hold; `misc.ip` takes them from `misc.ip.wide4`, an IPv4 address, or `misc.ip.wide6`, an IPv6 address.
 
 #### Credit cards and IBANs
 
