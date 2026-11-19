@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 526`
+`Next ID = 527`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 526 | 0.7.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 3 | 6.1 |
 | 506 | 0.7.0 |  |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 511 | 0.7.0 |  |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 513 | 0.7.0 |  |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
@@ -223,6 +224,18 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
+
+### 526. Lower the reading cost of the files a chunk reads most before its first commit.
+
+The reading-cost tool says "Rising: the last 5 chunks' median is 94241 new input tokens before their first commit, the 5 before them 76138." `docs/reading-cost.md` holds the figures. The files the last 5 chunks read most, counting opens and searches: `README.md` 16, `data/locales_test.go` 14, `DATA-LICENSES.md` 12, `compose.yaml` 9, `data/estonian_test.go` 7, `CHANGELOG.md` 4, `data-import/company-fr.py` 3, `internal/fejktest/ids.go` 3, `isikukood_test.go` 3, `data-import/company_fr_test.py` 2.
+
+Shorten or split those files, or point readers to a smaller entry point, so a chunk reads less before its first commit. The README is 3199 lines, and its per-locale sections under `## Data` fill about 1300 of them; a split must keep `readme_test.go` running every `json` example that moves. The comprehension seats found the README's "Swedish places" hard to reach, deep in the README: make that place easier to find. Done when the next five chunks' median of new input tokens before their first commit falls below 76138.
+
+Touches:
+- `README.md`: `## Data`, `## Development`
+- `DATA-LICENSES.md`
+- `data/locales_test.go`: `shippedLocale`
+- `readme_test.go`: `readme` (small), `TestReadmeExamplesLoadAndRender` (small)
 
 ### 506. Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.
 
