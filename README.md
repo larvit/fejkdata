@@ -1460,21 +1460,22 @@ Renders e.g. `Renārs Kārkliņš, born 20130310, code 10031324059`.
 
 #### Latvian companies
 
-`lv_LV.company` draws a legal form as often as the Register of Enterprises' open data counts the merchants of the
-Commercial Register of that form, with no termination date, on 19 November 2026: 140,485 limited liability companies
-(`SIA`), 12,146 individual merchants (`IK`), 765 joint-stock companies (`AS`), 535 general partnerships (`PS`) and 166
-limited partnerships (`KS`). The branches of foreign merchants, the European companies and the other registers'
-entries, such as the associations and the farms, aren't drawn.
+`lv_LV.company` draws a legal form as often as the Register of Enterprises' open data counts its merchants. It counts
+the merchants of the Commercial Register that had no termination date on 19 November 2026: 140,485 limited liability
+companies (`SIA`), 12,146 individual merchants (`IK`), 765 joint-stock companies (`AS`), 535 general partnerships
+(`PS`) and 166 limited partnerships (`KS`). The branches, the European companies and the other registers' entries, such
+as the associations and the farms, aren't drawn.
 
-The register writes most names with the form before the name and the rest of it in quotes, such as `SIA "Alfa"`, and
-the rest with the form bare before or after it, or after a quoted name. `lv_LV.company` places the abbreviation and the
-quotes as often as the names of that form do. A name that spells its form out, such as `Sabiedrība ar ierobežotu
-atbildību "Alfa"`, counts as its abbreviation. `lv_LV.company.sia`, `.ik`, `.as`, `.ps` and `.ks` each draw one form, and
-`{/lv_LV.company as c}{c.legal}` prints the abbreviation of the same pick.
+Most of the register's names put the form before the name and quote the name, such as `SIA "Alfa"`. The others put the
+form before the name unquoted, or after it, quoted or not. `lv_LV.company` places the abbreviation and the quotes as
+often as the names of the form do. A name that spells the form out, such as `Sabiedrība ar ierobežotu atbildību
+"Alfa"`, counts as a name with the abbreviation, and `lv_LV.company` never spells a form out. `lv_LV.company.sia`,
+`.ik`, `.as`, `.ps` and `.ks` each draw one form, and `{/lv_LV.company as c}{c.legal}` prints the abbreviation of the
+same pick.
 
 The shapes of the names, the trade words of `company-word` and the words of `company-coined` come from the names of
-those merchants, as [`company-lv.py`](data-import/company-lv.py) counts them. Many of the words are English, as the
-register's names are. A name is invented from those parts, and may also be a real company's. The register's open data
+those merchants, as [`company-lv.py`](data-import/company-lv.py) counts them. Many of the words are English, since many
+of the register's names are. A name is invented from those parts, and may also be a real company's. The register's open data
 is CC0 1.0, so a program showing it needs no credit; `DATA-LICENSES.md` names the source.
 
 #### Latvian dates and emails
@@ -3061,7 +3062,7 @@ A shipped table built from a source is rebuilt by its script under
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Run the block below in order: some scripts
 read a table another one writes. `cldr.py` and `timezone.py` read
 `misc/territory.tsv`. `company-se.py` reads the sv_SE names and `geo/SE`,
-`company-no.py` the nb_NO names and `geo/NO`, `company-fr.py` the fr_FR names and
+`company-no.py` the nb_NO names and `geo/NO`, `company-fr.py` the fr_FR names,
 `company-ee.py` the et_EE names and `company-lv.py` the lv_LV names.
 
 Downloads are cached under `data-import/cache/`, which version control ignores and
