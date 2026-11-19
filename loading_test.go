@@ -190,12 +190,12 @@ func TestListedPathsAllRender(t *testing.T) {
 	}
 }
 
-func TestListAdvertisesTheSubFieldsTheReadmeNames(t *testing.T) {
+func TestListAdvertisesTheSubFieldsTheDocsName(t *testing.T) {
 	paths := shipped(t, WithSeed(4)).List()
 	for _, p := range []string{"misc.car.make", "misc.territory.alpha2", "misc.territory.numeric", "misc.currency.symbol", "misc.httpstatus.code", "misc.mimetype.ext"} {
 		t.Run(p, func(t *testing.T) {
 			if !slices.Contains(paths, p) {
-				t.Errorf("List() omits %q, which the README advertises and Fake renders", p)
+				t.Errorf("List() omits %q, which the docs advertise and Fake renders", p)
 			}
 		})
 	}
