@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 40 | 0.7.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
 | 95 | 0.7.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
 | 116 | 0.7.0 |  |  | **Turn a row index into its rows file's line in one function.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.5 |
 | 350 | 0.7.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.1 |
@@ -243,15 +242,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 40. Parse `defaultTable`'s path with the library's grammar.
-
-The CLI counts brackets of its own, so a change to the selector grammar desyncs the default `--table` silently.
-
-Touches:
-
-- `cli/records.go`: `defaultTable`, `withoutSelectors`
-- `cli/records_test.go`: `TestRunFormatSQLNamesASelectedRowsTableWithoutItsSelector` (small), `TestDefaultTable`
 
 ### 95. Hold a struct's columns and the field each fills in one slice.
 
