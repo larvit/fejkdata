@@ -1,0 +1,56 @@
+{
+  "format": "{registered as r}{r}",
+  "legal": "{r.legal}",
+  "registered": [
+    { "format": "{.company.uab}", "legal": "UAB", "weight": 102461 },
+    { "format": "{.company.mb}", "legal": "MB", "weight": 75713 },
+    { "format": "{.company.zub}", "legal": "ŽŪB", "weight": 452 },
+    { "format": "{.company.ab}", "legal": "AB", "weight": 226 }
+  ],
+  "uab": {
+    "format": "{name as uab_name}{placed}",
+    "name": [
+      { "format": "{.company-coined}", "weight": 54316 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 19653 },
+      { "format": "{.company-coined} {.company-word}", "weight": 15810 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 3190 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 2024 }
+    ],
+    "hidden": { "placed": [{ "format": "UAB \"{uab_name}\"", "weight": 75545 }, { "format": "UAB {uab_name}", "weight": 17386 }, { "format": "{uab_name} UAB", "weight": 7585 }, { "format": "\"{uab_name}\" UAB", "weight": 1570 }] }
+  },
+  "mb": {
+    "format": "{name as mb_name}{placed}",
+    "name": [
+      { "format": "{.company-coined}", "weight": 36390 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 19228 },
+      { "format": "{.company-coined} {.company-word}", "weight": 11351 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 1959 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 1862 }
+    ],
+    "hidden": { "placed": [{ "format": "MB \"{mb_name}\"", "weight": 35140 }, { "format": "MB {mb_name}", "weight": 32907 }, { "format": "{mb_name} MB", "weight": 6847 }, { "format": "\"{mb_name}\" MB", "weight": 803 }] }
+  },
+  "ab": {
+    "format": "{name as ab_name}{placed}",
+    "name": [
+      { "format": "{.company-coined} {.company-coined}", "weight": 76 },
+      { "format": "{.company-coined}", "weight": 54 },
+      { "format": "{.company-coined} {.company-word}", "weight": 36 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 18 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 12 },
+      { "format": "{.first-name}", "weight": 3 },
+      { "format": "{.company-coined} {.company-word} {.company-coined}", "weight": 3 }
+    ],
+    "hidden": { "placed": [{ "format": "AB \"{ab_name}\"", "weight": 172 }, { "format": "AB {ab_name}", "weight": 25 }, { "format": "{ab_name} AB", "weight": 16 }, { "format": "\"{ab_name}\" AB", "weight": 2 }] }
+  },
+  "zub": {
+    "format": "{name as zub_name}{placed}",
+    "name": [
+      { "format": "{.company-coined}", "weight": 188 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 61 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 49 },
+      { "format": "{.company-coined} {.company-word}", "weight": 24 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 18 }
+    ],
+    "hidden": { "placed": [{ "format": "ŽŪB \"{zub_name}\"", "weight": 206 }, { "format": "ŽŪB {zub_name}", "weight": 29 }, { "format": "{zub_name} ŽŪB", "weight": 109 }, { "format": "\"{zub_name}\" ŽŪB", "weight": 7 }] }
+  }
+}

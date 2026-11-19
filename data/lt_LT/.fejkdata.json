@@ -2,6 +2,11 @@
 	"index": {
 		"lt_LT.asmens-kodas": {"paths":["","birth"]},
 		"lt_LT.color": {"paths":[""]},
+		"lt_LT.company": {"paths":["","ab","ab.name","legal","mb","mb.name","registered","registered.legal","uab","uab.name","zub","zub.name"]},
+		"lt_LT.company-coined": {"paths":["","count","word"]},
+		"lt_LT.company-word": {"paths":["","count","word"]},
+		"lt_LT.date": {"paths":[""]},
+		"lt_LT.email": {"paths":["","domain","local","local.n","reserved"]},
 		"lt_LT.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"lt_LT.last-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"lt_LT.month": {"paths":["","code","name"]},

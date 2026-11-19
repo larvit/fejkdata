@@ -1,6 +1,6 @@
 # `lt_LT`
 
-`lt_LT`, Lithuanian, carries `asmens-kodas`, `color`, `first-name`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `moteris` and `vyras`, `title` is
+`lt_LT`, Lithuanian, carries `asmens-kodas`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `moteris` and `vyras`, `title` is
 `dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
 
 `first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
@@ -42,6 +42,35 @@ digit of `lt_LT.sex-digit` under `s`, and `b`:
 ```
 
 Renders e.g. `Andrius Jurevičius, 36707114290`.
+
+## Lithuanian companies
+
+`lt_LT.company` draws a legal form as often as the Register of Legal Entities' open data counts its entities. It counts
+the entities registered on 19 November 2026: 102,461 private limited companies (`UAB`), 75,713 small partnerships
+(`MB`), 452 agricultural companies (`ŽŪB`) and 226 public limited companies (`AB`). The other forms aren't drawn: the
+register names an individual enterprise by its form alone, and the rest are non-profit or public, such as the
+associations and the public bodies.
+
+Most of the register's names put the form before the name, and most `UAB` quote the name, such as `UAB "Alfa"`. The
+others put the form before the name unquoted, or after it, quoted or not. `lt_LT.company` places the abbreviation and
+the quotes as often as the names of the form do. A name that spells the form out, such as `Uždaroji akcinė bendrovė
+"Alfa"`, counts as a name with the abbreviation, and `lt_LT.company` never spells a form out. `lt_LT.company.uab`,
+`.mb`, `.zub` and `.ab` each draw one form, and `{/lt_LT.company as c}{c.legal}` prints the abbreviation of the same
+pick.
+
+The shapes of the names, the trade words of `company-word` and the words of `company-coined` come from the names of
+those entities, as [`company-lt.py`](../../data-import/company-lt.py) counts them. Many of the words are English, since
+many of the register's names are. A name is invented from those parts, and may also be a real company's. The register's
+open data is CC BY 4.0, so a program showing it credits "Valstybės įmonė Registrų centras"; `DATA-LICENSES.md` has the
+rest.
+
+## Lithuanian dates and emails
+
+`lt_LT.date` is a date from 1970 to 2029 in CLDR's short Lithuanian format, `y-MM-dd`: a four-digit year, then a
+two-digit month and day, with hyphens between, such as `2019-04-02`. `lt_LT.email` is built like `de_DE.email`:
+half its local parts are the first and last name of one person from `lt_LT.person`, folded to ASCII, such as
+`jonas.kazlauskas7`. Its domains are `example.com`, `example.org` and `example.net`, or a subdomain of one, which IANA
+reserves, so no address reaches a real mailbox; its `reserved` path draws the same.
 
 ## Lithuanian phone numbers
 

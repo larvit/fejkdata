@@ -496,6 +496,25 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: `data-import/geo-us.py`
 
+## `lt_LT/company.json`, `company-coined.json`, `company-coined.tsv`, `company-word.json`, `company-word.tsv`
+
+- Source: the Register of Legal Entities (Juridinių asmenų registras)'s open data
+  [`JAR_IREGISTRUOTI.csv`](https://www.registrucentras.lt/aduomenys/?byla=JAR_IREGISTRUOTI.csv) of 19
+  November 2026, published by the State Enterprise Centre of Registers (Registrų centras), the legal
+  entities registered. `company.json` weighs a legal form by the entities of its `form_kodas`:
+  102,461 of `310` `Uždaroji akcinė bendrovė` (`UAB`), 75,713 of `960` `Mažoji bendrija` (`MB`), 452
+  of `410` `Žemės ūkio bendrovė` (`ŽŪB`) and 226 of `320` `Akcinė bendrovė` (`AB`). The entities of
+  every other form aren't drawn: the register names the 13,045 of `810` `Individuali įmonė` by their
+  form alone, and the rest are non-profit or public, such as the 13,560 of `630` `Asociacija` and the
+  11,228 of `570` `Viešoji įstaiga`. The shapes of a form's names, where they place the form, the
+  trade words and the words of `company-coined.tsv` come from the `ja_pavadinimas` of those entities.
+  The tables hold single words with their counts.
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), which the Centre's
+  [open data page](https://www.registrucentras.lt/atviri-duomenys-ir-statistika) states as its licence
+- Attribution: "Valstybės įmonė Registrų centras", with the licence's name and link, and that the data
+  is reduced to four legal forms and derived from the register's names
+- Rebuild: `data-import/company-lt.py`
+
 ## `lt_LT/first-name.tsv`, `last-name.tsv`
 
 - Source, first names: the State Enterprise Centre of Registers' (Registrų centras) datasets
