@@ -10,6 +10,7 @@ import (
 	"github.com/larvit/fejkdata/internal/avoid"
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
@@ -24,24 +25,38 @@ type Call func(s *drawstate.State, emitted string, operands []string) string
 type builtin struct {
 	arity int
 	calls []string
-	// prep parses validated args once, at compile time, into the closure a render calls. It is nil
+	// prep turns validated args into the closure a render calls, at compile time. It is nil
 	// for adddays: AddDays builds that call once the load knows the date's layout.
-	prep      func(args []string) Call
-	checkArgs func(args []string) error
+	prep func(args []string, p parsed) Call
+	// checkArgs is the one parser of a call's args: it refuses a bad arg and returns the numbers
+	// it read, which prep, proveNumber and avoids use instead of parsing them again.
+	checkArgs func(args []string) (parsed, error)
 	// operands names the fields the call reads, which a render reads for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
 	// proveNumber bounds the number a call's text reads as, token its body, and says which
 	// datatypes that text is not; set it where every render reads as a finite number, which
 	// makes the call a calc operand, and leave it nil otherwise.
-	proveNumber func(token string, prints datatype.DataType, args []string) proven.Facts
+	proveNumber func(token string, prints datatype.DataType, p parsed) proven.Facts
 	// prints is the datatype a call's text is, handed to proveNumber: datatype.String where it
 	// reads as a number no column should type, as digits' leading zeros; unset where
 	// proveNumber is nil.
 	prints datatype.DataType
 	// avoids is the runs of every value a sample prints, and what it prints where no value passes
 	// its where clause; nil for a builtin a where clause can't filter.
-	avoids func(args []string) (avoid.Runs, string)
+	avoids func(p parsed) (avoid.Runs, string)
+}
+
+// parsed is the numbers a call's checkArgs read from its args, each kind in the order the call
+// writes them.
+type parsed struct {
+	ints   []int
+	floats []float64
+}
+
+// plain is the checkArgs of a builtin whose args hold no number prep needs.
+func plain(check func(args []string) error) func([]string) (parsed, error) {
+	return func(a []string) (parsed, error) { return parsed{}, check(a) }
 }
 
 // CalcName is the builtin whose operands internal/engine/fence checks and proves.
@@ -63,16 +78,31 @@ func Check(name string, args []string) error {
 	if b.arity >= 0 && len(args) != b.arity {
 		return fmt.Errorf("%s takes %d argument%s, got %d", name, b.arity, plural(b.arity), len(args))
 	}
-	if b.checkArgs != nil {
-		return b.checkArgs(args)
+	_, err := b.parse(args)
+	return err
+}
+
+// parse runs a builtin's check over args. A builtin with no check takes args of any kind.
+func (b builtin) parse(args []string) (parsed, error) {
+	if b.checkArgs == nil {
+		return parsed{}, nil
 	}
-	return nil
+	return b.checkArgs(args)
+}
+
+// accepted parses args Check accepted, so a failure is a broken check and not user input.
+func accepted(name string, args []string) parsed {
+	p, err := builtins[name].parse(args)
+	if err != nil {
+		panic(invariant.Broken("%s(%q) reached prep unchecked: %v", name, args, err))
+	}
+	return p
 }
 
 // Prep parses a call's args, which Check accepted, into the Call a render makes, or nil for adddays.
 func Prep(name string, args []string) Call {
 	if b := builtins[name]; b.prep != nil {
-		return b.prep(args)
+		return b.prep(args, accepted(name, args))
 	}
 	return nil
 }
@@ -111,7 +141,7 @@ func ProveNumber(name, token string, args []string) (proven.Facts, bool) {
 	if b.proveNumber == nil {
 		return proven.Facts{}, false
 	}
-	return b.proveNumber(token, b.prints, args), true
+	return b.proveNumber(token, b.prints, accepted(name, args)), true
 }
 
 // Runs is every value name(args) can print; ok is false for a builtin a where clause can't filter.
@@ -120,14 +150,14 @@ func Runs(name string, args []string) (rs avoid.Runs, ok bool) {
 	if b.avoids == nil {
 		return nil, false
 	}
-	rs, _ = b.avoids(args)
+	rs, _ = b.avoids(accepted(name, args))
 	return rs, true
 }
 
 // Default is what name(args) prints where no value passes its where clause, and the clause names no
 // fallback.
 func Default(name string, args []string) string {
-	_, d := builtins[name].avoids(args)
+	_, d := builtins[name].avoids(accepted(name, args))
 	return d
 }
 

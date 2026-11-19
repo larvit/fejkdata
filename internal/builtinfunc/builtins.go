@@ -11,7 +11,6 @@ import (
 	"github.com/larvit/fejkdata/internal/avoid"
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/drawstate"
-	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
@@ -33,58 +32,58 @@ var builtins = withTransforms(map[string]builtin{
 	"luhn":     {calls: []string{"luhn()", "luhn(n)"}, arity: -1, checkArgs: luhnArg, prep: luhnPrep},
 	"mod11":    {calls: []string{"mod11()"}, arity: 0, prep: derive(mod11Check)},
 	"ean":      {calls: []string{"ean()"}, arity: 0, prep: derive(eanCheck)},
-	"bgmod11":  {calls: []string{"bgmod11(x)"}, arity: 1, checkArgs: bgmod11Arg, prep: bgmod11Prep},
-	"fnr":      {calls: []string{"fnr(x)"}, arity: 1, checkArgs: fnrArg, prep: fnrPrep, operands: func(a []string) []string { return a }},
-	"cpr":      {calls: []string{"cpr(x)"}, arity: 1, checkArgs: cprArg, prep: cprPrep, operands: func(a []string) []string { return a }},
-	"hetu":     {calls: []string{"hetu(x)", "hetu(x,'issued')"}, arity: -1, checkArgs: hetuArgs, prep: hetuPrep, operands: func(a []string) []string { return a[:1] }},
+	"bgmod11":  {calls: []string{"bgmod11(x)"}, arity: 1, checkArgs: plain(bgmod11Arg), prep: bgmod11Prep},
+	"fnr":      {calls: []string{"fnr(x)"}, arity: 1, checkArgs: plain(fnrArg), prep: fnrPrep, operands: func(a []string) []string { return a }},
+	"cpr":      {calls: []string{"cpr(x)"}, arity: 1, checkArgs: plain(cprArg), prep: cprPrep, operands: func(a []string) []string { return a }},
+	"hetu":     {calls: []string{"hetu(x)", "hetu(x,'issued')"}, arity: -1, checkArgs: plain(hetuArgs), prep: hetuPrep, operands: func(a []string) []string { return a[:1] }},
 	"steuerid": {calls: []string{"steuerid()"}, arity: 0, prep: sample(steuerID)},
 	"uuid":     {calls: []string{"uuid()"}, arity: 0, prep: sample(uuidV7), avoids: fixedRuns(uuidRuns, "00000000-0000-0000-0000-000000000000")},
 	"ulid":     {calls: []string{"ulid()"}, arity: 0, prep: sample(ulid), avoids: fixedRuns(ulidRuns, strings.Repeat("0", 26))},
 	"nanoid":   {calls: []string{"nanoid(n)"}, arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet), avoids: charRuns(nanoidAlphabet, '0')},
 	"hex":      {calls: []string{"hex(n)"}, arity: 1, checkArgs: countArg, prep: chars(hexDigits), avoids: charRuns(hexDigits, '0')},
-	"digits": {calls: []string{"digits(n)"}, arity: 1, checkArgs: countArg, prep: chars(decimalDigits), avoids: charRuns(decimalDigits, '0'), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
-		if atoi(a[0]) == 0 {
+	"digits": {calls: []string{"digits(n)"}, arity: 1, checkArgs: countArg, prep: chars(decimalDigits), avoids: charRuns(decimalDigits, '0'), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, p parsed) proven.Facts {
+		if p.ints[0] == 0 {
 			return proven.Unproven("{" + token + "} prints nothing, which is no number")
 		}
-		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
+		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(p.ints[0]))-1, true))
 	}},
 	"upper": {calls: []string{"upper(n)"}, arity: 1, checkArgs: countArg, prep: chars(upperLetters), avoids: charRuns(upperLetters, 'A')},
 	"lower": {calls: []string{"lower(n)"}, arity: 1, checkArgs: countArg, prep: chars(lowerLetters), avoids: charRuns(lowerLetters, 'a')},
-	"base64": {calls: []string{"base64(n)"}, arity: 1, checkArgs: countArg, avoids: base64Runs, prep: func(a []string) Call {
-		n := atoi(a[0])
+	"base64": {calls: []string{"base64(n)"}, arity: 1, checkArgs: countArg, avoids: base64Runs, prep: func(_ []string, p parsed) Call {
+		n := p.ints[0]
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return base64.StdEncoding.EncodeToString(randBytes(s, n))
 		}
 	}},
-	"int": {calls: []string{"int(min,max)"}, arity: 2, checkArgs: intRangeArgs, prep: func(a []string) Call {
-		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
+	"int": {calls: []string{"int(min,max)"}, arity: 2, checkArgs: intRangeArgs, prep: func(_ []string, p parsed) Call {
+		lo, span := p.ints[0], p.ints[1]-p.ints[0]+1
 		return func(s *drawstate.State, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
-	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
-		return proven.Printing(token, prints, proven.Bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
+	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, p parsed) proven.Facts {
+		return proven.Printing(token, prints, proven.Bounded(float64(p.ints[0]), float64(p.ints[1]), true))
 	}},
-	"float": {calls: []string{"float(min,max,dp)"}, arity: 3, checkArgs: floatArgs, prep: func(a []string) Call {
-		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
+	"float": {calls: []string{"float(min,max,dp)"}, arity: 3, checkArgs: floatArgs, prep: func(_ []string, p parsed) Call {
+		lo, hi, dp := p.floats[0], p.floats[1], p.ints[0]
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return formatFloat(lo+s.Float64()*(hi-lo), dp)
 		}
-	}, prints: datatype.Number, proveNumber: func(token string, _ datatype.DataType, a []string) proven.Facts {
-		return proven.PrintedNumber(token, proven.Bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
+	}, prints: datatype.Number, proveNumber: func(token string, _ datatype.DataType, p parsed) proven.Facts {
+		return proven.PrintedNumber(token, proven.Bounded(p.floats[0], p.floats[1], false), p.ints[0])
 	}},
-	"iban": {calls: []string{"iban(CC)"}, arity: 1, checkArgs: ibanArg, prep: func(a []string) Call {
+	"iban": {calls: []string{"iban(CC)"}, arity: 1, checkArgs: plain(ibanArg), prep: func(a []string, _ parsed) Call {
 		cc := a[0]
 		return func(s *drawstate.State, _ string, _ []string) string { return iban(s, cc) }
 	}},
-	"date":      {calls: []string{"date(from,to,'layout')"}, arity: -1, checkArgs: dateArgs, prep: datePrep},
+	"date":      {calls: []string{"date(from,to,'layout')"}, arity: -1, checkArgs: plain(dateArgs), prep: datePrep},
 	"born":      {calls: []string{"born(min,max,'layout')"}, arity: -1, checkArgs: bornArgs, prep: bornPrep},
-	AddDaysName: {calls: []string{AddDaysName + "(d,n)", AddDaysName + "(d,n,'layout')"}, arity: -1, checkArgs: addDaysArgs, operands: addDaysOperands},
+	AddDaysName: {calls: []string{AddDaysName + "(d,n)", AddDaysName + "(d,n,'layout')"}, arity: -1, checkArgs: plain(addDaysArgs), operands: addDaysOperands},
 	"tick":      {calls: []string{"tick(start,step,jitter,'layout')"}, arity: -1, checkArgs: tickArgs, prep: tickPrep},
-	"time":      {calls: []string{"time('layout')"}, arity: -1, checkArgs: timeArg, prep: timePrep},
-	RewordName:  {calls: []string{RewordName + "(text,words)"}, arity: 2, checkArgs: pathArgs, prep: renderedByFejkdata, operands: func(a []string) []string { return a }},
+	"time":      {calls: []string{"time('layout')"}, arity: -1, checkArgs: plain(timeArg), prep: timePrep},
+	RewordName:  {calls: []string{RewordName + "(text,words)"}, arity: 2, checkArgs: plain(pathArgs), prep: renderedByFejkdata, operands: func(a []string) []string { return a }},
 	CalcName:    {calls: []string{CalcName + "(expr)", CalcName + "(expr,dp)"}, arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
 	// seq is the one stateful builtin: a per-generator counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.
-	"seq": {calls: []string{"seq()", "seq(name)"}, arity: -1, checkArgs: seqArg, prep: func(a []string) Call {
+	"seq": {calls: []string{"seq()", "seq(name)"}, arity: -1, checkArgs: plain(seqArg), prep: func(a []string, _ parsed) Call {
 		key := ""
 		if len(a) == 1 {
 			key = a[0]
@@ -92,7 +91,7 @@ var builtins = withTransforms(map[string]builtin{
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return strconv.FormatUint(s.Seq(key), 10)
 		}
-	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, _ []string) proven.Facts {
+	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, _ parsed) proven.Facts {
 		return proven.Printing(token, prints, proven.Bounded(1, math.MaxInt64, true))
 	}},
 })
@@ -100,19 +99,19 @@ var builtins = withTransforms(map[string]builtin{
 // derive and sample are the two argument-free builtin shapes: a derivation reads
 // the output emitted so far, a sample reads only the rng. chars is the shape of a
 // sample of n characters drawn from an alphabet.
-func derive(f func(emitted string) string) func([]string) Call {
-	return func([]string) Call {
+func derive(f func(emitted string) string) func([]string, parsed) Call {
+	return func([]string, parsed) Call {
 		return func(_ *drawstate.State, emitted string, _ []string) string { return f(emitted) }
 	}
 }
-func sample(f func(rng) string) func([]string) Call {
-	return func([]string) Call {
+func sample(f func(rng) string) func([]string, parsed) Call {
+	return func([]string, parsed) Call {
 		return func(s *drawstate.State, _ string, _ []string) string { return f(s) }
 	}
 }
-func chars(alphabet string) func([]string) Call {
-	return func(a []string) Call {
-		n := atoi(a[0])
+func chars(alphabet string) func([]string, parsed) Call {
+	return func(_ []string, p parsed) Call {
+		n := p.ints[0]
 		return func(s *drawstate.State, _ string, _ []string) string { return randChars(s, n, alphabet) }
 	}
 }
@@ -124,15 +123,15 @@ const (
 	lowerLetters  = "abcdefghijklmnopqrstuvwxyz"
 )
 
-func charRuns(alphabet string, blank byte) func([]string) (avoid.Runs, string) {
-	return func(a []string) (avoid.Runs, string) {
-		n := atoi(a[0])
+func charRuns(alphabet string, blank byte) func(parsed) (avoid.Runs, string) {
+	return func(p parsed) (avoid.Runs, string) {
+		n := p.ints[0]
 		return avoid.Runs{{Alphabet: alphabet, N: n}}, strings.Repeat(string(blank), n)
 	}
 }
 
-func fixedRuns(rs avoid.Runs, blank string) func([]string) (avoid.Runs, string) {
-	return func([]string) (avoid.Runs, string) { return rs, blank }
+func fixedRuns(rs avoid.Runs, blank string) func(parsed) (avoid.Runs, string) {
+	return func(parsed) (avoid.Runs, string) { return rs, blank }
 }
 
 var (
@@ -146,8 +145,8 @@ const base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123
 
 // base64Runs is the runs of base64(n). Where n is not a multiple of 3, the last character before the
 // padding encodes some zero bits, so it is one of 4 or 16 characters.
-func base64Runs(a []string) (avoid.Runs, string) {
-	n := atoi(a[0])
+func base64Runs(p parsed) (avoid.Runs, string) {
+	n := p.ints[0]
 	rs := avoid.Runs{{Alphabet: base64Alphabet, N: 4 * (n / 3)}}
 	switch n % 3 {
 	case 1:
@@ -167,25 +166,6 @@ func formatFloat(v float64, dp int) string {
 	return s
 }
 
-// atoi parses an arg a builtin's check already validated. It panics rather than
-// returning zero, so a check that stops covering its own args is a stack trace and
-// not a silently wrong length, range or decimal count.
-func atoi(s string) int {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", s, err))
-	}
-	return n
-}
-
-// atof is atoi for a float arg, and reports an unvalidated one the same way.
-func atof(s string) float64 {
-	f, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", s, err))
-	}
-	return f
-}
 func randBytes(r rng, n int) []byte {
 	b := make([]byte, n)
 	for i := range b {
@@ -211,50 +191,53 @@ func intArg(s string) (int, error) {
 	}
 	return n, nil
 }
-func countArg(a []string) error {
+func countArg(a []string) (parsed, error) {
 	n, err := intArg(a[0])
 	if errors.Is(err, strconv.ErrRange) {
-		return fmt.Errorf("count %q exceeds the maximum %d", a[0], maxLen)
+		return parsed{}, fmt.Errorf("count %q exceeds the maximum %d", a[0], maxLen)
 	}
 	if err != nil {
-		return fmt.Errorf("count %w", err)
+		return parsed{}, fmt.Errorf("count %w", err)
 	}
 	if n < 0 {
-		return fmt.Errorf("count %q must not be negative", a[0])
+		return parsed{}, fmt.Errorf("count %q must not be negative", a[0])
 	}
 	if n > maxLen {
-		return fmt.Errorf("count %d exceeds the maximum %d", n, maxLen)
+		return parsed{}, fmt.Errorf("count %d exceeds the maximum %d", n, maxLen)
 	}
-	return nil
+	return parsed{ints: []int{n}}, nil
 }
-func intRangeArgs(a []string) error {
+func intRangeArgs(a []string) (parsed, error) {
 	lo, err := intArg(a[0])
 	if err != nil {
-		return fmt.Errorf("int(min,max): min %w", err)
+		return parsed{}, fmt.Errorf("int(min,max): min %w", err)
 	}
 	hi, err := intArg(a[1])
 	if err != nil {
-		return fmt.Errorf("int(min,max): max %w", err)
+		return parsed{}, fmt.Errorf("int(min,max): max %w", err)
 	}
 	if lo > hi {
-		return fmt.Errorf("int(min,max): min %d > max %d", lo, hi)
+		return parsed{}, fmt.Errorf("int(min,max): min %d > max %d", lo, hi)
 	}
 	if uint64(hi)-uint64(lo) >= uint64(math.MaxInt64) { // span hi-lo+1 would overflow int -> IntN panic
-		return fmt.Errorf("int(min,max): range %d..%d is too wide", lo, hi)
+		return parsed{}, fmt.Errorf("int(min,max): range %d..%d is too wide", lo, hi)
 	}
-	return nil
+	return parsed{ints: []int{lo, hi}}, nil
 }
-func floatArgs(a []string) error {
+func floatArgs(a []string) (parsed, error) {
 	lo, e1 := strconv.ParseFloat(a[0], 64)
 	hi, e2 := strconv.ParseFloat(a[1], 64)
 	if e1 != nil || e2 != nil {
-		return fmt.Errorf("float(min,max,dp) needs numeric bounds, got %q,%q", a[0], a[1])
+		return parsed{}, fmt.Errorf("float(min,max,dp) needs numeric bounds, got %q,%q", a[0], a[1])
 	}
 	dp, err := intArg(a[2])
 	if err != nil {
-		return fmt.Errorf("float(min,max,dp): decimals %w", err)
+		return parsed{}, fmt.Errorf("float(min,max,dp): decimals %w", err)
 	}
-	return floatRange(lo, hi, dp, a)
+	if err := floatRange(lo, hi, dp, a); err != nil {
+		return parsed{}, err
+	}
+	return parsed{ints: []int{dp}, floats: []float64{lo, hi}}, nil
 }
 
 func floatRange(lo, hi float64, dp int, a []string) error {

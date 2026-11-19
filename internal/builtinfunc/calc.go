@@ -48,35 +48,35 @@ func Arith(operator byte, l, r float64) float64 {
 
 // checkCalc validates a calc token's own args: a parseable expression and an optional
 // non-negative integer dp. What its operands hold is the caller's to check.
-func checkCalc(args []string) error {
+func checkCalc(args []string) (parsed, error) {
 	if len(args) < 1 || len(args) > 2 {
-		return fmt.Errorf("calc takes an expression and an optional decimals count, got %d args", len(args))
+		return parsed{}, fmt.Errorf("calc takes an expression and an optional decimals count, got %d args", len(args))
 	}
 	if _, err := grammar.ParseCalc(args[0]); err != nil {
-		return fmt.Errorf("calc(%q): %w", args[0], err)
+		return parsed{}, fmt.Errorf("calc(%q): %w", args[0], err)
 	}
 	if len(args) == 2 {
 		return checkCalcDecimals(args[1])
 	}
-	return nil
+	return parsed{}, nil
 }
 
-func checkCalcDecimals(arg string) error {
+func checkCalcDecimals(arg string) (parsed, error) {
 	dp, err := intArg(arg)
 	if err != nil {
-		return fmt.Errorf("calc decimals %w", err)
+		return parsed{}, fmt.Errorf("calc decimals %w", err)
 	}
 	if dp < 0 || dp > maxDecimals {
-		return fmt.Errorf("calc decimals %d must be in 0..%d", dp, maxDecimals)
+		return parsed{}, fmt.Errorf("calc decimals %d must be in 0..%d", dp, maxDecimals)
 	}
-	return nil
+	return parsed{ints: []int{dp}}, nil
 }
 
 // calcPrep parses the expression and decimals once, at compile time. checkCalc proved
 // both args valid, so no step here can fail.
-func calcPrep(args []string) Call {
+func calcPrep(args []string, p parsed) Call {
 	expr := ParsedCalc(args[0]).Expr
-	dp := CalcDecimals(args)
+	dp := calcDecimals(p)
 	return func(_ *drawstate.State, _ string, operands []string) string {
 		return formatFloat(evalCalc(expr, operands), dp)
 	}
@@ -93,9 +93,11 @@ func ParsedCalc(expr string) grammar.Calc {
 
 // CalcDecimals is the decimals count of a calc Check accepted, or proven.ShortestDecimals
 // where it names none.
-func CalcDecimals(args []string) int {
-	if len(args) == 2 {
-		return atoi(args[1])
+func CalcDecimals(args []string) int { return calcDecimals(accepted(CalcName, args)) }
+
+func calcDecimals(p parsed) int {
+	if len(p.ints) == 1 {
+		return p.ints[0]
 	}
 	return proven.ShortestDecimals
 }

@@ -14,7 +14,7 @@ func bgmod11Arg(a []string) error {
 	return nil
 }
 
-func bgmod11Prep(a []string) Call {
+func bgmod11Prep(a []string, _ parsed) Call {
 	weighted := a[0]
 	return func(s *drawstate.State, emitted string, _ []string) string {
 		tails := bgmod11Tails(weighted + digitsOf(emitted))
