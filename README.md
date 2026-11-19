@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names and persons, `lv_LV`'s names, persons and personas kodi, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names and persons, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs and phone numbers, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -1295,7 +1295,7 @@ counts credits "Source: Eurostat".
 
 ### `lv_LV`
 
-`lv_LV`, Latvian, carries `first-name`, `last-name`, `person`, `personas-kods`, `sex` and `title`. `sex` is `sieviete` and `vīrietis`, `title` is
+`lv_LV`, Latvian, carries `first-name`, `last-name`, `person`, `personas-kods`, `phone`, `sex` and `title`. `sex` is `sieviete` and `vīrietis`, `title` is
 `Dr.` and `prof.`, drawn whatever the sex. `{/lv_LV.person}` renders e.g. `Anna Bērziņa`.
 
 `first-name` holds the 2,000 commonest first given names of each sex, each weighted by the persons bearing it in the
@@ -1340,6 +1340,22 @@ the code of the same date:
 ```
 
 Renders e.g. `Renārs Kārkliņš, born 20130310, code 10031324059`.
+
+#### Latvian phone numbers
+
+`lv_LV.phone` is a mobile number ten times as often as a fixed one. Latvia has no area codes, so every number is
+dialled as it stands, in eight digits grouped two, three and three: `29 123 456` for a mobile and `67 123 456` for a
+fixed number. Its `national` field is that form, and its `international` field is `+371 29 123 456`, with the country
+code.
+
+The ranges are those of Table 1 of the National Numbering Plan (Nacionālais numerācijas plāns), decision no. 1/33 of
+27 September 2022 of the Public Utilities Commission (Sabiedrisko pakalpojumu regulēšanas komisija), in the text
+amended to 1 September 2025: a mobile number starts with 2 and a fixed number with 6, and each of the other seven
+digits is drawn evenly. The plan splits neither range any finer, so no start is left out. Not drawn is every range for
+another service, such as 80 for free calls or 90 for premium rates.
+
+A number is valid, not real: it lies in a range the plan allocates, and a real subscriber may hold it. The plan doesn't
+reserve any range for fiction or tests, so don't call or text a drawn number.
 
 ### `misc`
 
