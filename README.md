@@ -2711,6 +2711,23 @@ docker compose run --rm cyclo   # cyclomatic complexity over 7 (test files exclu
 docker compose run --rm dev     # interactive shell
 ```
 
+`mutate` is not part of the gate. It runs [Gremlins](https://gremlins.dev), which changes
+one operator at a time in the Go lines a branch changed since `origin/main`, test files
+excluded, and reports each change no test fails on as `LIVED`. A run over a branch that
+changed 61 lines in 7 Go files took a minute and a half, nearly all of it the one test
+run that gathers coverage:
+
+```sh
+docker compose run --rm mutate
+```
+
+In a git worktree, name the main checkout's git folder, which the worktree's own folder
+doesn't hold:
+
+```sh
+GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)" docker compose run --rm mutate
+```
+
 Commands that rewrite source keep your file ownership when run with `--user`:
 
 ```sh

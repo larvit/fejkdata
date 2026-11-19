@@ -4,7 +4,7 @@ x-go: &go
   volumes:
     - .:/app
     - gocache:/cache
-  environment:
+  environment: &go-env
     HOME: /cache
     GOCACHE: /cache/build
     GOMODCACHE: /cache/mod
@@ -46,6 +46,21 @@ services:
     command: go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 -scan module
     mem_limit: 2g
     memswap_limit: 2g
+
+  mutate:
+    <<: *go
+    command: go run github.com/go-gremlins/gremlins/cmd/gremlins@v0.6.0 unleash --diff origin/main --output-statuses lctkv --exclude-files '.*_test\.go'
+    volumes:
+      - .:/app
+      - gocache:/cache
+      - ${GIT_COMMON_DIR:-./.git}:${GIT_COMMON_DIR:-/app/.git}
+    environment:
+      <<: *go-env
+      GIT_CONFIG_COUNT: 1
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: "*"
+    mem_limit: 8g
+    memswap_limit: 8g
 
   build:
     <<: *go
