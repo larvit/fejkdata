@@ -324,10 +324,10 @@ Find the open name statistics first: Statistics Estonia's name statistics. Check
 Touches:
 
 - `data/et_EE/`
-- `data/modules.go`
+- `data/modules.go`: lines 7-28 (small)
 - `data-import/`
-- `README.md`
-- `DATA-LICENSES.md`
+- `README.md`: `# fejkdata` (small), `### Shipped modules` (small), `#### Names and sex` (small), `` ### `et_EE` ``
+- `DATA-LICENSES.md`: `` ## `et_EE/first-name.tsv`, `last-name.tsv` ``
 
 ### 499. Add `et_EE`'s national personal id, the isikukood, with its check digits.
 
@@ -347,10 +347,10 @@ Find the open name statistics first: the Office of Citizenship and Migration Aff
 Touches:
 
 - `data/lv_LV/`
-- `data/modules.go`
+- `data/modules.go`: lines 7-28 (small)
 - `data-import/`
-- `README.md`
-- `DATA-LICENSES.md`
+- `README.md`: `# fejkdata` (small), `### Shipped modules` (small), `#### Names and sex` (small), `` ### `lv_LV` ``
+- `DATA-LICENSES.md`: `` ## `lv_LV/first-name.tsv`, `last-name.tsv` ``
 
 ### 504. Add `lv_LV`'s national personal id, the personas kods, with its check digits.
 
@@ -370,10 +370,10 @@ Find the open name statistics first: the Register Centre's or Statistics Lithuan
 Touches:
 
 - `data/lt_LT/`
-- `data/modules.go`
+- `data/modules.go`: lines 7-28 (small)
 - `data-import/`
-- `README.md`
-- `DATA-LICENSES.md`
+- `README.md`: `# fejkdata` (small), `### Shipped modules` (small), `#### Names and sex` (small), `` ### `lt_LT` ``
+- `DATA-LICENSES.md`: `` ## `lt_LT/first-name.tsv`, `last-name.tsv` ``
 
 ### 509. Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.
 
