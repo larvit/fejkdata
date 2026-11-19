@@ -1811,7 +1811,7 @@ A shipped field is moved into `let` when only its own category's fields read it,
 test or other category reads its path, and it is a piece only the template needs: a syllable
 half, a digit class, a price's amount or separator-bearing part, a number's head or tail. A part
 the README names or a domain gives a name, such as `phone.block`, an SSN's `area` or an email's
-`local`, stays a field and a column.
+`local`, stays a field and a column. The pieces inside the variants of a `username` or an `email.local` choice, such as `first`, `last`, `sep` and `n`, stay too: a choice lists what every variant carries, and the audit moved no helper that a choice's variants share.
 
 Three fresh readers seated as the README's data author, hand fixture author and contributor read
 `data/misc/ipv6.json` with its `let` fields and predicted `--list`, a read of `{/misc.ipv6.g}` and a
