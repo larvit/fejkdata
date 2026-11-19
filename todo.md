@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 95 | 0.7.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
-| 116 | 0.7.0 |  |  | **Turn a row index into its rows file's line in one function.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.5 |
 | 350 | 0.7.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.1 |
 | 210 | 0.7.0 |  |  | **Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 273 | 0.7.0 | 210 |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
@@ -250,17 +249,6 @@
 Touches:
 
 - `struct.go`: `structShape`, `compileShape`, `fill`
-
-### 116. Turn a row index into its rows file's line in one function.
-
-Today `containedNode`'s cell line in `graph.go`, `compileCells` in `table.go` and each site in `internal/rows` add the header line and the one-based count.
-
-Touches:
-
-- `internal/rows/rows.go`: `Table.proveNamesInsideParent` (small), `Table.proveKeys` (small), `Table.proveNamesAreNotKeys` (small), `Table.parseWeight` (small), `Table.checkSelectorCells` (small), `Table.Link` (small), `Table.selectorSpelling` (small), `Table.Line`
-- `internal/rows/rows_test.go`: `TestLine`
-- `internal/engine/load/graph.go`: `containedCells` (small)
-- `internal/engine/load/table.go`: `compileCells` (small)
 
 ### 350. Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.
 
