@@ -697,7 +697,7 @@ language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `w
 names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As for `sv_SE`, `month` is selected by 1 to 12
 and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
 
-The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date`, `de_DE.date`, `fi_FI.date` and `fr_FR.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
+The dates of `da_DK.date`, `de_DE.date`, `en_US.date`, `fi_FI.date`, `fr_FR.date`, `nb_NO.date`, `nn_NO.date` and `sv_SE.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
 #### Names and sex
 
@@ -1180,22 +1180,32 @@ Renders e.g. `Cassie Duflot, 253059724702338`.
 #### French companies
 
 `fr_FR.company` draws a legal form as often as INSEE's Sirene register counts active legal units of it on 1 November
-2026: 7,845,810 sole proprietors, `EI`, 2,226,407 `SARL`, 1,839,229 `SAS`, 99,237 `SNC` and 68,436 `SA`, which counts the
-two categories of a société anonyme as one. The `SCI`, the associations and the other forms the register holds aren't
-drawn. Sirene counts a unit active until someone reports it ceased, so the counts run higher than the businesses
-trading. An `EI`'s name has no abbreviation after it, and the others end in theirs, such as `… SARL`.
-`fr_FR.company.ei`, `.sarl`, `.sas`, `.snc` and `.sa` each draw one form, and `{/fr_FR.company as c}{c.legal}` prints the
-abbreviation of the same pick, empty for an `EI`. No open bulk file of French company names was found, so the name's
-shapes and the words of `company-coined` and `company-word` are a language model's recall. A name is invented, and may
-also be a real company's. A program showing the counts credits "Source : Insee, Sirene, StockUniteLegale, 1er novembre
-2026", names the [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/) and
-says that the counts are reduced to five legal forms.
+2026: 7,845,810 sole proprietors (`EI`), 2,226,407 `SARL`, 1,839,229 `SAS`, 99,237 `SNC` and 68,436 `SA`, the last being
+Sirene's two categories of a société anonyme with no other indication, added together. Sirene files an `EURL` under
+its `SARL` and a `SASU` under its `SAS`, so the data doesn't tell them apart. The `SCI`, the associations and the
+other forms the register holds aren't drawn. Sirene counts a unit active until someone reports it ceased, so the
+counts run higher than the businesses trading.
+
+An `EI`'s name is a first and a last name, such as `Nadia Cordier`, with no abbreviation after it, as the register
+holds it, although a sole proprietor must add `EI` to their name on their documents since 2022. The others end in their
+abbreviation, such as `… SARL`. `fr_FR.company.ei`, `.sarl`, `.sas`, `.snc` and `.sa` each draw one form, and
+`{/fr_FR.company as c}{c.legal}` prints the abbreviation of the same pick, empty for an `EI`.
+
+The shapes of the other names, the 120 commonest trade words of `company-word` and the roots of `company-coined`
+come from the names of those units, as [`company-fr.py`](data-import/company-fr.py) counts them. Sirene writes a name
+in capitals without accents, so the trade words have the accents of French spelling, written by hand, and a root
+keeps Sirene's spelling, such as `Acces`. A name is invented from those parts, and may also be a real company's.
+A program showing the data credits "Source : Insee, Sirene, StockUniteLegale, 1er novembre 2026", names the
+[Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/) and says that the
+data is reduced to five legal forms and derived from the register's names.
 
 #### French dates and emails
 
 `fr_FR.date` is a date from 1970 to 2029 as France writes it, a two-digit day and month and a four-digit year with
 slashes between, such as `02/04/2019`. `fr_FR.email` is built like `de_DE.email`: half its local parts are a first and
 a last name from `fr_FR`'s names, folded to ASCII, with `-` for a space or an apostrophe, such as `anne-marie.le-gall`.
+Its domains are `example.com`, `example.org` and `example.net`, or a subdomain of one, which IANA reserves, so no
+address reaches a real mailbox.
 
 #### French phone numbers
 
@@ -2961,7 +2971,7 @@ A shipped table built from a source is rebuilt by its script under
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Run the block below in order: some scripts
 read a table another one writes. `cldr.py` and `timezone.py` read
 `misc/territory.tsv`. `company-se.py` reads the sv_SE names and `geo/SE`, and
-`company-no.py` reads the nb_NO names and `geo/NO`.
+`company-no.py` reads the nb_NO names and `geo/NO`, and `company-fr.py` reads the fr_FR names.
 
 Downloads are cached under `data-import/cache/`, which version control ignores and
 which grows past a gigabyte. Delete that folder to fetch afresh, or pass
@@ -2976,6 +2986,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
   after a burst, so give `names-us.py` a copy of the Census `names.zip` with `--surnames`.
 - `geo-se.py` fetches SCB's småort polygons, about 120 MB, and its tätort polygons.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
+- `company-fr.py` fetches Sirene's StockUniteLegale, about a gigabyte.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
 
@@ -2996,6 +3007,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-u
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/bankaccount-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/car-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-fr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py

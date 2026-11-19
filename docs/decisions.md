@@ -2160,3 +2160,23 @@ same for a test number, so `{steuerid()}` computes the eleventh digit by ELSTER'
 the Swedish, Norwegian and Finnish ids, which draw an issuer's test or unissued series.
 
 Valid while the BZSt doesn't issue any number with a leading zero.
+
+## `fr_FR.company` draws five forms, names an `EI` by its owner, and takes its words from Sirene
+
+2026-11-19, Lilleman auf Larv.
+
+Goal 3.2 (a table follows the register that publishes it) is served: Sirene's StockUniteLegale is
+an open bulk file of French company names under the Licence Ouverte 2.0, so `fr_FR.company` does not
+draw from a language model's recall as the project principle for countries without one does. The
+forms are the five a French company name usually ends in: `EI`, `SARL`, `SAS`, `SNC` and `SA`. The SCI
+of category 6540 holds 1.9 million units but names the property it owns, and the associations of
+9220 are not companies, so neither is drawn. An `EI`'s name is its owner's first and last name, as the
+register holds it in `nom` and `prenom`, with no `EI` after it, although a sole proprietor must add
+`EI` to their name on documents since 2022: the register's names carry none, and the shared company
+test refuses a bare form's name that ends in its code. Sirene files an `EURL` under 5499 and a `SASU`
+under 5710, as no unit holds 5498 or 5720, so they count as `SARL` and `SAS`. Sirene
+writes a name in capitals without accents, so the 120 commonest trade words have their accents from
+a list written by hand, and the roots keep Sirene's spelling. A longer list of trade words would need
+a source of French spelling that the project doesn't take yet.
+
+Valid while Sirene holds no accents and no French word list is shipped.

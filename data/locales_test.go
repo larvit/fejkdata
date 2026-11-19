@@ -169,9 +169,8 @@ var shippedLocales = []shippedLocale{
 		name:   "fr_FR",
 		names:  &names{map[string]string{"Nathalie": "f", "Isabelle": "f", "Jean": "m", "Michel": "m"}, []string{"Camille", "Dominique"}},
 		person: &person{map[string]string{"f": "femme", "m": "homme"}, []string{"Dr", "Pr"}},
-		// INSEE's Sirene StockUniteLegale of 1 November 2026, the units whose administrative state is active, by
-		// catégorie juridique: 1000, 5499, 5710, 5202, and 5599 with 5699. The forms of other categories, such as
-		// the SCI of 6540 and associations, aren't drawn.
+		// INSEE's Sirene StockUniteLegale of 1 November 2026, the active units by catégorie juridique: 1000, 5499,
+		// 5710, 5202, and 5599 with 5699.
 		company: &company{regexp.MustCompile(`^\p{L}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (SARL|SAS|SNC|SA))?$`), legalForm{"EI", "ei", "", 7845810}, []legalForm{
 			{"SARL", "sarl", "SARL", 2226407}, {"SAS", "sas", "SAS", 1839229}, {"SNC", "snc", "SNC", 99237}, {"SA", "sa", "SA", 68436},
 		}},
