@@ -13,8 +13,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 350 | 0.7.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.1 |
-| 210 | 0.7.0 |  |  | **Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
-| 273 | 0.7.0 | 210 |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 273 | 0.7.0 |  |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 498 | 0.7.0 |  |  | **Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 499 | 0.7.0 | 498 |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 503 | 0.7.0 |  |  | **Add `lv_LV` with its given names by sex, last names and titles, and `lv_LV.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
@@ -23,23 +22,23 @@
 | 509 | 0.7.0 | 508 |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 15 | 0.7.0 |  |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 3.4 |
 | 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
-| 272 | 0.7.0 | 210 |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 272 | 0.7.0 |  |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 500 | 0.7.0 | 498 |  | **Add `et_EE.phone`, drawn from Estonia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 505 | 0.7.0 | 503 |  | **Add `lv_LV.phone`, drawn from Latvia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 510 | 0.7.0 | 508 |  | **Add `lt_LT.phone`, drawn from Lithuania's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
-| 274 | 0.7.0 | 210 |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 274 | 0.7.0 |  |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 501 | 0.7.0 | 498 |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 506 | 0.7.0 | 503 |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 511 | 0.7.0 | 508 |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
-| 513 | 0.7.0 | 210 |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
-| 514 | 0.7.0 | 210 |  | **Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 513 | 0.7.0 |  |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 514 | 0.7.0 |  |  | **Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 515 | 0.7.0 | 498 |  | **Add `et_EE.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Estonia writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 516 | 0.7.0 | 498 |  | **Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 517 | 0.7.0 | 503 |  | **Add `lv_LV.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Latvia writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 518 | 0.7.0 | 503 |  | **Add `lv_LV.word` with its noun, verb, adjective and adverb forms, and `lv_LV.sentence` and `lv_LV.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 519 | 0.7.0 | 508 |  | **Add `lt_LT.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Lithuania writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 520 | 0.7.0 | 508 |  | **Add `lt_LT.word` with its noun, verb, adjective and adverb forms, and `lt_LT.sentence` and `lt_LT.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
-| 270 | 0.7.0 | 210 |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 270 | 0.7.0 |  |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 502 | 0.7.0 | 498 |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 507 | 0.7.0 | 503 |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 512 | 0.7.0 | 508 |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
@@ -260,24 +259,6 @@ Touches:
 - `Dockerfile`: lines 31-46, lines 69-75 (small)
 - `README.md`: `## Layout` (small), `## Development`
 - `AGENTS.md`: lines 125-126 (small)
-
-### 210. Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.
-
-France holds more French speakers than DR Congo: 64M to 49M on Wikipedia's "Geographical distribution of French speakers", which credits a 2022 OIF report but flags its table as not taken from that report.
-
-Touches:
-
-- `data/fr_FR/`
-- `data/modules.go`: lines 7-28 (small)
-- `shipped_test.go`: lines 20-33 (small), lines 85-98 (small)
-- `data/locales_test.go`: lines 99-202
-- `data/french_test.go`
-- `data_test.go`: lines 285-295 (small), lines 313-320 (small), lines 410-426 (small)
-- `data-import/names-fr.py`
-- `data-import/sex-population.py`: `(module)` (small), `NAMES` (small), `main` (small), `france`
-- `testdata/shipped_shape.txt`: lines 429-430 (small)
-- `README.md`: `# fejkdata` (small), `### Shipped modules` (small), `#### Names and sex` (small), `` ### `fr_FR` ``
-- `DATA-LICENSES.md`: `` ## `fr_FR/first-name.tsv`, `last-name.tsv` ``
 
 ### 273. Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.
 
