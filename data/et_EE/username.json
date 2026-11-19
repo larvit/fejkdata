@@ -11,7 +11,7 @@
     "format": "{adj}{sep}{noun}{n}",
     "weight": 2,
     "adj": ["julge", "kiire", "kuri", "lahe", "metsik", "rahulik", "roomus", "sarmikas", "super", "tark", "tugev", "turbo", "uhke", "vapper"],
-    "noun": ["hiir", "hunt", "janes", "kass", "karu", "koer", "kolibri", "kotkas", "ninja", "ookull", "panda", "piraat", "rebane", "robot", "siil", "huljes"],
+    "noun": ["hiir", "huljes", "hunt", "janes", "karu", "kass", "koer", "kolibri", "kotkas", "ninja", "ookull", "panda", "piraat", "rebane", "robot", "siil"],
     "sep": [{ "format": "", "weight": 2 }, ".", "_"],
     "n": [{ "format": "", "weight": 2 }, "7", "13", "42", "77", "99", "123", "420", "2024"]
   },
