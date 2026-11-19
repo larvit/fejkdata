@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 527`
+`Next ID = 528`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 527 | 0.7.0 |  |  | **Move the name-shape code that `company-ee.py` and `company-lv.py` copy into `company_names.py`.** | 2 | 1 | 1 | 2 | 3 | code health by 4 | 8.2 |
 | 526 | 0.7.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 3 | 6.1 |
 | 506 | 0.7.0 |  |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 511 | 0.7.0 |  |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
@@ -224,6 +225,23 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
+
+### 527. Move the name-shape code that `company-ee.py` and `company-lv.py` copy into `company_names.py`.
+
+The stability review of the chunk adding `lv_LV.company` found about 55 lines copied verbatim between `data-import/company-ee.py` and `data-import/company-lv.py`, with their tests: `Words`, `kind`, `shape_of`, `shipped`, `slots` and `coined`, and the constants `CONNECTING_WORDS`, `SLOTS`, `PERSONS`, `COINED_MIN` and `COINED_ENDS_MIN`. This breaks the rule in `~/.claude/principles/technical-principles.md` that a value, rule, definition or concept lives in one place. Move them into `data-import/company_names.py`, parameterised by the locale's connecting words and legal words, and move the copied tests into a `company_names_test.py`. Each script then holds only what is its register's own: reading the register, its forms and where a name places its form.
+
+`company-no.py`, `company-fr.py` and `company-se.py` hold no verbatim copy: Norway's `kind` also finds places and folds `é` and `ü`, France's `slots` capitalises the first slot, and Sweden's `kind` takes separate name sets. Leave them as they are.
+
+Land this before item 511, `lt_LT.company`, which would otherwise make a third copy; it is scored to rank above 511 for that reason.
+
+Touches:
+
+- `data-import/company_names.py`
+- `data-import/company_names_test.py`
+- `data-import/company-ee.py`: `Words`, `kind`, `shape_of`, `shipped`, `slots`, `coined`, `lines 65-76`
+- `data-import/company-lv.py`: `Words`, `kind`, `shape_of`, `shipped`, `slots`, `coined`, `lines 69-82`
+- `data-import/company_ee_test.py`: `Shapes`, `Coined`
+- `data-import/company_lv_test.py`: `Shapes`, `Coined`
 
 ### 526. Lower the reading cost of the files a chunk reads most before its first commit.
 
