@@ -55,6 +55,11 @@ with its replacement, and each removed path, column or flag.
 - `lv_LV.phone`, a Latvian phone number such as `29 123 456`, or `+371 29 123 456` in its `international` form. It is
   drawn from the Latvian numbering plan's mobile range 2XXXXXXX ten times as often as its fixed range 6XXXXXXX. The plan
   reserves no range for fiction or tests, so a number may be a real subscriber's.
+- `lv_LV.company`, an invented name such as `SIA "Elektro"` and a legal form: an `SIA`, `IK`, `AS`, `PS` or `KS`, each
+  drawn as often as the Register of Enterprises' open data (CC0 1.0) counts the merchants of that form in the Commercial
+  Register. The abbreviation and the quotes sit where the register's names of that form put them. The name shapes and
+  the words of `company-word` and `company-coined` come from the register's names. Also `lv_LV.date`, a date from 1970
+  to 2029 such as `02.04.2019`, and `lv_LV.email`, built like `de_DE.email`.
 - `et_EE`, Estonian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/et_EE.person}` renders e.g.
   `Liis Tamm`. Both name tables are a language model's recall, ranked and weighted by rank; the weights are
   estimates. A woman bears the feminine form of a Russian last name, such as `Ivanova`. `et_EE.sex` carries Estonia's population on 1 January 2025 from
