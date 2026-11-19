@@ -190,6 +190,18 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Source: Statistics Estonia"
 - Rebuild: —
 
+## `et_EE/phone.json`
+
+- Source: the Annex to the Estonian numbering plan, regulation no. 25 of 21 May 2018 of the
+  Minister of Entrepreneurship and Information Technology (Eesti numeratsiooniplaan), in the text
+  of the ministry's draft amending it in February 2024: the eight-digit mobile numbers starting
+  with 5, and the seven-digit fixed numbers starting with 32, 33, 35, 38, 39, 43 to 48, 60 to 68,
+  71 to 79 or 88
+- Licence: none stated, facts only; a regulation is a legislative act, which section 5 of the Estonian
+  Copyright Act (autoriõiguse seadus) excludes from copyright
+- Attribution: none required
+- Rebuild: curated
+
 ## `fi_FI/company.json`, `company-coined.json`, `company-word.json`
 
 - Source: the weights of the legal forms of `company.json`: [Statistics
