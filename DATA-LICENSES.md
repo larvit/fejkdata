@@ -529,6 +529,17 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   for the last names
 - Rebuild: `data-import/names-lv.py`
 
+## `lt_LT/asmens-kodas.json`
+
+- Source: the weights of its three age bands: [Eurostat](https://ec.europa.eu/eurostat)'s table
+  [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table), "Population
+  on 1 January by age and sex", for Lithuania in 2025: 2,890,284 people aged 0 to 99, 497,128 of them
+  under 18, 1,790,026 aged 18 to 64 and 603,130 aged 65 to 99
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as Eurostat's [copyright
+  notice](https://ec.europa.eu/eurostat/help/copyright-notice) states
+- Attribution: "Source: Eurostat"
+- Rebuild: —
+
 ## `lv_LV/personas-kods.json`
 
 - Source: the weights of its three age bands: [Eurostat](https://ec.europa.eu/eurostat)'s table

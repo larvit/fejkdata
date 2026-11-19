@@ -112,6 +112,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The French id draws valid NIRs over the last hundred years
 - The Estonian id draws valid isikukoodid over the last hundred years
 - The Latvian id draws valid personas kodi over the last hundred years
+- The Lithuanian id draws valid asmens kodai over the last hundred years
 - The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
