@@ -46,7 +46,7 @@ with its replacement, and each removed path, column or flag.
   `fr_FR.nonzero-number`, which `fr_FR.nir` reads. A program showing the birth years credits "Source : Insee, Bilan
   démographique 2025", as `DATA-LICENSES.md` says.
 - `et_EE.isikukood`, an Estonian personal identification code such as `36805280109`, drawn over the last hundred
-  years by Statistics Estonia's counts of under 18, 18 to 64 and 65 to 99. It passes the check digit but the
+  years by Statistics Estonia's counts of people under 18, 18 to 64 and 65 to 99. It passes the check digit but the
   regulation names no test series and no unassigned range, so a code may be a living person's. Also
   `{isikukood(x,d)}`, which prints a whole code for the sex digit `x` reads and the `YYYYMMDD` date `d` reads, and
   `et_EE.sex-digit`, which makes a code agree with a sex bound as `s`. A program showing the birth years credits
