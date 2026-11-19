@@ -145,7 +145,7 @@ func checkBind(t grammar.Token, fields map[string]tree.Node) error {
 		return fmt.Errorf("token {%s}: a binding names nothing; write {%s as n}", t.Body, ref)
 	}
 	if isOption(name) {
-		return fmt.Errorf("token {%s}: %q is an option and can never be a name; rename it", t.Body, name)
+		return fmt.Errorf("token {%s}: %s and can never be a name; rename it", t.Body, optionPhrase(name))
 	}
 	if err := grammar.CheckIdentifier(name); err != nil {
 		return fmt.Errorf("token {%s}: name %w", t.Body, err)
@@ -189,7 +189,7 @@ func noFieldNamed(head, spelling string, noFields, wholeToken bool) readCheck {
 		return readCheck{refused: fmt.Errorf("a name is never empty, so this token can name no field")}
 	}
 	if isOption(head) {
-		return readCheck{refused: fmt.Errorf("%q is an option and can never be a field", head)}
+		return readCheck{refused: fmt.Errorf("%s and can never be a field", optionPhrase(head))}
 	}
 	if !noFields {
 		return readCheck{noField: fmt.Errorf("no field %q", head)}
