@@ -134,6 +134,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
 - A pull request that changes a workflow or what a release packages runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
 - CI keeps Go's build and module caches between `main`'s runs, and a pull request's build starts from them
+- `fr_FR.company` draws five forms, names an `EI` by its owner, and takes its words from Sirene
 - A Swedish street's postal codes keep delivery digit 9
 - A Swedish postort with no published population of its own weighs 200
 - A Swedish road segment inside a tätort leans towards the postort the tätort is named after, by distance over the fourth root of its codes

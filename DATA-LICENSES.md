@@ -265,24 +265,26 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Kotimaisten kielten keskus: Nykysuomen sanalista 2024, CC BY 4.0"
 - Rebuild: `data-import/word-fi.py`
 
-## `fr_FR/company.json`, `company-coined.json`, `company-word.json`
+## `fr_FR/company.json`, `company-coined.json`, `company-coined.tsv`, `company-word.json`, `company-word.tsv`
 
-- Source: the weights of the legal forms of `company.json`: INSEE's [Base Sirene des entreprises et
-  de leurs
+- Source: INSEE's [Base Sirene des entreprises et de leurs
   établissements](https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/),
   file `StockUniteLegale` of 1 November 2026, the legal units whose `etatAdministratifUniteLegale`
-  is `A`, counted by `categorieJuridiqueUniteLegale`: 7,845,810 of `1000` (`EI`), 2,226,407 of
-  `5499` (`SARL`), 1,839,229 of `5710` (`SAS`), 99,237 of `5202` (`SNC`), and 68,436 of `5599` and
-  `5699` together (`SA`); the units of every other category, such as the 1,908,566 of `6540`, the
-  SCI, and the 1,252,322 of `9220`, the associations, aren't drawn; the name shapes and the two
-  other files are a language model's recall, as no open bulk file of French company names was found,
-  and weigh evenly
-- Licence: the weights: [Licence Ouverte / Open Licence
+  is `A`. `company.json` weighs a legal form by the units of its `categorieJuridiqueUniteLegale`:
+  7,845,810 of `1000` (`EI`), 2,226,407 of `5499` (`SARL`, which files the `EURL`), 1,839,229 of
+  `5710` (`SAS`, which files the `SASU`), 99,237 of `5202` (`SNC`), and 68,436 of `5599` and `5699`
+  together (`SA`). The units of every other category aren't drawn, such as the 1,908,566 SCI
+  (`6540`) and the 1,252,322 associations (`9220`). The shapes of a form's names, the 120 commonest
+  trade words and the roots in the two other tables come from the `denominationUniteLegale` of those
+  units, which Sirene writes in capitals without accents. The tables hold single words with their
+  counts, never a unit's whole name, and the accents of the trade words are written by hand
+- Licence: [Licence Ouverte / Open Licence
   2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/), as the dataset's page on
-  data.gouv.fr states; the rest: the project's own [LICENSE](LICENSE)
+  data.gouv.fr states
 - Attribution: "Source : Insee, Sirene, StockUniteLegale, 1er novembre 2026", with the licence's
-  name and link, and that the counts are reduced to five legal forms
-- Rebuild: hand-written, from the counts
+  name and link, and that the data is reduced to five legal forms and derived from the register's
+  names
+- Rebuild: `data-import/company-fr.py`
 
 ## `fr_FR/first-name.tsv`, `last-name.tsv`
 

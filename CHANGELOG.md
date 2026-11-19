@@ -76,11 +76,12 @@ with its replacement, and each removed path, column or flag.
   and `international` (`+33 6 39 98 12 34`) fields. Every one lies in a root the Arcep's plan national de numérotation
   keeps for fiction, so none reaches anyone. It reads `fr_FR.phone-mobile`, the root `06 39 98`, and
   `fr_FR.phone-fixed`, the roots `01 99 00`, `02 61 91`, `03 53 01`, `04 65 71` and `05 36 49`.
-- `fr_FR.company`, a French company name such as `Menuiserie Lauret SAS`, a sole proprietor (`EI`), `SARL`, `SAS`,
-  `SNC` or `SA` as often as INSEE's Sirene register counts active legal units of that form; the `SCI` and the other
-  forms aren't drawn. A program showing the counts credits "Source : Insee, Sirene, StockUniteLegale, 1er novembre
-  2026", names the Licence Ouverte 2.0 and says that the counts are reduced to five legal forms. The name shapes
-  and the words of `company-coined` and `company-word` are a language model's recall, so a name is invented.
+- `fr_FR.company`, an invented name such as `Terra Bâtiment SAS` and a legal form: a sole proprietor (`EI`), whose name
+  is a first and a last name with no abbreviation, or an `SARL`, `SAS`, `SNC` or `SA`, each drawn as often as INSEE's
+  Sirene register counts active legal units of that form; the `SCI` and the other forms aren't drawn. The name
+  shapes, the 120 commonest trade words and the roots come from the register's names. A program showing the data
+  credits "Source : Insee, Sirene, StockUniteLegale, 1er novembre 2026", names the Licence Ouverte 2.0 and says that
+  the data is reduced to five legal forms and derived from the register's names.
   Also `fr_FR.date`, a date from 1970 to 2029 such as `02/04/2019`, and `fr_FR.email`, built like `de_DE.email`.
 - `et_EE.isikukood`, an Estonian personal identification code such as `36805280109`, drawn over the last hundred
   years by Statistics Estonia's counts of people under 18, 18 to 64 and 65 to 99. It passes the check digit but the
