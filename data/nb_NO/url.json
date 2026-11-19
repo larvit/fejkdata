@@ -1,6 +1,8 @@
 {
   "format": "https://{host}{path}",
-  "host": ["example.com", "www.example.com", "example.org", "example.no", "www.example.no", "blogg.example.net", "butikk.example.com", "shop.example.no", "api.example.no", "dokumenter.example.org", "nyheter.example.net", "post.example.no"],
+  "reserved": "https://{/nb_NO.url.reserved-host}{/nb_NO.url.path}",
+  "host": [{ "format": "{/nb_NO.url.reserved-host}", "weight": 7 }, "example.no", "www.example.no", "shop.example.no", "api.example.no", "post.example.no"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "blogg.example.net", "butikk.example.com", "dokumenter.example.org", "nyheter.example.net"] },
   "path": [
     { "format": "", "weight": 2 },
     {

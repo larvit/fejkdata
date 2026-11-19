@@ -108,6 +108,10 @@ with its replacement, and each removed path, column or flag.
   Also `misc.ipv6`, inside RFC 3849's 2001:db8::/32, and `misc.mac.local`, a locally administered unicast address.
   `misc.ip` still draws an address a real host may hold, now through `misc.ip.wide4` and `.wide6`, so a seed draws
   a different `misc.ip` than before.
+- `url.reserved` and `email.reserved` in `da_DK`, `de_DE`, `en_US`, `fi_FI`, `nb_NO`, `nn_NO` and `sv_SE`, and
+  `fr_FR.email.reserved`, which draw only `example.com`, `example.org` and `example.net`, or a subdomain of one, so no
+  value reaches a real site or mailbox. `en_US` and `sv_SE`'s `url` and `email` still draw registrable domains such as
+  `example.io` and `example.se` by default, now through a fresh pick, so a seed draws a different value than before.
 - `PathName` returns the final name of a path, selectors left out, such as `currency` for `misc.currency[US Dollar]`; the
   CLI takes its default `--table` from it.
 - `word`, `sentence` and `paragraph` for `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO`, with `word.noun`, `.verb`,

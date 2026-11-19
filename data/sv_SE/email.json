@@ -22,5 +22,7 @@
       "n": [{ "format": "", "weight": 2 }, "7", "14", "42", "69", "99", "123", "420", "1337", "2000", "9000"]
     }
   ],
-  "domain": ["example.com", "example.org", "example.net", "example.se", "example.nu", "example.io", "mail.example.se", "webmail.example.se", "inkorg.example.se", "post.example.se", "demo.example.se", "test.example.org", "dev.example.se"]
+  "domain": [{ "format": "{/sv_SE.email.reserved-domain}", "weight": 4 }, "example.se", "example.nu", "example.io", "mail.example.se", "webmail.example.se", "inkorg.example.se", "post.example.se", "demo.example.se", "dev.example.se"],
+  "hidden": { "reserved-domain": ["example.com", "example.org", "example.net", "test.example.org"] },
+  "reserved": "{/sv_SE.email.local}@{/sv_SE.email.reserved-domain}"
 }

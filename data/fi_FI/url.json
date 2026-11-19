@@ -1,6 +1,8 @@
 {
   "format": "https://{host}{path}",
-  "host": ["example.com", "www.example.com", "example.org", "example.fi", "www.example.fi", "blogi.example.net", "kauppa.example.fi", "shop.example.com", "api.example.fi", "ohjeet.example.org", "uutiset.example.net", "posti.example.fi"],
+  "reserved": "https://{/fi_FI.url.reserved-host}{/fi_FI.url.path}",
+  "host": [{ "format": "{/fi_FI.url.reserved-host}", "weight": 7 }, "example.fi", "www.example.fi", "kauppa.example.fi", "api.example.fi", "posti.example.fi"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "blogi.example.net", "shop.example.com", "ohjeet.example.org", "uutiset.example.net"] },
   "path": [
     { "format": "", "weight": 2 },
     {

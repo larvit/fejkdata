@@ -665,7 +665,7 @@ that source, and the script drops a row only by a rule it states; elsewhere a sm
 set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2).
 The `sentence` and `paragraph` patterns state no fact and stay hand-written. Where a category
 has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
-as `example.com` into the template; `todo.md` plans the path.
+as `example.com` into the template; `todo.md` plans the paths. [`url` and `email`](#locale-categories) have one, `reserved`.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 ### Locale categories
@@ -696,6 +696,14 @@ A `url` and a `username` are made of the locale's own words, in ASCII, and a `co
 language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `weekday` are Unicode CLDR's stand-alone
 names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As for `sv_SE`, `month` is selected by 1 to 12
 and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
+
+`url` and `email` carry a path `reserved` in `sv_SE`, `en_US`, `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO`, and
+`fr_FR`'s `email` carries one. It draws only
+domains nobody can register: `example.com`, `example.org` and `example.net`, or a subdomain of one, which
+[RFC 2606](https://www.rfc-editor.org/rfc/rfc2606) reserves, so `{/sv_SE.url.reserved}` never reaches a real site and
+`{/sv_SE.email.reserved}` never a real mailbox. The default `sv_SE.url`, `sv_SE.email`, `en_US.url` and
+`en_US.email` also draw domains anyone may register, such as `example.se` and `example.io`; the other locales'
+defaults draw only reserved ones already.
 
 The dates of `da_DK.date`, `de_DE.date`, `en_US.date`, `et_EE.date`, `fi_FI.date`, `fr_FR.date`, `nb_NO.date`, `nn_NO.date` and `sv_SE.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
