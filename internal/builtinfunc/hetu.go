@@ -38,7 +38,7 @@ func hetuArgs(a []string) error {
 	return fmt.Errorf("hetu's range %s is not 'issued', the one range it takes beside its default of 900 to 999", a[1])
 }
 
-func hetuPrep(a []string) Call {
+func hetuPrep(a []string, _ parsed) Call {
 	individuals := hetuUnissued
 	if len(a) == 2 {
 		individuals = hetuIssued

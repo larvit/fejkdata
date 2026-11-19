@@ -8,26 +8,27 @@ import (
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
-func luhnArg(a []string) error {
+func luhnArg(a []string) (parsed, error) {
 	if len(a) > 1 {
-		return fmt.Errorf("luhn takes at most one count, got %d", len(a))
+		return parsed{}, fmt.Errorf("luhn takes at most one count, got %d", len(a))
 	}
 	if len(a) == 0 {
-		return nil
+		return parsed{}, nil
 	}
-	if err := countArg(a); err != nil {
-		return fmt.Errorf("luhn(n): %w", err)
+	p, err := countArg(a)
+	if err != nil {
+		return parsed{}, fmt.Errorf("luhn(n): %w", err)
 	}
-	if atoi(a[0]) == 0 {
-		return errors.New("luhn(n): count 0 reads no digit; write luhn() to read them all")
+	if p.ints[0] == 0 {
+		return parsed{}, errors.New("luhn(n): count 0 reads no digit; write luhn() to read them all")
 	}
-	return nil
+	return p, nil
 }
 
-func luhnPrep(a []string) Call {
+func luhnPrep(_ []string, p parsed) Call {
 	n := -1
-	if len(a) == 1 {
-		n = atoi(a[0])
+	if len(p.ints) == 1 {
+		n = p.ints[0]
 	}
 	return func(_ *drawstate.State, emitted string, _ []string) string {
 		return string(rune('0' + luhnCheck(lastDigits(emitted, n))))

@@ -18,7 +18,7 @@ func cprArg(a []string) error {
 	return nil
 }
 
-func cprPrep([]string) Call {
+func cprPrep([]string, parsed) Call {
 	return func(s *drawstate.State, emitted string, operands []string) string {
 		if len(operands[0]) != 1 || operands[0][0] < '0' || operands[0][0] > '9' {
 			return ""

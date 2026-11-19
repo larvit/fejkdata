@@ -88,9 +88,8 @@ func TestCheckAcceptsACalcOverAnyOperand(t *testing.T) {
 // rejected. No data reaches them, since Check runs before Prep, so they are called directly.
 func TestArgGuardsPanic(t *testing.T) {
 	for name, call := range map[string]func(){
-		"atoi on an unvalidated arg":             func() { atoi("nope") },
-		"atof on an unvalidated arg":             func() { atof("nope") },
-		"prep on an expression that won't parse": func() { calcPrep([]string{"1 +"}) },
+		"accepted on an arg its check refuses":   func() { accepted("int", []string{"nope", "1"}) },
+		"prep on an expression that won't parse": func() { calcPrep([]string{"1 +"}, parsed{}) },
 	} {
 		t.Run(name, func(t *testing.T) {
 			mustPanic(t, name, call)

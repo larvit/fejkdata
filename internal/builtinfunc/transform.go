@@ -24,7 +24,7 @@ func withTransforms(calls map[string]builtin) map[string]builtin {
 		if _, clash := calls[name]; clash {
 			panic(invariant.Broken("%s is registered as a builtin and a transform", name))
 		}
-		calls[name] = builtin{arity: 1, calls: []string{name + "(x)"}, checkArgs: transformArg, prep: transformPrep(fn), operands: transformOperand}
+		calls[name] = builtin{arity: 1, calls: []string{name + "(x)"}, checkArgs: plain(transformArg), prep: transformPrep(fn), operands: transformOperand}
 	}
 	return calls
 }
@@ -64,8 +64,8 @@ func transformOperand(a []string) []string {
 	}
 	return []string{leaf}
 }
-func transformPrep(outer func(string) string) func([]string) Call {
-	return func(a []string) Call {
+func transformPrep(outer func(string) string) func([]string, parsed) Call {
+	return func(a []string, _ parsed) Call {
 		_, chain, err := unwrapTransform(a[0])
 		if err != nil {
 			panic(invariant.Broken("transform arg %q reached prep unvalidated: %v", a[0], err))

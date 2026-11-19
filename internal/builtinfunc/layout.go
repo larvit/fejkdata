@@ -74,29 +74,36 @@ func dateArgs(a []string) error {
 	_, err := layoutArg(a[2])
 	return err
 }
-func bornArgs(a []string) error {
+func bornArgs(a []string) (parsed, error) {
 	if err := layoutArity("born", 3, a); err != nil {
-		return err
+		return parsed{}, err
 	}
 	lo, err := intArg(a[0])
 	if err != nil {
-		return fmt.Errorf("born(min,max,layout): min %w", err)
+		return parsed{}, fmt.Errorf("born(min,max,layout): min %w", err)
 	}
 	hi, err := intArg(a[1])
 	if err != nil {
-		return fmt.Errorf("born(min,max,layout): max %w", err)
+		return parsed{}, fmt.Errorf("born(min,max,layout): max %w", err)
 	}
-	if lo < 0 {
+	if err := bornAges(lo, hi); err != nil {
+		return parsed{}, err
+	}
+	if _, err = layoutArg(a[2]); err != nil {
+		return parsed{}, err
+	}
+	return parsed{ints: []int{lo, hi}}, nil
+}
+func bornAges(lo, hi int) error {
+	switch {
+	case lo < 0:
 		return fmt.Errorf("born(min,max,layout): min %d is negative", lo)
-	}
-	if lo > hi {
+	case lo > hi:
 		return fmt.Errorf("born(min,max,layout): min %d > max %d", lo, hi)
-	}
-	if hi > maxAge {
+	case hi > maxAge:
 		return fmt.Errorf("born(min,max,layout): max %d exceeds the maximum %d", hi, maxAge)
 	}
-	_, err = layoutArg(a[2])
-	return err
+	return nil
 }
 func timeArg(a []string) error {
 	if err := layoutArity("time", 1, a); err != nil {
@@ -117,7 +124,7 @@ func namesADateField(layout string) bool {
 
 // datePrep draws a second in [from 00:00:00, to 23:59:59] UTC; the span is counted
 // in seconds, since a Duration overflows past 292 years.
-func datePrep(a []string) Call {
+func datePrep(a []string, _ parsed) Call {
 	from, to, err := dayBounds(a)
 	if err != nil {
 		panic(invariant.Broken("builtin args %q reached prep unvalidated: %v", a[:2], err))
@@ -132,8 +139,8 @@ func datePrep(a []string) Call {
 
 // bornPrep draws a second in the calendar years in which someone turns min to max, counted from the
 // year of today, and no later than today.
-func bornPrep(a []string) Call {
-	lo, hi, layout := atoi(a[0]), atoi(a[1]), layoutOf(a[2])
+func bornPrep(a []string, p parsed) Call {
+	lo, hi, layout := p.ints[0], p.ints[1], layoutOf(a[2])
 	return func(s *drawstate.State, _ string, _ []string) string {
 		today := s.Today()
 		start := time.Date(today.Year()-hi, 1, 1, 0, 0, 0, 0, time.UTC).Unix()
@@ -141,7 +148,7 @@ func bornPrep(a []string) Call {
 		return time.Unix(start+int64(s.IntN(int(end-start)+86400)), 0).UTC().Format(layout)
 	}
 }
-func timePrep(a []string) Call {
+func timePrep(a []string, _ parsed) Call {
 	layout := layoutOf(a[0])
 	return func(s *drawstate.State, _ string, _ []string) string {
 		return time.Unix(int64(s.IntN(86400)), 0).UTC().Format(layout)

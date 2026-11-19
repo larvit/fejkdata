@@ -22,22 +22,25 @@ func parseTickStart(arg string) (time.Time, error) {
 	return time.Parse(dayLayout, arg)
 }
 
-func tickArgs(a []string) error {
+func tickArgs(a []string) (parsed, error) {
 	if err := layoutArity("tick", 4, a); err != nil {
-		return err
+		return parsed{}, err
 	}
 	if _, err := parseTickStart(a[0]); err != nil {
-		return fmt.Errorf("tick(start,step,jitter,layout): start %q is not a YYYY-MM-DD day or a UTC timestamp such as 2026-01-01T00:00:00Z", a[0])
+		return parsed{}, fmt.Errorf("tick(start,step,jitter,layout): start %q is not a YYYY-MM-DD day or a UTC timestamp such as 2026-01-01T00:00:00Z", a[0])
 	}
 	step, err := tickStepArg(a[1])
 	if err != nil {
-		return err
+		return parsed{}, err
 	}
-	if err := tickJitterArg(a[2], step); err != nil {
-		return err
+	jitter, err := tickJitterArg(a[2], step)
+	if err != nil {
+		return parsed{}, err
 	}
-	_, err = layoutArg(a[3])
-	return err
+	if _, err = layoutArg(a[3]); err != nil {
+		return parsed{}, err
+	}
+	return parsed{ints: []int{step, jitter}}, nil
 }
 
 func tickStepArg(arg string) (int, error) {
@@ -48,25 +51,25 @@ func tickStepArg(arg string) (int, error) {
 	return step, nil
 }
 
-func tickJitterArg(arg string, step int) error {
+func tickJitterArg(arg string, step int) (int, error) {
 	jitter, err := intArg(arg)
 	if err != nil || jitter < 0 {
-		return fmt.Errorf("tick(start,step,jitter,layout): jitter %q is not a whole number of seconds, 0 or more", arg)
+		return 0, fmt.Errorf("tick(start,step,jitter,layout): jitter %q is not a whole number of seconds, 0 or more", arg)
 	}
 	if jitter >= step {
-		return fmt.Errorf("tick(start,step,jitter,layout): jitter %d is not below step %d, so rows could swap order", jitter, step)
+		return 0, fmt.Errorf("tick(start,step,jitter,layout): jitter %d is not below step %d, so rows could swap order", jitter, step)
 	}
-	return nil
+	return jitter, nil
 }
 
 // tickPrep prints row n at start + (n-1) steps + a draw of 0 to jitter seconds. The rows are
 // counted by the call's arguments, so equal calls step one counter and others step apart.
-func tickPrep(a []string) Call {
+func tickPrep(a []string, p parsed) Call {
 	start, err := parseTickStart(a[0])
 	if err != nil {
 		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", a[0], err))
 	}
-	step, jitter, layout := int64(atoi(a[1])), atoi(a[2]), layoutOf(a[3])
+	step, jitter, layout := int64(p.ints[0]), p.ints[1], layoutOf(a[3])
 	counter := "tick(" + strings.Join(a, ",") + ")"
 	return func(s *drawstate.State, _ string, _ []string) string {
 		offset := int64(s.Seq(counter)-1)*step + int64(s.IntN(jitter+1))

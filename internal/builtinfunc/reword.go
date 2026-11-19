@@ -21,7 +21,7 @@ func pathArgs(a []string) error {
 	return nil
 }
 
-func renderedByFejkdata([]string) Call {
+func renderedByFejkdata([]string, parsed) Call {
 	return func(*drawstate.State, string, []string) string {
 		panic(invariant.Broken("{%s()} renders in package fejkdata, which holds its words", RewordName))
 	}
