@@ -1,4 +1,4 @@
-"""Plan known vulnerabilities in todo.md, and name fixed ones. patch_release.py calls `plan` and `fixed_between`.
+"""Plan known vulnerabilities in todo.md, and name fixed ones. patch_release.py calls `plan`, `known` and `fixed_between`.
 
   file_vulnerabilities.py check <govulncheck -format json report>
       Prints how many known vulnerabilities the report names, and each one. Exits 1 while it
@@ -6,16 +6,15 @@
 
 `plan` files each module's new vulnerabilities as one security item, and removes each item it
 filed once the report names no vulnerability at all. An item goes under the patch after the last
-release, or under the plan's next release when that is a patch above it; rows under a patch
-already cut move with it. todo.md's `Next ID = N` gives its ID. Its Score is 0.0 until the
+release, or under the plan's next release when that release is a later patch. `plan` also moves
+each row under a patch already cut to the patch after the last release. todo.md's `Next ID = N`
+gives a filed item its ID. The item's Score is 0.0 until the
 maintainer's rank_todo.py, which this repository doesn't hold and CI cannot run, scores it; a
 security item ranks first in its release whatever it scores.
 
 What this file knows of todo.md's layout is the patterns below: the item table under its
 `| ID |` header, a row's first two cells, the `Next ID` line, the `## Details` heading and
-the detail this file writes. No test reads the repository's own
-todo.md: where its layout drifts, `plan` exits 2 naming what it misses, or rank_todo.py refuses
-the row it filed.
+the detail this file writes, and the twelve-cell row `file_items` writes.
 
 Scores, as todo.md's table spells them: L (chance of a defect), E (chance it escapes) and S
 (size) are 1, since the fix is a version bump the gate builds and tests; I (damage) is 2, a
@@ -211,7 +210,7 @@ def read(path: str) -> str:
 
 
 def plan(report_path: str, todo_path: str, patch: str) -> list[tuple[str, str]]:
-	"""Plans the report in todo.md, and returns what `resolve` names as fixed."""
+	"""Plans the report in todo.md, and returns, for each item it dropped as fixed, what carried the vulnerabilities and their names."""
 	modules = vulnerable_modules(read(report_path))
 	todo = retarget(read(todo_path), patch)
 	todo, filed = file_items(modules, todo, patch)
