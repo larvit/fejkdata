@@ -21,7 +21,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
   requires a month of 1 to 12 refuses the fødselsnummer, and one that applies the extra checks of the
   synthetic henkilötunnus refuses those; Steuer-IDs from ELSTER's test series, which a checker that refuses a leading zero refuses; Danish CPR numbers that pass the
-  office's modulus 11 check, and French NIRs that pass INSEE's key check and Estonian isikukoodid and Latvian personas kodi that pass the check digit, so a drawn one may be a living person's; Swedish
+  office's modulus 11 check, and French NIRs that pass INSEE's key check, and Estonian isikukoodid and Latvian personas kodi that pass the check digit, so a drawn one may be a living person's; Swedish
   organisationsnummer and VAT numbers that pass the format and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
   and ITINs in the ranges the SSA and the IRS assign, so a drawn one may be a real
   person's; Luhn-valid card numbers; and IBANs for seven European countries.
@@ -1293,32 +1293,36 @@ population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showin
 Eurostat".
 
 `lv_LV.personas-kods` is a Latvian personal code, the personas kods that the Office of Citizenship and Migration
-Affairs gives each person: 11 digits with no spaces, such as `16117519997`. It passes the check digit but is not
+Affairs gives each person: 11 digits with no hyphen, such as `16117519997`, though forms often write one after the
+sixth digit. It passes the check digit but is not
 synthetic: the Office publishes no test series and no unassigned range, so a code may be a living person's. A code
 issued before 1 July 2017 starts with the date of birth as `DDMMYY`, then `0` for the 1800s, `1` for the 1900s or `2` for
 the 2000s, a serial number of three digits and a check digit. From 1 July 2017 the Population Register Act gives each new
 person a code that starts with `32`, followed by digits drawn at random, with no date. The Office doesn't state the check
-digit, so fejkdata computes it as python-stdnum does, for both kinds: 1 plus the first ten digits weighted 10, 5, 8, 4, 2,
-1, 6, 3, 7 and 9, modulo 11, and modulo 10 where that is 10. A checker that reads a date from the first six digits
-refuses a code that starts with `32`.
+digit. fejkdata computes it as python-stdnum does, which says no independent source confirms it, and the State Revenue
+Service's formula as Wikipedia gives it yields the same digit. For both kinds it is 1 plus each of the first ten digits
+times its weight, 10, 5, 8, 4, 2, 1, 6, 3, 7 and 9, added up, modulo 11, with 10 written as 0. A checker that reads a date
+from the first six digits refuses a code that starts with `32`.
 
 fejkdata draws the year of birth by Eurostat's counts of people under 18, 18 to 64 and 65 to 99 on 1 January 2025
 (table `demo_pjan`) and the serial number evenly from 000 to 999, since no source states which the register issues. A
-person born from 1 July 2017 gets a code that starts with `32` and the other eight digits drawn evenly, some 9% of all
-codes. A fixture of a few thousand rows starts to repeat a code, and a `UNIQUE` column needs a category of your own. A
+person born from 1 July 2017 gets a code that starts with `32`, eight digits drawn evenly and the check digit: some
+9% of the codes drawn in 2026, and a larger share each year until 2035. A person registered from 1 July 2017 but born
+earlier, such as an immigrant, also holds a `32` code in the register, which fejkdata doesn't draw. A fixture of a few thousand rows starts to repeat a code, and a `UNIQUE` column needs a category of your own. A
 program showing the birth years credits "Source: Eurostat".
 
-`{personaskods(d)}` prints a whole code for the `YYYYMMDD` date that `d` reads, since the code reads the date a person
-was born. It prints no code for a `d` that is no day from 1800 to 2099, and `d` is a field, path or name, never a call. The
-template below binds the `birth` field of `lv_LV.personas-kods` as `b`:
+`{personaskods(d)}` prints a whole code for the `YYYYMMDD` date that `d` reads, since the date decides the century digit
+and whether the code starts with `32`. It prints no code where `d` isn't a date from 1800 to 2099, and `d` is a field, path
+or name, never a call. The template below binds the `birth` field of `lv_LV.personas-kods` as `b`, prints it and prints
+the code of the same date:
 
 ```json
 { "format": "{name}, {code}",
   "name": "{/lv_LV.person}",
-  "code": "{/lv_LV.personas-kods.birth as b}{personaskods(b)}" }
+  "code": "{/lv_LV.personas-kods.birth as b}born {b}, code {personaskods(b)}" }
 ```
 
-Renders e.g. `Renārs Kārkliņš, 14106212341`.
+Renders e.g. `Renārs Kārkliņš, born 20130310, code 10031324059`.
 
 ### `misc`
 
@@ -2049,7 +2053,7 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{cpr(x)}` | derivation | completes a Danish CPR number after the last six digits emitted, its date, with a seventh digit that the CPR office's table of century digits allows for the year, an eighth and a ninth digit it picks, and the check digit, whose parity is that of the digit `x` reads; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1858 to 2057, renders nothing |
 | `{nir()}` | derivation | the key of a French NIR: two digits, 97 less the remainder, divided by 97, of the last 13 letters and digits emitted, where the sixth and seventh may be `2A` or `2B`, counted as 19 or 18; nothing unless they are 13 digits once `2A` and `2B` are so counted |
 | `{isikukood(x,d)}` | derivation | an Estonian isikukood, 11 digits: the digit for the sex that `x` reads, `1` for a man or `2` for a woman, raised by 2 for each century after the 1800s; the date that `d` reads, written `YYYYMMDD`, as `YYMMDD`; a serial number from 001 to 999 it picks; and the check digit. Prints no code for another `x`, or for a `d` that is no day from 1800 to 2099 ([Estonian personal codes](#et_ee)) |
-| `{personaskods(d)}` | derivation | a Latvian personas kods, 11 digits: for a `d` before 1 July 2017, written `YYYYMMDD`, the date as `DDMMYY`, `0`, `1` or `2` for the 1800s, 1900s or 2000s, a serial number from 000 to 999 it picks, and the check digit; for a later `d`, `32`, eight digits it picks and the check digit. Prints no code for a `d` that is no day from 1800 to 2099 ([Latvian personal codes](#lv_lv)) |
+| `{personaskods(d)}` | derivation | a Latvian personas kods, 11 digits: for a `d` before 1 July 2017, written `YYYYMMDD`, the date as `DDMMYY`, `0`, `1` or `2` for the 1800s, 1900s or 2000s, a serial number from 000 to 999 it picks, and the check digit; for a `d` of 1 July 2017 or later, `32`, eight digits it picks and the check digit. Prints no code where `d` isn't a date from 1800 to 2099 ([Latvian personal codes](#lv_lv)) |
 | `{hetu(x)}`, `{hetu(x,'issued')}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number from 900 to 999 of the parity of the digit `x` reads, and the control character; `{hetu(x,'issued')}` takes the individual number from 002 to 899, which DVV issues; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
 | `{bgmod11(x)}` | derivation | a random digit, then the check digit, that complete the digits emitted so far in this expansion to a number Bankgirot's 11-modul accepts: its digits, weighted 1 to 10 from the right and then 1 again, sum to a multiple of 11; the literal digits `x` count as coming first and are not printed (`0` for none) |
 | `{digits(n)}` | sample | `n` digits 0–9 |

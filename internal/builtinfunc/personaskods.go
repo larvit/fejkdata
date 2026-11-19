@@ -9,7 +9,8 @@ import (
 )
 
 // personasKodsWeights are the weights python-stdnum's lv.pvn gives the first ten digits of a
-// personas kods: the check digit is 1 plus the weighted sum, modulo 11, and modulo 10 where that is 10.
+// personas kods: the check digit is 1 plus each digit times its weight, added up, modulo 11, with 10
+// written as 0.
 var personasKodsWeights = [10]int{10, 5, 8, 4, 2, 1, 6, 3, 7, 9}
 
 // personasKodsUndatedFrom is the first birth date whose code holds no date: from 1 July 2017 the

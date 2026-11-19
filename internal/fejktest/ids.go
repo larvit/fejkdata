@@ -228,7 +228,7 @@ func isikukoodCheckDigit(s string) int {
 }
 
 // ValidPersonasKods is the check of a Latvian personal code, with the weights of the State Revenue
-// Service's formula as Wikipedia gives them: eleven digits, where either the first two are 32, a
+// Service's formula as Wikipedia gives them, which yield python-stdnum's digit: eleven digits, where either the first two are 32, a
 // code with no date, or the first six are a date that exists in the century the seventh digit
 // names, 0 for the 1800s, 1 for the 1900s and 2 for the 2000s; and a check digit that is 1101
 // less the sum of the first ten digits weighted 1, 6, 3, 7, 9, 10, 5, 8, 4 and 2, modulo 11, and

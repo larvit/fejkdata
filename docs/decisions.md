@@ -1033,11 +1033,15 @@ codes, and the Population Register Act publish no test series and no unassigned 
 `et_EE.isikukood`. Item 23 ends the departure from goal 3.3. The Act gives a person registered from
 1 July 2017 a code that starts with 32 and then random digits, with no date, so `{personaskods(d)}`
 prints one for a birth date from 1 July 2017 and a dated code for an earlier one; the shipped bands
-draw both, the 9% of codes of people born since 1 July 2017 undated. No source states the check digit,
-and python-stdnum's `lv.pvn` says its algorithm is unconfirmed by an independent source, so the
-check digit follows it, 1 plus the first ten digits weighted 10, 5, 8, 4, 2, 1, 6, 3, 7 and 9,
-modulo 11, and modulo 10, for the undated code too, which passes that check and any rule that its
-digits are random. No source states which serial numbers the register gives, so the serial number
+draw both, and some 9% of the codes drawn in 2026 are undated. The Act gives a `32` code to everyone
+registered from that day, an immigrant born earlier included; the builtin decides by the birth date
+alone, since it holds no registration date, so it never gives such a person one. The Office states
+no check digit. python-stdnum's `lv.pvn` computes it and says no independent source confirms it,
+and the State Revenue Service's formula as Wikipedia gives it, which the tests' checker applies,
+yields the same digit. It is 1 plus each of the first ten digits times its weight, 10, 5, 8, 4, 2,
+1, 6, 3, 7 and 9, added up, modulo 11, with 10 written as 0. The undated code takes the same digit,
+since the Act says only that its digits are random. The code has no hyphen, which forms often put
+after the sixth digit, since python-stdnum's `compact` strips it. No source states which serial numbers the register gives, so the serial number
 is drawn evenly from 000 to 999. The builtin takes the date as an operand and prints the whole
 code, as `{isikukood(x,d)}` does, since the century digit and the 32 depend on it. There is no sex
 digit, since the code holds none. The age bands weigh Eurostat's population of 1 January 2025.
