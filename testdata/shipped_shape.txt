@@ -307,6 +307,8 @@ et_EE.first-name	format "{name}"	name name	weight count	parent sex
 et_EE.first-name.count	string
 et_EE.first-name.name	string
 et_EE.first-name.sex	string
+et_EE.isikukood	format "{/et_EE.sex as s}{isikukood(s.sex-digit.digit,birth)}"	reads et_EE.sex
+et_EE.isikukood.birth	string
 et_EE.last-name	format "{name}"	name name	weight count	parent sex
 et_EE.last-name.count	string
 et_EE.last-name.name	string
@@ -317,6 +319,9 @@ et_EE.person.last	string
 et_EE.person.prefix	string null
 et_EE.person.sex	string
 et_EE.sex	format "{name}"	key code	name name	weight count
+et_EE.sex-digit	format "{digit}"	parent sex
+et_EE.sex-digit.digit	string
+et_EE.sex-digit.sex	string
 et_EE.sex.code	string
 et_EE.sex.count	string
 et_EE.sex.first-name
@@ -328,6 +333,9 @@ et_EE.sex.last-name.count
 et_EE.sex.last-name.name
 et_EE.sex.last-name.sex
 et_EE.sex.name	string
+et_EE.sex.sex-digit
+et_EE.sex.sex-digit.digit
+et_EE.sex.sex-digit.sex
 et_EE.title	format "{name}"	key name	weight share
 et_EE.title.name	string
 et_EE.title.share	string
