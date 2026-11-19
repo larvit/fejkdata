@@ -2475,3 +2475,20 @@ Read most (opens and searches):
 - `docs/decisions.md` 2
 - `internal/builtinfunc/builtins.go` 2
 - `CHANGELOG.md` 1
+
+## Reading cost, chunk dbea6a202850, finished 2026-11-19T20:19:23Z
+
+156742 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `DATA-LICENSES.md` 4
+- `data-import/company-fr.py` 3
+- `data-import/company_fr_test.py` 2
+- `data-import/company_names.py` 2
+- `data/de_DE/company.json` 2
+- `docs/score-anchors.md` 2
+- `README.md` 1
+- `data/de_DE/company-coined.json` 1
+- `data/de_DE/company-word.json` 1
+- `data/de_DE/date.json` 1
