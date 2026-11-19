@@ -1,0 +1,58 @@
+area	name	ndc	subscriber
+310	Varėna	310	{digits(5)}
+313	Druskininkai	313	{digits(5)}
+315	Alytus	315	{digits(5)}
+318	Lazdijai	318	{digits(5)}
+319	Prienai and Birštonas	319	{digits(5)}
+340	Ukmergė	340	{digits(5)}
+342	Vilkaviškis	342	{digits(5)}
+343	Marijampolė	343	{digits(5)}
+345	Šakiai	345	{digits(5)}
+346	Kaišiadorys	346	{digits(5)}
+347	Kėdainiai	347	{digits(5)}
+349	Jonava	349	{digits(5)}
+37	Kaunas	37	{digits(2)} {digits(4)}
+380	Šalčininkai	380	{digits(5)}
+381	Anykščiai	381	{digits(5)}
+382	Širvintos	382	{digits(5)}
+383	Molėtai	383	{digits(5)}
+385	Zarasai	385	{digits(5)}
+386	Ignalina and Visaginas	386	{digits(5)}
+387	Švenčionys	387	{digits(5)}
+389	Utena	389	{digits(5)}
+41	Šiauliai	41	{digits(2)} {digits(4)}
+421	Pakruojis	421	{digits(5)}
+422	Radviliškis	422	{digits(5)}
+425	Akmenė	425	{digits(5)}
+426	Joniškis	426	{digits(5)}
+427	Kelmė	427	{digits(5)}
+428	Raseiniai	428	{digits(5)}
+440	Skuodas	440	{digits(5)}
+441	Šilutė	441	{digits(5)}
+443	Mažeikiai	443	{digits(5)}
+444	Telšiai	444	{digits(5)}
+445	Kretinga	445	{digits(5)}
+446	Tauragė	446	{digits(5)}
+447	Jurbarkas	447	{digits(5)}
+448	Plungė	448	{digits(5)}
+449	Šilalė	449	{digits(5)}
+450	Biržai	450	{digits(5)}
+451	Pasvalys	451	{digits(5)}
+454	Panevėžys	45	4{digits(1)} {digits(4)}
+455	Panevėžys	45	5{digits(1)} {digits(4)}
+458	Rokiškis	458	{digits(5)}
+459	Kupiškis	459	{digits(5)}
+460	Palanga	460	{digits(5)}
+462	Klaipėda	46	2{digits(1)} {digits(4)}
+463	Klaipėda	46	3{digits(1)} {digits(4)}
+464	Klaipėda	46	4{digits(1)} {digits(4)}
+469	Neringa	469	{digits(5)}
+520	Vilnius	5	20{digits(1)} {digits(4)}
+521	Vilnius	5	21{digits(1)} {digits(4)}
+522	Vilnius	5	22{digits(1)} {digits(4)}
+523	Vilnius	5	23{digits(1)} {digits(4)}
+524	Vilnius	5	24{digits(1)} {digits(4)}
+525	Vilnius	5	25{digits(1)} {digits(4)}
+526	Vilnius	5	26{digits(1)} {digits(4)}
+527	Vilnius	5	27{digits(1)} {digits(4)}
+528	Trakai	528	{digits(5)}
