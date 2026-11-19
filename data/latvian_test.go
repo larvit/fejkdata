@@ -174,8 +174,7 @@ func TestLatvianPersonasKodsHasNoDateForSomeoneBornFromJuly2017(t *testing.T) {
 	}
 }
 
-// Table 1 of the National Numbering Plan, decision no. 1/33 of 27 September 2022 of the Public Utilities
-// Commission: 6XXXXXXX is the public fixed network and 2XXXXXXX the public mobile network.
+// Table 1 of the National Numbering Plan, decision no. 1/33 of 27 September 2022 of the Public Utilities Commission.
 func TestShippedLatvianPhoneLiesInARangeTheNumberingPlanAllocates(t *testing.T) {
 	eachPhone(t, "lv_LV", func(n string) {
 		if !latvianFixed.MatchString(n) && !latvianMobile.MatchString(n) {
