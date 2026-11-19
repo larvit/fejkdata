@@ -453,8 +453,12 @@ fi_FI.word.any	string
 fi_FI.word.noun	string
 fi_FI.word.verb	string
 fr_FR.company	format "{registered as r}{r}"	reads fr_FR.company fr_FR.company-coined fr_FR.company-word fr_FR.first-name fr_FR.last-name
-fr_FR.company-coined	format "{a}{b}"
-fr_FR.company-word
+fr_FR.company-coined	format "{word}"	weight count
+fr_FR.company-coined.count	string
+fr_FR.company-coined.word	string
+fr_FR.company-word	format "{word}"	weight count
+fr_FR.company-word.count	string
+fr_FR.company-word.word	string
 fr_FR.company.ei	string
 fr_FR.company.ei.name
 fr_FR.company.legal	string
