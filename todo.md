@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
 | 506 | 0.7.0 |  |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 511 | 0.7.0 |  |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 513 | 0.7.0 |  |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
@@ -224,38 +223,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
-
-17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
-
-Touches:
-
-- `data/da_DK/url.json`
-- `data/da_DK/email.json`
-- `data/de_DE/url.json`
-- `data/de_DE/email.json`
-- `data/en_US/url.json`
-- `data/en_US/email.json`
-- `data/fi_FI/url.json`
-- `data/fi_FI/email.json`
-- `data/nb_NO/url.json`
-- `data/nb_NO/email.json`
-- `data/nn_NO/url.json`
-- `data/nn_NO/email.json`
-- `data/sv_SE/url.json`
-- `data/sv_SE/email.json`
-- `data/da_DK/.fejkdata.json`: lines 10-10 (small), lines 25-25 (small)
-- `data/de_DE/.fejkdata.json`: lines 9-9 (small), lines 25-25 (small)
-- `data/en_US/.fejkdata.json`: lines 7-7 (small), lines 22-22 (small)
-- `data/fi_FI/.fejkdata.json`: lines 9-9 (small), lines 27-27 (small)
-- `data/nb_NO/.fejkdata.json`: lines 10-10 (small), lines 26-26 (small)
-- `data/nn_NO/.fejkdata.json`: lines 7-7 (small), lines 17-17 (small)
-- `data/sv_SE/.fejkdata.json`: lines 14-14 (small), lines 41-41 (small)
-- `data/locale_email_test.go`: `TestLocaleEmailIsAsciiAtADomainNobodyCanRegister`
-- `data/locale_everyday_test.go`: `TestShippedUrlsDrawTheLocalesOwnHostAndPathWords`
-- `testdata/shipped_shape.txt`: lines 30-33 (small), lines 86-88 (small), lines 143-146 (small), lines 198-200 (small), lines 234-237 (small), lines 292-294 (small), lines 343-346 (small), lines 408-410 (small), lines 978-981 (small), lines 1036-1038 (small), lines 1075-1077 (small), lines 1102-1104 (small), lines 1181-1184 (small), lines 1289-1291 (small)
-- `README.md`: `#### Data sources` (small), `### Locale categories`, `#### Norwegian dates and emails` (small), `#### Danish dates and emails` (small), `#### German dates and emails` (small), `#### Finnish dates and emails` (small)
 
 ### 506. Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.
 
