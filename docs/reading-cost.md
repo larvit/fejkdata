@@ -2231,3 +2231,51 @@ Read most (opens and searches):
 - `data-import/names-de.py` 2
 - `data-import/names-se.py` 2
 - `data-import/sex-population.py` 2
+
+## Reading cost, chunk f54ecb96a5b1, finished 2026-11-19T10:55:46Z
+
+57380 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `data_test.go` 3
+- `compose.yaml` 2
+- `shipped_data_test.go` 2
+- `testdata/shipped_shape.txt` 2
+- `data/misc/.fejkdata.json` 1
+- `data/misc/creditcard.json` 1
+- `data/misc/ip.json` 1
+- `data/misc/mac.json` 1
+- `data/misc/useragent.json` 1
+
+## Reading cost, chunk 0c936373a64b, finished 2026-11-19T11:15:56Z
+
+106770 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 4
+- `internal/fejktest/ids.go` 4
+- `data/danish_test.go` 3
+- `data/french_test.go` 3
+- `cpr_test.go` 2
+- `docs/decisions.md` 2
+- `internal/builtinfunc/builtins.go` 2
+- `internal/builtinfunc/cpr.go` 2
+- `internal/builtinfunc/hetu.go` 2
+- `CHANGELOG.md` 1
+
+## Reading cost, chunk 9c996ab26540, finished 2026-11-19T15:23:17Z
+
+120400 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `.github/workflows/test.yml` 4
+- `release-tooling/patch_release.py` 4
+- `docs/decisions.md` 3
+- `.github/workflows/packages.yml` 2
+- `release-tooling/changelog.py` 2
+- `docs/score-anchors.md` 1
+- `release-tooling/propose_plan.py` 1
