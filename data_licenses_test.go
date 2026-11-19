@@ -17,7 +17,7 @@ func TestDataLicensesLinesWrap(t *testing.T) {
 	for n, line := range strings.Split(string(text), "\n") {
 		cut := strings.LastIndex(line, " ")
 		if cut >= 0 && utf8.RuneCountInString(line[:cut]) > licenseLineWidth {
-			t.Errorf("DATA-LICENSES.md:%d runs past %d characters beside a space; wrap it", n+1, licenseLineWidth)
+			t.Errorf("DATA-LICENSES.md:%d has a space after column %d; wrap the line there", n+1, licenseLineWidth)
 		}
 	}
 }

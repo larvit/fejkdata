@@ -4,22 +4,12 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 `data-import/` script rebuilds each sourced table, run as the README's
 [Development](README.md#development) section says; a curated one is hand-written.
 
-### `da_DK/first-name.tsv`, `last-name.tsv`
+A heading names a dataset's first file, and a `Files:` line lists them all where they don't fit a
+heading. `Rebuild:` names the script, or says the table is hand-written or curated.
 
-- Source: [Statistics Denmark](https://www.dst.dk/en/)'s ["Names in the entire
-  population"](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen) for
-  the top 20 girls' names, boys' names and last names, counts of 1 January 2026; every other name is
-  a language model's recall of a name common in Denmark, as no good online source of Danish name
-  counts was found: the commoner ones from the most to the least common, each with an estimated
-  count of the twentieth's count times 20 over its rank, then the rarer ones in no order, sharing
-  the count of the last rank
-- Licence: the top 20 counts: [CC BY
-  4.0](https://www.dst.dk/en/Statistik/brug-statistikken/kildeangivelse); the rest: the project's
-  own [LICENSE](LICENSE)
-- Attribution: "Kilde: Danmarks Statistik"
-- Rebuild: `data-import/names-dk.py`
+Every other category is hand-written under [`data/`](data), MIT like the code.
 
-### `da_DK/company.json`, `company-coined.json`, `company-word.json`
+## `da_DK/company.json`, `company-coined.json`, `company-word.json`
 
 - Source: the weights of the legal forms of `company.json`: [Statistics
   Denmark](https://www.dst.dk/en/)'s table [GF15](https://www.statbank.dk/GF15), "General enterprise
@@ -34,7 +24,33 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Kilde: Danmarks Statistik"
 - Rebuild: hand-written
 
-### `da_DK/phone-mobile.tsv`, `phone-fixed.tsv`
+## `da_DK/first-name.tsv`, `last-name.tsv`
+
+- Source: [Statistics Denmark](https://www.dst.dk/en/)'s ["Names in the entire
+  population"](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen) for
+  the top 20 girls' names, boys' names and last names, counts of 1 January 2026; every other name is
+  a language model's recall of a name common in Denmark, as no good online source of Danish name
+  counts was found: the commoner ones from the most to the least common, each with an estimated
+  count of the twentieth's count times 20 over its rank, then the rarer ones in no order, sharing
+  the count of the last rank
+- Licence: the top 20 counts: [CC BY
+  4.0](https://www.dst.dk/en/Statistik/brug-statistikken/kildeangivelse); the rest: the project's
+  own [LICENSE](LICENSE)
+- Attribution: "Kilde: Danmarks Statistik"
+- Rebuild: `data-import/names-dk.py`
+
+## `da_DK/month.tsv` and 5 more
+
+- Files: `da_DK/month.tsv`, `de_DE/month.tsv`, `en_US/month.tsv`, `fi_FI/month.tsv`,
+  `nb_NO/month.tsv`, `nn_NO/month.tsv` and each `weekday.tsv` beside them
+- Source: [Unicode CLDR](https://github.com/unicode-org/cldr) 48.0.0, the Danish, German, English,
+  Finnish, Norwegian Bokmål and Nynorsk stand-alone full month and weekday names, through
+  [cldr-json](https://github.com/unicode-org/cldr-json)
+- Licence: [Unicode License v3](https://www.unicode.org/license.txt)
+- Attribution: "Copyright © 2015-2024 Unicode, Inc."
+- Rebuild: `data-import/cldr.py`
+
+## `da_DK/phone-mobile.tsv`, `phone-fixed.tsv`
 
 - Source: Annex 1 of the Danish [Executive Order No. 1883 of 7 December 2020 on the Overall Danish
   Numbering
@@ -47,7 +63,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/phone-dk.py`
 
-### `da_DK/word.json`
+## `da_DK/word.json` and 4 more
 
 - Files: `da_DK/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
   words `da_DK/sentence.json` reads
@@ -59,7 +75,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/word-dk.py`
 
-### `de_DE/company.json`, `company-coined.json`, `company-word.json`
+## `de_DE/company.json`, `company-coined.json`, `company-word.json`
 
 - Source: the weights of the legal forms of `company.json`: [Destatis](https://www.destatis.de/)'
   [Statistisches Unternehmensregister, Rechtliche Einheiten nach zusammengefassten
@@ -77,7 +93,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   that the groups are split and the counts reduced to six legal forms
 - Rebuild: hand-written
 
-### `de_DE/first-name.tsv`, `last-name.tsv`
+## `de_DE/first-name.tsv`, `last-name.tsv`
 
 - Source: first names: the city of Munich's open data ["Vornamen von
   Neugeborenen"](https://opendata.muenchen.de/dataset/vornamen-von-neugeborenen), the files for 2013
@@ -94,7 +110,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   are summed per name and sex; the last names: none required
 - Rebuild: `data-import/names-de.py`
 
-### `de_DE/phone-mobile.tsv`, `phone-fixed.tsv`
+## `de_DE/phone-mobile.tsv`, `phone-fixed.tsv`
 
 - Source: the Bundesnetzagentur's [Zugeteilte Rufnummernblöcke (Mobile
   Dienste)](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/MobileDienste/RNB_csv.csv),
@@ -110,7 +126,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   and that the data was changed: the lists' blocks and codes are rewritten as rows
 - Rebuild: `data-import/phone-de.py`
 
-### `de_DE/word.json`
+## `de_DE/word.json` and 4 more
 
 - Files: `de_DE/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
   words `de_DE/sentence.json` reads
@@ -123,7 +139,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/word-de.py`
 
-### `en_US/first-name.tsv`
+## `en_US/first-name.tsv`
 
 - Source: [SSA](https://www.ssa.gov/oact/babynames/) baby names, births 1930 to 2020, through
   [hackerb9/ssa-baby-names](https://github.com/hackerb9/ssa-baby-names)
@@ -131,14 +147,14 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/names-us.py`
 
-### `en_US/last-name.tsv`
+## `en_US/last-name.tsv`
 
 - Source: Census Bureau surnames occurring 100 or more times, 2010
 - Licence: public domain
 - Attribution: none required
 - Rebuild: `data-import/names-us.py`
 
-### `en_US/word.json`
+## `en_US/word.json` and 4 more
 
 - Files: `en_US/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
   words `en_US/sentence.json` reads
@@ -151,42 +167,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   `en_US` module embeds the file, and the release archives and packages carry it
 - Rebuild: `data-import/word-us.py`
 
-### `fi_FI/first-name.tsv`, `last-name.tsv`
-
-- Source: the Digital and Population Data Services Agency ([DVV](https://dvv.fi/en))'s [name
-  statistics](https://avoindata.suomi.fi/data/en_GB/dataset/57282ad6-3ab1-48fb-983a-8aba5ff8d29a) of
-  4 August 2026: the sheets `Miehet ens` and `Naiset ens` of the Etunimitilasto and `Nimet` of the
-  Sukunimitilasto, the Finnish citizens bearing each first given name and last name, for the 2,000
-  commonest first names of each sex and the 5,000 commonest last names
-- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- Attribution: "Lähde: Digi- ja väestötietovirasto"
-- Rebuild: `data-import/names-fi.py`
-
-### `fi_FI/henkilotunnus.json`
-
-- Source: the weights of its two age bands: [Statistics Finland](https://stat.fi/en)'s ["Finland in
-  Figures
-  2026"](https://stat.fi/en/news/Finland-in-Figures-2026-ageing-Finland-is-visible-in-numbers) of 11
-  June 2026, a population of 5,652,881 at the end of 2025, 1,347,494 of them aged 65 or over
-- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- Attribution: "Source: Statistics Finland"
-- Rebuild: —
-
-### `fi_FI/phone-fixed.tsv`, `phone-mobile.tsv`, `phone-subscriber.json`
-
-- Source: Annex 1 and Table 1 of the Finnish Transport and Communications Agency
-  ([Traficom](https://www.traficom.fi/en))'s [Regulation 32 V/2025 M on public telephone network
-  numbering](https://www.traficom.fi/sites/default/files/media/regulation/M_32_V_2025_EN_0.pdf), in
-  force from 2 June 2025: the 13 area codes of the telecommunications areas, the mobile area codes
-  whose row says `No` under Available ranges, and the lengths of a national number, the digits after
-  the 0 counting the area code: 7 to 9 for a fixed number and 8 to 10 for a mobile one, and the
-  subscriber first digit 2 to 8 of section 11
-- Licence: none stated, facts only; a regulation of an authority is an official document, which
-  section 9 of the Finnish Copyright Act (tekijänoikeuslaki 404/1961) excludes from copyright
-- Attribution: none required
-- Rebuild: curated
-
-### `fi_FI/company.json`, `company-coined.json`, `company-word.json`
+## `fi_FI/company.json`, `company-coined.json`, `company-word.json`
 
 - Source: the weights of the legal forms of `company.json`: [Statistics
   Finland](https://stat.fi/en)'s table
@@ -201,7 +182,42 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Source: Statistics Finland"
 - Rebuild: hand-written
 
-### `fi_FI/word.json`
+## `fi_FI/first-name.tsv`, `last-name.tsv`
+
+- Source: the Digital and Population Data Services Agency ([DVV](https://dvv.fi/en))'s [name
+  statistics](https://avoindata.suomi.fi/data/en_GB/dataset/57282ad6-3ab1-48fb-983a-8aba5ff8d29a) of
+  4 August 2026: the sheets `Miehet ens` and `Naiset ens` of the Etunimitilasto and `Nimet` of the
+  Sukunimitilasto, the Finnish citizens bearing each first given name and last name, for the 2,000
+  commonest first names of each sex and the 5,000 commonest last names
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- Attribution: "Lähde: Digi- ja väestötietovirasto"
+- Rebuild: `data-import/names-fi.py`
+
+## `fi_FI/henkilotunnus.json`
+
+- Source: the weights of its two age bands: [Statistics Finland](https://stat.fi/en)'s ["Finland in
+  Figures
+  2026"](https://stat.fi/en/news/Finland-in-Figures-2026-ageing-Finland-is-visible-in-numbers) of 11
+  June 2026, a population of 5,652,881 at the end of 2025, 1,347,494 of them aged 65 or over
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- Attribution: "Source: Statistics Finland"
+- Rebuild: —
+
+## `fi_FI/phone-fixed.tsv`, `phone-mobile.tsv`, `phone-subscriber.json`
+
+- Source: Annex 1 and Table 1 of the Finnish Transport and Communications Agency
+  ([Traficom](https://www.traficom.fi/en))'s [Regulation 32 V/2025 M on public telephone network
+  numbering](https://www.traficom.fi/sites/default/files/media/regulation/M_32_V_2025_EN_0.pdf), in
+  force from 2 June 2025: the 13 area codes of the telecommunications areas, the mobile area codes
+  whose row says `No` under Available ranges, and the lengths of a national number, the digits after
+  the 0 counting the area code: 7 to 9 for a fixed number and 8 to 10 for a mobile one, and the
+  subscriber first digit 2 to 8 of section 11
+- Licence: none stated, facts only; a regulation of an authority is an official document, which
+  section 9 of the Finnish Copyright Act (tekijänoikeuslaki 404/1961) excludes from copyright
+- Attribution: none required
+- Rebuild: curated
+
+## `fi_FI/word.json` and 4 more
 
 - Files: `fi_FI/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
   words `fi_FI/sentence.json` reads
@@ -214,7 +230,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Kotimaisten kielten keskus: Nykysuomen sanalista 2024, CC BY 4.0"
 - Rebuild: `data-import/word-fi.py`
 
-### `geo/DE/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`
+## `geo/DE/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`
 
 - Source: [GeoNames](https://www.geonames.org/)' [Postleitzahlen of
   Germany](https://download.geonames.org/export/zip/DE.zip), read for every row that names a Land
@@ -228,7 +244,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Postal codes from GeoNames, www.geonames.org"
 - Rebuild: `data-import/geo-de.py`
 
-### `geo/DE/street.tsv`, and the house-number weights of `address.json`
+## `geo/DE/street.tsv`, and the house-number weights of `address.json`
 
 - Source: a language model's recall of street names common in Germany, as no open register is known
   to cover the country whole; every name weighs the same and belongs to no place, and the weights of
@@ -237,7 +253,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/geo-de.py`, hand-written
 
-### `geo/DK/locality.tsv`
+## `geo/DK/locality.tsv` and 3 more
 
 - Files: `geo/DK/locality.tsv`, `postal-code.tsv`, `street.tsv`, and the house-number weights of
   `address.json`
@@ -257,7 +273,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   Danmarks Statistik"
 - Rebuild: `data-import/geo-dk.py`
 
-### `geo/DK/region.tsv`, `municipality.tsv`
+## `geo/DK/region.tsv`, `municipality.tsv`
 
 - Source: [Statistics Denmark](https://www.dst.dk/en/)'s NUTS classification of regions and
   kommuner, and its table [FOLK1A](https://www.statbank.dk/FOLK1A), population in the latest
@@ -266,7 +282,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Kilde: Danmarks Statistik"
 - Rebuild: `data-import/geo-dk.py`
 
-### `geo/FI/locality.tsv`
+## `geo/FI/locality.tsv` and 3 more
 
 - Files: `geo/FI/locality.tsv`, `postal-code.tsv`, `street.tsv`, and the house-number weights of
   `address.json`
@@ -283,11 +299,11 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   which let the files be disclosed to third parties if the recipient is "aware of the terms of use
   for the service as well as the download date"; Statistics Finland and GeoNames: [CC BY
   4.0](https://creativecommons.org/licenses/by/4.0/)
-- Attribution: Posti's terms and the download days, both on this line; "Source: Statistics Finland";
-  "Postal codes from GeoNames, www.geonames.org"
+- Attribution: Posti's terms, quoted under Licence, and the download days, under Source; "Source:
+  Statistics Finland"; "Postal codes from GeoNames, www.geonames.org"
 - Rebuild: `data-import/geo-fi.py`
 
-### `geo/FI/region.tsv`, `municipality.tsv`
+## `geo/FI/region.tsv`, `municipality.tsv`
 
 - Source: [Statistics Finland](https://stat.fi/en)'s classification of kunnat into maakunnat on 1
   January 2026, and its table
@@ -297,7 +313,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Source: Statistics Finland"
 - Rebuild: `data-import/geo-fi.py`
 
-### `geo/NO/locality.tsv`
+## `geo/NO/locality.tsv` and 3 more
 
 - Files: `geo/NO/locality.tsv`, `postal-code.tsv`, `street.tsv`, and the house-number weights of
   `address.json`
@@ -313,7 +329,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   sentralbyrå"
 - Rebuild: `data-import/geo-no.py`
 
-### `geo/NO/region.tsv`, `municipality.tsv`
+## `geo/NO/region.tsv`, `municipality.tsv`
 
 - Source: [Statistics Norway](https://www.ssb.no/)'s classifications of
   [fylker](https://dataportal.ssb.no/classifications/104/codes) and
@@ -323,7 +339,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Kilde: Statistisk sentralbyrå"
 - Rebuild: `data-import/geo-no.py`
 
-### `geo/SE/locality.tsv`, `postal-code.tsv`
+## `geo/SE/locality.tsv`, `postal-code.tsv`
 
 - Source: [GeoNames](https://www.geonames.org/) postal codes for SE; populations from SCB tätorter
   and småorter 2023
@@ -331,14 +347,14 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Postal codes from GeoNames, www.geonames.org"
 - Rebuild: `data-import/geo-se.py`
 
-### `geo/SE/region.tsv`, `municipality.tsv`
+## `geo/SE/region.tsv`, `municipality.tsv`
 
 - Source: [SCB](https://www.scb.se/) län and kommun codes 2026 and population 2024
 - Licence: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
 - Attribution: none required
 - Rebuild: `data-import/geo-se.py`
 
-### `geo/SE/street.tsv`
+## `geo/SE/street.tsv`
 
 - Source: [Trafikverket NVDB](https://www.trafikverket.se/) Gatunamn, through the open API, placed
   with [SCB](https://www.scb.se/)'s tätort areas 2023
@@ -346,7 +362,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/geo-se.py`
 
-### `geo/US/postal-code.tsv`, `street.tsv`
+## `geo/US/postal-code.tsv`, `street.tsv`
 
 - Source: Census Bureau ZCTA to place relationships 2020 and TIGER/Line 2025 address ranges and
   feature names
@@ -354,7 +370,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/geo-us.py`
 
-### `geo/US/region.tsv`, `municipality.tsv`, `locality.tsv`
+## `geo/US/region.tsv`, `municipality.tsv`, `locality.tsv`
 
 - Source: [Census Bureau](https://www.census.gov/) Gazetteer 2026 and population estimates 2025;
   which places are state capitals from [Wikidata](https://www.wikidata.org/)
@@ -362,7 +378,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/geo-us.py`
 
-### `misc/currency.tsv`
+## `misc/currency.tsv`
 
 - Source: [datasets/currency-codes](https://github.com/datasets/currency-codes); symbols from
   [Unicode CLDR](https://github.com/unicode-org/cldr) `en.xml` and `root.xml`
@@ -371,21 +387,21 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   registered trademarks of Unicode, Inc. in the United States and other countries."
 - Rebuild: `data-import/currency.py`
 
-### `misc/httpmethod.tsv`
+## `misc/httpmethod.tsv`
 
 - Source: [IANA HTTP Method Registry](https://www.iana.org/assignments/http-methods/)
 - Licence: [public domain](https://www.iana.org/help/licensing-terms)
 - Attribution: none required
 - Rebuild: `data-import/httpmethod.py`
 
-### `misc/httpstatus.tsv`
+## `misc/httpstatus.tsv`
 
 - Source: [IANA HTTP Status Code Registry](https://www.iana.org/assignments/http-status-codes/)
 - Licence: [public domain](https://www.iana.org/help/licensing-terms)
 - Attribution: none required
 - Rebuild: `data-import/httpstatus.py`
 
-### `misc/language.tsv`
+## `misc/language.tsv`
 
 - Source: [datasets/language-codes](https://github.com/datasets/language-codes), the [Library of
   Congress](https://www.loc.gov/standards/iso639-2/) ISO 639-2 register
@@ -393,7 +409,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/language.py`
 
-### `misc/loglevel.tsv`
+## `misc/loglevel.tsv`
 
 - Source: [RFC 5424](https://www.rfc-editor.org/rfc/rfc5424.txt) Table 2, the syslog message
   severities; keywords from the
@@ -403,7 +419,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/loglevel.py`
 
-### `misc/mimetype.tsv`
+## `misc/mimetype.tsv`
 
 - Source: [mime-db](https://github.com/jshttp/mime-db), the IANA media type registry with filename
   extensions
@@ -411,7 +427,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Copyright (c) 2014 Jonathan Ong, Copyright (c) 2015-2022 Douglas Christopher Wilson"
 - Rebuild: `data-import/mimetype.py`
 
-### `misc/port.tsv`
+## `misc/port.tsv`
 
 - Source: [IANA Service Name and Transport Protocol Port Number
   Registry](https://www.iana.org/assignments/service-names-port-numbers/)
@@ -419,21 +435,21 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/port.py`
 
-### `misc/protocol.tsv`
+## `misc/protocol.tsv`
 
 - Source: [IANA Protocol Numbers](https://www.iana.org/assignments/protocol-numbers/)
 - Licence: [public domain](https://www.iana.org/help/licensing-terms)
 - Attribution: none required
 - Rebuild: `data-import/protocol.py`
 
-### `misc/territory.tsv`
+## `misc/territory.tsv`
 
 - Source: [datasets/country-codes](https://github.com/datasets/country-codes)
 - Licence: [PDDL 1.0](https://opendatacommons.org/licenses/pddl/1-0/)
 - Attribution: none required
 - Rebuild: `data-import/territory.py`
 
-### `misc/timezone.tsv`
+## `misc/timezone.tsv`
 
 - Source: [IANA tzdb](https://www.iana.org/time-zones) 2026d `zone.tab` and the standard offset of
   each zone; weights from [GeoNames](https://www.geonames.org/) `cities15000` populations
@@ -442,7 +458,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Populations from GeoNames, www.geonames.org"
 - Rebuild: `data-import/timezone.py`
 
-### `misc/tld.tsv`
+## `misc/tld.tsv`
 
 - Source: [IANA Root Zone Database](https://www.iana.org/domains/root/db), checked against the root
   zone's [TLD list](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)
@@ -450,14 +466,14 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/tld.py`
 
-### `misc/useragent.tsv`
+## `misc/useragent.tsv`
 
 - Source: [top-user-agents](https://github.com/microlinkhq/top-user-agents) desktop and mobile lists
 - Licence: [MIT](https://github.com/microlinkhq/top-user-agents/blob/master/LICENSE.md)
 - Attribution: "Copyright © 2020 Kiko Beats"
 - Rebuild: `data-import/useragent.py`
 
-### `nb_NO/birth-day.tsv`, `nb_NO/individ.tsv`
+## `nb_NO/birth-day.tsv`, `nb_NO/individ.tsv`
 
 - Source: curated from
   [Skatteetaten](https://www.skatteetaten.no/person/folkeregister/fodsel-og-navnevalg/barn-fodt-i-norge/fodselsnummer/)'s
@@ -469,7 +485,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: —
 
-### `nb_NO/company-word.tsv`, `nb_NO/company-coined.json`, `nb_NO/company.json`
+## `nb_NO/company-word.tsv`, `nb_NO/company-coined.json`, `nb_NO/company.json`
 
 - Source: [Enhetsregisteret](https://data.brreg.no/enhetsregisteret/api/docs/index.html) at the
   [Brønnøysund Register Centre](https://www.brreg.no/), its bulk file of the units downloaded
@@ -477,14 +493,14 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   wound up or those forcibly dissolved) with the trade words that 100 or more of their names carry,
   the shapes of their names, and the words that 60 or more of their names begin with; the endings of
   `company-coined.json`, and the poststeder a name draws, come from `geo/NO`'s place names, under
-  the `geo/NO` rows
+  `geo/NO`'s sections
 - Licence: [NLOD 2.0](https://data.norge.no/nlod/en/2.0); `geo/NO`'s CC BY 4.0
 - Attribution: "Contains data under the Norwegian licence for Open Government data (NLOD)
   distributed by Brønnøysundregistrene", with a link to the licence, and that the register is
   reduced to counts and words; for a name holding a poststed, `geo/NO`'s attribution too
 - Rebuild: `data-import/company-no.py`
 
-### `nb_NO/first-name.tsv`, `last-name.tsv`
+## `nb_NO/first-name.tsv`, `last-name.tsv`
 
 - Source: [Statistics Norway](https://www.ssb.no/) StatBank tables
   [10501](https://www.ssb.no/en/statbank/table/10501) and
@@ -494,7 +510,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Kilde: Statistisk sentralbyrå"
 - Rebuild: `data-import/names-no.py`
 
-### `nb_NO/phone-mobile.tsv`, `phone-fixed.tsv`
+## `nb_NO/phone-mobile.tsv`, `phone-fixed.tsv`
 
 - Source: [Nkom](https://www.nkom.no/)'s [Samla norsk nummerplan for telefoni mm.
   (E.164)](https://data.norge.no/en/datasets/ecbfe08c-24dc-3eb6-80b5-4a41de967e4b), downloaded
@@ -506,7 +522,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   register is reduced to four-digit prefixes
 - Rebuild: `data-import/phone-no.py`
 
-### `nb_NO/word.json`
+## `nb_NO/word.json` and 4 more
 
 - Files: `nb_NO/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
   words `nb_NO/sentence.json` reads
@@ -519,7 +535,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Språkbanken, Nasjonalbiblioteket: Norsk ordbank bokmål 2005, CC BY 4.0"
 - Rebuild: `data-import/word-no.py`
 
-### `nn_NO/word.json`
+## `nn_NO/word.json` and 4 more
 
 - Files: `nn_NO/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
   words `nn_NO/sentence.json` reads
@@ -532,18 +548,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Språkbanken, Nasjonalbiblioteket: Norsk ordbank nynorsk 2012, CC BY 4.0"
 - Rebuild: `data-import/word-no.py`
 
-### `da_DK/month.tsv`
-
-- Files: `da_DK/month.tsv`, `de_DE/month.tsv`, `en_US/month.tsv`, `fi_FI/month.tsv`,
-  `nb_NO/month.tsv`, `nn_NO/month.tsv` and each `weekday.tsv` beside them
-- Source: [Unicode CLDR](https://github.com/unicode-org/cldr) 48.0.0, the Danish, German, English,
-  Finnish, Norwegian Bokmål and Nynorsk stand-alone full month and weekday names, through
-  [cldr-json](https://github.com/unicode-org/cldr-json)
-- Licence: [Unicode License v3](https://www.unicode.org/license.txt)
-- Attribution: "Copyright © 2015-2024 Unicode, Inc."
-- Rebuild: `data-import/cldr.py`
-
-### `sv_SE/bankaccount.tsv`
+## `sv_SE/bankaccount.tsv`
 
 - Source: the clearing numbers and banks of [Bankinfrastruktur i Sverige
   AB](https://www.bankinfrastruktur.se/framtidens-betalningsinfrastruktur/iban-och-svenskt-nationellt-kontonummer)'s
@@ -555,7 +560,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/bankaccount-se.py`
 
-### `sv_SE/birth-number.tsv`
+## `sv_SE/birth-number.tsv` and 8 more
 
 - Files: `sv_SE/birth-number.tsv`, `sv_SE/title.tsv`, `nb_NO/title.tsv`, `nn_NO/title.tsv`,
   `da_DK/title.tsv`, `fi_FI/title.tsv`, `de_DE/title.tsv`, `en_US/title.tsv`, `misc/car.tsv`
@@ -565,7 +570,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: —
 - Rebuild: —
 
-### `sv_SE/bloodtype.tsv`
+## `sv_SE/bloodtype.tsv`
 
 - Source: curated: Sweden's blood type shares as sv.wikipedia's
   [Blodgrupp](https://sv.wikipedia.org/wiki/Blodgrupp) gives them, undated; it gives `A-` as 7–8
@@ -575,7 +580,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: —
 
-### `sv_SE/car.tsv`
+## `sv_SE/car.tsv`
 
 - Source: [Mobility Sweden](https://mobilitysweden.se/)'s [report of new registrations, December
   2025](https://mobilitysweden.se/statistik/Nyregistreringar_per_manad_1/nyregistreringar-2025/definitiva-nyregistreringar-under-2025),
@@ -585,7 +590,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Källa: Mobility Sweden"
 - Rebuild: `data-import/car-se.py`
 
-### `sv_SE/company-word.tsv`, `sv_SE/company.json`
+## `sv_SE/company-word.tsv`, `sv_SE/company.json`
 
 - Source: [Bolagsverket](https://www.bolagsverket.se/) company register bulk file, read for counts:
   the trade words that 100 or more active companies' names carry, and the wordings and shapes of
@@ -596,14 +601,14 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Källa: Bolagsverket"
 - Rebuild: `data-import/company-se.py`
 
-### `sv_SE/first-name.tsv`, `last-name.tsv`
+## `sv_SE/first-name.tsv`, `last-name.tsv`
 
 - Source: [SCB](https://www.scb.se/) names with at least two bearers, 31 December 2022
 - Licence: CC0 1.0
 - Attribution: "Källa: SCB"
 - Rebuild: `data-import/names-se.py`
 
-### `sv_SE/holiday.tsv`
+## `sv_SE/holiday.tsv`
 
 - Source: curated: the thirteen public holidays that [lag (1989:253) om allmänna
   helgdagar](https://data.riksdagen.se/dokument/sfs-1989-253.text) 1 § names, less its entry for
@@ -612,7 +617,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: —
 
-### `sv_SE/licenseplate-letters.tsv`
+## `sv_SE/licenseplate-letters.tsv`
 
 - Source: every combination of three of the 23 letters that Swedish plates use, from sv.wikipedia's
   [Registreringsskyltar i Sverige](https://sv.wikipedia.org/wiki/Registreringsskyltar_i_Sverige),
@@ -624,7 +629,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: none required
 - Rebuild: `data-import/licenseplate-se.py`
 
-### `sv_SE/month.tsv`, `sv_SE/weekday.tsv`, `sv_SE/territory.tsv`
+## `sv_SE/month.tsv`, `sv_SE/weekday.tsv`, `sv_SE/territory.tsv`
 
 - Source: [Unicode CLDR](https://github.com/unicode-org/cldr) 48.0.0, the Swedish stand-alone full
   month and weekday names and territory names, through
@@ -634,7 +639,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Copyright © 2015-2024 Unicode, Inc."
 - Rebuild: `data-import/cldr.py`
 
-### `sv_SE/organisationsnummer.json`
+## `sv_SE/organisationsnummer.json`
 
 - Source: group weights from [Bolagsverket](https://www.bolagsverket.se/statistik/ftgstat_oppna.csv)
   company statistics, new registrations 2025: 5 is AB and FL, 9 is HB and KB, 7 and 8 share BRF, EK
@@ -643,7 +648,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Källa: Bolagsverket"
 - Rebuild: —
 
-### `sv_SE/personnummer-date.json`, `personnummer-12.json`
+## `sv_SE/personnummer-date.json`, `personnummer-12.json`
 
 - Source: band weights from [SCB](https://www.scb.se/) Statistikdatabasen, table
   BE0101A/BefolkningNy, at the end of 2024, computed from single-year ages; the bands are ours
@@ -651,7 +656,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Källa: SCB"
 - Rebuild: —
 
-### `sv_SE/phone-area.tsv`
+## `sv_SE/phone-area.tsv`
 
 - Source: the 264 geographic area codes of
   [PTS](https://pts.se/globalassets/globala-block/nummertillstand/the-swedish-numbering-plan-for-telephony-according-to-itu---2024-01-08.pdf)'s
@@ -660,7 +665,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Källa: PTS"
 - Rebuild: `data-import/phone-area-se.py`
 
-### `sv_SE/sex.tsv`
+## `sv_SE/sex.tsv` and 5 more
 
 - Files: `sv_SE/sex.tsv`, `nb_NO/sex.tsv`, `da_DK/sex.tsv`, `fi_FI/sex.tsv`, `de_DE/sex.tsv`,
   `en_US/sex.tsv`
@@ -680,7 +685,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
   Eurostat"; "Source: Statistics Finland"; none required
 - Rebuild: `data-import/sex-population.py`
 
-### `sv_SE/sni.tsv`
+## `sv_SE/sni.tsv`
 
 - Source: [SCB](https://www.scb.se/)'s [SNI 2025](https://www.scb.se/globalassets/sni-2025.xlsx),
   the sheet "Detaljgrupp (Femsiffer)"
@@ -689,7 +694,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Källa: SCB", which SCB recommends
 - Rebuild: `data-import/sni-se.py`
 
-### `sv_SE/ssyk.tsv`
+## `sv_SE/ssyk.tsv`
 
 - Source: [SCB](https://www.scb.se/)'s [SSYK
   2012](https://www.scb.se/contentassets/0c0089cc085a45d49c1dc83923ad933a/ssyk-2012-koder.xlsx), the
@@ -699,7 +704,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Attribution: "Källa: SCB", which SCB recommends
 - Rebuild: `data-import/ssyk-se.py`
 
-### `sv_SE/word.json`
+## `sv_SE/word.json` and 4 more
 
 - Files: `sv_SE/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
   words `sv_SE/sentence.json` reads
@@ -709,5 +714,3 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 - Licence: CC BY 4.0
 - Attribution: "Språkbanken (2017). SALDO's morphology. https://doi.org/10.23695/agcm-ny22"
 - Rebuild: `data-import/word-se.py`
-
-Every other category is hand-written under [`data/`](data), MIT like the code.
