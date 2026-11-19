@@ -32,10 +32,10 @@ teach the exported API belongs in the root's package doc.
 
 2026-09-02, Lilleman auf Larv.
 
-`format`, `weight`, `repeat`, `separator`, `datatype` and `let` are reserved; every other key
-is a field. Nesting fields under a key, or prefixing options, would tax every template to
-guard against a misspelt option. `let` is the one option that holds fields, the ones that write
-no column ("A `let` field writes no column and is left out of the listing").
+`format`, `weight`, `repeat`, `separator`, `datatype` and `hidden` are reserved, and so is `let`, the old
+name of `hidden`; every other key is a field. Nesting fields under a key, or prefixing options, would tax every template to
+guard against a misspelt option. `hidden` is the one option that holds fields, the ones that write
+no column ("A `hidden` field writes no column and is left out of the listing").
 
 ## `{a|b}` stays beside nested choices
 
@@ -1003,6 +1003,25 @@ place of birth is a department of INSEE's 101 drawn evenly and a commune code in
 that need not exist, and Corsica is always `2A` or `2B`. Item 23 ends the departure from goal
 3.3. Valid while INSEE publishes no test series or unassigned range.
 
+## The Estonian id draws valid isikukoodid over the last hundred years
+
+2026-11-19, Lilleman auf Larv.
+
+Goal 3 (a valid id passes the check the real system applies) is served, and goal 3.3 (a form
+that reaches nothing real) is not: the Interior Minister's regulation "Isikukoodide moodustamise
+ja andmise kord" (RT I, 08.01.2019, 11), which names EVS 585 for the structure, publishes no test
+series and no unassigned range, and neither does the Population Register. So `et_EE.isikukood` is
+valid and may be a living person's, and the README says so, as it does for `fr_FR.nir`. Item 23
+ends the departure from goal 3.3. The regulation lists the first digits 1 to 6, so the id stops at
+the 2000s, and `{isikukood(x,d)}` prints no code for a later year. EVS 585 is not public, so the
+check digit follows python-stdnum's `ee.ik`, which weights 1 to 9 and 1 and then 3 to 9, 1, 2 and 3.
+No source states which serial numbers the register gives, so the serial number is drawn evenly from
+001 to 999, never 000. The first digit names the century of a date that follows it, so the builtin
+takes the date as an operand and prints the whole code, where `hetu` and `cpr` complete one after
+its date; its first operand is `et_EE.sex-digit`'s digit, 1 for a man and 2 for a woman, as
+`fr_FR.sex-digit` does. The age bands weigh Statistics Estonia's population of 1 January 2026.
+Valid while the regulation and the register publish no test series or unassigned range.
+
 ## The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 
 2026-11-12, Lilleman auf Larv.
@@ -1808,47 +1827,55 @@ The names read `de_DE`'s names and `geo.DE.locality`. An open bulk file of Germa
 `de_DE.email` writes `Müller` as `muller`, not `mueller`, since `slugify` folds `ü` to `u` by ruby-i18n's table, as for
 every locale. Its own words hold no `ae`, `oe` or `ue` spelling, so a local part never mixes the two.
 
-## A `let` field writes no column and is left out of the listing
+## A `hidden` field writes no column and is left out of the listing
 
-2026-11-08, Lilleman auf Larv; widened 2026-11-19. Serves goal 4.7, read as: a template
-that means one thing loads, goal 4.3, a name keeps one pick, and goal 4, a reader tells a path meant
-to be read from a scaffold.
+2026-11-08, Lilleman auf Larv, as `let`; widened 2026-11-19, and renamed `hidden` the same day.
+Serves four goals:
+
+- 4.7, read as: a template that means one thing loads.
+- 4.3: a name keeps one pick.
+- 4.8: a clearer name replaces the old one.
+- 4: a reader tells a path meant to be read from a scaffold.
 
 A record wrote one column per field, so a field there only to be named by another, as
-`{"ride":…}` is by `{ride.fare}`, showed up as a column nobody asked for. `let` holds such
-fields: they bind and resolve as any field does and write no column. A writer panel seated as the
-README's audience chose `let` over `hidden`, `private` and `_`-prefixed names: it was the one
-spelling readers took for a local binding. It costs one reserved key, and a field can no longer
-be named `let`. A key in `let` and beside it fails to load, so a field has one place, and an
-option name in `let` fails too. A record whose fields are all in `let` has no columns and is
-`ErrNoColumns`.
+`{"ride":…}` is by `{ride.fare}`, showed up as a column nobody asked for. `hidden` holds such
+fields: they bind and resolve as any field does and write no column. It costs two reserved
+keys: a field can no longer be named `hidden`, nor `let`, its old name. A key in `hidden` and beside it fails to load, so a
+field has one place, and an option name in `hidden` fails too. A record whose fields are all in
+`hidden` has no columns and is `ErrNoColumns`.
 
 The same field was also a listed path outside a record: `--list` printed it, the `.fejkdata.json`
 index wrote it and `testdata/shipped_shape.txt`, which pins the shipped paths, held it, so a reader
-couldn't tell a path meant to be read from a scaffold such as `misc.ipv6.g`. So a `let` field, at any
-depth, is left out of `--list` and the index with every path below it, and a read of its path still
-draws it. This narrows the listing further than "`List` advertises direct descents only". Only the
-listing leaves it out: a choice's shared paths, which resolve a read through the choice, keep it.
-A prefix such as `_`
-would have made a key's spelling carry meaning and changed what a user's own `_x` field means.
+couldn't tell a path meant to be read from a scaffold such as `misc.ipv6.g`. So a `hidden` field, at
+any depth, is left out of `--list` and the index with every path below it, and a read of its path
+still draws it. This narrows the listing further than "`List` advertises direct descents only".
+Only the listing leaves it out: a choice's shared paths, which resolve a read through the choice,
+keep it. A prefix such as `_` would have made a key's spelling carry meaning and changed what a
+user's own `_x` field means.
 
-A shipped field is moved into `let` when only its own category's fields read it, no README text,
+A shipped field is moved into `hidden` when only its own category's fields read it, no README text,
 test or other category reads its path, and it is a piece only the template needs: a syllable
 half, a digit class, a price's amount or separator-bearing part, a number's head or tail. A part
 the README names or a domain gives a name, such as `phone.block`, an SSN's `area` or an email's
-`local`, stays a field and a column.
-The pieces inside the variants of a `username` or an `email.local`
-choice, such as `first`, `last`, `sep` and `n`, stay listed too: the audit moved none that a
-choice's variants share.
+`local`, stays a field and a column. The pieces inside the variants of a `username` or an
+`email.local` choice, such as `first`, `last`, `sep` and `n`, stay listed too: the audit moved none
+that a choice's variants share.
 
-Three fresh readers seated as the README's data author, hand fixture author and contributor read
-`data/misc/ipv6.json` with its `let` fields and predicted `--list`, a read of `{/misc.ipv6.g}` and a
-record correctly, so the spelling stays for now. All three named `hidden` as the better word for a
-field readable by its path but unlisted, though two first took `let` for a local binding a path
-can't reach. Goal 4.8 has a clearer name replace the old one, even at a major, and the rename breaks
-every template using `let`, so it is the human's call: item 525 asks.
+`let` is the option's old name: it shipped from 0.4.0 through 0.6.0, chosen on 2026-11-08 by a writer
+panel over `hidden`, `private` and `_`-prefixed names, as the spelling readers took for a local
+binding. Goal 4.8 has the clearer name replace the old one, so `let` is gone as an option. It stays
+reserved: a template written with `let` fails to load and the error says the option is now named
+`hidden`, because a bare `let` taken for a field would write a column and change what loads. A
+later major may free the word.
 
-Valid while a data author reads `let` as "a field only other fields read".
+The panel that chose `hidden` was three fresh readers, seated as the README's data author, hand
+fixture author and contributor, each shown `hidden`, `let`, `local` and `scratch` in another
+order. All three ranked `hidden` first and `let` second. A reader takes `hidden` for a field that is
+drawn and read by its path yet left out of columns and listings, as a dotfile is. A reader takes
+`let` for a binding scoped to its template, which says nothing about being left out of a listing.
+`local` reads as scope, which would refuse a read from another category.
+
+Valid while a data author reads `hidden` as "a field drawn and read, never listed".
 
 ## No database or HTTP sink is built in
 

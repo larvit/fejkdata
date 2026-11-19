@@ -98,7 +98,7 @@ func (t *Template) FromString() bool { return t.syntax.FromString }
 
 func (t *Template) IsRecord() bool { return t.syntax.IsRecord }
 
-func (t *Template) Lets() map[string]bool { return t.syntax.Lets }
+func (t *Template) Hiddens() map[string]bool { return t.syntax.Hiddens }
 
 func (t *Template) NameScope() *NameScope { return t.found().nameScope }
 
@@ -120,7 +120,7 @@ type TemplateSyntax struct {
 	Format     string
 	Tokens     []grammar.Token
 	Fields     map[string]Node
-	Lets       map[string]bool // the fields its "let" holds, which write no column
+	Hiddens    map[string]bool // the fields its "hidden" holds, which write no column
 	Repeat     int
 	Separator  string
 	DataType   *datatype.DataType // the "datatype" it carries, which wins over that of a column it reads; nil where none

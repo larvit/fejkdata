@@ -110,6 +110,7 @@ In [docs/decisions.md](docs/decisions.md):
 - An extension may name two media types
 - The Danish id draws valid CPR numbers over the last hundred years
 - The French id draws valid NIRs over the last hundred years
+- The Estonian id draws valid isikukoodid over the last hundred years
 - The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
@@ -140,7 +141,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
 - `de_DE`'s first names are Munich's newborns
-- A `let` field writes no column and is left out of the listing
+- A `hidden` field writes no column and is left out of the listing
 - No database or HTTP sink is built in
 - A date offset is `adddays(d,n)`, and its `d` reads `date` or `born` calls in one layout that reads back
 - A where clause follows its path: `length 5`, `length 4 to 6`, `not 'cat'` and `not containing 'cat'`, joined by `and`

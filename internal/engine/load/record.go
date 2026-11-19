@@ -25,7 +25,7 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 	whole := wholeFieldNames(t, l)
 	var columns []tree.RecordColumn
 	for _, name := range tree.SortedNames(t.Fields()) {
-		if !t.Lets()[name] {
+		if !t.Hiddens()[name] {
 			field := t.Fields()[name]
 			columns = append(columns, tree.NewRecordColumn(name, ColumnDatatype(field, l.ReadsColumn), field, whole[field]))
 		}

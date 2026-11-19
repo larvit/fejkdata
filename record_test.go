@@ -139,10 +139,10 @@ func TestRecordSkipsReferenceBindings(t *testing.T) {
 
 func TestRecordErrors(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"bare":      `"hello"`,
-		"pick":      `["a", "b"]`,
-		"group/cat": `"x"`,
-		"lets":      `{"format":"{a}","let":{"a":"x"}}`,
+		"bare":       `"hello"`,
+		"pick":       `["a", "b"]`,
+		"group/cat":  `"x"`,
+		"onlyhidden": `{"format":"{a}","hidden":{"a":"x"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for _, c := range []struct {
@@ -150,7 +150,7 @@ func TestRecordErrors(t *testing.T) {
 		want string
 	}{
 		{"bare", "has no fields, so no columns"},
-		{"lets", `holds every field in "let", which writes no column; render it as a column of one: {"format":"","lets":"{/lets}"}`},
+		{"onlyhidden", `holds every field in "hidden", which writes no column; render it as a column of one: {"format":"","onlyhidden":"{/onlyhidden}"}`},
 		{"pick", `names a choice, not a template; a record is a template whose fields are its columns; render it as a column of one: {"format":"","pick":"{/pick}"}`},
 		{"group", "names a folder"},
 		{"nope", "no entry"},
@@ -697,8 +697,8 @@ func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 			return nil
 		}
 		records++
-		if want := len(tm.Fields()) - len(tm.Lets()); len(tm.Columns()) != want {
-			t.Errorf("%s: %d record columns, want one per field outside let, %d", label, len(tm.Columns()), want)
+		if want := len(tm.Fields()) - len(tm.Hiddens()); len(tm.Columns()) != want {
+			t.Errorf("%s: %d record columns, want one per field outside hidden, %d", label, len(tm.Columns()), want)
 		}
 		checkEachColumnHoldsItsField(t, label, tm)
 		return nil
@@ -748,19 +748,19 @@ func TestRecordSQLHeaderAndValuesJoinIntoAMultiRowInsert(t *testing.T) {
 	}
 }
 
-func recordsWithLetFields(t *testing.T) *Generator {
+func recordsWithHiddenFields(t *testing.T) *Generator {
 	t.Helper()
 	dir := writeData(t, map[string]string{
-		"sched": `{"format":"{weekday as d}","let":{"weekday":["MO","TU"],"helper":"x"},"day":"{d}","rrule":"BYDAY={d}"}`,
+		"sched": `{"format":"{weekday as d}","hidden":{"weekday":["MO","TU"],"helper":"x"},"day":"{d}","rrule":"BYDAY={d}"}`,
 		"copy":  `{"format":"","rrule":"{/sched.rrule}","weekday":"{/sched.weekday}"}`,
 	})
 	return newGenerator(t, dir, WithSeed(1))
 }
 
-func TestRecordLetFieldsWriteNoColumn(t *testing.T) {
+func TestRecordHiddenFieldsWriteNoColumn(t *testing.T) {
 	t.Parallel()
-	f := recordsWithLetFields(t)
-	inline, err := f.NewRecordTemplate(`{"format":"{weekday as d}","let":{"weekday":["MO","TU"]},"day":"{d}"}`)
+	f := recordsWithHiddenFields(t)
+	inline, err := f.NewRecordTemplate(`{"format":"{weekday as d}","hidden":{"weekday":["MO","TU"]},"day":"{d}"}`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -783,14 +783,14 @@ func TestRecordLetFieldsWriteNoColumn(t *testing.T) {
 	}
 }
 
-func TestRecordLetFieldIsReadableFromAnotherCategory(t *testing.T) {
+func TestRecordHiddenFieldIsReadableFromAnotherCategory(t *testing.T) {
 	t.Parallel()
-	cp, err := recordsWithLetFields(t).FakeRecord("copy")
+	cp, err := recordsWithHiddenFields(t).FakeRecord("copy")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got := cp.Columns()[1].Name; got != "weekday" || cp.Columns()[1].Value == "" {
-		t.Errorf("copy's columns = %+v, want a let field still readable from another category as weekday", cp.Columns())
+		t.Errorf("copy's columns = %+v, want a hidden field still readable from another category as weekday", cp.Columns())
 	}
 }
 
@@ -799,14 +799,16 @@ func generatorOfOneLiteral(t *testing.T) *Generator {
 	return newGenerator(t, writeData(t, map[string]string{"x": `"x"`}), WithSeed(1))
 }
 
-func TestRecordLetErrors(t *testing.T) {
+func TestRecordHiddenErrors(t *testing.T) {
 	t.Parallel()
 	f := generatorOfOneLiteral(t)
 	for _, c := range []struct{ input, want string }{
-		{`{"format":"","let":"a","b":"y"}`, "let is an option and takes an object of fields, not a string"},
-		{`{"format":"","let":{"a":"x"},"a":"y"}`, `field "a" is in let and beside it`},
-		{`{"format":"","let":{"a.b":"x"},"c":"y"}`, "field"},
-		{`{"format":"","let":{"weight":"w"},"b":"y"}`, `"weight" is an option`},
+		{`{"format":"","hidden":"a","b":"y"}`, "hidden is an option and takes an object of fields, not a string"},
+		{`{"format":"","hidden":{"a":"x"},"a":"y"}`, `field "a" is in hidden and beside it`},
+		{`{"format":"","hidden":{"a.b":"x"},"c":"y"}`, "field"},
+		{`{"format":"","hidden":{"weight":"w"},"b":"y"}`, `"weight" is an option`},
+		{`{"format":"","hidden":{"let":"w"},"b":"y"}`, `"let" was the option now named hidden`},
+		{`{"format":"","let":{"a":"x"},"b":"y"}`, `the option let is now named hidden`},
 	} {
 		t.Run(c.input, func(t *testing.T) {
 			if _, err := f.NewRecordTemplate(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
@@ -816,18 +818,18 @@ func TestRecordLetErrors(t *testing.T) {
 	}
 }
 
-func TestRecordOfOnlyLetFieldsHasNoColumns(t *testing.T) {
+func TestRecordOfOnlyHiddenFieldsHasNoColumns(t *testing.T) {
 	t.Parallel()
-	_, err := generatorOfOneLiteral(t).NewRecordTemplate(`{"format":"","let":{"a":"x"}}`)
-	if !errors.Is(err, ErrNoColumns) || !strings.Contains(err.Error(), `move one out of "let"`) {
-		t.Errorf("NewRecordTemplate(only let fields) = %v, want ErrNoColumns naming let", err)
+	_, err := generatorOfOneLiteral(t).NewRecordTemplate(`{"format":"","hidden":{"a":"x"}}`)
+	if !errors.Is(err, ErrNoColumns) || !strings.Contains(err.Error(), `move one out of "hidden"`) {
+		t.Errorf("NewRecordTemplate(only hidden fields) = %v, want ErrNoColumns naming hidden", err)
 	}
 }
 
-func TestLetIsAnOptionNeverAField(t *testing.T) {
+func TestHiddenIsAnOptionNeverAField(t *testing.T) {
 	t.Parallel()
-	if _, err := generatorOfOneLiteral(t).NewTemplate(`{"format":"{let}"}`); err == nil || !strings.Contains(err.Error(), "option") {
-		t.Errorf("NewTemplate reading let = %v, want let refused as an option, never a field", err)
+	if _, err := generatorOfOneLiteral(t).NewTemplate(`{"format":"{hidden}"}`); err == nil || !strings.Contains(err.Error(), "option") {
+		t.Errorf("NewTemplate reading hidden = %v, want hidden refused as an option, never a field", err)
 	}
 }
 

@@ -2,7 +2,7 @@
   "format": "{wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide6}",
   "wide4": {
     "format": "{o}.{o}.{o}.{o}",
-    "let": {
+    "hidden": {
       "o": [
         { "format": "{digits(1)}", "weight": 3 },
         { "format": "{int(10,99)}", "weight": 4 },

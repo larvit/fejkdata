@@ -708,14 +708,14 @@ func threeRecordsAsTheCLIWritesThem(t *testing.T, f *Generator, path string, csv
 	return got
 }
 
-func TestReadmeLetAndNameReadExamplesOutput(t *testing.T) {
+func TestReadmeHiddenAndNameReadExamplesOutput(t *testing.T) {
 	src := readme(t)
 	for _, c := range []struct {
 		after, name, command string
 		seed                 uint64
 		csv                  bool
 	}{
-		{"`let` is an option holding fields that write no column", "ride", "fejkdata --seed 2 --format csv --repeat 3 < ride.json", 2, true},
+		{"`hidden` is an option holding fields that write no column", "ride", "fejkdata --seed 2 --format csv --repeat 3 < ride.json", 2, true},
 		{"`sched.json` shows it", "sched", "fejkdata --seed 1 --format ndjson --repeat 3 < sched.json", 1, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {

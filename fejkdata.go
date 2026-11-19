@@ -124,7 +124,7 @@ func New(opts ...Option) (*Generator, error) {
 
 // List returns the sorted dotted paths Fake renders: each category and every field,
 // column and linked table below it, a direct descent at a time, listing a level
-// carrying a repeat but nothing below it. A field in a template's "let" is left out, though Fake
+// carrying a repeat but nothing below it. A field in a template's "hidden" is left out, though Fake
 // still renders it. A choice consumes no segment, so a path
 // continues through one only where every variant carries it.
 func (f *Generator) List() []string {

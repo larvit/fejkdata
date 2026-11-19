@@ -49,19 +49,19 @@ func TestCompiledPathChoiceConsumesNoSegment(t *testing.T) {
 	}
 }
 
-func TestPathsLeaveOutLetFields(t *testing.T) {
-	n := compiled(t, `{"format":"{a}{b}","let":{"a":{"format":"{x}","x":"1"}},"b":"2"}`)
+func TestPathsLeaveOutHiddenFields(t *testing.T) {
+	n := compiled(t, `{"format":"{a}{b}","hidden":{"a":{"format":"{x}","x":"1"}},"b":"2"}`)
 	if got := strings.Join(Paths(n), " "); got != " b" {
-		t.Errorf("Paths = %q, want the template and b, with the let field a and everything below it left out", got)
+		t.Errorf("Paths = %q, want the template and b, with the hidden field a and everything below it left out", got)
 	}
-	c := compiled(t, `[{"format":"{f}","let":{"f":"1"}},{"format":"{f}","let":{"f":"2"}}]`)
+	c := compiled(t, `[{"format":"{f}","hidden":{"f":"1"}},{"format":"{f}","hidden":{"f":"2"}}]`)
 	if got := strings.Join(Paths(c), " "); got != "" {
 		t.Errorf("Paths of a choice = %q, want only the choice itself", got)
 	}
 }
 
-func TestChoiceSharedPathsKeepLetFields(t *testing.T) {
-	c := compiled(t, `[{"format":"{f}","let":{"f":"1"}},{"format":"{f}","let":{"f":"2"}}]`)
+func TestChoiceSharedPathsKeepHiddenFields(t *testing.T) {
+	c := compiled(t, `[{"format":"{f}","hidden":{"f":"1"}},{"format":"{f}","hidden":{"f":"2"}}]`)
 	if shared := c.(*tree.Choice).Shared(); !shared["f"] {
 		t.Errorf("Shared = %v, want f, so a read through the choice still resolves", shared)
 	}

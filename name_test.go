@@ -218,6 +218,8 @@ func TestNameErrors(t *testing.T) {
 			`name "w" is a field of the root template too`},
 		{"an option", map[string]string{"word": `["a","b"]`, "card": `"{/word as format}{format}"`},
 			`"format" is an option and can never be a name`},
+		{"the old option name", map[string]string{"word": `["a","b"]`, "card": `"{/word as let}{let}"`},
+			`"let" was the option now named hidden and can never be a name`},
 		{"no reference or field", map[string]string{"card": `{"format":"{word as w}{w}{w}","words":["a","b"]}`},
 			`no field "word"; a binding names a field, or a reference`},
 		{"read once through a path that does not resolve", map[string]string{"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word as a}{a.zz}"`},

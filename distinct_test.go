@@ -55,7 +55,7 @@ func TestDistinctMemberIsAnOperand(t *testing.T) {
 
 func TestDistinctFillsARecordsColumnsFromOnePick(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
-	rt, err := f.NewRecordTemplate(`{"format":"{crew distinct 4 as e}","let":{"crew":["ann","bo","cy","di","ed"]},"e1":"{e[1]}","e2":"{e[2]}","e3":"{e[3]}","e4":"{e[4]}"}`)
+	rt, err := f.NewRecordTemplate(`{"format":"{crew distinct 4 as e}","hidden":{"crew":["ann","bo","cy","di","ed"]},"e1":"{e[1]}","e2":"{e[2]}","e3":"{e[3]}","e4":"{e[4]}"}`)
 	if err != nil {
 		t.Fatalf("NewRecordTemplate: %v", err)
 	}

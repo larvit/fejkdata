@@ -179,6 +179,17 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: `data-import/names-ee.py`
 
+## `et_EE/isikukood.json`
+
+- Source: the weights of its three age bands: [Statistics Estonia](https://andmed.stat.ee/en/stat)'s
+  table RV0240, "Population by sex, age and place of residence, 1 January", for 2026: 1,360,490
+  people aged 0 to 99, 254,482 of them under 18, 815,319 aged 18 to 64 and 290,689 aged 65 to 99
+- Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), as Statistics Estonia's
+  [principles of dissemination](https://stat.ee/en/statistics-estonia/about-us/strategy/principles-dissemination-official-statistics)
+  state for its open data
+- Attribution: "Source: Statistics Estonia"
+- Rebuild: —
+
 ## `fi_FI/company.json`, `company-coined.json`, `company-word.json`
 
 - Source: the weights of the legal forms of `company.json`: [Statistics
