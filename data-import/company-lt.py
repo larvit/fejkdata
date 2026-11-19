@@ -35,26 +35,20 @@ import csv
 import io
 import re
 from collections import Counter
-from collections.abc import Collection, Iterable, Mapping
 from pathlib import Path
 
 import source
 import tsv
 from company_names import (
-    Shape,
     Vocabulary,
     Words,
+    bare,
     coined,
     column,
+    company_json,
+    count_names,
     kind,
-    legal_item,
-    quoted,
-    shape_of,
-    shipped,
-    slots,
-    split,
     trade_words,
-    weighted,
     word_usage,
 )
 
@@ -75,12 +69,6 @@ CONNECTING_WORDS = ("ir", "&")
 FUNCTION_WORDS = {*CONNECTING_WORDS, "the", "and", "of", "for"}
 LEGAL_WORDS = {words[0] for _, words in NAMED_FORMS.values()}
 VOCABULARY = Vocabulary(re.compile(r"^[a-ząčęėįšųūž]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, CONNECTING_WORDS, form_spread=1)
-# Which side of the name carries the form, and whether the register quotes the rest of the name.
-type Placement = tuple[str, bool]
-
-LAYOUTS = {("before", True): '{F} "{n}"', ("before", False): "{F} {n}", ("after", False): "{n} {F}", ("after", True): '"{n}" {F}'}
-
-
 def register(data: bytes) -> tuple[Counter[str], list[tuple[str, str]]]:
     """The legal entities of a form drawn, counted by form, and the form and name of each."""
     counts: Counter[str] = Counter()
@@ -91,71 +79,6 @@ def register(data: bytes) -> tuple[Counter[str], list[tuple[str, str]]]:
             counts[form] += 1
             names.append((form, row["ja_pavadinimas"]))
     return counts, names
-
-
-def spelled(form: str, words: list[str]) -> int:
-    """How many words at the start of `words` spell the form, 0 where none."""
-    low = [w.rstrip(".").lower() for w in words]
-    for spelling in NAMED_FORMS[form][1]:
-        n = len(spelling.split())
-        if low[:n] == spelling.split():
-            return n
-    return 0
-
-
-def placed(form: str, name: str) -> tuple[str, bool, list[str]] | None:
-    """("before", quoted, the other words) where the name opens with its form, ("after", …) where it ends in it, else None."""
-    words = split(name.replace('"', " "))
-    quotes = '"' in name
-    before = spelled(form, words)
-    if before and len(words) > before:
-        return "before", quotes, words[before:]
-    for n in range(1, len(words)):
-        if spelled(form, words[n:]) == len(words) - n:
-            return "after", quotes, words[:n]
-    return None
-
-
-def bare(names: Iterable[tuple[str, str]]) -> list[tuple[str, str]]:
-    """The form and name of each name that places its form, without the form and its quotes."""
-    out = []
-    for form, name in names:
-        found = placed(form, name)
-        if found:
-            out.append((form, " ".join(found[2])))
-    return out
-
-
-def count_names(names: Iterable[tuple[str, str]], words: Words, trade: Collection[str]) -> tuple[dict[str, Counter[Shape]], dict[str, Counter[Placement]]]:
-    """Per form: the shapes of the names that carry it, and where those names place it."""
-    shapes: dict[str, Counter[Shape]] = {f: Counter() for f in NAMED_FORMS}
-    places: dict[str, Counter[Placement]] = {f: Counter() for f in NAMED_FORMS}
-    for form, name in names:
-        found = placed(form, name)
-        if found:
-            rest = [w for w in found[2] if w.rstrip(".").lower() not in LEGAL_WORDS]
-            if rest:
-                shapes[form][shape_of(rest, words, trade, VOCABULARY)] += 1
-                places[form][found[0], found[1]] += 1
-    return shapes, places
-
-
-def form_block(form: str, shapes: Mapping[Shape, int], places: Mapping[Placement, int]) -> str:
-    """One form's object: its name by shape, and its abbreviation and quotes where its names put them."""
-    path = NAMED_FORMS[form][0]
-    items = ",\n".join("      " + weighted(slots(shape, VOCABULARY), c) for shape, c in shipped(shapes, VOCABULARY))
-    placements = ", ".join(weighted(fmt.replace("{F}", form).replace("{n}", "{" + path + "_name}"), places[layout]) for layout, fmt in LAYOUTS.items() if places.get(layout))
-    return (
-        f'  "{path}": {{\n    "format": {quoted("{name as " + path + "_name}{placed}")},\n    "name": [\n{items}\n    ],\n'
-        f'    "hidden": {{ "placed": [{placements}] }}\n  }}'
-    )
-
-
-def company_json(registered: Mapping[str, int], shapes: Mapping[str, Mapping[Shape, int]], places: Mapping[str, Mapping[Placement, int]]) -> str:
-    order = sorted(registered, key=lambda f: (-registered[f], f))
-    forms = [legal_item("{.company." + NAMED_FORMS[f][0] + "}", f, registered[f]) for f in order]
-    blocks = [form_block(f, shapes[f], places[f]) for f in NAMED_FORMS]
-    return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
 
 
 def main() -> None:
@@ -170,15 +93,15 @@ def main() -> None:
     def named(w: str) -> bool:
         return kind(w, words, True) is not None
 
-    usage = word_usage(bare(names), named, VOCABULARY)
+    usage = word_usage(bare(NAMED_FORMS, names), named, VOCABULARY)
     trade = trade_words(usage, VOCABULARY)
-    shapes, places = count_names(names, words, trade)
+    shapes, places = count_names(NAMED_FORMS, names, words, trade, VOCABULARY)
     out = Path(a.out)
     tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
     tsv.write(out / "company-coined.tsv", ["word", "count"], [{"word": w, "count": c} for w, c in coined(usage, trade).items()])
     for table in ("company-word", "company-coined"):
         (out / f"{table}.json").write_text('{ "format": "{word}", "rows": "' + table + '.tsv", "weight": "count" }\n', encoding="utf-8")
-    (out / "company.json").write_text(company_json(registered, shapes, places), encoding="utf-8")
+    (out / "company.json").write_text(company_json(NAMED_FORMS, registered, shapes, places, VOCABULARY), encoding="utf-8")
 
 
 if __name__ == "__main__":

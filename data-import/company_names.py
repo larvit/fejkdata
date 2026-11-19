@@ -166,3 +166,81 @@ def coined(usage: Mapping[str, Usage], trade: Collection[str]) -> dict[str, int]
         for w, u in sorted(usage.items())
         if w not in trade and len(w) >= 4 and u.names >= COINED_MIN and u.ends >= COINED_ENDS_MIN * u.names
     }
+
+
+# Which side of the name carries the form, and whether the register quotes the rest of the name.
+type Placement = tuple[str, bool]
+
+# Each form's path under company and the words that spell it: its abbreviation first, then its words, in lower case.
+type NamedForms = Mapping[str, tuple[str, tuple[str, ...]]]
+
+LAYOUTS = {("before", True): '{F} "{n}"', ("before", False): "{F} {n}", ("after", False): "{n} {F}", ("after", True): '"{n}" {F}'}
+
+
+def spelled(forms: NamedForms, form: str, words: list[str]) -> int:
+    """How many words at the start of `words` spell the form, 0 where none."""
+    low = [w.rstrip(".").lower() for w in words]
+    for spelling in forms[form][1]:
+        n = len(spelling.split())
+        if low[:n] == spelling.split():
+            return n
+    return 0
+
+
+def placed(forms: NamedForms, form: str, name: str) -> tuple[str, bool, list[str]] | None:
+    """("before", quoted, the other words) where the name opens with its form, ("after", …) where it ends in it, else None."""
+    words = split(name.replace('"', " "))
+    quotes = '"' in name
+    before = spelled(forms, form, words)
+    if before and len(words) > before:
+        return "before", quotes, words[before:]
+    for n in range(1, len(words)):
+        if spelled(forms, form, words[n:]) == len(words) - n:
+            return "after", quotes, words[:n]
+    return None
+
+
+def bare(forms: NamedForms, names: Iterable[tuple[str, str]]) -> list[tuple[str, str]]:
+    """The form and name of each name that places its form, without the form and its quotes."""
+    out = []
+    for form, name in names:
+        found = placed(forms, form, name)
+        if found:
+            out.append((form, " ".join(found[2])))
+    return out
+
+
+def count_names(
+    forms: NamedForms, names: Iterable[tuple[str, str]], words: Words, trade: Collection[str], vocabulary: Vocabulary
+) -> tuple[dict[str, Counter[Shape]], dict[str, Counter[Placement]]]:
+    """Per form: the shapes of the names that carry it, and where those names place it."""
+    shapes: dict[str, Counter[Shape]] = {f: Counter() for f in forms}
+    places: dict[str, Counter[Placement]] = {f: Counter() for f in forms}
+    for form, name in names:
+        found = placed(forms, form, name)
+        if found:
+            rest = [w for w in found[2] if w.rstrip(".").lower() not in vocabulary.legal_words]
+            if rest:
+                shapes[form][shape_of(rest, words, trade, vocabulary)] += 1
+                places[form][found[0], found[1]] += 1
+    return shapes, places
+
+
+def form_block(forms: NamedForms, form: str, shapes: Mapping[Shape, int], places: Mapping[Placement, int], vocabulary: Vocabulary) -> str:
+    """One form's object: its name by shape, and its abbreviation and quotes where its names put them."""
+    path = forms[form][0]
+    items = ",\n".join("      " + weighted(slots(shape, vocabulary), c) for shape, c in shipped(shapes, vocabulary))
+    placements = ", ".join(weighted(fmt.replace("{F}", form).replace("{n}", "{" + path + "_name}"), places[layout]) for layout, fmt in LAYOUTS.items() if places.get(layout))
+    return (
+        f'  "{path}": {{\n    "format": {quoted("{name as " + path + "_name}{placed}")},\n    "name": [\n{items}\n    ],\n'
+        f'    "hidden": {{ "placed": [{placements}] }}\n  }}'
+    )
+
+
+def company_json(
+    forms: NamedForms, registered: Mapping[str, int], shapes: Mapping[str, Mapping[Shape, int]], places: Mapping[str, Mapping[Placement, int]], vocabulary: Vocabulary
+) -> str:
+    order = sorted(registered, key=lambda f: (-registered[f], f))
+    items = [legal_item("{.company." + forms[f][0] + "}", f, registered[f]) for f in order]
+    blocks = [form_block(forms, f, shapes[f], places[f], vocabulary) for f in forms]
+    return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(items) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
