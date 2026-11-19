@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons and isikukoodid, `lv_LV`'s names and persons, `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons and NIRs, with names weighted by how common they are. Every Swedish postal town ships, and so
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs and phone numbers, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
@@ -1112,7 +1112,7 @@ person's, so keep it out of anything that reaches a real system. To make one agr
 
 ### `fr_FR`
 
-`fr_FR`, French, carries `department`, `first-name`, `last-name`, `nir`, `nonzero-number`, `person`, `sex`, `sex-digit` and `title`. `sex` is
+`fr_FR`, French, carries `department`, `first-name`, `last-name`, `nir`, `nonzero-number`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex`, `sex-digit` and `title`. `sex` is
 `femme` and `homme`, and `title` is `Dr` and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
 `department` prints the code INSEE gives a department in a NIR, such as `75`, `2A` or `974`, and `nonzero-number` a number
 from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from `001` to `999`. Both exist for `nir`.
@@ -1159,6 +1159,21 @@ with a sex the template binds as `s`, write `fr_FR.sex-digit`'s digit under `s`,
 ```
 
 Renders e.g. `Cassie Duflot, 253059724702338`.
+
+#### French phone numbers
+
+`fr_FR.phone` is a mobile number ten times as often as a fixed one, and every one is a number that cannot
+reach anyone: `06 39 98 12 34`, or `01 99 00 12 34` where it is fixed. Its `national` field is that form, ten
+digits in pairs as France writes them, and its `international` field is `+33 6 39 98 12 34`, with the country
+code and without the 0 dialled before it.
+
+The Arcep's plan national de numérotation, in the version of 1 January 2026, keeps six six-digit roots for
+"œuvres audiovisuelles": it never allots a number behind them to anyone, and says they may be used as
+telephone numbers in fiction. `fr_FR.phone-fixed` holds the five fixed roots, `01 99 00`, `02 61 91`,
+`03 53 01`, `04 65 71` and `05 36 49`, and `fr_FR.phone-mobile` the one mobile root, `06 39 98`, each with its
+`ndc` (the root without the 0) and its `subscriber`, the last four digits. A row is selected by its root,
+`phone-fixed[01 99 00]`. A number is invented, not valid: no operator holds the roots, so none reaches
+anyone, and the plan keeps no other range for fiction.
 
 ### `geo`
 
