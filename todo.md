@@ -248,17 +248,49 @@
 
 The CLI counts brackets of its own, so a change to the selector grammar desyncs the default `--table` silently.
 
+Touches:
+
+- `cli/records.go`: `defaultTable`, `withoutSelectors`
+- `cli/records_test.go`: `TestRunFormatSQLNamesASelectedRowsTableWithoutItsSelector` (small), `TestDefaultTable`
+
 ### 95. Hold a struct's columns and the field each fills in one slice.
 
 `structShape.fieldIndexes` pairs with its record template's `columns` by index alone, against the technical principle "one owner per value".
+
+Touches:
+
+- `struct.go`: `structShape`, `compileShape`, `fill`
 
 ### 116. Turn a row index into its rows file's line in one function.
 
 Today `containedNode`'s cell line in `graph.go`, `compileCells` in `table.go` and each site in `internal/rows` add the header line and the one-based count.
 
+Touches:
+
+- `internal/rows/rows.go`: `Table.proveNamesInsideParent` (small), `Table.proveKeys` (small), `Table.proveNamesAreNotKeys` (small), `Table.parseWeight` (small), `Table.checkSelectorCells` (small), `Table.Link` (small), `Table.selectorSpelling` (small), `Table.Line`
+- `internal/rows/rows_test.go`: `TestLine`
+- `internal/engine/load/graph.go`: `containedCells` (small)
+- `internal/engine/load/table.go`: `compileCells` (small)
+
 ### 350. Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.
 
 The decisions "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" and "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag" each record a paired ruling that found the project reads worse, and this item ends both costs. f90b4d6 is from before CI filed vulnerabilities into the plan, and 5aca8a1 from before it cut patches. The means: less of `todo.md`'s layout in the filer and the merge gate, one writer of `CHANGELOG.md`'s release sections, and fewer linked jobs between the gate, the release and the plan. The ruling against f90b4d6, on filing vulnerabilities into the plan, named the merge gate reading `todo.md`, the filer splicing `todo.md` as text, and a release waiting on vuln.go.dev. The ruling against 5aca8a1, on CI cutting patches, named two linked scripts, four linked jobs and several writers of `CHANGELOG.md`. A ruling against 5aca8a1 alone can't see the first loss, since 5aca8a1 already holds it. The seats' places from the 2026-10-14 and 2026-10-15 rulings name what to make easier to read: `vulnerability-filing/file_vulnerabilities.py` `ROW`, `file_items`, `plan` and `release_for`, `release-tooling/patch_release.py` `FILER`, `.github/workflows/test.yml` `release` and `plan` with their combined conditions, `.github/workflows/packages.yml` "Whether the tag is the latest release", which reads the latest release from a script named for patches, `Dockerfile`'s `vulnerability-filing` stage, which copies `todo.md` into the merge gate, and `CHANGELOG.md`'s three writers.
+
+Touches:
+
+- `vulnerability-filing/file_vulnerabilities.py`
+- `vulnerability-filing/file_vulnerabilities_test.py`
+- `release-tooling/patch_release.py`
+- `release-tooling/patch_release_test.py`
+- `release-tooling/changelog.py`
+- `release-tooling/changelog_test.py`
+- `release-tooling/propose_plan.py`
+- `release-tooling/propose_plan_test.py`
+- `.github/workflows/test.yml`: lines 102-223
+- `.github/workflows/packages.yml`: lines 75-87
+- `Dockerfile`: lines 31-46, lines 69-75 (small)
+- `README.md`: `## Layout` (small), `## Development`
+- `AGENTS.md`: lines 125-126 (small)
 
 ### 210. Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.
 
@@ -366,9 +398,48 @@ Touches:
 
 Templates, from RFC 5737, RFC 1918 and RFC 9637, which are facts.
 
+Touches:
+
+- `data/misc/ip.json`
+- `data/misc/ipv6.json`
+- `data/misc/mac.json`
+- `data/misc/.fejkdata.json`: lines 13-16 (small)
+- `data_test.go`: `TestShippedMiscCategories`
+- `shipped_data_test.go`: `TestIPAndVersionLiveInMiscAlone`
+- `testdata/shipped_shape.txt`: lines 885-895 (small)
+- `README.md`: `` ### `misc` ``
+
 ### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
 
 17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
+
+Touches:
+
+- `data/da_DK/url.json`
+- `data/da_DK/email.json`
+- `data/de_DE/url.json`
+- `data/de_DE/email.json`
+- `data/en_US/url.json`
+- `data/en_US/email.json`
+- `data/fi_FI/url.json`
+- `data/fi_FI/email.json`
+- `data/nb_NO/url.json`
+- `data/nb_NO/email.json`
+- `data/nn_NO/url.json`
+- `data/nn_NO/email.json`
+- `data/sv_SE/url.json`
+- `data/sv_SE/email.json`
+- `data/da_DK/.fejkdata.json`: lines 10-10 (small), lines 25-25 (small)
+- `data/de_DE/.fejkdata.json`: lines 9-9 (small), lines 25-25 (small)
+- `data/en_US/.fejkdata.json`: lines 7-7 (small), lines 22-22 (small)
+- `data/fi_FI/.fejkdata.json`: lines 9-9 (small), lines 27-27 (small)
+- `data/nb_NO/.fejkdata.json`: lines 10-10 (small), lines 26-26 (small)
+- `data/nn_NO/.fejkdata.json`: lines 7-7 (small), lines 17-17 (small)
+- `data/sv_SE/.fejkdata.json`: lines 14-14 (small), lines 41-41 (small)
+- `data/locale_email_test.go`: `TestLocaleEmailIsAsciiAtADomainNobodyCanRegister`
+- `data/locale_everyday_test.go`: `TestShippedUrlsDrawTheLocalesOwnHostAndPathWords`
+- `testdata/shipped_shape.txt`: lines 30-33 (small), lines 86-88 (small), lines 143-146 (small), lines 198-200 (small), lines 234-237 (small), lines 292-294 (small), lines 343-346 (small), lines 408-410 (small), lines 978-981 (small), lines 1036-1038 (small), lines 1075-1077 (small), lines 1102-1104 (small), lines 1181-1184 (small), lines 1289-1291 (small)
+- `README.md`: `#### Data sources` (small), `### Locale categories`, `#### Norwegian dates and emails` (small), `#### Danish dates and emails` (small), `#### German dates and emails` (small), `#### Finnish dates and emails` (small)
 
 ### 272. Add `fr_FR.phone`, drawn from France's numbering plan.
 
