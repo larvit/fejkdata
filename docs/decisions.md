@@ -1709,9 +1709,9 @@ names with counts for the whole population is found; one replaces the file or th
 2026-11-19, in the chunk that added `et_EE`. Goal 3.2, goal 3.3. Applies the project principle on name tables.
 
 Statistics Estonia publishes name counts by sex and year, and states that its open data is CC BY-SA 4.0
-(stat.ee, "Principles of dissemination of official statistics"). Share-alike would bind every program carrying
-the table, which the maintainer has declined before (the ODbL decision for streets), so the file is no open bulk
-file of name counts under a licence the project takes. The first and last names are a language model's recall of names
+(stat.ee, "Principles of dissemination of official statistics"). The project took no share-alike data then,
+as the ODbL decision for streets shows, so the file was no open bulk file of name counts under a licence the
+project takes. The first and last names are a language model's recall of names
 common in Estonia, with none of the office's counts or ranks. The commoner names of each list are ranked, and
 the rarer ones share the last rank's weight. A ranked name weighs 100000 over the square root of its rank, the
 shape `de_DE`'s last names have at 700000. The figures are estimates.
@@ -1722,8 +1722,8 @@ row under each: the Estonian names and the others the same under both, and a Rus
 with an `a` added under `f`. `person` draws the last name under its first name's sex.
 
 The sex counts are Eurostat's table demo_pjan for Estonia. `title` holds `dr` and `prof`, as Sõnaveeb and the
-Institute of the Estonian Language write them. Valid while Statistics Estonia's licence stays share-alike; a
-licence the project takes replaces the recall with its counts.
+Institute of the Estonian Language write them. Valid until `todo.md` item 522 ships: on 2026-11-19 the maintainer
+took open licences in general, CC BY-SA 4.0 included, so the office's counts replace the recall.
 
 ## `da_DK.company` weighs its legal forms by Statistics Denmark's enterprises and draws its names from a language model's recall
 
