@@ -8,8 +8,6 @@ da_DK.address.street-number	string
 da_DK.color
 da_DK.company	format "{registered as r}{r}"	reads da_DK.company da_DK.company-coined da_DK.company-word da_DK.first-name da_DK.last-name geo.DK.locality
 da_DK.company-coined	format "{a}{b}"
-da_DK.company-coined.a	string
-da_DK.company-coined.b	string
 da_DK.company-word
 da_DK.company.aps	string
 da_DK.company.aps.name
@@ -60,8 +58,6 @@ da_DK.phone.international	string
 da_DK.phone.national	string
 da_DK.phone.subscriber	string
 da_DK.price	format "{amt}{ore} kr."
-da_DK.price.amt	string
-da_DK.price.ore	string
 da_DK.sentence	reads da_DK.word-adj da_DK.word-noun da_DK.word-verb
 da_DK.sentence.adj
 da_DK.sentence.det
@@ -121,8 +117,6 @@ de_DE.address.street-number	string
 de_DE.color
 de_DE.company	format "{registered as r}{r}"	reads de_DE.company de_DE.company-coined de_DE.company-word de_DE.first-name de_DE.last-name geo.DE.locality
 de_DE.company-coined	format "{a}{b}"
-de_DE.company-coined.a	string
-de_DE.company-coined.b	string
 de_DE.company-word
 de_DE.company.ag	string
 de_DE.company.ag.name
@@ -178,8 +172,6 @@ de_DE.phone-subscriber.digits-8	string
 de_DE.phone.international
 de_DE.phone.national
 de_DE.price	format "{amt},{cents} €"
-de_DE.price.amt	string
-de_DE.price.cents	string
 de_DE.sentence	reads de_DE.word-adj de_DE.word-adv de_DE.word-noun de_DE.word-verb
 de_DE.sentence.noun
 de_DE.sex	format "{name}"	key code	name name	weight count
@@ -261,8 +253,6 @@ en_US.phone.area
 en_US.phone.exchange
 en_US.phone.line
 en_US.price	format "${amt}.{cents}"
-en_US.price.amt	string
-en_US.price.cents	string
 en_US.sentence	reads en_US.word-adj en_US.word-adv en_US.word-noun en_US.word-verb
 en_US.sentence.adj
 en_US.sentence.noun
@@ -351,8 +341,6 @@ fi_FI.address.street-number	string
 fi_FI.color
 fi_FI.company	format "{registered as r}{r}"	reads fi_FI.company fi_FI.company-coined fi_FI.company-word fi_FI.first-name fi_FI.last-name
 fi_FI.company-coined	format "{a}{b}"
-fi_FI.company-coined.a	string
-fi_FI.company-coined.b	string
 fi_FI.company-word
 fi_FI.company.ay	string
 fi_FI.company.ay.name
@@ -413,8 +401,6 @@ fi_FI.phone-subscriber.mobile-6-8	string
 fi_FI.phone.international
 fi_FI.phone.national
 fi_FI.price	format "{amt},{cents} €"
-fi_FI.price.amt	string
-fi_FI.price.cents	string
 fi_FI.sentence	reads fi_FI.word-adj fi_FI.word-noun
 fi_FI.sentence.adj
 fi_FI.sentence.noun
@@ -954,12 +940,8 @@ misc.ip.cidr	string
 misc.ip.documentation	string
 misc.ip.private	string
 misc.ip.wide4	string
-misc.ip.wide4.o
 misc.ip.wide6	string
 misc.ipv6	format "2001:db8:{g}:{g}:{g}:{g}:{g}:{g}"
-misc.ipv6.g	string
-misc.ipv6.g.n
-misc.ipv6.g.t
 misc.language	format "{name}"	key code	name name
 misc.language.code	string
 misc.language.code3	string
@@ -970,7 +952,6 @@ misc.loglevel.keyword	string
 misc.loglevel.severity	string
 misc.mac	format "{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}"
 misc.mac.local	string
-misc.mac.local.n
 misc.mimetype	format "{type}"	key type	name ext
 misc.mimetype.ext	string
 misc.mimetype.type	string
@@ -1016,9 +997,6 @@ misc.useragent.ua	string
 misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
 misc.uuid.variant	string
 misc.version	format "{pre}{n}.{n}.{n}{suffix}"
-misc.version.n	string
-misc.version.pre	string
-misc.version.suffix	string
 nb_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
 nb_NO.address.locality	string
 nb_NO.address.municipality	string
@@ -1031,8 +1009,6 @@ nb_NO.birth-day.ddmm	string
 nb_NO.color
 nb_NO.company	format "{registered as r}{r}"	reads geo.NO.locality nb_NO.company nb_NO.company-coined nb_NO.company-word nb_NO.first-name nb_NO.last-name
 nb_NO.company-coined	format "{a}{b}"
-nb_NO.company-coined.a	string
-nb_NO.company-coined.b	string
 nb_NO.company-word	format "{word}"	weight count
 nb_NO.company-word.count	string
 nb_NO.company-word.word	string
@@ -1089,8 +1065,6 @@ nb_NO.phone.international	string
 nb_NO.phone.national	string
 nb_NO.phone.subscriber	string
 nb_NO.price	format "{amt}{ore} kr"
-nb_NO.price.amt	string
-nb_NO.price.ore	string
 nb_NO.sentence	reads nb_NO.word-adj nb_NO.word-noun nb_NO.word-verb
 nb_NO.sentence.adj
 nb_NO.sentence.det
@@ -1231,8 +1205,6 @@ sv_SE.car.registrations	string
 sv_SE.color
 sv_SE.company	format "{registered as r}{r}"	reads geo.SE.locality sv_SE.company sv_SE.company-coined sv_SE.company-word sv_SE.first-name sv_SE.last-name
 sv_SE.company-coined	format "{a}{b}"
-sv_SE.company-coined.a	string
-sv_SE.company-coined.b	string
 sv_SE.company-word	format "{word}"	weight count
 sv_SE.company-word.count	string
 sv_SE.company-word.word	string
@@ -1283,15 +1255,9 @@ sv_SE.month	format "{name}"	key code	name name
 sv_SE.month.code	string
 sv_SE.month.name	string
 sv_SE.organisationsnummer	format "{.organisationsnummer.head as h}{.organisationsnummer.tail as t}{h}-{t}{luhn()}"	reads sv_SE.organisationsnummer
-sv_SE.organisationsnummer.group	string
-sv_SE.organisationsnummer.head	string
-sv_SE.organisationsnummer.tail	string
 sv_SE.organisationsnummer.vat	string
 sv_SE.paragraph	reads sv_SE.sentence
 sv_SE.person	format "{birth as b}{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title
-sv_SE.person.birth
-sv_SE.person.birth.date
-sv_SE.person.birth.sign
 sv_SE.person.birthdate	string
 sv_SE.person.first	string
 sv_SE.person.last	string
@@ -1324,8 +1290,6 @@ sv_SE.phone.international
 sv_SE.phone.national
 sv_SE.plusgiro
 sv_SE.price	format "{amt}{ore} kr"
-sv_SE.price.amt	string
-sv_SE.price.ore	string
 sv_SE.samordningsnummer	format "{date(1930-01-01,2025-12-31,'0601')}{int(61,88)}-{.birth-number.number}{luhn()}"	reads sv_SE.birth-number
 sv_SE.samordningsnummer-12	reads sv_SE.birth-number
 sv_SE.samordningsnummer-12.ten
