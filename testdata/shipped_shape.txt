@@ -309,6 +309,7 @@ en_US.word.any	string
 en_US.word.noun	string
 en_US.word.verb	string
 en_US.word.verb.present
+et_EE.color
 et_EE.company	format "{registered as r}{r}"	reads et_EE.company et_EE.company-coined et_EE.company-word et_EE.person
 et_EE.company-coined	format "{word}"	weight count
 et_EE.company-coined.count	string
@@ -345,6 +346,9 @@ et_EE.last-name	format "{name}"	name name	weight count	parent sex
 et_EE.last-name.count	string
 et_EE.last-name.name	string
 et_EE.last-name.sex	string
+et_EE.month	format "{name}"	key code	name name
+et_EE.month.code	string
+et_EE.month.name	string
 et_EE.person	format "{prefix}{first} {last}"	reads et_EE.first-name et_EE.title
 et_EE.person.first	string
 et_EE.person.last	string
@@ -353,6 +357,7 @@ et_EE.person.sex	string
 et_EE.phone	format "{number as n}{national}"
 et_EE.phone.international	string
 et_EE.phone.national	string
+et_EE.price	format "{amt},{cents} €"
 et_EE.sex	format "{name}"	key code	name name	weight count
 et_EE.sex-digit	format "{digit}"	parent sex
 et_EE.sex-digit.digit	string
@@ -371,9 +376,19 @@ et_EE.sex.name	string
 et_EE.sex.sex-digit
 et_EE.sex.sex-digit.digit
 et_EE.sex.sex-digit.sex
+et_EE.time	format "{time('15:04')}"
 et_EE.title	format "{name}"	key name	weight share
 et_EE.title.name	string
 et_EE.title.share	string
+et_EE.url	format "https://{host}{path}"	reads et_EE.url
+et_EE.url.host	string
+et_EE.url.path	string
+et_EE.url.reserved	string
+et_EE.username
+et_EE.username.n
+et_EE.weekday	format "{name}"	key code	name name
+et_EE.weekday.code	string
+et_EE.weekday.name	string
 fi_FI.address	format "{/geo.FI.address as a}{a}"	reads geo.FI.address
 fi_FI.address.locality	string
 fi_FI.address.municipality	string
@@ -486,6 +501,7 @@ fi_FI.word.adv	string
 fi_FI.word.any	string
 fi_FI.word.noun	string
 fi_FI.word.verb	string
+fr_FR.color
 fr_FR.company	format "{registered as r}{r}"	reads fr_FR.company fr_FR.company-coined fr_FR.company-word fr_FR.first-name fr_FR.last-name
 fr_FR.company-coined	format "{word}"	weight count
 fr_FR.company-coined.count	string
@@ -522,6 +538,9 @@ fr_FR.first-name.sex	string
 fr_FR.last-name	format "{name}"	key name	weight count
 fr_FR.last-name.count	string
 fr_FR.last-name.name	string
+fr_FR.month	format "{name}"	key code	name name
+fr_FR.month.code	string
+fr_FR.month.name	string
 fr_FR.nir	format "{/fr_FR.sex as s}{s.sex-digit.digit}{body}{nir()}"	reads fr_FR.department fr_FR.nonzero-number fr_FR.sex
 fr_FR.nir.body	string
 fr_FR.nir.body.birth
@@ -545,6 +564,7 @@ fr_FR.phone-mobile.ndc	string
 fr_FR.phone-mobile.subscriber	string
 fr_FR.phone.international
 fr_FR.phone.national
+fr_FR.price	format "{amt},{cents} €"
 fr_FR.sex	format "{name}"	key code	name name	weight count
 fr_FR.sex-digit	format "{digit}"	parent sex
 fr_FR.sex-digit.digit	string
@@ -559,9 +579,19 @@ fr_FR.sex.name	string
 fr_FR.sex.sex-digit
 fr_FR.sex.sex-digit.digit
 fr_FR.sex.sex-digit.sex
+fr_FR.time	format "{time('15:04')}"
 fr_FR.title	format "{name}"	key name	weight share
 fr_FR.title.name	string
 fr_FR.title.share	string
+fr_FR.url	format "https://{host}{path}"	reads fr_FR.url
+fr_FR.url.host	string
+fr_FR.url.path	string
+fr_FR.url.reserved	string
+fr_FR.username
+fr_FR.username.n
+fr_FR.weekday	format "{name}"	key code	name name
+fr_FR.weekday.code	string
+fr_FR.weekday.name	string
 geo.DE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DE.locality geo.DE.street
 geo.DE.address.locality	string
 geo.DE.address.municipality	string
@@ -990,6 +1020,7 @@ geo.US.street.locality	string
 geo.US.street.name	string
 lt_LT.asmens-kodas	format "{/lt_LT.sex as s}{asmenskodas(s.sex-digit.digit,birth)}"	reads lt_LT.sex
 lt_LT.asmens-kodas.birth	string
+lt_LT.color
 lt_LT.first-name	format "{name}"	name name	weight count	parent sex
 lt_LT.first-name.count	string
 lt_LT.first-name.name	string
@@ -998,6 +1029,9 @@ lt_LT.last-name	format "{name}"	name name	weight count	parent sex
 lt_LT.last-name.count	string
 lt_LT.last-name.name	string
 lt_LT.last-name.sex	string
+lt_LT.month	format "{name}"	key code	name name
+lt_LT.month.code	string
+lt_LT.month.name	string
 lt_LT.person	format "{prefix}{first} {last}"	reads lt_LT.first-name lt_LT.title
 lt_LT.person.first	string
 lt_LT.person.last	string
@@ -1015,6 +1049,7 @@ lt_LT.phone-mobile.ndc	string
 lt_LT.phone-mobile.subscriber	string
 lt_LT.phone.international
 lt_LT.phone.national
+lt_LT.price	format "{amt},{cents} €"
 lt_LT.sex	format "{name}"	key code	name name	weight count
 lt_LT.sex-digit	format "{digit}"	parent sex
 lt_LT.sex-digit.digit	string
@@ -1033,9 +1068,20 @@ lt_LT.sex.name	string
 lt_LT.sex.sex-digit
 lt_LT.sex.sex-digit.digit
 lt_LT.sex.sex-digit.sex
+lt_LT.time	format "{time('15:04')}"
 lt_LT.title	format "{name}"	key name	weight share
 lt_LT.title.name	string
 lt_LT.title.share	string
+lt_LT.url	format "https://{host}{path}"	reads lt_LT.url
+lt_LT.url.host	string
+lt_LT.url.path	string
+lt_LT.url.reserved	string
+lt_LT.username
+lt_LT.username.n
+lt_LT.weekday	format "{name}"	key code	name name
+lt_LT.weekday.code	string
+lt_LT.weekday.name	string
+lv_LV.color
 lv_LV.company	format "{registered as r}{r}"	reads lv_LV.company lv_LV.company-coined lv_LV.company-word lv_LV.first-name lv_LV.person
 lv_LV.company-coined	format "{word}"	weight count
 lv_LV.company-coined.count	string
@@ -1070,6 +1116,9 @@ lv_LV.last-name	format "{name}"	name name	weight count	parent sex
 lv_LV.last-name.count	string
 lv_LV.last-name.name	string
 lv_LV.last-name.sex	string
+lv_LV.month	format "{name}"	key code	name name
+lv_LV.month.code	string
+lv_LV.month.name	string
 lv_LV.person	format "{prefix}{first} {last}"	reads lv_LV.first-name lv_LV.title
 lv_LV.person.first	string
 lv_LV.person.last	string
@@ -1080,6 +1129,7 @@ lv_LV.personas-kods.birth	string
 lv_LV.phone	format "{number as n}{national}"
 lv_LV.phone.international	string
 lv_LV.phone.national	string
+lv_LV.price	format "{amt},{cents} €"
 lv_LV.sex	format "{name}"	key code	name name	weight count
 lv_LV.sex.code	string
 lv_LV.sex.count	string
@@ -1092,9 +1142,19 @@ lv_LV.sex.last-name.count
 lv_LV.sex.last-name.name
 lv_LV.sex.last-name.sex
 lv_LV.sex.name	string
+lv_LV.time	format "{time('15:04')}"
 lv_LV.title	format "{name}"	key name	weight share
 lv_LV.title.name	string
 lv_LV.title.share	string
+lv_LV.url	format "https://{host}{path}"	reads lv_LV.url
+lv_LV.url.host	string
+lv_LV.url.path	string
+lv_LV.url.reserved	string
+lv_LV.username
+lv_LV.username.n
+lv_LV.weekday	format "{name}"	key code	name name
+lv_LV.weekday.code	string
+lv_LV.weekday.name	string
 misc.car	format "{make} {model}"
 misc.car.make	string
 misc.car.model	string
