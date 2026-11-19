@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 522`
+`Next ID = 523`
 
 ## Items
 
@@ -92,6 +92,7 @@
 | 51 | 0.8.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
 | 115 | 0.8.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
 | 408 | 0.8.0 |  |  | **List every shipped path in the README's Data section with an example value and whether it is real, plausible or valid, and where it comes from.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
+| 522 | 0.8.0 |  | decision | **Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.** | 2 | 2 | 2 | 4 | 4 | 3.2 by 6 | 1.7 |
 | 259 | 0.8.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 1.6 |
 | 267 | 0.8.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.5 |
 | 32 | 0.8.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
@@ -249,19 +250,19 @@ Trap: `load.Paths` also feeds a choice's shared paths (`sharedPaths`), which res
 Audit every shipped category for fields only other fields read, and move each into `let`. Revise the decision "A record's `let` fields write no column", which says `let` changes nothing outside a record's top level. Before 1.0.0, dropping listed paths is a minor, so 0.7.0 allows it; the paths item 15 added never ship listed. Add the `CHANGELOG.md` entry under `Unreleased`, and re-pin the shape in its own commit.
 
 Touches:
-- internal/engine/load/path.go: `Paths`, `templatePaths`
-- internal/engine/draw.go: `List` (small)
-- internal/engine/index.go (small)
-- internal/engine/load/path_test.go
-- loading_test.go: `TestList`
-- data/misc/ip.json
-- data/misc/ipv6.json
-- data/misc/mac.json
-- data/misc/version.json
-- data/misc/.fejkdata.json
-- data/sv_SE/.fejkdata.json
-- testdata/shipped_shape.txt
-- README.md: `Let`, `Options and fields` (small)
+- `internal/engine/load/path.go`: `Paths`, `templatePaths`
+- `internal/engine/draw.go`: `List` (small)
+- `internal/engine/index.go`
+- `internal/engine/load/path_test.go`
+- `loading_test.go`: `TestList`
+- `data/misc/ip.json`
+- `data/misc/ipv6.json`
+- `data/misc/mac.json`
+- `data/misc/version.json`
+- `data/misc/.fejkdata.json`
+- `data/sv_SE/.fejkdata.json`
+- `testdata/shipped_shape.txt`
+- `README.md`: `Let`, `Options and fields` (small)
 
 ### 499. Add `et_EE`'s national personal id, the isikukood, with its check digits.
 
@@ -761,6 +762,12 @@ Today a cell reads `g.t.b, line 3` (`containedNode.labelIn`), a cell check `t.ts
 ### 408. List every shipped path in the README's Data section with an example value and whether it is real, plausible or valid, and where it comes from.
 
 Goal 3 says the docs say which kind each value is, but today that sits in prose spread over the Data section, and a reader can't scan for whether a path exists or what it prints. With a Nordic locale added each release, a table is how a reader finds `fi_FI.phone` and what it looks like. Generate or test the table against what loads, so a new path can't ship without a row, and keep the example values seeded. Fits item 343, which splits the Data section by feature.
+
+### 522. Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.
+
+Ends the decision "`et_EE`'s names are a language model's recall". The maintainer took open licences in general, CC BY-SA 4.0 included, on 2026-11-19, so Statistics Estonia's name counts are under a licence the project takes.
+
+Write `data-import/names-ee.py` to read the office's published counts by sex and year, as `names-de.py` reads Munich's, and keep the feminine form of a Russian surname under `f`. Name the licence, its share-alike terms and the attribution in `DATA-LICENSES.md` and the README, and drop `et_EE.first-name` and `et_EE.last-name` from the name-table principle's list in `AGENTS.md`.
 
 ### 259. Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.
 
