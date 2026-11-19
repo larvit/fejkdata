@@ -38,17 +38,21 @@ import zipfile
 from collections import Counter
 from collections.abc import Collection, Iterable, Mapping
 from pathlib import Path
-from typing import NamedTuple
 
 import source
 import tsv
 from company_names import (
-    Usage,
+    Shape,
     Vocabulary,
+    Words,
+    coined,
     column,
-    common,
+    kind,
     legal_item,
     quoted,
+    shape_of,
+    shipped,
+    slots,
     split,
     trade_words,
     weighted,
@@ -62,22 +66,11 @@ CACHE = Path(__file__).resolve().parent / "cache"
 LEGAL_FORM = {"Füüsilisest isikust ettevõtja": "FIE", "Osaühing": "OÜ", "Aktsiaselts": "AS", "Usaldusühing": "UÜ", "Täisühing": "TÜ"}
 # Each named form's path under company and the words that spell it: its abbreviation and its word, in lower case.
 NAMED_FORMS = {"OÜ": ("ou", {"oü", "osaühing"}), "AS": ("as", {"as", "aktsiaselts"}), "UÜ": ("uu", {"uü", "usaldusühing"}), "TÜ": ("tu", {"tü", "täisühing"})}
-COINED_MIN = 40
-COINED_ENDS_MIN = 0.05
 CONNECTING_WORDS = ("ja", "&")
 FUNCTION_WORDS = {*CONNECTING_WORDS, "the", "and", "of", "for"}
 LEGAL_WORDS = {"fie", "mtü"} | {w for _, words in NAMED_FORMS.values() for w in words}
-VOCABULARY = Vocabulary(re.compile(r"^[a-zäöüõšž]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, form_spread=1)
-PERSONS = "pqrstuvw"
-# A name's kinds of word in order, each a key of SLOTS, or FS for a person.
-type Shape = tuple[str, ...]
+VOCABULARY = Vocabulary(re.compile(r"^[a-zäöüõšž]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, form_spread=1, connecting_words=CONNECTING_WORDS)
 
-SLOTS = {"X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "F": "{.first-name}", "N": "{int(1,30)}", **{w: w for w in CONNECTING_WORDS}}
-
-
-class Words(NamedTuple):
-    surnames: Collection[str]
-    firsts: Collection[str]
 
 
 def register(data: bytes) -> tuple[Counter[str], list[tuple[str, str]]]:
@@ -110,32 +103,6 @@ def placed(form: str, name: str) -> tuple[str, list[str]] | None:
     return None
 
 
-def kind(word: str, words: Words, last: bool) -> str | None:
-    """S or F for a last name or a first name; else None. A word that is both is a last name at the end of a name."""
-    w = word.lower()
-    if w in words.surnames and (last or w not in words.firsts):
-        return "S"
-    return "F" if w in words.firsts else None
-
-
-def shape_of(name: list[str], words: Words, trade: Collection[str]) -> Shape:
-    """The kinds of the words, as SLOTS keys, with FS for a first name followed by a last name."""
-    shape: list[str] = []
-    for i, word in enumerate(name):
-        low = word.lower()
-        if low.isdigit():
-            shape.append("N")
-        elif low in CONNECTING_WORDS:
-            shape.append(low)
-        else:
-            k = kind(word, words, i == len(name) - 1) or ("T" if low in trade else "X")
-            if k == "S" and shape and shape[-1] == "F":
-                shape[-1] = "FS"
-            else:
-                shape.append(k)
-    return tuple(shape)
-
-
 def count_names(names: Iterable[tuple[str, str]], words: Words, trade: Collection[str]) -> tuple[dict[str, Counter[Shape]], dict[str, Counter[str]]]:
     """Per form: the shapes of the names that carry it, and where those names place it."""
     shapes: dict[str, Counter[Shape]] = {f: Counter() for f in NAMED_FORMS}
@@ -145,43 +112,16 @@ def count_names(names: Iterable[tuple[str, str]], words: Words, trade: Collectio
         if found:
             rest = [w for w in found[1] if w.rstrip(".").lower() not in LEGAL_WORDS]
             if rest:
-                shapes[form][shape_of(rest, words, trade)] += 1
+                shapes[form][shape_of(rest, words, trade, VOCABULARY)] += 1
                 places[form][found[0]] += 1
     return shapes, places
-
-
-def shipped(shapes: Mapping[Shape, int]) -> list[tuple[Shape, int]]:
-    """The common shapes that open with no number, `ja` or `&`."""
-    return [(s, c) for s, c in common(shapes) if s[0] != "N" and s[0] not in CONNECTING_WORDS]
-
-
-def slots(shape: Shape) -> str:
-    """The format of a shape: its words' slots, each person drawn once under the next name of PERSONS."""
-    persons = iter(PERSONS)
-    out = []
-    for k in shape:
-        if k == "FS":
-            p = next(persons)
-            out.append(f"{{.person as {p}}}{{{p}.first}} {{{p}.last}}")
-        else:
-            out.append(SLOTS[k])
-    return " ".join(out)
-
-
-def coined(usage: Mapping[str, Usage], trade: Collection[str]) -> dict[str, int]:
-    """The words of company-coined.tsv, each in its spelling with its count, by the rule in the module docstring."""
-    return {
-        (u.spellings.most_common(1)[0][0] if u.spellings else w.capitalize()): u.names
-        for w, u in sorted(usage.items())
-        if w not in trade and len(w) >= 4 and u.names >= COINED_MIN and u.ends >= COINED_ENDS_MIN * u.names
-    }
 
 
 def form_block(form: str, shapes: Mapping[Shape, int], places: Mapping[str, int]) -> str:
     """One form's object: its name by shape, and its abbreviation after or before it as its names place it."""
     path = NAMED_FORMS[form][0]
     bound = "{" + path + "_name}"
-    items = ",\n".join("      " + weighted(slots(shape), c) for shape, c in shipped(shapes))
+    items = ",\n".join("      " + weighted(slots(shape, VOCABULARY), c) for shape, c in shipped(shapes, VOCABULARY))
     placing = [(f"{bound} {form}", places["after"]), (f"{form} {bound}", places["before"])]
     placements = ", ".join(weighted(fmt, c) for fmt, c in placing if c)
     return (
