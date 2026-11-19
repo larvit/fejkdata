@@ -9,10 +9,11 @@ with its replacement, and each removed path, column or flag.
 
 ### Breaking
 
-- The option `let` is now `hidden`, and a template written with `let` fails to load, saying so: rename the
-  key. A field can no longer be named `hidden`.
+- Rename the option `let` to `hidden`: a template written with `let` fails to load, and the error says to
+  use `hidden`. `let` stays reserved, and a field or a name can no longer be `hidden` or `let`, which
+  breaks a `{/x as hidden}` or a field `hidden` that loaded before.
 - A field in `hidden` is left out of the listing at any depth: `--list` and the `.fejkdata.json` index no longer
-  show it or any path below it. A read of its path still draws it. A record never wrote a column for a
+  show it or any path below it. A read of its path still draws it. A record writes no column for a
   `hidden` field. These fields, which only other fields read, moved into `hidden`, so their paths left the listing:
   `misc.ip.wide4.o`, `misc.ipv6.g` with `.n` and `.t`, `misc.mac.local.n`, `misc.version.n`, `.pre` and
   `.suffix`; `company-coined.a` and `.b` in `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `sv_SE`; `price.amt` and

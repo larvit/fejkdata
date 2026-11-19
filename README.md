@@ -1936,8 +1936,8 @@ reference, `..` is the folder above ([References](#references)).
 
 ### Options and fields
 
-`format`, `weight`, `repeat`, `separator`, `datatype` and `hidden` are the only options;
-**any other key is a field** (see [Decisions](docs/decisions.md#options-and-fields-share-one-namespace)), and `rows` makes a category
+`format`, `weight`, `repeat`, `separator`, `datatype` and `hidden` are the only options, and
+`let`, the old name of `hidden`, is refused; **any other key is a field** (see [Decisions](docs/decisions.md#options-and-fields-share-one-namespace)), and `rows` makes a category
 a [table](#table), so no template carries a field of that name. `hidden` holds fields that write
 no [column](#hidden). A [name](#names) shares the namespace too.
 
