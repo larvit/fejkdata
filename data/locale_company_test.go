@@ -1,7 +1,6 @@
 package data_test
 
 import (
-	"regexp"
 	"strings"
 	"testing"
 
@@ -21,16 +20,17 @@ func sumOfCounts(counts map[string]int) int {
 	return total
 }
 
-// legalFormSuffix matches the legal form a company name ends in, and captures it.
-func (c *company) legalFormSuffix() *regexp.Regexp {
-	var suffixes []string
-	for _, form := range c.suffixed {
-		suffixes = append(suffixes, regexp.QuoteMeta(form.suffix))
+// legalForm returns the abbreviation of the legal form a company name ends in, or opens with, or "".
+func (c *company) legalForm(name string) string {
+	for _, form := range c.marked {
+		if strings.HasSuffix(name, " "+form.abbreviation) || strings.HasPrefix(name, form.abbreviation+" ") {
+			return form.abbreviation
+		}
 	}
-	return regexp.MustCompile(` (` + strings.Join(suffixes, "|") + `)$`)
+	return ""
 }
 
-func (c *company) forms() []legalForm { return append([]legalForm{c.bare}, c.suffixed...) }
+func (c *company) forms() []legalForm { return append([]legalForm{c.bare}, c.marked...) }
 
 func eachCompany(t *testing.T, locale string, check func(got string)) {
 	t.Helper()
@@ -47,30 +47,30 @@ func eachCompanyWithItsLegal(t *testing.T, locale string, check func(company, le
 	})
 }
 
-func TestLocaleCompanyIsANameThatMayEndInALegalForm(t *testing.T) {
+func TestLocaleCompanyIsANameThatMayCarryALegalForm(t *testing.T) {
 	t.Parallel()
 	eachLocale(t, hasCompany, func(t *testing.T, l shippedLocale) {
 		t.Parallel()
 		eachCompany(t, l.name, func(got string) {
 			if !l.company.name.MatchString(got) || strings.HasSuffix(got, " "+l.company.bare.code) {
-				t.Fatalf("company %q is not a name, optionally ending in a legal form, that doesn't end in %q", got, l.company.bare.code)
+				t.Fatalf("company %q is not a name, optionally carrying a legal form, that doesn't end in %q", got, l.company.bare.code)
 			}
 		})
 	})
 }
 
-func TestLocaleCompanyEndsInALegalFormAsOftenAsItsSourceCountsTheForm(t *testing.T) {
+func TestLocaleCompanyCarriesALegalFormAsOftenAsItsSourceCountsTheForm(t *testing.T) {
 	t.Parallel()
 	eachLocale(t, hasCompany, func(t *testing.T, l shippedLocale) {
 		t.Parallel()
-		suffix, bare := l.company.legalFormSuffix(), l.company.bare.code
+		bare := l.company.bare.code
 		registered, drawn := map[string]int{}, map[string]int{}
 		for _, form := range l.company.forms() {
 			registered[form.code] = form.units
 		}
 		eachCompany(t, l.name, func(got string) {
-			if m := suffix.FindStringSubmatch(got); m != nil {
-				drawn[m[1]]++
+			if form := l.company.legalForm(got); form != "" {
+				drawn[form]++
 			} else {
 				drawn[bare]++
 			}
@@ -84,27 +84,27 @@ func TestLocaleCompanyEndsInALegalFormAsOftenAsItsSourceCountsTheForm(t *testing
 	})
 }
 
-func TestLocaleBareCompanyPathDrawsANameEndingInNoLegalForm(t *testing.T) {
+func TestLocaleBareCompanyPathDrawsANameCarryingNoLegalForm(t *testing.T) {
 	eachLocale(t, hasCompany, func(t *testing.T, l shippedLocale) {
 		f := shipped(t, fejkdata.WithSeed(7))
-		suffix, path := l.company.legalFormSuffix(), l.name+".company."+l.company.bare.path
+		path := l.name + ".company." + l.company.bare.path
 		fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, path) }, func(got string) {
-			if suffix.MatchString(got) {
-				t.Fatalf("%s = %q, want a name ending in no legal form", path, got)
+			if form := l.company.legalForm(got); form != "" {
+				t.Fatalf("%s = %q, want a name carrying no legal form", path, got)
 			}
 		})
 	})
 }
 
-func TestLocaleSuffixedCompanyPathsDrawANameEndingInTheirLegalForm(t *testing.T) {
+func TestLocaleMarkedCompanyPathsDrawANameCarryingTheirLegalForm(t *testing.T) {
 	eachLocale(t, hasCompany, func(t *testing.T, l shippedLocale) {
 		f := shipped(t, fejkdata.WithSeed(7))
-		for _, form := range l.company.suffixed {
+		for _, form := range l.company.marked {
 			path := l.name + ".company." + form.path
 			t.Run(path, func(t *testing.T) {
 				fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, path) }, func(got string) {
-					if !strings.HasSuffix(got, " "+form.suffix) {
-						t.Fatalf("%s = %q, want a name ending in %q", path, got, form.suffix)
+					if l.company.legalForm(got) != form.abbreviation {
+						t.Fatalf("%s = %q, want a name carrying %q", path, got, form.abbreviation)
 					}
 				})
 			})
@@ -112,18 +112,13 @@ func TestLocaleSuffixedCompanyPathsDrawANameEndingInTheirLegalForm(t *testing.T)
 	})
 }
 
-func TestLocaleCompanyLegalIsTheFormItsNameEndsIn(t *testing.T) {
+func TestLocaleCompanyLegalIsTheFormItsNameCarries(t *testing.T) {
 	t.Parallel()
 	eachLocale(t, hasCompany, func(t *testing.T, l shippedLocale) {
 		t.Parallel()
-		suffix := l.company.legalFormSuffix()
 		eachCompanyWithItsLegal(t, l.name, func(company, legal string) {
-			want := ""
-			if m := suffix.FindStringSubmatch(company); m != nil {
-				want = m[1]
-			}
-			if legal != want {
-				t.Fatalf("company %q has legal %q, want %q, the form its name ends in", company, legal, want)
+			if want := l.company.legalForm(company); legal != want {
+				t.Fatalf("company %q has legal %q, want %q, the form its name carries", company, legal, want)
 			}
 		})
 	})

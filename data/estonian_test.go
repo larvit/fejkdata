@@ -183,3 +183,35 @@ func TestShippedEstonianFixedPhoneDrawsEachOfItsThirtyStartsEvenly(t *testing.T)
 		}
 	}
 }
+
+func TestEstonianCompanyOpensWithItsLegalFormAsOftenAsTheRegistersNamesDo(t *testing.T) {
+	t.Parallel()
+	f := shipped(t, fejkdata.WithSeed(5))
+	// The e-Business Register's basic data of 19 November 2026: of the names of each form's legal persons
+	// entered into the register, those opening with the form's abbreviation or word, and those ending in it.
+	for _, c := range []struct {
+		path, abbreviation string
+		opening, ending    int
+	}{{"ou", "OÜ", 50943, 237190}, {"uu", "UÜ", 837, 2485}, {"as", "AS", 1227, 672}, {"tu", "TÜ", 612, 416}} {
+		t.Run(c.path, func(t *testing.T) {
+			opened := 0
+			fejktest.EachDraw(4000, func() string { return fejktest.Fake(t, f, "et_EE.company."+c.path) }, func(got string) {
+				if strings.HasPrefix(got, c.abbreviation+" ") {
+					opened++
+				}
+			})
+			assertShare(t, "names opening with "+c.abbreviation, opened, 4000, float64(c.opening)/float64(c.opening+c.ending))
+		})
+	}
+}
+
+func TestEstonianSoleProprietorIsTheFirstAndLastNameOfOnePerson(t *testing.T) {
+	first, last := nameCounts(t, "et_EE", "first-name"), nameCounts(t, "et_EE", "last-name")
+	f := shipped(t, fejkdata.WithSeed(5))
+	fejktest.EachDraw(1000, func() string { return fejktest.Fake(t, f, "et_EE.company.fie") }, func(got string) {
+		given, family, _ := strings.Cut(got, " ")
+		if !(first["f"][given] > 0 && last["f"][family] > 0) && !(first["m"][given] > 0 && last["m"][family] > 0) {
+			t.Fatalf("et_EE.company.fie = %q, want a first and a last name of one sex", got)
+		}
+	})
+}

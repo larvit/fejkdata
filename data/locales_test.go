@@ -56,21 +56,22 @@ type person struct {
 	titles   []string
 }
 
-// A company's legal forms: the one whose names end in no legal form, and those whose names end in theirs.
+// A company's legal forms: the one whose names carry no legal form, and those whose names end in theirs or
+// open with it.
 type company struct {
-	name     *regexp.Regexp
-	bare     legalForm
-	suffixed []legalForm
+	name   *regexp.Regexp
+	bare   legalForm
+	marked []legalForm
 }
 
 // A legal form a company draws: the code its country's register counts it under, the last step of
-// its path under company, the words a name of it ends in, "" for the form that prints none, and
+// its path under company, the abbreviation a name of it carries, "" for the form that prints none, and
 // its units: the source's count, or its even share of the group the source counts it in.
 type legalForm struct {
-	code   string
-	path   string
-	suffix string
-	units  int
+	code         string
+	path         string
+	abbreviation string
+	units        int
 }
 
 type phone struct {
@@ -148,7 +149,14 @@ var shippedLocales = []shippedLocale{
 		name:   "et_EE",
 		names:  &names{map[string]string{"Liis": "f", "Kristiina": "f", "Andres": "m", "Toomas": "m"}, nil},
 		person: &person{map[string]string{"f": "naine", "m": "mees"}, []string{"dr", "prof"}},
-		phone:  &phone{"+372", "", estonianFixedPhone, nil},
+		// The e-Business Register's basic data of 19 November 2026, the legal persons entered into the register
+		// by ettevotja_oiguslik_vorm: Füüsilisest isikust ettevõtja, Osaühing, Usaldusühing, Aktsiaselts and Täisühing.
+		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]$`), legalForm{"FIE", "fie", "", 24541}, []legalForm{
+			{"OÜ", "ou", "OÜ", 288168}, {"UÜ", "uu", "UÜ", 3514}, {"AS", "as", "AS", 1901}, {"TÜ", "tu", "TÜ", 1028},
+		}},
+		dateLayout: "02.01.2006",
+		emailFold:  strings.NewReplacer("ä", "a", "õ", "o", "ö", "o", "ü", "u", "š", "s", "ž", "z"),
+		phone:      &phone{"+372", "", estonianFixedPhone, nil},
 	},
 	{
 		name:     "fi_FI",
