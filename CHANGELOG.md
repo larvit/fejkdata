@@ -109,8 +109,9 @@ with its replacement, and each removed path, column or flag.
   `misc.ip` still draws an address a real host may hold, now through `misc.ip.wide4` and `.wide6`, so a seed draws
   a different `misc.ip` than before.
 - `url.reserved` and `email.reserved` in `da_DK`, `de_DE`, `en_US`, `fi_FI`, `nb_NO`, `nn_NO` and `sv_SE`, and
-  `fr_FR.email.reserved`, which draw only `example.com`, `example.org` and `example.net`, or a subdomain of one, so no
-  value reaches a real site or mailbox. Each of those `url`s, and `en_US.email` and `sv_SE.email`, still draw
+  `et_EE.email.reserved` and `fr_FR.email.reserved`, which draw only `example.com`, `example.org` and
+  `example.net`, or a subdomain of one, so
+  no value reaches a real site or mailbox. Each of those `url`s, and `en_US.email` and `sv_SE.email`, still draw
   registrable domains such as `example.se` and `example.io` by default, in the same shares as before. A seed draws a
   different `url` in each of the seven locales, and a different `email` in `en_US` and `sv_SE`, than before.
 - `PathName` returns the final name of a path, selectors left out, such as `currency` for `misc.currency[US Dollar]`; the

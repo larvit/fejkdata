@@ -20,5 +20,6 @@
       "n": [{ "format": "", "weight": 2 }, "7", "14", "42", "69", "99", "123", "420", "1337", "2000", "9000"]
     }
   ],
-  "domain": ["demo.example.net", "dev.example.com", "example.com", "example.net", "example.org", "mail.example.com", "mail.example.org", "post.example.com", "test.example.org", "webmail.example.net"]
+  "domain": ["demo.example.net", "dev.example.com", "example.com", "example.net", "example.org", "mail.example.com", "mail.example.org", "post.example.com", "test.example.org", "webmail.example.net"],
+  "reserved": "{/et_EE.email.local}@{/et_EE.email.domain}"
 }
