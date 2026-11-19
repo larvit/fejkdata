@@ -3,31 +3,32 @@
     data-import/company-ee.py [--register URL_OR_FILE] [--cache DIR] [--out DIR]
 
 The script reads the register's basic data (a 19 MB zip) for counts and names, and writes no row of it. It also
-reads the shipped et_EE first and last names. It counts the legal persons entered into the register, those whose
-ettevotja_staatus is R, and not those in liquidation or bankruptcy. company.json weighs a legal form by its legal
-persons. The forms are FIE, OÜ, AS, UÜ and TÜ; the non-profits, the apartment associations, the co-operatives and
+reads the shipped et_EE first and last names. It counts the businesses entered into the register, those whose
+ettevotja_staatus is R, and not those in liquidation or bankruptcy. company.json weighs a legal form by its
+businesses. The forms are FIE, OÜ, AS, UÜ and TÜ; the non-profits, the apartment associations, the co-operatives and
 every other form aren't drawn. An FIE is a person, and most of the register's FIE names are a first and a last
 name alone, so an FIE's name is one person's and no shape is counted.
 
-A name of the other forms carries its form, as the abbreviation, such as OÜ, or the word, such as osaühing, in any
-case, as its last or its first word. company.json puts the abbreviation after a name as often as the form's names
-end in it, and before as often as they open with it. A name carrying neither isn't counted.
+A name of the other forms is counted where its last or first word spells its form, as the abbreviation, such as
+OÜ, or the word, such as osaühing, in upper or lower case, with or without a trailing dot. company.json puts the
+abbreviation after a name as often as the form's names end in it, and before as often as they open with it.
 
-A shape is the kind of each word of a name, its form left out: a person's first and last name, a last name, a
+A shape is the kind of each word of a name, its legal words left out: a person's first and last name, a last name, a
 first name, a number, `ja`, `&`, a trade word, or any other, which draws a coined word. A last or first name is
 one in the shipped et_EE tables, and a word that is both is a last name at the end of a name. A first name before
 a last name is one person, drawn from et_EE.person so that the last name is of the first name's sex. A shape
 ships when it is at least company_names.SHARE_MIN of the form's names and opens with no number, `ja` or `&`.
 
 company-word.tsv holds the trade words, each with its count and its most common spelling, by the rule of
-company_names.py over the names of OÜ, AS, UÜ and TÜ, with a form spread of one: osaühingud hold 97 in 100 of
+company_names.py over the names of OÜ, AS, UÜ and TÜ, with a form spread of one: OÜ names are 97.8 in 100 of
 those names, so few trade words reach FORM_MIN names in a second form.
 
-company-coined.tsv holds the coined words, each with the number of names that carry it: the words of four
-letters or more that COINED_MIN or more names carry and at least COINED_ENDS_MIN of them end, none of them a name
-or a trade word. Most of the register's names are one word no other name carries, so a coined word is a common
-word of the names, not a root that opens them. COINED_MIN keeps out the brand of a group's project companies,
-such as Hepsor's. A coined word takes its most common spelling, so a name drawn with it may be a real company's.
+company-coined.tsv holds the coined words, each with the number of names that carry it. A coined word has four
+letters or more, is no name or trade word, is carried by COINED_MIN or more names, and ends at least a
+COINED_ENDS_MIN share of them. Nearly half of the register's names are one word no other name carries, and a
+coined word is a common word of the names, not a root that opens them. COINED_MIN keeps out the brand of a
+group's project companies, such as Hepsor's. A coined word takes its most common spelling, so a name drawn with it
+may be a real company's.
 """
 import argparse
 import csv
@@ -80,7 +81,7 @@ class Words(NamedTuple):
 
 
 def register(data: bytes) -> tuple[Counter[str], list[tuple[str, str]]]:
-    """(legal persons per form, (form, name) of every one of NAMED_FORMS), of those entered into the register."""
+    """The businesses entered into the register, counted by form, and the form and name of each whose form is in NAMED_FORMS."""
     counts: Counter[str] = Counter()
     names: list[tuple[str, str]] = []
     with zipfile.ZipFile(io.BytesIO(data)) as z, z.open(z.namelist()[0]) as f:
@@ -150,7 +151,7 @@ def count_names(names: Iterable[tuple[str, str]], words: Words, trade: Collectio
 
 
 def shipped(shapes: Mapping[Shape, int]) -> list[tuple[Shape, int]]:
-    """The common shapes that open with a word."""
+    """The common shapes that open with no number, `ja` or `&`."""
     return [(s, c) for s, c in common(shapes) if s[0] != "N" and s[0] not in CONNECTING_WORDS]
 
 
