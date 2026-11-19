@@ -703,8 +703,8 @@ The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date
 
 `first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
 SCB, Statistics Norway, DVV, Statistics Finland, INSEE, the SSA and the Census Bureau, for Germany from the city of Munich's newborn names and a
-language model's recall, and for Denmark from Statistics Denmark's top 20 and a
-language model's recall, for Latvia's first names from PMLP's register statistics, and for Estonia's names and Latvia's last names from a language model's recall alone (the weights of the recalled names are estimates). `sex` counts the people of each
+language model's recall, for Denmark from Statistics Denmark's top 20 and a
+language model's recall, for Latvia's first names from the Office of Citizenship and Migration Affairs' register statistics, and for Estonia's names and Latvia's last names from a language model's recall alone (the weights of the recalled names are estimates). `sex` counts the people of each
 sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026, Germany's, Estonia's, Latvia's and France's on 1 January 2025 (Eurostat) and
 the United States' on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
@@ -1219,12 +1219,13 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 `Dr.` and `prof.`, drawn whatever the sex. `{/lv_LV.person}` renders e.g. `Anna Bērziņa`.
 
 `first-name` holds the 2,000 commonest first given names of each sex, each weighted by the persons bearing it in the
-Natural Persons Register, from the Office of Citizenship and Migration Affairs' "Personu vārdi" of 1 July 2026 (CC0 1.0,
-"Avots: Pilsonības un migrācijas lietu pārvalde"). The register holds foreigners' names too, so some names are not Latvian.
-The office publishes no last names, so `last-name` is a language model's recall of names common in Latvia: the commoner ones
+Natural Persons Register, from the Office of Citizenship and Migration Affairs' "Personu vārdi" of 1 July 2026 (CC0 1.0). A
+program showing the first names credits "Avots: Pilsonības un migrācijas lietu pārvalde". The register holds foreigners' names
+too, so some names are not Latvian.
+The office's open data holds first names only, so `last-name` is a language model's recall of names common in Latvia: the commoner ones
 are ranked, each weighing 100000 over the square root of its rank, and the rarer ones share one weight. These weights
-are estimates. `last-name` links to `sex` so that a woman bears the feminine form of a last name: `Bērziņa` where a man
-bears `Bērziņš`, `Balode` for `Balodis`, and the same name where it ends alike for both. `lv_LV.sex` carries Latvia's
+are estimates. `last-name` links to `sex` so that a woman bears the feminine form of a last name, such as `Bērziņa` for
+`Bērziņš` and `Balode` for `Balodis`; a name such as `Liepa` is the same for both. `lv_LV.sex` carries Latvia's
 population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the sex counts credits "Source:
 Eurostat".
 

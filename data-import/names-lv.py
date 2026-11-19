@@ -5,7 +5,7 @@
 - The first names are PMLP's "Personu vārdi" with the sex of the bearers (CC0 1.0, "Avots: Pilsonības un migrācijas lietu pārvalde",
   data.gov.lv), the file `Vardi-dz`: each person counts once, under the first of their given names. A person of no stated sex, and a
   label that is not a name in letters, as `tsv.NAME` says, are dropped. The register holds the foreigners' names too.
-- PMLP publishes no last names, so each is a language model's recall of a name common in Latvia.
+- PMLP's open data holds first names only and no other open file of Latvian last names was found, so each is a language model's recall of a name common in Latvia.
   The list holds the commoner names from the most to the least common, then a line `=`, then the rarer ones, sorted. A commoner
   name has the count 100000 over the square root of its rank, and the rarer ones share the count of the last rank.
   These counts are estimates, not published figures.
