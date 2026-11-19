@@ -200,7 +200,7 @@ var shippedLocales = []shippedLocale{
 		names:  &names{map[string]string{"Anna": "f", "Līga": "f", "Jānis": "m", "Mārtiņš": "m"}, nil},
 		person: &person{map[string]string{"f": "sieviete", "m": "vīrietis"}, []string{"Dr.", "prof."}},
 		// The Register of Enterprises' open data of 19 November 2026, the merchants of the Commercial Register
-		// with no termination date, by type: SIA, IK, AS, PS and KS. A name quotes the rest of it, as `SIA "Alfa"`.
+		// with no termination date, by type: SIA, IK, AS, PS and KS. Most names quote the rest after the form, as `SIA "Alfa"`.
 		company: &company{regexp.MustCompile(`^["\p{Lu}][\p{L}\p{N} &'".-]*[\p{L}\p{N}"]$`), legalForm{}, []legalForm{
 			{"SIA", "sia", "SIA", 140485}, {"IK", "ik", "IK", 12146}, {"AS", "as", "AS", 765}, {"PS", "ps", "PS", 535}, {"KS", "ks", "KS", 166},
 		}},
