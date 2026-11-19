@@ -698,7 +698,7 @@ names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As f
 and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
 
 `url` and `email` carry a path `reserved` in `da_DK`, `de_DE`, `en_US`, `fi_FI`, `nb_NO`, `nn_NO` and `sv_SE`, and
-`fr_FR`'s `email` carries one. Each `reserved` draws only domains nobody can register: `example.com`,
+the `email` of `et_EE` and `fr_FR` carries one. Each `reserved` draws only domains nobody can register: `example.com`,
 `example.org` and `example.net`, or a subdomain of one, which [RFC 2606](https://www.rfc-editor.org/rfc/rfc2606)
 reserves, so `{/sv_SE.url.reserved}` never reaches a real site and `{/sv_SE.email.reserved}` never a real mailbox.
 The default of each of those `url`s also draws domains anyone may register, such as `example.se` and `example.io`, and so
