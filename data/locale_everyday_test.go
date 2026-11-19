@@ -131,3 +131,52 @@ func TestShippedUsernamesAreDrawnInMoreThanOneShape(t *testing.T) {
 		}
 	})
 }
+
+type usernameGenders struct {
+	women, men         []string
+	womanEnds, manEnds *regexp.Regexp
+}
+
+var usernameGenderLocales = map[string]usernameGenders{
+	"lt_LT": {
+		[]string{"aiste", "dovile", "egle", "gabija", "gintare", "ieva", "indre", "justina", "laura", "monika", "rasa", "ruta", "simona"},
+		[]string{"algirdas", "andrius", "darius", "giedrius", "jonas", "kestutis", "lukas", "mantas", "marius", "paulius", "rokas", "tomas", "vytautas", "zilvinas"},
+		regexp.MustCompile(`(aite|iene|yte|ute)$`), regexp.MustCompile(`(as|is|us|ys)$`),
+	},
+	"lv_LV": {
+		[]string{"agnese", "anna", "dace", "elina", "evija", "ilze", "inese", "laura", "liga", "madara", "olga", "sandra", "santa", "zane"},
+		[]string{"aleksandrs", "arturs", "edgars", "gatis", "janis", "juris", "kristaps", "martins", "maris", "peteris", "rihards", "toms", "valdis"},
+		regexp.MustCompile(`[ae]$`), regexp.MustCompile(`s$`),
+	},
+}
+
+func TestLithuanianAndLatvianUsernamesBearALastNameOfTheFirstNamesGender(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(3))
+	for locale, g := range usernameGenderLocales {
+		t.Run(locale, func(t *testing.T) {
+			var women, men int
+			fejktest.EachDraw(4000, func() string { return fejktest.Fake(t, f, locale+".username") }, func(got string) {
+				name := strings.TrimRight(got, "0123456789")
+				for _, w := range g.women {
+					if rest, ok := strings.CutPrefix(name, w); ok && strings.TrimLeft(rest, "._") != "" {
+						women++
+						if !g.womanEnds.MatchString(rest) {
+							t.Fatalf("%s drew %q, a woman's first name with no feminine last name", locale, got)
+						}
+					}
+				}
+				for _, m := range g.men {
+					if rest, ok := strings.CutPrefix(name, m); ok && strings.TrimLeft(rest, "._") != "" {
+						men++
+						if !g.manEnds.MatchString(rest) {
+							t.Fatalf("%s drew %q, a man's first name with no masculine last name", locale, got)
+						}
+					}
+				}
+			})
+			if women == 0 || men == 0 {
+				t.Errorf("%s drew %d usernames of a woman's name and %d of a man's in 4000 draws, want some of each", locale, women, men)
+			}
+		})
+	}
+}
