@@ -1,6 +1,7 @@
 package data_test
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -146,4 +147,24 @@ func TestEstonianIsikukoodAgreesWithABoundSex(t *testing.T) {
 	if !seen["m"] || !seen["f"] {
 		t.Errorf("500 codes drew the sexes %v, want both", seen)
 	}
+}
+
+var (
+	estonianFixed  = regexp.MustCompile(`^(3[23589]|4[3-8]|6[0-8])\d \d{4}$`)
+	estonianMobile = regexp.MustCompile(`^5\d{3} \d{4}$`)
+)
+
+func estonianFixedPhone(t *testing.T) func(n string) bool {
+	t.Helper()
+	return estonianFixed.MatchString
+}
+
+// The Estonian numbering plan, Annex to the minister's regulation no. 25 of 21 May 2018: 7-digit fixed numbers
+// in 32, 33, 35, 38, 39, 43-48 and 60-68, and 8-digit mobile numbers in 50-59.
+func TestShippedEstonianPhoneLiesInARangeTheNumberingPlanAllocates(t *testing.T) {
+	eachPhone(t, "et_EE", func(n string) {
+		if !estonianFixed.MatchString(n) && !estonianMobile.MatchString(n) {
+			t.Fatalf("phone %q is neither a fixed number in 32 33 35 38 39 43-48 60-68 nor a mobile 5xxx xxxx", n)
+		}
+	})
 }

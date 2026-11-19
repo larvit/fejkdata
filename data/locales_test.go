@@ -148,6 +148,7 @@ var shippedLocales = []shippedLocale{
 		name:   "et_EE",
 		names:  &names{map[string]string{"Liis": "f", "Kristiina": "f", "Andres": "m", "Toomas": "m"}, nil},
 		person: &person{map[string]string{"f": "naine", "m": "mees"}, []string{"dr", "prof"}},
+		phone:  &phone{"+372", "", estonianFixedPhone, nil},
 	},
 	{
 		name:     "fi_FI",
