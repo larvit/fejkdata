@@ -39,11 +39,12 @@ class Feminine(unittest.TestCase):
 
 
 class Lasts(unittest.TestCase):
-    def test_a_recalled_last_name_has_a_row_under_m_and_one_per_feminine_form_under_f_with_one_count(self) -> None:
+    def test_a_recalled_last_name_has_a_row_under_m_and_its_count_shared_by_the_feminine_forms_under_f(self) -> None:
         rows = {(str(r["name"]), str(r["sex"])): int(str(r["count"])) for r in names_lt.lasts()}
         self.assertEqual(rows[("Kazlauskas", "m")], 100000)
-        self.assertEqual(rows[("Kazlauskaitė", "f")], 100000)
-        self.assertEqual(rows[("Kazlauskienė", "f")], 100000)
+        self.assertEqual(rows[("Kazlauskaitė", "f")], 50000)
+        self.assertEqual(rows[("Kazlauskienė", "f")], 50000)
+        self.assertEqual(rows[("Petrauskaitė", "f")], 35355)
         self.assertEqual(rows[("Kovalenko", "m")], rows[("Kovalenko", "f")])
         self.assertNotIn(("Kazlauskas", "f"), rows)
 
