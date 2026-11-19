@@ -213,6 +213,12 @@ func ValidIsikukood(s string) bool {
 	return int(s[10]-'0') == isikukoodCheckDigit(s)
 }
 
+// ValidAsmensKodas is the check of a Lithuanian personal code, which python-stdnum's lt.asmens takes
+// from ee.ik: the structure and the check digit of an Estonian one. The code stays valid for a
+// dated code only, so one with a month or day of 00, or a first digit 9, which the Lithuanian
+// Wikipedia describes, is refused.
+func ValidAsmensKodas(s string) bool { return ValidIsikukood(s) }
+
 func isikukoodCheckDigit(s string) int {
 	sum := func(weights string) int {
 		n := 0
