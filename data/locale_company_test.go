@@ -30,7 +30,14 @@ func (l shippedLocale) abbreviationIn(name string) string {
 	return ""
 }
 
-func (c *company) forms() []legalForm { return append([]legalForm{c.bare}, c.marked...) }
+func (c *company) hasBare() bool { return c.bare.code != "" }
+
+func (c *company) forms() []legalForm {
+	if !c.hasBare() {
+		return c.marked
+	}
+	return append([]legalForm{c.bare}, c.marked...)
+}
 
 func eachCompany(t *testing.T, locale string, check func(got string)) {
 	t.Helper()
@@ -52,7 +59,7 @@ func TestLocaleCompanyIsANameThatMayCarryALegalForm(t *testing.T) {
 	eachLocale(t, hasCompany, func(t *testing.T, l shippedLocale) {
 		t.Parallel()
 		eachCompany(t, l.name, func(got string) {
-			if !l.company.name.MatchString(got) || strings.HasSuffix(got, " "+l.company.bare.code) {
+			if !l.company.name.MatchString(got) || l.company.hasBare() && strings.HasSuffix(got, " "+l.company.bare.code) {
 				t.Fatalf("company %q is not a name, optionally carrying a legal form, that doesn't end in %q", got, l.company.bare.code)
 			}
 		})
@@ -85,7 +92,7 @@ func TestLocaleCompanyCarriesALegalFormAsOftenAsItsSourceCountsTheForm(t *testin
 }
 
 func TestLocaleBareCompanyPathDrawsANameCarryingNoLegalForm(t *testing.T) {
-	eachLocale(t, hasCompany, func(t *testing.T, l shippedLocale) {
+	eachLocale(t, func(l shippedLocale) bool { return hasCompany(l) && l.company.hasBare() }, func(t *testing.T, l shippedLocale) {
 		f := shipped(t, fejkdata.WithSeed(7))
 		path := l.name + ".company." + l.company.bare.path
 		fejktest.EachDraw(100, func() string { return fejktest.Fake(t, f, path) }, func(got string) {
