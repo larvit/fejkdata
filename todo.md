@@ -249,19 +249,19 @@ Trap: `load.Paths` also feeds a choice's shared paths (`sharedPaths`), which res
 Audit every shipped category for fields only other fields read, and move each into `let`. Revise the decision "A record's `let` fields write no column", which says `let` changes nothing outside a record's top level. Before 1.0.0, dropping listed paths is a minor, so 0.7.0 allows it; the paths item 15 added never ship listed. Add the `CHANGELOG.md` entry under `Unreleased`, and re-pin the shape in its own commit.
 
 Touches:
-- internal/engine/load/path.go: `Paths`, `templatePaths`
-- internal/engine/draw.go: `List` (small)
-- internal/engine/index.go (small)
-- internal/engine/load/path_test.go
-- loading_test.go: `TestList`
-- data/misc/ip.json
-- data/misc/ipv6.json
-- data/misc/mac.json
-- data/misc/version.json
-- data/misc/.fejkdata.json
-- data/sv_SE/.fejkdata.json
-- testdata/shipped_shape.txt
-- README.md: `Let`, `Options and fields` (small)
+- `internal/engine/load/path.go`: `Paths`, `templatePaths`
+- `internal/engine/draw.go`: `List` (small)
+- `internal/engine/index.go`
+- `internal/engine/load/path_test.go`
+- `loading_test.go`: `TestList`
+- `data/misc/ip.json`
+- `data/misc/ipv6.json`
+- `data/misc/mac.json`
+- `data/misc/version.json`
+- `data/misc/.fejkdata.json`
+- `data/sv_SE/.fejkdata.json`
+- `testdata/shipped_shape.txt`
+- `README.md`: `Let`, `Options and fields` (small)
 
 ### 499. Add `et_EE`'s national personal id, the isikukood, with its check digits.
 
