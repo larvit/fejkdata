@@ -528,12 +528,6 @@ class Commands(unittest.TestCase):
 
 
 class Main(unittest.TestCase):
-	def test_last_prints_the_forge_s_latest_release(self) -> None:
-		with mock.patch.object(publish_release, "request", return_value={"tag_name": "v0.1.0"}), \
-			redirect_stdout(io.StringIO()) as out:
-			self.assertEqual(patch_release.main(["last"]), 0)
-		self.assertEqual(out.getvalue(), "v0.1.0\n")
-
 	def test_a_failing_step_exits_2_with_its_message(self) -> None:
 		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
 			mock.patch.object(patch_release, "cut", side_effect=ValueError("a step failed")), \

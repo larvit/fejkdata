@@ -154,17 +154,6 @@ class FileItems(unittest.TestCase):
 		self.assertEqual(filed, [7])
 		self.assertIn("|---|---|---|---|---|---|---|---|---|---|---|---|\n| 7 | 0.1.1 |  | security |", todo)
 
-	def test_the_repositorys_plan_takes_an_item_in_its_own_shape(self) -> None:
-		path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "todo.md")
-		with open(path, encoding="utf-8") as f:
-			plan = f.read()
-		todo, filed = file(plan, *STDLIB)
-		header = next(line for line in plan.splitlines() if line.startswith("| ID |"))
-		row = rows(todo)[0]
-		self.assertEqual(row.count("|"), header.count("|"))
-		self.assertRegex(row, rf"^\| {filed[0]} \| .* \| 0\.0 \|$")
-		self.assertIn(f"`Next ID = {filed[0] + 1}`", todo)
-
 
 class ReleaseFor(unittest.TestCase):
 	def test_a_next_release_that_is_no_patch_gets_the_patch(self) -> None:
@@ -187,6 +176,12 @@ class Retarget(unittest.TestCase):
 	def test_a_blocked_row_under_a_patch_already_cut_moves_to_the_patch(self) -> None:
 		todo = TODO.replace("| 5 | 0.2.0 |  |", "| 5 | 0.1.1 | 3, 4 |")
 		self.assertIn("\n| 5 | 0.1.2 | 3, 4 |", file_vulnerabilities.retarget(todo, "0.1.2"))
+
+	def test_a_row_of_another_table_stays(self) -> None:
+		todo = TODO.replace("## Items", "| 1 | 0.1.1 |\n\n## Items").replace("| 5 | 0.2.0 |", "| 5 | 0.1.1 |")
+		moved = file_vulnerabilities.retarget(todo, "0.1.2")
+		self.assertIn("| 1 | 0.1.1 |\n\n## Items", moved)
+		self.assertIn("\n| 5 | 0.1.2 |", moved)
 
 	def test_a_row_under_an_older_minor_stays(self) -> None:
 		todo = TODO.replace("| 5 | 0.2.0 |", "| 5 | 0.1.0 |")
@@ -228,12 +223,7 @@ class Resolve(unittest.TestCase):
 		self.assertIn("### 5. Add a thing.", todo)
 		self.assertEqual(
 			fixed,
-			[
-				(
-					"The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0001 (CVE-2026-1),"
-					" GO-2026-0002 (GHSA-2222, CVE-2026-2)."
-				)
-			],
+			[("Go 1.27.1", "GO-2026-0001 (CVE-2026-1), GO-2026-0002 (GHSA-2222, CVE-2026-2)")],
 		)
 
 	def test_an_item_with_any_vulnerability_left_stays(self) -> None:
@@ -251,15 +241,12 @@ class Resolve(unittest.TestCase):
 	def test_a_summary_holding_a_colon_leaves_the_line_s_ids_whole(self) -> None:
 		planned, _ = file(TODO, ("GO-2026-0005", "stdlib", "v1.27.1", "v1.27.2"))
 		_, fixed = file_vulnerabilities.resolve(planned, [])
-		self.assertEqual(fixed, ["The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0005."])
+		self.assertEqual(fixed, [("Go 1.27.1", "GO-2026-0005")])
 
 	def test_a_clean_report_resolves_every_filed_item_and_no_other(self) -> None:
 		todo, fixed = file_vulnerabilities.resolve(self.planned, [])
 		self.assertEqual(rows(todo), rows(TODO))
-		self.assertEqual(
-			fixed[1],
-			"fejkdata no longer requires `golang.org/x/text` v0.3.0, with its known vulnerabilities: GO-2026-0003.",
-		)
+		self.assertEqual(fixed[1], ("`golang.org/x/text` v0.3.0", "GO-2026-0003"))
 
 
 class Main(unittest.TestCase):
@@ -272,17 +259,22 @@ class Main(unittest.TestCase):
 		with open("todo.md", "w", encoding="utf-8") as f:
 			f.write(TODO)
 
-	def run_main(self, *argv: str, findings: tuple[Finding, ...] = ()) -> tuple[int, str, str, str]:
+	def run_main(self, *argv: str, findings: tuple[Finding, ...] = ()) -> tuple[int, str, str]:
 		with open("report.json", "w", encoding="utf-8") as f:
 			f.write(report(*findings))
 		out, err = io.StringIO(), io.StringIO()
 		with redirect_stdout(out), redirect_stderr(err):
 			code = file_vulnerabilities.main(list(argv))
-		with open("todo.md", encoding="utf-8") as f:
-			return code, out.getvalue(), err.getvalue(), f.read()
+		return code, out.getvalue(), err.getvalue()
 
-	def plan(self, findings: tuple[Finding, ...] = ()) -> tuple[int, str, str, str]:
-		return self.run_main("plan", "report.json", "todo.md", "--patch", "0.1.1", findings=findings)
+	def plan(self, findings: tuple[Finding, ...] = ()) -> tuple[list[tuple[str, str]], str, str]:
+		with open("report.json", "w", encoding="utf-8") as f:
+			f.write(report(*findings))
+		err = io.StringIO()
+		with redirect_stderr(err):
+			fixed = file_vulnerabilities.plan("report.json", "todo.md", "0.1.1")
+		with open("todo.md", encoding="utf-8") as f:
+			return fixed, err.getvalue(), f.read()
 
 	def test_check_passes_a_clean_report(self) -> None:
 		self.assertEqual(self.run_main("check", "report.json")[:2], (0, "No known vulnerabilities\n"))
@@ -294,46 +286,41 @@ class Main(unittest.TestCase):
 		)
 		self.assertEqual(self.run_main("check", "report.json", findings=TEXT)[:2], (1, "1 known vulnerability: GO-2026-0003\n"))
 
-	def test_plan_files_a_finding_under_the_patch_and_prints_no_fix(self) -> None:
-		code, out, err, todo = self.plan(STDLIB)
-		self.assertEqual((code, out, err), (0, "", "todo.md item 7 plans the fix.\n"))
+	def test_plan_files_a_finding_under_the_patch_and_names_no_fix(self) -> None:
+		fixed, err, todo = self.plan(STDLIB)
+		self.assertEqual((fixed, err), ([], "todo.md item 7 plans the fix.\n"))
 		self.assertIn("\n| 7 | 0.1.1 |  | security |", todo)
 
-	def test_plan_drops_a_fixed_item_and_prints_its_changelog_line(self) -> None:
+	def test_plan_drops_a_fixed_item_and_names_what_it_fixed(self) -> None:
 		self.plan(STDLIB)
-		code, out, err, todo = self.plan()
-		self.assertEqual((code, err), (0, "todo.md drops 1 fixed item.\n"))
-		self.assertTrue(out.startswith("The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0001"))
+		fixed, err, todo = self.plan()
+		self.assertEqual(err, "todo.md drops 1 fixed item.\n")
+		self.assertEqual(fixed, [("Go 1.27.1", "GO-2026-0001 (CVE-2026-1), GO-2026-0002 (GHSA-2222, CVE-2026-2)")])
 		self.assertNotIn("\n| 7 |", todo)
 
 	def test_plan_drops_nothing_while_any_vulnerability_is_known(self) -> None:
 		self.plan((*STDLIB, *TEXT))
-		code, out, err, todo = self.plan(TEXT)
-		self.assertEqual((code, out, err), (0, "", "Nothing to plan.\n"))
+		fixed, err, todo = self.plan(TEXT)
+		self.assertEqual((fixed, err), ([], "Nothing to plan.\n"))
 		self.assertIn("\n| 7 |", todo)
 
 	def test_plan_on_a_clean_report_with_nothing_filed_changes_nothing(self) -> None:
-		self.assertEqual(self.plan()[:3], (0, "", "Nothing to plan.\n"))
+		self.assertEqual(self.plan()[:2], ([], "Nothing to plan.\n"))
 
-	def test_fixed_between_prints_what_the_newer_report_lacks(self) -> None:
-		with open("older.json", "w", encoding="utf-8") as f:
-			f.write(report(*STDLIB))
-		code, out, _, _ = self.run_main("fixed-between", "older.json", "report.json")
-		self.assertEqual((code, out), (0, "GO-2026-0001 (CVE-2026-1), GO-2026-0002 (GHSA-2222, CVE-2026-2)\n"))
-
-	def test_a_plan_it_cannot_read_exits_2(self) -> None:
+	def test_a_plan_it_cannot_read_is_refused(self) -> None:
 		with open("todo.md", "w", encoding="utf-8") as f:
 			f.write(TODO.replace("`Next ID = 7`", ""))
-		self.assertEqual(self.plan(STDLIB)[:3], (2, "", "todo.md has no `Next ID = N` line to number the item by\n"))
+		with self.assertRaisesRegex(ValueError, "todo.md has no `Next ID = N` line to number the item by"):
+			self.plan(STDLIB)
 
 	def test_a_missing_file_exits_2(self) -> None:
-		code, _, err, _ = self.run_main("check", "missing.json")
+		code, _, err = self.run_main("check", "missing.json")
 		self.assertEqual((code, err), (2, "cannot read missing.json: No such file or directory\n"))
 
-	def test_a_mistyped_flag_exits_2_with_the_usage(self) -> None:
-		code, _, err, _ = self.run_main("plan", "report.json", "todo.md", "--ptach", "0.1.1")
+	def test_an_unknown_command_exits_2_with_the_usage(self) -> None:
+		code, _, err = self.run_main("plan", "report.json", "todo.md", "--patch", "0.1.1")
 		self.assertEqual(code, 2)
-		self.assertIn("file_vulnerabilities.py plan", err)
+		self.assertIn("file_vulnerabilities.py check", err)
 
 
 if __name__ == "__main__":
