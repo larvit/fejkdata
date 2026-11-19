@@ -1,5 +1,6 @@
 {
 	"index": {
+		"et_EE.color": {"paths":[""]},
 		"et_EE.company": {"paths":["","as","as.name","fie","fie.name","legal","ou","ou.name","registered","registered.legal","tu","tu.name","uu","uu.name"]},
 		"et_EE.company-coined": {"paths":["","count","word"]},
 		"et_EE.company-word": {"paths":["","count","word"]},
@@ -8,11 +9,17 @@
 		"et_EE.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"et_EE.isikukood": {"paths":["","birth"]},
 		"et_EE.last-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"et_EE.month": {"paths":["","code","name"]},
 		"et_EE.person": {"paths":["","first","last","prefix","sex"]},
 		"et_EE.phone": {"paths":["","international","national"]},
+		"et_EE.price": {"paths":[""]},
 		"et_EE.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","last-name","last-name.count","last-name.name","last-name.sex","name","sex-digit","sex-digit.digit","sex-digit.sex"]},
 		"et_EE.sex-digit": {"parent":"sex","paths":["","digit","sex"]},
-		"et_EE.title": {"paths":["","name","share"]}
+		"et_EE.time": {"paths":[""]},
+		"et_EE.title": {"paths":["","name","share"]},
+		"et_EE.url": {"paths":["","host","path","reserved"]},
+		"et_EE.username": {"paths":["","n"]},
+		"et_EE.weekday": {"paths":["","code","name"]}
 	},
 	"namespace": "et_EE"
 }

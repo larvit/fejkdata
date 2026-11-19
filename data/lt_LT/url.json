@@ -1,0 +1,19 @@
+{
+  "format": "https://{host}{path}",
+  "reserved": "https://{/lt_LT.url.reserved-host}{/lt_LT.url.path}",
+  "host": [{ "format": "{/lt_LT.url.reserved-host}", "weight": 7 }, "example.lt", "www.example.lt", "parduotuve.example.lt", "api.example.lt", "pastas.example.lt"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "tinklarastis.example.net", "parduotuve.example.com", "dokumentai.example.org", "naujienos.example.net"] },
+  "path": [
+    { "format": "", "weight": 2 },
+    {
+      "format": "/{seg}",
+      "seg": ["apie-mus", "produktai", "tinklarastis", "kontaktai", "pagalba", "straipsniai", "prisijungti", "naujienos", "pradzia", "paieska", "krepselis", "kasa", "taisykles", "privatumas", "kainos", "paslaugos", "imone", "karjera", "palaikymas", "paskyra", "nustatymai", "registruotis"]
+    },
+    {
+      "format": "/{seg}/{sub}",
+      "weight": 0.5,
+      "seg": ["tinklarastis", "produktai", "pagalba", "dokumentai", "kategorija"],
+      "sub": ["apzvalga", "pirmieji-zingsniai", "vadovas", "2024", "naujausi", "archyvas", "detales"]
+    }
+  ]
+}

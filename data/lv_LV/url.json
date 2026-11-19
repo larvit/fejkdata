@@ -1,0 +1,19 @@
+{
+  "format": "https://{host}{path}",
+  "reserved": "https://{/lv_LV.url.reserved-host}{/lv_LV.url.path}",
+  "host": [{ "format": "{/lv_LV.url.reserved-host}", "weight": 7 }, "example.lv", "www.example.lv", "veikals.example.lv", "api.example.lv", "pasts.example.lv"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "blogs.example.net", "veikals.example.com", "dokumenti.example.org", "zinas.example.net"] },
+  "path": [
+    { "format": "", "weight": 2 },
+    {
+      "format": "/{seg}",
+      "seg": ["par-mums", "produkti", "blogs", "kontakti", "palidziba", "raksti", "pieteikties", "jaunumi", "sakums", "meklesana", "grozs", "kase", "noteikumi", "privatums", "cenas", "pakalpojumi", "uznemums", "karjera", "atbalsts", "konts", "iestatijumi", "registreties"]
+    },
+    {
+      "format": "/{seg}/{sub}",
+      "weight": 0.5,
+      "seg": ["blogs", "produkti", "palidziba", "dokumenti", "kategorija"],
+      "sub": ["parskats", "pirmie-soli", "pamacibas", "2024", "jaunakie", "arhivs", "detalas"]
+    }
+  ]
+}

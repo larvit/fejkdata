@@ -39,12 +39,13 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Kilde: Danmarks Statistik"
 - Rebuild: `data-import/names-dk.py`
 
-## `da_DK/month.tsv` and 5 more
+## `da_DK/month.tsv` and 9 more
 
-- Files: `da_DK/month.tsv`, `de_DE/month.tsv`, `en_US/month.tsv`, `fi_FI/month.tsv`,
-  `nb_NO/month.tsv`, `nn_NO/month.tsv` and each `weekday.tsv` beside them
+- Files: `da_DK/month.tsv`, `de_DE/month.tsv`, `en_US/month.tsv`, `et_EE/month.tsv`, `fi_FI/month.tsv`,
+  `fr_FR/month.tsv`, `lt_LT/month.tsv`, `lv_LV/month.tsv`, `nb_NO/month.tsv`, `nn_NO/month.tsv` and each
+  `weekday.tsv` beside them
 - Source: [Unicode CLDR](https://github.com/unicode-org/cldr) 48.0.0, the Danish, German, English,
-  Finnish, Norwegian Bokmål and Nynorsk stand-alone full month and weekday names, through
+  Estonian, Finnish, French, Lithuanian, Latvian, Norwegian Bokmål and Nynorsk stand-alone full month and weekday names, through
   [cldr-json](https://github.com/unicode-org/cldr-json)
 - Licence: [Unicode License v3](https://www.unicode.org/license.txt)
 - Attribution: "Copyright © 2015-2024 Unicode, Inc."

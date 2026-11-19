@@ -683,12 +683,14 @@ What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is s
 `sv_SE.title[dr]` rather than inside a sex.
 
 `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`, `time`, `url`,
-`username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too, written as the country writes them:
+`username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too, and `et_EE`, `fr_FR`, `lt_LT` and
+`lv_LV` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`, written as the country writes them:
 
 | Locale | `price` | `time` |
 |---|---|---|
 | `da_DK` | `1.234,50 kr.` | `15.04` |
 | `de_DE` | `1.234,50 €` | `15:04` |
+| `et_EE`, `fr_FR`, `lt_LT`, `lv_LV` | `1 234,50 €` | `15:04` |
 | `fi_FI` | `1 234,50 €` | `15.04` |
 | `nb_NO`, `nn_NO` | `1 234,50 kr` | `15:04` |
 
@@ -697,8 +699,9 @@ language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `w
 names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As for `sv_SE`, `month` is selected by 1 to 12
 and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
 
-`url` and `email` carry a path `reserved` in `da_DK`, `de_DE`, `en_US`, `fi_FI`, `nb_NO`, `nn_NO` and `sv_SE`, and
-the `email` of `et_EE`, `fr_FR` and `lv_LV` carries one. Each `reserved` draws only domains nobody can register: `example.com`,
+The `url` of every locale that has one carries a path `reserved`, and so does the `email` of `da_DK`, `de_DE`, `en_US`,
+`et_EE`, `fi_FI`, `fr_FR`, `lv_LV`, `nb_NO`, `nn_NO` and `sv_SE`. Each `reserved` draws only domains nobody can register:
+`example.com`,
 `example.org` and `example.net`, or a subdomain of one, which [RFC 2606](https://www.rfc-editor.org/rfc/rfc2606)
 reserves, so `{/sv_SE.url.reserved}` never reaches a real site and `{/sv_SE.email.reserved}` never a real mailbox.
 The default of each of those `url`s also draws domains anyone may register, such as `example.se` and `example.io`, and so
@@ -980,7 +983,7 @@ may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, 
 
 ### `et_EE`
 
-`et_EE`, Estonian, carries `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `isikukood`, `last-name`, `person`, `phone`, `sex`, `sex-digit` and `title`. `sex` is `naine` and `mees`, `title` is
+`et_EE`, Estonian, carries `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `isikukood`, `last-name`, `month`, `person`, `phone`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `naine` and `mees`, `title` is
 `dr` and `prof`, drawn whatever the sex. `{/et_EE.person}` renders e.g. `Liis Tamm`.
 
 Both name tables are a language model's recall of names common in Estonia: the commoner ones of each list are
@@ -1165,7 +1168,7 @@ person's, so keep it out of anything that reaches a real system. To make one agr
 
 ### `fr_FR`
 
-`fr_FR`, French, carries `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `last-name`, `nir`, `nonzero-number`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex`, `sex-digit` and `title`. `sex` is
+`fr_FR`, French, carries `color`, `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `last-name`, `month`, `nir`, `nonzero-number`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is
 `femme` and `homme`, and `title` is `Dr` and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
 `department` prints the code INSEE gives a department in a NIR, such as `75`, `2A` or `974`, and `nonzero-number` a number
 from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from `001` to `999`. Both exist for `nir`.
@@ -1343,7 +1346,7 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 
 ### `lt_LT`
 
-`lt_LT`, Lithuanian, carries `asmens-kodas`, `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex`, `sex-digit` and `title`. `sex` is `moteris` and `vyras`, `title` is
+`lt_LT`, Lithuanian, carries `asmens-kodas`, `color`, `first-name`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `moteris` and `vyras`, `title` is
 `dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
 
 `first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
@@ -1412,7 +1415,7 @@ project's choice.
 
 ### `lv_LV`
 
-`lv_LV`, Latvian, carries `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `person`, `personas-kods`, `phone`, `sex` and `title`. `sex` is `sieviete` and `vīrietis`, `title` is
+`lv_LV`, Latvian, carries `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `person`, `personas-kods`, `phone`, `price`, `sex`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `sieviete` and `vīrietis`, `title` is
 `Dr.` and `prof.`, drawn whatever the sex. `{/lv_LV.person}` renders e.g. `Anna Bērziņa`.
 
 `first-name` holds the 2,000 commonest first given names of each sex, each weighted by the persons bearing it in the
