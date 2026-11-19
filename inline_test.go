@@ -246,3 +246,23 @@ func TestIsLonePath(t *testing.T) {
 		})
 	}
 }
+
+func TestPathName(t *testing.T) {
+	for path, want := range map[string]string{
+		"users":                               "users",
+		"sv_SE.person":                        "person",
+		"misc.currency[US Dollar (Next day)]": "currency",
+		"misc.territory[a.b].name":            "name",
+		"a..":                                 "a",
+		"a..b":                                "b",
+		"":                                    "",
+		"a.":                                  "",
+		"t[a":                                 "",
+	} {
+		t.Run(strconv.Quote(path), func(t *testing.T) {
+			if got := PathName(path); got != want {
+				t.Errorf("PathName(%q) = %q, want %q", path, got, want)
+			}
+		})
+	}
+}
