@@ -1786,7 +1786,7 @@ every locale. Its own words hold no `ae`, `oe` or `ue` spelling, so a local part
 
 ## A `let` field writes no column and is left out of the listing
 
-2026-11-08, Lilleman auf Larv; widened 2026-11-19 by item 521. Serves goal 4.7, read as: a template
+2026-11-08, Lilleman auf Larv; widened 2026-11-19. Serves goal 4.7, read as: a template
 that means one thing loads, goal 4.3, a name keeps one pick, and goal 4, a reader tells a path meant
 to be read from a scaffold.
 
