@@ -1162,18 +1162,21 @@ Renders e.g. `Cassie Duflot, 253059724702338`.
 
 #### French phone numbers
 
-`fr_FR.phone` is a mobile number ten times as often as a fixed one, and every one is a number that cannot
-reach anyone: `06 39 98 12 34`, or `01 99 00 12 34` where it is fixed. Its `national` field is that form, ten
-digits in pairs as France writes them, and its `international` field is `+33 6 39 98 12 34`, with the country
-code and without the 0 dialled before it.
+`fr_FR.phone` is a mobile number ten times as often as a fixed one, such as `06 39 98 12 34`, or
+`01 99 00 12 34` where it is fixed. Its `national` field is that form, ten digits in pairs as France writes
+them. Its `international` field is `+33 6 39 98 12 34`, with the country code and without the 0 that opens
+the national form.
 
-The Arcep's plan national de numérotation, in the version of 1 January 2026, keeps six six-digit roots for
-"œuvres audiovisuelles": it never allots a number behind them to anyone, and says they may be used as
-telephone numbers in fiction. `fr_FR.phone-fixed` holds the five fixed roots, `01 99 00`, `02 61 91`,
-`03 53 01`, `04 65 71` and `05 36 49`, and `fr_FR.phone-mobile` the one mobile root, `06 39 98`, each with its
-`ndc` (the root without the 0) and its `subscriber`, the last four digits. A row is selected by its root,
-`phone-fixed[01 99 00]`. A number is invented, not valid: no operator holds the roots, so none reaches
-anyone, and the plan keeps no other range for fiction.
+Every number is invented and reaches no one. The Arcep's plan national de numérotation, in the version of
+1 January 2026, lists six roots, the first six digits of a number, under "Numéros pour œuvres
+audiovisuelles": it doesn't allot them to anyone, and says they may be used as telephone numbers in fiction.
+`fr_FR.phone-fixed` holds the five fixed roots, `01 99 00`, `02 61 91`, `03 53 01`, `04 65 71` and
+`05 36 49`, and `fr_FR.phone-mobile` the mobile one, `06 39 98`. Each is a row's `area`, with its `ndc`, the
+root without the 0, and its `subscriber`, the last four digits. A row is selected by its `area`,
+`phone-fixed[01 99 00]`, and `{fr_FR.phone-fixed.area}` prints one.
+The tables hold 60,000 numbers, and the 10,000 mobile ones are ten draws in eleven, so a fixture of a few
+hundred rows repeats a number and a `UNIQUE` column needs a category of your own. No
+checker is promised to accept a number: the roots are no operator's.
 
 ### `geo`
 
