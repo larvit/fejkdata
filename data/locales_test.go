@@ -160,6 +160,11 @@ var shippedLocales = []shippedLocale{
 		phone:      &phone{"+358", "0", finnishFixedPhone, trunkAreaTables},
 	},
 	{
+		name:   "fr_FR",
+		names:  &names{map[string]string{"Nathalie": "f", "Isabelle": "f", "Jean": "m", "Michel": "m"}, []string{"Camille", "Dominique"}},
+		person: &person{map[string]string{"f": "femme", "m": "homme"}, []string{"Dr", "Pr"}},
+	},
+	{
 		name:     "nb_NO",
 		names:    &names{map[string]string{"Kari": "f", "Nora": "f", "Ola": "m", "Jakob": "m"}, []string{"Kim"}},
 		words:    definiteForms,
