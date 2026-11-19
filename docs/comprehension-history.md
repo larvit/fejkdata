@@ -2313,3 +2313,22 @@ Inherited architect, decided by:
 - Locality, Navigation: `cli/records.go:183` `defaultTable`: calls `fejkdata.PathName`, where 234e035 kept a second parser of path syntax
 - Locality: `struct.go:272` `structShape.fill`: each column carries its name and is checked against the drawn column's
 - Navigation: `release-tooling/file_vulnerabilities.py:1` the filer: everything CI runs for a release is in one folder
+
+## 2026-11-19T10:59:11Z, PR #432 at 0e3e00d6, against 6b757f80
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | worse | same | same |
+| Inherited architect | same | same | worse | same | same |
+
+Mid A, decided by:
+
+- Shape: `data/misc/ip.json:2` `misc.ip`: the 8:1 IPv4/IPv6 mix was one `"weight": 8` and is now eight repeated `wide4` alternatives to count, and `wide4` and `wide6` are explained only in the README.
+
+Inherited architect, decided by:
+
+- Shape: `data/misc/ipv6.json:2` `misc.ipv6`: it draws only RFC 3849 documentation addresses, while an ordinary IPv6 address now sits under the opaque `misc.ip.wide6`, so the name that promises IPv6 lies and the honest one is hidden.
+- Shape: `data/misc/ip.json:2` `misc.ip`: the 8:1 IPv4/IPv6 mix was one `"weight": 8` and is now eight repeated `wide4` alternatives to count, and `wide` is not explained in the data.
+- Shape: `data/fr_FR/nonzero-number.json:1` `fr_FR.nonzero-number`: a public category that exists only so `fr_FR.nir` and `department.tsv` can draw padded numbers.
