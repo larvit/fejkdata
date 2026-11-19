@@ -2,16 +2,17 @@
 
     data-import/names-lt.py [--cache DIR] [--out DIR] [--men URL_OR_FILE] [--women URL_OR_FILE]
 
-- The 50 commonest men's names and women's names keep the counts the Centre of Registers published for the people in
-  the Population Register, born since 1900 (CC BY 4.0, "Valstybės įmonė Registrų centras", data.gov.lt, the datasets
+- The 50 commonest men's names and women's names keep the counts the Centre of Registers published for the people born
+  since 1900 in the Population Register (CC BY 4.0, "Valstybės įmonė Registrų centras", data.gov.lt, the datasets
   `vyru_vardai` and `moteru_vardai`). The register holds the foreigners' names too, spelt as it spells them.
 - Every other first name is a language model's recall of a name common in Lithuania, and so is every last name: no open
-  file of Lithuanian last names was found, and the Centre publishes no first name below its top 50. A list holds the
-  commoner names from the most to the least common, then a line `=`, then the rarer ones. A commoner first name has the
-  smallest published count times 50 over its rank, and the rarer ones share the count of the last rank. A commoner last
-  name has the count 100000 over the square root of its rank, and the rarer ones share the count of the last rank.
-  These counts are estimates, not published figures.
-- A last name has a row under `m` and, under `f`, a row for each feminine form of it: the unmarried and the married.
+  file of Lithuanian last names was found, and the Centre publishes no count of a first name below its top 50. A list
+  holds the commoner names from the most to the least common, then a line `=`, then the rarer ones. A commoner first
+  name, ranked on from 51, has the smallest published count times 50 over its rank, and the rarer ones share the count
+  of the last rank. A commoner last name has the count 100000 over the square root of its rank, and the rarer ones share
+  the count of the last rank. These counts are estimates, not published figures.
+- A last name has a row under `m`. Under `f` it has a row for each feminine form of it, the unmarried and the married,
+  and the forms share its count.
 """
 import argparse
 import json
@@ -110,12 +111,12 @@ FEMININE = (("ius", "iūtė"), ("us", "utė"), ("ys", "ytė"), ("is", "ytė"), (
 
 
 def feminine(name: str) -> list[str]:
-    """The feminine forms of a masculine last name, the unmarried one first and the married one second; a Russian or Polish one takes its own language's ending, and any other is one form."""
+    """The feminine forms of a masculine last name, the unmarried one first and the married one second; a Russian or Polish one takes its own language's ending, and any other comes back unchanged."""
     for ending, unmarried in FEMININE:
         if name.endswith(ending):
             stem = name[: -len(ending)]
             return [stem + unmarried, stem + "ienė"]
-    if name.endswith(("ov", "ev")):
+    if name.endswith("ov"):
         return [name + "a"]
     if name.endswith("ski"):
         return [name[:-1] + "a"]
@@ -123,9 +124,9 @@ def feminine(name: str) -> list[str]:
 
 
 def lasts() -> list[dict[str, object]]:
-    """The rows (name, sex, count) of the last names: each recalled name under m, and each feminine form of it under f."""
+    """The rows (name, sex, count) of the last names: each recalled name under m, and its feminine forms under f, which share its count."""
     rows = recalled_names.weighted("last names", LAST_RECALLED, TOP)
-    return [{"name": form, "sex": sex, "count": n} for name, n in rows for sex, forms in (("f", feminine(name)), ("m", [name])) for form in forms]
+    return [{"name": form, "sex": sex, "count": n // len(forms)} for name, n in rows for sex, forms in (("f", feminine(name)), ("m", [name])) for form in forms]
 
 
 def main() -> None:
