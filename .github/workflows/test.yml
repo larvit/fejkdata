@@ -136,7 +136,6 @@ jobs:
       FORGE_REPOSITORY: ${{ github.repository }}
       FORGE_SERVER_URL: ${{ github.server_url }}
       FORGE_TOKEN: ${{ github.token }}
-      REPORT: ${{ runner.temp }}/vulnerabilities/report.json
     steps:
       - uses: actions/checkout@v7
         with:
@@ -146,7 +145,7 @@ jobs:
         id: report
         run: docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
       - name: Release nothing while the report names a known vulnerability
-        run: python3 release-tooling/file_vulnerabilities.py check "$REPORT"
+        run: python3 release-tooling/file_vulnerabilities.py check "$RUNNER_TEMP/vulnerabilities/report.json"
       - id: publish
         if: github.event_name == 'push'
         run: python3 release-tooling/publish_release.py
@@ -163,7 +162,7 @@ jobs:
         # Runs after a failed step too: a known vulnerability or a patch waiting for a human fails the job, and fixed items still move.
         if: ${{ !cancelled() && steps.report.outcome == 'success' }}
         run: |
-          python3 release-tooling/patch_release.py plan "$REPORT" todo.md CHANGELOG.md
+          python3 release-tooling/patch_release.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md
           python3 release-tooling/propose_plan.py
 
   packages:
