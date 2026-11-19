@@ -2287,3 +2287,29 @@ Inherited architect, decided by:
 - Locality, Self-sufficiency: `cli/records.go:183` `defaultTable`: calls `fejkdata.PathName`, where 234e035 held a second copy of the path grammar
 - Self-sufficiency: `internal/rows/rows.go:91` `Line`: one documented function replaces about ten bare `r+2`
 - Self-sufficiency: `internal/builtinfunc/builtins.go:65` `float`: a cost: which index of `p.ints` and `p.floats` is which lives only in `floatArgs`, and the parse-once rule is only partly applied
+
+## 2026-11-19T10:15:27Z, PR #428 at 0e5122d, against 234e035
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | same | same | better |
+| Inherited architect | better | better | same | worse | better |
+
+Mid A, decided by:
+
+- Locality: `internal/builtinfunc/builtinfunc.go:31` `builtin.checkArgs`: a builtin's numbers are parsed once, by the check that validates them, where 234e035 parsed the strings again in each use
+- Locality, Navigation: `cli/records.go:183` `defaultTable`: calls `fejkdata.PathName`, so a path's last name has one home
+- Locality: `struct.go:124` `compileShape`: each column slot keeps the name of the field it fills, and `fill` panics on a column in another's slot
+- Locality: `internal/engine/load/graph.go:86` `containedCells`: the bare `r + 2` became `Rows().Line(r)`, though `parseRows` still counts from line 2 on its own
+- Navigation: `release-tooling/file_vulnerabilities.py:1` the filer: folded into `release-tooling/`, where a reader looks for release checks
+
+Inherited architect, decided by:
+
+- Self-sufficiency: `internal/builtinfunc/builtins.go:64` `float`: the prep reads `p.floats[0]`, `p.floats[1]` and `p.ints[0]`, and that `ints[0]` is `dp` is said only in `floatArgs`; `tickPrep` and `bornPrep` shift their indexes the same way
+- Self-sufficiency: `internal/builtinfunc/builtinfunc.go:31` `builtin.checkArgs`: its comment calls it the one parse of an arg, but `layoutOf`, `dayBounds` and `parseTickStart` still parse again at prep time
+- Locality: `internal/rows/rows.go:91` `Table.Line`: each error message and `containedCells` ask the table for a row's line
+- Locality, Navigation: `cli/records.go:183` `defaultTable`: calls `fejkdata.PathName`, where 234e035 kept a second parser of path syntax
+- Locality: `struct.go:272` `structShape.fill`: each column carries its name and is checked against the drawn column's
+- Navigation: `release-tooling/file_vulnerabilities.py:1` the filer: everything CI runs for a release is in one folder
