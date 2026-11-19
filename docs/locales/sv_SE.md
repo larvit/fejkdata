@@ -1,6 +1,6 @@
 # `sv_SE`
 
-The categories it carries are listed under [Locale categories](../../README.md#locale-categories).
+`sv_SE`'s categories are listed under the README's [Locale categories](../../README.md#locale-categories).
 
 ## Bankgiro, plusgiro and bank accounts
 
