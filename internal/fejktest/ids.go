@@ -210,6 +210,10 @@ func ValidIsikukood(s string) bool {
 	if d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC); d.Month() != time.Month(month) || d.Day() != day {
 		return false
 	}
+	return int(s[10]-'0') == isikukoodCheckDigit(s)
+}
+
+func isikukoodCheckDigit(s string) int {
 	sum := func(weights string) int {
 		n := 0
 		for i := range 10 {
@@ -217,11 +221,10 @@ func ValidIsikukood(s string) bool {
 		}
 		return n % 11
 	}
-	check := sum("1234567891")
-	if check == 10 {
-		check = sum("3456789123")
+	if check := sum("1234567891"); check != 10 {
+		return check
 	}
-	return int(s[10]-'0') == check%10
+	return sum("3456789123") % 10
 }
 
 func atoi(s string) int {

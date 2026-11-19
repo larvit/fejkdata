@@ -45,17 +45,24 @@ func isikukoodPrep([]string, parsed) Call {
 // the 1800s up to 5 and 6 for the 2000s. It is not ok for a date outside those centuries or that
 // does not exist.
 func isikukoodFirstDigit(date string, sex byte) (first byte, ok bool) {
-	if len(date) != 8 || digitsOf(date) != date {
-		return 0, false
-	}
-	var year, month, day int
-	if _, err := fmt.Sscanf(date, "%4d%2d%2d", &year, &month, &day); err != nil || year < 1800 || year > 2099 {
-		return 0, false
-	}
-	if d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC); d.Month() != time.Month(month) || d.Day() != day {
+	year, ok := isikukoodYear(date)
+	if !ok {
 		return 0, false
 	}
 	return byte(int(sex) + 2*((year-1800)/100)), true
+}
+
+// isikukoodYear is the year of a date written YYYYMMDD, ok where it is a day of 1800 to 2099.
+func isikukoodYear(date string) (year int, ok bool) {
+	var month, day int
+	if len(date) != 8 || digitsOf(date) != date {
+		return 0, false
+	}
+	if _, err := fmt.Sscanf(date, "%4d%2d%2d", &year, &month, &day); err != nil || year < 1800 || year > 2099 {
+		return 0, false
+	}
+	d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	return year, d.Month() == time.Month(month) && d.Day() == day
 }
 
 // isikukoodCheck is the check digit of the first ten digits of a code.
