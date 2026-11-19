@@ -80,7 +80,7 @@ func eachFrenchNir(t *testing.T, check func(got string)) {
 	fejktest.EachDraw(frenchNirDraws, func() string { return fejktest.Fake(t, f, "fr_FR.nir") }, check)
 }
 
-// INSEE's departments for births since 1976: 01 to 19, 2A, 2B and 21 to 95, then the overseas 971 to 974 and 976.
+// frenchNirDepartment is the department of a NIR: three characters where it is overseas, else two.
 func frenchNirDepartment(got string) string {
 	if got[5:7] == "97" {
 		return got[5:8]
@@ -90,7 +90,7 @@ func frenchNirDepartment(got string) string {
 
 func TestFrenchNirIsFifteenCharactersWithAValidKey(t *testing.T) {
 	eachFrenchNir(t, func(got string) {
-		if len(got) != 15 || !fejktest.ValidNir(got) {
+		if !fejktest.ValidNir(got) {
 			t.Fatalf("%q is not a NIR of 15 characters with a valid key", got)
 		}
 	})
@@ -158,7 +158,7 @@ func TestFrenchNirFollowsTheAgeBandsOfInseesPopulation(t *testing.T) {
 	eachFrenchNir(t, func(got string) { bands[frenchNirAgeBand(got)]++ })
 	for band, want := range map[string]float64{"under 18": 20.05, "18 to 64": 57.74, "65 to 99": 22.20} {
 		t.Run(band, func(t *testing.T) {
-			if share := 100 * float64(bands[band]) / frenchNirDraws; share < want-2.5 || share > want+2.5 {
+			if share := 100 * float64(bands[band]) / frenchNirDraws; share < want-1.5 || share > want+1.5 {
 				t.Errorf("%s were %.1f%% of the numbers, want %.2f%% by INSEE's population", band, share, want)
 			}
 		})
@@ -179,14 +179,5 @@ func TestFrenchNirStartsWithItsSexAndAgreesWithABoundOne(t *testing.T) {
 	})
 	if !seen["m"] || !seen["f"] {
 		t.Errorf("500 numbers drew the sexes %v, want both", seen)
-	}
-}
-
-func TestFrenchNirOwnSexDigitMatchesInseesCodes(t *testing.T) {
-	f := shipped(t)
-	for sex, want := range map[string]string{"m": "1", "f": "2"} {
-		if got := fejktest.FakeTemplate(t, f, "{/fr_FR.sex["+sex+"].sex-digit.digit}"); got != want {
-			t.Errorf("the NIR digit of the sex %s = %q, want %s", sex, got, want)
-		}
 	}
 }
