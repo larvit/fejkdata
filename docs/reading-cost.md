@@ -2214,3 +2214,20 @@ Read most (opens and searches):
 - `README.md` 1
 - `compose.yaml` 1
 - `internal/engine/record.go` 1
+
+## Reading cost, chunk 49385befa183, finished 2026-11-19T10:26:58Z
+
+107493 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data_test.go` 4
+- `DATA-LICENSES.md` 3
+- `README.md` 3
+- `data/german_test.go` 3
+- `data/locale_person_test.go` 3
+- `data/locales_test.go` 3
+- `shipped_test.go` 3
+- `data-import/names-de.py` 2
+- `data-import/names-se.py` 2
+- `data-import/sex-population.py` 2
