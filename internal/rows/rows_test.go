@@ -257,3 +257,12 @@ func BenchmarkParseAndLinkAParentColumn(b *testing.B) {
 		})
 	}
 }
+
+func TestLine(t *testing.T) {
+	tb := parse(t, "country", "code\tname\nSE\tSweden\nNO\tNorway\n", Options{Key: "code"})
+	for row, want := range []int{2, 3} {
+		if got := tb.Line(row); got != want {
+			t.Errorf("Line(%d) = %d, want %d: the header is line 1", row, got, want)
+		}
+	}
+}
