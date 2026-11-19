@@ -3,25 +3,21 @@ package builtinfunc
 import (
 	"fmt"
 	"strconv"
-
-	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
-// nirLength is the characters of a NIR before its key: the sex, the year and month of birth, the
-// place of birth and the order number.
+// nirLength is the number of characters of a NIR before its key: the sex, the year and month of
+// birth, the place of birth and the order number.
 const nirLength = 13
 
-// nirPrep derives the key of the NIR whose last nirLength letters and digits were emitted,
-// as INSEE defines it: 97 less the remainder of the number divided by 97, where Corsica's 2A and
-// 2B count as 19 and 18. It renders nothing where those characters are no NIR.
-func nirPrep([]string, parsed) Call {
-	return func(_ *drawstate.State, emitted string, _ []string) string {
-		n, ok := nirNumber(alnumTail(emitted, nirLength))
-		if !ok {
-			return ""
-		}
-		return fmt.Sprintf("%02d", 97-n%97)
+// nirKey is the key of the NIR made of the last nirLength letters and digits of emitted, as INSEE
+// defines it: 97 less the remainder of the number divided by 97, where Corsica's 2A and 2B count as
+// 19 and 18. It is empty where those characters are not that many, or not a number.
+func nirKey(emitted string) string {
+	n, ok := nirNumber(alnumTail(emitted, nirLength))
+	if !ok {
+		return ""
 	}
+	return fmt.Sprintf("%02d", 97-n%97)
 }
 
 // alnumTail is the last n ASCII letters and digits of s, fewer where s holds fewer.
