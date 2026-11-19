@@ -705,7 +705,7 @@ The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date
 SCB, Statistics Norway, DVV, Statistics Finland, INSEE, the SSA and the Census Bureau, for Germany from the city of Munich's newborn names and a
 language model's recall, for Denmark from Statistics Denmark's top 20 and a
 language model's recall, for Latvia's first names from the Office of Citizenship and Migration Affairs' register statistics, for Lithuania's first names from the Centre of Registers' top 50 and a language model's recall, and for Estonia's names and the last names of Latvia and Lithuania from a language model's recall alone (the weights of the recalled names are estimates). `sex` counts the people of each
-sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026, Germany's, Estonia's, Latvia's, Lithuania's and France's on 1 January 2025 (Eurostat) and
+sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026, Germany's, Estonia's, Lithuania's, Latvia's and France's on 1 January 2025 (Eurostat) and
 the United States' on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
@@ -1263,15 +1263,16 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 `lt_LT`, Lithuanian, carries `first-name`, `last-name`, `person`, `sex` and `title`. `sex` is `moteris` and `vyras`, `title` is
 `dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
 
-`first-name` holds the 50 commonest men's names and women's names with the counts the State Enterprise Centre of Registers
-published for the people in the Population Register born since 1900 (CC BY 4.0). A program showing the first names credits
-"Valstybės įmonė Registrų centras". The register holds foreigners' names too, so some names, such as `Ivan`, are not
-Lithuanian. The Centre publishes no name below its top 50, and no open file of Lithuanian last names was found, so every other
-first name and every last name is a language model's recall of a name common in Lithuania: the commoner ones are ranked, a first
-name weighing the smallest published count times 50 over its rank and a last name 100000 over the square root of its rank, and
-the rarer ones share one weight. These weights are estimates. `last-name` links to `sex` so that a woman bears a feminine form of a
-last name. Lithuanian has two, both shipped under `f` and weighing the same: the unmarried, such as `Kazlauskaitė` for
-`Kazlauskas`, and the married, `Kazlauskienė`. A Russian or Polish name takes its own language's ending, `Ivanova` for `Ivanov`.
+`first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
+Population Register (CC BY 4.0), the 50 commonest men's names and women's names, and more names without a published count. A program
+showing the first names credits "Valstybės įmonė Registrų centras". The register holds foreigners' names too, so some names, such
+as `Ivan`, are not Lithuanian. The Centre publishes no count of a name below its top 50, and no open file of Lithuanian last names
+was found, so every other first name and every last name is a language model's recall of a name common in Lithuania: the commoner
+ones are ranked, a first name weighing the smallest published count times 50 over its rank, counted on from 51, and a last name
+100000 over the square root of its rank, and the rarer ones share one weight. These weights are estimates. `last-name` links to
+`sex` so that a woman bears a feminine form of a last name. A Lithuanian name ships two, under `f`: the unmarried, such as
+`Kazlauskaitė` for `Kazlauskas`, and the married, `Kazlauskienė`. They share the masculine name's weight. A Russian or Polish name
+takes its own language's ending, `Ivanova` for `Ivanov`.
 `lt_LT.sex` carries Lithuania's population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the sex
 counts credits "Source: Eurostat".
 
