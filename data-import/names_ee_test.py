@@ -24,6 +24,7 @@ class Lasts(unittest.TestCase):
         self.assertEqual(rows[("Ivanov", "m")], rows[("Ivanova", "f")])
         self.assertEqual(rows[("Aleksejev", "m")], rows[("Aleksejeva", "f")])
         self.assertEqual(rows[("Tamm", "m")], rows[("Tamm", "f")])
+        self.assertEqual(rows[("Tamm", "m")], 100000)
         self.assertNotIn(("Ivanov", "f"), rows)
         self.assertNotIn(("Tamma", "f"), rows)
 
