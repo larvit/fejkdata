@@ -2313,3 +2313,37 @@ Read most (opens and searches):
 - `data_test.go` 2
 - `shipped_test.go` 2
 - `.gitignore` 1
+
+## Reading cost, chunk ed5d5062d3ec, finished 2026-11-19T16:54:15Z
+
+99382 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/french_test.go` 6
+- `data/estonian_test.go` 5
+- `internal/fejktest/ids.go` 5
+- `README.md` 4
+- `DATA-LICENSES.md` 3
+- `docs/decisions.md` 2
+- `hetu_test.go` 2
+- `internal/builtinfunc/builtinfunc.go` 2
+- `internal/builtinfunc/hetu_test.go` 2
+- `CHANGELOG.md` 1
+
+## Reading cost, chunk 91c7c232c5e8, finished 2026-11-19T16:59:50Z
+
+61341 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/engine/draw.go` 2
+- `internal/engine/index.go` 2
+- `internal/engine/load/path.go` 2
+- `internal/engine/load/path_test.go` 2
+- `README.md` 1
+- `compose.yaml` 1
+- `data/misc/ip.json` 1
+- `data/misc/ipv6.json` 1
+- `data/misc/mac.json` 1
+- `data/misc/version.json` 1
