@@ -1731,6 +1731,31 @@ The sex counts are Eurostat's table demo_pjan for Estonia. `title` holds `dr` an
 Institute of the Estonian Language write them. Valid until `todo.md` item 522 replaces the recall with the
 office's counts, which "The project takes open licences, share-alike ones included" allows.
 
+## `lv_LV`'s first names are the register's first given names, and its last names a language model's recall
+
+2026-11-19, in the chunk that added `lv_LV`. Goal 3.2, goal 3.3. `lv_LV`'s last names apply the project principle on name tables.
+
+The Office of Citizenship and Migration Affairs (PMLP) publishes the names in the Natural Persons Register on
+data.gov.lv under CC0 1.0, with the sex of their bearers and the count of persons, in a file with each
+name or combination of names. Each person counts once, under the first of their given names, so a name
+weighs the persons whose first given name it is, as `fi_FI`'s does. The 2,000 commonest of each sex are
+kept, as for `fi_FI`. The register holds the names of foreigners in Latin transliteration too, and they weigh
+as published; the table is the register's, not a list of Latvian names. A person of no stated sex is dropped.
+
+The office publishes no last names, and no other open register of Latvian last names was found, so they are a
+language model's recall of names common in Latvia, ranked and weighted as `et_EE`'s are: a ranked name weighs
+100000 over the square root of its rank, and the rarer ones share the last rank's weight. The figures are
+estimates. A woman bears the feminine form of a man's last name: `Bērziņa` for `Bērziņš`, `Balode` for
+`Balodis`, `Dombrovska` for `Dombrovskis`, `Ozola` for `Ozols`, `Jansone` for `Jansons`, `Zvejniece` for
+`Zvejnieks`, and a Russian name in `s` with its `s` replaced by `a`, `Ivanova` for `Ivanovs`. A name that does
+not end as these do, such as `Liepa`, is the same under both. So `last-name` links to `sex` and has a row under
+each, and `person` draws the last name under its first name's sex. `data-import/names-lv.py` holds the
+endings, and its test the pairs.
+
+The sex counts are Eurostat's table demo_pjan for Latvia. `title` holds `Dr.` and `prof.`, as the Cabinet's
+regulation on the spelling of personal names in Latvian writes them. Valid while PMLP publishes no last names; an
+open register of them replaces the recall.
+
 ## `da_DK.company` weighs its legal forms by Statistics Denmark's enterprises and draws its names from a language model's recall
 
 2026-11-08, the maintainer. Goal 3.2. Applies the project principle on company categories.

@@ -27,6 +27,7 @@ class Feminine(unittest.TestCase):
         for masculine, feminine in [
             ("Bērziņš", "Bērziņa"), ("Balodis", "Balode"), ("Dombrovskis", "Dombrovska"), ("Ozols", "Ozola"), ("Jansons", "Jansone"),
             ("Millers", "Millere"), ("Zvejnieks", "Zvejniece"), ("Kalējs", "Kalēja"), ("Ivanovs", "Ivanova"), ("Liepa", "Liepa"),
+            ("Jaunzems", "Jaunzeme"), ("Bondars", "Bondare"),
         ]:
             self.assertEqual(names_lv.feminine(masculine), feminine)
 

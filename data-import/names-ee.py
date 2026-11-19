@@ -104,20 +104,13 @@ Zujev Õispuu Õunapuu
 """
 
 
-def recalled(what: str, text: str) -> list[tuple[str, int]]:
-    """The rows (name, count) of a recalled list: the commoner names by rank, then the rarer ones at the last rank's count."""
-    ordered, rarer = recalled_names.split(what, text)
-    rows = [(name, round(TOP / rank ** 0.5)) for rank, name in enumerate(ordered, start=1)]
-    return rows + [(name, round(TOP / len(ordered) ** 0.5)) for name in rarer]
-
-
 def feminine(name: str) -> str:
     return name + "a" if name.endswith(("ov", "ev")) else name
 
 
 def lasts() -> list[dict[str, object]]:
     """The rows (name, sex, count) of the last names: each recalled name under m, and its feminine form under f."""
-    rows = recalled("last names", LAST_RECALLED)
+    rows = recalled_names.weighted("last names", LAST_RECALLED, TOP)
     return [{"name": form(name), "sex": sex, "count": n} for name, n in rows for sex, form in (("f", feminine), ("m", str))]
 
 
@@ -126,7 +119,7 @@ def main() -> None:
     p.add_argument("--out", default=str(OUT))
     out = Path(p.parse_args().out)
     out.mkdir(parents=True, exist_ok=True)
-    firsts = [{"name": name, "sex": sex, "count": n} for sex, text in (("f", GIRLS_RECALLED), ("m", BOYS_RECALLED)) for name, n in recalled("girls" if sex == "f" else "boys", text)]
+    firsts = [{"name": name, "sex": sex, "count": n} for sex, text in (("f", GIRLS_RECALLED), ("m", BOYS_RECALLED)) for name, n in recalled_names.weighted("girls" if sex == "f" else "boys", text, TOP)]
     tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(firsts, key=lambda r: (str(r["name"]), str(r["sex"]))))
     tsv.write(out / "last-name.tsv", ["name", "sex", "count"], sorted(lasts(), key=lambda r: (str(r["name"]), str(r["sex"]))))
 
