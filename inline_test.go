@@ -257,7 +257,15 @@ func TestPathName(t *testing.T) {
 		"a..b":                                "b",
 		"":                                    "",
 		"a.":                                  "",
+		".a":                                  "",
+		"a...b":                               "",
 		"t[a":                                 "",
+		"/users":                              "users",
+		"//users":                             "",
+		"{/a}":                                "",
+		"a|b":                                 "",
+		"x as p":                              "",
+		"x(1)":                                "",
 	} {
 		t.Run(strconv.Quote(path), func(t *testing.T) {
 			if got := PathName(path); got != want {
