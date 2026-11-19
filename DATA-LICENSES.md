@@ -498,17 +498,19 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 ## `lt_LT/company.json`, `company-coined.json`, `company-coined.tsv`, `company-word.json`, `company-word.tsv`
 
-- Source: the Register of Legal Entities (Juridinių asmenų registras)'s open data
+- Source: the open data of the State Enterprise Centre of Registers (Registrų centras) on the
+  Register of Legal Entities (Juridinių asmenų registras),
   [`JAR_IREGISTRUOTI.csv`](https://www.registrucentras.lt/aduomenys/?byla=JAR_IREGISTRUOTI.csv) of 19
-  November 2026, published by the State Enterprise Centre of Registers (Registrų centras), the legal
-  entities registered. `company.json` weighs a legal form by the entities of its `form_kodas`:
-  102,461 of `310` `Uždaroji akcinė bendrovė` (`UAB`), 75,713 of `960` `Mažoji bendrija` (`MB`), 452
-  of `410` `Žemės ūkio bendrovė` (`ŽŪB`) and 226 of `320` `Akcinė bendrovė` (`AB`). The entities of
-  every other form aren't drawn: the register names the 13,045 of `810` `Individuali įmonė` by their
-  form alone, and the rest are non-profit or public, such as the 13,560 of `630` `Asociacija` and the
-  11,228 of `570` `Viešoji įstaiga`. The shapes of a form's names, where they place the form, the
-  trade words and the words of `company-coined.tsv` come from the `ja_pavadinimas` of those entities.
-  The tables hold single words with their counts.
+  November 2026, which lists the legal entities registered. `company.json` weighs a legal form by
+  the entities of its `form_kodas`: 102,461 of `310` `Uždaroji akcinė bendrovė` (`UAB`), 75,713 of
+  `960` `Mažoji bendrija` (`MB`), 452 of `410` `Žemės ūkio bendrovė` (`ŽŪB`) and 226 of `320`
+  `Akcinė bendrovė` (`AB`). The entities of every other form aren't drawn: the register names the
+  13,045 of `810` `Individuali įmonė`, the 163 of `220` `Komanditinė ūkinė bendrija` and the 47 of
+  `210` `Tikroji ūkinė bendrija` by their form alone, and the rest are branches and representative
+  offices, cooperatives, and non-profit or public bodies, such as the 13,560 of `630` `Asociacija`.
+  The shapes of a form's names, where they place the form and the quotes, the trade words and the
+  words of `company-coined.tsv` come from the `ja_pavadinimas` of those entities. The tables hold
+  single words with their counts.
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), which the Centre's
   [open data page](https://www.registrucentras.lt/atviri-duomenys-ir-statistika) states as its licence
 - Attribution: "Valstybės įmonė Registrų centras", with the licence's name and link, and that the data

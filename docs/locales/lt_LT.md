@@ -45,11 +45,11 @@ Renders e.g. `Andrius Jurevičius, 36707114290`.
 
 ## Lithuanian companies
 
-`lt_LT.company` draws a legal form as often as the Register of Legal Entities' open data counts its entities. It counts
-the entities registered on 19 November 2026: 102,461 private limited companies (`UAB`), 75,713 small partnerships
-(`MB`), 452 agricultural companies (`ŽŪB`) and 226 public limited companies (`AB`). The other forms aren't drawn: the
-register names an individual enterprise by its form alone, and the rest are non-profit or public, such as the
-associations and the public bodies.
+`lt_LT.company` draws a legal form as often as the Register of Legal Entities' open data counts its entities. The
+file of 19 November 2026 lists 102,461 private limited companies (`UAB`), 75,713 small partnerships (`MB`), 452
+agricultural companies (`ŽŪB`) and 226 public limited companies (`AB`). The other forms aren't drawn. The register
+names an individual enterprise, a limited partnership and a general partnership by their form alone. The rest are
+branches and representative offices, cooperatives, and non-profit or public bodies, such as associations.
 
 Most of the register's names put the form before the name, and most `UAB` quote the name, such as `UAB "Alfa"`. The
 others put the form before the name unquoted, or after it, quoted or not. `lt_LT.company` places the abbreviation and
@@ -61,7 +61,7 @@ pick.
 The shapes of the names, the trade words of `company-word` and the words of `company-coined` come from the names of
 those entities, as [`company-lt.py`](../../data-import/company-lt.py) counts them. Many of the words are English, since
 many of the register's names are. A name is invented from those parts, and may also be a real company's. The register's
-open data is CC BY 4.0, so a program showing it credits "Valstybės įmonė Registrų centras"; `DATA-LICENSES.md` has the
+open data is CC BY 4.0, so a program showing the data credits "Valstybės įmonė Registrų centras"; `DATA-LICENSES.md` has the
 rest.
 
 ## Lithuanian dates and emails
