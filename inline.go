@@ -68,11 +68,16 @@ func IsLonePath(body string) bool {
 	return grammar.IsLonePath(body)
 }
 
-// PathName is the last name in path, its selectors and ".." left out: "currency" for
-// "misc.currency[US Dollar]". It is "" where path is no valid path.
+// PathName is the final name in path, its selectors and ".." left out: "currency" for
+// "misc.currency[US Dollar]". Like every call taking a path, it drops one leading /. It is ""
+// when path is not one path, as IsLonePath says.
 func PathName(path string) string {
+	path, err := grammar.CallerPath(path)
+	if err != nil || !grammar.IsLonePath(path) {
+		return ""
+	}
 	segs, err := grammar.SplitPath(path)
-	if err != nil || grammar.CheckSegments(segs) != nil {
+	if err != nil {
 		return ""
 	}
 	if names := grammar.IdentifierSegments(segs); len(names) > 0 {
