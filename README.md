@@ -2711,18 +2711,21 @@ docker compose run --rm cyclo   # cyclomatic complexity over 7 (test files exclu
 docker compose run --rm dev     # interactive shell
 ```
 
-`mutate` is not part of the gate. It runs [Gremlins](https://gremlins.dev), which changes
-one operator at a time in the Go lines a branch changed since `origin/main`, test files
-excluded, and reports each change no test fails on as `LIVED`. A run over a branch that
-changed 61 lines in 7 Go files took a minute and a half, nearly all of it the one test
-run that gathers coverage:
+`mutate` runs mutation tests with [Gremlins](https://gremlins.dev). It isn't one of the
+checks a pull request must pass. Gremlins takes each Go line the branch changed since
+`origin/main`, test files excluded, and swaps one operator in it at a time, such as `<`
+for `<=`. A swap that no test fails on prints as `LIVED`: the tests run the line and
+don't check what it does. A swap on a line no test runs prints as `NOT COVERED`. A run
+over a branch that changed 61 lines in 7 Go files took a minute and a half. Nearly all
+of that was the one run of the test suite Gremlins starts with.
 
 ```sh
 docker compose run --rm mutate
 ```
 
-In a git worktree, name the main checkout's git folder, which the worktree's own folder
-doesn't hold:
+In a git worktree, git keeps its data in the main checkout, outside the folder the
+container mounts, and the command above stops with `an error occured while calling git
+diff`. Pass the main checkout's git folder in `GIT_COMMON_DIR`:
 
 ```sh
 GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)" docker compose run --rm mutate
