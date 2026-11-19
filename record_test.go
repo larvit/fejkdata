@@ -142,6 +142,7 @@ func TestRecordErrors(t *testing.T) {
 		"bare":      `"hello"`,
 		"pick":      `["a", "b"]`,
 		"group/cat": `"x"`,
+		"lets":      `{"format":"{a}","let":{"a":"x"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for _, c := range []struct {
@@ -149,6 +150,7 @@ func TestRecordErrors(t *testing.T) {
 		want string
 	}{
 		{"bare", "has no fields, so no columns"},
+		{"lets", `holds every field in "let", which writes no column; render it as a column of one: {"format":"","lets":"{/lets}"}`},
 		{"pick", `names a choice, not a template; a record is a template whose fields are its columns; render it as a column of one: {"format":"","pick":"{/pick}"}`},
 		{"group", "names a folder"},
 		{"nope", "no entry"},
