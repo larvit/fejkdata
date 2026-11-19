@@ -67,3 +67,16 @@ func IsTemplate(arg string) (bool, error) {
 func IsLonePath(body string) bool {
 	return grammar.IsLonePath(body)
 }
+
+// PathName is the last name in path, its selectors and ".." left out: "currency" for
+// "misc.currency[US Dollar]". It is "" where path is no valid path.
+func PathName(path string) string {
+	segs, err := grammar.SplitPath(path)
+	if err != nil || grammar.CheckSegments(segs) != nil {
+		return ""
+	}
+	if names := grammar.IdentifierSegments(segs); len(names) > 0 {
+		return names[len(names)-1]
+	}
+	return ""
+}

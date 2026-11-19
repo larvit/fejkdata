@@ -179,27 +179,10 @@ func writeNoRecord(record recordSource, format recordFormat, w io.Writer) error 
 }
 
 // defaultTable names the INSERT or COPY target when --table is absent: the path's last
-// segment, or "records" when stdin is not a lone reference.
+// name, or "records" when stdin is not a lone reference.
 func defaultTable(path string) string {
 	if path == "" {
 		return "records"
 	}
-	segments := strings.Split(withoutSelectors(path), ".")
-	return segments[len(segments)-1]
-}
-
-// withoutSelectors is path with its [selectors] cut out.
-func withoutSelectors(path string) string {
-	var names strings.Builder
-	for depth, i := 0, 0; i < len(path); i++ {
-		switch {
-		case path[i] == '[':
-			depth++
-		case path[i] == ']':
-			depth--
-		case depth == 0:
-			names.WriteByte(path[i])
-		}
-	}
-	return names.String()
+	return fejkdata.PathName(path)
 }
