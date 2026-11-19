@@ -14,7 +14,6 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 525 | 0.7.0 |  | question | **Decide whether to rename the `let` option to `hidden`, and record the answer in the decision on `let`.** | 2 | 1 | 2 | 3 | 4 | 4 by 2 | 0.5 |
 | 524 | 0.7.0 |  |  | **Add a mutation tool for Go.** | 3 | 2 | 1 | 4 | 2 | code health by 3 | 8.2 |
-| 499 | 0.7.0 |  |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 504 | 0.7.0 |  |  | **Add `lv_LV`'s national personal id, the personas kods, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 508 | 0.7.0 |  |  | **Add `lt_LT` with its given names by sex, last names and titles, and `lt_LT.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 509 | 0.7.0 | 508 |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
@@ -294,15 +293,6 @@ Touches:
 
 - `compose.yaml`: lines 44-50 (small)
 - `README.md`: `## Development` (small)
-
-### 499. Add `et_EE`'s national personal id, the isikukood, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
-
-Touches:
-
-- `data/et_EE/`
-- `README.md`: `### Locale categories`
 
 ### 504. Add `lv_LV`'s national personal id, the personas kods, with its check digits.
 
