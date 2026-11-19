@@ -23,7 +23,7 @@ const (
 	maxDecimals = 1024
 )
 
-// builtins is the registry of {name(args)} functions. Derivations read the digits
+// builtins is the registry of {name(args)} functions. Derivations read the characters
 // emitted so far in the current expansion (place them after their payload);
 // samples read only the rng, and born also the date. A time-based id (uuid v7, ulid)
 // draws its timestamp from the rng, not the wall clock, so seeded output stays
@@ -36,7 +36,7 @@ var builtins = withTransforms(map[string]builtin{
 	"fnr":      {calls: []string{"fnr(x)"}, arity: 1, checkArgs: plain(fnrArg), prep: fnrPrep, operands: func(a []string) []string { return a }},
 	"cpr":      {calls: []string{"cpr(x)"}, arity: 1, checkArgs: plain(cprArg), prep: cprPrep, operands: func(a []string) []string { return a }},
 	"hetu":     {calls: []string{"hetu(x)", "hetu(x,'issued')"}, arity: -1, checkArgs: plain(hetuArgs), prep: hetuPrep, operands: func(a []string) []string { return a[:1] }},
-	"nir":      {calls: []string{"nir()"}, arity: 0, prep: nirPrep},
+	"nir":      {calls: []string{"nir()"}, arity: 0, prep: derive(nirKey)},
 	"steuerid": {calls: []string{"steuerid()"}, arity: 0, prep: sample(steuerID)},
 	"uuid":     {calls: []string{"uuid()"}, arity: 0, prep: sample(uuidV7), avoids: fixedRuns(uuidRuns, "00000000-0000-0000-0000-000000000000")},
 	"ulid":     {calls: []string{"ulid()"}, arity: 0, prep: sample(ulid), avoids: fixedRuns(ulidRuns, strings.Repeat("0", 26))},

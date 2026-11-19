@@ -245,6 +245,17 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   de famille, 22/05/2018": INSEE's conditions ask for the date of the data's last update
 - Rebuild: `data-import/names-fr.py`
 
+## `fr_FR/nir.json`
+
+- Source: the weights of its three age bands: [INSEE](https://www.insee.fr/fr/statistiques/8721185)'s
+  "Bilan démographique 2025", table "Population au 1er janvier par sexe et âge détaillé", the
+  population of France on 1 January 2026: 69,081,996 people, 13,852,666 of them under 18, 39,890,078
+  aged 18 to 64 and 15,339,252 aged 65 or over
+- Licence: [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/),
+  as INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) state
+- Attribution: "Source : Insee, Bilan démographique 2025"
+- Rebuild: —
+
 ## `geo/DE/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`
 
 - Source: [GeoNames](https://www.geonames.org/)' [Postleitzahlen of

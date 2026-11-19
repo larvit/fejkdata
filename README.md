@@ -21,7 +21,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
   requires a month of 1 to 12 refuses the fødselsnummer, and one that applies the extra checks of the
   synthetic henkilötunnus refuses those; Steuer-IDs from ELSTER's test series, which a checker that refuses a leading zero refuses; Danish CPR numbers that pass the
-  office's modulus 11 check, so a drawn one may be a living person's; Swedish
+  office's modulus 11 check, and French NIRs that pass INSEE's key check, so a drawn one may be a living person's; Swedish
   organisationsnummer and VAT numbers that pass the format and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
   and ITINs in the ranges the SSA and the IRS assign, so a drawn one may be a real
   person's; Luhn-valid card numbers; and IBANs for seven European countries.
@@ -1072,8 +1072,10 @@ person's, so keep it out of anything that reaches a real system. To make one agr
 
 ### `fr_FR`
 
-`fr_FR`, French, carries `department`, `first-name`, `last-name`, `nir`, `person`, `sex`, `sex-digit` and `title`. `sex` is
+`fr_FR`, French, carries `department`, `first-name`, `last-name`, `nir`, `nonzero-number`, `person`, `sex`, `sex-digit` and `title`. `sex` is
 `femme` and `homme`, and `title` is `Dr` and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
+`department` prints the code INSEE gives a department in a NIR, such as `75`, `2A` or `974`, and `nonzero-number` a number
+from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from `001` to `999`. Both exist for `nir`.
 
 `fr_FR.first-name` holds the 2,000 commonest first names of each sex and `fr_FR.last-name` the 5,000 commonest last
 names, from INSEE's open files. A first name weighs the children who got it as their first one in the births of 1944
@@ -1085,28 +1087,29 @@ such as `N'Diaye`. `fr_FR.sex` carries France's population on 1 January 2025
 from Eurostat's table `demo_pjan`; Eurostat marks that figure provisional.
 
 A program showing the name counts credits "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee,
-Fichier des noms de famille, 22/05/2018", and one showing the sex counts "Source: Eurostat".
+Fichier des noms de famille, 22/05/2018", one showing the sex counts "Source: Eurostat", and one showing the birth
+years of a NIR "Source : Insee, Bilan démographique 2025".
 
 #### NIR
 
-`fr_FR.nir` is a French NIR, the numéro d'inscription au répertoire that INSEE gives everyone born in France and that is
-printed as the numéro de sécurité sociale, written as 15 characters with no spaces, such as `253059724702338`. It passes the
-key check but is not synthetic: INSEE publishes no test series and no unassigned range, so a number may be a living person's.
-The 13 characters before the key are the sex, `1` for a man and `2` for a woman, the year and month of birth, the 5 of the
-department and commune of birth, and the order number, `001` to `999`. The key is 97 less the remainder of those 13
+`fr_FR.nir` is a French NIR, the numéro d'inscription au répertoire that INSEE gives each person and that is printed as
+the numéro de sécurité sociale: 15 characters with no spaces, such as `271121647338041`. It passes the key check but is
+not synthetic: INSEE publishes no test series and no unassigned range, so a number may be a living person's. The 13
+characters before the key are the sex (`1` for a man, `2` for a woman), the year and month of birth, the department and
+commune of birth (5 characters), and the order number, `001` to `999`. The key is 97 less the remainder of those 13
 divided by 97, with Corsica's `2A` and `2B` counted as 19 and 18.
 
-fejkdata draws a birth of someone under 100 by INSEE's counts of under 18, 18 to 64 and 65 and over on 1 January 2026
-("Population au 1er janvier par sexe et âge détaillé", Bilan démographique 2025), a department evenly from 01 to 95 without 20,
-2A, 2B and the overseas 971 to 974 and 976, and a commune and the order number evenly from 001 to 999, 01 to 99 for the
-overseas communes. The commune is a code in its department's range, not one that exists. Corsica is always `2A` or `2B`,
-though a birth there before 1976 is under `20`. A person born abroad, who has `99` for a department, and the numbers that
-start with 3, 4, 7 or 8 are not drawn. A fixture of a few thousand rows starts to repeat a number, and a `UNIQUE`
-column needs a category of your own.
+fejkdata draws the year of birth by INSEE's counts of people under 18, 18 to 64 and 65 to 99 on 1 January 2026
+("Population au 1er janvier par sexe et âge détaillé", Bilan démographique 2025). The department is drawn evenly from
+INSEE's 101: 01 to 19, 2A, 2B, 21 to 95, and the overseas 971 to 974 and 976. The commune and the order number are drawn
+evenly, from 001 to 999 (01 to 99 for an overseas commune). The commune is a code in its department's range, not one
+that exists. Corsica is always `2A` or `2B`, though a birth there before 1976 is under `20`. A person born abroad, whose
+department is `99`, and the first digits 3, 4, 7 and 8 are not drawn. A fixture of a few hundred thousand rows starts
+to repeat a number, so a `UNIQUE` column needs a category of your own.
 
-`{nir()}` completes a NIR: it reads the last 13 letters and digits emitted and prints the key. `fr_FR.sex-digit`, under `sex`,
-holds the first character of each sex, so to make a number agree with the sex the template below binds as `s`, write that digit,
-the `body` field of `fr_FR.nir`, which is everything between the sex and the key, then `{nir()}`:
+`{nir()}` completes a NIR: it reads the last 13 letters and digits emitted and prints the key. To make a number agree
+with a sex the template binds as `s`, write `fr_FR.sex-digit`'s digit under `s`, then the `body` field of `fr_FR.nir`
+(everything between the sex and the key), then `{nir()}`:
 
 ```json
 { "format": "{first} {last}, {nir}",
@@ -1924,7 +1927,7 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
 | `{cpr(x)}` | derivation | completes a Danish CPR number after the last six digits emitted, its date, with a seventh digit that the CPR office's table of century digits allows for the year, an eighth and a ninth digit it picks, and the check digit, whose parity is that of the digit `x` reads; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1858 to 2057, renders nothing |
-| `{nir()}` | derivation | the key of a French NIR: 97 less the remainder, divided by 97, of the last 13 letters and digits emitted, with a department `2A` or `2B` at the sixth and seventh counted as 19 or 18; two digits, and nothing where those are not a NIR's 13 characters |
+| `{nir()}` | derivation | the key of a French NIR: two digits, 97 less the remainder, divided by 97, of the last 13 letters and digits emitted, where the sixth and seventh may be `2A` or `2B`, counted as 19 or 18; nothing unless they are 13 digits, so counted |
 | `{hetu(x)}`, `{hetu(x,'issued')}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number from 900 to 999 of the parity of the digit `x` reads, and the control character; `{hetu(x,'issued')}` takes the individual number from 002 to 899, which DVV issues; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
 | `{bgmod11(x)}` | derivation | a random digit, then the check digit, that complete the digits emitted so far in this expansion to a number Bankgirot's 11-modul accepts: its digits, weighted 1 to 10 from the right and then 1 again, sum to a multiple of 11; the literal digits `x` count as coming first and are not printed (`0` for none) |
 | `{digits(n)}` | sample | `n` digits 0–9 |

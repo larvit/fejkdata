@@ -1,0 +1,12 @@
+{
+  "format": "{three}",
+  "two": [
+    { "format": "0{int(1,9)}", "weight": 9 },
+    { "format": "{int(1,9)}{digits(1)}", "weight": 90 }
+  ],
+  "three": [
+    { "format": "00{int(1,9)}", "weight": 9 },
+    { "format": "0{int(1,9)}{digits(1)}", "weight": 90 },
+    { "format": "{int(1,9)}{digits(2)}", "weight": 900 }
+  ]
+}
