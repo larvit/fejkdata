@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 167 | 0.7.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 6.1 |
 | 195 | 0.7.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 6.1 |
 | 40 | 0.7.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
 | 95 | 0.7.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 5.5 |
@@ -245,34 +244,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 167. Lower the reading cost of the files a chunk reads most before its first commit.
-
-`reading-cost` on 2026-10-11: the last 5 chunks' median is 91452 new input tokens before their first commit, the 5 before them 69756. Read most over the last 5 (opens and searches): `README.md` 37, `todo.md` 29, `docs/decisions.md` 15, `CHANGELOG.md` 12, `data_test.go` 11, `shipped_test.go` 8, `cmd/fejkdata/main.go` 7, `data-import/geo-us.py` 7, `DATA-LICENSES.md` 5, `bench_test.go` 5. The chunk shipping this item runs `reading-cost --reset`.
-
-`reading-cost` after the chunk of item 292, on 2026-10-22: "Rising: the last 5 chunks' median is 113334 new input tokens before their first commit, the 5 before them 78241". It listed no file read most over the last 5.
-
-`reading-cost` after the chunk of item 347, on 2026-10-28: "Rising: the last 5 chunks' median is 110298 new input tokens before their first commit, the 5 before them 97116". It listed no file read most over the last 5.
-
-`reading-cost` on 2026-11-03: "Rising: the last 5 chunks' median is 102919 new input tokens before their first commit, the 5 before them 70758". Read most over the last 5 (opens and searches): `todo.md` 4, `README.md` 3, `docs/decisions.md` 3, `.github/workflows/packages.yml` 2, `data_test.go` 2, `norwegian_test.go` 2, `release-tooling/goreleaser.yaml` 2, `vulnerability-filing/file_vulnerabilities.py` 2, `vulnerability-filing/file_vulnerabilities_test.py` 2, `.dockerignore` 1.
-
-`reading-cost` on 2026-11-04: "Rising: the last 5 chunks' median is 117951 new input tokens before their first commit, the 5 before them 98791". Read most over the last 5 (opens and searches): `todo.md` 31, `README.md` 10, `data_test.go` 8, `docs/decisions.md` 8, `table_test.go` 5, `node.go` 4, `path.go` 4, `AGENTS.md` 3, `env.go` 3, `internal/datafiles/datafiles_test.go` 3.
-
-`reading-cost` after the chunk of item 365, on 2026-11-04: "Rising: the last 5 chunks' median is 118390 new input tokens before their first commit, the 5 before them 98791". Read most over the last 5 (opens and searches): `README.md` 34, `todo.md` 30, `data_test.go` 15, `DATA-LICENSES.md` 8, `CHANGELOG.md` 7, `compose.yaml` 5, `testdata/shipped_shape.txt` 4, `docs/decisions.md` 3, `data-import/loglevel.py` 2, `data/misc/car.tsv` 2.
-
-`reading-cost` at the release review of 0.3.0, on 2026-11-04: "Rising: the last 5 chunks' median is 103168 new input tokens before their first commit, the 5 before them 89405". Read most over the last 5 (opens and searches): `README.md` 29, `todo.md` 17, `cli/cli.go` 13, `docs/decisions.md` 12, `CHANGELOG.md` 7, `name_test.go` 6, `namefence_test.go` 6, `data_test.go` 5, `shape_test.go` 4, `docs/research/research-sources-se.md` 3.
-
-`reading-cost` after the chunk of item 377, on 2026-11-04: "Rising: the last 5 chunks' median is 103168 new input tokens before their first commit, the 5 before them 89405". Read most over the last 5 (opens and searches): `README.md` 29, `todo.md` 17, `cli/cli.go` 13, `docs/decisions.md` 12, `CHANGELOG.md` 7, `name_test.go` 6, `namefence_test.go` 6, `data_test.go` 5, `shape_test.go` 4, `docs/research/research-sources-se.md` 3.
-
-`reading-cost` before the chunk of item 379, on 2026-11-08: "Rising: the last 5 chunks' median is 104363 new input tokens before their first commit, the 5 before them 72993". Read most over the last 5 (opens and searches): `README.md` 27, `todo.md` 24, `readme_test.go` 11, `builtins_test.go` 7, `cli/cli_test.go` 7, `record_test.go` 7, `compose.yaml` 6, `danish_test.go` 6, `norwegian_test.go` 5, `cli/cli.go` 4.
-
-`reading-cost` at the release review of 0.4.0, on 2026-11-09: "Rising: the last 5 chunks' median is 101184 new input tokens before their first commit, the 5 before them 86259". Read most over the last 5 (opens and searches): `todo.md` 37, `README.md` 21, `swedish_test.go` 11, `calc_test.go` 6, `compose.yaml` 6, `adddays.go` 5, `valueproof.go` 4, `anonymize_test.go` 3, `docs/decisions.md` 3, `internal/builtinfunc/builtinfunc.go` 3.
-
-`reading-cost` on 2026-11-08: "Rising: the last 5 chunks' median is 112711 new input tokens before their first commit, the 5 before them 85771". Read most over the last 5 (opens and searches): `README.md` 38, `todo.md` 22, `swedish_test.go` 14, `docs/decisions.md` 11, `builtins_test.go` 7, `valueproof.go` 7, `CHANGELOG.md` 6, `DATA-LICENSES.md` 6, `calc_test.go` 6, `adddays.go` 5.
-
-`reading-cost` before the chunk of item 380, on 2026-11-09: "Rising: the last 5 chunks' median is 112711 new input tokens before their first commit, the 5 before them 85771". Read most over the last 5 (opens and searches): `todo.md` 36, `README.md` 25, `swedish_test.go` 11, `compose.yaml` 8, `valueproof.go` 7, `builtins_test.go` 6, `calc_test.go` 6, `internal/builtinfunc/builtinfunc.go` 6, `adddays.go` 5, `docs/decisions.md` 4.
-
-`reading-cost` before the chunk of items 413 and 411, on 2026-11-10: "Rising: the last 5 chunks' median is 71284 new input tokens before their first commit, the 5 before them 55774". Read most over the last 5 (opens and searches): `todo.md` 45, `format.go` 12, `docs/decisions.md` 10, `README.md` 9, `resolve.go` 8, `arm.go` 7, `index.go` 5, `reference.go` 5, `table_test.go` 5, `inline.go` 4.
 
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
