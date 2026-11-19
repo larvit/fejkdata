@@ -5,14 +5,14 @@
 The script reads the register's open data (a 129 MB CSV) for counts and names, and writes no row of it. It also
 reads the shipped lv_LV first and last names. It counts the merchants of the Commercial Register, those with no
 termination date, by their `type`. company.json weighs a legal form by its merchants. The forms are SIA, IK, AS, PS
-and KS; the branches of foreign merchants, the European companies and every register but the Commercial Register
-aren't drawn.
+and KS; the branches, the European companies and every register but the Commercial Register aren't drawn.
 
 A name is counted where its first or last words spell its form, as the abbreviation, such as SIA, or the words,
 such as sabiedrība ar ierobežotu atbildību, in upper or lower case, with or without a trailing dot. company.json
-puts the abbreviation before a name as often as the form's names open with their form, and after it as often as they
-end in it, and in quotes as often as those names quote the rest, as `SIA "Alfa"` does. A name of the form's words
-counts as its abbreviation: the register writes `Sabiedrība ar ierobežotu atbildību "Alfa"` for most of its SIA.
+puts the abbreviation before the rest of a name as often as the form's names open with their form, and after it as
+often as they end in it, and puts the rest in quotes as often as those names do, as `SIA "Alfa"` does. A name that
+spells its form out counts as one with the abbreviation: the register writes `Sabiedrība ar ierobežotu atbildību
+"Alfa"` for about 4 in 10 of its SIA.
 
 A shape is the kind of each word of a name, its legal words left out: a person's first and last name, a last name, a
 first name, a number, `un`, `&`, a trade word, or any other, which draws a coined word. A last or first name is
@@ -21,13 +21,13 @@ a last name is one person, drawn from lv_LV.person so that the last name is of t
 ships when it is at least company_names.SHARE_MIN of the form's names and opens with no number, `un` or `&`.
 
 company-word.tsv holds the trade words, each with its count and its most common spelling, by the rule of
-company_names.py over the names of every form, with a form spread of one: SIA names are 99 in 100 of those names,
+company_names.py over the names of every form, with a form spread of one: SIA names are about 9 in 10 of those names,
 so few trade words reach FORM_MIN names in a second form.
 
 company-coined.tsv holds the coined words, each with the number of names that carry it. A coined word has four
 letters or more, is no name or trade word, is carried by COINED_MIN or more names, and ends at least a
 COINED_ENDS_MIN share of them. A coined word is a common word of the names, not a root that opens them. A coined
-word takes its most common spelling, so a name drawn with it may be a real company's.
+word takes its most common spelling. A name drawn from these parts may be a real company's.
 """
 import argparse
 import csv
@@ -153,7 +153,7 @@ def bare(names: Iterable[tuple[str, str]]) -> list[tuple[str, str]]:
     out = []
     for form, name in names:
         found = placed(form, name)
-        if found and any(w.rstrip(".").lower() not in LEGAL_WORDS for w in found[2]):
+        if found:
             out.append((form, " ".join(found[2])))
     return out
 
