@@ -42,11 +42,11 @@ func TestLithuanianNamesKeepTheirLetters(t *testing.T) {
 	}
 }
 
-func TestLithuanianLastNamesWeighByRankAndTheRarerOnesShareTheLast(t *testing.T) {
+func TestLithuanianLastNamesWeighByRankAndTheRarerOnesShareTheLastRanksWeight(t *testing.T) {
 	last := nameCounts(t, "lt_LT", "last-name")
 	for sex, want := range map[string]map[string]int{
 		"m": {"Kazlauskas": 100000, "Petrauskas": 70711, "Jankauskas": 57735, "Stankevičius": 50000, "Vasiliauskas": 44721, "Žemaitis": 10000, "Kowalski": 10000},
-		"f": {"Kazlauskaitė": 100000, "Kazlauskienė": 100000, "Petrauskaitė": 70711, "Stankevičiūtė": 50000, "Stankevičienė": 50000, "Žemaitytė": 10000, "Kowalska": 10000},
+		"f": {"Kazlauskaitė": 50000, "Kazlauskienė": 50000, "Petrauskaitė": 35355, "Stankevičiūtė": 25000, "Stankevičienė": 25000, "Žemaitytė": 5000, "Kowalska": 10000},
 	} {
 		for name, n := range want {
 			if got := last[sex][name]; got != n {
