@@ -1,1 +1,7 @@
-"{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}"
+{
+  "format": "{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}",
+  "local": {
+    "format": "{hex(1)}{n}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}",
+    "n": ["2", "6", "a", "e"]
+  }
+}
