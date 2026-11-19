@@ -2493,23 +2493,6 @@ Read most (opens and searches):
 - `data/de_DE/company-word.json` 1
 - `data/de_DE/date.json` 1
 
-## Reading cost, chunk 414e160553d8, finished 2026-11-19T20:58:27Z
-
-67424 new input tokens before the first commit.
-
-Read most (opens and searches):
-
-- `README.md` 4
-- `data/locales_test.go` 4
-- `data/locale_everyday_test.go` 2
-- `data/sv_SE/.fejkdata.json` 2
-- `data/sv_SE/email.json` 2
-- `compose.yaml` 1
-- `data/da_DK/email.json` 1
-- `data/de_DE/email.json` 1
-- `data/en_US/email.json` 1
-- `data/fi_FI/email.json` 1
-
 ## Reading cost, chunk 95742fa4e28d, finished 2026-11-19T21:28:02Z
 
 86004 new input tokens before the first commit.
@@ -2526,3 +2509,20 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `data-import/geo_test.py` 1
 - `data-import/names-lv.py` 1
+
+## Reading cost, chunk 414e160553d8, finished 2026-11-19T20:58:27Z
+
+67424 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 4
+- `data/locales_test.go` 4
+- `data/locale_everyday_test.go` 2
+- `data/sv_SE/.fejkdata.json` 2
+- `data/sv_SE/email.json` 2
+- `compose.yaml` 1
+- `data/da_DK/email.json` 1
+- `data/de_DE/email.json` 1
+- `data/en_US/email.json` 1
+- `data/fi_FI/email.json` 1
