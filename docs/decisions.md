@@ -35,7 +35,7 @@ teach the exported API belongs in the root's package doc.
 `format`, `weight`, `repeat`, `separator`, `datatype` and `let` are reserved; every other key
 is a field. Nesting fields under a key, or prefixing options, would tax every template to
 guard against a misspelt option. `let` is the one option that holds fields, the ones that write
-no column ("A record's `let` fields write no column").
+no column and are left out of the listing ("A `let` field writes no column and is left out of the listing").
 
 ## `{a|b}` stays beside nested choices
 
@@ -1784,10 +1784,11 @@ The names read `de_DE`'s names and `geo.DE.locality`. An open bulk file of Germa
 `de_DE.email` writes `Müller` as `muller`, not `mueller`, since `slugify` folds `ü` to `u` by ruby-i18n's table, as for
 every locale. Its own words hold no `ae`, `oe` or `ue` spelling, so a local part never mixes the two.
 
-## A record's `let` fields write no column
+## A `let` field writes no column and is left out of the listing
 
-2026-11-08, Lilleman auf Larv. Serves goal 4.7, read as: a template that means one thing loads,
-and goal 4.3, a name keeps one pick.
+2026-11-08, Lilleman auf Larv; widened 2026-11-19 by item 521. Serves goal 4.7, read as: a template
+that means one thing loads, goal 4.3, a name keeps one pick, and goal 4, a reader tells a path meant
+to be read from a scaffold.
 
 A record wrote one column per field, so a field there only to be named by another, as
 `{"ride":…}` is by `{ride.fare}`, showed up as a column nobody asked for. `let` holds such
@@ -1795,9 +1796,30 @@ fields: they bind and resolve as any field does and write no column. A writer pa
 README's audience chose `let` over `hidden`, `private` and `_`-prefixed names: it was the one
 spelling readers took for a local binding. It costs one reserved key, and a field can no longer
 be named `let`. A key in `let` and beside it fails to load, so a field has one place, and an
-option name in `let` fails too. `let` loads wherever fields do and changes nothing outside a
-record's top level, as goal 4.7 asks of what is well-formed and means one thing. A record whose
-fields are all in `let` has no columns and is `ErrNoColumns`.
+option name in `let` fails too. A record whose fields are all in `let` has no columns and is
+`ErrNoColumns`.
+
+The same field was also a public path outside a record: `--list` printed it, the manifest's index
+wrote it and the shape pin held it, so a reader couldn't tell a path meant to be read from a
+scaffold such as `misc.ipv6.g`. So a `let` field, at any depth, is left out of `--list` and the
+index with every path below it, and a read of its path still draws it, as `List` advertises
+direct descents only ("`List` advertises direct descents only"). Only the listing leaves it out:
+a choice's shared paths, which resolve a read through the choice, keep it. A prefix such as `_`
+would have made a key's spelling carry meaning and changed what a user's own `_x` field means.
+
+A shipped field is moved into `let` when only its own category's fields read it, no README text,
+test or other category reads its path, and it is a piece only the template needs: a syllable
+half, a digit class, a price's amount or separator-bearing part, a number's head or tail. A part
+the README names or a domain gives a name, such as `phone.block`, an SSN's `area` or an email's
+`local`, stays a field and a column.
+
+Three fresh readers seated as the README's data author, hand fixture author and contributor read
+`data/misc/ipv6.json` with its `let` fields and predicted `--list`, a read of `{/misc.ipv6.g}` and a
+record correctly, so the spelling stays. All three named `hidden` as the better word for a field
+readable by its path but unlisted, and two took `let` for a local binding a path can't reach.
+Renaming is the human's call, as goal 4.8 allows a clearer name even at a major.
+
+Valid while a data author reads `let` as "a field only other fields read".
 
 ## No database or HTTP sink is built in
 

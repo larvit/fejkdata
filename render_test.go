@@ -101,7 +101,7 @@ func nodeSwitches(tbl *tree.Table) map[string]func(tree.Node) {
 		"ChildNamed":  func(n tree.Node) { _, _ = load.ChildNamed(n, "x") },
 		"ColumnItems": func(n tree.Node) { load.ColumnItems(n) },
 		"Contained":   func(n tree.Node) { load.Contained(n) },
-		"Paths":       func(n tree.Node) { load.Paths(n, false) },
+		"Paths":       func(n tree.Node) { load.Paths(n) },
 		"render": func(n tree.Node) {
 			var pins tree.PinSet
 			s := emptyGenerator(1).drawState

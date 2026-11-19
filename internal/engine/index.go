@@ -20,7 +20,7 @@ type IndexLine struct {
 func Index(root *tree.Folder) []IndexLine {
 	var out []IndexLine
 	for _, s := range categorySites(root) {
-		line := IndexLine{Path: s.path, Entry: datafiles.IndexEntry{Parent: parentOf(s.n), Paths: load.Paths(s.n, false)}}
+		line := IndexLine{Path: s.path, Entry: datafiles.IndexEntry{Parent: parentOf(s.n), Paths: load.Paths(s.n)}}
 		sort.Strings(line.Entry.Paths)
 		for _, c := range needs(root, s) {
 			line.Needs = append(line.Needs, load.CategoryPath(c.dir, c.name))

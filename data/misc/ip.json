@@ -2,11 +2,13 @@
   "format": "{wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide6}",
   "wide4": {
     "format": "{o}.{o}.{o}.{o}",
-    "o": [
-      { "format": "{digits(1)}", "weight": 3 },
-      { "format": "{int(10,99)}", "weight": 4 },
-      { "format": "1{digits(2)}", "weight": 2 }
-    ]
+    "let": {
+      "o": [
+        { "format": "{digits(1)}", "weight": 3 },
+        { "format": "{int(10,99)}", "weight": 4 },
+        { "format": "1{digits(2)}", "weight": 2 }
+      ]
+    }
   },
   "wide6": "{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}",
   "documentation": [
