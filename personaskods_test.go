@@ -11,7 +11,7 @@ import (
 
 // 16117519997 is a valid old-format code and 32867300679 a valid new-format one, as python-stdnum's
 // lv.pvn documents them; 32867300677 is the same new-format code with the wrong check digit.
-// 16117510010 is a code whose sum is 10, so its check digit is 0, and 29020020009 is 29 February of
+// 16117510010 has check digit 0, where the sum modulo 11 is 10, and 29020020009 is 29 February of
 // 2000, which exists where 29 February 1900 does not.
 func TestValidPersonasKodsChecksTheDateTheCenturyAndTheCheckDigit(t *testing.T) {
 	for code, want := range map[string]bool{
@@ -52,8 +52,7 @@ func TestBuiltinPersonasKodsStartsWithTheDateAndTheDigitOfItsCentury(t *testing.
 	}
 }
 
-// From 1 July 2017 the register gives a code that starts with 32 and holds no date. No source states
-// what the nine digits after 32 mean, so they are drawn evenly.
+// From 1 July 2017 the register gives a code that starts with 32 and holds no date, then random digits.
 func TestBuiltinPersonasKodsDrawsACodeWithNoDateFrom1July2017(t *testing.T) {
 	for _, date := range []string{"20170701", "20240229", "20991231"} {
 		seen := map[byte]bool{}
@@ -70,7 +69,7 @@ func TestBuiltinPersonasKodsDrawsACodeWithNoDateFrom1July2017(t *testing.T) {
 	}
 }
 
-func TestBuiltinPersonasKodsRendersNothingForADateItDoesNotRead_PLACEHOLDERForADateItDoesNotRead(t *testing.T) {
+func TestBuiltinPersonasKodsRendersNothingForADateItDoesNotRead(t *testing.T) {
 	f := emptyGenerator(22)
 	for _, date := range []string{
 		"", "1968052a", "1968052", "680528", "196805280", "1968-05-28", "17991231", "21000101",
@@ -84,10 +83,10 @@ func TestBuiltinPersonasKodsRendersNothingForADateItDoesNotRead_PLACEHOLDERForAD
 	}
 }
 
-// The serial number of a code with a date, the eighth to tenth digit, is three digits; no source
-// states which the register issues, so all of 000 to 999 are drawn.
+// No source states which serial numbers, the eighth to tenth digit of a code with a date, the
+// register gives, so all of 000 to 999 are drawn.
 func TestBuiltinPersonasKodsDrawsASerialNumberFrom000To999AndItsCheckDigit(t *testing.T) {
-	hundreds, zero := map[int]bool{}, false
+	hundreds, zero, last := map[int]bool{}, false, false
 	for seed := range uint64(4000) {
 		got := personasKodsOf(t, emptyGenerator(seed), "19680528")
 		serial, err := strconv.Atoi(got[7:10])
@@ -96,9 +95,10 @@ func TestBuiltinPersonasKodsDrawsASerialNumberFrom000To999AndItsCheckDigit(t *te
 		}
 		hundreds[serial/100] = true
 		zero = zero || got[7:10] == "000"
+		last = last || got[7:10] == "999"
 	}
-	if len(hundreds) != 10 || !zero {
-		t.Errorf("4000 codes drew serial numbers in the hundreds %v and 000 drawn: %v, want every hundred and 000", hundreds, zero)
+	if len(hundreds) != 10 || !zero || !last {
+		t.Errorf("4000 codes drew serial numbers in the hundreds %v, 000 drawn: %v, 999 drawn: %v, want every hundred, 000 and 999", hundreds, zero, last)
 	}
 }
 
