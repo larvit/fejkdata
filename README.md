@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails and dates, `lt_LT`'s names, persons, asmens kodai and phone numbers, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails and dates, `lt_LT`'s names, persons, asmens kodai and phone numbers, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -704,7 +704,7 @@ reserves, so `{/sv_SE.url.reserved}` never reaches a real site and `{/sv_SE.emai
 The default of each of those `url`s also draws domains anyone may register, such as `example.se` and `example.io`, and so
 do the default `sv_SE.email` and `en_US.email`; the other locales' default `email` draws only reserved domains.
 
-The dates of `da_DK.date`, `de_DE.date`, `en_US.date`, `et_EE.date`, `fi_FI.date`, `fr_FR.date`, `nb_NO.date`, `nn_NO.date` and `sv_SE.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
+The dates of `da_DK.date`, `de_DE.date`, `en_US.date`, `et_EE.date`, `fi_FI.date`, `fr_FR.date`, `lv_LV.date`, `nb_NO.date`, `nn_NO.date` and `sv_SE.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
 #### Names and sex
 
@@ -1412,7 +1412,7 @@ project's choice.
 
 ### `lv_LV`
 
-`lv_LV`, Latvian, carries `first-name`, `last-name`, `person`, `personas-kods`, `phone`, `sex` and `title`. `sex` is `sieviete` and `vīrietis`, `title` is
+`lv_LV`, Latvian, carries `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `person`, `personas-kods`, `phone`, `sex` and `title`. `sex` is `sieviete` and `vīrietis`, `title` is
 `Dr.` and `prof.`, drawn whatever the sex. `{/lv_LV.person}` renders e.g. `Anna Bērziņa`.
 
 `first-name` holds the 2,000 commonest first given names of each sex, each weighted by the persons bearing it in the
@@ -1457,6 +1457,32 @@ the code of the same date:
 ```
 
 Renders e.g. `Renārs Kārkliņš, born 20130310, code 10031324059`.
+
+#### Latvian companies
+
+`lv_LV.company` draws a legal form as often as the Register of Enterprises' open data counts the merchants of the
+Commercial Register of that form, with no termination date, on 19 November 2026: 140,485 limited liability companies
+(`SIA`), 12,146 individual merchants (`IK`), 765 joint-stock companies (`AS`), 535 general partnerships (`PS`) and 166
+limited partnerships (`KS`). The branches of foreign merchants, the European companies and the other registers'
+entries, such as the associations and the farms, aren't drawn.
+
+The register writes most names with the form before the name and the rest of it in quotes, such as `SIA "Alfa"`, and
+the rest with the form bare before or after it, or after a quoted name. `lv_LV.company` places the abbreviation and the
+quotes as often as the names of that form do. A name that spells its form out, such as `Sabiedrība ar ierobežotu
+atbildību "Alfa"`, counts as its abbreviation. `lv_LV.company.sia`, `.ik`, `.as`, `.ps` and `.ks` each draw one form, and
+`{/lv_LV.company as c}{c.legal}` prints the abbreviation of the same pick.
+
+The shapes of the names, the trade words of `company-word` and the words of `company-coined` come from the names of
+those merchants, as [`company-lv.py`](data-import/company-lv.py) counts them. Many of the words are English, as the
+register's names are. A name is invented from those parts, and may also be a real company's. The register's open data
+is CC0 1.0, so a program showing it needs no credit; `DATA-LICENSES.md` names the source.
+
+#### Latvian dates and emails
+
+`lv_LV.date` is a date from 1970 to 2029 as Latvia writes it, a two-digit day and month and a four-digit year with
+dots between, such as `02.04.2019`. `lv_LV.email` is built like `de_DE.email`: half its local parts are the first and
+last name of one person from `lv_LV.person`, folded to ASCII, such as `janis.berzins7`. Its domains are `example.com`,
+`example.org` and `example.net`, or a subdomain of one, which IANA reserves, so no address reaches a real mailbox.
 
 #### Latvian phone numbers
 
@@ -3036,7 +3062,7 @@ A shipped table built from a source is rebuilt by its script under
 read a table another one writes. `cldr.py` and `timezone.py` read
 `misc/territory.tsv`. `company-se.py` reads the sv_SE names and `geo/SE`,
 `company-no.py` the nb_NO names and `geo/NO`, `company-fr.py` the fr_FR names and
-`company-ee.py` the et_EE names.
+`company-ee.py` the et_EE names and `company-lv.py` the lv_LV names.
 
 Downloads are cached under `data-import/cache/`, which version control ignores and
 which grows past a gigabyte. Delete that folder to fetch afresh, or pass
@@ -3052,6 +3078,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `geo-se.py` fetches SCB's småort polygons, about 120 MB, and its tätort polygons.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 - `company-fr.py` fetches Sirene's StockUniteLegale, about a gigabyte.
+- `company-lv.py` fetches the Register of Enterprises' open data, 129 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
 
@@ -3075,6 +3102,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/car-s
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-ee.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-fr.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-lv.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
