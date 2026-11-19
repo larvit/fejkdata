@@ -18,7 +18,6 @@
 | 514 | 0.7.0 |  |  | **Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 516 | 0.7.0 |  |  | **Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 518 | 0.7.0 |  |  | **Add `lv_LV.word` with its noun, verb, adjective and adverb forms, and `lv_LV.sentence` and `lv_LV.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
-| 519 | 0.7.0 |  |  | **Add `lt_LT.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Lithuania writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 520 | 0.7.0 |  |  | **Add `lt_LT.word` with its noun, verb, adjective and adverb forms, and `lt_LT.sentence` and `lt_LT.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 270 | 0.7.0 |  |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 502 | 0.7.0 |  |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
@@ -280,15 +279,6 @@ Touches:
 - `data-import/`
 - `README.md`: `### Locale categories`
 - `DATA-LICENSES.md`
-
-### 519. Add `lt_LT.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Lithuania writes it.
-
-Follow the Nordic and German locales: a price in the country's currency format, a time in its clock style, `url` and `username` from the locale's own words in ASCII, a colour name in its language or a hex code, and `month` and `weekday` as Unicode CLDR's stand-alone names.
-
-Touches:
-
-- `data/lt_LT/`
-- `README.md`: `### Locale categories`
 
 ### 520. Add `lt_LT.word` with its noun, verb, adjective and adverb forms, and `lt_LT.sentence` and `lt_LT.paragraph`.
 
