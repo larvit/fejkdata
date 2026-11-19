@@ -79,7 +79,7 @@ var reservedHost = regexp.MustCompile(`^https://([a-z]+\.)?example\.(com|org|net
 
 func TestEmailHasAReservedPathThatDrawsOnlyDomainsNobodyCanRegister(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(4))
-	for _, name := range append([]string{"fr_FR"}, urlLocales...) {
+	for _, name := range append([]string{"et_EE", "fr_FR"}, urlLocales...) {
 		t.Run(name, func(t *testing.T) {
 			fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, name+".email.reserved") }, func(got string) {
 				if !exampleEmail.MatchString(got) {
