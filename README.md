@@ -697,7 +697,7 @@ language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `w
 names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As for `sv_SE`, `month` is selected by 1 to 12
 and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
 
-The dates of `da_DK.date`, `de_DE.date`, `en_US.date`, `fi_FI.date`, `fr_FR.date`, `nb_NO.date`, `nn_NO.date` and `sv_SE.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
+The dates of `da_DK.date`, `de_DE.date`, `en_US.date`, `et_EE.date`, `fi_FI.date`, `fr_FR.date`, `nb_NO.date`, `nn_NO.date` and `sv_SE.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
 #### Names and sex
 
@@ -1012,20 +1012,21 @@ Renders e.g. `Lars Pavlov, 39406231528`.
 
 #### Estonian companies
 
-`et_EE.company` draws a legal form as often as the e-Business Register counts the legal persons of it entered in the
+`et_EE.company` draws a legal form as often as the e-Business Register counts the businesses of that form entered in the
 register on 19 November 2026: 288,168 private limited companies (`OÜ`), 24,541 sole proprietors (`FIE`), 3,514 limited
 partnerships (`UÜ`), 1,901 public limited companies (`AS`) and 1,028 general partnerships (`TÜ`). Those in liquidation
 or bankruptcy aren't counted. The non-profits, the apartment associations, the co-operatives and the other forms the
 register holds aren't drawn.
 
 An `FIE`'s name is one person's first and last name, such as `Kristo Stepanov`, with no abbreviation, as most of the
-register's `FIE` names are. The others carry their abbreviation after the name, such as `Saare Technologies OÜ`, or
-before it, such as `AS Audio Restoran`, each as often as the form's names in the register do. Most `OÜ` and `UÜ` names
-end in it, and most `AS` and `TÜ` names open with it. `et_EE.company.fie`, `.ou`, `.as`, `.uu` and `.tu` each draw one
-form, and `{/et_EE.company as c}{c.legal}` prints the abbreviation of the same pick, empty for an `FIE`.
+register's `FIE` names are. The names of the other forms carry their abbreviation after the name, such as `Saare
+Technologies OÜ`, or before it, such as `AS Audio Restoran`, as often as the register's names of that form do. Most `OÜ`
+and `UÜ` names end in their abbreviation, and most `AS` and `TÜ` names open with it. `et_EE.company.fie`, `.ou`, `.as`,
+`.uu` and `.tu` each draw one form, and `{/et_EE.company as c}{c.legal}` prints the abbreviation of the same pick, empty
+for an `FIE`.
 
 The shapes of the other names, the trade words of `company-word` and the words of `company-coined` come from the names
-of those legal persons, as [`company-ee.py`](data-import/company-ee.py) counts them. Many are English, as the
+of those businesses, as [`company-ee.py`](data-import/company-ee.py) counts them. Many of the words are English, as the
 register's names are. A name is invented from those parts, and may also be a real company's. A program showing the
 data credits "Source: e-Business Register, Centre of Registers and Information Systems (RIK)", names
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says that the data is reduced to five legal forms and
@@ -3026,9 +3027,9 @@ A shipped table built from a source is rebuilt by its script under
 [`data-import/`](data-import), one command per dataset, from the source named in
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Run the block below in order: some scripts
 read a table another one writes. `cldr.py` and `timezone.py` read
-`misc/territory.tsv`. `company-se.py` reads the sv_SE names and `geo/SE`, and
-`company-no.py` reads the nb_NO names and `geo/NO`, `company-fr.py` the fr_FR names, and `company-ee.py`
-the et_EE names.
+`misc/territory.tsv`. `company-se.py` reads the sv_SE names and `geo/SE`,
+`company-no.py` the nb_NO names and `geo/NO`, `company-fr.py` the fr_FR names and
+`company-ee.py` the et_EE names.
 
 Downloads are cached under `data-import/cache/`, which version control ignores and
 which grows past a gigabyte. Delete that folder to fetch afresh, or pass
@@ -3050,6 +3051,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-dk.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-ee.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-fi.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-fr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
