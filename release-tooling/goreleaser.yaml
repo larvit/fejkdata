@@ -28,6 +28,7 @@ archives:
       - src: data/en_US/WORDNET-LICENSE.txt
         dst: WORDNET-LICENSE.txt
       - README.md
+      - docs/locales/*.md
       - CHANGELOG.md
 
 checksum:
