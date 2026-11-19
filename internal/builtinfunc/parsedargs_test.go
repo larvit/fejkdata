@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-// TestCheckArgsReturnsTheNumbersItParsed pins that checkArgs is the one parser of a call's
-// numeric args: it hands prep, proveNumber and avoids the integers and floats it read, in
-// the order the call writes them.
 func TestCheckArgsReturnsTheNumbersItParsed(t *testing.T) {
 	for _, c := range []struct {
 		name   string

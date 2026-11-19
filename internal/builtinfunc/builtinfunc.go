@@ -28,8 +28,8 @@ type builtin struct {
 	// prep turns validated args into the closure a render calls, at compile time. It is nil
 	// for adddays: AddDays builds that call once the load knows the date's layout.
 	prep func(args []string, p parsed) Call
-	// checkArgs is the one parser of a call's args: it refuses a bad arg and returns the numbers
-	// it read, which prep, proveNumber and avoids use instead of parsing them again.
+	// checkArgs refuses a bad arg and returns the numbers it read, the one parse of them: prep,
+	// proveNumber and avoids take those and never parse a number themselves.
 	checkArgs func(args []string) (parsed, error)
 	// operands names the fields the call reads, which a render reads for it; nil
 	// for a builtin that reads none.
@@ -47,14 +47,14 @@ type builtin struct {
 	avoids func(p parsed) (avoid.Runs, string)
 }
 
-// parsed is the numbers a call's checkArgs read from its args, each kind in the order the call
-// writes them.
+// parsed is the integers and the floats checkArgs read from a call's args, each in the order
+// the call writes them.
 type parsed struct {
 	ints   []int
 	floats []float64
 }
 
-// plain is the checkArgs of a builtin whose args hold no number prep needs.
+// plain makes a checkArgs for a builtin whose args hold no number: it checks and returns none.
 func plain(check func(args []string) error) func([]string) (parsed, error) {
 	return func(a []string) (parsed, error) { return parsed{}, check(a) }
 }
@@ -90,11 +90,11 @@ func (b builtin) parse(args []string) (parsed, error) {
 	return b.checkArgs(args)
 }
 
-// accepted parses args Check accepted, so a failure is a broken check and not user input.
+// accepted parses args that Check accepted. A failure means they skipped Check.
 func accepted(name string, args []string) parsed {
 	p, err := builtins[name].parse(args)
 	if err != nil {
-		panic(invariant.Broken("%s(%q) reached prep unchecked: %v", name, args, err))
+		panic(invariant.Broken("%s(%q) skipped Check: %v", name, args, err))
 	}
 	return p
 }

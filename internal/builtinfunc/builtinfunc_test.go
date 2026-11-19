@@ -85,7 +85,7 @@ func TestCheckAcceptsACalcOverAnyOperand(t *testing.T) {
 }
 
 // TestArgGuardsPanic pins the guards that report a builtin arg its check should have
-// rejected. No data reaches them, since Check runs before Prep, so they are called directly.
+// rejected. No data reaches them, since Check runs first, so they are called directly.
 func TestArgGuardsPanic(t *testing.T) {
 	for name, call := range map[string]func(){
 		"accepted on an arg its check refuses":   func() { accepted("int", []string{"nope", "1"}) },
