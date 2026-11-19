@@ -72,3 +72,55 @@ func TestLocaleEmailHoldsAFirstAndALastNameInHalfItsAddresses(t *testing.T) {
 		}
 	})
 }
+
+var urlLocales = []string{"da_DK", "de_DE", "en_US", "fi_FI", "nb_NO", "nn_NO", "sv_SE"}
+
+var reservedHost = regexp.MustCompile(`^https://([a-z]+\.)?example\.(com|org|net)` + urlPath + `$`)
+
+func TestEmailHasAReservedPathThatDrawsOnlyDomainsNobodyCanRegister(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(4))
+	for _, name := range append([]string{"fr_FR"}, urlLocales...) {
+		t.Run(name, func(t *testing.T) {
+			fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, name+".email.reserved") }, func(got string) {
+				if !exampleEmail.MatchString(got) {
+					t.Fatalf("%s.email.reserved drew %q, want lower-case ASCII at example.com, example.org or example.net", name, got)
+				}
+			})
+		})
+	}
+}
+
+func TestUrlHasAReservedPathThatDrawsOnlyDomainsNobodyCanRegister(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(4))
+	for _, name := range urlLocales {
+		t.Run(name, func(t *testing.T) {
+			fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, name+".url.reserved") }, func(got string) {
+				if !reservedHost.MatchString(got) {
+					t.Fatalf("%s.url.reserved drew %q, want a host at example.com, example.org or example.net", name, got)
+				}
+			})
+		})
+	}
+}
+
+func TestEnglishAndSwedishUrlAndEmailKeepTheWideSetByDefault(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(4))
+	for _, name := range []string{"en_US", "sv_SE"} {
+		t.Run(name, func(t *testing.T) {
+			var email, url int
+			fejktest.EachDraw(600, func() string { return fejktest.Fake(t, f, name+".email") }, func(got string) {
+				if !exampleEmail.MatchString(got) {
+					email++
+				}
+			})
+			fejktest.EachDraw(600, func() string { return fejktest.Fake(t, f, name+".url") }, func(got string) {
+				if !reservedHost.MatchString(got) {
+					url++
+				}
+			})
+			if email == 0 || url == 0 {
+				t.Errorf("%s drew %d emails and %d urls outside example.com, example.org and example.net in 600 draws each, want some of both", name, email, url)
+			}
+		})
+	}
+}
