@@ -1036,6 +1036,31 @@ lt_LT.sex.sex-digit.sex
 lt_LT.title	format "{name}"	key name	weight share
 lt_LT.title.name	string
 lt_LT.title.share	string
+lv_LV.company	format "{registered as r}{r}"	reads lv_LV.company lv_LV.company-coined lv_LV.company-word lv_LV.first-name lv_LV.person
+lv_LV.company-coined	format "{word}"	weight count
+lv_LV.company-coined.count	string
+lv_LV.company-coined.word	string
+lv_LV.company-word	format "{word}"	weight count
+lv_LV.company-word.count	string
+lv_LV.company-word.word	string
+lv_LV.company.as	string
+lv_LV.company.as.name
+lv_LV.company.ik	string
+lv_LV.company.ik.name
+lv_LV.company.ks	string
+lv_LV.company.ks.name
+lv_LV.company.legal	string
+lv_LV.company.ps	string
+lv_LV.company.ps.name
+lv_LV.company.registered	string
+lv_LV.company.registered.legal
+lv_LV.company.sia	string
+lv_LV.company.sia.name
+lv_LV.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
+lv_LV.email	format "{local}@{domain}"	reads lv_LV.person
+lv_LV.email.domain	string
+lv_LV.email.local	string
+lv_LV.email.local.n
 lv_LV.first-name	format "{name}"	name name	weight count	parent sex
 lv_LV.first-name.count	string
 lv_LV.first-name.name	string
