@@ -15,7 +15,7 @@ from pathlib import Path
 SHARE_MIN = 0.01
 WORDS_MIN = 100
 FORM_MIN = 10
-VOWELS = "aeiouyåäöæøéüõ"
+VOWELS = "aeiouyåäöæøéüõāēīū"
 
 
 @dataclass(frozen=True)

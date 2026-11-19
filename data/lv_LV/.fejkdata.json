@@ -1,5 +1,10 @@
 {
 	"index": {
+		"lv_LV.company": {"paths":["","as","as.name","ik","ik.name","ks","ks.name","legal","ps","ps.name","registered","registered.legal","sia","sia.name"]},
+		"lv_LV.company-coined": {"paths":["","count","word"]},
+		"lv_LV.company-word": {"paths":["","count","word"]},
+		"lv_LV.date": {"paths":[""]},
+		"lv_LV.email": {"paths":["","domain","local","local.n"]},
 		"lv_LV.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"lv_LV.last-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"lv_LV.person": {"paths":["","first","last","prefix","sex"]},
