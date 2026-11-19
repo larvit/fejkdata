@@ -2,7 +2,16 @@ import re
 import unittest
 from collections import Counter
 
-from company_names import Vocabulary, Words, coined, kind, shape_of, shipped, slots, word_usage
+from company_names import (
+    Vocabulary,
+    Words,
+    coined,
+    kind,
+    shape_of,
+    shipped,
+    slots,
+    word_usage,
+)
 
 VOCABULARY = Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(), frozenset(), frozenset({"A"}), 0, connecting_words=("and", "&"))
 WORDS = Words({"tamm", "kask", "ivanova"}, {"jaan", "mari"})

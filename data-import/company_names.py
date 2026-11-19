@@ -8,14 +8,21 @@ at most the vocabulary's acronym_max letters, or no vowel.
 """
 import re
 from collections import Counter, defaultdict
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Collection, Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import NamedTuple
 
 SHARE_MIN = 0.01
 WORDS_MIN = 100
 FORM_MIN = 10
+COINED_MIN = 40
+COINED_ENDS_MIN = 0.05
+PERSONS = "pqrstuvw"
 VOWELS = "aeiouyåäöæøéüõāēīū"
+SLOTS = {"X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "F": "{.first-name}", "N": "{int(1,30)}"}
+# A name's kinds of word in order, each a key of SLOTS, a connecting word, or FS for a person.
+type Shape = tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -28,6 +35,12 @@ class Vocabulary:
     word_forms: frozenset[str]
     acronym_max: int
     form_spread: int = 3
+    connecting_words: tuple[str, ...] = ()
+
+
+class Words(NamedTuple):
+    surnames: Collection[str]
+    firsts: Collection[str]
 
 
 class Usage:
@@ -93,4 +106,59 @@ def trade_words(usage: Mapping[str, Usage], vocabulary: Vocabulary) -> dict[str,
         w: (u.spellings.most_common(1)[0][0] if u.spellings else w.capitalize(), u.names)
         for w, u in usage.items()
         if u.names >= WORDS_MIN and 3 * u.ends >= u.names and sum(u.forms[f] >= FORM_MIN for f in vocabulary.word_forms) >= vocabulary.form_spread
+    }
+
+
+def kind(word: str, words: Words, last: bool) -> str | None:
+    """S or F for a last name or a first name; else None. A word that is both is a last name at the end of a name."""
+    w = word.lower()
+    if w in words.surnames and (last or w not in words.firsts):
+        return "S"
+    return "F" if w in words.firsts else None
+
+
+def shape_of(name: list[str], words: Words, trade: Collection[str], vocabulary: Vocabulary) -> Shape:
+    """The kinds of the words, as SLOTS keys or connecting words, with FS for a first name followed by a last name."""
+    shape: list[str] = []
+    for i, word in enumerate(name):
+        low = word.lower()
+        if low.isdigit():
+            shape.append("N")
+        elif low in vocabulary.connecting_words:
+            shape.append(low)
+        else:
+            k = kind(word, words, i == len(name) - 1) or ("T" if low in trade else "X")
+            if k == "S" and shape and shape[-1] == "F":
+                shape[-1] = "FS"
+            else:
+                shape.append(k)
+    return tuple(shape)
+
+
+def shipped(shapes: Mapping[Shape, int], vocabulary: Vocabulary) -> list[tuple[Shape, int]]:
+    """The common shapes that open with no number or connecting word."""
+    return [(s, c) for s, c in common(shapes) if s[0] != "N" and s[0] not in vocabulary.connecting_words]
+
+
+def slots(shape: Shape, vocabulary: Vocabulary) -> str:
+    """The format of a shape: its words' slots, each person drawn once under the next name of PERSONS."""
+    persons = iter(PERSONS)
+    out = []
+    for k in shape:
+        if k == "FS":
+            p = next(persons)
+            out.append(f"{{.person as {p}}}{{{p}.first}} {{{p}.last}}")
+        elif k in vocabulary.connecting_words:
+            out.append(k)
+        else:
+            out.append(SLOTS[k])
+    return " ".join(out)
+
+
+def coined(usage: Mapping[str, Usage], trade: Collection[str]) -> dict[str, int]:
+    """The words of company-coined.tsv, each in its spelling with its count: no trade word, four letters or more, COINED_MIN or more names, ending COINED_ENDS_MIN of them."""
+    return {
+        (u.spellings.most_common(1)[0][0] if u.spellings else w.capitalize()): u.names
+        for w, u in sorted(usage.items())
+        if w not in trade and len(w) >= 4 and u.names >= COINED_MIN and u.ends >= COINED_ENDS_MIN * u.names
     }
