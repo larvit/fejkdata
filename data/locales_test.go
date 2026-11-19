@@ -180,6 +180,7 @@ var shippedLocales = []shippedLocale{
 		name:   "lv_LV",
 		names:  &names{map[string]string{"Anna": "f", "Līga": "f", "Jānis": "m", "Mārtiņš": "m"}, nil},
 		person: &person{map[string]string{"f": "sieviete", "m": "vīrietis"}, []string{"Dr.", "prof."}},
+		phone:  &phone{"+371", "", latvianFixedPhone, nil},
 	},
 	{
 		name:     "nb_NO",

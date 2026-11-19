@@ -1,12 +1,21 @@
 package data_test
 
 import (
+	"regexp"
 	"strconv"
 	"testing"
 	"time"
 
+	"github.com/larvit/fejkdata"
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
+
+var (
+	latvianFixed  = regexp.MustCompile(`^6\d \d{3} \d{3}$`)
+	latvianMobile = regexp.MustCompile(`^2\d \d{3} \d{3}$`)
+)
+
+func latvianFixedPhone(*testing.T) func(n string) bool { return latvianFixed.MatchString }
 
 func TestLatvianFirstNamesWeighByThePublishedCount(t *testing.T) {
 	first := nameCounts(t, "lv_LV", "first-name")
@@ -162,5 +171,30 @@ func TestLatvianPersonasKodsHasNoDateForSomeoneBornFromJuly2017(t *testing.T) {
 	})
 	if share := 100 * float64(undated) / latvianPersonasKodsDraws; share < 7 || share > 11.5 {
 		t.Errorf("%.1f%% of the codes had no date, want about 9%%", share)
+	}
+}
+
+// Table 1 of the National Numbering Plan, decision no. 1/33 of 27 September 2022 of the Public Utilities
+// Commission: 6XXXXXXX is the public fixed network and 2XXXXXXX the public mobile network.
+func TestShippedLatvianPhoneLiesInARangeTheNumberingPlanAllocates(t *testing.T) {
+	eachPhone(t, "lv_LV", func(n string) {
+		if !latvianFixed.MatchString(n) && !latvianMobile.MatchString(n) {
+			t.Fatalf("phone %q is neither a fixed number 6x xxx xxx nor a mobile 2x xxx xxx", n)
+		}
+	})
+}
+
+func TestShippedLatvianPhoneDrawsEachSecondDigitOfBothRanges(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(17))
+	starts := map[string]int{}
+	fejktest.EachDraw(20000, func() string { return fejktest.Fake(t, f, "lv_LV.phone") }, func(n string) {
+		starts[n[:2]]++
+	})
+	for _, lead := range []string{"2", "6"} {
+		for d := 0; d <= 9; d++ {
+			if start := lead + strconv.Itoa(d); starts[start] == 0 {
+				t.Errorf("no phone starts with %s in 20000 draws: %v", start, starts)
+			}
+		}
 	}
 }
