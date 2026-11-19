@@ -16,3 +16,10 @@ def split(what: str, text: str, fixed: Collection[str] = ()) -> tuple[list[str],
         if not tsv.NAME.match(name):
             sys.exit(f"{what}: {name!r} is not a name in letters")
     return ordered, rarer
+
+
+def weighted(what: str, text: str, top: int) -> list[tuple[str, int]]:
+    """The rows (name, count) of a recalled list: the commoner names weigh `top` over the square root of their rank, and the rarer ones the last rank's weight."""
+    ordered, rarer = split(what, text)
+    rows = [(name, round(top / rank ** 0.5)) for rank, name in enumerate(ordered, start=1)]
+    return rows + [(name, round(top / len(ordered) ** 0.5)) for name in rarer]

@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names and persons, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s and `lv_LV`'s names and persons, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons and NIRs, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -616,10 +616,10 @@ template calls. `--no-shipped-data` leaves out the modules passed to
 ### Shipped modules
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
-its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/de_DE`, `data/en_US`, `data/et_EE`, `data/fi_FI`, `data/fr_FR`, `data/nb_NO`,
+its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/de_DE`, `data/en_US`, `data/et_EE`, `data/fi_FI`, `data/fr_FR`, `data/lv_LV`, `data/nb_NO`,
 `data/nn_NO`, `data/sv_SE`), one per country's tree of places (`data/geo/DE`, `data/geo/DK`, `data/geo/FI`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`dadk`, `dede`, `enus`, `etee`, `fifi`, `frfr`, `nbno`, `nnno`, `svse`, `geode`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `dede`, `enus`, `etee`, `fifi`, `frfr`, `lvlv`, `nbno`, `nnno`, `svse`, `geode`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -704,8 +704,8 @@ The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date
 `first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
 SCB, Statistics Norway, DVV, Statistics Finland, INSEE, the SSA and the Census Bureau, for Germany from the city of Munich's newborn names and a
 language model's recall, and for Denmark from Statistics Denmark's top 20 and a
-language model's recall, and for Estonia's names from a language model's recall alone (the weights of the recalled names are estimates). `sex` counts the people of each
-sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026, Germany's, Estonia's and France's on 1 January 2025 (Eurostat) and
+language model's recall, for Latvia's first names from PMLP's register statistics, and for Estonia's names and Latvia's last names from a language model's recall alone (the weights of the recalled names are estimates). `sex` counts the people of each
+sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026, Germany's, Estonia's, Latvia's and France's on 1 January 2025 (Eurostat) and
 the United States' on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
@@ -1212,6 +1212,21 @@ drawn with odds by population, every state capital but Honolulu, and every place
 [`locality.tsv`](data/geo/US/locality.tsv) before selecting it. A region row
 carries its `timezone`, the state's predominant zone, and a locality its `lat` and
 `lon`.
+
+### `lv_LV`
+
+`lv_LV`, Latvian, carries `first-name`, `last-name`, `person`, `sex` and `title`. `sex` is `sieviete` and `vīrietis`, `title` is
+`Dr.` and `prof.`, drawn whatever the sex. `{/lv_LV.person}` renders e.g. `Anna Bērziņa`.
+
+`first-name` holds the 2,000 commonest first given names of each sex, each weighted by the persons bearing it in the
+Natural Persons Register, from the Office of Citizenship and Migration Affairs' "Personu vārdi" of 1 July 2026 (CC0 1.0,
+"Avots: Pilsonības un migrācijas lietu pārvalde"). The register holds foreigners' names too, so some names are not Latvian.
+The office publishes no last names, so `last-name` is a language model's recall of names common in Latvia: the commoner ones
+are ranked, each weighing 100000 over the square root of its rank, and the rarer ones share one weight. These weights
+are estimates. `last-name` links to `sex` so that a woman bears the feminine form of a last name: `Bērziņa` where a man
+bears `Bērziņš`, `Balode` for `Balodis`, and the same name where it ends alike for both. `lv_LV.sex` carries Latvia's
+population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the sex counts credits "Source:
+Eurostat".
 
 ### `misc`
 

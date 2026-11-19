@@ -2279,3 +2279,20 @@ Read most (opens and searches):
 - `release-tooling/changelog.py` 2
 - `docs/score-anchors.md` 1
 - `release-tooling/propose_plan.py` 1
+
+## Reading cost, chunk dc404f9dcf34, finished 2026-11-19T15:46:27Z
+
+122225 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/locales_test.go` 6
+- `DATA-LICENSES.md` 5
+- `docs/decisions.md` 5
+- `data-import/sex-population.py` 3
+- `data_test.go` 3
+- `README.md` 2
+- `data-import/names-de.py` 2
+- `compose.yaml` 1
+- `data-import/names-dk.py` 1
+- `data/da_DK/first-name.tsv` 1
