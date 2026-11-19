@@ -452,9 +452,30 @@ fi_FI.word.adv	string
 fi_FI.word.any	string
 fi_FI.word.noun	string
 fi_FI.word.verb	string
+fr_FR.company	format "{registered as r}{r}"	reads fr_FR.company fr_FR.company-coined fr_FR.company-word fr_FR.first-name fr_FR.last-name
+fr_FR.company-coined	format "{a}{b}"
+fr_FR.company-word
+fr_FR.company.ei	string
+fr_FR.company.ei.name
+fr_FR.company.legal	string
+fr_FR.company.registered	string
+fr_FR.company.registered.legal
+fr_FR.company.sa	string
+fr_FR.company.sa.name
+fr_FR.company.sarl	string
+fr_FR.company.sarl.name
+fr_FR.company.sas	string
+fr_FR.company.sas.name
+fr_FR.company.snc	string
+fr_FR.company.snc.name
+fr_FR.date	format "{date(1970-01-01,2029-12-31,'02/01/2006')}"
 fr_FR.department	format "{code}"	key code	reads fr_FR.nonzero-number
 fr_FR.department.code	string
 fr_FR.department.commune	string
+fr_FR.email	format "{local}@{domain}"	reads fr_FR.first-name fr_FR.last-name
+fr_FR.email.domain	string
+fr_FR.email.local	string
+fr_FR.email.local.n
 fr_FR.first-name	format "{name}"	name name	weight count	parent sex
 fr_FR.first-name.count	string
 fr_FR.first-name.name	string
