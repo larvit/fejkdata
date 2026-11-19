@@ -748,7 +748,7 @@ func TestRecordSQLHeaderAndValuesJoinIntoAMultiRowInsert(t *testing.T) {
 	}
 }
 
-func recordsWithLetFields(t *testing.T) *Generator {
+func recordsWithHiddenFields(t *testing.T) *Generator {
 	t.Helper()
 	dir := writeData(t, map[string]string{
 		"sched": `{"format":"{weekday as d}","hidden":{"weekday":["MO","TU"],"helper":"x"},"day":"{d}","rrule":"BYDAY={d}"}`,
@@ -759,7 +759,7 @@ func recordsWithLetFields(t *testing.T) *Generator {
 
 func TestRecordHiddenFieldsWriteNoColumn(t *testing.T) {
 	t.Parallel()
-	f := recordsWithLetFields(t)
+	f := recordsWithHiddenFields(t)
 	inline, err := f.NewRecordTemplate(`{"format":"{weekday as d}","hidden":{"weekday":["MO","TU"]},"day":"{d}"}`)
 	if err != nil {
 		t.Fatal(err)
@@ -785,7 +785,7 @@ func TestRecordHiddenFieldsWriteNoColumn(t *testing.T) {
 
 func TestRecordHiddenFieldIsReadableFromAnotherCategory(t *testing.T) {
 	t.Parallel()
-	cp, err := recordsWithLetFields(t).FakeRecord("copy")
+	cp, err := recordsWithHiddenFields(t).FakeRecord("copy")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -807,6 +807,7 @@ func TestRecordHiddenErrors(t *testing.T) {
 		{`{"format":"","hidden":{"a":"x"},"a":"y"}`, `field "a" is in hidden and beside it`},
 		{`{"format":"","hidden":{"a.b":"x"},"c":"y"}`, "field"},
 		{`{"format":"","hidden":{"weight":"w"},"b":"y"}`, `"weight" is an option`},
+		{`{"format":"","hidden":{"let":"w"},"b":"y"}`, `"let" was the option now named hidden`},
 		{`{"format":"","let":{"a":"x"},"b":"y"}`, `the option let is now named hidden`},
 	} {
 		t.Run(c.input, func(t *testing.T) {
