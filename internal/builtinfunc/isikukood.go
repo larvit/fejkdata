@@ -5,25 +5,12 @@ import (
 	"time"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
-	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // isikukoodWeights are the two series of weights python-stdnum's ee.ik gives the first ten digits:
 // the check digit is the sum with the first, modulo 11, or where that is 10, the sum with the
 // second, modulo 11, or where that is 10 too, 0.
 var isikukoodWeights = [2][10]int{{1, 2, 3, 4, 5, 6, 7, 8, 9, 1}, {3, 4, 5, 6, 7, 8, 9, 1, 2, 3}}
-
-// fieldArgs refuses a call as an operand of the builtin name, which reads a field, path or name.
-func fieldArgs(name string) func([]string) error {
-	return func(a []string) error {
-		for _, arg := range a {
-			if _, _, isCall := grammar.FuncCall(arg); isCall {
-				return fmt.Errorf("%s takes a field, path or name, not the call %s", name, arg)
-			}
-		}
-		return nil
-	}
-}
 
 // isikukoodPrep also draws asmenskodas, a Lithuanian personal code, which python-stdnum's lt.asmens
 // takes from ee.ik: the same century digits, serial number and check digit.

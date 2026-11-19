@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
-	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // personasKodsWeights are the weights python-stdnum's lv.pvn gives the first ten digits of a
@@ -18,13 +17,6 @@ var personasKodsWeights = [10]int{10, 5, 8, 4, 2, 1, 6, 3, 7, 9}
 var personasKodsUndatedFrom = time.Date(2017, 7, 1, 0, 0, 0, 0, time.UTC)
 
 const personasKodsUndated = "32"
-
-func personasKodsArgs(a []string) error {
-	if _, _, isCall := grammar.FuncCall(a[0]); isCall {
-		return fmt.Errorf("personaskods takes a field, path or name, not the call %s", a[0])
-	}
-	return nil
-}
 
 func personasKodsPrep([]string, parsed) Call {
 	return func(s *drawstate.State, _ string, operands []string) string {

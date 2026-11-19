@@ -38,7 +38,7 @@ var builtins = withTransforms(map[string]builtin{
 	"hetu":         {calls: []string{"hetu(x)", "hetu(x,'issued')"}, arity: -1, checkArgs: plain(hetuArgs), prep: hetuPrep, operands: func(a []string) []string { return a[:1] }},
 	"isikukood":    {calls: []string{"isikukood(x,d)"}, arity: 2, checkArgs: plain(fieldArgs("isikukood")), prep: isikukoodPrep, operands: func(a []string) []string { return a }},
 	"asmenskodas":  {calls: []string{"asmenskodas(x,d)"}, arity: 2, checkArgs: plain(fieldArgs("asmenskodas")), prep: isikukoodPrep, operands: func(a []string) []string { return a }},
-	"personaskods": {calls: []string{"personaskods(d)"}, arity: 1, checkArgs: plain(personasKodsArgs), prep: personasKodsPrep, operands: func(a []string) []string { return a }},
+	"personaskods": {calls: []string{"personaskods(d)"}, arity: 1, checkArgs: plain(fieldArgs("personaskods")), prep: personasKodsPrep, operands: func(a []string) []string { return a }},
 	"nir":          {calls: []string{"nir()"}, arity: 0, prep: derive(nirKey)},
 	"steuerid":     {calls: []string{"steuerid()"}, arity: 0, prep: sample(steuerID)},
 	"uuid":         {calls: []string{"uuid()"}, arity: 0, prep: sample(uuidV7), avoids: fixedRuns(uuidRuns, "00000000-0000-0000-0000-000000000000")},

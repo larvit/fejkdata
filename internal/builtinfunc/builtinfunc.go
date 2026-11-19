@@ -10,6 +10,7 @@ import (
 	"github.com/larvit/fejkdata/internal/avoid"
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/proven"
 )
@@ -55,6 +56,18 @@ type parsed struct {
 }
 
 // plain makes a checkArgs for a builtin whose args hold no number: it checks and returns none.
+// fieldArgs refuses a call as an operand of the builtin called name, which reads a field, a path or a name of its own.
+func fieldArgs(name string) func([]string) error {
+	return func(a []string) error {
+		for _, arg := range a {
+			if _, _, isCall := grammar.FuncCall(arg); isCall {
+				return fmt.Errorf("%s takes a field, path or name, not the call %s", name, arg)
+			}
+		}
+		return nil
+	}
+}
+
 func plain(check func(args []string) error) func([]string) (parsed, error) {
 	return func(a []string) (parsed, error) { return parsed{}, check(a) }
 }
