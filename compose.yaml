@@ -49,16 +49,27 @@ services:
 
   mutate:
     <<: *go
-    command: go run github.com/go-gremlins/gremlins/cmd/gremlins@v0.6.0 unleash --diff origin/main --output-statuses lctkv --exclude-files '.*_test\.go'
+    command:
+      - sh
+      - -c
+      - |
+        if git diff --quiet --merge-base origin/main; then
+          echo 'Nothing changed since origin/main.'
+        else
+          exec go run github.com/go-gremlins/gremlins/cmd/gremlins@v0.6.0 unleash --diff origin/main --output-statuses lctkv --exclude-files '.*_test\.go'
+        fi
     volumes:
       - .:/app
       - gocache:/cache
       - ${GIT_COMMON_DIR:-./.git}:${GIT_COMMON_DIR:-/app/.git}
     environment:
       <<: *go-env
-      GIT_CONFIG_COUNT: 1
+      GIT_CONFIG_COUNT: 2
       GIT_CONFIG_KEY_0: safe.directory
       GIT_CONFIG_VALUE_0: "*"
+      # Gremlins v0.6.0 mutates one run of lines per hunk, so a hunk must hold one change.
+      GIT_CONFIG_KEY_1: diff.context
+      GIT_CONFIG_VALUE_1: 0
     mem_limit: 8g
     memswap_limit: 8g
 
