@@ -23,6 +23,8 @@ type shippedLocale struct {
 	names    *names
 	person   *person
 	company  *company
+	// Whether a company name may open with its legal form, as well as end in it.
+	companyFormOpens bool
 	// Go's layout of the locale's date: "2.1.2006" pads neither the day nor the month.
 	dateLayout string
 	emailFold  *strings.Replacer
@@ -56,8 +58,7 @@ type person struct {
 	titles   []string
 }
 
-// A company's legal forms: the one whose names carry no legal form, and those whose names end in theirs or
-// open with it.
+// A company's legal forms: the one whose names carry no abbreviation, and those whose names carry their own.
 type company struct {
 	name   *regexp.Regexp
 	bare   legalForm
@@ -149,14 +150,15 @@ var shippedLocales = []shippedLocale{
 		name:   "et_EE",
 		names:  &names{map[string]string{"Liis": "f", "Kristiina": "f", "Andres": "m", "Toomas": "m"}, nil},
 		person: &person{map[string]string{"f": "naine", "m": "mees"}, []string{"dr", "prof"}},
-		// The e-Business Register's basic data of 19 November 2026, the legal persons entered into the register
+		// The e-Business Register's basic data of 19 November 2026, the businesses entered into the register
 		// by ettevotja_oiguslik_vorm: Füüsilisest isikust ettevõtja, Osaühing, Usaldusühing, Aktsiaselts and Täisühing.
 		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]$`), legalForm{"FIE", "fie", "", 24541}, []legalForm{
 			{"OÜ", "ou", "OÜ", 288168}, {"UÜ", "uu", "UÜ", 3514}, {"AS", "as", "AS", 1901}, {"TÜ", "tu", "TÜ", 1028},
 		}},
-		dateLayout: "02.01.2006",
-		emailFold:  strings.NewReplacer("ä", "a", "õ", "o", "ö", "o", "ü", "u", "š", "s", "ž", "z"),
-		phone:      &phone{"+372", "", estonianFixedPhone, nil},
+		companyFormOpens: true,
+		dateLayout:       "02.01.2006",
+		emailFold:        strings.NewReplacer("ä", "a", "õ", "o", "ö", "o", "ü", "u", "š", "s", "ž", "z"),
+		phone:            &phone{"+372", "", estonianFixedPhone, nil},
 	},
 	{
 		name:     "fi_FI",

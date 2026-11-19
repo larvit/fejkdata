@@ -1,5 +1,6 @@
 import io
 import json
+import re
 import unittest
 import zipfile
 from collections import Counter
@@ -69,9 +70,19 @@ class Shapes(unittest.TestCase):
         self.assertEqual(company_ee.kind("TAMM", words, False), "S")
         self.assertIsNone(company_ee.kind("Zorba", words, True))
 
-    def test_a_legal_word_is_left_out_of_a_shape(self) -> None:
-        shapes, _ = company_ee.count_names([("OÜ", "Osaühing Zorba OÜ")], WORDS, set())
-        self.assertEqual(dict(shapes["OÜ"]), {("X",): 1})
+    def test_a_legal_word_is_left_out_of_a_shape_with_or_without_a_dot(self) -> None:
+        shapes, _ = company_ee.count_names([("OÜ", "Osaühing Zorba OÜ"), ("OÜ", "Osaühing. Zorba OÜ")], WORDS, set())
+        self.assertEqual(dict(shapes["OÜ"]), {("X",): 2})
+
+    def test_a_name_of_legal_words_alone_is_not_counted(self) -> None:
+        shapes, places = company_ee.count_names([("OÜ", "Osaühing OÜ")], WORDS, set())
+        self.assertEqual((dict(shapes["OÜ"]), dict(places["OÜ"])), ({}, {}))
+
+    def test_a_word_that_is_both_names_is_a_first_name_inside_a_name_and_a_last_name_at_its_end(self) -> None:
+        words = company_ee.Words({"tamm", "mari"}, {"mari", "jaan"})
+        self.assertEqual(company_ee.shape_of(["Mari", "Zorba"], words, set()), ("F", "X"))
+        self.assertEqual(company_ee.shape_of(["Zorba", "Mari"], words, set()), ("X", "S"))
+        self.assertEqual(company_ee.shape_of(["Jaan", "Mari"], words, set()), ("FS",))
 
     def test_a_name_counts_its_shape_and_where_it_places_its_form(self) -> None:
         shapes, places = company_ee.count_names([("OÜ", "Zorba OÜ"), ("OÜ", "OÜ Zorba"), ("OÜ", "Zorba"), ("AS", "AS Jaan Tamm")], WORDS, set())
@@ -103,11 +114,11 @@ class Coined(unittest.TestCase):
         self.assertNotIn("Zorba", self.coined("Zorba", 39, 2))
         self.assertNotIn("Zorba", self.coined("Zorba", 40, 1))
 
-    def test_a_coined_word_has_four_letters_or_more_and_any_length_above(self) -> None:
+    def test_a_coined_word_has_four_letters_or_more(self) -> None:
         self.assertNotIn("Zor", self.coined("Zor", 40, 2))
         self.assertIn("Arhitektuuribüroo", self.coined("Arhitektuuribüroo", 40, 2))
 
-    def test_a_coined_word_keeps_the_register_s_spelling_with_its_letters(self) -> None:
+    def test_a_coined_word_keeps_its_estonian_letters(self) -> None:
         self.assertEqual(self.coined("ÕNNE", 40, 2)["Õnne"], 40)
         self.assertIn("Šokk", self.coined("Šokk", 40, 2))
 
@@ -116,10 +127,17 @@ class Coined(unittest.TestCase):
 
 
 class Trade(unittest.TestCase):
-    def test_a_trade_word_of_one_form_alone_counts_since_osauhingud_hold_nearly_every_name(self) -> None:
+    def test_a_trade_word_of_one_form_alone_counts_since_ou_names_are_nearly_every_name(self) -> None:
         rows = [("OÜ", "Alfa Ehitus" if i < 40 else "Ehitus Alfa") for i in range(100)]
         trade = company_ee.trade_words(company_ee.word_usage(rows, lambda w: False, company_ee.VOCABULARY), company_ee.VOCABULARY)
         self.assertEqual(trade["ehitus"], ("Ehitus", 100))
+
+    def test_a_trade_word_spans_three_forms_where_a_vocabulary_names_no_spread(self) -> None:
+        vocabulary = company_ee.Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(), frozenset(), frozenset({"A", "B", "C"}), 0)
+        rows = [("AB"[i % 2], "Alfa Ehitus" if i < 40 else "Ehitus Alfa") for i in range(100)]
+        self.assertNotIn("ehitus", company_ee.trade_words(company_ee.word_usage(rows, lambda w: False, vocabulary), vocabulary))
+        rows = [("ABC"[i % 3], name) for i, (_, name) in enumerate(rows)]
+        self.assertIn("ehitus", company_ee.trade_words(company_ee.word_usage(rows, lambda w: False, vocabulary), vocabulary))
 
 
 SHAPES = {"OÜ": {("X",): 200, ("T", "X"): 1}, "AS": {("FS",): 10}, "UÜ": {("X",): 1}, "TÜ": {("X",): 1}}
@@ -131,7 +149,7 @@ class Output(unittest.TestCase):
         data: dict[str, dict[str, object]] = json.loads(company_ee.company_json({"FIE": 50, "OÜ": 80, "AS": 20, "UÜ": 2, "TÜ": 1}, SHAPES, PLACES))
         return data
 
-    def test_the_forms_are_registered_by_units_with_no_abbreviation_on_the_fie(self) -> None:
+    def test_the_forms_weigh_their_businesses_with_no_abbreviation_on_the_fie(self) -> None:
         registered = self.company()["registered"]
         assert isinstance(registered, list)
         self.assertEqual([(r["format"], r["legal"], r["weight"]) for r in registered], [
@@ -141,7 +159,7 @@ class Output(unittest.TestCase):
     def test_an_fie_is_one_person(self) -> None:
         self.assertEqual(self.company()["fie"], {"format": "{name}", "name": "{.person as p}{p.first} {p.last}"})
 
-    def test_a_form_puts_its_abbreviation_where_the_names_put_the_form_and_ships_its_shapes_above_the_share(self) -> None:
+    def test_a_form_puts_its_abbreviation_where_the_names_put_the_form_and_ships_its_shapes_above_share_min(self) -> None:
         self.assertEqual(self.company()["ou"], {
             "format": "{name as ou_name}{placed}",
             "name": [{"format": "{.company-coined}", "weight": 200}],
