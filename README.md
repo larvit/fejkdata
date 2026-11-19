@@ -1013,13 +1013,19 @@ Renders e.g. `Lars Pavlov, 39406231528`.
 #### Estonian phone numbers
 
 `et_EE.phone` is a mobile number ten times as often as a fixed one. Estonia has no area codes, so every number
-is dialled as it stands: `5123 4567` for a mobile and `612 3456` for a fixed number, and `+372 5123 4567` with
-the country code. The ranges are those of the Annex to the Estonian numbering plan, regulation no. 25 of
-21 May 2018 of the Minister of Entrepreneurship and Information Technology: eight-digit mobile numbers
-starting with 5, and seven-digit fixed numbers starting with 32, 33, 35, 38, 39, 43 to 48 or 60 to 68, each
-two-digit start drawn evenly. The plan's other mobile ranges, 81 to 86, and the seven-digit mobile numbers it
-keeps only until their reservations end are left out. The Annex marks no range as reserved for fiction or
-tests, so a number drawn may be a real subscriber's.
+is dialled as it stands: `5123 4567` for a mobile and `612 3456` for a fixed number. Its `national` field is that
+form, and its `international` field is `+372 5123 4567`, with the country code.
+
+The ranges are those of the Annex to the Estonian numbering plan, regulation no. 25 of 21 May 2018 of the
+Minister of Entrepreneurship and Information Technology, in the text of the ministry's draft amending it in
+February 2024. A mobile number has eight digits and starts with 5. A fixed number has seven digits and starts
+with 32, 33, 35, 38, 39, 43 to 48, 60 to 68, 71 to 79 or 88, each of those 30 starts drawn evenly, since the
+Annex publishes no frequency. Not drawn are the seven-digit mobile numbers the Annex allows as exceptions, its
+other mobile range 81 to 84, all of 69, where 690 to 696 serve nationwide state communications, and every
+number for another service, such as 900 for premium rates.
+
+A number is valid, not real: it lies in a range the Annex allocates, and a real subscriber may hold it. The
+Annex doesn't reserve any range for fiction or tests, so don't call or text a drawn number.
 
 ### `fi_FI`
 
