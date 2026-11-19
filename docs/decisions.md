@@ -1022,6 +1022,27 @@ its date; its first operand is `et_EE.sex-digit`'s digit, 1 for a man and 2 for 
 `fr_FR.sex-digit` does. The age bands weigh Statistics Estonia's population of 1 January 2026.
 Valid while the regulation and the register publish no test series or unassigned range.
 
+## The Latvian id draws valid personas kodi over the last hundred years
+
+2026-11-19, Lilleman auf Larv.
+
+Goal 3 (a valid id passes the check the real system applies) is served, and goal 3.3 (a form that
+reaches nothing real) is not: the Office of Citizenship and Migration Affairs, which gives the
+codes, and the Population Register Act publish no test series and no unassigned range. So
+`lv_LV.personas-kods` is valid and may be a living person's, and the README says so, as it does for
+`et_EE.isikukood`. Item 23 ends the departure from goal 3.3. The Act gives a person registered from
+1 July 2017 a code that starts with 32 and then random digits, with no date, so `{personaskods(d)}`
+prints one for a birth date from 1 July 2017 and a dated code for an earlier one; the shipped bands
+draw both, the 9% of codes of people born since 1 July 2017 undated. No source states the check digit,
+and python-stdnum's `lv.pvn` says its algorithm is unconfirmed by an independent source, so the
+check digit follows it, 1 plus the first ten digits weighted 10, 5, 8, 4, 2, 1, 6, 3, 7 and 9,
+modulo 11, and modulo 10, for the undated code too, which passes that check and any rule that its
+digits are random. No source states which serial numbers the register gives, so the serial number
+is drawn evenly from 000 to 999. The builtin takes the date as an operand and prints the whole
+code, as `{isikukood(x,d)}` does, since the century digit and the 32 depend on it. There is no sex
+digit, since the code holds none. The age bands weigh Eurostat's population of 1 January 2025.
+Valid while the Office and the Act publish no test series or unassigned range.
+
 ## The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 
 2026-11-12, Lilleman auf Larv.
