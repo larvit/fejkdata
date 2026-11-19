@@ -444,7 +444,7 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 	}
 }
 
-func TestShippedMiscAddressesStayInRangesThatReachNothing(t *testing.T) {
+func TestShippedMiscReservedAddressesStayInTheirRanges(t *testing.T) {
 	f := newBareModule(t, "misc", WithSeed(1))
 	prefixes := func(texts ...string) []netip.Prefix {
 		var out []netip.Prefix
@@ -474,6 +474,12 @@ func TestShippedMiscAddressesStayInRangesThatReachNothing(t *testing.T) {
 			if !inAny(ranges, a) {
 				t.Fatalf("%s = %q, want it inside %v", path, v, ranges)
 			}
+			if a.String() != v {
+				t.Fatalf("%s = %q, want the canonical text %q", path, v, a.String())
+			}
+			if a.Is4() && (a.As4()[3] == 0 || a.As4()[3] == 255) {
+				t.Fatalf("%s = %q, want a host address, not a network or broadcast one", path, v)
+			}
 			for _, r := range ranges {
 				if r.Contains(a) {
 					hit[r] = true
@@ -489,6 +495,7 @@ func TestShippedMiscAddressesStayInRangesThatReachNothing(t *testing.T) {
 	t.Run("ipv6", func(t *testing.T) { seen(t, prefixes("2001:db8::/32"), "ipv6") })
 	t.Run("ip.cidr", func(t *testing.T) {
 		both := append(append([]netip.Prefix{}, documentation...), private...)
+		drewFrom := map[string]bool{}
 		fejktest.EachDraw(600, func() string { return fejktest.Fake(t, f, "ip.cidr") }, func(v string) {
 			p, err := netip.ParsePrefix(v)
 			if err != nil {
@@ -500,7 +507,12 @@ func TestShippedMiscAddressesStayInRangesThatReachNothing(t *testing.T) {
 			if !inAny(both, p.Addr()) || !inAny(both, lastAddr(p)) {
 				t.Fatalf("ip.cidr = %q, want the block inside %v", v, both)
 			}
+			drewFrom["documentation"] = drewFrom["documentation"] || inAny(documentation, p.Addr())
+			drewFrom["private"] = drewFrom["private"] || inAny(private, p.Addr())
 		})
+		if !drewFrom["documentation"] || !drewFrom["private"] {
+			t.Errorf("ip.cidr drew from %v, want documentation and private blocks both", drewFrom)
+		}
 	})
 }
 
