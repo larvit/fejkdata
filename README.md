@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names, persons, asmens kodai and phone numbers, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails and dates, `lt_LT`'s names, persons, asmens kodai and phone numbers, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -973,7 +973,7 @@ may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, 
 
 ### `et_EE`
 
-`et_EE`, Estonian, carries `first-name`, `isikukood`, `last-name`, `person`, `phone`, `sex`, `sex-digit` and `title`. `sex` is `naine` and `mees`, `title` is
+`et_EE`, Estonian, carries `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `isikukood`, `last-name`, `person`, `phone`, `sex`, `sex-digit` and `title`. `sex` is `naine` and `mees`, `title` is
 `dr` and `prof`, drawn whatever the sex. `{/et_EE.person}` renders e.g. `Liis Tamm`.
 
 Both name tables are a language model's recall of names common in Estonia: the commoner ones of each list are
@@ -1009,6 +1009,34 @@ the sex as `s` and the `birth` field of `et_EE.isikukood`, a day written `YYYYMM
 ```
 
 Renders e.g. `Lars Pavlov, 39406231528`.
+
+#### Estonian companies
+
+`et_EE.company` draws a legal form as often as the e-Business Register counts the legal persons of it entered in the
+register on 19 November 2026: 288,168 private limited companies (`OÜ`), 24,541 sole proprietors (`FIE`), 3,514 limited
+partnerships (`UÜ`), 1,901 public limited companies (`AS`) and 1,028 general partnerships (`TÜ`). Those in liquidation
+or bankruptcy aren't counted. The non-profits, the apartment associations, the co-operatives and the other forms the
+register holds aren't drawn.
+
+An `FIE`'s name is one person's first and last name, such as `Kristo Stepanov`, with no abbreviation, as most of the
+register's `FIE` names are. The others carry their abbreviation after the name, such as `Saare Technologies OÜ`, or
+before it, such as `AS Audio Restoran`, each as often as the form's names in the register do. Most `OÜ` and `UÜ` names
+end in it, and most `AS` and `TÜ` names open with it. `et_EE.company.fie`, `.ou`, `.as`, `.uu` and `.tu` each draw one
+form, and `{/et_EE.company as c}{c.legal}` prints the abbreviation of the same pick, empty for an `FIE`.
+
+The shapes of the other names, the trade words of `company-word` and the words of `company-coined` come from the names
+of those legal persons, as [`company-ee.py`](data-import/company-ee.py) counts them. Many are English, as the
+register's names are. A name is invented from those parts, and may also be a real company's. A program showing the
+data credits "Source: e-Business Register, Centre of Registers and Information Systems (RIK)", names
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says that the data is reduced to five legal forms and
+derived from the register's names.
+
+#### Estonian dates and emails
+
+`et_EE.date` is a date from 1970 to 2029 as Estonia writes it, a two-digit day and month and a four-digit year with
+dots between, such as `02.04.2019`. `et_EE.email` is built like `de_DE.email`: half its local parts are the first and
+last name of one person from `et_EE.person`, folded to ASCII, such as `martin.koiv7`. Its domains are `example.com`,
+`example.org` and `example.net`, or a subdomain of one, which IANA reserves, so no address reaches a real mailbox.
 
 #### Estonian phone numbers
 
@@ -2999,7 +3027,8 @@ A shipped table built from a source is rebuilt by its script under
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Run the block below in order: some scripts
 read a table another one writes. `cldr.py` and `timezone.py` read
 `misc/territory.tsv`. `company-se.py` reads the sv_SE names and `geo/SE`, and
-`company-no.py` reads the nb_NO names and `geo/NO`, and `company-fr.py` reads the fr_FR names.
+`company-no.py` reads the nb_NO names and `geo/NO`, `company-fr.py` the fr_FR names, and `company-ee.py`
+the et_EE names.
 
 Downloads are cached under `data-import/cache/`, which version control ignores and
 which grows past a gigabyte. Delete that folder to fetch afresh, or pass
@@ -3035,6 +3064,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-u
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/bankaccount-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/car-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-ee.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-fr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
