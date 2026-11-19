@@ -16,7 +16,6 @@
 | 508 | 0.7.0 |  |  | **Add `lt_LT` with its given names by sex, last names and titles, and `lt_LT.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 509 | 0.7.0 | 508 |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
-| 272 | 0.7.0 |  |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 500 | 0.7.0 |  |  | **Add `et_EE.phone`, drawn from Estonia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 505 | 0.7.0 |  |  | **Add `lv_LV.phone`, drawn from Latvia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 510 | 0.7.0 | 508 |  | **Add `lt_LT.phone`, drawn from Lithuania's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -297,20 +296,6 @@ Touches:
 - `data/locale_everyday_test.go`: `TestShippedUrlsDrawTheLocalesOwnHostAndPathWords`
 - `testdata/shipped_shape.txt`: lines 30-33 (small), lines 86-88 (small), lines 143-146 (small), lines 198-200 (small), lines 234-237 (small), lines 292-294 (small), lines 343-346 (small), lines 408-410 (small), lines 978-981 (small), lines 1036-1038 (small), lines 1075-1077 (small), lines 1102-1104 (small), lines 1181-1184 (small), lines 1289-1291 (small)
 - `README.md`: `#### Data sources` (small), `### Locale categories`, `#### Norwegian dates and emails` (small), `#### Danish dates and emails` (small), `#### German dates and emails` (small), `#### Finnish dates and emails` (small)
-
-### 272. Add `fr_FR.phone`, drawn from France's numbering plan.
-
-Find the numbering plan and its licence first.
-
-Touches:
-
-- `data/fr_FR/`
-- `data-import/phone-fr.py`
-- `data/french_phone_test.go`
-- `data/locales_test.go`: lines 99-202 (small)
-- `testdata/shipped_shape.txt`: lines 429-430 (small)
-- `README.md`: `# fejkdata` (small), `` ### `fr_FR` `` (small), `#### French phone numbers`
-- `DATA-LICENSES.md`: `` ## `fr_FR/phone-fixed.tsv`, `phone-mobile.tsv` ``
 
 ### 500. Add `et_EE.phone`, drawn from Estonia's numbering plan.
 
