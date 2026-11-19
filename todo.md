@@ -282,7 +282,7 @@ Touches:
 
 ### 524. Add a mutation tool for Go.
 
-`~/.claude/bin/mutate-changes` covers .py, .rs, JavaScript and TypeScript, and .php only. On a chunk of this project it prints `Not mutated, as no tool covers their language` for every changed .go file, such as `internal/engine/load/path.go`, `internal/engine/draw.go` and `internal/engine/index.go`, so the stability pass tests no Go mutant.
+`~/.claude/bin/mutate-changes` covers .py, .rs, JavaScript and TypeScript, and .php only. On a chunk of this project it prints `Not mutated, as no tool covers their language` for every changed .go file, such as `internal/engine/load/path.go`, `internal/engine/draw.go`, `internal/engine/index.go`, `internal/builtinfunc/builtins.go`, `internal/builtinfunc/isikukood.go` and `internal/fejktest/ids.go`, so the stability pass tests no Go mutant.
 
 Use Gremlins (`github.com/go-gremlins/gremlins`), pinned to v0.6.0, its latest release, cut on 2025-12-06; its main branch took commits up to March 2026. It builds with Go 1.25 or later and runs the module's tests with the Go that runs it, so it works with the image's Go 1.27.4 and the module's `go 1.22`. Pick Gremlins over go-mutesting (`github.com/avito-tech/go-mutesting`, v2.3.1), which is also maintained: `gremlins unleash --diff <ref>` mutates only the lines changed since a git ref, as `mutate-changes` does for the other languages, where go-mutesting mutates whole files or packages.
 
