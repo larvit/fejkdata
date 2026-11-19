@@ -13,31 +13,30 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 521 | 0.7.0 |  |  | **Leave a `let` field out of `--list`, `.fejkdata.json` and `testdata/shipped_shape.txt` in any category, and move the shipped helper fields, such as `misc.ipv6.g`, into `let`.** | 2 | 2 | 2 | 4 | 3 | 4 by 3, code health by 2 | 5.3 |
-| 498 | 0.7.0 |  |  | **Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
-| 499 | 0.7.0 | 498 |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 499 | 0.7.0 |  |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 503 | 0.7.0 |  |  | **Add `lv_LV` with its given names by sex, last names and titles, and `lv_LV.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 504 | 0.7.0 | 503 |  | **Add `lv_LV`'s national personal id, the personas kods, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 508 | 0.7.0 |  |  | **Add `lt_LT` with its given names by sex, last names and titles, and `lt_LT.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 509 | 0.7.0 | 508 |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
 | 272 | 0.7.0 |  |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
-| 500 | 0.7.0 | 498 |  | **Add `et_EE.phone`, drawn from Estonia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 500 | 0.7.0 |  |  | **Add `et_EE.phone`, drawn from Estonia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 505 | 0.7.0 | 503 |  | **Add `lv_LV.phone`, drawn from Latvia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 510 | 0.7.0 | 508 |  | **Add `lt_LT.phone`, drawn from Lithuania's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 274 | 0.7.0 |  |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
-| 501 | 0.7.0 | 498 |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 501 | 0.7.0 |  |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 506 | 0.7.0 | 503 |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 511 | 0.7.0 | 508 |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 513 | 0.7.0 |  |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 514 | 0.7.0 |  |  | **Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
-| 515 | 0.7.0 | 498 |  | **Add `et_EE.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Estonia writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
-| 516 | 0.7.0 | 498 |  | **Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 515 | 0.7.0 |  |  | **Add `et_EE.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Estonia writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
+| 516 | 0.7.0 |  |  | **Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 517 | 0.7.0 | 503 |  | **Add `lv_LV.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Latvia writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 518 | 0.7.0 | 503 |  | **Add `lv_LV.word` with its noun, verb, adjective and adverb forms, and `lv_LV.sentence` and `lv_LV.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 519 | 0.7.0 | 508 |  | **Add `lt_LT.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Lithuania writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 520 | 0.7.0 | 508 |  | **Add `lt_LT.word` with its noun, verb, adjective and adverb forms, and `lt_LT.sentence` and `lt_LT.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 270 | 0.7.0 |  |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
-| 502 | 0.7.0 | 498 |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 502 | 0.7.0 |  |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 507 | 0.7.0 | 503 |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 512 | 0.7.0 | 508 |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 351 | 0.8.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 1.5 |
@@ -264,20 +263,6 @@ Touches:
 - data/sv_SE/.fejkdata.json
 - testdata/shipped_shape.txt
 - README.md: `Let`, `Options and fields` (small)
-
-### 498. Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.
-
-Estonia is a small market on its own and a niche few fake-data tools cover, which is why it ships beside the larger France.
-
-Find the open name statistics first: Statistics Estonia's name statistics. Check each source's licence before importing, and record it in `DATA-LICENSES.md`. Spell the names as Estonian writes them.
-
-Touches:
-
-- `data/et_EE/`
-- `data/modules.go`: lines 7-28 (small)
-- `data-import/`
-- `README.md`: `# fejkdata` (small), `### Shipped modules` (small), `#### Names and sex` (small), `` ### `et_EE` ``
-- `DATA-LICENSES.md`: `` ## `et_EE/first-name.tsv`, `last-name.tsv` ``
 
 ### 499. Add `et_EE`'s national personal id, the isikukood, with its check digits.
 

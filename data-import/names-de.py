@@ -19,6 +19,7 @@ import io
 import sys
 from pathlib import Path
 
+import recalled_names
 import source
 import tsv
 
@@ -114,14 +115,7 @@ def firsts(cache: str) -> list[dict[str, object]]:
 
 def lasts() -> list[dict[str, object]]:
     """The rows (name, count) of the recalled last names."""
-    ordered, _, rarer = (part.split() for part in LAST_RECALLED.partition("\n=\n"))
-    names = ordered + rarer
-    dupes = sorted({n for n in names if names.count(n) > 1})
-    if dupes:
-        sys.exit(f"last names: listed twice: {', '.join(dupes)}")
-    for name in names:
-        if not tsv.NAME.match(name):
-            sys.exit(f"last names: {name!r} is not a name in letters")
+    ordered, rarer = recalled_names.split("last names", LAST_RECALLED)
     rows = [(name, round(700000 / rank ** 0.5)) for rank, name in enumerate(ordered, start=1)]
     rows += [(name, round(700000 / len(ordered) ** 0.5)) for name in rarer]
     return [{"name": name, "count": n} for name, n in sorted(rows)]

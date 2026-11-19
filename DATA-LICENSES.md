@@ -167,6 +167,18 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   `en_US` module embeds the file, and the release archives and packages carry it
 - Rebuild: `data-import/word-us.py`
 
+## `et_EE/first-name.tsv`, `last-name.tsv`
+
+- Source: a language model's recall of names common in Estonia, as no open register publishes Estonian
+  name counts under a licence the project takes: Statistics Estonia's [name
+  statistics](https://www.stat.ee/nimed/) are CC BY-SA 4.0, so none of its counts is used. The commoner
+  names of each list are ranked from the most to the least common, each with an estimated count of
+  100000 over the square root of its rank, then the rarer ones, sharing the count of the last rank. A
+  woman's last name is the masculine one with an `a` added where a Russian name ends in `ov` or `ev`
+- Licence: the project's own [LICENSE](LICENSE)
+- Attribution: none required
+- Rebuild: `data-import/names-ee.py`
+
 ## `fi_FI/company.json`, `company-coined.json`, `company-word.json`
 
 - Source: the weights of the legal forms of `company.json`: [Statistics
@@ -586,10 +598,11 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: `data-import/bankaccount-se.py`
 
-## `sv_SE/birth-number.tsv` and 8 more
+## `sv_SE/birth-number.tsv` and 9 more
 
 - Files: `sv_SE/birth-number.tsv`, `sv_SE/title.tsv`, `nb_NO/title.tsv`, `nn_NO/title.tsv`,
-  `da_DK/title.tsv`, `fi_FI/title.tsv`, `de_DE/title.tsv`, `en_US/title.tsv`, `misc/car.tsv`
+  `da_DK/title.tsv`, `fi_FI/title.tsv`, `de_DE/title.tsv`, `et_EE/title.tsv`, `en_US/title.tsv`,
+  `misc/car.tsv`
 - Source: curated; Skatteverket's test birth numbers are facts, and `car.tsv` waits for an
   international source (goal 3.2)
 - Licence: —
@@ -691,23 +704,23 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Källa: PTS"
 - Rebuild: `data-import/phone-area-se.py`
 
-## `sv_SE/sex.tsv` and 6 more
+## `sv_SE/sex.tsv` and 7 more
 
 - Files: `sv_SE/sex.tsv`, `nb_NO/sex.tsv`, `da_DK/sex.tsv`, `fi_FI/sex.tsv`, `de_DE/sex.tsv`,
-  `fr_FR/sex.tsv`, `en_US/sex.tsv`
+  `et_EE/sex.tsv`, `fr_FR/sex.tsv`, `en_US/sex.tsv`
 - Source: the people of each sex: [SCB](https://www.scb.se/) table BefolkningR1860N at the end of
   2024; [Statistics Norway](https://www.ssb.no/) StatBank table
   [07459](https://www.ssb.no/en/statbank/table/07459) on 1 January 2026; [Statistics
   Denmark](https://www.dst.dk/en/)'s table [FOLK1A](https://www.statbank.dk/FOLK1A) on 1 January
   2026; [Eurostat](https://ec.europa.eu/eurostat)'s table
-  [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table) for Germany and
-  France on 1 January 2025, a figure Eurostat marks provisional for France; the
+  [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table) for Germany,
+  Estonia and France on 1 January 2025, a figure Eurostat marks provisional for France; the
   [Census Bureau](https://www.census.gov/)'s national population estimates by age and sex, vintage 2024,
   for 1 July 2024; [Statistics Finland](https://stat.fi/en)'s table
   [11rb](https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__vaerak/statfin_vaerak_pxt_11rb.px/),
   the population of 31 December 2025; the names are ours
 - Licence: CC0 1.0; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) for Norway, Denmark,
-  Germany, France and Finland; public domain
+  Germany, Estonia, France and Finland; public domain
 - Attribution: "Källa: SCB"; "Kilde: Statistisk sentralbyrå"; "Kilde: Danmarks Statistik"; "Source:
   Eurostat"; "Source: Statistics Finland"; none required
 - Rebuild: `data-import/sex-population.py`
