@@ -73,13 +73,13 @@ func TestLocaleEmailHoldsAFirstAndALastNameInHalfItsAddresses(t *testing.T) {
 	})
 }
 
-var urlLocales = []string{"da_DK", "de_DE", "en_US", "fi_FI", "nb_NO", "nn_NO", "sv_SE"}
+var urlLocales = []string{"da_DK", "de_DE", "en_US", "et_EE", "fi_FI", "fr_FR", "lt_LT", "lv_LV", "nb_NO", "nn_NO", "sv_SE"}
 
 var reservedHost = regexp.MustCompile(`^https://([a-z]+\.)?example\.(com|org|net)` + urlPath + `$`)
 
 func TestEmailHasAReservedPathThatDrawsOnlyDomainsNobodyCanRegister(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(4))
-	for _, name := range append([]string{"et_EE", "fr_FR", "lv_LV"}, urlLocales...) {
+	for _, name := range []string{"da_DK", "de_DE", "en_US", "et_EE", "fi_FI", "fr_FR", "lv_LV", "nb_NO", "nn_NO", "sv_SE"} {
 		t.Run(name, func(t *testing.T) {
 			fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, name+".email.reserved") }, func(got string) {
 				if !exampleEmail.MatchString(got) {
@@ -108,7 +108,8 @@ func TestUrlAndEmailKeepTheirMixOfReservedAndRegistrableDomainsByDefault(t *test
 	const draws = 6000
 	f := shipped(t, fejkdata.WithSeed(4))
 	urlShare := map[string]float64{
-		"da_DK": 7.0 / 12, "de_DE": 7.0 / 12, "en_US": 13.0 / 16, "fi_FI": 7.0 / 12, "nb_NO": 7.0 / 12, "nn_NO": 7.0 / 12, "sv_SE": 7.0 / 12,
+		"da_DK": 7.0 / 12, "de_DE": 7.0 / 12, "en_US": 13.0 / 16, "et_EE": 7.0 / 12, "fi_FI": 7.0 / 12, "fr_FR": 7.0 / 12, "lt_LT": 7.0 / 12, "lv_LV": 7.0 / 12,
+		"nb_NO": 7.0 / 12, "nn_NO": 7.0 / 12, "sv_SE": 7.0 / 12,
 	}
 	for name, want := range urlShare {
 		t.Run(name+".url", func(t *testing.T) {
