@@ -1227,7 +1227,7 @@ states. A half address helps no one, and an invented street is better than none.
 README's Data section says beside each such country that its streets are invented.
 `data-import/geo.py`'s `invented_streets` builds the fallback, and `geo.DE` is its first user. Goal 3 allows invented values but ranks them after
 real ones, so a country's streets offer one kind until `todo.md` item 218 gives it its real
-streets. Valid until the maintainer accepts ODbL data, or the country opens a register.
+streets. Valid until `todo.md` item 218 ships: the decision "The project takes open licences, share-alike ones included" accepts ODbL data.
 
 ## The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
 
@@ -1704,14 +1704,20 @@ weight. The figure is an estimate.
 The sex counts are Eurostat's table demo_pjan for Germany. Valid while no open register of German
 names with counts for the whole population is found; one replaces the file or the recall.
 
+## The project takes open licences, share-alike ones included
+
+2026-11-19, the maintainer: "we want to use open licenses in general". Serves goal 3.2. A source under an open
+licence is taken, CC BY-SA 4.0 and ODbL included. `DATA-LICENSES.md` names its licence and attribution, and the
+README says what share-alike asks of a user. This ends the refusal of share-alike data that the decisions on
+streets and on `et_EE`'s names record.
+
 ## `et_EE`'s names are a language model's recall
 
 2026-11-19, in the chunk that added `et_EE`. Goal 3.2, goal 3.3. Applies the project principle on name tables.
 
 Statistics Estonia publishes name counts by sex and year, and states that its open data is CC BY-SA 4.0
-(stat.ee, "Principles of dissemination of official statistics"). Share-alike would bind every program carrying
-the table, which the maintainer has declined before (the ODbL decision for streets), so the file is no open bulk
-file of name counts under a licence the project takes. The first and last names are a language model's recall of names
+(stat.ee, "Principles of dissemination of official statistics"). When this table was built the project took no share-alike
+data, so the file was no open bulk file of name counts under a licence the project takes. The first and last names are a language model's recall of names
 common in Estonia, with none of the office's counts or ranks. The commoner names of each list are ranked, and
 the rarer ones share the last rank's weight. A ranked name weighs 100000 over the square root of its rank, the
 shape `de_DE`'s last names have at 700000. The figures are estimates.
@@ -1722,8 +1728,8 @@ row under each: the Estonian names and the others the same under both, and a Rus
 with an `a` added under `f`. `person` draws the last name under its first name's sex.
 
 The sex counts are Eurostat's table demo_pjan for Estonia. `title` holds `dr` and `prof`, as Sõnaveeb and the
-Institute of the Estonian Language write them. Valid while Statistics Estonia's licence stays share-alike; a
-licence the project takes replaces the recall with its counts.
+Institute of the Estonian Language write them. Valid until `todo.md` item 522 replaces the recall with the
+office's counts, which "The project takes open licences, share-alike ones included" allows.
 
 ## `da_DK.company` weighs its legal forms by Statistics Denmark's enterprises and draws its names from a language model's recall
 

@@ -2500,7 +2500,8 @@ against each other in the order listed.
    - Why: a kind promised but not delivered is worse than one plainly invented.
    1. **Maintain:** Values that belong together come from the same random pick. You
       choose which ones by giving that pick a name.
-   2. **Achieve:** Shipped data comes from good published sources where one exists.
+   2. **Achieve:** Shipped data comes from good published sources where one exists, and
+      an open licence is enough, share-alike ones such as CC BY-SA 4.0 and ODbL included.
       - Signal: the tables naming the register they come from rise.
       - Counter-signal: categories users ask for stay unshipped for want of a source.
       - Why: a good source is preferred, not required.
