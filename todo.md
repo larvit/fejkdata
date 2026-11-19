@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 524 | 0.7.0 |  |  | **Add a mutation tool for Go.** | 3 | 2 | 1 | 4 | 2 | code health by 3 | 8.2 |
 | 504 | 0.7.0 |  |  | **Add `lv_LV`'s national personal id, the personas kods, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 508 | 0.7.0 |  |  | **Add `lt_LT` with its given names by sex, last names and titles, and `lt_LT.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 509 | 0.7.0 | 508 |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
@@ -234,21 +233,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 524. Add a mutation tool for Go.
-
-`~/.claude/bin/mutate-changes` covers .py, .rs, JavaScript and TypeScript, and .php only. On a chunk of this project it prints `Not mutated, as no tool covers their language` for every changed .go file, such as `internal/engine/load/path.go`, `internal/engine/draw.go`, `internal/engine/index.go`, `internal/builtinfunc/builtins.go`, `internal/builtinfunc/isikukood.go` and `internal/fejktest/ids.go`, so the stability pass tests no Go mutant.
-
-Use Gremlins (`github.com/go-gremlins/gremlins`), pinned to v0.6.0, its latest release, cut on 2025-12-06; its main branch took commits up to March 2026. It builds with Go 1.25 or later and runs the module's tests with the Go that runs it, so it works with the image's Go 1.27.4 and the module's `go 1.22`. Pick Gremlins over go-mutesting (`github.com/avito-tech/go-mutesting`, v2.3.1), which is also maintained: `gremlins unleash --diff <ref>` mutates only the lines changed since a git ref, as `mutate-changes` does for the other languages, where go-mutesting mutates whole files or packages.
-
-Add a `mutate` service to `compose.yaml` on the shared `x-go` anchor, as `cyclo` and `vulncheck` run their tools: `go run github.com/go-gremlins/gremlins/cmd/gremlins@v0.6.0 unleash --diff origin/main --exclude-files '.*_test\.go'`, with `mem_limit` and `memswap_limit` set to 8g, as `test` has, since each mutant runs `go test`. `--diff` reads git, and in a worktree `.git` is a file naming the main checkout's git folder, which the `/app` mount doesn't hold: mount that folder too, or pass the ref's diff another way, and check the run in a worktree. List the service in the README's `## Development` beside `cyclo`, as a run for the stability pass outside the gate. Measure one run over the files above and say how long it took.
-
-Teaching `mutate-changes` to pick Gremlins for .go files is a change to claude-config, filed in its own plan; until then the stability pass runs the service by hand.
-
-Touches:
-
-- `compose.yaml`: lines 44-50 (small)
-- `README.md`: `## Development` (small)
 
 ### 504. Add `lv_LV`'s national personal id, the personas kods, with its check digits.
 
