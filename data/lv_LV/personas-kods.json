@@ -1,0 +1,8 @@
+{
+  "format": "{personaskods(birth)}",
+  "birth": [
+    { "format": "{born(0,17,'20060102')}", "weight": 343555 },
+    { "format": "{born(18,64,'20060102')}", "weight": 1110183 },
+    { "format": "{born(65,99,'20060102')}", "weight": 406599 }
+  ]
+}
