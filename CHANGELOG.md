@@ -21,6 +21,13 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
+- `lv_LV`, Latvian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/lv_LV.person}` renders e.g.
+  `Anna Bērziņa`. First names weigh the persons of the Office of Citizenship and Migration Affairs' register
+  (CC0 1.0) by their first given name, and a program showing them credits "Avots: Pilsonības un migrācijas lietu
+  pārvalde". Last names are a language model's recall, ranked and weighted by rank; the weights are estimates. A
+  woman bears the feminine form of a last name, such as `Bērziņa`. `lv_LV.sex` carries Latvia's population on
+  1 January 2025 from Eurostat, and a program showing it credits "Source: Eurostat". The Go package is
+  `github.com/larvit/fejkdata/data/lv_LV`, and the CLI carries it.
 - `et_EE`, Estonian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/et_EE.person}` renders e.g.
   `Liis Tamm`. Both name tables are a language model's recall, ranked and weighted by rank; the weights are
   estimates. A woman bears the feminine form of a Russian last name, such as `Ivanova`. `et_EE.sex` carries Estonia's population on 1 January 2025 from
