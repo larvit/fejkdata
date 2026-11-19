@@ -35,10 +35,10 @@ with its replacement, and each removed path, column or flag.
 - `et_EE.phone`, an Estonian phone number such as `5123 4567`, or `+372 5123 4567` in its `international` form, drawn from
   the ranges of the Estonian numbering plan: mobile numbers ten times as often as fixed ones.
 - `lt_LT.phone`, a Lithuanian phone number such as `0 612 34567`, mobile ten times as often as fixed, with `national`
-  and `international` (`+370 612 34567`) fields. The plan the Communications Regulatory Authority adopted on
-  1 September 2023 keeps no range for fiction, so a number may be a real subscriber's. A fixed number reads
-  `lt_LT.phone-fixed`, the 57 areas that plan's table of fixed numbers allots to a city or district, selected as
-  `phone-fixed[37]`.
+  and `international` (`+370 612 34567`) fields. Lithuania's numbering plan keeps no range for fiction, so a
+  number may be a real subscriber's. A fixed number reads `lt_LT.phone-fixed`, the plan's 47 area codes of a
+  city or district, selected by its code with the trunk 0, as `phone-fixed[037]`; a mobile one reads
+  `lt_LT.phone-mobile`.
 - `lv_LV`, Latvian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/lv_LV.person}` renders e.g.
   `Anna Bērziņa`. First names weigh the persons of the Office of Citizenship and Migration Affairs' register
   (CC0 1.0) by their first given name, and a program showing them credits "Avots: Pilsonības un migrācijas lietu
