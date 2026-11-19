@@ -1,6 +1,12 @@
 package data_test
 
-import "testing"
+import (
+	"strconv"
+	"testing"
+	"time"
+
+	"github.com/larvit/fejkdata/internal/fejktest"
+)
 
 func TestLatvianFirstNamesWeighByThePublishedCount(t *testing.T) {
 	first := nameCounts(t, "lv_LV", "first-name")
@@ -69,4 +75,70 @@ func TestLatvianPersonBearsALastNameOfItsSex(t *testing.T) {
 			t.Fatalf("%q: %q is not a last name shipped for the sex %q", p.raw, p.last, p.sex)
 		}
 	})
+}
+
+const latvianPersonasKodsDraws = 20000
+
+func eachLatvianPersonasKods(t *testing.T, check func(got string)) {
+	t.Helper()
+	f := shipped(t)
+	fejktest.EachDraw(latvianPersonasKodsDraws, func() string { return fejktest.Fake(t, f, "lv_LV.personas-kods") }, check)
+}
+
+func TestLatvianPersonasKodsIsElevenDigitsWithAValidDateAndCheckDigit(t *testing.T) {
+	eachLatvianPersonasKods(t, func(got string) {
+		if !fejktest.ValidPersonasKods(got) || got[:2] == "32" {
+			t.Fatalf("%q is not a valid personas kods with a date", got)
+		}
+	})
+}
+
+func latvianPersonasKodsBirth(got string) time.Time {
+	year := 1800 + 100*int(got[6]-'0')
+	yy, _ := strconv.Atoi(got[4:6])
+	mm, _ := strconv.Atoi(got[2:4])
+	dd, _ := strconv.Atoi(got[:2])
+	return time.Date(year+yy, time.Month(mm), dd, 0, 0, 0, 0, time.UTC)
+}
+
+func latvianPersonasKodsAge(got string) int {
+	born := latvianPersonasKodsBirth(got)
+	age := fejktest.TestDay.Year() - born.Year()
+	if born.AddDate(age, 0, 0).After(fejktest.TestDay) {
+		age--
+	}
+	return age
+}
+
+// The register gives a code without a date to everyone it registered from July 2017, so the
+// category draws no one younger than 9.
+func TestLatvianPersonasKodsIsOfSomeoneAged9To99(t *testing.T) {
+	eachLatvianPersonasKods(t, func(got string) {
+		if age := latvianPersonasKodsAge(got); age < 9 || age > 99 {
+			t.Fatalf("%q is of someone aged %d, want 9 to 99 on %s", got, age, fejktest.TestDay.Format("2006-01-02"))
+		}
+	})
+}
+
+// Eurostat's table demo_pjan, the population on 1 January 2025: 1,700,722 people aged 9 to 99,
+// of whom 183,940 were 9 to 17, 1,110,183 were 18 to 64 and 406,599 were 65 to 99.
+func TestLatvianPersonasKodsFollowsTheAgeBandsOfEurostatsPopulation(t *testing.T) {
+	bands := map[string]int{}
+	eachLatvianPersonasKods(t, func(got string) {
+		switch age := latvianPersonasKodsAge(got); {
+		case age < 18:
+			bands["9 to 17"]++
+		case age < 65:
+			bands["18 to 64"]++
+		default:
+			bands["65 to 99"]++
+		}
+	})
+	for band, want := range map[string]float64{"9 to 17": 10.82, "18 to 64": 65.28, "65 to 99": 23.91} {
+		t.Run(band, func(t *testing.T) {
+			if share := 100 * float64(bands[band]) / latvianPersonasKodsDraws; share < want-1.5 || share > want+1.5 {
+				t.Errorf("%s were %.1f%% of the codes, want %.2f%% by Eurostat's population", band, share, want)
+			}
+		})
+	}
 }

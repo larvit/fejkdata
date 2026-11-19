@@ -227,6 +227,33 @@ func isikukoodCheckDigit(s string) int {
 	return sum("3456789123") % 10
 }
 
+// ValidPersonasKods is the check of a Latvian personal code, with the weights of the State Revenue
+// Service's formula as Wikipedia gives them: eleven digits, where either the first two are 32, a
+// code with no date, or the first six are a date that exists in the century the seventh digit
+// names, 0 for the 1800s, 1 for the 1900s and 2 for the 2000s; and a check digit that is 1101
+// less the sum of the first ten digits weighted 1, 6, 3, 7, 9, 10, 5, 8, 4 and 2, modulo 11, and
+// modulo 10 where that is 10.
+func ValidPersonasKods(s string) bool {
+	if len(s) != 11 || DigitsOnly(s) != s {
+		return false
+	}
+	if s[:2] != "32" {
+		year := 1800 + 100*int(s[6]-'0') + atoi(s[4:6])
+		month, day := atoi(s[2:4]), atoi(s[:2])
+		if s[6] > '2' {
+			return false
+		}
+		if d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC); d.Month() != time.Month(month) || d.Day() != day {
+			return false
+		}
+	}
+	sum := 0
+	for i, w := range [10]int{1, 6, 3, 7, 9, 10, 5, 8, 4, 2} {
+		sum += w * int(s[i]-'0')
+	}
+	return int(s[10]-'0') == (1101-sum)%11%10
+}
+
 func atoi(s string) int {
 	n, _ := strconv.Atoi(s)
 	return n
