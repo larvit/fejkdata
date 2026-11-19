@@ -35,7 +35,7 @@ teach the exported API belongs in the root's package doc.
 `format`, `weight`, `repeat`, `separator`, `datatype` and `let` are reserved; every other key
 is a field. Nesting fields under a key, or prefixing options, would tax every template to
 guard against a misspelt option. `let` is the one option that holds fields, the ones that write
-no column and are left out of the listing ("A `let` field writes no column and is left out of the listing").
+no column ("A `let` field writes no column and is left out of the listing").
 
 ## `{a|b}` stays beside nested choices
 
@@ -1799,25 +1799,30 @@ be named `let`. A key in `let` and beside it fails to load, so a field has one p
 option name in `let` fails too. A record whose fields are all in `let` has no columns and is
 `ErrNoColumns`.
 
-The same field was also a public path outside a record: `--list` printed it, the manifest's index
-wrote it and the shape pin held it, so a reader couldn't tell a path meant to be read from a
-scaffold such as `misc.ipv6.g`. So a `let` field, at any depth, is left out of `--list` and the
-index with every path below it, and a read of its path still draws it, as `List` advertises
-direct descents only ("`List` advertises direct descents only"). Only the listing leaves it out:
-a choice's shared paths, which resolve a read through the choice, keep it. A prefix such as `_`
+The same field was also a listed path outside a record: `--list` printed it, the `.fejkdata.json`
+index wrote it and `testdata/shipped_shape.txt`, which pins the shipped paths, held it, so a reader
+couldn't tell a path meant to be read from a scaffold such as `misc.ipv6.g`. So a `let` field, at any
+depth, is left out of `--list` and the index with every path below it, and a read of its path still
+draws it. This narrows the listing further than "`List` advertises direct descents only". Only the
+listing leaves it out: a choice's shared paths, which resolve a read through the choice, keep it.
+A prefix such as `_`
 would have made a key's spelling carry meaning and changed what a user's own `_x` field means.
 
 A shipped field is moved into `let` when only its own category's fields read it, no README text,
 test or other category reads its path, and it is a piece only the template needs: a syllable
 half, a digit class, a price's amount or separator-bearing part, a number's head or tail. A part
 the README names or a domain gives a name, such as `phone.block`, an SSN's `area` or an email's
-`local`, stays a field and a column. The pieces inside the variants of a `username` or an `email.local` choice, such as `first`, `last`, `sep` and `n`, stay too: a choice lists what every variant carries, and the audit moved no helper that a choice's variants share.
+`local`, stays a field and a column.
+The pieces inside the variants of a `username` or an `email.local`
+choice, such as `first`, `last`, `sep` and `n`, stay listed too: the audit moved none that a
+choice's variants share.
 
 Three fresh readers seated as the README's data author, hand fixture author and contributor read
 `data/misc/ipv6.json` with its `let` fields and predicted `--list`, a read of `{/misc.ipv6.g}` and a
-record correctly, so the spelling stays. All three named `hidden` as the better word for a field
-readable by its path but unlisted, and two took `let` for a local binding a path can't reach.
-Renaming is the human's call, as goal 4.8 allows a clearer name even at a major.
+record correctly, so the spelling stays for now. All three named `hidden` as the better word for a
+field readable by its path but unlisted, though two first took `let` for a local binding a path
+can't reach. Goal 4.8 has a clearer name replace the old one, even at a major, and the rename breaks
+every template using `let`, so it is the human's call: item 523 asks.
 
 Valid while a data author reads `let` as "a field only other fields read".
 
