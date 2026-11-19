@@ -1277,7 +1277,7 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 
 ### `lt_LT`
 
-`lt_LT`, Lithuanian, carries `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `sex` and `title`. `sex` is `moteris` and `vyras`, `title` is
+`lt_LT`, Lithuanian, carries `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`. `sex` is `moteris` and `vyras`, `title` is
 `dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
 
 `first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
@@ -1297,18 +1297,25 @@ counts credits "Source: Eurostat".
 
 `lt_LT.phone` is a mobile number ten times as often as a fixed one: `0 612 34567`, or `0 5 234 5678`
 where it is fixed in Vilnius. Its `national` field is that form, and its `international` field is
-`+370 612 34567`, with the country code and without the 0 that opens the national form. A fixed number
-groups its 8 digits by the length of its area code, 1 digit for Vilnius, 2 for Kaunas, Šiauliai,
-Panevėžys and Klaipėda, and 3 for a district: the plan fixes only the digits.
+`+370 612 34567`, with the country code and without the 0 that opens the national form, which replaced
+the old 8 on 1 March 2024. A number is valid, not real: a real subscriber may hold it, since Lithuania's
+numbering plan keeps no range for fiction.
 
-The plan is the one the Communications Regulatory Authority (RRT) adopted on 1 September 2023, which
-the ITU published on 6 March 2025. It gives every mobile number the first digit 6, and keeps no range for
-fiction, so a number is valid, not invented: a real subscriber may hold it. `lt_LT.phone-fixed` holds the
-57 areas that the plan's table of fixed numbers allots to a city or district and doesn't mark
-"Reserved", each with its `name`, its `ndc`, the area code, and its `subscriber`, the digits after it.
-Vilnius takes eight rows, `520` to `527`, since the plan fixes the first two digits of its subscriber
-numbers. A row is selected by the digits the plan fixes, `phone-fixed[37]`, and each is drawn evenly,
-since the plan publishes no frequency.
+The plan is the one the Communications Regulatory Authority (RRT) adopted on 1 September 2023, which the
+ITU published on 6 March 2025. A number has 8 digits after the 0, and a mobile number opens with 6.
+`lt_LT.phone-fixed` holds the 47 area codes that the plan's table of fixed numbers allots to a city or
+district and doesn't mark "Reserved", and `lt_LT.phone-mobile` the one mobile code, 6. Each row's `area` is
+its code with the trunk 0, such as `037` for Kaunas, and its `ndc` is the code without the 0. Its `name`
+is the city or district, and its `subscriber` the digits after the code. A row is selected by its `area`,
+`phone-fixed[037]`, and each is drawn evenly, since the plan publishes no frequency. Where the plan fixes
+the first digits of the subscriber numbers, `subscriber` draws only those: Vilnius's `5` is followed by
+20 to 27, Panevėžys's `45` by 4 or 5, and Klaipėda's `46` by 2 to 4.
+
+The digits are grouped by the length of the area code, `0 5 234 5678` for Vilnius's 1 digit, `0 37 12 3456`
+for a 2-digit code such as Kaunas's, and `0 310 12345` for a district's 3; a mobile number groups as a
+district. The plan fixes only the digits, and RRT's recommendation, as the Klaipėda city municipality's
+page "Telefonų numerių rašymas" gives it, lets them be grouped as the writer likes, so the groups are this
+project's choice.
 
 ### `lv_LV`
 
