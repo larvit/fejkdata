@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"io/fs"
+	"net/netip"
 	"os"
 	"regexp"
 	"strconv"
@@ -92,6 +93,13 @@ func TestShippedMiscCategories(t *testing.T) {
 		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "mac") }, func(v string) {
 			if !mac.MatchString(v) {
 				t.Fatalf("misc mac %q is not a MAC address", v)
+			}
+		})
+	})
+	t.Run("mac.local", func(t *testing.T) {
+		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, "mac.local") }, func(v string) {
+			if !mac.MatchString(v) || !strings.Contains("26ae", v[1:2]) {
+				t.Fatalf("misc mac.local %q is not a locally administered unicast address", v)
 			}
 		})
 	})
@@ -434,4 +442,72 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestShippedMiscAddressesStayInRangesThatReachNothing(t *testing.T) {
+	f := newBareModule(t, "misc", WithSeed(1))
+	prefixes := func(texts ...string) []netip.Prefix {
+		var out []netip.Prefix
+		for _, text := range texts {
+			out = append(out, netip.MustParsePrefix(text))
+		}
+		return out
+	}
+	documentation := prefixes("192.0.2.0/24", "198.51.100.0/24", "203.0.113.0/24")
+	private := prefixes("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16")
+	inAny := func(ranges []netip.Prefix, a netip.Addr) bool {
+		for _, r := range ranges {
+			if r.Contains(a) {
+				return true
+			}
+		}
+		return false
+	}
+	seen := func(t *testing.T, ranges []netip.Prefix, path string) {
+		t.Helper()
+		hit := map[netip.Prefix]bool{}
+		fejktest.EachDraw(600, func() string { return fejktest.Fake(t, f, path) }, func(v string) {
+			a, err := netip.ParseAddr(v)
+			if err != nil {
+				t.Fatalf("%s = %q, want an address: %v", path, v, err)
+			}
+			if !inAny(ranges, a) {
+				t.Fatalf("%s = %q, want it inside %v", path, v, ranges)
+			}
+			for _, r := range ranges {
+				if r.Contains(a) {
+					hit[r] = true
+				}
+			}
+		})
+		if len(hit) != len(ranges) {
+			t.Errorf("%s drew from %d of the %d ranges %v", path, len(hit), len(ranges), ranges)
+		}
+	}
+	t.Run("ip.documentation", func(t *testing.T) { seen(t, documentation, "ip.documentation") })
+	t.Run("ip.private", func(t *testing.T) { seen(t, private, "ip.private") })
+	t.Run("ipv6", func(t *testing.T) { seen(t, prefixes("2001:db8::/32"), "ipv6") })
+	t.Run("ip.cidr", func(t *testing.T) {
+		both := append(append([]netip.Prefix{}, documentation...), private...)
+		fejktest.EachDraw(600, func() string { return fejktest.Fake(t, f, "ip.cidr") }, func(v string) {
+			p, err := netip.ParsePrefix(v)
+			if err != nil {
+				t.Fatalf("ip.cidr = %q, want a CIDR block: %v", v, err)
+			}
+			if p != p.Masked() {
+				t.Fatalf("ip.cidr = %q, want host bits zero", v)
+			}
+			if !inAny(both, p.Addr()) || !inAny(both, lastAddr(p)) {
+				t.Fatalf("ip.cidr = %q, want the block inside %v", v, both)
+			}
+		})
+	})
+}
+
+func lastAddr(p netip.Prefix) netip.Addr {
+	b := p.Addr().As4()
+	for host := 0; host < 32-p.Bits(); host++ {
+		b[3-host/8] |= 1 << (host % 8)
+	}
+	return netip.AddrFrom4(b)
 }
