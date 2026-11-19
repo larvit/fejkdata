@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 509 | 0.7.0 |  |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
 | 501 | 0.7.0 |  |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 506 | 0.7.0 |  |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
@@ -226,15 +225,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 509. Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
-
-Touches:
-
-- `data/lt_LT/`
-- `README.md`: `### Locale categories`
 
 ### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
 
