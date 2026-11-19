@@ -203,7 +203,7 @@ var shippedLocales = []shippedLocale{
 		names:    &names{map[string]string{"Ona": "f", "Danutė": "f", "Jonas": "m", "Kęstutis": "m"}, nil},
 		person:   &person{map[string]string{"f": "moteris", "m": "vyras"}, []string{"dr.", "prof."}},
 		// The Centre of Registers' open data of 19 November 2026, the legal entities in the Register of Legal Entities
-		// of the forms whose names the register publishes: UAB, MB, AB and ŽŪB. A name quotes the rest of it, as `UAB "Alfa"`.
+		// of four forms: UAB, MB, AB and ŽŪB. A name may place its form before or after it, quoted or not, as `UAB "Alfa"` does.
 		company: &company{regexp.MustCompile(`^["\p{Lu}][\p{L}\p{N} &'".-]*[\p{L}\p{N}"]$`), legalForm{}, []legalForm{
 			{"UAB", "uab", "UAB", 102461}, {"MB", "mb", "MB", 75713}, {"AB", "ab", "AB", 226}, {"ŽŪB", "zub", "ŽŪB", 452},
 		}},
