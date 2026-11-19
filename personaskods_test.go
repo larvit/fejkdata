@@ -35,12 +35,13 @@ func personasKodsOf(t *testing.T, f *Generator, date string) string {
 }
 
 // A code starts with the date as day, month and two digits of the year, then 0 for the 1800s, 1 for
-// the 1900s and 2 for the 2000s.
+// the 1900s and 2 for the 2000s, up to 30 June 2017, the last day before the register gave codes
+// without a date.
 func TestBuiltinPersonasKodsStartsWithTheDateAndTheDigitOfItsCentury(t *testing.T) {
 	f := emptyGenerator(21)
 	for _, c := range []struct{ date, want string }{
 		{"18990101", "0101990"}, {"18000101", "0101000"}, {"19000101", "0101001"},
-		{"19680528", "2805681"}, {"20240229", "2902242"}, {"20991231", "3112992"},
+		{"19680528", "2805681"}, {"20160229", "2902162"}, {"20170630", "3006172"},
 	} {
 		t.Run(c.date, func(t *testing.T) {
 			got := personasKodsOf(t, f, c.date)
@@ -51,7 +52,25 @@ func TestBuiltinPersonasKodsStartsWithTheDateAndTheDigitOfItsCentury(t *testing.
 	}
 }
 
-func TestBuiltinPersonasKodsRendersNothingForADateItDoesNotRead(t *testing.T) {
+// From 1 July 2017 the register gives a code that starts with 32 and holds no date. No source states
+// what the nine digits after 32 mean, so they are drawn evenly.
+func TestBuiltinPersonasKodsDrawsACodeWithNoDateFrom1July2017(t *testing.T) {
+	for _, date := range []string{"20170701", "20240229", "20991231"} {
+		seen := map[byte]bool{}
+		for seed := range uint64(500) {
+			got := personasKodsOf(t, emptyGenerator(seed), date)
+			if len(got) != 11 || got[:2] != "32" || !fejktest.ValidPersonasKods(got) {
+				t.Fatalf("seed %d: personaskods for %s = %q, want a valid code starting 32", seed, date, got)
+			}
+			seen[got[2]] = true
+		}
+		if len(seen) != 10 {
+			t.Errorf("500 codes for %s drew the third digits %v, want each of 0 to 9", date, seen)
+		}
+	}
+}
+
+func TestBuiltinPersonasKodsRendersNothingForADateItDoesNotRead_PLACEHOLDERForADateItDoesNotRead(t *testing.T) {
 	f := emptyGenerator(22)
 	for _, date := range []string{
 		"", "1968052a", "1968052", "680528", "196805280", "1968-05-28", "17991231", "21000101",
@@ -65,8 +84,8 @@ func TestBuiltinPersonasKodsRendersNothingForADateItDoesNotRead(t *testing.T) {
 	}
 }
 
-// The serial number, the eighth to tenth digit, is three digits; no source states which the register
-// issues, so all of 000 to 999 are drawn.
+// The serial number of a code with a date, the eighth to tenth digit, is three digits; no source
+// states which the register issues, so all of 000 to 999 are drawn.
 func TestBuiltinPersonasKodsDrawsASerialNumberFrom000To999AndItsCheckDigit(t *testing.T) {
 	hundreds, zero := map[int]bool{}, false
 	for seed := range uint64(4000) {
@@ -96,8 +115,8 @@ func TestBuiltinPersonasKodsReadsTheDateOfABornCall(t *testing.T) {
 	f := emptyGenerator(24)
 	for range 200 {
 		got := mustRender(t, f, `{"format":"{personaskods(d)}","d":"{born(0,99,'20060102')}"}`)
-		if !fejktest.ValidPersonasKods(got) || got[6] != '1' && got[6] != '2' {
-			t.Fatalf("personaskods over born(0,99) = %q, want a valid code of someone born in the 1900s or 2000s", got)
+		if !fejktest.ValidPersonasKods(got) {
+			t.Fatalf("personaskods over born(0,99) = %q, want a valid code", got)
 		}
 	}
 }
