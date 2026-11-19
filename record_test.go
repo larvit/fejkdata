@@ -150,7 +150,7 @@ func TestRecordErrors(t *testing.T) {
 		want string
 	}{
 		{"bare", "has no fields, so no columns"},
-		{"onlyhidden", `holds every field in "hidden", which writes no column; render it as a column of one: {"format":"","onlyhidden":"{/lets}"}`},
+		{"onlyhidden", `holds every field in "hidden", which writes no column; render it as a column of one: {"format":"","onlyhidden":"{/onlyhidden}"}`},
 		{"pick", `names a choice, not a template; a record is a template whose fields are its columns; render it as a column of one: {"format":"","pick":"{/pick}"}`},
 		{"group", "names a folder"},
 		{"nope", "no entry"},
