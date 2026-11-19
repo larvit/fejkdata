@@ -171,6 +171,11 @@ var shippedLocales = []shippedLocale{
 		phone:  &phone{"+33", "0", frenchFixedPhone, trunkAreaTables},
 	},
 	{
+		name:   "lt_LT",
+		names:  &names{map[string]string{"Ona": "f", "Danutė": "f", "Jonas": "m", "Kęstutis": "m"}, nil},
+		person: &person{map[string]string{"f": "moteris", "m": "vyras"}, []string{"dr.", "prof."}},
+	},
+	{
 		name:   "lv_LV",
 		names:  &names{map[string]string{"Anna": "f", "Līga": "f", "Jānis": "m", "Mārtiņš": "m"}, nil},
 		person: &person{map[string]string{"f": "sieviete", "m": "vīrietis"}, []string{"Dr.", "prof."}},
