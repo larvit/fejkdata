@@ -1249,8 +1249,9 @@ costs each user an edit of every `docker run` line and pinned script that names 
 1.1. `govulncheck -scan module` fails on any known vulnerability in the Go version the
 gate builds with or in a module fejkdata requires, even one fejkdata never calls: the
 release binaries carry that Go version, and image scanners flag it whatever the code
-reaches. It runs on every pull request and push and daily, as a job the release job needs
-but branch protection does not require. So a vulnerability published in Go, or an outage
+reaches. It runs on every push to `main` and daily, as the first steps of the release job,
+which branch protection does not require. Since 2026-11-19 a pull request doesn't run it:
+it blocked no merge, and `main`'s next run files what it would have found. So a vulnerability published in Go, or an outage
 of vuln.go.dev, holds the release and leaves unrelated pull requests mergeable. On `main`,
 each module's new vulnerabilities are filed as one `security` item in `todo.md`, under the
 patch after the last release, even where only a newer Go minor fixes them: CI releases a Go
@@ -1261,17 +1262,22 @@ once, as a fejkdata patch cut from the last release's tag" lists. The maintainer
 is clean, so the changelog says what was fixed. When the report comes back clean before CI
 cuts the patch that fixes those vulnerabilities, as after a failed release job, the item's
 line leaves Unreleased once that patch's section reaches `main`'s changelog.
-`vulnerability-filing/file_vulnerabilities.py` writes the item in `todo.md`'s shape with a
+`release-tooling/file_vulnerabilities.py` writes the item in `todo.md`'s shape with a
 Score of 0.0, since CI cannot reach `rank_todo.py`, which scores it on the next commit to
-the plan; a test files one into the repository's own `todo.md`.
-`release-tooling/patch_release.py` records the fixed item's line in `CHANGELOG.md`. A pull
+the plan. No test reads the repository's own `todo.md`, so an edit to the plan can't fail
+the gate: where the plan's layout drifts, the filer exits 2 naming what it misses, or
+`rank_todo.py` refuses the row it filed.
+`release-tooling/changelog.py` words the fixed item's line, and `patch_release.py plan`
+records it in `CHANGELOG.md`. A pull
 request from `security-plan`, rebuilt from `main` on every run, carries both to `main` and
 merges itself once the tests pass. Where no Go version fixes a vulnerability yet,
-govulncheck has no ignore list: the maintainer drops the job from the release's `needs`
-until one does, and records why here. The paired ruling against f90b4d6 found the project
-reads worse for it: the gate now reads `todo.md`, and a release waits on vuln.go.dev. The
-maintainer merged it anyway, as the cost of filing into the plan, and `todo.md` item 350
-ends that cost. Valid while the binaries are built from the gate's Go version.
+govulncheck has no ignore list: the maintainer drops the release job's step "Release
+nothing while the report names a known vulnerability" until one does, and records why
+here. The paired ruling against f90b4d6 found the project reads worse for it: the gate
+read `todo.md`, the filer was a script of its own that the release tooling ran, and a
+release waits on vuln.go.dev. The maintainer merged it anyway, as the cost of filing into
+the plan. Since 2026-11-19 the gate doesn't read `todo.md`, and the filer is a module the
+release tooling imports; a release still waits on vuln.go.dev, which this decision asks. Valid while the binaries are built from the gate's Go version.
 
 ## CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag
 
@@ -1322,13 +1328,15 @@ a release or fixes the cause, while:
 An advisory published between the release job's scan of `main` and its scan of the tree
 fails one release job, and the next run's scan of `main` files it.
 
-The `plan` job runs after a failed release job too, so fixed items still move. It writes
+The release job's last step plans, and runs after a failed step too, so fixed items still
+move. A job that fails after it published still hands its tag to the Packages workflow. The
+step writes
 under Unreleased's Breaking each requirement that a Go minor `main` carried since the last
 release sets on a built-for system, so the release that first ships the minor names it,
 whether CI cuts it as a patch or the maintainer cuts it. A release section copied into
 `main` removes from Unreleased each Breaking line and each fix that the section already
 holds. Where the job can't read the notes or `goreleaser.yaml`'s systems, it records no
-such line and still moves fixed items, since the release job fails on the same input.
+such line and still moves fixed items, since the patch step fails on the same input.
 
 A patch built with a new Go minor may drop a system the binaries ran on, such as an older
 macOS. That departs from the technical principles' semver, read strictly, which counts a
@@ -1338,14 +1346,16 @@ system is a major; `todo.md` item 348 decides how a Go minor that drops one ship
 
 The job compares with the last release, not with the push, and runs one at a time, so a
 rerun cuts nothing twice and a missed run is caught up daily; publishing `main`'s heading
-stays on a push, which the gate passed. `patch_release.py` names the last release for
-every job, as the forge's latest release, and owns `CHANGELOG.md`: each run copies into
+stays on a push, which the gate passed. `patch_release.py` reads the last release as the
+forge's latest release, as the Packages workflow does with `gh`. Each run copies into
 `main`'s changelog any section the last release has and `main` lacks, so a lost run loses
 no section, and moves rows planned under a patch CI took to the next patch. The Packages
 workflow builds a tag with the Go its own Dockerfile names. The paired ruling against
 5aca8a1 found the project reads worse for the Go patches: two linked scripts, four linked
 jobs and several writers of `CHANGELOG.md`. The maintainer merged it anyway, as the cost
-of releasing Go patches without waiting; `todo.md` item 350 brings those links back down.
+of releasing Go patches without waiting. Since 2026-11-19 the filer is a module
+`patch_release.py` imports, one release job scans, releases and plans, with the Packages
+workflow after it, and `changelog.py` words every line CI writes in `CHANGELOG.md`.
 Valid while a release carries only its Go, the modules `go.mod` requires and the GoReleaser
 that packages it.
 

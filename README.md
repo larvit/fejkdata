@@ -2586,9 +2586,8 @@ data/           the shipped modules, each a Go package embedding its categories 
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the shared modules they import
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading or as a patch of the last release for an update to main's Go, modules or GoReleaser, and the binaries, packages, image and package repositories built for it
+release-tooling/ the release CI publishes from the changelog heading or as a patch of the last release for an update to main's Go, modules or GoReleaser, the binaries, packages, image and package repositories built for it, and the known vulnerabilities CI files as `todo.md` items
 testdata/       the pinned shipped shape (see Versioning)
-vulnerability-filing/ the script CI runs to file known vulnerabilities as `todo.md` items and to drop fixed ones, naming them for `release-tooling/`, which writes `CHANGELOG.md`
 ```
 
 ## Development
@@ -2629,10 +2628,8 @@ workflow itself. Otherwise CI runs the build's two halves, the targets `latest` 
 check and the Go tests under the race detector, on the latest supported Go.
 `lowest-and-tooling` runs vet and the Go tests without the race detector, on the lowest
 Go, which the Dockerfile's `LOWEST_GO_VERSION` names. That target also runs the release
-tooling's tests, the vulnerability filer's tests, the geo imports' tests, the check of
-GoReleaser's config, and ruff and `mypy --strict` over the Python in `data-import/`, `release-tooling/` and
-`vulnerability-filing/`; the filer's tests file an item into `todo.md` themselves, so a change to the plan's shape can
-fail them. The rest of the gate is the Packages dry run below and the changelog check, which
+tooling's tests, the geo imports' tests, the check of GoReleaser's config, and ruff and
+`mypy --strict` over the Python in `data-import/` and `release-tooling/`. The rest of the gate is the Packages dry run below and the changelog check, which
 CI runs against the PR base and which refuses a `## ` heading in `CHANGELOG.md` other than
 `Unreleased` or a version with its date. The check `gate` passes once each of these has
 passed or been skipped, and it is the only check that branch protection on `main`
