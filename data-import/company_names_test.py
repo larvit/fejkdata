@@ -13,7 +13,7 @@ from company_names import (
     word_usage,
 )
 
-VOCABULARY = Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(), frozenset(), frozenset({"A"}), 0, connecting_words=("and", "&"))
+VOCABULARY = Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(), frozenset(), frozenset({"A"}), 0, ("and", "&"))
 WORDS = Words({"tamm", "kask", "ivanova"}, {"jaan", "mari"})
 
 
@@ -77,6 +77,12 @@ class Coined(unittest.TestCase):
     def test_a_coined_word_has_four_letters_or_more(self) -> None:
         self.assertNotIn("Zor", self.coined("Zor", 40, 2))
         self.assertIn("Zorb", self.coined("Zorb", 40, 2))
+
+    def test_a_coined_word_takes_its_most_common_spelling(self) -> None:
+        rows = [("A", "Pluss ZorBa" if i < 25 else "Pluss Zorba") for i in range(40)]
+        found = coined(word_usage(rows, lambda w: False, VOCABULARY), set())
+        self.assertEqual(found["ZorBa"], 40)
+        self.assertNotIn("Zorba", found)
 
     def test_a_trade_word_is_not_coined(self) -> None:
         self.assertNotIn("Zorba", self.coined("Zorba", 40, 2, {"zorba"}))

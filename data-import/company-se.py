@@ -46,7 +46,7 @@ LEGAL_WORDS = {
     "ab", "aktiebolag", "aktiebolaget", "hb", "handelsbolag", "handelsbolaget", "kb", "kommanditbolag", "kommanditbolaget",
     "bostadsrättsförening", "bostadsrättsföreningen", "brf", "ekonomisk", "ekonomiska", "förening", "föreningen", "publ",
 }
-VOCABULARY = Vocabulary(re.compile(r"^[a-zåäöéü]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset({"AB", "HB", "KB", "E"}), 3)
+VOCABULARY = Vocabulary(re.compile(r"^[a-zåäöéü]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset({"AB", "HB", "KB", "E"}), 3, ())
 ENDINGS = {
     "AB": [["ab"], ["aktiebolag"]],
     "HB": [["hb"], ["handelsbolag"]],

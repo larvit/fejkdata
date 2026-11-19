@@ -76,7 +76,7 @@ LEGAL_WORDS = {
     "societe", "spfpl", "unique",
 }
 LEGAL_SUFFIX = re.compile(r"[\s,]+(?:S\.?A\.?R\.?L\.?|E\.?U\.?R\.?L\.?|S\.?A\.?S\.?U?\.?|S\.?N\.?C\.?|S\.?A\.?)\s*$")
-VOCABULARY = Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0)
+VOCABULARY = Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, CONNECTING_WORDS)
 # The accented spelling of a trade word or a root, which Sirene writes without accents.
 SPELLINGS = {
     "amenagement": "Aménagement", "associes": "Associés", "batiment": "Bâtiment", "beaute": "Beauté", "cafe": "Café", "creation": "Création",

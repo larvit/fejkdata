@@ -70,7 +70,7 @@ ENDING_LETTERS = range(3, 6)
 VOWELS = "aeiouyæøå"
 FUNCTION_WORDS = {"og", "the", "and", "of", "for", "med", "på", "til", "av", "din", "min", "den", "det", "ett", "nye"}
 LEGAL_WORDS = {form.lower() for form in FORMS} | {"aksjeselskap", "aksjeselskapet", "ansvarlig", "selskap", "samvirkeforetak"}
-VOCABULARY = Vocabulary(re.compile(r"^[a-zæøåéü]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset({"AS", "ENK", "DA", "ANS"}), 0)
+VOCABULARY = Vocabulary(re.compile(r"^[a-zæøåéü]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset({"AS", "ENK", "DA", "ANS"}), 0, ())
 # A name's kinds of word in order, each a key of SLOTS.
 type Shape = tuple[str, ...]
 
