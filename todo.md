@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 521 | 0.7.0 |  |  | **Leave a `let` field out of `--list`, `.fejkdata.json` and `testdata/shipped_shape.txt` in any category, and move the shipped helper fields, such as `misc.ipv6.g`, into `let`.** | 2 | 2 | 2 | 4 | 3 | 4 by 3, code health by 2 | 5.3 |
-| 273 | 0.7.0 |  |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 498 | 0.7.0 |  |  | **Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 499 | 0.7.0 | 498 |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 503 | 0.7.0 |  |  | **Add `lv_LV` with its given names by sex, last names and titles, and `lv_LV.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
@@ -265,21 +264,6 @@ Touches:
 - data/sv_SE/.fejkdata.json
 - testdata/shipped_shape.txt
 - README.md: `Let`, `Options and fields` (small)
-
-### 273. Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
-
-Touches:
-
-- `internal/builtinfunc/nir.go`
-- `internal/builtinfunc/builtins.go`: lines 31-45 (small)
-- `internal/fejktest/ids.go`: lines 166-176 (small)
-- `nir_test.go`
-- `data/fr_FR/`
-- `data/french_test.go`
-- `testdata/shipped_shape.txt`: lines 429-430 (small)
-- `README.md`: `# fejkdata` (small), `` ### `fr_FR` `` (small), `#### NIR`, `### Functions` (small)
 
 ### 498. Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.
 
