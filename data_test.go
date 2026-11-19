@@ -320,7 +320,7 @@ func femaleFirstNamesDrawnBesidePeopleOfTheirSex(t *testing.T, f *Generator, loc
 // from one pick, and that two names bound to one person category are two people.
 func TestShippedPersonIsOneNamedPick(t *testing.T) {
 	f := shipped(t, WithSeed(9))
-	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK", "de_DE", "fr_FR"} {
+	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK", "de_DE", "et_EE", "fr_FR"} {
 		t.Run(locale, func(t *testing.T) {
 			if !twoPeopleOf300RendersDrawApart(t, f, locale) {
 				t.Errorf("%s: two names bound to person drew one first name in 300 renders, want two people", locale)
@@ -419,7 +419,8 @@ func TestShippedStreetNumberFormats(t *testing.T) {
 }
 
 // The sex tables hold the people of each sex: SCB's population at the end of 2024, Statistics
-// Norway's and Denmark's on 1 January 2026 and the Census Bureau's estimate for 1 July 2024.
+// Norway's and Denmark's on 1 January 2026, Eurostat's for Germany and Estonia on 1 January 2025 and
+// the Census Bureau's estimate for 1 July 2024.
 func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 	f := shipped(t, WithSeed(3))
 	for path, want := range map[string]string{
@@ -435,6 +436,8 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 		"fr_FR.sex[m].count": "33434070",
 		"en_US.sex[f].count": "171773106",
 		"en_US.sex[m].count": "168337882",
+		"et_EE.sex[f].count": "720242",
+		"et_EE.sex[m].count": "649753",
 	} {
 		t.Run(path, func(t *testing.T) {
 			if got := fejktest.Fake(t, f, path); got != want {
