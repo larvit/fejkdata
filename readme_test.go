@@ -94,7 +94,7 @@ func readmeLine(src string, at int) string {
 	return "line-" + strconv.Itoa(strings.Count(src[:at], "\n")+1)
 }
 
-// localePages is each page under docs/locales by file name: the README's per-locale sections.
+// localePages is each page under docs/locales by file name.
 func localePages(t *testing.T) map[string]string {
 	t.Helper()
 	files, err := filepath.Glob("docs/locales/*.md")
@@ -115,8 +115,14 @@ func localePages(t *testing.T) map[string]string {
 func TestReadmeExamplesLoadAndRender(t *testing.T) {
 	pages := localePages(t)
 	pages["README.md"] = readme(t)
+	names := make([]string, 0, len(pages))
+	for name := range pages {
+		names = append(names, name)
+	}
+	slices.Sort(names)
 	count := 0
-	for name, src := range pages {
+	for _, name := range names {
+		src := pages[name]
 		for _, at := range jsonBlock.FindAllStringSubmatchIndex(src, -1) {
 			count++
 			t.Run(name+"-"+readmeLine(src, at[0]), func(t *testing.T) {
@@ -133,12 +139,15 @@ func TestReadmeExamplesLoadAndRender(t *testing.T) {
 		}
 	}
 	if count < 8 {
-		t.Fatalf("found only %d README examples", count)
+		t.Fatalf("found only %d json examples in the README and its locale pages", count)
 	}
 }
 
-func TestEachShippedModuleHasItsLocalePage(t *testing.T) {
+var pageHeading = regexp.MustCompile(`(?m)^## (.+)$`)
+
+func TestEachDataFolderHasItsLocalePage(t *testing.T) {
 	src, pages := readme(t), localePages(t)
+	table := readmeSection(t, src, "### Locale pages")
 	entries, err := os.ReadDir("data")
 	if err != nil {
 		t.Fatal(err)
@@ -148,11 +157,20 @@ func TestEachShippedModuleHasItsLocalePage(t *testing.T) {
 			continue
 		}
 		page := e.Name() + ".md"
-		if _, ok := pages[page]; !ok {
+		body, ok := pages[page]
+		if !ok {
 			t.Errorf("docs/locales has no %s for data/%s", page, e.Name())
+			continue
 		}
-		if !strings.Contains(src, "](docs/locales/"+page) {
-			t.Errorf("the README links no docs/locales/%s", page)
+		_, after, _ := strings.Cut(table, "| `"+e.Name()+"` |")
+		row, _, _ := strings.Cut(after, "\n")
+		if !strings.Contains(row, "](docs/locales/"+page+")") {
+			t.Errorf("the README's Locale pages table has no row linking docs/locales/%s", page)
+		}
+		for _, h := range pageHeading.FindAllStringSubmatch(body, -1) {
+			if !strings.Contains(row, h[1]) {
+				t.Errorf("the README's Locale pages row for %s lacks the heading %q of docs/locales/%s", e.Name(), h[1], page)
+			}
 		}
 		if strings.Contains(src, "\n### `"+e.Name()+"`\n") {
 			t.Errorf("the README holds a section for %s, which belongs in docs/locales/%s", e.Name(), page)
