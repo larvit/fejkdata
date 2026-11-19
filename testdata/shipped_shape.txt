@@ -941,12 +941,16 @@ lt_LT.person.first	string
 lt_LT.person.last	string
 lt_LT.person.prefix	string null
 lt_LT.person.sex	string
-lt_LT.phone	reads lt_LT.phone-fixed
+lt_LT.phone	reads lt_LT.phone-fixed lt_LT.phone-mobile
 lt_LT.phone-fixed	format "{area}"	key area
 lt_LT.phone-fixed.area	string
 lt_LT.phone-fixed.name	string
 lt_LT.phone-fixed.ndc	string
 lt_LT.phone-fixed.subscriber	string
+lt_LT.phone-mobile	format "{area}"	key area
+lt_LT.phone-mobile.area	string
+lt_LT.phone-mobile.ndc	string
+lt_LT.phone-mobile.subscriber	string
 lt_LT.phone.international
 lt_LT.phone.national
 lt_LT.sex	format "{name}"	key code	name name	weight count
