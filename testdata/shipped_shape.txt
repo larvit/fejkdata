@@ -471,6 +471,17 @@ fr_FR.person.first	string
 fr_FR.person.last	string
 fr_FR.person.prefix	string null
 fr_FR.person.sex	string
+fr_FR.phone	reads fr_FR.phone-fixed fr_FR.phone-mobile
+fr_FR.phone-fixed	format "{area}"	key area
+fr_FR.phone-fixed.area	string
+fr_FR.phone-fixed.ndc	string
+fr_FR.phone-fixed.subscriber	string
+fr_FR.phone-mobile	format "{area}"	key area
+fr_FR.phone-mobile.area	string
+fr_FR.phone-mobile.ndc	string
+fr_FR.phone-mobile.subscriber	string
+fr_FR.phone.international
+fr_FR.phone.national
 fr_FR.sex	format "{name}"	key code	name name	weight count
 fr_FR.sex-digit	format "{digit}"	parent sex
 fr_FR.sex-digit.digit	string
