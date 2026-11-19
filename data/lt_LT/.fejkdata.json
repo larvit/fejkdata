@@ -5,6 +5,7 @@
 		"lt_LT.person": {"paths":["","first","last","prefix","sex"]},
 		"lt_LT.phone": {"paths":["","international","national"]},
 		"lt_LT.phone-fixed": {"paths":["","area","name","ndc","subscriber"]},
+		"lt_LT.phone-mobile": {"paths":["","area","ndc","subscriber"]},
 		"lt_LT.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","last-name","last-name.count","last-name.name","last-name.sex","name"]},
 		"lt_LT.title": {"paths":["","name","share"]}
 	},

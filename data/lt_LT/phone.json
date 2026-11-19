@@ -1,10 +1,9 @@
 [
   {
-    "format": "{subscriber as s}{national}",
+    "format": "{.phone-mobile as a}{national}",
     "weight": 10,
-    "subscriber": "6{digits(2)} {digits(5)}",
-    "national": "0 {s}",
-    "international": "+370 {s}"
+    "national": "0 {a.ndc}{a.subscriber}",
+    "international": "+370 {a.ndc}{a.subscriber}"
   },
   {
     "format": "{.phone-fixed as a}{national}",
