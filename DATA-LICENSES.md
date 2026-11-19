@@ -235,13 +235,14 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Source: INSEE's open files. First names: the ["Fichier des
   prénoms"](https://www.insee.fr/fr/statistiques/8205621) (`prenoms-2023-nat`), the births of 1944 to
   2023 summed per first name and sex, for the 2,000 commonest of each sex; INSEE groups the names it
-  doesn't publish under `_PRENOMS_RARES`, and those and the rows without a year are dropped. Last names:
-  the ["Fichier des noms"](https://www.insee.fr/fr/statistiques/3536630) (`noms2008nat`), the births of
-  1891 to 2000 summed over their decades, for the 5,000 commonest; INSEE writes them in capitals without
-  accents, and a name with a one-letter part is dropped
+  doesn't publish under `_PRENOMS_RARES`, and the script drops that group and the rows without a
+  year. Last names: the ["Fichier des noms"](https://www.insee.fr/fr/statistiques/3536630)
+  (`noms2008nat`), the births of 1891 to 2000 summed over their decades, for the 5,000 commonest; INSEE
+  writes them in capitals without accents. Both tables drop a name with a one-letter part
 - Licence: [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/),
   as INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) state
-- Attribution: "Source : Insee"
+- Attribution: "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee, Fichier des noms
+  de famille, 22/05/2018": INSEE's conditions ask for the date of the data's last update
 - Rebuild: `data-import/names-fr.py`
 
 ## `geo/DE/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`
@@ -689,7 +690,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   Denmark](https://www.dst.dk/en/)'s table [FOLK1A](https://www.statbank.dk/FOLK1A) on 1 January
   2026; [Eurostat](https://ec.europa.eu/eurostat)'s table
   [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table) for Germany and
-  France on 1 January 2025, which marks the French figure provisional; the
+  France on 1 January 2025, a figure Eurostat marks provisional for France; the
   [Census Bureau](https://www.census.gov/)'s national population estimates by age and sex, vintage 2024,
   for 1 July 2024; [Statistics Finland](https://stat.fi/en)'s table
   [11rb](https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__vaerak/statfin_vaerak_pxt_11rb.px/),
