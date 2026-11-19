@@ -25,8 +25,8 @@ company_names.py over the names of every form, with a form spread of one: SIA na
 so few trade words reach FORM_MIN names in a second form.
 
 company-coined.tsv holds the coined words, each with the number of names that carry it. A coined word has four
-letters or more, is no name or trade word, is carried by COINED_MIN or more names, and ends at least a
-COINED_ENDS_MIN share of them. A coined word is a common word of the names, not a root that opens them. A coined
+letters or more, is no name or trade word, is carried by company_names.COINED_MIN or more names, and ends at least a
+company_names.COINED_ENDS_MIN share of them. A coined word is a common word of the names, not a root that opens them. A coined
 word takes its most common spelling. A name drawn from these parts may be a real company's.
 """
 import argparse
@@ -73,7 +73,7 @@ NAMED_FORMS = {
 CONNECTING_WORDS = ("un", "&")
 FUNCTION_WORDS = {*CONNECTING_WORDS, "the", "and", "of", "for"}
 LEGAL_WORDS = {words[0] for _, words in NAMED_FORMS.values()} | {"pilnsabiedrība", "komandītsabiedrība"}
-VOCABULARY = Vocabulary(re.compile(r"^[a-zāčēģīķļņšūž]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, form_spread=1, connecting_words=CONNECTING_WORDS)
+VOCABULARY = Vocabulary(re.compile(r"^[a-zāčēģīķļņšūž]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, CONNECTING_WORDS, form_spread=1)
 # Which side of the name carries the form, and whether the register quotes the rest of the name.
 type Placement = tuple[str, bool]
 

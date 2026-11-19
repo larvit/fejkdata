@@ -90,7 +90,7 @@ class Trade(unittest.TestCase):
         self.assertEqual(trade["ehitus"], ("Ehitus", 100))
 
     def test_a_trade_word_spans_three_forms_where_a_vocabulary_names_no_spread(self) -> None:
-        vocabulary = company_ee.Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(), frozenset(), frozenset({"A", "B", "C"}), 0)
+        vocabulary = company_ee.Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(), frozenset(), frozenset({"A", "B", "C"}), 0, ())
         rows = [("AB"[i % 2], "Alfa Ehitus" if i < 40 else "Ehitus Alfa") for i in range(100)]
         self.assertNotIn("ehitus", company_ee.trade_words(company_ee.word_usage(rows, lambda w: False, vocabulary), vocabulary))
         rows = [("ABC"[i % 3], name) for i, (_, name) in enumerate(rows)]

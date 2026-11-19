@@ -1,10 +1,14 @@
-"""What the company imports share: the words of a register's company names, and the trade words among them.
+"""What the company imports share: the words of a register's company names, the trade words among them, and the shapes and coined words their names make.
 
 A trade word is neither a name nor a place, is carried by WORDS_MIN or more names, ends a name in at least a
 third of its uses, and is carried by FORM_MIN names in each of at least form_spread of the forms a Vocabulary
 names, so a word one company family repeats stays out. A Vocabulary's form_spread is three unless it sets
 another. A word's spelling is the one most names that are not in capitals use. A word in capitals in such a name counts as written only if it is an acronym, such as VVS: it has
 at most the vocabulary's acronym_max letters, or no vowel.
+
+A shape is the kind of each word of a name: a first and last name drawn as one person (FS), a last name (S), a first name (F), a number
+(N), a connecting word of the vocabulary, a trade word (T), or any other word (X), which draws a coined word. A coined word is no trade word,
+has four letters or more, is carried by COINED_MIN or more names, and ends at least COINED_ENDS_MIN of them.
 """
 import re
 from collections import Counter, defaultdict
@@ -18,8 +22,8 @@ WORDS_MIN = 100
 FORM_MIN = 10
 COINED_MIN = 40
 COINED_ENDS_MIN = 0.05
-PERSONS = "pqrstuvw"
 VOWELS = "aeiouyåäöæøéüõāēīū"
+PERSONS = "pqrstuvw"
 SLOTS = {"X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "F": "{.first-name}", "N": "{int(1,30)}"}
 # A name's kinds of word in order, each a key of SLOTS, a connecting word, or FS for a person.
 type Shape = tuple[str, ...]
@@ -34,8 +38,8 @@ class Vocabulary:
     legal_words: frozenset[str]
     word_forms: frozenset[str]
     acronym_max: int
+    connecting_words: tuple[str, ...]
     form_spread: int = 3
-    connecting_words: tuple[str, ...] = ()
 
 
 class Words(NamedTuple):
@@ -156,7 +160,7 @@ def slots(shape: Shape, vocabulary: Vocabulary) -> str:
 
 
 def coined(usage: Mapping[str, Usage], trade: Collection[str]) -> dict[str, int]:
-    """The words of company-coined.tsv, each in its spelling with its count: no trade word, four letters or more, COINED_MIN or more names, ending COINED_ENDS_MIN of them."""
+    """The words of company-coined.tsv, each in its spelling with its count, by the rule in the module docstring."""
     return {
         (u.spellings.most_common(1)[0][0] if u.spellings else w.capitalize()): u.names
         for w, u in sorted(usage.items())

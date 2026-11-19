@@ -24,9 +24,9 @@ company_names.py over the names of OÜ, AS, UÜ and TÜ, with a form spread of o
 those names, so few trade words reach FORM_MIN names in a second form.
 
 company-coined.tsv holds the coined words, each with the number of names that carry it. A coined word has four
-letters or more, is no name or trade word, is carried by COINED_MIN or more names, and ends at least a
-COINED_ENDS_MIN share of them. Nearly half of the register's names are one word no other name carries, and a
-coined word is a common word of the names, not a root that opens them. COINED_MIN keeps out the brand of a
+letters or more, is no name or trade word, is carried by company_names.COINED_MIN or more names, and ends at least a
+company_names.COINED_ENDS_MIN share of them. Nearly half of the register's names are one word no other name carries, and a
+coined word is a common word of the names, not a root that opens them. company_names.COINED_MIN keeps out the brand of a
 group's project companies, such as Hepsor's. A coined word takes its most common spelling, so a name drawn with it
 may be a real company's.
 """
@@ -69,7 +69,7 @@ NAMED_FORMS = {"OÜ": ("ou", {"oü", "osaühing"}), "AS": ("as", {"as", "aktsias
 CONNECTING_WORDS = ("ja", "&")
 FUNCTION_WORDS = {*CONNECTING_WORDS, "the", "and", "of", "for"}
 LEGAL_WORDS = {"fie", "mtü"} | {w for _, words in NAMED_FORMS.values() for w in words}
-VOCABULARY = Vocabulary(re.compile(r"^[a-zäöüõšž]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, form_spread=1, connecting_words=CONNECTING_WORDS)
+VOCABULARY = Vocabulary(re.compile(r"^[a-zäöüõšž]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, CONNECTING_WORDS, form_spread=1)
 
 
 
