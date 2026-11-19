@@ -264,9 +264,34 @@ The decisions "A known vulnerability in the Go version or a required module bloc
 
 France holds more French speakers than DR Congo: 64M to 49M on Wikipedia's "Geographical distribution of French speakers", which credits a 2022 OIF report but flags its table as not taken from that report.
 
+Touches:
+
+- `data/fr_FR/`
+- `data/modules.go`: lines 7-28 (small)
+- `shipped_test.go`: lines 20-33 (small), lines 85-98 (small)
+- `data/locales_test.go`: lines 99-202
+- `data/french_test.go`
+- `data_test.go`: lines 285-295 (small), lines 313-320 (small), lines 410-426 (small)
+- `data-import/names-fr.py`
+- `data-import/sex-population.py`: `(module)` (small), `NAMES` (small), `main` (small), `france`
+- `testdata/shipped_shape.txt`: lines 429-430 (small)
+- `README.md`: `# fejkdata` (small), `### Shipped modules` (small), `#### Names and sex` (small), `` ### `fr_FR` ``
+- `DATA-LICENSES.md`: `` ## `fr_FR/first-name.tsv`, `last-name.tsv` ``
+
 ### 273. Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
+
+Touches:
+
+- `internal/builtinfunc/nir.go`
+- `internal/builtinfunc/builtins.go`: lines 31-45 (small)
+- `internal/fejktest/ids.go`: lines 166-176 (small)
+- `nir_test.go`
+- `data/fr_FR/`
+- `data/french_test.go`
+- `testdata/shipped_shape.txt`: lines 429-430 (small)
+- `README.md`: `# fejkdata` (small), `` ### `fr_FR` `` (small), `#### NIR`, `### Functions` (small)
 
 ### 498. Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.
 
@@ -349,6 +374,16 @@ Templates, from RFC 5737, RFC 1918 and RFC 9637, which are facts.
 
 Find the numbering plan and its licence first.
 
+Touches:
+
+- `data/fr_FR/`
+- `data-import/phone-fr.py`
+- `data/french_phone_test.go`
+- `data/locales_test.go`: lines 99-202 (small)
+- `testdata/shipped_shape.txt`: lines 429-430 (small)
+- `README.md`: `# fejkdata` (small), `` ### `fr_FR` `` (small), `#### French phone numbers`
+- `DATA-LICENSES.md`: `` ## `fr_FR/phone-fixed.tsv`, `phone-mobile.tsv` ``
+
 ### 500. Add `et_EE.phone`, drawn from Estonia's numbering plan.
 
 Use the regulator's published numbering plan, and prefer ranges reserved for fiction where one exists.
@@ -375,6 +410,16 @@ Touches:
 
 - `data/lt_LT/`
 - `README.md`: `### Locale categories` (small)
+
+### 274. Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.
+
+Touches:
+
+- `data/fr_FR/`
+- `data/locales_test.go`: lines 99-202
+- `testdata/shipped_shape.txt`: lines 429-430 (small)
+- `README.md`: `# fejkdata` (small), `### Locale categories` (small), `` ### `fr_FR` `` (small), `#### French companies`, `#### French dates and emails`
+- `DATA-LICENSES.md`: `` ## `fr_FR/company.json`, `company-coined.json`, `company-word.json` ``
 
 ### 501. Add `et_EE.company`, `et_EE.email` and `et_EE.date`.
 
@@ -489,6 +534,19 @@ Touches:
 ### 270. Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.
 
 The Base Adresse Nationale (Licence Ouverte 2.0) names each address's commune and code postal.
+
+Touches:
+
+- `data/geo/FR/`
+- `data/fr_FR/`: `address.json`, `fs.go`, `.fejkdata.json`
+- `data-import/geo-fr.py`
+- `data/modules.go`: lines 7-28 (small)
+- `shipped_test.go`: lines 20-33 (small), lines 85-98 (small)
+- `data/geo_fr_test.go`
+- `data/geo_test.go`: lines 126-130 (small)
+- `testdata/shipped_shape.txt`: lines 429-430 (small), lines 639-640 (small)
+- `README.md`: `# fejkdata` (small), `### Shipped modules` (small), `` ### `geo` ``, `#### French places`
+- `DATA-LICENSES.md`: `` ## `geo/FR/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv` ``
 
 ### 502. Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.
 
