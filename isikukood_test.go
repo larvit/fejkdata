@@ -25,7 +25,7 @@ func TestValidIsikukoodAppliesTheTwoWeightsAndTheZero(t *testing.T) {
 	}
 }
 
-const isikukoodTemplate = `{"format":"{/d as b}{isikukood(sex,b)}","d":"%s","sex":"%s"}`
+const isikukoodTemplate = `{"format":"{isikukood(sex,d)}","d":"%s","sex":"%s"}`
 
 func isikukoodOf(t *testing.T, f *Generator, date, sex string) string {
 	t.Helper()
@@ -33,15 +33,16 @@ func isikukoodOf(t *testing.T, f *Generator, date, sex string) string {
 }
 
 // EVS 585: the first digit is 1 for a man and 2 for a woman born in the 1800s, 3 and 4 in the
-// 1900s, 5 and 6 in the 2000s, and 7 and 8 in the 2100s; the date follows as year, month and day
-// of two digits each.
+// 1900s and 5 and 6 in the 2000s, as the Ministry of the Interior's regulation "Isikukoodide
+// moodustamise ja andmise kord" lists them; the date follows as year, month and day of two digits
+// each.
 func TestBuiltinIsikukoodStartsWithTheDigitOfItsSexAndCentury(t *testing.T) {
 	f := emptyGenerator(11)
 	for _, c := range []struct{ date, sex, want string }{
 		{"18990101", "1", "1990101"}, {"18990101", "2", "2990101"},
 		{"19680528", "1", "3680528"}, {"19680528", "2", "4680528"},
 		{"20240229", "1", "5240229"}, {"20240229", "2", "6240229"},
-		{"21000101", "1", "7000101"}, {"21991231", "2", "8991231"},
+		{"20991231", "2", "6991231"},
 		{"18000101", "1", "1000101"},
 	} {
 		t.Run(c.date+" "+c.sex, func(t *testing.T) {
@@ -58,7 +59,7 @@ func TestBuiltinIsikukoodRendersNothingForAnOperandItDoesNotRead(t *testing.T) {
 	for _, c := range []struct{ date, sex string }{
 		{"19680528", ""}, {"19680528", "0"}, {"19680528", "3"}, {"19680528", "12"}, {"19680528", "m"},
 		{"", "1"}, {"680528", "1"}, {"196805280", "1"}, {"1968-05-28", "1"}, {"17991231", "1"},
-		{"22000101", "1"}, {"19681328", "1"}, {"19680532", "1"}, {"20230229", "1"},
+		{"21000101", "1"}, {"21991231", "2"}, {"19681328", "1"}, {"19680532", "1"}, {"20230229", "1"},
 	} {
 		t.Run(c.date+" "+c.sex, func(t *testing.T) {
 			if got := isikukoodOf(t, f, c.date, c.sex); got != "" {
@@ -97,7 +98,7 @@ func TestBuiltinIsikukoodTakesTheCenturyFromTheDateAndNotFromToday(t *testing.T)
 func TestBuiltinIsikukoodReadsTheDateOfABornCall(t *testing.T) {
 	f := emptyGenerator(14)
 	for range 200 {
-		got := mustRender(t, f, `{"format":"{/d as b}{isikukood(sex,b)}","d":"{born(0,99,'20060102')}","sex":"2"}`)
+		got := mustRender(t, f, `{"format":"{isikukood(sex,d)}","d":"{born(0,99,'20060102')}","sex":"2"}`)
 		if !fejktest.ValidIsikukood(got) || got[0] != '4' && got[0] != '6' {
 			t.Fatalf("isikukood over born(0,99) = %q, want a valid code of a woman born in the 1900s or 2000s", got)
 		}
