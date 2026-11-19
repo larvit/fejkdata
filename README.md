@@ -1305,8 +1305,8 @@ The plan is the one the Communications Regulatory Authority (RRT) adopted on 1 S
 ITU published on 6 March 2025. A number has 8 digits after the 0, and a mobile number opens with 6.
 `lt_LT.phone-fixed` holds the 47 area codes that the plan's table of fixed numbers allots to a city or
 district and doesn't mark "Reserved", and `lt_LT.phone-mobile` the one mobile code, 6. Each row's `area` is
-its code with the trunk 0, such as `037` for Kaunas, and its `ndc` is the code without the 0. Its `name`
-is the city or district, and its `subscriber` the digits after the code. A row is selected by its `area`,
+its code with the trunk 0, such as `037` for Kaunas, and its `ndc` is the code without the 0. Its
+`subscriber` is the digits after the code, and a fixed row also has a `name`, the city or district. A row is selected by its `area`,
 `phone-fixed[037]`, and each is drawn evenly, since the plan publishes no frequency. Where the plan fixes
 the first digits of the subscriber numbers, `subscriber` draws only those: Vilnius's `5` is followed by
 20 to 27, Panevėžys's `45` by 4 or 5, and Klaipėda's `46` by 2 to 4.
