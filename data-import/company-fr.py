@@ -11,20 +11,24 @@ and prenom, so no shape is counted. The units of every other category, such as t
 aren't drawn.
 
 Sirene writes a name in capitals without accents, and mostly without the legal form. A trailing legal form, SARL,
-EURL, SAS, SASU, SNC, SA or S.A., is dropped from a name. A name counts for the form of its category.
+EURL, SAS, SASU, SNC, SA or S.A., is dropped from a name, and a legal word anywhere in it, such as SOCIETE or SCI,
+is left out of its shape. A name counts for the form of its category.
 
 A shape is the kind of each word of a name: a last name, a first name, a number, a connecting word such as `et`,
-`de` or `la`, a trade word, or any other, which draws a coined word. A last or first name is one in the shipped fr_FR tables, compared without
-accents. A shape ships when it is at least company_names.SHARE_MIN of the form's names.
+`de` or `la`, a trade word, or any other, which draws a coined word. A last or first name is one in the shipped
+fr_FR tables, compared without accents. A shape ships when it is at least company_names.SHARE_MIN of the form's
+names, and its first word is capitalised.
 
 company-word.tsv holds the TRADE_MAX commonest trade words, each with its count and its spelling: the word
 capitalised, with the accents SPELLINGS gives it, as Sirene holds none. The rule is company_names.py's, over the
 names of the forms SARL, SAS, SNC and SA. SPELLINGS is written by hand, from the Dictionnaire de l'Académie
-française, for the words among those that take an accent.
+française, for the words among those, and among the roots, that take an accent or are an acronym.
 
 company-coined.tsv holds the roots, each with the number of names that carry it: the words of ROOT_LETTERS
-letters that begin ROOT_MIN or more names and end under a third of the names they are in, none of them a name or
-a trade word, each carried by FORM_MIN names in at least two of the forms, so a brand one group repeats stays out.
+letters that begin ROOT_MIN or more names and end at least ROOT_ENDS_MIN but under a third of the names they are
+in, so `Chez`, which only opens a name, stays out. None is a name, a trade word or a legal form's abbreviation, and
+each is carried by FORM_MIN or more names in at least two of the forms, so a word one form uses stays out. A root
+is a word of the register's names, so a name drawn with it may be a real company's.
 """
 import argparse
 import csv
@@ -60,19 +64,31 @@ CATEGORY_FORM = {"1000": "EI", "5499": "SARL", "5710": "SAS", "5202": "SNC", "55
 FORMS = ("EI", "SARL", "SAS", "SNC", "SA")
 NAMED_FORMS = FORMS[1:]
 ROOT_MIN = 60
+ROOT_ENDS_MIN = 0.05
 ROOT_LETTERS = range(4, 7)
 TRADE_MAX = 120
 CONNECTING_WORDS = ("et", "de", "du", "des", "la", "le", "les", "au", "aux", "en", "sur", "sous", "pour", "par", "&")
 FUNCTION_WORDS = {*CONNECTING_WORDS, "the", "and", "of", "for"}
-LEGAL_WORDS = {"sarl", "eurl", "sas", "sasu", "snc", "sa", "societe", "anonyme", "responsabilite", "limitee", "associe", "unique", "simplifiee", "actions"}
+# The abbreviations and words of the legal forms in INSEE's catégories juridiques, which are no part of a name.
+LEGAL_WORDS = {
+    "anonyme", "associe", "actions", "cuma", "earl", "eurl", "gaec", "geie", "gie", "limitee", "responsabilite", "sarl", "sarlu", "sas", "sasp", "sasu",
+    "sca", "scea", "scic", "sci", "sccv", "scop", "scp", "scs", "selafa", "selarl", "selas", "selca", "sem", "semop", "sica", "simplifiee", "snc",
+    "societe", "spfpl", "unique",
+}
 LEGAL_SUFFIX = re.compile(r"[\s,]+(?:S\.?A\.?R\.?L\.?|E\.?U\.?R\.?L\.?|S\.?A\.?S\.?U?\.?|S\.?N\.?C\.?|S\.?A\.?)\s*$")
 VOCABULARY = Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0)
-# The accented spelling of a trade word, which Sirene writes without accents.
+# The accented spelling of a trade word or a root, which Sirene writes without accents.
 SPELLINGS = {
     "amenagement": "Aménagement", "associes": "Associés", "batiment": "Bâtiment", "beaute": "Beauté", "cafe": "Café", "creation": "Création",
     "deco": "Déco", "decoration": "Décoration", "developpement": "Développement", "editions": "Éditions", "electricite": "Électricité",
     "energie": "Énergie", "energies": "Énergies", "freres": "Frères", "ingenierie": "Ingénierie", "maconnerie": "Maçonnerie", "media": "Média",
     "negoce": "Négoce", "privee": "Privée", "renovation": "Rénovation", "sante": "Santé", "securite": "Sécurité",
+    "acces": "Accès", "aero": "Aéro", "ariege": "Ariège", "boite": "Boîte", "cafes": "Cafés", "cine": "Ciné", "creche": "Crèche",
+    "credit": "Crédit", "cles": "Clés", "declic": "Déclic", "defi": "Défi", "depot": "Dépôt", "eclat": "Éclat", "ecole": "École",
+    "ecrin": "Écrin", "elysee": "Élysée", "eole": "Éole", "equip": "Équip", "etude": "Étude", "etudes": "Études", "eveil": "Éveil",
+    "fleche": "Flèche", "genie": "Génie", "gite": "Gîte", "gites": "Gîtes", "hotel": "Hôtel", "idee": "Idée", "idees": "Idées", "meca": "Méca",
+    "medi": "Médi", "medic": "Médic", "nego": "Négo", "pieces": "Pièces", "pole": "Pôle", "pret": "Prêt", "regie": "Régie", "reseau": "Réseau",
+    "rhone": "Rhône", "tele": "Télé", "tete": "Tête", "unite": "Unité",
 }
 # A name's kinds of word in order, each a key of SLOTS.
 type Shape = tuple[str, ...]
@@ -110,9 +126,9 @@ def kind(word: str, surnames: Collection[str], firsts: Collection[str]) -> str |
 def roots(usage: Mapping[str, Usage], trade: Collection[str]) -> dict[str, int]:
     """The roots of company-coined.tsv, each capitalised with its count, by the rule in the module docstring."""
     return {
-        w.capitalize(): u.names
+        SPELLINGS.get(w, w.capitalize()): u.names
         for w, u in sorted(usage.items())
-        if w not in trade and len(w) in ROOT_LETTERS and u.begins >= ROOT_MIN and 3 * u.ends < u.names
+        if w not in trade and len(w) in ROOT_LETTERS and u.begins >= ROOT_MIN and ROOT_ENDS_MIN * u.names <= u.ends and 3 * u.ends < u.names
         and sum(u.forms[f] >= FORM_MIN for f in VOCABULARY.word_forms) >= 2
     }
 
@@ -135,15 +151,27 @@ def count_shapes(names: Iterable[tuple[str, str]], surnames: Collection[str], fi
     """Per form: the shapes counted over its names."""
     shapes: dict[str, Counter[Shape]] = {f: Counter() for f in NAMED_FORMS}
     for form, name in names:
-        words = split(name)
+        words = [w for w in split(name) if fold(w).replace(".", "") not in LEGAL_WORDS]
         if words:
             shapes[form][shape_of(words, surnames, firsts, trade)] += 1
     return shapes
 
 
+def commonest(trade: Mapping[str, tuple[str, int]], limit: int) -> dict[str, tuple[str, int]]:
+    """The limit commonest trade words, each with its spelling from SPELLINGS."""
+    top = sorted(trade.items(), key=lambda wsc: (-wsc[1][1], wsc[0]))[:limit]
+    return {w: (SPELLINGS.get(w, s), c) for w, (s, c) in top}
+
+
+def slots(shape: Shape) -> str:
+    """The format of a shape: its words' slots, the first one capitalised."""
+    text = " ".join(SLOTS[k] for k in shape)
+    return text[0].upper() + text[1:]
+
+
 def form_block(form: str, shapes: Mapping[Shape, int]) -> str:
     """One form's object: its name by shape, and the abbreviation after it."""
-    items = ",\n".join("      " + weighted(" ".join(SLOTS[k] for k in shape), c) for shape, c in common(shapes))
+    items = ",\n".join("      " + weighted(slots(shape), c) for shape, c in common(shapes))
     return f'  "{form.lower()}": {{\n    "format": {quoted("{name} " + form)},\n    "name": [\n{items}\n    ]\n  }}'
 
 
@@ -171,8 +199,7 @@ def main() -> None:
         return kind(w, surnames, firsts) is not None
 
     usage = word_usage(names, named, VOCABULARY)
-    commonest = sorted(trade_words(usage, VOCABULARY).items(), key=lambda wsc: (-wsc[1][1], wsc[0]))[:TRADE_MAX]
-    trade = {w: (SPELLINGS.get(w, s), c) for w, (s, c) in commonest}
+    trade = commonest(trade_words(usage, VOCABULARY), TRADE_MAX)
     out = Path(a.out)
     tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
     tsv.write(out / "company-coined.tsv", ["word", "count"], [{"word": w, "count": c} for w, c in roots(usage, trade).items()])
