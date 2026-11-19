@@ -9,10 +9,9 @@ import (
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
-// EVS 585, as the Population Register applies it and python-stdnum documents it: 36805280109 is a
-// valid code, and the same ten digits with another check digit are not. 36805280113 is a code whose
-// first sum is 10, so its second weights give the check digit, and 36805280600 one whose second
-// sum is 10 too, so its check digit is 0.
+// Per python-stdnum's ee.ik, 36805280109 is a valid code, and the same ten digits with another
+// check digit are not. 36805280113 is a code whose first sum is 10, so its second weights give the
+// check digit, and 36805280600 one whose second sum is 10 too, so its check digit is 0.
 func TestValidIsikukoodAppliesTheTwoWeightsAndTheZero(t *testing.T) {
 	for code, want := range map[string]bool{
 		"36805280109": true, "36805280108": false, "36805280113": true, "36805280112": false,
@@ -33,7 +32,7 @@ func isikukoodOf(t *testing.T, f *Generator, date, sex string) string {
 	return mustRender(t, f, fmt.Sprintf(isikukoodTemplate, date, sex))
 }
 
-// EVS 585: the first digit is 1 for a man and 2 for a woman born in the 1800s, 3 and 4 in the
+// The first digit is 1 for a man and 2 for a woman born in the 1800s, 3 and 4 in the
 // 1900s and 5 and 6 in the 2000s, as the Ministry of the Interior's regulation "Isikukoodide
 // moodustamise ja andmise kord" lists them; the date follows as year, month and day of two digits
 // each.
@@ -70,8 +69,8 @@ func TestBuiltinIsikukoodRendersNothingForAnOperandItDoesNotRead(t *testing.T) {
 	}
 }
 
-// EVS 585 names the serial number, the eighth to tenth digit, as a number of the people born on one
-// day, so it is three digits; the Population Register starts it at 001.
+// The serial number, the eighth to tenth digit, is three digits; no source states which the register
+// issues, so 000 is left out.
 func TestBuiltinIsikukoodDrawsASerialNumberFrom001To999AndItsCheckDigit(t *testing.T) {
 	seen := map[int]bool{}
 	for seed := range uint64(4000) {

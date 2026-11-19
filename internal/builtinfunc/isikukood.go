@@ -8,15 +8,12 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// isikukoodWeights are EVS 585's two series of weights for the first ten digits of an Estonian
-// personal code: its check digit is the sum with the first, modulo 11, or where that is 10, the
-// sum with the second, modulo 11, or where that is 10 too, 0.
+// isikukoodWeights are the two series of weights python-stdnum's ee.ik gives the first ten digits:
+// the check digit is the sum with the first, modulo 11, or where that is 10, the sum with the
+// second, modulo 11, or where that is 10 too, 0.
 var isikukoodWeights = [2][10]int{{1, 2, 3, 4, 5, 6, 7, 8, 9, 1}, {3, 4, 5, 6, 7, 8, 9, 1, 2, 3}}
 
 func isikukoodArgs(a []string) error {
-	if len(a) != 2 {
-		return fmt.Errorf("isikukood takes the field or path that holds the sex's digit, 1 for a man and 2 for a woman, and the name of a date as YYYYMMDD, got %d args", len(a))
-	}
 	for _, arg := range a {
 		if _, _, isCall := grammar.FuncCall(arg); isCall {
 			return fmt.Errorf("isikukood takes a field, path or name, not the call %s", arg)
@@ -40,10 +37,10 @@ func isikukoodPrep([]string, parsed) Call {
 	}
 }
 
-// isikukoodFirstDigit is the first digit of the code of someone born on date, written YYYYMMDD, that
-// holds the sex's digit, 1 for a man and 2 for a woman: it names the century as well, 1 and 2 for
-// the 1800s up to 5 and 6 for the 2000s. It is not ok for a date outside those centuries or that
-// does not exist.
+// isikukoodFirstDigit is the first digit of the code of someone of the given sex, 1 for a man and 2
+// for a woman, born on date, written YYYYMMDD: it names the century as well, 1 and 2 for the 1800s
+// up to 5 and 6 for the 2000s. It is not ok for a date outside those centuries or that does not
+// exist.
 func isikukoodFirstDigit(date string, sex byte) (first byte, ok bool) {
 	year, ok := isikukoodYear(date)
 	if !ok {
@@ -54,15 +51,11 @@ func isikukoodFirstDigit(date string, sex byte) (first byte, ok bool) {
 
 // isikukoodYear is the year of a date written YYYYMMDD, ok where it is a day of 1800 to 2099.
 func isikukoodYear(date string) (year int, ok bool) {
-	var month, day int
-	if len(date) != 8 || digitsOf(date) != date {
+	d, err := time.Parse("20060102", date)
+	if err != nil || d.Year() < 1800 || d.Year() > 2099 {
 		return 0, false
 	}
-	if _, err := fmt.Sscanf(date, "%4d%2d%2d", &year, &month, &day); err != nil || year < 1800 || year > 2099 {
-		return 0, false
-	}
-	d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
-	return year, d.Month() == time.Month(month) && d.Day() == day
+	return d.Year(), true
 }
 
 // isikukoodCheck is the check digit of the first ten digits of a code.
