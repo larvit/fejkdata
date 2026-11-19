@@ -484,9 +484,9 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 ## `lv_LV/personas-kods.json`
 
 - Source: the weights of its three age bands: [Eurostat](https://ec.europa.eu/eurostat)'s table
-  [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table), "Population on 1 January
-  by age and sex", for Latvia in 2025: 1,860,337 people aged 0 to 99, 343,555 of them under 18, 1,110,183 aged
-  18 to 64 and 406,599 aged 65 to 99
+  [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table), "Population
+  on 1 January by age and sex", for Latvia in 2025: 1,860,337 people aged 0 to 99, 343,555 of them
+  under 18, 1,110,183 aged 18 to 64 and 406,599 aged 65 to 99
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as Eurostat's [copyright
   notice](https://ec.europa.eu/eurostat/help/copyright-notice) states
 - Attribution: "Source: Eurostat"
