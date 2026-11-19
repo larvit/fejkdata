@@ -175,6 +175,7 @@ with its replacement, and each removed path, column or flag.
   licence Datenlizenz Deutschland – Namensnennung 2.0 (`dl-de/by-2-0`), links both lists and says the
   data was changed.
 - `sv_SE.paragraph`, three to six `sv_SE.sentence` joined by a space, as `en_US.paragraph` joins its own.
+- The README's per-locale notes moved to one page per folder of `data/` under `docs/locales`, listed in the README's Locale pages table; the release archives ship the pages.
 
 ## 0.6.0 - 2026-11-15
 
