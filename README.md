@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons and isikukoodid, `lt_LT`'s names and persons, `lv_LV`'s names, persons and personas kodi, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names and persons, `lv_LV`'s names, persons and personas kodi, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs and phone numbers, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -973,7 +973,7 @@ may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, 
 
 ### `et_EE`
 
-`et_EE`, Estonian, carries `first-name`, `isikukood`, `last-name`, `person`, `sex`, `sex-digit` and `title`. `sex` is `naine` and `mees`, `title` is
+`et_EE`, Estonian, carries `first-name`, `isikukood`, `last-name`, `person`, `phone`, `sex`, `sex-digit` and `title`. `sex` is `naine` and `mees`, `title` is
 `dr` and `prof`, drawn whatever the sex. `{/et_EE.person}` renders e.g. `Liis Tamm`.
 
 Both name tables are a language model's recall of names common in Estonia: the commoner ones of each list are
@@ -1009,6 +1009,17 @@ the sex as `s` and the `birth` field of `et_EE.isikukood`, a day written `YYYYMM
 ```
 
 Renders e.g. `Lars Pavlov, 39406231528`.
+
+#### Estonian phone numbers
+
+`et_EE.phone` is a mobile number ten times as often as a fixed one. Estonia has no area codes, so every number
+is dialled as it stands: `5123 4567` for a mobile and `612 3456` for a fixed number, and `+372 5123 4567` with
+the country code. The ranges are those of the Annex to the Estonian numbering plan, regulation no. 25 of
+21 May 2018 of the Minister of Entrepreneurship and Information Technology: eight-digit mobile numbers
+starting with 5, and seven-digit fixed numbers starting with 32, 33, 35, 38, 39, 43 to 48 or 60 to 68, each
+two-digit start drawn evenly. The plan's other mobile ranges, 81 to 86, and the seven-digit mobile numbers it
+keeps only until their reservations end are left out. The Annex marks no range as reserved for fiction or
+tests, so a number drawn may be a real subscriber's.
 
 ### `fi_FI`
 

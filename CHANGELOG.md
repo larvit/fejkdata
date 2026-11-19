@@ -32,6 +32,8 @@ with its replacement, and each removed path, column or flag.
   married `Kazlauskienė`. `lt_LT.sex` carries Lithuania's population on 1 January 2025 from Eurostat, and a program
   showing it credits "Source: Eurostat". The Go package is `github.com/larvit/fejkdata/data/lt_LT`, and the CLI
   carries it.
+- `et_EE.phone`, an Estonian phone number such as `5123 4567`, or `+372 5123 4567` in its `international` form, drawn from
+  the ranges of the Estonian numbering plan: mobile numbers ten times as often as fixed ones.
 - `lv_LV`, Latvian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/lv_LV.person}` renders e.g.
   `Anna Bērziņa`. First names weigh the persons of the Office of Citizenship and Migration Affairs' register
   (CC0 1.0) by their first given name, and a program showing them credits "Avots: Pilsonības un migrācijas lietu
