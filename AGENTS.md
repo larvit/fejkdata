@@ -141,7 +141,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
 - `de_DE`'s first names are Munich's newborns
-- A `let` field writes no column and is left out of the listing
+- A `hidden` field writes no column and is left out of the listing
 - No database or HTTP sink is built in
 - A date offset is `adddays(d,n)`, and its `d` reads `date` or `born` calls in one layout that reads back
 - A where clause follows its path: `length 5`, `length 4 to 6`, `not 'cat'` and `not containing 'cat'`, joined by `and`

@@ -32,10 +32,10 @@ teach the exported API belongs in the root's package doc.
 
 2026-09-02, Lilleman auf Larv.
 
-`format`, `weight`, `repeat`, `separator`, `datatype` and `let` are reserved; every other key
+`format`, `weight`, `repeat`, `separator`, `datatype` and `hidden` are reserved; every other key
 is a field. Nesting fields under a key, or prefixing options, would tax every template to
-guard against a misspelt option. `let` is the one option that holds fields, the ones that write
-no column ("A `let` field writes no column and is left out of the listing").
+guard against a misspelt option. `hidden` is the one option that holds fields, the ones that write
+no column ("A `hidden` field writes no column and is left out of the listing").
 
 ## `{a|b}` stays beside nested choices
 
@@ -1827,47 +1827,48 @@ The names read `de_DE`'s names and `geo.DE.locality`. An open bulk file of Germa
 `de_DE.email` writes `Müller` as `muller`, not `mueller`, since `slugify` folds `ü` to `u` by ruby-i18n's table, as for
 every locale. Its own words hold no `ae`, `oe` or `ue` spelling, so a local part never mixes the two.
 
-## A `let` field writes no column and is left out of the listing
+## A `hidden` field writes no column and is left out of the listing
 
-2026-11-08, Lilleman auf Larv; widened 2026-11-19. Serves goal 4.7, read as: a template
-that means one thing loads, goal 4.3, a name keeps one pick, and goal 4, a reader tells a path meant
-to be read from a scaffold.
+2026-11-08, Lilleman auf Larv, as `let`; widened 2026-11-19, and renamed `hidden` the same day.
+Serves goal 4.7, read as: a template that means one thing loads, goal 4.3, a name keeps one pick,
+goal 4.8, a clearer name replaces the old one, and goal 4, a reader tells a path meant to be read
+from a scaffold.
 
 A record wrote one column per field, so a field there only to be named by another, as
-`{"ride":…}` is by `{ride.fare}`, showed up as a column nobody asked for. `let` holds such
-fields: they bind and resolve as any field does and write no column. A writer panel seated as the
-README's audience chose `let` over `hidden`, `private` and `_`-prefixed names: it was the one
-spelling readers took for a local binding. It costs one reserved key, and a field can no longer
-be named `let`. A key in `let` and beside it fails to load, so a field has one place, and an
-option name in `let` fails too. A record whose fields are all in `let` has no columns and is
-`ErrNoColumns`.
+`{"ride":…}` is by `{ride.fare}`, showed up as a column nobody asked for. `hidden` holds such
+fields: they bind and resolve as any field does and write no column. It costs one reserved key,
+and a field can no longer be named `hidden`. A key in `hidden` and beside it fails to load, so a
+field has one place, and an option name in `hidden` fails too. A record whose fields are all in
+`hidden` has no columns and is `ErrNoColumns`.
 
 The same field was also a listed path outside a record: `--list` printed it, the `.fejkdata.json`
 index wrote it and `testdata/shipped_shape.txt`, which pins the shipped paths, held it, so a reader
-couldn't tell a path meant to be read from a scaffold such as `misc.ipv6.g`. So a `let` field, at any
-depth, is left out of `--list` and the index with every path below it, and a read of its path still
-draws it. This narrows the listing further than "`List` advertises direct descents only". Only the
-listing leaves it out: a choice's shared paths, which resolve a read through the choice, keep it.
-A prefix such as `_`
-would have made a key's spelling carry meaning and changed what a user's own `_x` field means.
+couldn't tell a path meant to be read from a scaffold such as `misc.ipv6.g`. So a `hidden` field, at
+any depth, is left out of `--list` and the index with every path below it, and a read of its path
+still draws it. This narrows the listing further than "`List` advertises direct descents only".
+Only the listing leaves it out: a choice's shared paths, which resolve a read through the choice,
+keep it. A prefix such as `_` would have made a key's spelling carry meaning and changed what a
+user's own `_x` field means.
 
-A shipped field is moved into `let` when only its own category's fields read it, no README text,
+A shipped field is moved into `hidden` when only its own category's fields read it, no README text,
 test or other category reads its path, and it is a piece only the template needs: a syllable
 half, a digit class, a price's amount or separator-bearing part, a number's head or tail. A part
 the README names or a domain gives a name, such as `phone.block`, an SSN's `area` or an email's
-`local`, stays a field and a column.
-The pieces inside the variants of a `username` or an `email.local`
-choice, such as `first`, `last`, `sep` and `n`, stay listed too: the audit moved none that a
-choice's variants share.
+`local`, stays a field and a column. The pieces inside the variants of a `username` or an
+`email.local` choice, such as `first`, `last`, `sep` and `n`, stay listed too: the audit moved none
+that a choice's variants share.
 
-Three fresh readers seated as the README's data author, hand fixture author and contributor read
-`data/misc/ipv6.json` with its `let` fields and predicted `--list`, a read of `{/misc.ipv6.g}` and a
-record correctly, so the spelling stays for now. All three named `hidden` as the better word for a
-field readable by its path but unlisted, though two first took `let` for a local binding a path
-can't reach. Goal 4.8 has a clearer name replace the old one, even at a major, and the rename breaks
-every template using `let`, so it is the human's call: item 525 asks.
+The option was `let` until 0.6.0, chosen on 2026-11-08 by a writer panel over `hidden`, `private`
+and `_`-prefixed names as the spelling readers took for a local binding. Once the listing left it
+out, fresh readers seated as the README's data author, hand fixture author and contributor, each
+shown the candidates in another order, ranked `hidden` first and `let` second all three times: a
+reader takes `hidden` for a field that is drawn and read by its path yet left out of columns and
+listings, as a dotfile is, and `let` for a binding scoped to its template that says nothing of
+either. Goal 4.8 has the clearer name replace the old one, so `let` is gone. A template written
+with `let` fails to load, and the error says the option is now named `hidden`. `local` and
+`scratch` lost: `local` reads as scope, which would refuse a read from another category.
 
-Valid while a data author reads `let` as "a field only other fields read".
+Valid while a data author reads `hidden` as "a field drawn and read, never listed".
 
 ## No database or HTTP sink is built in
 

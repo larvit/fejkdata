@@ -337,10 +337,10 @@ Columns are written in name order, whatever order the fields appear in. A catego
 whose fields are the parts of one value — `misc.uuid` — projects those parts rather than
 the value, so for one column holding what `Fake` renders, write
 `{"format":"","uuid":"{/misc.uuid}"}` as a fieldless category asks for. A category whose
-every field is in [`let`](#let), such as `sv_SE.price`, has no column and fails with `ErrNoColumns`,
+every field is in [`hidden`](#hidden), such as `sv_SE.price`, has no column and fails with `ErrNoColumns`,
 which names the same one-column record to write instead.
 
-A field only other fields read goes under [`let`](#let) and writes no column.
+A field only other fields read goes under [`hidden`](#hidden) and writes no column.
 
 A column carrying a newline keeps it inside the quoted CSV field or the SQL string
 literal, so a row can span physical lines: read the stream with a CSV or SQL
@@ -1808,16 +1808,16 @@ renders a null as `""`. The other items' weights skew its odds:
 column, `null` renders `""`. Rejected at load: a column whose items hold different
 datatypes. A read through a name keeps the null too ([Datatype](#datatype)).
 
-### Let
+### Hidden
 
-`let` is an option holding fields that write no column. `--list` and the `.fejkdata.json` index
+`hidden` is an option holding fields that write no column. `--list` and the `.fejkdata.json` index
 leave them out, at any depth and with every path below them, but a `{/path}` to one still draws
 it, so a field only other fields read goes there. Save `ride.json`:
 
 ```json
 {
   "format": "{day as d}",
-  "let": { "day": ["Mon", "Tue", "Wed", "Thu"] },
+  "hidden": { "day": ["Mon", "Tue", "Wed", "Thu"] },
   "name": "run {d}",
   "rule": "every {d}"
 }
@@ -1832,8 +1832,8 @@ run Mon,every Mon
 run Tue,every Tue
 ```
 
-A field is in `let` or beside it, never both, and an option name can't be a field in
-`let`. A record holding every field in `let` has no column and fails with `ErrNoColumns`.
+A field is in `hidden` or beside it, never both, and an option name can't be a field in
+`hidden`. A record holding every field in `hidden` has no column and fails with `ErrNoColumns`.
 
 ### Table
 
@@ -1963,10 +1963,10 @@ reference, `..` is the folder above ([References](#references)).
 
 ### Options and fields
 
-`format`, `weight`, `repeat`, `separator`, `datatype` and `let` are the only options;
+`format`, `weight`, `repeat`, `separator`, `datatype` and `hidden` are the only options;
 **any other key is a field** (see [Decisions](docs/decisions.md#options-and-fields-share-one-namespace)), and `rows` makes a category
-a [table](#table), so no template carries a field of that name. `let` holds fields that write
-no [column](#let). A [name](#names) shares the namespace too.
+a [table](#table), so no template carries a field of that name. `hidden` holds fields that write
+no [column](#hidden). A [name](#names) shares the namespace too.
 
 ### Functions
 

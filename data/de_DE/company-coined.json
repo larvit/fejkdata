@@ -1,6 +1,6 @@
 {
   "format": "{a}{b}",
-  "let": {
+  "hidden": {
     "a": ["Alpha", "Aqua", "Bavaria", "Blau", "Delta", "Elite", "Euro", "Future", "Germania", "Global", "Grün", "Hansa", "Isar", "Kraft", "Max", "Multi", "Nord", "Nova", "Omega", "Prima", "Rhein", "Royal", "Sonnen", "Stern", "Süd", "Top", "Total", "Vita", "West", "Ost"],
     "b": ["burg", "dorf", "feld", "haus", "hof", "land", "mark", "stein", "tal", "tec", "wald", "werk"]
   }

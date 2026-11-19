@@ -1,6 +1,6 @@
 {
   "format": "{birth as b}{prefix}{first} {last}",
-  "let": {
+  "hidden": {
     "birth": [
       { "format": "{date}", "date": "{born(0,17,'2006-01-02')}", "sign": "-", "weight": 20.36 },
       { "format": "{date}", "date": "{born(18,64,'2006-01-02')}", "sign": "-", "weight": 58.80 },

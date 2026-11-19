@@ -261,7 +261,7 @@ func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
 	if o.repeat == 1 {
 		fieldPos = pos.fieldPosition()
 	}
-	fields, lets, err := compileFields(m, fieldPos)
+	fields, hiddens, err := compileFields(m, fieldPos)
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +269,7 @@ func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return tree.NewTemplate(tree.TemplateSyntax{Format: o.format, Tokens: toks, Fields: fields, Lets: lets, Repeat: o.repeat, Separator: o.separator, DataType: o.datatype, IsRecord: fieldPos.column(), Unbound: unbound}), nil
+	return tree.NewTemplate(tree.TemplateSyntax{Format: o.format, Tokens: toks, Fields: fields, Hiddens: hiddens, Repeat: o.repeat, Separator: o.separator, DataType: o.datatype, IsRecord: fieldPos.column(), Unbound: unbound}), nil
 }
 
 type templateOptions struct {
@@ -302,29 +302,32 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	return o, nil
 }
 
-// compileFields compiles the fields beside the options, and those the "let" option holds, which it
-// also names in lets. A key of let that is an option name fails, as a field cannot take it.
-func compileFields(m map[string]any, pos position) (fields map[string]tree.Node, lets map[string]bool, err error) {
+// compileFields compiles the fields beside the options, and those the "hidden" option holds, which
+// it also names in hiddens. A key of hidden that is an option name fails, as a field cannot take it.
+func compileFields(m map[string]any, pos position) (fields map[string]tree.Node, hiddens map[string]bool, err error) {
+	if _, old := m["let"]; old {
+		return nil, nil, errors.New("the option let is now named hidden")
+	}
 	fields = make(map[string]tree.Node, len(m))
 	if err := compileFieldsInto(fields, m, pos, true); err != nil {
 		return nil, nil, err
 	}
-	let, hasLet := m["let"]
-	if !hasLet {
+	hidden, hasHidden := m["hidden"]
+	if !hasHidden {
 		return fields, nil, nil
 	}
-	held, ok := let.(map[string]any)
+	held, ok := hidden.(map[string]any)
 	if !ok {
-		return nil, nil, fmt.Errorf("let is an option and takes an object of fields, not %s; a field cannot be named \"let\"", jsonvalue.Kind(let))
+		return nil, nil, fmt.Errorf("hidden is an option and takes an object of fields, not %s; a field cannot be named \"hidden\"", jsonvalue.Kind(hidden))
 	}
 	if err := compileFieldsInto(fields, held, pos, false); err != nil {
 		return nil, nil, err
 	}
-	lets = make(map[string]bool, len(held))
+	hiddens = make(map[string]bool, len(held))
 	for k := range held {
-		lets[k] = true
+		hiddens[k] = true
 	}
-	return fields, lets, nil
+	return fields, hiddens, nil
 }
 
 // compileFieldsInto compiles each field of raw into fields, skipping the options where skipOptions
@@ -335,13 +338,13 @@ func compileFieldsInto(fields map[string]tree.Node, raw map[string]any, pos posi
 			if skipOptions {
 				continue
 			}
-			return fmt.Errorf("let holds fields, and %q is an option; name the field otherwise", k)
+			return fmt.Errorf("hidden holds fields, and %q is an option; name the field otherwise", k)
 		}
 		if err := grammar.CheckIdentifier(k); err != nil {
 			return fmt.Errorf("field %w", err)
 		}
 		if _, twice := fields[k]; twice {
-			return fmt.Errorf("field %q is in let and beside it; write it once", k)
+			return fmt.Errorf("field %q is in hidden and beside it; write it once", k)
 		}
 		n, err := compileItem(raw[k], pos)
 		if err != nil {
@@ -420,7 +423,7 @@ func numberOf(v any) (float64, bool) {
 
 func isOption(name string) bool {
 	switch name {
-	case "datatype", "format", "let", "repeat", "separator", "weight":
+	case "datatype", "format", "hidden", "let", "repeat", "separator", "weight":
 		return true
 	}
 	return false
