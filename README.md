@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names, persons and phone numbers, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs and phone numbers, with names weighted by how common they are. Every Swedish postal town ships, and so
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
@@ -697,7 +697,7 @@ language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `w
 names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As for `sv_SE`, `month` is selected by 1 to 12
 and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
 
-The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date`, `de_DE.date` and `fi_FI.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
+The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date`, `de_DE.date`, `fi_FI.date` and `fr_FR.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
 #### Names and sex
 
@@ -1129,7 +1129,7 @@ person's, so keep it out of anything that reaches a real system. To make one agr
 
 ### `fr_FR`
 
-`fr_FR`, French, carries `department`, `first-name`, `last-name`, `nir`, `nonzero-number`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex`, `sex-digit` and `title`. `sex` is
+`fr_FR`, French, carries `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `last-name`, `nir`, `nonzero-number`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex`, `sex-digit` and `title`. `sex` is
 `femme` and `homme`, and `title` is `Dr` and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
 `department` prints the code INSEE gives a department in a NIR, such as `75`, `2A` or `974`, and `nonzero-number` a number
 from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from `001` to `999`. Both exist for `nir`.
@@ -1176,6 +1176,26 @@ with a sex the template binds as `s`, write `fr_FR.sex-digit`'s digit under `s`,
 ```
 
 Renders e.g. `Cassie Duflot, 253059724702338`.
+
+#### French companies
+
+`fr_FR.company` draws a legal form as often as INSEE's Sirene register counts active legal units of it on 1 November
+2026: 7,845,810 sole proprietors, `EI`, 2,226,407 `SARL`, 1,839,229 `SAS`, 99,237 `SNC` and 68,436 `SA`, which counts the
+two categories of a société anonyme as one. The `SCI`, the associations and the other forms the register holds aren't
+drawn. Sirene counts a unit active until someone reports it ceased, so the counts run higher than the businesses
+trading. An `EI`'s name has no abbreviation after it, and the others end in theirs, such as `… SARL`.
+`fr_FR.company.ei`, `.sarl`, `.sas`, `.snc` and `.sa` each draw one form, and `{/fr_FR.company as c}{c.legal}` prints the
+abbreviation of the same pick, empty for an `EI`. No open bulk file of French company names was found, so the name's
+shapes and the words of `company-coined` and `company-word` are a language model's recall. A name is invented, and may
+also be a real company's. A program showing the counts credits "Source : Insee, Sirene, StockUniteLegale, 1er novembre
+2026", names the [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/) and
+says that the counts are reduced to five legal forms.
+
+#### French dates and emails
+
+`fr_FR.date` is a date from 1970 to 2029 as France writes it, a two-digit day and month and a four-digit year with
+slashes between, such as `02/04/2019`. `fr_FR.email` is built like `de_DE.email`: half its local parts are a first and
+a last name from `fr_FR`'s names, folded to ASCII, with `-` for a space or an apostrophe, such as `anne-marie.le-gall`.
 
 #### French phone numbers
 

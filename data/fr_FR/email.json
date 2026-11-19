@@ -1,0 +1,24 @@
+{
+  "format": "{local}@{domain}",
+  "local": [
+    {
+      "format": "{/fr_FR.first-name as f}{/fr_FR.last-name as l}{slugify(f.name)}{sep}{slugify(l.name)}{n}",
+      "weight": 3,
+      "sep": [{ "format": ".", "weight": 2 }, "_", "-", ""],
+      "n": [{ "format": "", "weight": 3 }, "1", "7", "42", "88", "99"]
+    },
+    {
+      "format": "{adj}{noun}{n}",
+      "weight": 2,
+      "adj": ["rapide", "cool", "malin", "joyeux", "fute", "brave", "fort", "super", "turbo", "sauvage", "ruse", "tranquille", "zen", "agile"],
+      "noun": ["aigle", "blaireau", "renard", "lapin", "chien", "herisson", "chat", "colibri", "souris", "ninja", "panda", "pirate", "phoque", "robot", "hibou", "loup"],
+      "n": [{ "format": "", "weight": 2 }, "7", "13", "14", "42", "77", "99", "123", "420", "2024"]
+    },
+    {
+      "format": "{w}{n}",
+      "w": ["blip", "boop", "chatcool", "fizz", "glorp", "kapow", "kazoo", "loupzen", "pixelrenard", "plonk", "superchien", "turbolapin", "vroum", "wouf", "yeet", "zap", "zoom"],
+      "n": [{ "format": "", "weight": 2 }, "7", "14", "42", "69", "99", "123", "420", "1337", "2000", "9000"]
+    }
+  ],
+  "domain": ["demo.example.net", "dev.example.com", "example.com", "example.net", "example.org", "mail.example.com", "mail.example.org", "post.example.com", "test.example.org", "webmail.example.net"]
+}
