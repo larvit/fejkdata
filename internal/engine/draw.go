@@ -46,7 +46,7 @@ func drawCallerPath(s *drawstate.State, root tree.Node, segments []string) (tree
 
 // List is the sorted dotted paths Fake renders.
 func List(root *tree.Folder) []string {
-	out := load.Paths(root, false)
+	out := load.Paths(root)
 	sort.Strings(out)
 	return out
 }

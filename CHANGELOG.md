@@ -7,7 +7,18 @@ with its replacement, and each removed path, column or flag.
 
 ## Unreleased
 
+### Breaking
+
+- A field in `let` is left out of the listing, outside a record too: `--list` and the `.fejkdata.json` index leave it
+  out, and a record writes no column for it, as it already didn't at its top level. A read of its path still
+  draws it. These fields, which only other fields read, moved into `let`, so they left the listing and the
+  record: `misc.version.n`, `.pre` and `.suffix`; `company-coined.a` and `.b` in `da_DK`, `fi_FI`, `nb_NO`
+  and `sv_SE`; `en_US.price.amt` and `.cents`; `sv_SE.price.amt` and `.ore`; and
+  `sv_SE.organisationsnummer.group`, `.head` and `.tail`. A `--format csv` of a category whose every field
+  moved, such as `misc.version`, fails with `ErrNoColumns`.
+
 ### Added
+
 
 - `et_EE`, Estonian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/et_EE.person}` renders e.g.
   `Liis Tamm`. Both name tables are a language model's recall, ranked and weighted by rank; the weights are

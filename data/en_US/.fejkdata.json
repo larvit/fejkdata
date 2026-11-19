@@ -13,7 +13,7 @@
 		"en_US.person": {"paths":["","first","last","prefix","sex"]},
 		"en_US.phone": {"paths":["","area","exchange","line"]},
 		"en_US.phone-exchange": {"paths":[""]},
-		"en_US.price": {"paths":["","amt","cents"]},
+		"en_US.price": {"paths":[""]},
 		"en_US.sentence": {"paths":["","adj","noun","prep","verb"]},
 		"en_US.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name","title","title.name","title.sex","title.share"]},
 		"en_US.ssn": {"paths":["","area","group","serial"]},

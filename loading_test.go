@@ -33,7 +33,7 @@ func TestList(t *testing.T) {
 	}
 }
 
-// TestListLeavesOutLetFields pins that a "let" field is no path of its own, at any depth and
+// TestListLeavesOutLetFields pins that a "let" field is left out of the listing at any depth and
 // in a choice's shared paths, while a read of it still renders.
 func TestListLeavesOutLetFields(t *testing.T) {
 	dir := writeData(t, map[string]string{
