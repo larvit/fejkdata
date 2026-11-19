@@ -67,20 +67,23 @@ def legal_item(fmt: str, legal: str, weight: float) -> str:
 
 
 def word_usage(names: Iterable[tuple[str, str]], named: Callable[[str], object], vocabulary: Vocabulary) -> dict[str, Usage]:
-    """The Usage of each word of the vocabulary's letters that is no name, place, legal or function word, by lower case."""
+    """The Usage of each word of the vocabulary's letters that is no name, place, legal or function word, by lower case. A name counts a word once."""
     usage: dict[str, Usage] = defaultdict(Usage)
     for form, name in names:
         words = [w for w in split(name) if w.lower() not in vocabulary.legal_words]
+        seen: set[str] = set()
         for i, w in enumerate(words):
             low = w.lower()
             if vocabulary.word.match(low) and low not in vocabulary.function_words and not named(low):
                 u = usage[low]
-                u.names += 1
-                u.forms[form] += 1
+                if low not in seen:
+                    seen.add(low)
+                    u.names += 1
+                    u.forms[form] += 1
+                    if not name.isupper() and not (w.isupper() and len(w) > vocabulary.acronym_max and any(c in VOWELS for c in low)):
+                        u.spellings[w[0].upper() + w[1:]] += 1
                 u.begins += i == 0
                 u.ends += i == len(words) - 1
-                if not name.isupper() and not (w.isupper() and len(w) > vocabulary.acronym_max and any(c in VOWELS for c in low)):
-                    u.spellings[w[0].upper() + w[1:]] += 1
     return usage
 
 
