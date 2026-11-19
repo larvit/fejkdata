@@ -72,8 +72,8 @@ func checkCalcDecimals(arg string) (parsed, error) {
 	return parsed{ints: []int{dp}}, nil
 }
 
-// calcPrep parses the expression and decimals once, at compile time. checkCalc proved
-// both args valid, so no step here can fail.
+// calcPrep parses the expression once, at compile time, and takes the decimals from p.
+// checkCalc proved both args valid, so no step here can fail.
 func calcPrep(args []string, p parsed) Call {
 	expr := ParsedCalc(args[0]).Expr
 	dp := calcDecimals(p)
