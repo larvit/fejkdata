@@ -2140,3 +2140,20 @@ Read most (opens and searches):
 - `compose.yaml` 1
 
 ## Reading cost reset, 2026-11-19T07:49:24Z
+
+## Reading cost, chunk 66204ab81146, finished 2026-11-19T08:16:34Z
+
+59807 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `DATA-LICENSES.md` 7
+- `release-tooling/goreleaser.yaml` 3
+- `.dockerignore` 2
+- `README.md` 2
+- `compose.yaml` 2
+- `shipped_test.go` 2
+- `AGENTS.md` 1
+- `data-import/geo_test.py` 1
+- `data/danish_test.go` 1
+- `data/finnish_test.go` 1
