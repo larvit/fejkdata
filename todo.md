@@ -19,7 +19,6 @@
 | 504 | 0.7.0 | 503 |  | **Add `lv_LV`'s national personal id, the personas kods, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 508 | 0.7.0 |  |  | **Add `lt_LT` with its given names by sex, last names and titles, and `lt_LT.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 509 | 0.7.0 | 508 |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
-| 15 | 0.7.0 |  |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 3.4 |
 | 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
 | 272 | 0.7.0 |  |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 500 | 0.7.0 | 498 |  | **Add `et_EE.phone`, drawn from Estonia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
@@ -322,21 +321,6 @@ Touches:
 
 - `data/lt_LT/`
 - `README.md`: `### Locale categories`
-
-### 15. Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.
-
-Templates, from RFC 5737, RFC 1918 and RFC 9637, which are facts.
-
-Touches:
-
-- `data/misc/ip.json`
-- `data/misc/ipv6.json`
-- `data/misc/mac.json`
-- `data/misc/.fejkdata.json`: lines 13-16 (small)
-- `data_test.go`: `TestShippedMiscCategories`
-- `shipped_data_test.go`: `TestIPAndVersionLiveInMiscAlone`
-- `testdata/shipped_shape.txt`: lines 885-895 (small)
-- `README.md`: `` ### `misc` ``
 
 ### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
 
