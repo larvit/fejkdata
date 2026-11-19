@@ -424,10 +424,10 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   import counts each person under the first of their given names, summing the rows, and keeps the
   2,000 commonest names of each sex. The register holds foreigners' names too, so some names are
   not Latvian
-- Source, last names: a language model's recall of names common in Latvia, as PMLP publishes no
-  last names. The commoner names are ranked from the most to the least common, each with an
-  estimated count of 100000 over the square root of its rank, then the rarer ones, sharing the
-  count of the last rank. A woman's last name is the masculine one with its feminine ending
+- Source, last names: a language model's recall of names common in Latvia, as PMLP's open data
+  holds first names only. The commoner names are ranked from the most to the least common, each
+  with an estimated count of 100000 over the square root of its rank, then the rarer ones,
+  sharing the count of the last rank. A woman's last name is the masculine one with its feminine ending
 - Licence: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) for the first names; the
   project's own [LICENSE](LICENSE) for the last names
 - Attribution: "Avots: Pilsonības un migrācijas lietu pārvalde" for the first names; none required
