@@ -953,6 +953,8 @@ geo.US.street	format "{name}"	weight addresses	parent locality
 geo.US.street.addresses	string
 geo.US.street.locality	string
 geo.US.street.name	string
+lt_LT.asmens-kodas	format "{/lt_LT.sex as s}{asmenskodas(s.sex-digit.digit,birth)}"	reads lt_LT.sex
+lt_LT.asmens-kodas.birth	string
 lt_LT.first-name	format "{name}"	name name	weight count	parent sex
 lt_LT.first-name.count	string
 lt_LT.first-name.name	string
@@ -979,6 +981,9 @@ lt_LT.phone-mobile.subscriber	string
 lt_LT.phone.international
 lt_LT.phone.national
 lt_LT.sex	format "{name}"	key code	name name	weight count
+lt_LT.sex-digit	format "{digit}"	parent sex
+lt_LT.sex-digit.digit	string
+lt_LT.sex-digit.sex	string
 lt_LT.sex.code	string
 lt_LT.sex.count	string
 lt_LT.sex.first-name
@@ -990,6 +995,9 @@ lt_LT.sex.last-name.count
 lt_LT.sex.last-name.name
 lt_LT.sex.last-name.sex
 lt_LT.sex.name	string
+lt_LT.sex.sex-digit
+lt_LT.sex.sex-digit.digit
+lt_LT.sex.sex-digit.sex
 lt_LT.title	format "{name}"	key name	weight share
 lt_LT.title.name	string
 lt_LT.title.share	string
