@@ -15,60 +15,62 @@
   "sarl": {
     "format": "{name} SARL",
     "name": [
-      { "format": "{.company-coined}", "weight": 578253 },
-      { "format": "{.company-coined} {.company-coined}", "weight": 377389 },
-      { "format": "{.company-coined} {.company-word}", "weight": 230494 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 92125 },
-      { "format": "{.company-coined} {.last-name}", "weight": 57391 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 48753 },
-      { "format": "{.last-name} {.company-coined}", "weight": 29412 },
-      { "format": "{.company-word} {.company-coined}", "weight": 27722 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 24745 }
+      { "format": "{.company-coined}", "weight": 646666 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 331458 },
+      { "format": "{.company-coined} {.company-word}", "weight": 242215 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 75149 },
+      { "format": "{.company-coined} {.last-name}", "weight": 53548 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 38771 },
+      { "format": "{.last-name} {.company-coined}", "weight": 34098 },
+      { "format": "{.company-word} {.company-coined}", "weight": 30011 },
+      { "format": "{.first-name}", "weight": 23454 },
+      { "format": "{.last-name}", "weight": 23381 }
     ]
   },
   "sas": {
     "format": "{name} SAS",
     "name": [
-      { "format": "{.company-coined}", "weight": 531518 },
-      { "format": "{.company-coined} {.company-coined}", "weight": 332579 },
-      { "format": "{.company-coined} {.company-word}", "weight": 268941 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 67144 },
-      { "format": "{.company-coined} {.last-name}", "weight": 46436 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 39573 },
-      { "format": "{.company-word} {.company-coined}", "weight": 24350 },
-      { "format": "{.last-name} {.company-coined}", "weight": 22521 },
-      { "format": "{.company-coined} {int(1,30)}", "weight": 22262 }
+      { "format": "{.company-coined}", "weight": 550486 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 320502 },
+      { "format": "{.company-coined} {.company-word}", "weight": 272547 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 61692 },
+      { "format": "{.company-coined} {.last-name}", "weight": 45583 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 36321 },
+      { "format": "{.company-word} {.company-coined}", "weight": 24983 },
+      { "format": "{.last-name} {.company-coined}", "weight": 23841 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 22737 }
     ]
   },
   "snc": {
     "format": "{name} SNC",
     "name": [
-      { "format": "{.company-coined} {int(1,30)}", "weight": 17599 },
-      { "format": "{.company-coined}", "weight": 12220 },
-      { "format": "{.company-coined} {.company-coined} {int(1,30)}", "weight": 9729 },
-      { "format": "{.company-coined} {int(1,30)} {int(1,30)}", "weight": 9292 },
-      { "format": "{.company-coined} {.company-coined}", "weight": 8655 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 3604 },
-      { "format": "{.company-coined} {.company-word} {int(1,30)}", "weight": 3399 },
-      { "format": "{.last-name} {.company-coined} {int(1,30)}", "weight": 2624 },
-      { "format": "{.company-coined} {.last-name}", "weight": 1536 },
-      { "format": "{.company-coined} {.company-word}", "weight": 1475 },
-      { "format": "le {.company-coined}", "weight": 1074 }
+      { "format": "{.company-coined} {int(1,30)}", "weight": 19162 },
+      { "format": "{.company-coined}", "weight": 16488 },
+      { "format": "{.company-coined} {int(1,30)} {int(1,30)}", "weight": 9291 },
+      { "format": "{.company-coined} {.company-coined} {int(1,30)}", "weight": 8373 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 6430 },
+      { "format": "{.company-coined} {.company-word} {int(1,30)}", "weight": 3890 },
+      { "format": "{.last-name} {.company-coined} {int(1,30)}", "weight": 2644 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 1889 },
+      { "format": "{.company-coined} {.company-word}", "weight": 1818 },
+      { "format": "Le {.company-coined}", "weight": 1548 },
+      { "format": "{.last-name}", "weight": 1448 },
+      { "format": "{.company-coined} {.last-name}", "weight": 1137 }
     ]
   },
   "sa": {
     "format": "{name} SA",
     "name": [
-      { "format": "{.company-coined}", "weight": 15758 },
-      { "format": "{.company-coined} {.company-coined}", "weight": 9742 },
-      { "format": "{.company-coined} {.company-word}", "weight": 4468 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 3898 },
-      { "format": "{.company-coined} {.last-name}", "weight": 2296 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 1885 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 1337 },
-      { "format": "{.company-coined} {.company-coined} {.last-name}", "weight": 878 },
-      { "format": "{.last-name} {.company-coined}", "weight": 837 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 800 }
+      { "format": "{.company-coined}", "weight": 16196 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 9824 },
+      { "format": "{.company-coined} {.company-word}", "weight": 4522 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 3575 },
+      { "format": "{.company-coined} {.last-name}", "weight": 2323 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 1736 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 1305 },
+      { "format": "{.last-name} {.company-coined}", "weight": 881 },
+      { "format": "{.company-coined} {.company-coined} {.last-name}", "weight": 823 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 768 }
     ]
   }
 }

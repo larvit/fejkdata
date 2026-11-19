@@ -1193,7 +1193,7 @@ abbreviation, such as `… SARL`. `fr_FR.company.ei`, `.sarl`, `.sas`, `.snc` an
 
 The shapes of the other names, the 120 commonest trade words of `company-word` and the roots of `company-coined`
 come from the names of those units, as [`company-fr.py`](data-import/company-fr.py) counts them. Sirene writes a name
-in capitals without accents, so the trade words have the accents of French spelling, written by hand, and a root
+in capitals without accents, so the trade words and the commoner roots have the accents of French spelling, written by hand, and any other root
 keeps Sirene's spelling, such as `Acces`. A name is invented from those parts, and may also be a real company's.
 A program showing the data credits "Source : Insee, Sirene, StockUniteLegale, 1er novembre 2026", names the
 [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/) and says that the

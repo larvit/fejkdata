@@ -2176,7 +2176,7 @@ register holds it in `nom` and `prenom`, with no `EI` after it, although a sole 
 test refuses a bare form's name that ends in its code. Sirene files an `EURL` under 5499 and a `SASU`
 under 5710, as no unit holds 5498 or 5720, so they count as `SARL` and `SAS`. Sirene
 writes a name in capitals without accents, so the 120 commonest trade words have their accents from
-a list written by hand, and the roots keep Sirene's spelling. A longer list of trade words would need
+a list written by hand, which also spells the roots that take an accent, and any other root keeps Sirene's spelling. A longer list would need
 a source of French spelling that the project doesn't take yet.
 
 Valid while Sirene holds no accents and no French word list is shipped.
