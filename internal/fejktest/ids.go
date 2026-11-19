@@ -196,8 +196,8 @@ func ValidNir(s string) bool {
 	return key == 97-n%97
 }
 
-// ValidIsikukood is the check of an Estonian personal code, EVS 585's structure as the Population
-// Register applies it: eleven digits, a first digit 1 to 6, a date that exists in the century the
+// ValidIsikukood is the check of an Estonian personal code, with python-stdnum's ee.ik check digit:
+// eleven digits, a first digit 1 to 6, a date that exists in the century the
 // first digit names, and a check digit that is the weighted sum of the first ten digits, weights 1
 // to 9 and 1, modulo 11; where that is 10, the sum weighted 3 to 9, 1, 2 and 3, modulo 11, and
 // where that is 10 too, 0.
