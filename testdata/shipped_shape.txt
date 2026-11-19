@@ -925,6 +925,34 @@ geo.US.street	format "{name}"	weight addresses	parent locality
 geo.US.street.addresses	string
 geo.US.street.locality	string
 geo.US.street.name	string
+lt_LT.first-name	format "{name}"	name name	weight count	parent sex
+lt_LT.first-name.count	string
+lt_LT.first-name.name	string
+lt_LT.first-name.sex	string
+lt_LT.last-name	format "{name}"	name name	weight count	parent sex
+lt_LT.last-name.count	string
+lt_LT.last-name.name	string
+lt_LT.last-name.sex	string
+lt_LT.person	format "{prefix}{first} {last}"	reads lt_LT.first-name lt_LT.title
+lt_LT.person.first	string
+lt_LT.person.last	string
+lt_LT.person.prefix	string null
+lt_LT.person.sex	string
+lt_LT.sex	format "{name}"	key code	name name	weight count
+lt_LT.sex.code	string
+lt_LT.sex.count	string
+lt_LT.sex.first-name
+lt_LT.sex.first-name.count
+lt_LT.sex.first-name.name
+lt_LT.sex.first-name.sex
+lt_LT.sex.last-name
+lt_LT.sex.last-name.count
+lt_LT.sex.last-name.name
+lt_LT.sex.last-name.sex
+lt_LT.sex.name	string
+lt_LT.title	format "{name}"	key name	weight share
+lt_LT.title.name	string
+lt_LT.title.share	string
 lv_LV.first-name	format "{name}"	name name	weight count	parent sex
 lv_LV.first-name.count	string
 lv_LV.first-name.name	string
