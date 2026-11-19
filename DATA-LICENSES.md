@@ -532,17 +532,16 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 ## `lv_LV/company.json`, `company-coined.json`, `company-coined.tsv`, `company-word.json`, `company-word.tsv`
 
-- Source: the Register of Enterprises (Uzņēmumu reģistrs)'s [open
-  data](https://data.gov.lv/dati/lv/dataset/uz), the file `register.csv` of 19 November 2026,
-  published by the Register of Enterprises of the Republic of Latvia, the merchants of the Commercial
-  Register (`regtype` `K`) with no `terminated` date. `company.json` weighs a legal form by the
-  merchants of its `type`: 140,485 of `SIA` (Sabiedrība ar ierobežotu atbildību), 12,146 of `IK`
-  (Individuālais komersants), 765 of `AS` (Akciju sabiedrība), 535 of `PS` (Pilnsabiedrība) and 166
-  of `KS` (Komandītsabiedrība). The merchants of every other type aren't drawn, such as the 484 of
-  `AKF` and the 114 of `FIL`, which are the branches of foreign merchants. The shapes of a form's
-  names, where they place the form and its quotes, the trade words and the words of
-  `company-coined.tsv` come from the `name` of those merchants. The tables hold single words with
-  their counts.
+- Source: the [open data](https://data.gov.lv/dati/lv/dataset/uz) of the Register of Enterprises
+  (Uzņēmumu reģistrs) of the Republic of Latvia, the file `register.csv` of 19 November 2026,
+  the merchants of the Commercial Register (`regtype` `K`) with no `terminated` date.
+  `company.json` weighs a legal form by the merchants of its `type`: 140,485 of `SIA`
+  (Sabiedrība ar ierobežotu atbildību), 12,146 of `IK` (Individuālais komersants), 765 of `AS`
+  (Akciju sabiedrība), 535 of `PS` (Pilnsabiedrība) and 166 of `KS` (Komandītsabiedrība). The
+  merchants of every other type aren't drawn, such as the 484 of `AKF`, the branches of foreign
+  merchants, and the 114 of `FIL`, the branches of merchants. The shapes of a form's names, where
+  they place the form and its quotes, the trade words and the words of `company-coined.tsv` come
+  from the `name` of those merchants. The tables hold single words with their counts.
 - Licence: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/), which the dataset's page
   on data.gov.lv states as its licence
 - Attribution: none required
