@@ -110,8 +110,9 @@ with its replacement, and each removed path, column or flag.
   a different `misc.ip` than before.
 - `url.reserved` and `email.reserved` in `da_DK`, `de_DE`, `en_US`, `fi_FI`, `nb_NO`, `nn_NO` and `sv_SE`, and
   `fr_FR.email.reserved`, which draw only `example.com`, `example.org` and `example.net`, or a subdomain of one, so no
-  value reaches a real site or mailbox. `en_US` and `sv_SE`'s `url` and `email` still draw registrable domains such as
-  `example.io` and `example.se` by default, now through a fresh pick, so a seed draws a different value than before.
+  value reaches a real site or mailbox. Each of those `url`s, and `en_US.email` and `sv_SE.email`, still draw
+  registrable domains such as `example.se` and `example.io` by default, in the same shares as before. A seed draws a
+  different `url` in each of the seven locales, and a different `email` in `en_US` and `sv_SE`, than before.
 - `PathName` returns the final name of a path, selectors left out, such as `currency` for `misc.currency[US Dollar]`; the
   CLI takes its default `--table` from it.
 - `word`, `sentence` and `paragraph` for `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO`, with `word.noun`, `.verb`,
