@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names and persons, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names, persons and phone numbers, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs and phone numbers, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -1277,7 +1277,7 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 
 ### `lt_LT`
 
-`lt_LT`, Lithuanian, carries `first-name`, `last-name`, `person`, `sex` and `title`. `sex` is `moteris` and `vyras`, `title` is
+`lt_LT`, Lithuanian, carries `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `sex` and `title`. `sex` is `moteris` and `vyras`, `title` is
 `dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
 
 `first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
@@ -1292,6 +1292,23 @@ ones are ranked, a first name weighing the smallest published count times 50 ove
 takes its own language's ending, `Ivanova` for `Ivanov`.
 `lt_LT.sex` carries Lithuania's population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the sex
 counts credits "Source: Eurostat".
+
+#### Lithuanian phone numbers
+
+`lt_LT.phone` is a mobile number ten times as often as a fixed one: `0 612 34567`, or `0 5 234 5678`
+where it is fixed in Vilnius. Its `national` field is that form, and its `international` field is
+`+370 612 34567`, with the country code and without the 0 that opens the national form. A fixed number
+groups its 8 digits by the length of its area code, 1 digit for Vilnius, 2 for Kaunas, Šiauliai,
+Panevėžys and Klaipėda, and 3 for a district: the plan fixes only the digits.
+
+The plan is the one the Communications Regulatory Authority (RRT) adopted on 1 September 2023, which
+the ITU published on 6 March 2025. It gives every mobile number the first digit 6, and keeps no range for
+fiction, so a number is valid, not invented: a real subscriber may hold it. `lt_LT.phone-fixed` holds the
+57 areas that the plan's table of fixed numbers allots to a city or district and doesn't mark
+"Reserved", each with its `name`, its `ndc`, the area code, and its `subscriber`, the digits after it.
+Vilnius takes eight rows, `520` to `527`, since the plan fixes the first two digits of its subscriber
+numbers. A row is selected by the digits the plan fixes, `phone-fixed[37]`, and each is drawn evenly,
+since the plan publishes no frequency.
 
 ### `lv_LV`
 
@@ -2964,6 +2981,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimet
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-area-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-de.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-dk.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-lt.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/protocol.py

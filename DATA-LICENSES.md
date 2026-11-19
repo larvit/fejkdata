@@ -475,6 +475,20 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   rest
 - Rebuild: `data-import/names-lt.py`
 
+## `lt_LT/phone-fixed.tsv`
+
+- Source: the Communications Regulatory Authority's (RRT) Lithuanian numbering plan, adopted on
+  1 September 2023, as the ITU [published it on 6 March
+  2025](https://www.itu.int/dms_pub/itu-t/oth/02/02/T020200007C0002PDFE.pdf): the table of numbers
+  of the public fixed telephone service, 3000 0000 to 5999 9999. A row is each area it numbers for
+  a city or district, with the digits it fixes after the area code. The rows it marks "Reserved"
+  are left out, and so is mobile 6, which the plan gives one row and `lt_LT.phone` writes inline
+- Licence: none stated, facts only; a numbering plan is an official document, which Article 5 of the
+  Lithuanian Law on Copyright and Related Rights (No. VIII-1185) excludes from copyright, by our
+  reading
+- Attribution: none required
+- Rebuild: `data-import/phone-lt.py`
+
 ## `lv_LV/first-name.tsv`, `last-name.tsv`
 
 - Source, first names: the Office of Citizenship and Migration Affairs (PMLP)'s [Personu
