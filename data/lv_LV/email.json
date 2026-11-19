@@ -1,0 +1,24 @@
+{
+  "format": "{local}@{domain}",
+  "local": [
+    {
+      "format": "{/lv_LV.person as p}{slugify(p.first)}{sep}{slugify(p.last)}{n}",
+      "weight": 3,
+      "sep": [{ "format": ".", "weight": 2 }, "_", "-", ""],
+      "n": [{ "format": "", "weight": 3 }, "1", "7", "42", "88", "99"]
+    },
+    {
+      "format": "{adj}{noun}{n}",
+      "weight": 2,
+      "adj": ["atrs", "gudrs", "drosmigs", "stiprs", "veikls", "mierigs", "jautrs", "viltigs", "spilgts", "laimigs", "super", "turbo", "mezonigs", "zinatkars"],
+      "noun": ["erglis", "lacis", "vilks", "lusis", "ezis", "zakis", "lapsa", "kakis", "suns", "pele", "ninja", "panda", "pirats", "robots"],
+      "n": [{ "format": "", "weight": 2 }, "7", "13", "14", "42", "77", "99", "123", "420", "2024"]
+    },
+    {
+      "format": "{w}{n}",
+      "w": ["blip", "boop", "fizz", "pauks", "bums", "zibens", "zums", "pikselis", "superlacis", "turbovilks", "yeet", "zap", "zoom", "kazoo", "plaukt"],
+      "n": [{ "format": "", "weight": 2 }, "7", "14", "42", "69", "99", "123", "420", "1337", "2000", "9000"]
+    }
+  ],
+  "domain": ["demo.example.net", "dev.example.com", "example.com", "example.net", "example.org", "mail.example.com", "mail.example.org", "post.example.com", "test.example.org", "webmail.example.net"]
+}

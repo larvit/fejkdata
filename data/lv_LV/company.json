@@ -1,0 +1,95 @@
+{
+  "format": "{registered as r}{r}",
+  "legal": "{r.legal}",
+  "registered": [
+    { "format": "{.company.sia}", "legal": "SIA", "weight": 140485 },
+    { "format": "{.company.ik}", "legal": "IK", "weight": 12146 },
+    { "format": "{.company.as}", "legal": "AS", "weight": 765 },
+    { "format": "{.company.ps}", "legal": "PS", "weight": 535 },
+    { "format": "{.company.ks}", "legal": "KS", "weight": 166 }
+  ],
+  "sia": {
+    "format": "{name as sia_name}{placed}",
+    "name": [
+      { "format": "{.company-coined}", "weight": 60289 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 29040 },
+      { "format": "{.company-coined} {.company-word}", "weight": 24605 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 3842 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 3035 },
+      { "format": "{.company-word} {.company-coined}", "weight": 2156 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 1994 },
+      { "format": "{.company-coined} {.company-word} {.company-word}", "weight": 1556 },
+      { "format": "{.first-name} {.company-coined}", "weight": 1453 }
+    ],
+    "hidden": { "placed": [{ "format": "SIA \"{sia_name}\"", "weight": 102981 }, { "format": "SIA {sia_name}", "weight": 25215 }, { "format": "{sia_name} SIA", "weight": 9330 }, { "format": "\"{sia_name}\" SIA", "weight": 2776 }] }
+  },
+  "ik": {
+    "format": "{name as ik_name}{placed}",
+    "name": [
+      { "format": "{.company-coined}", "weight": 5902 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 1906 },
+      { "format": "{.first-name} {.company-coined}", "weight": 1178 },
+      { "format": "{.company-coined} {.company-word}", "weight": 933 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 207 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 205 },
+      { "format": "{.person as p}{p.first} {p.last}", "weight": 171 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 168 },
+      { "format": "{.first-name}", "weight": 167 }
+    ],
+    "hidden": { "placed": [{ "format": "IK \"{ik_name}\"", "weight": 7114 }, { "format": "IK {ik_name}", "weight": 3357 }, { "format": "{ik_name} IK", "weight": 1120 }, { "format": "\"{ik_name}\" IK", "weight": 515 }] }
+  },
+  "as": {
+    "format": "{name as as_name}{placed}",
+    "name": [
+      { "format": "{.company-coined}", "weight": 184 },
+      { "format": "{.company-coined} {.company-word}", "weight": 174 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 159 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 53 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 37 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 18 },
+      { "format": "{.company-coined} {.company-word} {.company-word}", "weight": 17 },
+      { "format": "{.company-coined} {.company-word} {.company-coined}", "weight": 13 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 8 }
+    ],
+    "hidden": { "placed": [{ "format": "AS \"{as_name}\"", "weight": 583 }, { "format": "AS {as_name}", "weight": 82 }, { "format": "{as_name} AS", "weight": 64 }, { "format": "\"{as_name}\" AS", "weight": 18 }] }
+  },
+  "ps": {
+    "format": "{name as ps_name}{placed}",
+    "name": [
+      { "format": "{.company-coined}", "weight": 126 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 119 },
+      { "format": "{.company-coined} {.company-word}", "weight": 81 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 35 },
+      { "format": "{.company-coined} & {.company-coined}", "weight": 20 },
+      { "format": "{.company-coined} un {.company-coined}", "weight": 17 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 6 },
+      { "format": "{.company-coined} {.company-coined} un {.company-coined}", "weight": 6 }
+    ],
+    "hidden": { "placed": [{ "format": "PS \"{ps_name}\"", "weight": 439 }, { "format": "PS {ps_name}", "weight": 54 }, { "format": "{ps_name} PS", "weight": 21 }, { "format": "\"{ps_name}\" PS", "weight": 19 }] }
+  },
+  "ks": {
+    "format": "{name as ks_name}{placed}",
+    "name": [
+      { "format": "{.company-coined} {.company-coined}", "weight": 25 },
+      { "format": "{.company-coined} {.company-word}", "weight": 21 },
+      { "format": "{.company-coined}", "weight": 18 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 11 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 10 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 8 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 8 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 7 },
+      { "format": "{.company-coined} {.company-word} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 6 },
+      { "format": "{.company-coined} {.company-coined} {.company-word} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 6 },
+      { "format": "{.company-coined} {.company-word} {.company-coined} {.company-coined} {.company-coined}", "weight": 5 },
+      { "format": "{.company-coined} & {.company-coined}", "weight": 4 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 4 },
+      { "format": "{.company-coined} {.company-word} {.company-word}", "weight": 3 },
+      { "format": "{.company-coined} {.company-word} {.company-word} {.company-coined} {int(1,30)}", "weight": 2 },
+      { "format": "{.company-coined} {.company-word} {.company-coined}", "weight": 2 },
+      { "format": "{.company-coined} {.company-coined} {.company-word} {.company-coined} {.company-coined}", "weight": 2 },
+      { "format": "{.company-coined} {.company-coined} {.company-word} {.company-coined} {.company-coined} {.company-coined}", "weight": 2 },
+      { "format": "{.company-coined} un {.company-word}", "weight": 2 }
+    ],
+    "hidden": { "placed": [{ "format": "KS \"{ks_name}\"", "weight": 92 }, { "format": "KS {ks_name}", "weight": 42 }, { "format": "{ks_name} KS", "weight": 26 }, { "format": "\"{ks_name}\" KS", "weight": 6 }] }
+  }
+}
