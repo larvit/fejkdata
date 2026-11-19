@@ -1822,7 +1822,7 @@ Three fresh readers seated as the README's data author, hand fixture author and 
 record correctly, so the spelling stays for now. All three named `hidden` as the better word for a
 field readable by its path but unlisted, though two first took `let` for a local binding a path
 can't reach. Goal 4.8 has a clearer name replace the old one, even at a major, and the rename breaks
-every template using `let`, so it is the human's call: item 523 asks.
+every template using `let`, so it is the human's call: item 525 asks.
 
 Valid while a data author reads `let` as "a field only other fields read".
 

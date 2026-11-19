@@ -6,15 +6,14 @@
 
 `Bar = 0`
 
-`Next ID = 524`
+`Next ID = 526`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 523 | 0.7.0 |  | question | **Decide whether to rename the `let` option to `hidden`, and record the answer in the decision on `let`.** | 2 | 1 | 2 | 3 | 4 | 4 by 2 | 0.5 |
-| 522 | 0.7.0 |  |  | **Add a mutation tool for Go.** | 3 | 2 | 1 | 4 | 2 | code health by 3 | 8.2 |
-| 521 | 0.7.0 |  |  | **Leave a `let` field out of `--list`, `.fejkdata.json` and `testdata/shipped_shape.txt` in any category, and move the shipped helper fields, such as `misc.ipv6.g`, into `let`.** | 2 | 2 | 2 | 4 | 3 | 4 by 3, code health by 2 | 5.3 |
+| 525 | 0.7.0 |  | question | **Decide whether to rename the `let` option to `hidden`, and record the answer in the decision on `let`.** | 2 | 1 | 2 | 3 | 4 | 4 by 2 | 0.5 |
+| 524 | 0.7.0 |  |  | **Add a mutation tool for Go.** | 3 | 2 | 1 | 4 | 2 | code health by 3 | 8.2 |
 | 499 | 0.7.0 |  |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 503 | 0.7.0 |  |  | **Add `lv_LV` with its given names by sex, last names and titles, and `lv_LV.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 504 | 0.7.0 | 503 |  | **Add `lv_LV`'s national personal id, the personas kods, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
@@ -239,7 +238,7 @@
 
 ## Details
 
-### 523. Decide whether to rename the `let` option to `hidden`, and record the answer in the decision on `let`.
+### 525. Decide whether to rename the `let` option to `hidden`, and record the answer in the decision on `let`.
 
 `let` shipped in 0.5.0. It holds the fields that write no column. Since item 521, these fields are also left out of `--list`, the `.fejkdata.json` index and the shape pin, while a read of their path still draws them.
 
@@ -282,7 +281,7 @@ Touches:
 - `loading_test.go`
 - `distinct_test.go`
 
-### 522. Add a mutation tool for Go.
+### 524. Add a mutation tool for Go.
 
 `~/.claude/bin/mutate-changes` covers .py, .rs, JavaScript and TypeScript, and .php only. On a chunk of this project it prints `Not mutated, as no tool covers their language` for every changed .go file, such as `internal/engine/load/path.go`, `internal/engine/draw.go` and `internal/engine/index.go`, so the stability pass tests no Go mutant.
 
@@ -296,33 +295,6 @@ Touches:
 
 - `compose.yaml`: lines 44-50 (small)
 - `README.md`: `## Development` (small)
-
-### 521. Leave a `let` field out of `--list`, `.fejkdata.json` and `testdata/shipped_shape.txt` in any category, and move the shipped helper fields, such as `misc.ipv6.g`, into `let`.
-
-Today a field that exists only to feed another field's format is a public path: `misc.ip.wide4.o`, `misc.ipv6.g` with `.n` and `.t`, and `misc.mac.local.n`, which item 15 added, and the older `misc.version.n`, `.pre` and `.suffix`. `--list` prints them, the index writes them and the shape pin holds them, so a reader can't tell a path meant to be read from a scaffold. Even `sv_SE.person.birth`, already under `let`, is listed: `let` today only drops a record's column.
-
-Recommendation, for the bench to confirm: reuse `let`, not a name prefix such as `_`. `let` already loads in any category, and a writer panel chose it over `hidden`, `private` and `_`-prefixed names for "a field only other fields read" ("A record's `let` fields write no column"). It adds no syntax, so the Data format section doesn't grow (goal 4's counter-signal), and it keeps "Options and fields share one namespace": every key but the options is a field. A prefix would make a key's spelling carry meaning, rename the paths it hides, and silently change what a user's existing `_x` field means, a guess goal 4.7 forbids. A `let` field stays readable by its full path, as `List` already leaves out paths that resolve ("`List` advertises direct descents only"), so no read breaks and no new fence is needed.
-
-Bench: the spelling stays, but its meaning widens from "writes no column" to "is no path of its own" outside records too. Per CLAUDE.md "Bench a syntax with the people who write it", a panel seated as the Audience's data author, hand fixture author and contributor reads `data/misc/ipv6.json` rewritten with `let` and says what `--list` prints, before the change ships. If the panel misreads it, it picks the spelling instead.
-
-Trap: `load.Paths` also feeds a choice's shared paths (`sharedPaths`), which resolve a read through a choice. Leave `let` fields out of the listing only, not out of `Shared`, or a read through a choice into a `let` field stops resolving.
-
-Audit every shipped category for fields only other fields read, and move each into `let`. Revise the decision "A record's `let` fields write no column", which says `let` changes nothing outside a record's top level. Before 1.0.0, dropping listed paths is a minor, so 0.7.0 allows it; the paths item 15 added never ship listed. Add the `CHANGELOG.md` entry under `Unreleased`, and re-pin the shape in its own commit.
-
-Touches:
-- `internal/engine/load/path.go`: `Paths`, `templatePaths`
-- `internal/engine/draw.go`: `List` (small)
-- `internal/engine/index.go`
-- `internal/engine/load/path_test.go`
-- `loading_test.go`: `TestList`
-- `data/misc/ip.json`
-- `data/misc/ipv6.json`
-- `data/misc/mac.json`
-- `data/misc/version.json`
-- `data/misc/.fejkdata.json`
-- `data/sv_SE/.fejkdata.json`
-- `testdata/shipped_shape.txt`
-- `README.md`: `Let`, `Options and fields` (small)
 
 ### 499. Add `et_EE`'s national personal id, the isikukood, with its check digits.
 
