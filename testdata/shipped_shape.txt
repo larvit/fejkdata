@@ -303,6 +303,31 @@ en_US.word.any	string
 en_US.word.noun	string
 en_US.word.verb	string
 en_US.word.verb.present
+et_EE.company	format "{registered as r}{r}"	reads et_EE.company et_EE.company-coined et_EE.company-word et_EE.person
+et_EE.company-coined	format "{word}"	weight count
+et_EE.company-coined.count	string
+et_EE.company-coined.word	string
+et_EE.company-word	format "{word}"	weight count
+et_EE.company-word.count	string
+et_EE.company-word.word	string
+et_EE.company.as	string
+et_EE.company.as.name
+et_EE.company.fie	string
+et_EE.company.fie.name
+et_EE.company.legal	string
+et_EE.company.ou	string
+et_EE.company.ou.name
+et_EE.company.registered	string
+et_EE.company.registered.legal
+et_EE.company.tu	string
+et_EE.company.tu.name
+et_EE.company.uu	string
+et_EE.company.uu.name
+et_EE.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
+et_EE.email	format "{local}@{domain}"	reads et_EE.person
+et_EE.email.domain	string
+et_EE.email.local	string
+et_EE.email.local.n
 et_EE.first-name	format "{name}"	name name	weight count	parent sex
 et_EE.first-name.count	string
 et_EE.first-name.name	string
