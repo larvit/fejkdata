@@ -24,6 +24,14 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
+- `lt_LT`, Lithuanian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/lt_LT.person}` renders e.g.
+  `Ona Kazlauskienė`. The 50 commonest first names of each sex weigh the people born since 1900 in the State Enterprise
+  Centre of Registers' Population Register (CC BY 4.0), and a program showing them credits "Valstybės įmonė Registrų
+  centras". Every other first name and every last name is a language model's recall, ranked and weighted by rank; the
+  weights are estimates. A woman bears a feminine form of a last name, the unmarried such as `Kazlauskaitė` or the
+  married `Kazlauskienė`. `lt_LT.sex` carries Lithuania's population on 1 January 2025 from Eurostat, and a program
+  showing it credits "Source: Eurostat". The Go package is `github.com/larvit/fejkdata/data/lt_LT`, and the CLI
+  carries it.
 - `lv_LV`, Latvian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/lv_LV.person}` renders e.g.
   `Anna Bērziņa`. First names weigh the persons of the Office of Citizenship and Migration Affairs' register
   (CC0 1.0) by their first given name, and a program showing them credits "Avots: Pilsonības un migrācijas lietu

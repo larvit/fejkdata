@@ -446,17 +446,17 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 - Source, first names: the State Enterprise Centre of Registers' (Registrų centras) datasets
   [Populiariausi vyrų vardai Lietuvoje nuo 1900 metų, TOP 50](https://data.gov.lt/datasets/1754/) and
-  Populiariausi moterų vardai Lietuvoje nuo 1900 metų, TOP 50: the people of the Population
-  Register bearing each of the 50 commonest names of each sex. The register holds foreigners' names
-  too, so some names are not Lithuanian. Every other first name is a language model's recall of a name
-  common in Lithuania, as the Centre publishes none below its top 50: the commoner ones are ranked
-  from the most to the least common, each with an estimated count of the smallest published count
-  times 50 over its rank, then the rarer ones, sharing the count of the last rank
+  [Populiariausi moterų vardai Lietuvoje nuo 1900 metų, TOP 50](https://data.gov.lt/datasets/1753/):
+  the people of the Population Register bearing each of the 50 commonest names of each sex. The
+  register holds foreigners' names too, so some names are not Lithuanian. Every other first name is a
+  language model's recall of a name common in Lithuania, as the Centre publishes no count of one below
+  its top 50: the commoner ones are ranked on from 51, each with an estimated count of the smallest
+  published count times 50 over its rank, then the rarer ones, sharing the count of the last rank
 - Source, last names: a language model's recall of names common in Lithuania, as the Centre publishes
   no last names. The commoner names are ranked, each with an estimated count of 100000 over the
   square root of its rank, then the rarer ones, sharing the count of the last rank. A woman's last
-  name is the masculine one with each of its two feminine endings, the unmarried and the married;
-  a Russian or Polish name takes its own language's ending
+  name is the masculine one with each of its two feminine endings, the unmarried and the married,
+  the two sharing its count; a Russian or Polish name takes its own language's ending
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) for the published counts; the
   project's own [LICENSE](LICENSE) for the recalled names and their estimated counts
 - Attribution: "Valstybės įmonė Registrų centras" for the published counts; none required for the
@@ -668,8 +668,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Files: `sv_SE/birth-number.tsv`, `sv_SE/title.tsv`, `nb_NO/title.tsv`, `nn_NO/title.tsv`,
   `da_DK/title.tsv`, `fi_FI/title.tsv`, `de_DE/title.tsv`, `et_EE/title.tsv`, `lt_LT/title.tsv`,
   `lv_LV/title.tsv`, `en_US/title.tsv`, `misc/car.tsv`
-- Source: curated; Skatteverket's test birth numbers are facts, `lt_LT/title.tsv` is curated with no
-  source, `lv_LV/title.tsv` holds the
+- Source: curated; Skatteverket's test birth numbers are facts, `lt_LT/title.tsv` has no source,
+  `lv_LV/title.tsv` holds the
   abbreviations `Dr.` and `prof.` that [Cabinet Regulation No. 114](https://likumi.lv/ta/id/85209)
   of 2 March 2004, on the writing and use of personal names in Latvian, lists among an academic
   degree's and title's abbreviations, and `car.tsv` waits for an international source (goal 3.2)
