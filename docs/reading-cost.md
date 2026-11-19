@@ -2441,3 +2441,20 @@ Read most (opens and searches):
 - `data-import/tsv.py` 1
 - `data/da_DK/phone.json` 1
 - `data/finnish_test.go` 1
+
+## Reading cost, chunk a4ef4abe6fda, finished 2026-11-19T19:22:37Z
+
+94241 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `data/locales_test.go` 6
+- `DATA-LICENSES.md` 5
+- `compose.yaml` 4
+- `data/fr_FR/last-name.tsv` 2
+- `data/locale_company_test.go` 2
+- `data-import/company-no.py` 1
+- `data/de_DE/.fejkdata.json` 1
+- `data/de_DE/fs.go` 1
+- `data/fr_FR/.fejkdata.json` 1
