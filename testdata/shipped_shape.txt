@@ -905,7 +905,14 @@ misc.httpstatus.reason	string
 misc.iban-test	format "{iban}"	key country
 misc.iban-test.country	string
 misc.iban-test.iban	string
-misc.ip
+misc.ip	format "{wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide6}"
+misc.ip.cidr	string
+misc.ip.documentation	string
+misc.ip.private	string
+misc.ip.wide4	string
+misc.ip.wide4.o
+misc.ip.wide6	string
+misc.ipv6	format "2001:db8:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}"
 misc.language	format "{name}"	key code	name name
 misc.language.code	string
 misc.language.code3	string
@@ -915,6 +922,8 @@ misc.loglevel.code	string
 misc.loglevel.keyword	string
 misc.loglevel.severity	string
 misc.mac	format "{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}"
+misc.mac.local	string
+misc.mac.local.n
 misc.mimetype	format "{type}"	key type	name ext
 misc.mimetype.ext	string
 misc.mimetype.type	string
