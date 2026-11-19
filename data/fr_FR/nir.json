@@ -1,0 +1,21 @@
+{
+  "format": "{/fr_FR.sex as s}{s.sex-digit.digit}{body}{nir()}",
+  "body": {
+    "format": "{birth}{place}{three}",
+    "birth": [
+      { "format": "{born(0,17,'0601')}", "weight": 13852666 },
+      { "format": "{born(18,64,'0601')}", "weight": 39890078 },
+      { "format": "{born(65,99,'0601')}", "weight": 15339252 }
+    ],
+    "place": "{/fr_FR.department as d}{d.code}{d.commune}",
+    "two": [
+      { "format": "0{int(1,9)}", "weight": 9 },
+      { "format": "{int(1,9)}{digits(1)}", "weight": 90 }
+    ],
+    "three": [
+      { "format": "00{int(1,9)}", "weight": 9 },
+      { "format": "0{int(1,9)}{digits(1)}", "weight": 90 },
+      { "format": "{int(1,9)}{digits(2)}", "weight": 900 }
+    ]
+  }
+}

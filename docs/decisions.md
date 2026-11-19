@@ -960,6 +960,20 @@ nothing real isn't shipped. Item 23 in `todo.md` ends the departure from goal 3.
 accepted shipping `da_DK.cpr` until then, over holding it back or drawing the "fiktive" form.
 Valid while the CPR office publishes no test series or unassigned range.
 
+## The French id draws valid NIRs over the last hundred years
+
+2026-11-19, Lilleman auf Larv.
+
+Goal 3 (a valid id passes the check the real system applies) is served, and goal 3.3 (a form
+that reaches nothing real) is not: INSEE publishes no test series and no unassigned range for
+the NIR, and the Sécurité sociale's own test data is not published. The "fictif" NIRs in the
+SNDS documentation are a pattern seen in its data, not a series INSEE keeps. So `fr_FR.nir` is
+valid and may be a living person's, and the README says so, as it does for `da_DK.cpr`. Its
+place of birth is a department of INSEE's 101 drawn evenly and a commune code in its range
+that need not exist, and Corsica is always `2A` or `2B`; item 270's `geo/FR` ends the former.
+Item 23 ends the departure from goal 3.3. Valid while INSEE publishes no test series or
+unassigned range.
+
 The rules are the office's "Personnummeret i CPR-systemet" (2008): the ten digits weighted
 4 3 2 7 6 5 4 3 2 1 add up to a multiple of 11, the last digit is even for a woman and odd for a
 man, and the year digits with the seventh digit name the century. cpr.dk adds that numbers
