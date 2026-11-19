@@ -168,6 +168,7 @@ var shippedLocales = []shippedLocale{
 		name:   "fr_FR",
 		names:  &names{map[string]string{"Nathalie": "f", "Isabelle": "f", "Jean": "m", "Michel": "m"}, []string{"Camille", "Dominique"}},
 		person: &person{map[string]string{"f": "femme", "m": "homme"}, []string{"Dr", "Pr"}},
+		phone:  &phone{"+33", "0", frenchFixedPhone, trunkAreaTables},
 	},
 	{
 		name:   "lv_LV",
