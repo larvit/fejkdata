@@ -1057,10 +1057,11 @@ lv_LV.company.registered.legal
 lv_LV.company.sia	string
 lv_LV.company.sia.name
 lv_LV.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-lv_LV.email	format "{local}@{domain}"	reads lv_LV.person
+lv_LV.email	format "{local}@{domain}"	reads lv_LV.email lv_LV.person
 lv_LV.email.domain	string
 lv_LV.email.local	string
 lv_LV.email.local.n
+lv_LV.email.reserved	string
 lv_LV.first-name	format "{name}"	name name	weight count	parent sex
 lv_LV.first-name.count	string
 lv_LV.first-name.name	string
