@@ -35,7 +35,7 @@ jobs:
           fi
           changed() { git diff --quiet "$base"...HEAD -- "$@" && echo false || echo true; }
           {
-            echo "code=$(changed '*.go' go.mod go.sum compose.yaml Dockerfile .dockerignore .github data data-import dockerhub release-tooling renovate.json testdata vulnerability-filing README.md DATA-LICENSES.md todo.md)"
+            echo "code=$(changed '*.go' go.mod go.sum compose.yaml Dockerfile .dockerignore .github data data-import dockerhub release-tooling renovate.json testdata README.md DATA-LICENSES.md)"
             echo "packaging=$(changed '*.go' go.mod go.sum release-tooling Dockerfile .dockerignore LICENSE DATA-LICENSES.md .github/workflows)"
             echo "base=$base"
           } >> "$GITHUB_OUTPUT"
@@ -114,51 +114,39 @@ jobs:
           echo "changes job: $CHANGES, tests: $TESTS, Packages dry run: $DRY_RUN"
           [ "$CHANGES" = success ] && { [ "$TESTS" = success ] || [ "$TESTS" = skipped ]; } && { [ "$DRY_RUN" = success ] || [ "$DRY_RUN" = skipped ]; }
 
-  vulnerabilities:
-    name: Known vulnerabilities in this Go version and the required modules
-    runs-on: ubuntu-26.04
-    timeout-minutes: 10
-    outputs:
-      reported: ${{ steps.report.outputs.reported }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - name: Fetch govulncheck's report from vuln.go.dev
-        id: report
-        run: |
-          docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
-          echo "reported=true" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v7
-        with:
-          name: vulnerabilities
-          path: ${{ runner.temp }}/vulnerabilities/report.json
-      - run: python3 vulnerability-filing/file_vulnerabilities.py check "$RUNNER_TEMP/vulnerabilities/report.json"
-
   release:
-    name: Release from CHANGELOG.md, or a patch of the last release for what main carries
-    needs: [gate, vulnerabilities]
+    name: Release from CHANGELOG.md or as a patch of the last release, and plan known vulnerabilities
+    needs: gate
     # The daily run skips the gate: a skipped gate doesn't stop a release, a failed one does.
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.vulnerabilities.result == 'success' && needs.gate.result != 'failure' }}
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.gate.result != 'failure' }}
     runs-on: ubuntu-26.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     concurrency:
       group: release
       cancel-in-progress: false
     permissions:
+      actions: write
       contents: write
+      pull-requests: write
     outputs:
       tag: ${{ steps.publish.outputs.tag || steps.patch.outputs.tag }}
     env:
+      GH_TOKEN: ${{ github.token }}
       FORGE_API_URL: ${{ github.api_url }}
       FORGE_REPOSITORY: ${{ github.repository }}
       FORGE_SERVER_URL: ${{ github.server_url }}
-      FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORGE_TOKEN: ${{ github.token }}
+      REPORT: ${{ runner.temp }}/vulnerabilities/report.json
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Fetch govulncheck's report on this Go version and the required modules from vuln.go.dev
+        id: report
+        run: docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
+      - name: Release nothing while the report names a known vulnerability
+        run: python3 release-tooling/file_vulnerabilities.py check "$REPORT"
       - id: publish
         if: github.event_name == 'push'
         run: python3 release-tooling/publish_release.py
@@ -171,43 +159,17 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python3 release-tooling/patch_release.py cut
-
-  plan:
-    name: Plan known vulnerabilities, and record fixed ones and new Go minors' Breaking lines
-    needs: [vulnerabilities, release]
-    # Runs after a failed release job too: a patch waiting for a human fails it, and fixed items still move.
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.outputs.reported == 'true' && (needs.release.result == 'success' || needs.release.result == 'failure' || needs.vulnerabilities.result == 'failure') }}
-    runs-on: ubuntu-26.04
-    timeout-minutes: 10
-    concurrency:
-      group: security-plan
-      cancel-in-progress: false
-    permissions:
-      actions: write
-      contents: write
-      pull-requests: write
-    env:
-      GH_TOKEN: ${{ github.token }}
-      FORGE_API_URL: ${{ github.api_url }}
-      FORGE_REPOSITORY: ${{ github.repository }}
-      FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/download-artifact@v8
-        with:
-          name: vulnerabilities
-          path: ${{ runner.temp }}/vulnerabilities
-      - name: Plan known vulnerabilities, and record fixed ones, the last release and new Go minors' Breaking lines
-        run: python3 release-tooling/patch_release.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md
-      - name: Propose the plan and the changelog to main
-        run: python3 release-tooling/propose_plan.py
+      - name: Plan known vulnerabilities, record fixed ones, the last release and new Go minors' Breaking lines, and propose them to main
+        # Runs after a failed step too: a known vulnerability or a patch waiting for a human fails the job, and fixed items still move.
+        if: ${{ !cancelled() && steps.report.outcome == 'success' }}
+        run: |
+          python3 release-tooling/patch_release.py plan "$REPORT" todo.md CHANGELOG.md
+          python3 release-tooling/propose_plan.py
 
   packages:
     needs: release
-    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.tag != '' }}
+    # A release job that failed after it published, as where the plan step fails, still hands its tag on.
+    if: ${{ !cancelled() && needs.release.outputs.tag != '' }}
     permissions:
       contents: write
       packages: write

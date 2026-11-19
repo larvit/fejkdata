@@ -92,6 +92,16 @@ def names_only(text: str, vulnerabilities: set[str]) -> bool:
 	return bool(named) and named <= vulnerabilities
 
 
+def fixed_lines(fixed: list[tuple[str, str]]) -> list[str]:
+	"""A line for each item the filer dropped as fixed: what carried the vulnerabilities, a Go or a module, and their names."""
+	return [
+		f"The binaries no longer carry {carried}'s known vulnerabilities: {named}."
+		if carried.startswith("Go ")
+		else f"fejkdata no longer requires {carried}, with its known vulnerabilities: {named}."
+		for carried, named in fixed
+	]
+
+
 def record(changelog: str, fixed: list[str], breaking: list[str]) -> str:
 	"""The changelog with each fixed line under Unreleased's Security, save one whose vulnerabilities a release section
 	names, and each Breaking line it lacks under Unreleased's Breaking, its first heading."""

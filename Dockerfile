@@ -29,21 +29,14 @@ RUN go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 -scan module -format json >
 FROM scratch AS vulnerability-report
 COPY --from=vulnerabilities /report.json /
 
-# The full image ships git, which patch_release's tests drive; patch_release runs the filer.
+# The full image ships git, which patch_release's tests drive.
 FROM python:3.15.2 AS release-tooling
 COPY release-tooling/ /release-tooling/
-COPY vulnerability-filing/ /vulnerability-filing/
 COPY .github/workflows/packages.yml /.github/workflows/packages.yml
 COPY renovate.json /renovate.json
 COPY Dockerfile /Dockerfile
 COPY compose.yaml /compose.yaml
 RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
-
-FROM python:3.15.2-slim AS vulnerability-filing
-COPY vulnerability-filing/ /vulnerability-filing/
-# The filer's test files an item into the plan itself.
-COPY todo.md /todo.md
-RUN python3 -m unittest discover -s /vulnerability-filing -p '*_test.py' && touch /tested
 
 FROM python:3.15.2-slim AS data-import
 COPY data-import/ /data-import/
@@ -55,10 +48,9 @@ COPY --from=ghcr.io/astral-sh/ruff:0.17.5-alpine /usr/local/bin/ruff /usr/local/
 RUN pip install --no-cache-dir mypy==2.4.1
 COPY data-import/ /python/data-import/
 COPY release-tooling/ /python/release-tooling/
-COPY vulnerability-filing/ /python/vulnerability-filing/
 RUN ruff check --no-cache /python
 # mypy runs inside each folder, since a script imports its siblings by bare name, as `import geo`.
-RUN for folder in data-import release-tooling vulnerability-filing; do (cd /python/$folder && mypy --strict --cache-dir /dev/null .) || exit 1; done && touch /tested
+RUN for folder in data-import release-tooling; do (cd /python/$folder && mypy --strict --cache-dir /dev/null .) || exit 1; done && touch /tested
 
 FROM goreleaser/goreleaser:v2.20.2 AS packaging
 WORKDIR /check
@@ -69,7 +61,6 @@ FROM scratch AS lowest-and-tooling
 # BuildKit skips a stage nothing copies from.
 COPY --from=lowest /tested /tmp/lowest-tested
 COPY --from=release-tooling /tested /tmp/release-tooling-tested
-COPY --from=vulnerability-filing /tested /tmp/vulnerability-filing-tested
 COPY --from=data-import /tested /tmp/data-import-tested
 COPY --from=packaging /tested /tmp/packaging-tested
 COPY --from=python-lint /tested /tmp/python-lint-tested

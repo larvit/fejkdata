@@ -1,24 +1,21 @@
-"""Plan known vulnerabilities in todo.md, and name fixed ones.
+"""Plan known vulnerabilities in todo.md, and name fixed ones. patch_release.py calls `plan` and `fixed_between`.
 
   file_vulnerabilities.py check <govulncheck -format json report>
       Prints how many known vulnerabilities the report names, and each one. Exits 1 while it
-      names any, else 0.
-  file_vulnerabilities.py plan <report> <todo.md> --patch X.Y.Z
-      Files each module's new vulnerabilities as one security item, moves rows under a patch
-      already cut to X.Y.Z, the patch after the last release, removes each item this script
-      filed once the report names no vulnerability at all, and prints a changelog line for each
-      removed item. release-tooling/patch_release.py owns CHANGELOG.md: it records them, and
-      drops one again once the section of a patch naming its vulnerabilities comes in.
-  file_vulnerabilities.py fixed-between <older report> <newer report>
-      Prints the vulnerabilities the older report names and the newer one does not.
+      names any, else 0, and 2 on a report it cannot read.
 
-Exits 2 on input it cannot read.
+`plan` files each module's new vulnerabilities as one security item, and removes each item it
+filed once the report names no vulnerability at all. An item goes under the patch after the last
+release, or under the plan's next release when that is a patch above it; rows under a patch
+already cut move with it. todo.md's `Next ID = N` gives its ID. Its Score is 0.0 until the
+maintainer's rank_todo.py, which this repository doesn't hold and CI cannot run, scores it; a
+security item ranks first in its release whatever it scores.
 
-An item goes under the patch X.Y.Z, or under the plan's next release when that is a patch above
-it. todo.md's `Next ID = N` gives its ID. Its Score is 0.0 until the maintainer's rank_todo.py,
-which this repository doesn't hold and CI cannot run, scores it; a security item ranks first in
-its release whatever it scores. The test that files into the repository's own todo.md fails the
-gate when the plan's shape drifts from what this script reads.
+What this file knows of todo.md's layout is the patterns below: the item table under its
+`| ID |` header, a row's first two cells, the `Next ID` line, the `## Details` heading and
+the detail this file writes. No test reads the repository's own
+todo.md: where its layout drifts, `plan` exits 2 naming what it misses, or rank_todo.py refuses
+the row it filed.
 
 Scores, as todo.md's table spells them: L (chance of a defect), E (chance it escapes) and S
 (size) are 1, since the fix is a version bump the gate builds and tests; I (damage) is 2, a
@@ -33,8 +30,8 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any
 
-ROW = re.compile(r"^\| (?P<id>\d+) \| (?P<release>[^|]+?) \| (?:[^|]*\| ){2}\*\*", re.MULTILINE)
-TABLE = re.compile(r"^\| ID \|.*\n\|[-|]+\|\n", re.MULTILINE)
+TABLE = re.compile(r"^\| ID \|.*\n\|[-|]+\|\n(?P<rows>(?:\|.*\n)*)", re.MULTILINE)
+ROW = re.compile(r"^\| (?P<id>\d+) \| (?P<release>[^|]+?) \|", re.MULTILINE)
 FILED = re.compile(r"^### (?P<id>\d+)\. .*\n\ngovulncheck found these in (?P<carried>.+):\n\n(?P<lines>(?:- .*\n)+)\n?", re.MULTILINE)
 NEXT_ID = re.compile(r"`Next ID = (\d+)`")
 DETAILS = "## Details\n\n"
@@ -114,14 +111,19 @@ def detail(module: Module) -> str:
 	return f"govulncheck found these in {module.carried}:\n\n" + "\n".join(lines) + "\n"
 
 
+def item_rows(todo: str) -> tuple[int, int]:
+	"""Where the item table's rows start and end in todo.md."""
+	table = TABLE.search(todo)
+	if table is None:
+		raise ValueError("todo.md has no item table to file the item in")
+	return table.span("rows")
+
+
 def release_for(todo: str, patch: str) -> str:
-	"""The release a security item goes under; see this file's docstring."""
-	first = ROW.search(todo)
-	if first is None:
-		return patch
-	planned = first["release"]
-	if not planned.endswith(".0") and version_key(planned) > version_key(patch):
-		return planned
+	"""The release a security item goes under: the patch, or the plan's next release when that is a patch above it."""
+	first = ROW.search(todo, *item_rows(todo))
+	if first and not first["release"].endswith(".0") and version_key(first["release"]) > version_key(patch):
+		return str(first["release"])
 	return patch
 
 
@@ -131,21 +133,19 @@ def retarget(todo: str, patch: str) -> str:
 		release: str = row["release"]
 		if release.endswith(".0") or version_key(release) >= version_key(patch):
 			return row[0]
-		return row[0].replace(f"| {release} |", f"| {patch} |", 1)
+		return f"| {row['id']} | {patch} |"
 
-	return ROW.sub(move, todo)
+	start, end = item_rows(todo)
+	return todo[:start] + ROW.sub(move, todo[start:end]) + todo[end:]
 
 
 def file_items(modules: list[Module], todo: str, patch: str) -> tuple[str, list[int]]:
 	"""Return todo.md with an item for each module whose vulnerabilities it does not yet name, and the items' IDs."""
-	table = TABLE.search(todo)
-	if table is None:
-		raise ValueError("todo.md has no item table to file the item in")
+	rows_at, _ = item_rows(todo)
 	if NEXT_ID.search(todo) is None:
 		raise ValueError("todo.md has no `Next ID = N` line to number the item by")
 	if DETAILS not in todo:
 		raise ValueError(f"todo.md has no {DETAILS.strip()!r} heading to put the item's detail under")
-	rows_at = table.end()
 	details_at = todo.index(DETAILS) + len(DETAILS)
 	filed = []
 	for module in modules:
@@ -167,8 +167,9 @@ def file_items(modules: list[Module], todo: str, patch: str) -> tuple[str, list[
 	return todo, filed
 
 
-def resolve(todo: str, modules: list[Module]) -> tuple[str, list[str]]:
-	"""Return todo.md without the items this script filed whose vulnerabilities the report no longer names, and a changelog line for each."""
+def resolve(todo: str, modules: list[Module]) -> tuple[str, list[tuple[str, str]]]:
+	"""Return todo.md without the items this script filed whose vulnerabilities the report no longer names, and for each
+	what carried them and their names."""
 	known = {osv for module in modules for osv in module.osvs}
 	fixed = []
 	for item in list(FILED.finditer(todo)):
@@ -178,30 +179,27 @@ def resolve(todo: str, modules: list[Module]) -> tuple[str, list[str]]:
 		todo = todo.replace(item[0], "", 1)
 		todo = re.sub(rf"^\| {item['id']} \|.*\n", "", todo, count=1, flags=re.MULTILINE)
 		named = ", ".join(line[2:].split(": ", 1)[0] for line in lines)
-		carried = item["carried"]
-		if carried.startswith("Go "):
-			fixed.append(f"The binaries no longer carry {carried}'s known vulnerabilities: {named}.")
-		else:
-			fixed.append(f"fejkdata no longer requires {carried}, with its known vulnerabilities: {named}.")
+		fixed.append((item["carried"], named))
 	return todo, fixed
 
 
 def fixed_between(older: str, newer: str) -> str:
-	"""The vulnerabilities the older report names and the newer one does not."""
+	"""The vulnerabilities the older report's text names and the newer one's does not."""
 	still = {osv for module in vulnerable_modules(newer) for osv in module.osvs}
 	return listed({i: osv for module in vulnerable_modules(older) for i, osv in module.osvs.items() if i not in still})
-
-
-def check_line(modules: list[Module]) -> str:
-	osvs = {i: osv for module in modules for i, osv in module.osvs.items()}
-	if not osvs:
-		return "No known vulnerabilities"
-	return f"{len(osvs)} known {'vulnerability' if len(osvs) == 1 else 'vulnerabilities'}: {listed(osvs)}"
 
 
 def listed(osvs: dict[str, dict[str, Any]]) -> str:
 	"""Each vulnerability by ID, with its aliases, in ID order."""
 	return ", ".join(o["id"] + (f" ({', '.join(o['aliases'])})" if o["aliases"] else "") for _, o in sorted(osvs.items()))
+
+
+def known(report: str) -> str:
+	"""How many vulnerabilities the report's text names, and each one, or "" where it names none."""
+	osvs = {i: osv for module in vulnerable_modules(report) for i, osv in module.osvs.items()}
+	if not osvs:
+		return ""
+	return f"{len(osvs)} known {'vulnerability' if len(osvs) == 1 else 'vulnerabilities'}: {listed(osvs)}"
 
 
 def read(path: str) -> str:
@@ -212,19 +210,14 @@ def read(path: str) -> str:
 		raise ValueError(f"cannot read {path}: {err.strerror}") from err
 
 
-def write(path: str, text: str) -> None:
-	with open(path, "w", encoding="utf-8") as f:
-		f.write(text)
-
-
-def plan(report_path: str, todo_path: str, patch: str) -> int:
+def plan(report_path: str, todo_path: str, patch: str) -> list[tuple[str, str]]:
+	"""Plans the report in todo.md, and returns what `resolve` names as fixed."""
 	modules = vulnerable_modules(read(report_path))
 	todo = retarget(read(todo_path), patch)
 	todo, filed = file_items(modules, todo, patch)
 	todo, fixed = resolve(todo, modules) if not modules else (todo, [])
-	write(todo_path, todo)
-	for line in fixed:
-		print(line)
+	with open(todo_path, "w", encoding="utf-8") as f:
+		f.write(todo)
 	if filed:
 		items = ", ".join(map(str, filed))
 		say(f"todo.md {'item ' + items + ' plans' if len(filed) == 1 else 'items ' + items + ' plan'} the fix.")
@@ -232,7 +225,7 @@ def plan(report_path: str, todo_path: str, patch: str) -> int:
 		say(f"todo.md drops {len(fixed)} fixed {'item' if len(fixed) == 1 else 'items'}.")
 	if not filed and not fixed:
 		say("Nothing to plan.")
-	return 0
+	return fixed
 
 
 def say(message: str) -> None:
@@ -243,14 +236,9 @@ def main(argv: list[str]) -> int:
 	try:
 		match argv:
 			case ["check", report_path]:
-				modules = vulnerable_modules(read(report_path))
-				print(check_line(modules))
-				return 1 if modules else 0
-			case ["plan", report_path, todo_path, "--patch", patch] if re.fullmatch(r"\d+\.\d+\.\d+", patch):
-				return plan(report_path, todo_path, patch)
-			case ["fixed-between", older, newer]:
-				print(fixed_between(read(older), read(newer)))
-				return 0
+				found = known(read(report_path))
+				print(found or "No known vulnerabilities")
+				return 1 if found else 0
 	except ValueError as err:
 		say(str(err))
 		return 2
