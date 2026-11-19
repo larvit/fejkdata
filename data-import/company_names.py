@@ -2,8 +2,8 @@
 
 A trade word is neither a name nor a place, is carried by WORDS_MIN or more names, ends a name in at least a
 third of its uses, and is carried by FORM_MIN names in each of at least form_spread of the forms a Vocabulary
-names, three unless it says otherwise, so a word one company family repeats stays out. A word's spelling is the one most names that are not in
-capitals use. A word in capitals in such a name counts as written only if it is an acronym, such as VVS: it has
+names, so a word one company family repeats stays out. A Vocabulary's form_spread is three unless it sets
+another. A word's spelling is the one most names that are not in capitals use. A word in capitals in such a name counts as written only if it is an acronym, such as VVS: it has
 at most the vocabulary's acronym_max letters, or no vowel.
 """
 import re
@@ -15,7 +15,7 @@ from pathlib import Path
 SHARE_MIN = 0.01
 WORDS_MIN = 100
 FORM_MIN = 10
-VOWELS = "aeiouyåäöæøéü"
+VOWELS = "aeiouyåäöæøéüõ"
 
 
 @dataclass(frozen=True)
