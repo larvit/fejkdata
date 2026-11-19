@@ -83,7 +83,7 @@ func containedCells(c *tree.TableColumn) []ContainedNode {
 	var out []ContainedNode
 	for r := 0; r < c.Table().Rows().Len(); r++ {
 		if cell := c.Table().CellTemplate(r, c.Index()); cell != nil {
-			out = append(out, ContainedNode{Node: cell, line: r + 2})
+			out = append(out, ContainedNode{Node: cell, line: c.Table().Rows().Line(r)})
 		}
 	}
 	return out
