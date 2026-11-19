@@ -8,6 +8,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"slices"
@@ -93,24 +94,69 @@ func readmeLine(src string, at int) string {
 	return "line-" + strconv.Itoa(strings.Count(src[:at], "\n")+1)
 }
 
-func TestReadmeExamplesLoadAndRender(t *testing.T) {
-	src := readme(t)
-	blocks := jsonBlock.FindAllStringSubmatchIndex(src, -1)
-	for _, at := range blocks {
-		t.Run(readmeLine(src, at[0]), func(t *testing.T) {
-			body := src[at[2]:at[3]]
-			f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1), onTestDay)
-			if err != nil {
-				t.Errorf("README example does not load: %v\n%s", err, body)
-				return
-			}
-			if err := firstRenderError(f, "example", 20); err != nil {
-				t.Errorf("README example does not render: %v\n%s", err, body)
-			}
-		})
+// localePages is each page under docs/locales by file name: the README's per-locale sections.
+func localePages(t *testing.T) map[string]string {
+	t.Helper()
+	files, err := filepath.Glob("docs/locales/*.md")
+	if err != nil {
+		t.Fatal(err)
 	}
-	if len(blocks) < 8 {
-		t.Fatalf("found only %d README examples", len(blocks))
+	pages := map[string]string{}
+	for _, file := range files {
+		src, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		pages[filepath.Base(file)] = string(src)
+	}
+	return pages
+}
+
+func TestReadmeExamplesLoadAndRender(t *testing.T) {
+	pages := localePages(t)
+	pages["README.md"] = readme(t)
+	count := 0
+	for name, src := range pages {
+		for _, at := range jsonBlock.FindAllStringSubmatchIndex(src, -1) {
+			count++
+			t.Run(name+"-"+readmeLine(src, at[0]), func(t *testing.T) {
+				body := src[at[2]:at[3]]
+				f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1), onTestDay)
+				if err != nil {
+					t.Errorf("%s example does not load: %v\n%s", name, err, body)
+					return
+				}
+				if err := firstRenderError(f, "example", 20); err != nil {
+					t.Errorf("%s example does not render: %v\n%s", name, err, body)
+				}
+			})
+		}
+	}
+	if count < 8 {
+		t.Fatalf("found only %d README examples", count)
+	}
+}
+
+func TestEachShippedModuleHasItsLocalePage(t *testing.T) {
+	src, pages := readme(t), localePages(t)
+	entries, err := os.ReadDir("data")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		page := e.Name() + ".md"
+		if _, ok := pages[page]; !ok {
+			t.Errorf("docs/locales has no %s for data/%s", page, e.Name())
+		}
+		if !strings.Contains(src, "](docs/locales/"+page) {
+			t.Errorf("the README links no docs/locales/%s", page)
+		}
+		if strings.Contains(src, "\n### `"+e.Name()+"`\n") {
+			t.Errorf("the README holds a section for %s, which belongs in docs/locales/%s", e.Name(), page)
+		}
 	}
 }
 
