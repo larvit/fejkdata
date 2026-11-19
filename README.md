@@ -496,6 +496,7 @@ r = rt.Fake()                             // render a row; loop this for bulk ou
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
 ok = fejkdata.IsLonePath("users")         // true: {/users} is one reference and nothing else
+name := fejkdata.PathName("misc.currency[US Dollar]") // "currency": the last name, selectors left out
 calls := fejkdata.Builtins()              // each way to call a function, such as hex(n), sorted
 ```
 
