@@ -113,15 +113,20 @@ func latvianPersonasKodsAge(got string) int {
 // A code with a date is of someone born before the register's change on 1 July 2017 and not more
 // than 100 years ago.
 func TestLatvianPersonasKodsWithADateIsOfSomeoneBornBeforeJuly2017Within100Years(t *testing.T) {
+	dated := 0
 	eachLatvianPersonasKods(t, func(got string) {
 		if got[:2] == "32" {
 			return
 		}
+		dated++
 		born := latvianPersonasKodsBirth(got)
 		if !born.Before(time.Date(2017, 7, 1, 0, 0, 0, 0, time.UTC)) || born.Before(fejktest.TestDay.AddDate(-100, 0, 0)) {
 			t.Fatalf("%q is of someone born %s, want a day from %s to 30 June 2017", got, born.Format("2006-01-02"), fejktest.TestDay.AddDate(-100, 0, 0).Format("2006-01-02"))
 		}
 	})
+	if dated == 0 {
+		t.Error("no code had a date, want most")
+	}
 }
 
 // Eurostat's table demo_pjan, the population on 1 January 2025: 1,860,337 people aged 0 to 99,
