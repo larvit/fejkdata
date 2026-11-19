@@ -214,9 +214,9 @@ func ValidIsikukood(s string) bool {
 }
 
 // ValidAsmensKodas is the check of a Lithuanian personal code, which python-stdnum's lt.asmens takes
-// from ee.ik: the structure and the check digit of an Estonian one. The code stays valid for a
-// dated code only, so one with a month or day of 00, or a first digit 9, which the Lithuanian
-// Wikipedia describes, is refused.
+// from ee.ik: the structure and the check digit of an Estonian one. It refuses a code whose date
+// doesn't exist, as one with a month or day of 00 does, and one whose first digit is 9. The
+// Lithuanian Wikipedia describes both forms.
 func ValidAsmensKodas(s string) bool { return ValidIsikukood(s) }
 
 func isikukoodCheckDigit(s string) int {
