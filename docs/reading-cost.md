@@ -2408,3 +2408,36 @@ Read most (opens and searches):
 - `data/et_EE/.fejkdata.json` 1
 - `data/et_EE/person.json` 1
 - `data/fi_FI/phone-mobile.tsv` 1
+
+## Reading cost, chunk e5329f469efa, finished 2026-11-19T18:41:55Z
+
+68583 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/locales_test.go` 5
+- `data/estonian_test.go` 3
+- `README.md` 2
+- `compose.yaml` 2
+- `data/latvian_test.go` 2
+- `CHANGELOG.md` 1
+- `data/et_EE/.fejkdata.json` 1
+- `data/et_EE/phone.json` 1
+- `data/locale_phone_test.go` 1
+
+## Reading cost, chunk b1c98f952b36, finished 2026-11-19T19:00:00Z
+
+90625 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 7
+- `data/locales_test.go` 3
+- `CHANGELOG.md` 2
+- `data/french_phone_test.go` 2
+- `DATA-LICENSES.md` 1
+- `data-import/phone-dk.py` 1
+- `data-import/phone-no.py` 1
+- `data-import/tsv.py` 1
+- `data/da_DK/phone.json` 1
+- `data/finnish_test.go` 1
