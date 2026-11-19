@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 528 | 0.7.0 |  |  | **Rebuild the et_EE and fr_FR company words with a word counted once per name.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 3.3 |
 | 511 | 0.7.0 |  |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 514 | 0.7.0 |  |  | **Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 516 | 0.7.0 |  |  | **Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
@@ -219,10 +218,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 528. Rebuild the et_EE and fr_FR company words with a word counted once per name.
-
-CodeRabbit's review of the chunk adding `lv_LV.company` found that `company_names.word_usage` counted a word once for each time a name repeated it, so a name such as `Zorba Zorba` counted `Zorba` twice. The chunk fixed the function and rebuilt `lv_LV`. `et_EE` and `fr_FR` read the same function, and their shipped `company-word.tsv` and `company-coined.tsv` still hold the old counts, a few names fewer or more per word. Run `data-import/company-ee.py` and `data-import/company-fr.py` again and ship the tables.
 
 ### 511. Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.
 
