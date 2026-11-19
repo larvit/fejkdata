@@ -230,6 +230,20 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Kotimaisten kielten keskus: Nykysuomen sanalista 2024, CC BY 4.0"
 - Rebuild: `data-import/word-fi.py`
 
+## `fr_FR/first-name.tsv`, `last-name.tsv`
+
+- Source: INSEE's open files. First names: the ["Fichier des
+  prénoms"](https://www.insee.fr/fr/statistiques/8205621) (`prenoms-2023-nat`), the births of 1944 to 2023
+  summed per first name and sex, for the 2,000 commonest of each sex; INSEE groups the names it doesn't
+  publish under `_PRENOMS_RARES`, and those and the rows without a year are dropped. Last names: the
+  ["Fichier des noms"](https://www.insee.fr/fr/statistiques/3536630) (`noms2008nat`), the births of 1891 to
+  2000 summed over their decades, for the 5,000 commonest; INSEE writes them in capitals without accents, and
+  a name with a one-letter part is dropped
+- Licence: [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/), as
+  INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) state
+- Attribution: "Source : Insee"
+- Rebuild: `data-import/names-fr.py`
+
 ## `geo/DE/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`
 
 - Source: [GeoNames](https://www.geonames.org/)' [Postleitzahlen of
@@ -665,22 +679,22 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Källa: PTS"
 - Rebuild: `data-import/phone-area-se.py`
 
-## `sv_SE/sex.tsv` and 5 more
+## `sv_SE/sex.tsv` and 6 more
 
 - Files: `sv_SE/sex.tsv`, `nb_NO/sex.tsv`, `da_DK/sex.tsv`, `fi_FI/sex.tsv`, `de_DE/sex.tsv`,
-  `en_US/sex.tsv`
+  `fr_FR/sex.tsv`, `en_US/sex.tsv`
 - Source: the people of each sex: [SCB](https://www.scb.se/) table BefolkningR1860N at the end of
   2024; [Statistics Norway](https://www.ssb.no/) StatBank table
   [07459](https://www.ssb.no/en/statbank/table/07459) on 1 January 2026; [Statistics
   Denmark](https://www.dst.dk/en/)'s table [FOLK1A](https://www.statbank.dk/FOLK1A) on 1 January
   2026; [Eurostat](https://ec.europa.eu/eurostat)'s table
-  [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table) for Germany on
-  1 January 2025; the [Census Bureau](https://www.census.gov/)'s national population estimates by
+  [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table) for Germany and
+  France on 1 January 2025, which marks the French figure provisional; the [Census Bureau](https://www.census.gov/)'s national population estimates by
   age and sex, vintage 2024, for 1 July 2024; [Statistics Finland](https://stat.fi/en)'s table
   [11rb](https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__vaerak/statfin_vaerak_pxt_11rb.px/),
   the population of 31 December 2025; the names are ours
 - Licence: CC0 1.0; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) for Norway, Denmark,
-  Germany and Finland; public domain
+  Germany, France and Finland; public domain
 - Attribution: "Källa: SCB"; "Kilde: Statistisk sentralbyrå"; "Kilde: Danmarks Statistik"; "Source:
   Eurostat"; "Source: Statistics Finland"; none required
 - Rebuild: `data-import/sex-population.py`

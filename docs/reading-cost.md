@@ -2174,3 +2174,20 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `internal/builtinfunc/daybound.go` 1
 - `internal/builtinfunc/tick.go` 1
+
+## Reading cost, chunk d2ac575a3684, finished 2026-11-19T09:40:31Z
+
+49397 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `cli/records.go` 2
+- `cli/records_test.go` 2
+- `internal/grammar/path.go` 2
+- `record.go` 2
+- `CHANGELOG.md` 1
+- `README.md` 1
+- `docs/decisions.md` 1
+- `inline.go` 1
+- `inline_test.go` 1
+- `internal/grammar/reference.go` 1

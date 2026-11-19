@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `fr_FR`'s names and persons, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -615,10 +615,10 @@ template calls. `--no-shipped-data` leaves out the modules passed to
 ### Shipped modules
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
-its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/de_DE`, `data/en_US`, `data/fi_FI`, `data/nb_NO`,
+its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/de_DE`, `data/en_US`, `data/fi_FI`, `data/fr_FR`, `data/nb_NO`,
 `data/nn_NO`, `data/sv_SE`), one per country's tree of places (`data/geo/DE`, `data/geo/DK`, `data/geo/FI`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`dadk`, `dede`, `enus`, `fifi`, `nbno`, `nnno`, `svse`, `geode`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `dede`, `enus`, `fifi`, `frfr`, `nbno`, `nnno`, `svse`, `geode`, `geodk`, `geofi`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -701,10 +701,10 @@ The dates of `sv_SE.date`, `en_US.date`, `nb_NO.date`, `nn_NO.date`, `da_DK.date
 #### Names and sex
 
 `first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
-SCB, Statistics Norway, DVV, Statistics Finland, the SSA and the Census Bureau, for Germany from the city of Munich's newborn names and a
+SCB, Statistics Norway, DVV, Statistics Finland, INSEE, the SSA and the Census Bureau, for Germany from the city of Munich's newborn names and a
 language model's recall, and for Denmark from Statistics Denmark's top 20 and a
 language model's recall (the weights of the recalled names are estimates). `sex` counts the people of each
-sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026, Germany's on 1 January 2025 (Eurostat) and
+sex in its `count` column: Sweden's population at the end of 2024, Finland's at the end of 2025, Norway's and Denmark's on 1 January 2026, Germany's and France's on 1 January 2025 (Eurostat) and
 the United States' on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
@@ -1069,6 +1069,22 @@ Renders e.g. `Eila Kirjavainen, 260163-9405`.
 issues, such as `160432-581J`. It is for a checker that refuses the numbers from 900. Such a number is valid, and may be a living
 person's, so keep it out of anything that reaches a real system. To make one agree with a bound sex, write
 `{hetu(s.individ.digit,'issued')}` for `{hetu(s.individ.digit)}` in the template above.
+
+### `fr_FR`
+
+`fr_FR`, French, carries `first-name`, `last-name`, `person`, `sex` and `title`. `sex` is `femme` and `homme`, and `title` is `Dr`
+and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
+
+`fr_FR.first-name` holds the 2,000 commonest first names of each sex and `fr_FR.last-name` the 5,000 commonest last
+names, from INSEE's open files. A first name weighs the children who got it as their first one in the births of 1944
+to 2023, the 80 years whose people can still be alive, in the "Fichier des prénoms". INSEE publishes a name
+only if 20 children got it in 1900 to 1945 or in 1946 to 2023, and only for a year in which 3 did, so a rarer one is missing. A last name
+weighs the people born in 1891 to 2000 who bear it, in the "Fichier des noms". INSEE writes last names in capitals
+without accents, so `Lefevre` also counts the bearers of `Lefèvre`. `fr_FR.last-name` has no name with a one-letter part,
+such as `N'Diaye`. `fr_FR.sex` carries France's population on 1 January 2025
+from Eurostat's table `demo_pjan`, which marks the figure provisional.
+
+A program showing those counts credits "Source : Insee", and one showing the sex counts "Source: Eurostat".
 
 ### `geo`
 
