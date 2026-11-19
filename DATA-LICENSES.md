@@ -286,11 +286,11 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   No. 2025-2215 amends it, section 2.5 "Numéros pour œuvres audiovisuelles": the six roots `01 99 00`,
   `02 61 91`, `03 53 01`, `04 65 71`, `05 36 49` and `06 39 98`, which the plan says may be used as
   telephone numbers in fiction; the first five are the fixed table and `06 39 98` the mobile one
-- Licence: none stated for the decision. The six roots are facts that the plan itself offers anyone for use
-  in fiction. The Arcep's [legal notice](https://www.arcep.fr/mentions-legales.html) allows reproducing its
-  pages whole with the source and date, and bars using their information for commercial or advertising ends.
-  The table reproduces no page, and this project reads the plan's permission as covering the roots; that
-  reading is ours, not the Arcep's
+- Licence: none stated for the decision. The six roots are facts that the plan itself offers anyone
+  for use in fiction. The Arcep's [legal notice](https://www.arcep.fr/mentions-legales.html) allows
+  reproducing its pages whole with the source and date, and bars using their information for
+  commercial or advertising ends. The table reproduces no page, and this project reads the plan's
+  permission as covering the roots; that reading is ours, not the Arcep's
 - Attribution: none required
 - Rebuild: hand-written, six rows
 
