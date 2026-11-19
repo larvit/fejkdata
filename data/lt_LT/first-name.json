@@ -1,0 +1,1 @@
+{ "format": "{name}", "rows": "first-name.tsv", "name": "name", "parent": "sex", "weight": "count" }

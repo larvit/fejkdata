@@ -442,6 +442,27 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: `data-import/geo-us.py`
 
+## `lt_LT/first-name.tsv`, `last-name.tsv`
+
+- Source, first names: the State Enterprise Centre of Registers' (Registrų centras) datasets
+  [Populiariausi vyrų vardai Lietuvoje nuo 1900 metų, TOP 50](https://data.gov.lt/datasets/1754/) and
+  Populiariausi moterų vardai Lietuvoje nuo 1900 metų, TOP 50: the people of the Population
+  Register bearing each of the 50 commonest names of each sex. The register holds foreigners' names
+  too, so some names are not Lithuanian. Every other first name is a language model's recall of a name
+  common in Lithuania, as the Centre publishes none below its top 50: the commoner ones are ranked
+  from the most to the least common, each with an estimated count of the smallest published count
+  times 50 over its rank, then the rarer ones, sharing the count of the last rank
+- Source, last names: a language model's recall of names common in Lithuania, as the Centre publishes
+  no last names. The commoner names are ranked, each with an estimated count of 100000 over the
+  square root of its rank, then the rarer ones, sharing the count of the last rank. A woman's last
+  name is the masculine one with each of its two feminine endings, the unmarried and the married;
+  a Russian or Polish name takes its own language's ending
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) for the published counts; the
+  project's own [LICENSE](LICENSE) for the recalled names and their estimated counts
+- Attribution: "Valstybės įmonė Registrų centras" for the published counts; none required for the
+  rest
+- Rebuild: `data-import/names-lt.py`
+
 ## `lv_LV/first-name.tsv`, `last-name.tsv`
 
 - Source, first names: the Office of Citizenship and Migration Affairs (PMLP)'s [Personu
@@ -642,12 +663,13 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: `data-import/bankaccount-se.py`
 
-## `sv_SE/birth-number.tsv` and 10 more
+## `sv_SE/birth-number.tsv` and 11 more
 
 - Files: `sv_SE/birth-number.tsv`, `sv_SE/title.tsv`, `nb_NO/title.tsv`, `nn_NO/title.tsv`,
-  `da_DK/title.tsv`, `fi_FI/title.tsv`, `de_DE/title.tsv`, `et_EE/title.tsv`, `lv_LV/title.tsv`,
-  `en_US/title.tsv`, `misc/car.tsv`
-- Source: curated; Skatteverket's test birth numbers are facts, `lv_LV/title.tsv` holds the
+  `da_DK/title.tsv`, `fi_FI/title.tsv`, `de_DE/title.tsv`, `et_EE/title.tsv`, `lt_LT/title.tsv`,
+  `lv_LV/title.tsv`, `en_US/title.tsv`, `misc/car.tsv`
+- Source: curated; Skatteverket's test birth numbers are facts, `lt_LT/title.tsv` is curated with no
+  source, `lv_LV/title.tsv` holds the
   abbreviations `Dr.` and `prof.` that [Cabinet Regulation No. 114](https://likumi.lv/ta/id/85209)
   of 2 March 2004, on the writing and use of personal names in Latvian, lists among an academic
   degree's and title's abbreviations, and `car.tsv` waits for an international source (goal 3.2)
@@ -750,23 +772,24 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Källa: PTS"
 - Rebuild: `data-import/phone-area-se.py`
 
-## `sv_SE/sex.tsv` and 8 more
+## `sv_SE/sex.tsv` and 9 more
 
 - Files: `sv_SE/sex.tsv`, `nb_NO/sex.tsv`, `da_DK/sex.tsv`, `fi_FI/sex.tsv`, `de_DE/sex.tsv`,
-  `et_EE/sex.tsv`, `lv_LV/sex.tsv`, `fr_FR/sex.tsv`, `en_US/sex.tsv`
+  `et_EE/sex.tsv`, `lt_LT/sex.tsv`, `lv_LV/sex.tsv`, `fr_FR/sex.tsv`, `en_US/sex.tsv`
 - Source: the people of each sex: [SCB](https://www.scb.se/) table BefolkningR1860N at the end of
   2024; [Statistics Norway](https://www.ssb.no/) StatBank table
   [07459](https://www.ssb.no/en/statbank/table/07459) on 1 January 2026; [Statistics
   Denmark](https://www.dst.dk/en/)'s table [FOLK1A](https://www.statbank.dk/FOLK1A) on 1 January
   2026; [Eurostat](https://ec.europa.eu/eurostat)'s table
   [demo_pjan](https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table) for Germany,
-  Estonia, Latvia and France on 1 January 2025, a figure Eurostat marks provisional for France; the
+  Estonia, Lithuania, Latvia and France on 1 January 2025, a figure Eurostat marks provisional for
+  France; the
   [Census Bureau](https://www.census.gov/)'s national population estimates by age and sex, vintage 2024,
   for 1 July 2024; [Statistics Finland](https://stat.fi/en)'s table
   [11rb](https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__vaerak/statfin_vaerak_pxt_11rb.px/),
   the population of 31 December 2025; the names are ours
 - Licence: CC0 1.0; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) for Norway, Denmark,
-  Germany, Estonia, Latvia, France and Finland; public domain
+  Germany, Estonia, Lithuania, Latvia, France and Finland; public domain
 - Attribution: "Källa: SCB"; "Kilde: Statistisk sentralbyrå"; "Kilde: Danmarks Statistik"; "Source:
   Eurostat"; "Source: Statistics Finland"; none required
 - Rebuild: `data-import/sex-population.py`
