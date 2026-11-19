@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from company_names import count_names
+from company_names import count_names, placed
 from geo_test import script
 
 company_lt = script("company-lt")
@@ -40,6 +40,12 @@ class Forms(unittest.TestCase):
             with self.subTest(form=form):
                 shapes, _ = count_names(company_lt.NAMED_FORMS, [(form, f"{form} Zorba {abbreviation}")], WORDS, set(), company_lt.VOCABULARY)
                 self.assertEqual(dict(shapes[form]), {("X",): 1})
+
+    def test_every_form_is_placed_by_its_abbreviation_and_by_its_words(self) -> None:
+        for form, (_, spellings) in company_lt.NAMED_FORMS.items():
+            for spelling in spellings:
+                with self.subTest(form=form, spelling=spelling):
+                    self.assertEqual(placed(company_lt.NAMED_FORMS, form, f'{spelling} "Alfa"'), ("before", True, ["Alfa"]))
 
     def test_the_vocabulary_names_the_connecting_words_of_its_language(self) -> None:
         shapes, _ = count_names(company_lt.NAMED_FORMS, [("UAB", "Kazlauskas ir Ona UAB")], WORDS, set(), company_lt.VOCABULARY)
