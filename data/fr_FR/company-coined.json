@@ -1,0 +1,7 @@
+{
+  "format": "{a}{b}",
+  "hidden": {
+    "a": ["Alpha", "Alti", "Atlan", "Axo", "Eco", "Euro", "Gallia", "Lumi", "Neo", "Nord", "Nova", "Omni", "Optim", "Prima", "Sud", "Terra", "Vita", "Via", "Ouest", "Armor", "Aqui", "Occi"],
+    "b": ["bat", "con", "gie", "lia", "logis", "pro", "sys", "tech", "tek", "vest", "ance", "ia", "ys"]
+  }
+}

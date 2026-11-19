@@ -1,0 +1,31 @@
+{
+  "format": "{registered as r}{r}",
+  "legal": "{r.legal}",
+  "registered": [
+    { "format": "{.company.ei}", "legal": "", "weight": 7845810 },
+    { "format": "{.company.sarl}", "legal": "SARL", "weight": 2226407 },
+    { "format": "{.company.sas}", "legal": "SAS", "weight": 1839229 },
+    { "format": "{.company.snc}", "legal": "SNC", "weight": 99237 },
+    { "format": "{.company.sa}", "legal": "SA", "weight": 68436 }
+  ],
+  "ei": {
+    "format": "{name}",
+    "name": ["{.first-name} {.last-name}", "{.company-word} {.last-name}", "{.company-coined}"]
+  },
+  "sarl": {
+    "format": "{name} SARL",
+    "name": ["{.company-word} {.last-name}", "{.company-coined}", "{.company-word} {.company-coined}", "{.last-name} & {.last-name}", "{.last-name} et Fils", "Établissements {.last-name}"]
+  },
+  "sas": {
+    "format": "{name} SAS",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.company-word} {.last-name}", "{.company-coined} France"]
+  },
+  "snc": {
+    "format": "{name} SNC",
+    "name": ["{.last-name} & {.last-name}", "{.last-name} et Cie", "{.company-word} {.last-name}", "Établissements {.last-name}"]
+  },
+  "sa": {
+    "format": "{name} SA",
+    "name": ["{.company-coined}", "{.company-coined} France", "{.company-coined} {.company-word}", "{.last-name} et Fils"]
+  }
+}
