@@ -150,11 +150,6 @@ var shippedLocales = []shippedLocale{
 		person: &person{map[string]string{"f": "naine", "m": "mees"}, []string{"dr", "prof"}},
 	},
 	{
-		name:   "lv_LV",
-		names:  &names{map[string]string{"Anna": "f", "Līga": "f", "Jānis": "m", "Mārtiņš": "m"}, nil},
-		person: &person{map[string]string{"f": "sieviete", "m": "vīrietis"}, []string{"Dr.", "prof."}},
-	},
-	{
 		name:     "fi_FI",
 		names:    &names{map[string]string{"Anne": "f", "Aino": "f", "Juha": "m", "Matti": "m"}, []string{"Kim"}},
 		words:    map[string]wordTable{"noun": {"", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
@@ -173,6 +168,11 @@ var shippedLocales = []shippedLocale{
 		name:   "fr_FR",
 		names:  &names{map[string]string{"Nathalie": "f", "Isabelle": "f", "Jean": "m", "Michel": "m"}, []string{"Camille", "Dominique"}},
 		person: &person{map[string]string{"f": "femme", "m": "homme"}, []string{"Dr", "Pr"}},
+	},
+	{
+		name:   "lv_LV",
+		names:  &names{map[string]string{"Anna": "f", "Līga": "f", "Jānis": "m", "Mārtiņš": "m"}, nil},
+		person: &person{map[string]string{"f": "sieviete", "m": "vīrietis"}, []string{"Dr.", "prof."}},
 	},
 	{
 		name:     "nb_NO",
