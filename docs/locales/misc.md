@@ -23,7 +23,7 @@ your own network:
 - `misc.ip.private`: inside RFC 1918's `10.0.0.0/8`, `172.16.0.0/12` or `192.168.0.0/16`.
 - `misc.ip.cidr`: a block inside one of those six ranges, such as `192.168.7.0/24`.
 - `misc.ipv6`: inside RFC 3849's `2001:db8::/32`, written as eight groups of one to four digits.
-- `misc.mac.local`: a locally administered unicast address, whose first octet's second hex digit is `2`, `6`, `a` or `e`.
+- `misc.mac.local`: a locally administered unicast address, whose first octet's second hex digit is `2`, `6`, `a` or `e`. A device may pick such an address for itself, so it can match a real one.
 
 `documentation` and `private` never end in `.0` or `.255`. `misc.ip` and `misc.mac` draw addresses a real host may
 hold; `misc.ip` takes them from `misc.ip.wide4`, an IPv4 address, or `misc.ip.wide6`, an IPv6 address.

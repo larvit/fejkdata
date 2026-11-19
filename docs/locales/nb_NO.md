@@ -60,7 +60,7 @@ company's.
 
 ## Norwegian dates and emails
 
-`nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
+`nb_NO.date` is day and month with two digits each, then the year with four, and dots between, `02.04.2019`, a spelling the
 Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
 or `example.net`, or a subdomain of one, and half of its local parts are a first and a last name drawn from
 `nb_NO.first-name` and `nb_NO.last-name` and folded to ASCII, `ø` to `o`, `å` to `a` and `æ` to `ae`. IANA reserves those domains, so no address reaches a real
