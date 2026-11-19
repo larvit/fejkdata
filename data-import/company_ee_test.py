@@ -92,42 +92,34 @@ class Shapes(unittest.TestCase):
         self.assertEqual(company_ee.slots(("S", "ja", "F", "N", "T", "X")), "{.last-name} ja {.first-name} {int(1,30)} {.company-word} {.company-coined}")
 
 
-class Roots(unittest.TestCase):
-    def usage(self, word: str, begins: int, ends: int, as_names: int = 50, names: int = 100) -> dict[str, int]:
-        rows = []
-        for i in range(names):
-            form = "AS" if i < as_names else "OÜ"
-            if i < begins:
-                rows.append((form, f"{word} Pluss"))
-            elif i < begins + ends:
-                rows.append((form, f"Pluss {word}"))
-            else:
-                rows.append((form, f"Pluss {word} Pluss"))
-        found: dict[str, int] = company_ee.roots(company_ee.word_usage(rows, lambda w: False, company_ee.VOCABULARY), set())
+class Coined(unittest.TestCase):
+    def coined(self, word: str, names: int, ends: int, trade: set[str] | None = None) -> dict[str, int]:
+        rows = [("OÜ", f"Pluss {word}" if i < ends else f"{word} Pluss") for i in range(names)]
+        found: dict[str, int] = company_ee.coined(company_ee.word_usage(rows, lambda w: False, company_ee.VOCABULARY), trade or set())
         return found
 
-    def test_a_root_begins_ROOT_MIN_names_and_ends_under_a_third_and_at_least_ROOT_ENDS_MIN_of_them(self) -> None:
-        self.assertIn("Zorba", self.usage("Zorba", 60, 5))
-        self.assertNotIn("Zorba", self.usage("Zorba", 59, 5))
-        self.assertNotIn("Zorba", self.usage("Zorba", 60, 34))
-        self.assertNotIn("Zorba", self.usage("Zorba", 60, 4))
+    def test_a_coined_word_is_carried_by_COINED_MIN_names_and_ends_at_least_COINED_ENDS_MIN_of_them(self) -> None:
+        self.assertEqual(self.coined("Zorba", 40, 2)["Zorba"], 40)
+        self.assertNotIn("Zorba", self.coined("Zorba", 39, 2))
+        self.assertNotIn("Zorba", self.coined("Zorba", 40, 1))
 
-    def test_a_root_has_four_to_six_letters_and_is_carried_by_FORM_MIN_names_in_two_forms(self) -> None:
-        self.assertIn("Zorbas", self.usage("Zorbas", 60, 5))
-        self.assertNotIn("Zor", self.usage("Zor", 60, 5))
-        self.assertNotIn("Zorbass", self.usage("Zorbass", 60, 5))
-        self.assertIn("Zorba", self.usage("Zorba", 60, 5, as_names=10))
-        self.assertNotIn("Zorba", self.usage("Zorba", 60, 5, as_names=9))
+    def test_a_coined_word_has_four_letters_or_more_and_any_length_above(self) -> None:
+        self.assertNotIn("Zor", self.coined("Zor", 40, 2))
+        self.assertIn("Arhitektuuribüroo", self.coined("Arhitektuuribüroo", 40, 2))
 
-    def test_a_root_keeps_the_register_s_spelling_with_its_letters(self) -> None:
-        self.assertEqual(self.usage("ÕNNE", 60, 5, names=100)["Õnne"], 100)
-        self.assertIn("Šokk", self.usage("Šokk", 60, 5))
+    def test_a_coined_word_keeps_the_register_s_spelling_with_its_letters(self) -> None:
+        self.assertEqual(self.coined("ÕNNE", 40, 2)["Õnne"], 40)
+        self.assertIn("Šokk", self.coined("Šokk", 40, 2))
 
-    def test_a_trade_word_is_no_root(self) -> None:
-        rows = [("AS" if i % 2 else "OÜ", "Zorba Pluss" if i < 80 else "Pluss Zorba") for i in range(100)]
-        usage = company_ee.word_usage(rows, lambda w: False, company_ee.VOCABULARY)
-        self.assertEqual(company_ee.roots(usage, set())["Zorba"], 100)
-        self.assertNotIn("Zorba", company_ee.roots(usage, {"zorba"}))
+    def test_a_trade_word_is_not_coined(self) -> None:
+        self.assertNotIn("Zorba", self.coined("Zorba", 40, 2, {"zorba"}))
+
+
+class Trade(unittest.TestCase):
+    def test_a_trade_word_of_one_form_alone_counts_since_osauhingud_hold_nearly_every_name(self) -> None:
+        rows = [("OÜ", "Alfa Ehitus" if i < 40 else "Ehitus Alfa") for i in range(100)]
+        trade = company_ee.trade_words(company_ee.word_usage(rows, lambda w: False, company_ee.VOCABULARY), company_ee.VOCABULARY)
+        self.assertEqual(trade["ehitus"], ("Ehitus", 100))
 
 
 SHAPES = {"OÜ": {("X",): 200, ("T", "X"): 1}, "AS": {("FS",): 10}, "UÜ": {("X",): 1}, "TÜ": {("X",): 1}}
