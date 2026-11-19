@@ -1,7 +1,7 @@
 {
 	"format": "{.organisationsnummer.head as h}{.organisationsnummer.tail as t}{h}-{t}{luhn()}",
 	"vat": "SE{h}{t}{luhn()}01",
-	"let": {
+	"hidden": {
 		"head": "{.organisationsnummer.group}{digits(1)}{int(2,9)}{digits(3)}",
 		"tail": "{digits(3)}",
 		"group": [

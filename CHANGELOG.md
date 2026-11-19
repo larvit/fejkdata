@@ -9,13 +9,15 @@ with its replacement, and each removed path, column or flag.
 
 ### Breaking
 
-- A field in `let` is left out of the listing at any depth: `--list` and the `.fejkdata.json` index no longer
+- The option `let` is now `hidden`, and a template written with `let` fails to load, saying so: rename the
+  key. A field can no longer be named `hidden`.
+- A field in `hidden` is left out of the listing at any depth: `--list` and the `.fejkdata.json` index no longer
   show it or any path below it. A read of its path still draws it. A record never wrote a column for a
-  `let` field. These fields, which only other fields read, moved into `let`, so their paths left the listing:
+  `hidden` field. These fields, which only other fields read, moved into `hidden`, so their paths left the listing:
   `misc.ip.wide4.o`, `misc.ipv6.g` with `.n` and `.t`, `misc.mac.local.n`, `misc.version.n`, `.pre` and
   `.suffix`; `company-coined.a` and `.b` in `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `sv_SE`; `price.amt` and
   `.cents` or `.ore` in `da_DK`, `de_DE`, `en_US`, `fi_FI`, `nb_NO` and `sv_SE`; and
-  `sv_SE.organisationsnummer.group`, `.head` and `.tail`. Already a `let` field, `sv_SE.person.birth` with
+  `sv_SE.organisationsnummer.group`, `.head` and `.tail`. Already a `hidden` field, `sv_SE.person.birth` with
   `.date` and `.sign` left the listing too. A `--format csv` of a category whose every field moved, such as
   `misc.version`, fails with `ErrNoColumns` and names the one-column record to write instead.
 

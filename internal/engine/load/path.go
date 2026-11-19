@@ -174,12 +174,12 @@ func CallerPathSteps(n tree.Node, tail []string, steps []tree.PathStep) ([]tree.
 
 // Paths lists the dot paths a caller is shown below n, relative to it, where "" is n itself.
 // A folder has no value of its own, so it contributes only its children's. A field in a
-// template's "let", and every path below it, is left out: it stays readable by its path.
+// template's "hidden", and every path below it, is left out: it stays readable by its path.
 func Paths(n tree.Node) []string { return walkPaths(n, false) }
 
 // walkPaths lists what Paths lists, or with reachable, every path a read can reach: also the
 // paths below a level carrying a repeat, where a path meets the repeat's refusal, and the fields
-// in "let".
+// in "hidden".
 func walkPaths(n tree.Node, reachable bool) []string {
 	switch n := n.(type) {
 	case *tree.Folder:
@@ -215,14 +215,14 @@ func folderPaths(f *tree.Folder, reachable bool) []string {
 }
 
 // templatePaths is the template itself, then each field's paths under its name, none below a
-// repeat and none of a let field, unless reachable.
+// repeat and none of a hidden field, unless reachable.
 func templatePaths(t *tree.Template, reachable bool) []string {
 	out := []string{""}
 	if t.Repeat() > 1 && !reachable {
 		return out
 	}
 	for _, name := range tree.SortedNames(t.Fields()) {
-		if t.Lets()[name] && !reachable {
+		if t.Hiddens()[name] && !reachable {
 			continue
 		}
 		out = appendUnder(out, name, walkPaths(t.Fields()[name], reachable))

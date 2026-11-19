@@ -67,8 +67,8 @@ func RecordAt(s *drawstate.State, root *tree.Folder, path string) (Record, error
 // recordAtNode is the record n makes in row, or an error naming path.
 func recordAtNode(path string, segments []string, n tree.Node, row render.Row) (Record, error) {
 	record, err := recordOf(n)
-	if err == holdsOnlyLets {
-		err = holdsOnlyLetsInData
+	if err == holdsOnlyHidden {
+		err = holdsOnlyHiddenInData
 	}
 	if errors.Is(err, ErrNoColumns) {
 		ns := grammar.IdentifierSegments(segments)
@@ -99,7 +99,7 @@ func tableRecord(s *drawstate.State, t *tree.Table, tail []string) (tree.Node, r
 }
 
 // ErrNoColumns matches the error for a record with no fields, naming a choice or holding every
-// field in "let". RecordAt's error also names the one-column record to write instead, for a
+// field in "hidden". RecordAt's error also names the one-column record to write instead, for a
 // category.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
@@ -111,11 +111,11 @@ func (e noColumnsError) Error() string { return string(e) }
 func (noColumnsError) Is(target error) bool { return target == ErrNoColumns }
 
 const (
-	namesAChoice  = noColumnsError("names a choice, not a template; a record is a template whose fields are its columns")
-	holdsOnlyLets = noColumnsError(`holds every field in "let", which writes no column; move one out of "let"`)
+	namesAChoice    = noColumnsError("names a choice, not a template; a record is a template whose fields are its columns")
+	holdsOnlyHidden = noColumnsError(`holds every field in "hidden", which writes no column; move one out of "hidden"`)
 
-	// holdsOnlyLetsInData is holdsOnlyLets for a category, whose data a caller can't edit.
-	holdsOnlyLetsInData = noColumnsError(`holds every field in "let", which writes no column`)
+	// holdsOnlyHiddenInData is holdsOnlyHidden for a category, whose data a caller can't edit.
+	holdsOnlyHiddenInData = noColumnsError(`holds every field in "hidden", which writes no column`)
 )
 
 // recordOf is the record template n is; its load fixed its columns.
@@ -137,7 +137,7 @@ func recordOf(n tree.Node) (*tree.Template, error) {
 		panic(invariant.Broken("record %q was reached before its load finished", t.Format()))
 	}
 	if len(t.Columns()) == 0 {
-		return nil, holdsOnlyLets
+		return nil, holdsOnlyHidden
 	}
 	return t, nil
 }

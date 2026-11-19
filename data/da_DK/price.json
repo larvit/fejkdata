@@ -1,6 +1,6 @@
 {
   "format": "{amt}{ore} kr.",
-  "let": {
+  "hidden": {
     "amt": [
       { "format": "{int(1,9)}", "weight": 2 },
       { "format": "{int(10,99)}", "weight": 4 },
