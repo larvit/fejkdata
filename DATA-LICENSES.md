@@ -277,7 +277,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   (`6540`) and the 1,252,322 associations (`9220`). The shapes of a form's names, the 120 commonest
   trade words and the roots in the two other tables come from the `denominationUniteLegale` of those
   units, which Sirene writes in capitals without accents. The tables hold single words with their
-  counts, never a unit's whole name, and the accents of the trade words are written by hand
+  counts, never a unit's whole name. The accents of the trade words and of the commoner roots are
+  written by hand.
 - Licence: [Licence Ouverte / Open Licence
   2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/), as the dataset's page on
   data.gouv.fr states
