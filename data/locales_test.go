@@ -202,7 +202,15 @@ var shippedLocales = []shippedLocale{
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|lt)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Mėlyna", "Žalia", "Raudona"}},
 		names:    &names{map[string]string{"Ona": "f", "Danutė": "f", "Jonas": "m", "Kęstutis": "m"}, nil},
 		person:   &person{map[string]string{"f": "moteris", "m": "vyras"}, []string{"dr.", "prof."}},
-		phone:    &phone{"+370", "0 ", lithuanianFixedPhone, trunkAreaTables},
+		// The Centre of Registers' open data of 19 November 2026, the legal entities in the Register of Legal Entities
+		// of the forms whose names the register publishes: UAB, MB, AB and ŽŪB. A name quotes the rest of it, as `UAB "Alfa"`.
+		company: &company{regexp.MustCompile(`^["\p{Lu}][\p{L}\p{N} &'".-]*[\p{L}\p{N}"]$`), legalForm{}, []legalForm{
+			{"UAB", "uab", "UAB", 102461}, {"MB", "mb", "MB", 75713}, {"AB", "ab", "AB", 226}, {"ŽŪB", "zub", "ŽŪB", 452},
+		}},
+		companyFormOpens: true,
+		dateLayout:       "2006-01-02",
+		emailFold:        strings.NewReplacer("ą", "a", "č", "c", "ę", "e", "ė", "e", "į", "i", "š", "s", "ų", "u", "ū", "u", "ž", "z"),
+		phone:            &phone{"+370", "0 ", lithuanianFixedPhone, trunkAreaTables},
 	},
 	{
 		name:     "lv_LV",
