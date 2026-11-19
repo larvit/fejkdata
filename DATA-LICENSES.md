@@ -45,8 +45,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   `fr_FR/month.tsv`, `lt_LT/month.tsv`, `lv_LV/month.tsv`, `nb_NO/month.tsv`, `nn_NO/month.tsv` and each
   `weekday.tsv` beside them
 - Source: [Unicode CLDR](https://github.com/unicode-org/cldr) 48.0.0, the Danish, German, English,
-  Estonian, Finnish, French, Lithuanian, Latvian, Norwegian Bokmål and Nynorsk stand-alone full month and
-  weekday names, through [cldr-json](https://github.com/unicode-org/cldr-json)
+  Estonian, Finnish, French, Lithuanian, Latvian, Norwegian Bokmål and Nynorsk stand-alone full
+  month and weekday names, through [cldr-json](https://github.com/unicode-org/cldr-json)
 - Licence: [Unicode License v3](https://www.unicode.org/license.txt)
 - Attribution: "Copyright © 2015-2024 Unicode, Inc."
 - Rebuild: `data-import/cldr.py`
