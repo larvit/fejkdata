@@ -1,0 +1,6 @@
+area	ndc	subscriber
+01 99 00	1 99 00	{digits(2)} {digits(2)}
+02 61 91	2 61 91	{digits(2)} {digits(2)}
+03 53 01	3 53 01	{digits(2)} {digits(2)}
+04 65 71	4 65 71	{digits(2)} {digits(2)}
+05 36 49	5 36 49	{digits(2)} {digits(2)}
