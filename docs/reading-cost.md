@@ -2347,3 +2347,13 @@ Read most (opens and searches):
 - `data/misc/ipv6.json` 1
 - `data/misc/mac.json` 1
 - `data/misc/version.json` 1
+
+## Reading cost, chunk 2a7375bdaa3a, finished 2026-11-19T17:16:40Z
+
+57804 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 2
+- `compose.yaml` 2
+- `.gitignore` 1
