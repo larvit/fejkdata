@@ -198,18 +198,18 @@ func TestGeoDEStreetsAreInventedNamesDrawnEvenly(t *testing.T) {
 	}
 }
 
-func TestReadmeSaysGermanStreetsAreInvented(t *testing.T) {
+func TestGeoPageSaysGermanStreetsAreInvented(t *testing.T) {
 	t.Parallel()
-	b, err := os.ReadFile("../README.md")
+	b, err := os.ReadFile("../docs/locales/geo.md")
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, after, found := strings.Cut(string(b), "#### German places")
+	_, after, found := strings.Cut(string(b), "## German places")
 	if !found {
-		t.Fatal("README.md has no section \"German places\"")
+		t.Fatal("docs/locales/geo.md has no section \"German places\"")
 	}
 	section, _, _ := strings.Cut(after, "\n#")
 	if !strings.Contains(section, "invented") {
-		t.Errorf("README.md's German places section does not say the streets are invented:\n%s", section)
+		t.Errorf("docs/locales/geo.md's German places section does not say the streets are invented:\n%s", section)
 	}
 }
