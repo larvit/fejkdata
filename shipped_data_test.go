@@ -77,6 +77,7 @@ func TestIPAndVersionLiveInMiscAlone(t *testing.T) {
 	}
 	for p, want := range map[string]*regexp.Regexp{
 		"misc.ip":      regexp.MustCompile(`^((\d{1,3}\.){3}\d{1,3}|([0-9a-f]{4}:){7}[0-9a-f]{4})$`),
+		"misc.ipv6":    regexp.MustCompile(`^2001:db8(:[0-9a-f]{4}){6}$`),
 		"misc.version": regexp.MustCompile(`^v?\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$`),
 	} {
 		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, p) }, func(v string) {
@@ -85,7 +86,7 @@ func TestIPAndVersionLiveInMiscAlone(t *testing.T) {
 			}
 		})
 	}
-	for _, p := range []string{"sv_SE.ip", "en_US.ip", "sv_SE.version", "en_US.version"} {
+	for _, p := range []string{"sv_SE.ip", "en_US.ip", "sv_SE.ipv6", "en_US.ipv6", "sv_SE.version", "en_US.version"} {
 		if got, err := f.Fake(p); err == nil {
 			t.Errorf("Fake(%q) = %q, want it refused, since misc holds it", p, got)
 		}
