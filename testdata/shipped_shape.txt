@@ -25,10 +25,11 @@ da_DK.company.registered.legal
 da_DK.cpr	format "{/da_DK.sex as s}{birth}-{cpr(s.individ.digit)}"	reads da_DK.sex
 da_DK.cpr.birth	string
 da_DK.date	format "{date(1970-01-01,2029-12-31,'2.1.2006')}"
-da_DK.email	format "{local}@{domain}"	reads da_DK.first-name da_DK.last-name
+da_DK.email	format "{local}@{domain}"	reads da_DK.email da_DK.first-name da_DK.last-name
 da_DK.email.domain	string
 da_DK.email.local	string
 da_DK.email.local.n
+da_DK.email.reserved	string
 da_DK.first-name	format "{name}"	name name	weight count	parent sex
 da_DK.first-name.count	string
 da_DK.first-name.name	string
@@ -79,9 +80,10 @@ da_DK.time	format "{time('15.04')}"
 da_DK.title	format "{name}"	key name	weight share
 da_DK.title.name	string
 da_DK.title.share	string
-da_DK.url	format "https://{host}{path}"
+da_DK.url	format "https://{host}{path}"	reads da_DK.url
 da_DK.url.host	string
 da_DK.url.path	string
+da_DK.url.reserved	string
 da_DK.username
 da_DK.username.n
 da_DK.weekday	format "{name}"	key code	name name
@@ -134,10 +136,11 @@ de_DE.company.registered.legal
 de_DE.company.ug	string
 de_DE.company.ug.name
 de_DE.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-de_DE.email	format "{local}@{domain}"	reads de_DE.first-name de_DE.last-name
+de_DE.email	format "{local}@{domain}"	reads de_DE.email de_DE.first-name de_DE.last-name
 de_DE.email.domain	string
 de_DE.email.local	string
 de_DE.email.local.n
+de_DE.email.reserved	string
 de_DE.first-name	format "{name}"	name name	weight count	parent sex
 de_DE.first-name.count	string
 de_DE.first-name.name	string
@@ -187,9 +190,10 @@ de_DE.time	format "{time('15:04')}"
 de_DE.title	format "{name}"	key name	weight share
 de_DE.title.name	string
 de_DE.title.share	string
-de_DE.url	format "https://{host}{path}"
+de_DE.url	format "https://{host}{path}"	reads de_DE.url
 de_DE.url.host	string
 de_DE.url.path	string
+de_DE.url.reserved	string
 de_DE.username
 de_DE.username.n
 de_DE.weekday	format "{name}"	key code	name name
@@ -223,10 +227,11 @@ en_US.company	format "{base} {suffix}"
 en_US.company.base	string
 en_US.company.suffix	string
 en_US.date	format "{date(1970-01-01,2029-12-31,'01/02/2006')}"
-en_US.email	format "{local}@{domain}"
+en_US.email	format "{local}@{domain}"	reads en_US.email
 en_US.email.domain	string
 en_US.email.local	string
 en_US.email.local.n
+en_US.email.reserved	string
 en_US.first-name	format "{name}"	name name	weight count	parent sex
 en_US.first-name.count	string
 en_US.first-name.name	string
@@ -279,9 +284,10 @@ en_US.title	format "{name}"	name name	weight share	parent sex
 en_US.title.name	string
 en_US.title.sex	string
 en_US.title.share	string
-en_US.url	format "https://{host}{path}"
+en_US.url	format "https://{host}{path}"	reads en_US.url
 en_US.url.host	string
 en_US.url.path	string
+en_US.url.reserved	string
 en_US.username
 en_US.username.n
 en_US.weekday	format "{name}"	key code	name name
@@ -392,10 +398,11 @@ fi_FI.company.registered.legal
 fi_FI.company.tmi	string
 fi_FI.company.tmi.name
 fi_FI.date	format "{date(1970-01-01,2029-12-31,'2.1.2006')}"
-fi_FI.email	format "{local}@{domain}"	reads fi_FI.first-name fi_FI.last-name
+fi_FI.email	format "{local}@{domain}"	reads fi_FI.email fi_FI.first-name fi_FI.last-name
 fi_FI.email.domain	string
 fi_FI.email.local	string
 fi_FI.email.local.n
+fi_FI.email.reserved	string
 fi_FI.first-name	format "{name}"	name name	weight count	parent sex
 fi_FI.first-name.count	string
 fi_FI.first-name.name	string
@@ -455,9 +462,10 @@ fi_FI.time	format "{time('15.04')}"
 fi_FI.title	format "{name}"	key name	weight share
 fi_FI.title.name	string
 fi_FI.title.share	string
-fi_FI.url	format "https://{host}{path}"
+fi_FI.url	format "https://{host}{path}"	reads fi_FI.url
 fi_FI.url.host	string
 fi_FI.url.path	string
+fi_FI.url.reserved	string
 fi_FI.username
 fi_FI.username.n
 fi_FI.weekday	format "{name}"	key code	name name
@@ -501,10 +509,11 @@ fr_FR.date	format "{date(1970-01-01,2029-12-31,'02/01/2006')}"
 fr_FR.department	format "{code}"	key code	reads fr_FR.nonzero-number
 fr_FR.department.code	string
 fr_FR.department.commune	string
-fr_FR.email	format "{local}@{domain}"	reads fr_FR.first-name fr_FR.last-name
+fr_FR.email	format "{local}@{domain}"	reads fr_FR.email fr_FR.first-name fr_FR.last-name
 fr_FR.email.domain	string
 fr_FR.email.local	string
 fr_FR.email.local.n
+fr_FR.email.reserved	string
 fr_FR.first-name	format "{name}"	name name	weight count	parent sex
 fr_FR.first-name.count	string
 fr_FR.first-name.name	string
@@ -1183,10 +1192,11 @@ nb_NO.company.registered.legal
 nb_NO.company.sa	string
 nb_NO.company.sa.name
 nb_NO.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-nb_NO.email	format "{local}@{domain}"	reads nb_NO.first-name nb_NO.last-name
+nb_NO.email	format "{local}@{domain}"	reads nb_NO.email nb_NO.first-name nb_NO.last-name
 nb_NO.email.domain	string
 nb_NO.email.local	string
 nb_NO.email.local.n
+nb_NO.email.reserved	string
 nb_NO.first-name	format "{name}"	name name	weight count	parent sex
 nb_NO.first-name.count	string
 nb_NO.first-name.name	string
@@ -1239,9 +1249,10 @@ nb_NO.time	format "{time('15:04')}"
 nb_NO.title	format "{name}"	key name	weight share
 nb_NO.title.name	string
 nb_NO.title.share	string
-nb_NO.url	format "https://{host}{path}"
+nb_NO.url	format "https://{host}{path}"	reads nb_NO.url
 nb_NO.url.host	string
 nb_NO.url.path	string
+nb_NO.url.reserved	string
 nb_NO.username
 nb_NO.username.n
 nb_NO.weekday	format "{name}"	key code	name name
@@ -1281,6 +1292,7 @@ nn_NO.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
 nn_NO.email	format "{/nb_NO.email as e}{e}"	reads nb_NO.email
 nn_NO.email.domain	string
 nn_NO.email.local	string
+nn_NO.email.reserved	string
 nn_NO.fodselsnummer	format "{/nb_NO.fodselsnummer as f}{f}"	reads nb_NO.fodselsnummer
 nn_NO.month	format "{name}"	key code	name name
 nn_NO.month.code	string
@@ -1305,9 +1317,10 @@ nn_NO.time	format "{/nb_NO.time}"	reads nb_NO.time
 nn_NO.title	format "{name}"	key name	weight share
 nn_NO.title.name	string
 nn_NO.title.share	string
-nn_NO.url	format "https://{host}{path}"
+nn_NO.url	format "https://{host}{path}"	reads nn_NO.url
 nn_NO.url.host	string
 nn_NO.url.path	string
+nn_NO.url.reserved	string
 nn_NO.username
 nn_NO.username.n
 nn_NO.weekday	format "{name}"	key code	name name
@@ -1382,10 +1395,11 @@ sv_SE.company.legal	string
 sv_SE.company.registered	string
 sv_SE.company.registered.legal
 sv_SE.date	format "{date(1970-01-01,2029-12-31,'2006-01-02')}"
-sv_SE.email	format "{local}@{domain}"
+sv_SE.email	format "{local}@{domain}"	reads sv_SE.email
 sv_SE.email.domain	string
 sv_SE.email.local	string
 sv_SE.email.local.n
+sv_SE.email.reserved	string
 sv_SE.first-name	format "{name}"	name name	weight count	parent sex
 sv_SE.first-name.count	string
 sv_SE.first-name.name	string
@@ -1482,9 +1496,10 @@ sv_SE.time	format "{time('15:04')}"
 sv_SE.title	format "{name}"	key name	weight share
 sv_SE.title.name	string
 sv_SE.title.share	string
-sv_SE.url	format "https://{host}{path}"
+sv_SE.url	format "https://{host}{path}"	reads sv_SE.url
 sv_SE.url.host	string
 sv_SE.url.path	string
+sv_SE.url.reserved	string
 sv_SE.username
 sv_SE.username.n
 sv_SE.vat	format "{.organisationsnummer.vat}"	reads sv_SE.organisationsnummer
