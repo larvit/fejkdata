@@ -147,12 +147,12 @@ var shippedLocales = []shippedLocale{
 		testedElsewhere: []string{"color", "company", "email", "person", "phone", "price", "sex", "time", "title", "url", "username"},
 	},
 	{
-		name:   "et_EE",
+		name:     "et_EE",
 		months:   []string{"jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"},
 		weekdays: []string{"esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede", "laupäev", "pühapäev"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|ee)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Sinine", "Roheline", "Punane"}},
-		names:  &names{map[string]string{"Liis": "f", "Kristiina": "f", "Andres": "m", "Toomas": "m"}, nil},
-		person: &person{map[string]string{"f": "naine", "m": "mees"}, []string{"dr", "prof"}},
+		names:    &names{map[string]string{"Liis": "f", "Kristiina": "f", "Andres": "m", "Toomas": "m"}, nil},
+		person:   &person{map[string]string{"f": "naine", "m": "mees"}, []string{"dr", "prof"}},
 		// The e-Business Register's basic data of 19 November 2026, the businesses entered into the register
 		// by ettevotja_oiguslik_vorm: Füüsilisest isikust ettevõtja, Osaühing, Usaldusühing, Aktsiaselts and Täisühing.
 		company: &company{regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]$`), legalForm{"FIE", "fie", "", 24541}, []legalForm{
@@ -179,12 +179,12 @@ var shippedLocales = []shippedLocale{
 		phone:      &phone{"+358", "0", finnishFixedPhone, trunkAreaTables},
 	},
 	{
-		name:   "fr_FR",
+		name:     "fr_FR",
 		months:   []string{"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"},
 		weekdays: []string{"lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|fr)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Bleu", "Vert", "Rouge"}},
-		names:  &names{map[string]string{"Nathalie": "f", "Isabelle": "f", "Jean": "m", "Michel": "m"}, []string{"Camille", "Dominique"}},
-		person: &person{map[string]string{"f": "femme", "m": "homme"}, []string{"Dr", "Pr"}},
+		names:    &names{map[string]string{"Nathalie": "f", "Isabelle": "f", "Jean": "m", "Michel": "m"}, []string{"Camille", "Dominique"}},
+		person:   &person{map[string]string{"f": "femme", "m": "homme"}, []string{"Dr", "Pr"}},
 		// INSEE's Sirene StockUniteLegale of 1 November 2026, the active units by catégorie juridique: 1000, 5499,
 		// 5710, 5202, and 5599 with 5699.
 		company: &company{regexp.MustCompile(`^\p{L}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (SARL|SAS|SNC|SA))?$`), legalForm{"EI", "ei", "", 7845810}, []legalForm{
@@ -196,21 +196,21 @@ var shippedLocales = []shippedLocale{
 		phone: &phone{"+33", "0", frenchFixedPhone, trunkAreaTables},
 	},
 	{
-		name:   "lt_LT",
+		name:     "lt_LT",
 		months:   []string{"sausis", "vasaris", "kovas", "balandis", "gegužė", "birželis", "liepa", "rugpjūtis", "rugsėjis", "spalis", "lapkritis", "gruodis"},
 		weekdays: []string{"pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis", "sekmadienis"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|lt)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Mėlyna", "Žalia", "Raudona"}},
-		names:  &names{map[string]string{"Ona": "f", "Danutė": "f", "Jonas": "m", "Kęstutis": "m"}, nil},
-		person: &person{map[string]string{"f": "moteris", "m": "vyras"}, []string{"dr.", "prof."}},
-		phone:  &phone{"+370", "0 ", lithuanianFixedPhone, trunkAreaTables},
+		names:    &names{map[string]string{"Ona": "f", "Danutė": "f", "Jonas": "m", "Kęstutis": "m"}, nil},
+		person:   &person{map[string]string{"f": "moteris", "m": "vyras"}, []string{"dr.", "prof."}},
+		phone:    &phone{"+370", "0 ", lithuanianFixedPhone, trunkAreaTables},
 	},
 	{
-		name:   "lv_LV",
+		name:     "lv_LV",
 		months:   []string{"janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs", "jūlijs", "augusts", "septembris", "oktobris", "novembris", "decembris"},
 		weekdays: []string{"Pirmdiena", "Otrdiena", "Trešdiena", "Ceturtdiena", "Piektdiena", "Sestdiena", "Svētdiena"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|lv)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Zila", "Zaļa", "Sarkana"}},
-		names:  &names{map[string]string{"Anna": "f", "Līga": "f", "Jānis": "m", "Mārtiņš": "m"}, nil},
-		person: &person{map[string]string{"f": "sieviete", "m": "vīrietis"}, []string{"Dr.", "prof."}},
+		names:    &names{map[string]string{"Anna": "f", "Līga": "f", "Jānis": "m", "Mārtiņš": "m"}, nil},
+		person:   &person{map[string]string{"f": "sieviete", "m": "vīrietis"}, []string{"Dr.", "prof."}},
 		// The Register of Enterprises' open data of 19 November 2026, the merchants of the Commercial Register
 		// with no termination date, by type: SIA, IK, AS, PS and KS. Most names quote the rest after the form, as `SIA "Alfa"`.
 		company: &company{regexp.MustCompile(`^["\p{Lu}][\p{L}\p{N} &'".-]*[\p{L}\p{N}"]$`), legalForm{}, []legalForm{
