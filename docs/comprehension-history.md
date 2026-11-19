@@ -2355,3 +2355,24 @@ Inherited architect, decided by:
 - Shape: `internal/engine/load/path.go:178` `Paths`: the public call has no flag to decode at each call site, and the internal flag says what it means
 - Shape: `data/misc/ipv6.json:3` `let`: helper fields no longer sit beside the fields callers use, and the listing agrees
 - Shape: `data-import/recalled_names.py:8` `split`: one shared check instead of copies in each importer
+
+## 2026-11-19T16:33:39Z, PR #439 at f0c2a1e9, against f15385e0
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | better | better | better |
+| Inherited architect | same | same | better | same | better |
+
+Mid A, decided by:
+
+- Shape: `internal/engine/load/path.go:178` `Paths`: the exported call takes no bare flag, so callers no longer pass a `false` to decode
+- Self-sufficiency: `data/misc/ipv6.json:3` `let`: the data file shows which fields are output and which are internal
+- Shape: `data-import/recalled_names.py:8` `split`: the recalled-name checks live in one function for three importers
+- Self-sufficiency: `internal/builtinfunc/isikukood.go:11` `isikukoodWeights`: the check-digit rule and its source sit beside the code
+
+Inherited architect, decided by:
+
+- Shape, Overall: `internal/engine/load/path.go:178` `Paths`: the public call has no flag to decode, and the private flag is named for what it covers
+- Shape, Overall: `data-import/recalled_names.py:8` `split`: one shared check instead of copies in each importer
