@@ -27,7 +27,6 @@
 | 502 | 0.7.0 |  |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 507 | 0.7.0 |  |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 512 | 0.7.0 |  |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
-| 501 | 0.7.0 |  |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 3 | 2 | 2 | 5 | 6 | 1 by 1, 2.1 by 3 | 0.4 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
@@ -410,18 +409,6 @@ Touches:
 - `data-import/`
 - `README.md`: `` ### `geo` ``
 - `DATA-LICENSES.md`
-
-### 501. Add `et_EE.company`, `et_EE.email` and `et_EE.date`.
-
-Estonia's e-Business Register publishes an open bulk file of every business's name and legal form (`ettevotja_rekvisiidid__lihtandmed.csv.zip` on avaandmed.ariregister.rik.ee; its terms link CC BY 4.0's legal code and state no attribution wording), so AGENTS.md's first principle doesn't apply: weigh the legal forms and draw the names from the register, as `fr_FR.company` does from Sirene, with a `data-import/company-ee.py` and its test on `company_names.py`. Draw `OÜ`, `AS`, `UÜ`, `TÜ` and `FIE` (named by its person); leave out the non-profits, flat associations and public bodies.
-
-Touches:
-
-- `data/et_EE/`
-- `data-import/`
-- `README.md`: `### Locale categories` (small)
-- `DATA-LICENSES.md`
-- `CHANGELOG.md`
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
