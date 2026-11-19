@@ -2296,3 +2296,20 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `data-import/names-dk.py` 1
 - `data/da_DK/first-name.tsv` 1
+
+## Reading cost, chunk a00d832d9718, finished 2026-11-19T16:46:46Z
+
+102544 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/sex-population.py` 3
+- `docs/decisions.md` 3
+- `README.md` 2
+- `data-import/names-ee.py` 2
+- `data-import/names-fi.py` 2
+- `data-import/source.py` 2
+- `data-import/tsv.py` 2
+- `data_test.go` 2
+- `shipped_test.go` 2
+- `.gitignore` 1
