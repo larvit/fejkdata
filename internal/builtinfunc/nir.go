@@ -26,16 +26,17 @@ func nirPrep([]string, parsed) Call {
 
 // alnumTail is the last n ASCII letters and digits of s, fewer where s holds fewer.
 func alnumTail(s string, n int) string {
-	tail := make([]byte, 0, n)
-	for i := len(s) - 1; i >= 0 && len(tail) < n; i-- {
-		if c := s[i]; c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' {
-			tail = append(tail, c)
+	var kept []byte
+	for i := range len(s) {
+		if isAlnum(s[i]) {
+			kept = append(kept, s[i])
 		}
 	}
-	for l, r := 0, len(tail)-1; l < r; l, r = l+1, r-1 {
-		tail[l], tail[r] = tail[r], tail[l]
-	}
-	return string(tail)
+	return string(kept[max(0, len(kept)-n):])
+}
+
+func isAlnum(c byte) bool {
+	return c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'
 }
 
 // nirNumber reads the thirteen characters of a NIR as a number. Only its department, the sixth
