@@ -14,7 +14,6 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 527 | 0.7.0 |  |  | **Move the name-shape code that `company-ee.py` and `company-lv.py` copy into `company_names.py`.** | 2 | 1 | 1 | 2 | 3 | code health by 4 | 8.2 |
 | 526 | 0.7.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 3 | 6.1 |
-| 506 | 0.7.0 |  |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 511 | 0.7.0 |  |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 513 | 0.7.0 |  |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 514 | 0.7.0 |  |  | **Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
@@ -254,16 +253,6 @@ Touches:
 - `DATA-LICENSES.md`
 - `data/locales_test.go`: `shippedLocale`
 - `readme_test.go`: `readme` (small), `TestReadmeExamplesLoadAndRender` (small)
-
-### 506. Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.
-
-Check first whether Latvia's business register publishes an open bulk file of every business's name and legal form, as Estonia's e-Business Register does. Where it does, weigh the legal forms and draw the names from it, as `et_EE.company` does. Where it doesn't, draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
-
-Touches:
-
-- `data/lv_LV/`
-- `README.md`: `### Locale categories` (small)
-- `DATA-LICENSES.md`
 
 ### 511. Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.
 
