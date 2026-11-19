@@ -715,7 +715,7 @@ func TestReadmeLetAndNameReadExamplesOutput(t *testing.T) {
 		seed                 uint64
 		csv                  bool
 	}{
-		{"`let` is an option holding fields that write no column", "ride", "fejkdata --seed 2 --format csv --repeat 3 < ride.json", 2, true},
+		{"`hidden` is an option holding fields that write no column", "ride", "fejkdata --seed 2 --format csv --repeat 3 < ride.json", 2, true},
 		{"`sched.json` shows it", "sched", "fejkdata --seed 1 --format ndjson --repeat 3 < sched.json", 1, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {
