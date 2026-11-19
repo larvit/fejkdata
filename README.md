@@ -337,7 +337,8 @@ Columns are written in name order, whatever order the fields appear in. A catego
 whose fields are the parts of one value — `misc.uuid` — projects those parts rather than
 the value, so for one column holding what `Fake` renders, write
 `{"format":"","uuid":"{/misc.uuid}"}` as a fieldless category asks for. A category whose
-every field is in [`let`](#let), such as `sv_SE.price`, has no column and fails the same way.
+every field is in [`let`](#let), such as `sv_SE.price`, has no column and fails with `ErrNoColumns`,
+which names the same one-column record to write instead.
 
 A field only other fields read goes under [`let`](#let) and writes no column.
 
@@ -1766,9 +1767,9 @@ datatypes. A read through a name keeps the null too ([Datatype](#datatype)).
 
 ### Let
 
-`let` is an option holding fields that write no column and that `--list` and the data's index
-leave out. They are drawn and read as any field is, by their path too, so a field only other
-fields read goes there. Save `ride.json`:
+`let` is an option holding fields that write no column. `--list` and the `.fejkdata.json` index
+leave them out, at any depth and with every path below them, but a `{/path}` to one still draws
+it, so a field only other fields read goes there. Save `ride.json`:
 
 ```json
 {
@@ -1790,8 +1791,6 @@ run Tue,every Tue
 
 A field is in `let` or beside it, never both, and an option name can't be a field in
 `let`. A record holding every field in `let` has no column and fails with `ErrNoColumns`.
-A field in `let` at any depth is left out of `--list`, with every path below it, and a
-`{/path}` through it still draws it.
 
 ### Table
 
