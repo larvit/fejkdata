@@ -427,6 +427,29 @@ fi_FI.word.adv	string
 fi_FI.word.any	string
 fi_FI.word.noun	string
 fi_FI.word.verb	string
+fr_FR.first-name	format "{name}"	name name	weight count	parent sex
+fr_FR.first-name.count	string
+fr_FR.first-name.name	string
+fr_FR.first-name.sex	string
+fr_FR.last-name	format "{name}"	key name	weight count
+fr_FR.last-name.count	string
+fr_FR.last-name.name	string
+fr_FR.person	format "{prefix}{first} {last}"	reads fr_FR.first-name fr_FR.last-name fr_FR.title
+fr_FR.person.first	string
+fr_FR.person.last	string
+fr_FR.person.prefix	string null
+fr_FR.person.sex	string
+fr_FR.sex	format "{name}"	key code	name name	weight count
+fr_FR.sex.code	string
+fr_FR.sex.count	string
+fr_FR.sex.first-name
+fr_FR.sex.first-name.count
+fr_FR.sex.first-name.name
+fr_FR.sex.first-name.sex
+fr_FR.sex.name	string
+fr_FR.title	format "{name}"	key name	weight share
+fr_FR.title.name	string
+fr_FR.title.share	string
 geo.DE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DE.locality geo.DE.street
 geo.DE.address.locality	string
 geo.DE.address.municipality	string
