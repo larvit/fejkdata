@@ -115,10 +115,7 @@ def firsts(cache: str) -> list[dict[str, object]]:
 
 def lasts() -> list[dict[str, object]]:
     """The rows (name, count) of the recalled last names."""
-    ordered, rarer = recalled_names.split("last names", LAST_RECALLED)
-    rows = [(name, round(700000 / rank ** 0.5)) for rank, name in enumerate(ordered, start=1)]
-    rows += [(name, round(700000 / len(ordered) ** 0.5)) for name in rarer]
-    return [{"name": name, "count": n} for name, n in sorted(rows)]
+    return [{"name": name, "count": n} for name, n in sorted(recalled_names.weighted("last names", LAST_RECALLED, 700000))]
 
 
 def main() -> None:

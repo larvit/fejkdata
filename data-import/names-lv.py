@@ -1,6 +1,6 @@
 """Rebuild data/lv_LV/first-name.tsv and last-name.tsv: the first names from PMLP's register statistics, the last names from a language model's recall.
 
-    data-import/names-lv.py [--vardi URL_OR_FILE] [--first N] [--cache DIR] [--out DIR]
+    data-import/names-lv.py [--cache DIR] [--first N] [--out DIR] [--vardi URL_OR_FILE]
 
 - The first names are PMLP's "Personu vārdi" with the sex of the bearers (CC0 1.0, "Avots: Pilsonības un migrācijas lietu pārvalde",
   data.gov.lv), the file `Vardi-dz`: each person counts once, under the first of their given names. A person of no stated sex, and a
@@ -57,9 +57,8 @@ def firsts(text: str, top: int) -> list[dict[str, object]]:
         words = row["Vardi"].split()
         if words and row["Dzimums"] in SEXES and tsv.NAME.match(words[0]):
             counts[(words[0].title(), SEXES[row["Dzimums"]])] += int(row["Skaits"])
-    rows = [{"name": name, "sex": sex, "count": n} for (name, sex), n in counts.items()]
-    kept = [r for sex in SEXES.values() for r in sorted((r for r in rows if r["sex"] == sex), key=lambda r: (-int(str(r["count"])), str(r["name"])))[:top]]
-    return sorted(kept, key=lambda r: (str(r["name"]), str(r["sex"])))
+    kept = [(name, sex, n) for sex in SEXES.values() for (name, n) in sorted(((name, n) for (name, s), n in counts.items() if s == sex), key=lambda r: (-r[1], r[0]))[:top]]
+    return [{"name": name, "sex": sex, "count": n} for name, sex, n in sorted(kept, key=lambda r: (r[0], r[1]))]
 
 
 def feminine(name: str) -> str:
