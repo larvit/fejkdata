@@ -912,7 +912,10 @@ misc.ip.private	string
 misc.ip.wide4	string
 misc.ip.wide4.o
 misc.ip.wide6	string
-misc.ipv6	format "2001:db8:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}"
+misc.ipv6	format "2001:db8:{g}:{g}:{g}:{g}:{g}:{g}"
+misc.ipv6.g	string
+misc.ipv6.g.n
+misc.ipv6.g.t
 misc.language	format "{name}"	key code	name name
 misc.language.code	string
 misc.language.code3	string
