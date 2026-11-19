@@ -93,7 +93,7 @@ def names_only(text: str, vulnerabilities: set[str]) -> bool:
 
 
 def fixed_lines(fixed: list[tuple[str, str]]) -> list[str]:
-	"""A line for each item the filer dropped as fixed: what carried the vulnerabilities, a Go or a module, and their names."""
+	"""A line for each item the filer dropped as fixed, given what carried its vulnerabilities, Go or a module, and their names."""
 	return [
 		f"The binaries no longer carry {carried}'s known vulnerabilities: {named}."
 		if carried.startswith("Go ")
