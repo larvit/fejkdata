@@ -87,6 +87,9 @@ func (t *Table[O]) Len() int { return len(t.cells) / len(t.header) }
 
 func (t *Table[O]) Cell(row, col int) string { return t.cells[row*len(t.header)+col] }
 
+// Line is row's line in the rows file, counting the header as line 1.
+func (t *Table[O]) Line(row int) int { return row + 2 }
+
 // Weight is row's weight in a draw over the whole table: 1 for each row where the table names no weight column.
 func (t *Table[O]) Weight(row int) float64 {
 	if t.weights == nil {
@@ -227,7 +230,7 @@ func (t *Table[O]) proveNamesInsideParent() error {
 	for r := 0; r < t.Len(); r++ {
 		k := t.Cell(r, t.parentIndex) + "\t" + t.Cell(r, t.nameIndex)
 		if first, dup := inside[k]; dup {
-			return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent; drop one, or add a key column", t.file, r+2, t.Cell(r, t.nameIndex), first+2, t.header[t.parentIndex], t.Cell(r, t.parentIndex))
+			return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent; drop one, or add a key column", t.file, t.Line(r), t.Cell(r, t.nameIndex), t.Line(first), t.header[t.parentIndex], t.Cell(r, t.parentIndex))
 		}
 		inside[k] = r
 	}
@@ -243,10 +246,10 @@ func (t *Table[O]) proveKeys() error {
 	for r := 0; r < t.Len(); r++ {
 		k := t.Cell(r, t.keyIndex)
 		if k == "" {
-			return fmt.Errorf("%s line %d: the key is empty", t.file, r+2)
+			return fmt.Errorf("%s line %d: the key is empty", t.file, t.Line(r))
 		}
 		if first, dup := t.byKey[k]; dup {
-			return fmt.Errorf("%s line %d: key %q repeats line %d; a key selects one row", t.file, r+2, k, first+2)
+			return fmt.Errorf("%s line %d: key %q repeats line %d; a key selects one row", t.file, t.Line(r), k, t.Line(first))
 		}
 		t.byKey[k] = r
 	}
@@ -259,7 +262,7 @@ func (t *Table[O]) proveNamesAreNotKeys() error {
 	for r := 0; r < t.Len() && t.nameIndex >= 0; r++ {
 		if n := t.Cell(r, t.nameIndex); t.byKey[n] != r {
 			if other, isKey := t.byKey[n]; isKey {
-				return fmt.Errorf("%s line %d: name %q is the key of line %d, which a selector reads first, so the name could never select this row", t.file, r+2, n, other+2)
+				return fmt.Errorf("%s line %d: name %q is the key of line %d, which a selector reads first, so the name could never select this row", t.file, t.Line(r), n, t.Line(other))
 			}
 		}
 	}
@@ -296,10 +299,10 @@ func (t *Table[O]) parseWeight(r int) (float64, error) {
 	cell := t.Cell(r, t.weightIndex)
 	w, err := strconv.ParseFloat(cell, 64)
 	if err != nil || math.IsInf(w, 0) || math.IsNaN(w) || w < 0 {
-		return 0, fmt.Errorf("%s line %d: weight %q is not a number of 0 or more", t.file, r+2, cell)
+		return 0, fmt.Errorf("%s line %d: weight %q is not a number of 0 or more", t.file, t.Line(r), cell)
 	}
 	if grammar.Underflows(cell, w) {
-		return 0, fmt.Errorf("%s line %d: weight %s is too close to 0 to tell from it", t.file, r+2, cell)
+		return 0, fmt.Errorf("%s line %d: weight %s is too close to 0 to tell from it", t.file, t.Line(r), cell)
 	}
 	return w, nil
 }
@@ -339,7 +342,7 @@ func (t *Table[O]) checkSelectorCells() error {
 				continue
 			}
 			if c := grammar.UnspellableInSelector(t.Cell(r, col)); c != "" {
-				return fmt.Errorf("line %d: %s %q contains %q, which a selector cannot spell", r+2, t.header[col], t.Cell(r, col), c)
+				return fmt.Errorf("line %d: %s %q contains %q, which a selector cannot spell", t.Line(r), t.header[col], t.Cell(r, col), c)
 			}
 		}
 	}
@@ -362,13 +365,13 @@ func (t *Table[O]) Link(p *Table[O], sibling func(name string) *Table[O]) error 
 	for _, run := range t.parentRuns {
 		k := t.runKey(run)
 		if _, ok := p.byKey[k]; !ok {
-			return fmt.Errorf("%s line %d: %s %q is no key of %s", t.file, run.from+2, name, k, p.file)
+			return fmt.Errorf("%s line %d: %s %q is no key of %s", t.file, t.Line(run.from), name, k, p.file)
 		}
 		linked[k] = true
 	}
 	for r := 0; r < p.Len(); r++ {
 		if k := p.Cell(r, p.keyIndex); !linked[k] {
-			return fmt.Errorf("%s links no row to %s %q; every %s row needs one, or drop line %d of %s", t.file, name, k, name, r+2, p.file)
+			return fmt.Errorf("%s links no row to %s %q; every %s row needs one, or drop line %d of %s", t.file, name, k, name, t.Line(r), p.file)
 		}
 	}
 	t.parent = p
@@ -574,5 +577,5 @@ func (t *Table[O]) selectorSpelling(r int) string {
 	case t.nameIndex >= 0:
 		return t.parent.selectorSpelling(t.parentRow(r)) + "." + t.segment + "[" + t.Cell(r, t.nameIndex) + "]"
 	}
-	return fmt.Sprintf("%s line %d", t.file, r+2)
+	return fmt.Sprintf("%s line %d", t.file, t.Line(r))
 }
