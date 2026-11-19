@@ -73,9 +73,13 @@ func TestShippedLithuanianFixedTableHoldsExactlyTheAllocatedAreas(t *testing.T) 
 	for _, a := range lithuanianAreas {
 		want["0"+a.code] = a.name
 	}
+	leads := map[string]string{"05": "2{int(0,7)}", "045": "{int(4,5)}", "046": "{int(2,4)}"}
 	got := map[string]string{}
 	for _, row := range fejktest.TSVRows(t, "lt_LT/phone-fixed.tsv") {
 		got[row["area"]] = row["name"]
+		if lead := leads[row["area"]]; !strings.HasPrefix(row["subscriber"], lead+"{digits(") {
+			t.Errorf("phone-fixed[%s] subscriber is %q, want it to open with %q", row["area"], row["subscriber"], lead)
+		}
 	}
 	if len(got) != len(want) {
 		t.Errorf("phone-fixed holds %d areas, want the plan's %d", len(got), len(want))
