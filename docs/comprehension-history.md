@@ -2207,3 +2207,83 @@ Inherited architect, decided by:
 - Locality: `data-import/wordtables.py:15` `Candidate`: an empty form means both no form and a dropped word, which works only because `spelled("")` is false, a contract nobody states
 - Locality: `data-import/word-us.py:70` `main`: the shared `lower` admits non-ASCII lower-case letters where the base kept `[a-z]+` and the en_US test pins ASCII
 - Shape: `data/locales_test.go:106` `shippedLocales`: the `everyday`, `company` and `legalForm` literals are positional, so which regexp is which needs the type open
+
+## 2026-11-19T10:09:20Z, PR #428 at 38e2495, against f90b4d6
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | better | better |
+| Inherited architect | better | better | better | better | better |
+
+Mid A, decided by:
+
+- Locality, Self-sufficiency: `internal/engine/tree/loadfinds.go:12` `LoadFinds`: a load writes what it finds into one side table that `Finish` copies into the nodes once, and an early read panics naming the phase, where f90b4d6's `template` trusted "Filled by" comments
+- Navigation, Shape: `internal/engine/load/doc.go:1` `package load`: the doc lists the five stages in order with the file for each, where f90b4d6 held about 25 unexported files in the flat root package
+- Navigation, Shape: `cli/flags.go:119` `parseArgs`: each concern of f90b4d6's 706-line `cli/cli.go` has a file named for it
+- Navigation: `internal/engine/fence/names/rules.go:37` `nameRules`: each name-read refusal sits in a file named after its rule
+- Shape: `internal/engine/tree/alphabetdraw.go:11` `AlphabetDraw`: a cost, outweighed: one feature spans same-named files in `tree`, `load` and `render`, with a getter per field
+
+Inherited architect, decided by:
+
+- Locality, Self-sufficiency: `internal/engine/tree/loadfinds.go:122` `LoadFinds.Finish`: a stage reads another's results only through its `LoadFinds`, and a node read before `Finish` panics naming the phase
+- Locality, Navigation: `internal/engine/load/resolve.go:77` `CompileTemplates`: five numbered stages that only find things, with the refusals in `fence.Check`, where f90b4d6's `resolveTemplates` mixed resolving, compiling and checks
+- Navigation, Self-sufficiency: `internal/engine/load/doc.go:1` `package load`: names each pass, its file and the order the pipeline calls them in
+- Navigation, Shape: `cli/cli.go:1` `package cli`: 249 lines where f90b4d6's held 706, each concern in a file named for it
+- Shape: `internal/engine/tree/where.go:6` `ValueDraw`: a cost: a spec struct plus ten one-line getters, and one feature spans four or five packages
+- Shape, Self-sufficiency: `internal/engine/doc.go:15` Vocabulary: defines "read" and names `tree.Read`, where f90b4d6 used `arm.head` undefined
+
+## 2026-11-19T10:09:20Z, PR #428 at 38e2495, against 5aca8a1
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | better | better |
+| Inherited architect | better | better | better | better | better |
+
+Mid A, decided by:
+
+- Navigation, Shape: `internal/engine/load/doc.go:1` `package load`: the engine is split into `tree`, `load`, `fence` and `render`, and the doc lists the passes in order with the file for each, where 5aca8a1 held about 24 files in the root package
+- Locality: `internal/engine/tree/loadfinds.go:12` `LoadFinds`: each stage records what it found in one per-load object that `Finish` writes into the nodes once, and a panic names the phase rule
+- Locality: `internal/engine/tree/renderedge.go:13` `RenderedItem`: the renderer and the fences' edge list take a node's children from the same methods, where 5aca8a1 kept them in step by a comment
+- Shape, Self-sufficiency: `internal/engine/fence/names/rules.go:58` `nameRules`: five named rules, one small file each, in a stated order
+- Self-sufficiency: `internal/engine/fence/fence.go:31` `Check`: its doc says why the fences run in this order
+- Shape: `internal/engine/tree/node.go:85` `Template`: a cost, outweighed: a long run of one-line getters and `Spec` constructors
+
+Inherited architect, decided by:
+
+- Navigation, Shape: `internal/engine/load/doc.go:1` `package load`: a symptom points to one package and then one file, where 5aca8a1's `table.go` alone mixed compile, link, route and draw
+- Locality: `internal/engine/tree/loadfinds.go:52` `LoadFinds.Of`: a load writes into a side record and a read before `Finish` panics naming the phase; a stage must still know to read through `l.Of(t)`
+- Locality, Self-sufficiency: `internal/engine/fence/fence.go:32` `Check`: the order of the load-time checks, and why, is written where they run
+- Shape, Self-sufficiency: `internal/engine/fence/names/rules.go:54` `nameRules`: the five refusal rules are a named list, one file per rule
+- Navigation, Shape: `cli/cli.go:1` `package cli`: 5aca8a1's 706-line file is split into files named for what they hold
+- Shape: `internal/engine/tree/node.go:87` `Template.Columns`: a cost, outweighed: a getter per field, and one feature spans up to four files of the same name
+
+## 2026-11-19T10:12:18Z, PR #428 at 38e2495, against 234e035
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | same | better | better |
+| Inherited architect | better | better | same | better | better |
+
+Mid A, decided by:
+
+- Locality, Navigation: `release-tooling/patch_release.py:238` `plan`: a plain call of `file_vulnerabilities.plan` that returns typed pairs, where 234e035 ran the filer by path as a subprocess and read its exit code and stdout
+- Locality: `release-tooling/file_vulnerabilities.py:169` `resolve`: returns what carried the vulnerabilities and their names and leaves the changelog wording to `changelog.py`, and `ROW` matches only inside the item table
+- Locality, Self-sufficiency: `cli/records.go:183` `defaultTable`: calls the public `fejkdata.PathName`, where 234e035 kept a bracket-depth scanner of its own
+- Locality: `internal/builtinfunc/builtinfunc.go:31` `builtin.checkArgs`: a check returns the numbers it parsed, though `p.ints[0]` and `p.floats[1]` say less by position and `tickPrep`, `datePrep` and `calcPrep` still parse again
+- Self-sufficiency: `internal/rows/rows.go:91` `Table.Line`: names the header offset once, where 234e035 repeated a bare `r+2`
+- Navigation: `release-tooling/file_vulnerabilities.py:1` the filer: sits beside `patch_release.py`, its only caller
+
+Inherited architect, decided by:
+
+- Locality, Navigation: `release-tooling/patch_release.py:235` `plan`: one call graph in one folder, where 234e035 held two programs and a text protocol between them
+- Navigation, Locality: `.github/workflows/test.yml:117` `release`: one job runs report, check, publish, patch and plan in order, where 234e035's three jobs passed the report as an artifact and `plan` carried a long compound `if`
+- Locality, Self-sufficiency: `release-tooling/file_vulnerabilities.py:1` module docstring and `item_rows`: says what the file knows of `todo.md`'s layout, and `retarget` and `release_for` search only the table's rows
+- Locality, Self-sufficiency: `cli/records.go:183` `defaultTable`: calls `fejkdata.PathName`, where 234e035 held a second copy of the path grammar
+- Self-sufficiency: `internal/rows/rows.go:91` `Line`: one documented function replaces about ten bare `r+2`
+- Self-sufficiency: `internal/builtinfunc/builtins.go:65` `float`: a cost: which index of `p.ints` and `p.floats` is which lives only in `floatArgs`, and the parse-once rule is only partly applied
