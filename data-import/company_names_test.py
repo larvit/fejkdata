@@ -142,7 +142,7 @@ class Counting(unittest.TestCase):
         self.assertEqual(bare(FORMS, names), [("UAB", "Alfa Statyba"), ("AB", "Beta")])
 
 
-SHAPES = {"UAB": {("X",): 200, ("T", "X"): 1}, "MB": {("FS",): 10}, "AB": {("X",): 1}}
+SHAPES: dict[str, dict[tuple[str, ...], int]] = {"UAB": {("X",): 200, ("T", "X"): 1}, "MB": {("FS",): 10}, "AB": {("X",): 1}}
 PLACES = {
     "UAB": Counter({("before", True): 6, ("before", False): 4, ("after", False): 3, ("after", True): 1}),
     "MB": Counter({("before", False): 2}),
