@@ -2,17 +2,32 @@ package data_test
 
 import (
 	"regexp"
-	"sort"
 	"strings"
 	"testing"
 
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
-// The areas of the fixed-line table of the Lithuanian numbering plan that the Communications Regulatory
-// Authority (RRT) adopted on 1 September 2023 and published through the ITU on 6 March 2025, each with the
-// digits that start every number in it, the area code and any digits the plan fixes after it.
-var lithuanianFixedAreas = []string{
+// The numbers of the fixed-line table of the Lithuanian numbering plan that the Communications Regulatory
+// Authority (RRT) adopted on 1 September 2023 and the ITU published on 6 March 2025: the area codes the
+// table doesn't mark "Reserved", each with its city or district.
+var lithuanianAreas = []struct{ code, name string }{
+	{"5", "Vilnius"}, {"37", "Kaunas"}, {"41", "Šiauliai"}, {"45", "Panevėžys"}, {"46", "Klaipėda"},
+	{"310", "Varėna"}, {"313", "Druskininkai"}, {"315", "Alytus"}, {"318", "Lazdijai"},
+	{"319", "Prienai and Birštonas"}, {"340", "Ukmergė"}, {"342", "Vilkaviškis"}, {"343", "Marijampolė"},
+	{"345", "Šakiai"}, {"346", "Kaišiadorys"}, {"347", "Kėdainiai"}, {"349", "Jonava"},
+	{"380", "Šalčininkai"}, {"381", "Anykščiai"}, {"382", "Širvintos"}, {"383", "Molėtai"},
+	{"385", "Zarasai"}, {"386", "Ignalina and Visaginas"}, {"387", "Švenčionys"}, {"389", "Utena"},
+	{"421", "Pakruojis"}, {"422", "Radviliškis"}, {"425", "Akmenė"}, {"426", "Joniškis"},
+	{"427", "Kelmė"}, {"428", "Raseiniai"}, {"440", "Skuodas"}, {"441", "Šilutė"}, {"443", "Mažeikiai"},
+	{"444", "Telšiai"}, {"445", "Kretinga"}, {"446", "Tauragė"}, {"447", "Jurbarkas"}, {"448", "Plungė"},
+	{"449", "Šilalė"}, {"450", "Biržai"}, {"451", "Pasvalys"}, {"458", "Rokiškis"}, {"459", "Kupiškis"},
+	{"460", "Palanga"}, {"469", "Neringa"}, {"528", "Trakai"},
+}
+
+// The digits that open every fixed number: an area code, and where the table fixes them, the first digits
+// of its subscriber numbers.
+var lithuanianFixedPrefixes = []string{
 	"310", "313", "315", "318", "319", "340", "342", "343", "345", "346", "347", "349",
 	"37", "380", "381", "382", "383", "385", "386", "387", "389",
 	"41", "421", "422", "425", "426", "427", "428",
@@ -21,6 +36,9 @@ var lithuanianFixedAreas = []string{
 	"520", "521", "522", "523", "524", "525", "526", "527", "528",
 }
 
+// A national number is the trunk 0, then the area code and the subscriber number: Vilnius's 5 and 7 digits
+// grouped 3 and 4, a two-digit code and 6 digits grouped 2 and 4, a three-digit code and 5 digits, and
+// the mobile 6 with 7 digits grouped 3 and 5 whole.
 var lithuanianNational = regexp.MustCompile(`^0 (5 \d{3} \d{4}|(37|41|45|46) \d{2} \d{4}|\d{3} \d{5})$`)
 
 func lithuanianFixedPhone(*testing.T) func(n string) bool {
@@ -41,27 +59,37 @@ func TestShippedLithuanianFixedPhoneLiesInAnAreaThePlanAllocates(t *testing.T) {
 		if digits[0] == '6' {
 			return
 		}
-		for _, area := range lithuanianFixedAreas {
-			if strings.HasPrefix(digits, area) && len(digits) == 8 {
+		for _, prefix := range lithuanianFixedPrefixes {
+			if strings.HasPrefix(digits, prefix) && len(digits) == 8 {
 				return
 			}
 		}
-		t.Fatalf("phone %q starts in no area the plan allocates", n)
+		t.Fatalf("phone %q doesn't start in any area the plan allocates", n)
 	})
 }
 
-func TestShippedLithuanianPhoneTableHoldsExactlyTheAllocatedAreas(t *testing.T) {
-	var got []string
-	for _, row := range fejktest.TSVRows(t, "lt_LT/phone-fixed.tsv") {
-		if row["name"] == "" {
-			t.Errorf("area %q has no name", row["area"])
-		}
-		got = append(got, row["area"])
+func TestShippedLithuanianFixedTableHoldsExactlyTheAllocatedAreas(t *testing.T) {
+	want := map[string]string{}
+	for _, a := range lithuanianAreas {
+		want["0"+a.code] = a.name
 	}
-	sort.Strings(got)
-	want := append([]string{}, lithuanianFixedAreas...)
-	sort.Strings(want)
-	if strings.Join(got, ",") != strings.Join(want, ",") {
-		t.Errorf("phone-fixed holds %q, want the plan's %q", got, want)
+	got := map[string]string{}
+	for _, row := range fejktest.TSVRows(t, "lt_LT/phone-fixed.tsv") {
+		got[row["area"]] = row["name"]
+	}
+	if len(got) != len(want) {
+		t.Errorf("phone-fixed holds %d areas, want the plan's %d", len(got), len(want))
+	}
+	for area, name := range want {
+		if got[area] != name {
+			t.Errorf("phone-fixed[%s] is %q, want %q", area, got[area], name)
+		}
+	}
+}
+
+func TestShippedLithuanianMobileTableHoldsTheOneMobileRange(t *testing.T) {
+	rows := fejktest.TSVRows(t, "lt_LT/phone-mobile.tsv")
+	if len(rows) != 1 || rows[0]["area"] != "06" {
+		t.Errorf("phone-mobile holds %v, want the one row 06", rows)
 	}
 }

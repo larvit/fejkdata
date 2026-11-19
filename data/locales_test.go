@@ -175,7 +175,7 @@ var shippedLocales = []shippedLocale{
 		name:   "lt_LT",
 		names:  &names{map[string]string{"Ona": "f", "Danutė": "f", "Jonas": "m", "Kęstutis": "m"}, nil},
 		person: &person{map[string]string{"f": "moteris", "m": "vyras"}, []string{"dr.", "prof."}},
-		phone:  &phone{"+370", "0 ", lithuanianFixedPhone, nil},
+		phone:  &phone{"+370", "0 ", lithuanianFixedPhone, trunkAreaTables},
 	},
 	{
 		name:   "lv_LV",
