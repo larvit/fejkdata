@@ -1345,17 +1345,18 @@ Renders e.g. `Renārs Kārkliņš, born 20130310, code 10031324059`.
 
 `lv_LV.phone` is a mobile number ten times as often as a fixed one. Latvia has no area codes, so every number is
 dialled as it stands, in eight digits grouped two, three and three: `29 123 456` for a mobile and `67 123 456` for a
-fixed number. Its `national` field is that form, and its `international` field is `+371 29 123 456`, with the country
-code.
+fixed number. The `national` field of `lv_LV.phone` is that form, and its `international` field is
+`+371 29 123 456`, with the country code.
 
-The ranges are those of Table 1 of the National Numbering Plan (Nacionālais numerācijas plāns), decision no. 1/33 of
+A mobile number starts with 2 and a fixed number with 6, and each of the other seven digits is drawn evenly. These are
+the ranges of Table 1 of the National Numbering Plan (Nacionālais numerācijas plāns), decision no. 1/33 of
 27 September 2022 of the Public Utilities Commission (Sabiedrisko pakalpojumu regulēšanas komisija), in the text
-amended to 1 September 2025: a mobile number starts with 2 and a fixed number with 6, and each of the other seven
-digits is drawn evenly. The plan splits neither range any finer, so no start is left out. Not drawn is every range for
-another service, such as 80 for free calls or 90 for premium rates.
+amended to 1 September 2025.
 
 A number is valid, not real: it lies in a range the plan allocates, and a real subscriber may hold it. The plan doesn't
-reserve any range for fiction or tests, so don't call or text a drawn number.
+reserve any range for fiction or tests, so don't call or text a drawn number. The plan doesn't split either range
+further, but Google's libphonenumber refuses some blocks of the mobile range 23: it rejects about one mobile number
+in a hundred that fejkdata draws.
 
 ### `misc`
 
