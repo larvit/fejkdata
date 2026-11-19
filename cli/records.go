@@ -178,7 +178,7 @@ func writeNoRecord(record recordSource, format recordFormat, w io.Writer) error 
 	return err
 }
 
-// defaultTable names the INSERT or COPY target when --table is absent: the path's last
+// defaultTable names the INSERT or COPY target when --table is absent: the path's final
 // name, or "records" when stdin is not a lone reference.
 func defaultTable(path string) string {
 	if path == "" {

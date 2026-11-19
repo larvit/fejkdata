@@ -9,7 +9,7 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
-- `PathName` returns the last name of a path, selectors left out, such as `currency` for `misc.currency[US Dollar]`; the
+- `PathName` returns the final name of a path, selectors left out, such as `currency` for `misc.currency[US Dollar]`; the
   CLI takes its default `--table` from it.
 - `word`, `sentence` and `paragraph` for `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO`, with `word.noun`, `.verb`,
   `.adj` and `.adv` drawing one part of speech and the tables `word-noun`, `word-verb`, `word-adj` and `word-adv` they

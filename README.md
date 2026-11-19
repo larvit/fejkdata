@@ -229,7 +229,7 @@ these paths; a template reads one as `{/path}`.
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` or `tsv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv`, `pgcopy` or `sql` — a record's columns, one record per row (json frames them as an array) |
-| `--table T` | the INSERT or COPY target for `--format sql` or `pgcopy`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
+| `--table T` | the INSERT or COPY target for `--format sql` or `pgcopy`, ignored under any other (default: a lone reference's final name, selectors left out, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
 | `--version`, `-h`, `--help` | print, then exit |
 
@@ -496,7 +496,7 @@ r = rt.Fake()                             // render a row; loop this for bulk ou
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
 ok = fejkdata.IsLonePath("users")         // true: {/users} is one reference and nothing else
-name := fejkdata.PathName("misc.currency[US Dollar]") // "currency": the last name, selectors left out
+name := fejkdata.PathName("misc.currency[US Dollar]") // "currency": the final name, selectors left out
 calls := fejkdata.Builtins()              // each way to call a function, such as hex(n), sorted
 ```
 
@@ -2545,7 +2545,7 @@ datatype.go     DataType, what a record column holds
 render.go       Fake
 record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, and fake tags as one record's columns
-inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, IsLonePath
+inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, IsLonePath, PathName
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
 internal/avoid/ the draw of a value of fixed runs of characters that holds none of a set of strings, planned over their Aho–Corasick automaton
