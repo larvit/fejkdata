@@ -971,6 +971,9 @@ lv_LV.person.prefix	string null
 lv_LV.person.sex	string
 lv_LV.personas-kods	format "{personaskods(birth)}"
 lv_LV.personas-kods.birth	string
+lv_LV.phone	format "{number as n}{national}"
+lv_LV.phone.international	string
+lv_LV.phone.national	string
 lv_LV.sex	format "{name}"	key code	name name	weight count
 lv_LV.sex.code	string
 lv_LV.sex.count	string
