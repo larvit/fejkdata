@@ -33,6 +33,31 @@ func TestList(t *testing.T) {
 	}
 }
 
+// TestListLeavesOutLetFields pins that a "let" field is no path of its own, at any depth and
+// in a choice's shared paths, while a read of it still renders.
+func TestListLeavesOutLetFields(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"ip":    `{"format":"{v4}.{v4}","v4":{"format":"{o}.{o}","let":{"o":["1","2"]}}}`,
+		"ver":   `{"format":"{n}.{n}","let":{"n":{"format":"{d}","d":["1","2"]}},"tag":"x"}`,
+		"coin":  `[{"format":"{code}","let":{"code":"A"},"name":"Aa"},{"format":"{code}","let":{"code":"B"},"name":"Bb"}]`,
+		"cheat": `{"format":"{/coin.code}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	got := f.List()
+	want := []string{"cheat", "coin", "coin.name", "ip", "ip.v4", "ver", "ver.tag"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("List() = %v, want %v", got, want)
+	}
+	for _, p := range []string{"ip.v4.o", "ver.n", "ver.n.d", "coin.code"} {
+		if _, err := f.Fake(p); err != nil {
+			t.Errorf("Fake(%q) = %v, but a let field stays readable by its path", p, err)
+		}
+	}
+	if got := fejktest.Fake(t, f, "cheat"); got != "A" && got != "B" {
+		t.Errorf("Fake(cheat) = %q, want a read through a choice into its variants' let field", got)
+	}
+}
+
 // writeData builds a temp data directory from a map of relative path (without
 // ".json") -> file content, creating parent folders as needed. The directory's
 // name carries no meaning anymore, so callers pick any layout they like —
