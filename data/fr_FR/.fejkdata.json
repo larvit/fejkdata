@@ -1,8 +1,8 @@
 {
 	"index": {
 		"fr_FR.company": {"paths":["","ei","ei.name","legal","registered","registered.legal","sa","sa.name","sarl","sarl.name","sas","sas.name","snc","snc.name"]},
-		"fr_FR.company-coined": {"paths":[""]},
-		"fr_FR.company-word": {"paths":[""]},
+		"fr_FR.company-coined": {"paths":["","count","word"]},
+		"fr_FR.company-word": {"paths":["","count","word"]},
 		"fr_FR.date": {"paths":[""]},
 		"fr_FR.department": {"paths":["","code","commune"]},
 		"fr_FR.email": {"paths":["","domain","local","local.n"]},

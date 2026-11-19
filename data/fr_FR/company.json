@@ -10,22 +10,65 @@
   ],
   "ei": {
     "format": "{name}",
-    "name": ["{.first-name} {.last-name}", "{.company-word} {.last-name}", "{.company-coined}"]
+    "name": "{.first-name} {.last-name}"
   },
   "sarl": {
     "format": "{name} SARL",
-    "name": ["{.company-word} {.last-name}", "{.company-coined}", "{.company-word} {.company-coined}", "{.last-name} & {.last-name}", "{.last-name} et Fils", "Établissements {.last-name}"]
+    "name": [
+      { "format": "{.company-coined}", "weight": 578253 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 377389 },
+      { "format": "{.company-coined} {.company-word}", "weight": 230494 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 92125 },
+      { "format": "{.company-coined} {.last-name}", "weight": 57391 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 48753 },
+      { "format": "{.last-name} {.company-coined}", "weight": 29412 },
+      { "format": "{.company-word} {.company-coined}", "weight": 27722 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 24745 }
+    ]
   },
   "sas": {
     "format": "{name} SAS",
-    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.company-word} {.last-name}", "{.company-coined} France"]
+    "name": [
+      { "format": "{.company-coined}", "weight": 531518 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 332579 },
+      { "format": "{.company-coined} {.company-word}", "weight": 268941 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 67144 },
+      { "format": "{.company-coined} {.last-name}", "weight": 46436 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 39573 },
+      { "format": "{.company-word} {.company-coined}", "weight": 24350 },
+      { "format": "{.last-name} {.company-coined}", "weight": 22521 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 22262 }
+    ]
   },
   "snc": {
     "format": "{name} SNC",
-    "name": ["{.last-name} & {.last-name}", "{.last-name} et Cie", "{.company-word} {.last-name}", "Établissements {.last-name}"]
+    "name": [
+      { "format": "{.company-coined} {int(1,30)}", "weight": 17599 },
+      { "format": "{.company-coined}", "weight": 12220 },
+      { "format": "{.company-coined} {.company-coined} {int(1,30)}", "weight": 9729 },
+      { "format": "{.company-coined} {int(1,30)} {int(1,30)}", "weight": 9292 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 8655 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 3604 },
+      { "format": "{.company-coined} {.company-word} {int(1,30)}", "weight": 3399 },
+      { "format": "{.last-name} {.company-coined} {int(1,30)}", "weight": 2624 },
+      { "format": "{.company-coined} {.last-name}", "weight": 1536 },
+      { "format": "{.company-coined} {.company-word}", "weight": 1475 },
+      { "format": "le {.company-coined}", "weight": 1074 }
+    ]
   },
   "sa": {
     "format": "{name} SA",
-    "name": ["{.company-coined}", "{.company-coined} France", "{.company-coined} {.company-word}", "{.last-name} et Fils"]
+    "name": [
+      { "format": "{.company-coined}", "weight": 15758 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 9742 },
+      { "format": "{.company-coined} {.company-word}", "weight": 4468 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 3898 },
+      { "format": "{.company-coined} {.last-name}", "weight": 2296 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 1885 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 1337 },
+      { "format": "{.company-coined} {.company-coined} {.last-name}", "weight": 878 },
+      { "format": "{.last-name} {.company-coined}", "weight": 837 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 800 }
+    ]
   }
 }
