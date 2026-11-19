@@ -116,6 +116,7 @@ class Placed(unittest.TestCase):
         self.assertIsNone(placed(FORMS, "UAB", "Alfa Statyba"))
         self.assertIsNone(placed(FORMS, "UAB", "UAB"))
         self.assertIsNone(placed(FORMS, "UAB", "Alfa UAB Beta"))
+        self.assertIsNone(placed(FORMS, "AB", "Alfa, A.B."))
 
 
 class Counting(unittest.TestCase):
