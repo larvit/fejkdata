@@ -85,11 +85,11 @@ with its replacement, and each removed path, column or flag.
   Also `fr_FR.date`, a date from 1970 to 2029 such as `02/04/2019`, and `fr_FR.email`, built like `de_DE.email`.
 - `et_EE.company`, an invented name such as `Saare Technologies OÜ` and a legal form: a sole proprietor (`FIE`), whose
   name is one person's first and last name, or an `OÜ`, `UÜ`, `AS` or `TÜ`, each drawn as often as the e-Business
-  Register counts the legal persons of that form entered in it. A name carries its abbreviation after it or before it, such
-  as `AS Audio Restoran`, as often as the register's names of that form do. The non-profits and the other forms aren't
-  drawn. The name shapes, the trade words and the coined words come from the register's names. A program showing the data
-  credits "Source: e-Business Register, Centre of Registers and Information Systems (RIK)", names CC BY 4.0 and says that
-  the data is reduced to five legal forms and derived from the register's names.
+  Register counts the businesses of that form entered in it. Any other name carries its abbreviation after it or before
+  it, such as `AS Audio Restoran`, as often as the register's names of that form do. The non-profits and the other forms
+  aren't drawn. The name shapes and the words of `company-word` and `company-coined` come from the register's names. A
+  program showing the data credits "Source: e-Business Register, Centre of Registers and Information Systems (RIK)",
+  names CC BY 4.0 and says that the data is reduced to five legal forms and derived from the register's names.
   Also `et_EE.date`, a date from 1970 to 2029 such as `02.04.2019`, and `et_EE.email`, built like `de_DE.email`.
 - `et_EE.isikukood`, an Estonian personal identification code such as `36805280109`, drawn over the last hundred
   years by Statistics Estonia's counts of people under 18, 18 to 64 and 65 to 99. It passes the check digit but the

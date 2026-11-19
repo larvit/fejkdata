@@ -171,14 +171,14 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 - Source: the [e-Business Register](https://avaandmed.ariregister.rik.ee/en)'s basic data
   (`ettevotja_rekvisiidid__lihtandmed.csv.zip`) of 19 November 2026, published by the Centre of
-  Registers and Information Systems (RIK), the legal persons whose `ettevotja_staatus` is `R`,
-  entered into the register. `company.json` weighs a legal form by the legal persons of its
+  Registers and Information Systems (RIK), the businesses whose `ettevotja_staatus` is `R`, entered
+  into the register. `company.json` weighs a legal form by the businesses of its
   `ettevotja_oiguslik_vorm`: 288,168 of `Osaühing` (`OÜ`), 24,541 of `Füüsilisest isikust ettevõtja`
   (`FIE`), 3,514 of `Usaldusühing` (`UÜ`), 1,901 of `Aktsiaselts` (`AS`) and 1,028 of `Täisühing`
-  (`TÜ`). The legal persons of every other form aren't drawn, such as the 25,657 of `Korteriühistu`
-  and the 22,772 of `Mittetulundusühing`. The shapes of a form's names, where they place the form,
-  the trade words and the words of `company-coined.tsv` come from the `nimi` of those legal persons.
-  The tables hold single words with their counts.
+  (`TÜ`). The businesses of every other form aren't drawn, such as the 25,657 of `Korteriühistu` and
+  the 22,772 of `Mittetulundusühing`. The shapes of a form's names, where they place the form, the
+  trade words and the words of `company-coined.tsv` come from the `nimi` of those businesses. The
+  tables hold single words with their counts.
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), which the register's [terms of
   service](https://avaandmed.ariregister.rik.ee/en/terms-service) link as its licence information
 - Attribution: "Source: e-Business Register, Centre of Registers and Information Systems (RIK)",

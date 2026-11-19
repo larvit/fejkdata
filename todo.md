@@ -260,7 +260,7 @@ Touches:
 
 ### 506. Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.
 
-Draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
+Check first whether Latvia's business register publishes an open bulk file of every business's name and legal form, as Estonia's e-Business Register does. Where it does, weigh the legal forms and draw the names from it, as `et_EE.company` does. Where it doesn't, draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
 
 Touches:
 
@@ -270,7 +270,7 @@ Touches:
 
 ### 511. Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.
 
-Draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
+Check first whether Lithuania's business register publishes an open bulk file of every business's name and legal form, as Estonia's e-Business Register does. Where it does, weigh the legal forms and draw the names from it, as `et_EE.company` does. Where it doesn't, draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
 
 Touches:
 
@@ -413,7 +413,7 @@ Touches:
 
 ### 501. Add `et_EE.company`, `et_EE.email` and `et_EE.date`.
 
-Estonia's e-Business Register publishes an open bulk file of every legal person's name and legal form (`ettevotja_rekvisiidid__lihtandmed.csv.zip` on avaandmed.ariregister.rik.ee; its terms link CC BY 4.0's legal code and state no attribution wording), so AGENTS.md's first principle doesn't apply: weigh the legal forms and draw the names from the register, as `fr_FR.company` does from Sirene, with a `data-import/company-ee.py` and its test on `company_names.py`. Draw `OÜ`, `AS`, `UÜ`, `TÜ` and `FIE` (named by its person); leave out the non-profits, flat associations and public bodies. Items 506 and 511 need the same check of Latvia's and Lithuania's registers.
+Estonia's e-Business Register publishes an open bulk file of every business's name and legal form (`ettevotja_rekvisiidid__lihtandmed.csv.zip` on avaandmed.ariregister.rik.ee; its terms link CC BY 4.0's legal code and state no attribution wording), so AGENTS.md's first principle doesn't apply: weigh the legal forms and draw the names from the register, as `fr_FR.company` does from Sirene, with a `data-import/company-ee.py` and its test on `company_names.py`. Draw `OÜ`, `AS`, `UÜ`, `TÜ` and `FIE` (named by its person); leave out the non-profits, flat associations and public bodies.
 
 Touches:
 

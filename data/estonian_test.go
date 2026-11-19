@@ -205,7 +205,7 @@ func TestEstonianCompanyOpensWithItsLegalFormAsOftenAsTheRegistersNamesDo(t *tes
 	}
 }
 
-func TestEstonianSoleProprietorIsTheFirstAndLastNameOfOnePerson(t *testing.T) {
+func TestEstonianSoleProprietorIsAFirstAndLastNameOfOneSex(t *testing.T) {
 	first, last := nameCounts(t, "et_EE", "first-name"), nameCounts(t, "et_EE", "last-name")
 	f := shipped(t, fejkdata.WithSeed(5))
 	fejktest.EachDraw(1000, func() string { return fejktest.Fake(t, f, "et_EE.company.fie") }, func(got string) {
