@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s and `lv_LV`'s names and persons, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons and isikukood, `lv_LV`'s names and persons, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons and NIRs, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -973,7 +973,7 @@ may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, 
 
 ### `et_EE`
 
-`et_EE`, Estonian, carries `first-name`, `last-name`, `person`, `sex` and `title`. `sex` is `naine` and `mees`, `title` is
+`et_EE`, Estonian, carries `first-name`, `isikukood`, `last-name`, `person`, `sex`, `sex-digit` and `title`. `sex` is `naine` and `mees`, `title` is
 `dr` and `prof`, drawn whatever the sex. `{/et_EE.person}` renders e.g. `Liis Tamm`.
 
 Both name tables are a language model's recall of names common in Estonia: the commoner ones of each list are
@@ -982,6 +982,32 @@ are estimates. The lists include the Russian-language names many Estonians bear,
 that a woman bears the feminine form of one: `Ivanova` where a man bears `Ivanov`. `et_EE.sex` carries Estonia's
 population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the sex counts credits "Source:
 Eurostat".
+
+`et_EE.isikukood` is an Estonian personal identification code, the isikukood that the Population Register gives each
+person: 11 digits with no spaces, such as `36805280109`. It passes the check digit but is not synthetic: the
+regulation "Isikukoodide moodustamise ja andmise kord" names no test series and no unassigned range, so a code may
+be a living person's. Its digits are the sex and the century of birth (`1` for a man and `2` for a woman born in
+the 1800s, `3` and `4` in the 1900s, `5` and `6` in the 2000s), the date of birth as `YYMMDD`, a serial number of
+the people born that day, and a check digit. The regulation leaves the check digit to the standard EVS 585, which
+fejkdata does not publish; fejkdata computes it as python-stdnum does, as the sum of the ten digits weighted 1 to 9
+and 1, modulo 11, or where that is 10, weighted 3 to 9, 1, 2 and 3, modulo 11, or where that is 10 too, 0.
+
+fejkdata draws the year of birth by Statistics Estonia's counts of people under 18, 18 to 64 and 65 to 99 on 1
+January 2026 (table RV0240) and the serial number evenly from 001 to 999. No source states which serial numbers
+are issued, so 000 is left out. A fixture of a few hundred thousand rows starts to repeat a code, so a `UNIQUE` column needs a category of your own. A program showing the birth years
+credits "Source: Statistics Estonia".
+
+`{isikukood(x,d)}` prints a whole code. A template binds the sex as `s` and the `birth` field of `et_EE.isikukood`, a
+day written `YYYYMMDD`, as `b`, then passes the digit of `et_EE.sex-digit` under `s` and `b`:
+
+```json
+{ "format": "{first} {last}, {code}",
+  "first": "{/et_EE.sex as s}{s.first-name}",
+  "last": "{s.last-name}",
+  "code": "{/et_EE.isikukood.birth as b}{isikukood(s.sex-digit.digit,b)}" }
+```
+
+Renders e.g. `Lars Pavlov, 39406231528`.
 
 ### `fi_FI`
 
@@ -1957,6 +1983,7 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
 | `{cpr(x)}` | derivation | completes a Danish CPR number after the last six digits emitted, its date, with a seventh digit that the CPR office's table of century digits allows for the year, an eighth and a ninth digit it picks, and the check digit, whose parity is that of the digit `x` reads; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1858 to 2057, renders nothing |
 | `{nir()}` | derivation | the key of a French NIR: two digits, 97 less the remainder, divided by 97, of the last 13 letters and digits emitted, where the sixth and seventh may be `2A` or `2B`, counted as 19 or 18; nothing unless they are 13 digits once `2A` and `2B` are so counted |
+| `{isikukood(x,d)}` | derivation | an Estonian isikukood, 11 digits: the digit for the sex that `x` reads, `1` for a man or `2` for a woman, raised by 2 for each century after the 1800s; the date `d` reads, written `YYYYMMDD`, as `YYMMDD`; a serial number from 001 to 999 it picks; and the check digit. Renders nothing for another `x`, or for a `d` that is no day from 1800 to 2099 ([Estonian personal codes](#et_ee)) |
 | `{hetu(x)}`, `{hetu(x,'issued')}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number from 900 to 999 of the parity of the digit `x` reads, and the control character; `{hetu(x,'issued')}` takes the individual number from 002 to 899, which DVV issues; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
 | `{bgmod11(x)}` | derivation | a random digit, then the check digit, that complete the digits emitted so far in this expansion to a number Bankgirot's 11-modul accepts: its digits, weighted 1 to 10 from the right and then 1 again, sum to a multiple of 11; the literal digits `x` count as coming first and are not printed (`0` for none) |
 | `{digits(n)}` | sample | `n` digits 0–9 |

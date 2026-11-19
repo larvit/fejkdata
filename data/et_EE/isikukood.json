@@ -1,0 +1,8 @@
+{
+  "format": "{/et_EE.sex as s}{isikukood(s.sex-digit.digit,birth)}",
+  "birth": [
+    { "format": "{born(0,17,'20060102')}", "weight": 254482 },
+    { "format": "{born(18,64,'20060102')}", "weight": 815319 },
+    { "format": "{born(65,99,'20060102')}", "weight": 290689 }
+  ]
+}
