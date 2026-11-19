@@ -330,10 +330,11 @@ et_EE.company.tu.name
 et_EE.company.uu	string
 et_EE.company.uu.name
 et_EE.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-et_EE.email	format "{local}@{domain}"	reads et_EE.person
+et_EE.email	format "{local}@{domain}"	reads et_EE.email et_EE.person
 et_EE.email.domain	string
 et_EE.email.local	string
 et_EE.email.local.n
+et_EE.email.reserved	string
 et_EE.first-name	format "{name}"	name name	weight count	parent sex
 et_EE.first-name.count	string
 et_EE.first-name.name	string
