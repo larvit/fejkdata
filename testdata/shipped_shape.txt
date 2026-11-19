@@ -427,7 +427,7 @@ fi_FI.word.adv	string
 fi_FI.word.any	string
 fi_FI.word.noun	string
 fi_FI.word.verb	string
-fr_FR.department	format "{code}"	key code	reads fr_FR.nir
+fr_FR.department	format "{code}"	key code	reads fr_FR.nonzero-number
 fr_FR.department.code	string
 fr_FR.department.commune	string
 fr_FR.first-name	format "{name}"	name name	weight count	parent sex
@@ -437,12 +437,13 @@ fr_FR.first-name.sex	string
 fr_FR.last-name	format "{name}"	key name	weight count
 fr_FR.last-name.count	string
 fr_FR.last-name.name	string
-fr_FR.nir	format "{/fr_FR.sex as s}{s.sex-digit.digit}{body}{nir()}"	reads fr_FR.department fr_FR.sex
+fr_FR.nir	format "{/fr_FR.sex as s}{s.sex-digit.digit}{body}{nir()}"	reads fr_FR.department fr_FR.nonzero-number fr_FR.sex
 fr_FR.nir.body	string
 fr_FR.nir.body.birth
 fr_FR.nir.body.place
-fr_FR.nir.body.three
-fr_FR.nir.body.two
+fr_FR.nonzero-number	format "{three}"
+fr_FR.nonzero-number.three	string
+fr_FR.nonzero-number.two	string
 fr_FR.person	format "{prefix}{first} {last}"	reads fr_FR.first-name fr_FR.last-name fr_FR.title
 fr_FR.person.first	string
 fr_FR.person.last	string
