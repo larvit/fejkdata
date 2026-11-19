@@ -48,8 +48,9 @@ Renders e.g. `Andrius Jurevičius, 36707114290`.
 `lt_LT.company` draws a legal form as often as the Register of Legal Entities' open data counts its entities. The
 file of 19 November 2026 lists 102,461 private limited companies (`UAB`), 75,713 small partnerships (`MB`), 452
 agricultural companies (`ŽŪB`) and 226 public limited companies (`AB`). The other forms aren't drawn. The register
-names an individual enterprise, a limited partnership and a general partnership by their form alone. The rest are
-branches and representative offices, cooperatives, and non-profit or public bodies, such as associations.
+names an individual enterprise, a limited partnership and a general partnership by their form alone. The rest
+include branches and representative offices, cooperatives, law partnerships, and non-profit or public bodies, such
+as associations.
 
 Most of the register's names put the form before the name, and most `UAB` quote the name, such as `UAB "Alfa"`. The
 others put the form before the name unquoted, or after it, quoted or not. `lt_LT.company` places the abbreviation and

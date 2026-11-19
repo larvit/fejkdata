@@ -506,11 +506,11 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   `960` `Mažoji bendrija` (`MB`), 452 of `410` `Žemės ūkio bendrovė` (`ŽŪB`) and 226 of `320`
   `Akcinė bendrovė` (`AB`). The entities of every other form aren't drawn: the register names the
   13,045 of `810` `Individuali įmonė`, the 163 of `220` `Komanditinė ūkinė bendrija` and the 47 of
-  `210` `Tikroji ūkinė bendrija` by their form alone, and the rest are branches and representative
-  offices, cooperatives, and non-profit or public bodies, such as the 13,560 of `630` `Asociacija`.
-  The shapes of a form's names, where they place the form and the quotes, the trade words and the
-  words of `company-coined.tsv` come from the `ja_pavadinimas` of those entities. The tables hold
-  single words with their counts.
+  `210` `Tikroji ūkinė bendrija` by their form alone, and the rest include branches and representative
+  offices, cooperatives, law partnerships, and non-profit or public bodies, such as the 13,560 of `630`
+  `Asociacija`. The shapes of a form's names, where they place the form and the quotes, the trade
+  words and the words of `company-coined.tsv` come from the `ja_pavadinimas` of those entities.
+  The tables hold single words with their counts.
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), which the Centre's
   [open data page](https://www.registrucentras.lt/atviri-duomenys-ir-statistika) states as its licence
 - Attribution: "Valstybės įmonė Registrų centras", with the licence's name and link, and that the data
