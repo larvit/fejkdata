@@ -139,10 +139,10 @@ func TestRecordSkipsReferenceBindings(t *testing.T) {
 
 func TestRecordErrors(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"bare":      `"hello"`,
-		"pick":      `["a", "b"]`,
-		"group/cat": `"x"`,
-		"onlyhidden":      `{"format":"{a}","hidden":{"a":"x"}}`,
+		"bare":       `"hello"`,
+		"pick":       `["a", "b"]`,
+		"group/cat":  `"x"`,
+		"onlyhidden": `{"format":"{a}","hidden":{"a":"x"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for _, c := range []struct {
