@@ -197,12 +197,12 @@ func ValidNir(s string) bool {
 }
 
 // ValidIsikukood is the check of an Estonian personal code, EVS 585's structure as the Population
-// Register applies it: eleven digits, a first digit 1 to 8, a date that exists in the century the
+// Register applies it: eleven digits, a first digit 1 to 6, a date that exists in the century the
 // first digit names, and a check digit that is the weighted sum of the first ten digits, weights 1
 // to 9 and 1, modulo 11; where that is 10, the sum weighted 3 to 9, 1, 2 and 3, modulo 11, and
 // where that is 10 too, 0.
 func ValidIsikukood(s string) bool {
-	if len(s) != 11 || DigitsOnly(s) != s || s[0] == '0' || s[0] > '8' {
+	if len(s) != 11 || DigitsOnly(s) != s || s[0] == '0' || s[0] > '6' {
 		return false
 	}
 	year := 1800 + 100*(int(s[0]-'1')/2) + atoi(s[1:3])
