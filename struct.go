@@ -72,7 +72,6 @@ type structShape struct {
 	nested  []nestedStruct
 }
 
-// structColumn is a column of a struct's record and the field index path it fills.
 type structColumn struct {
 	name       string
 	fieldIndex []int
