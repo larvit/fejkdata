@@ -4,8 +4,8 @@
 
 A month is numbered 1 to 12 and a weekday 1 (Monday) to 7 (Sunday), as ISO 8601 does. Each
 name is CLDR's stand-alone wide form, the one that names a month or weekday on its own. CLDR's other,
-format form is the one inside a date: Finnish declines it (`tammikuuta`, `maanantaina`), and the other
-languages spell both alike. The
+format form is the one inside a date: Finnish declines it (`tammikuuta`, `maanantaina`) and Lithuanian declines its
+months (`sausio`), and the other languages spell both alike. The
 territory table holds one row for each alpha-2 code in data/misc/territory.tsv; when CLDR has no
 Swedish name for a code, the script exits with an error before it writes territory.tsv.
 """
@@ -23,7 +23,10 @@ CLDR = "https://raw.githubusercontent.com/unicode-org/cldr-json/48.0.0/cldr-json
 ROOT = Path(__file__).resolve().parent.parent / "data"
 CACHE = Path(__file__).resolve().parent / "cache"
 WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-LOCALES = {"da": "da_DK", "de": "de_DE", "en": "en_US", "fi": "fi_FI", "nb": "nb_NO", "nn": "nn_NO", "sv": "sv_SE"}
+LOCALES = {
+    "da": "da_DK", "de": "de_DE", "en": "en_US", "et": "et_EE", "fi": "fi_FI", "fr": "fr_FR", "lt": "lt_LT", "lv": "lv_LV", "nb": "nb_NO",
+    "nn": "nn_NO", "sv": "sv_SE",
+}
 
 
 def load(cldr: str, cache: str, package: str, lang: str, file: str) -> Any:

@@ -1,0 +1,19 @@
+{
+  "format": "https://{host}{path}",
+  "reserved": "https://{/fr_FR.url.reserved-host}{/fr_FR.url.path}",
+  "host": [{ "format": "{/fr_FR.url.reserved-host}", "weight": 7 }, "example.fr", "www.example.fr", "boutique.example.fr", "api.example.fr", "courrier.example.fr"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "blog.example.net", "boutique.example.com", "documents.example.org", "actualites.example.net"] },
+  "path": [
+    { "format": "", "weight": 2 },
+    {
+      "format": "/{seg}",
+      "seg": ["a-propos", "produits", "blog", "contact", "aide", "articles", "connexion", "actualites", "accueil", "recherche", "panier", "caisse", "cgv", "confidentialite", "tarifs", "services", "entreprise", "carrieres", "assistance", "compte", "parametres", "inscription"]
+    },
+    {
+      "format": "/{seg}/{sub}",
+      "weight": 0.5,
+      "seg": ["blog", "produits", "aide", "documents", "categorie"],
+      "sub": ["apercu", "premiers-pas", "guide", "2024", "nouveautes", "archives", "details"]
+    }
+  ]
+}

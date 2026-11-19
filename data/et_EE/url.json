@@ -1,0 +1,19 @@
+{
+  "format": "https://{host}{path}",
+  "reserved": "https://{/et_EE.url.reserved-host}{/et_EE.url.path}",
+  "host": [{ "format": "{/et_EE.url.reserved-host}", "weight": 7 }, "example.ee", "www.example.ee", "pood.example.ee", "api.example.ee", "post.example.ee"],
+  "hidden": { "reserved-host": ["example.com", "www.example.com", "example.org", "blogi.example.net", "pood.example.com", "dokumendid.example.org", "uudised.example.net"] },
+  "path": [
+    { "format": "", "weight": 2 },
+    {
+      "format": "/{seg}",
+      "seg": ["meist", "tooted", "blogi", "kontakt", "abi", "artiklid", "logi-sisse", "uudised", "avaleht", "otsing", "ostukorv", "kassa", "tingimused", "privaatsus", "hinnad", "teenused", "ettevote", "karjaar", "tugi", "konto", "seaded", "registreeru"]
+    },
+    {
+      "format": "/{seg}/{sub}",
+      "weight": 0.5,
+      "seg": ["blogi", "tooted", "abi", "dokumendid", "kategooria"],
+      "sub": ["ulevaade", "alustamine", "juhend", "2024", "uusimad", "arhiiv", "detailid"]
+    }
+  ]
+}

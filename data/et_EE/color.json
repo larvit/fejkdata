@@ -1,0 +1,8 @@
+[
+  {
+    "format": "#{x}{x}{x}{x}{x}{x}",
+    "x": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"],
+    "weight": 2
+  },
+  ["Beež", "Hall", "Heleroheline", "Helesinine", "Hõbedane", "Kollane", "Korall", "Kreemjas", "Kuldne", "Lilla", "Meresinine", "Must", "Oliivroheline", "Oranž", "Pruun", "Punane", "Roheline", "Roosa", "Sinepikollane", "Sinine", "Tumeroheline", "Tumepunane", "Tumesinine", "Türkiis", "Valge", "Veinipunane"]
+]

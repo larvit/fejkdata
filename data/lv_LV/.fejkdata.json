@@ -1,5 +1,6 @@
 {
 	"index": {
+		"lv_LV.color": {"paths":[""]},
 		"lv_LV.company": {"paths":["","as","as.name","ik","ik.name","ks","ks.name","legal","ps","ps.name","registered","registered.legal","sia","sia.name"]},
 		"lv_LV.company-coined": {"paths":["","count","word"]},
 		"lv_LV.company-word": {"paths":["","count","word"]},
@@ -7,11 +8,17 @@
 		"lv_LV.email": {"paths":["","domain","local","local.n","reserved"]},
 		"lv_LV.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"lv_LV.last-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"lv_LV.month": {"paths":["","code","name"]},
 		"lv_LV.person": {"paths":["","first","last","prefix","sex"]},
 		"lv_LV.personas-kods": {"paths":["","birth"]},
 		"lv_LV.phone": {"paths":["","international","national"]},
+		"lv_LV.price": {"paths":[""]},
 		"lv_LV.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","last-name","last-name.count","last-name.name","last-name.sex","name"]},
-		"lv_LV.title": {"paths":["","name","share"]}
+		"lv_LV.time": {"paths":[""]},
+		"lv_LV.title": {"paths":["","name","share"]},
+		"lv_LV.url": {"paths":["","host","path","reserved"]},
+		"lv_LV.username": {"paths":["","n"]},
+		"lv_LV.weekday": {"paths":["","code","name"]}
 	},
 	"namespace": "lv_LV"
 }
