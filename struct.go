@@ -64,12 +64,18 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	return shape, err
 }
 
-// structShape is a struct type compiled to fill: its tagged fields as one record, the field
-// index path each column fills, and the struct fields carrying tags of their own.
+// structShape is a struct type compiled to fill: its tagged fields as one record, each of the
+// record's columns with the field it fills, and the struct fields carrying tags of their own.
 type structShape struct {
-	record       *engine.Record
-	fieldIndexes [][]int
-	nested       []nestedStruct
+	record  *engine.Record
+	columns []structColumn
+	nested  []nestedStruct
+}
+
+// structColumn is a column of a struct's record and the field index path it fills.
+type structColumn struct {
+	name       string
+	fieldIndex []int
 }
 
 // nestedStruct is a named struct field, or a pointer to one, filled as a record of its own.
@@ -116,10 +122,11 @@ func (sc *structCompile) compileShape(t reflect.Type, label string) (*structShap
 			return nil, err
 		}
 		c.shape.record = &record
-		c.shape.fieldIndexes = make([][]int, record.ColumnCount())
-		for i := range c.shape.fieldIndexes {
-			sf, _ := t.FieldByName(record.Name(i))
-			c.shape.fieldIndexes[i] = sf.Index
+		c.shape.columns = make([]structColumn, record.ColumnCount())
+		for i := range c.shape.columns {
+			name := record.Name(i)
+			sf, _ := t.FieldByName(name)
+			c.shape.columns[i] = structColumn{name: name, fieldIndex: sf.Index}
 		}
 	}
 	return c.shape, nil
@@ -266,7 +273,10 @@ func checkTaggedType(sf reflect.StructField) error {
 func (s *structShape) fill(state *drawstate.State, v reflect.Value) {
 	if s.record != nil {
 		for i, c := range renderRecord(state, *s.record).columns {
-			setColumn(fieldAt(v, s.fieldIndexes[i]), c)
+			if s.columns[i].name != c.Name {
+				panic(invariant.Broken("drawn column %q reached the slot of %q", c.Name, s.columns[i].name))
+			}
+			setColumn(fieldAt(v, s.columns[i].fieldIndex), c)
 		}
 	}
 	for _, n := range s.nested {
