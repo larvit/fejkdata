@@ -3,17 +3,17 @@
     data-import/names-fr.py [--first N] [--last N] [--cache DIR] [--out DIR]
 
 - The first names are the "Fichier des prénoms": for each year, the children of each sex who got the name as
-  their first one. A name's count is the sum over the births of 1944 to 2023, the 80 years whose people can
-  still be alive, so a name that has gone out of use weighs less than in the whole file. A name that girls and
-  boys both bear has a row under each sex. INSEE publishes a name only if 20 children got it in 1900 to 1945
-  or in 1946 to 2023, and only for a year in which 3 did: the rest sit in `_PRENOMS_RARES` and in rows without
-  a year, which are dropped. The top N names of each sex by count stay (2000).
+  their first one. A name's count is the sum over the births of 1944 to 2023, the last 80 years, so a name gone
+  out of use weighs less than in the whole file. A name that girls and boys both bear has a row under each sex.
+  INSEE publishes a name only if 20 children got it in 1900 to 1945 or in 1946 to 2023, and only for a year in
+  which 3 did: the rest sit in `_PRENOMS_RARES` and in rows without a year, which are dropped, so a count runs
+  slightly low. The top N names of each sex by count stay (2000).
 - The last names are the "Fichier des noms": the births of 1891 to 2000, each name's counts over its decades
-  added up. INSEE writes them in capitals without accents, so `Lefevre` is not `Lefèvre`. The top N names by
-  count stay (5000), as does a name only if `tsv.NAME` says it is a name in letters, which drops `N'Diaye`.
-- INSEE writes names in capitals. A first name's parts, split at a hyphen, a space or an apostrophe, are each
-  capitalised. A last name's too, but `de`, `des`, `du`, `da` and `van` stay in lower case before another part, as
-  does a `le` or `la` after one of them.
+  added up. INSEE writes them without accents, so `Lefevre` counts the bearers of `Lefèvre` too. The top N names
+  by count stay (5000).
+- Both drop a name that `tsv.NAME` says is not a name in letters, such as `N'Diaye`.
+- INSEE writes names in capitals. Each part of a name, split at a hyphen, a space or an apostrophe, is
+  capitalised, but in a last name `da`, `de` and `dos` stay in lower case before another part.
 """
 import argparse
 import csv
@@ -32,8 +32,7 @@ YEARS = range(1944, 2024)
 OUT = Path(__file__).resolve().parent.parent / "data" / "fr_FR"
 CACHE = Path(__file__).resolve().parent / "cache"
 SEX = {"1": "m", "2": "f"}
-PARTICLES = {"de", "des", "du", "da", "van"}
-ARTICLES = {"le", "la"}
+PARTICLES = {"da", "de", "dos"}
 RARE = "_PRENOMS_RARES"
 OTHERS = "AUTRES NOMS"
 
@@ -51,12 +50,9 @@ def capitalised(name: str) -> str:
 
 
 def surname(name: str) -> str:
-    """A last name as it is written: a particle, and an article right after one, in lower case before another part."""
+    """A last name as it is written: a particle stays in lower case before another part."""
     parts = capitalised(name).split(" ")
-    for i, part in enumerate(parts[:-1]):
-        if part.lower() in PARTICLES or part.lower() in ARTICLES and i > 0 and parts[i - 1].lower() in PARTICLES:
-            parts[i] = part.lower()
-    return " ".join(parts)
+    return " ".join(p.lower() if i < len(parts) - 1 and p.lower() in PARTICLES else p for i, p in enumerate(parts))
 
 
 def firsts(cache: str, top: int) -> list[dict[str, object]]:
