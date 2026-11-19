@@ -4,9 +4,9 @@
 
 The script reads the Centre of Registers' open data on the legal entities in the register (a 41 MB CSV) for counts
 and names, and writes no row of it. It also reads the shipped lt_LT first and last names. It counts the entities by
-their legal form. company.json weighs a legal form by its entities. The forms are UAB, MB, AB and ŽŪB, the forms of
-a business whose name the register publishes. The register names an individual enterprise, a limited partnership and
-the like by its form alone, and every non-profit form, such as the public body VšĮ, isn't a company; none is drawn.
+their legal form. company.json weighs a legal form by its entities. The forms are UAB, MB, AB and ŽŪB. The
+register names an individual enterprise, a limited partnership and a general partnership by their form alone. A
+branch, a representative office, a cooperative and every non-profit or public form are left out too; none is drawn.
 
 A name is counted where its first or last words spell its form, as the abbreviation, such as UAB, or the words,
 such as uždaroji akcinė bendrovė, in upper or lower case, with or without a trailing dot. company.json
