@@ -9,8 +9,7 @@ import (
 )
 
 // The roots of "Numéros pour œuvres audiovisuelles" in section 2.5 of the Arcep's plan national de
-// numérotation, version of 1 January 2026, which may be used as telephone numbers in fiction. The
-// plan allots no other number to anyone, and the roots are in the same grouping as a French number.
+// numérotation, version of 1 January 2026.
 var (
 	frenchFictionFixedRoots  = []string{"01 99 00", "02 61 91", "03 53 01", "04 65 71", "05 36 49"}
 	frenchFictionMobileRoots = []string{"06 39 98"}
