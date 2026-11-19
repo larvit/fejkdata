@@ -14,7 +14,6 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 509 | 0.7.0 |  |  | **Add `lt_LT`'s national personal id, the asmens kodas, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
-| 505 | 0.7.0 |  |  | **Add `lv_LV.phone`, drawn from Latvia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 510 | 0.7.0 |  |  | **Add `lt_LT.phone`, drawn from Lithuania's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
 | 274 | 0.7.0 |  |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 501 | 0.7.0 |  |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
@@ -270,15 +269,6 @@ Touches:
 - `data/locale_everyday_test.go`: `TestShippedUrlsDrawTheLocalesOwnHostAndPathWords`
 - `testdata/shipped_shape.txt`: lines 30-33 (small), lines 86-88 (small), lines 143-146 (small), lines 198-200 (small), lines 234-237 (small), lines 292-294 (small), lines 343-346 (small), lines 408-410 (small), lines 978-981 (small), lines 1036-1038 (small), lines 1075-1077 (small), lines 1102-1104 (small), lines 1181-1184 (small), lines 1289-1291 (small)
 - `README.md`: `#### Data sources` (small), `### Locale categories`, `#### Norwegian dates and emails` (small), `#### Danish dates and emails` (small), `#### German dates and emails` (small), `#### Finnish dates and emails` (small)
-
-### 505. Add `lv_LV.phone`, drawn from Latvia's numbering plan.
-
-Use the regulator's published numbering plan, and prefer ranges reserved for fiction where one exists.
-
-Touches:
-
-- `data/lv_LV/`
-- `README.md`: `### Locale categories` (small)
 
 ### 510. Add `lt_LT.phone`, drawn from Lithuania's numbering plan.
 
