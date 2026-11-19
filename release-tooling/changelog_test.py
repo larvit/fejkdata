@@ -218,5 +218,16 @@ class Record(unittest.TestCase):
 		self.assertEqual(changelog.record(MAIN, [], []), MAIN)
 
 
+class FixedLines(unittest.TestCase):
+	def test_a_fixed_go_names_the_binaries_and_a_fixed_module_what_fejkdata_requires(self) -> None:
+		self.assertEqual(
+			changelog.fixed_lines([("Go 1.27.1", "GO-2026-0001 (CVE-2026-1)"), ("`golang.org/x/text` v0.3.0", "GO-2026-0003")]),
+			[
+				"The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0001 (CVE-2026-1).",
+				"fejkdata no longer requires `golang.org/x/text` v0.3.0, with its known vulnerabilities: GO-2026-0003.",
+			],
+		)
+
+
 if __name__ == "__main__":
 	unittest.main()
