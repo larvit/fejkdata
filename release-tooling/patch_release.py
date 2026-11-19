@@ -1,7 +1,5 @@
 """Own CHANGELOG.md's release sections: cut a patch of the last release carrying what main carries, and keep main in step.
 
-  patch_release.py last
-      Prints the last release's tag, as the forge names its latest release.
   patch_release.py cut
       When main carries a newer Go, newer modules or another GoReleaser than the last release:
       puts them in the last release's tree, builds it through `docker build .`, commits it with
@@ -15,7 +13,7 @@
   patch_release.py plan <govulncheck report of main> <todo.md> <CHANGELOG.md>
       Adds to CHANGELOG.md each release section the last release has and main lacks, and
       drops each line under Unreleased that such a section holds, as one recorded before its
-      patch was cut. Plans the report in todo.md through file_vulnerabilities.py, and records
+      patch was cut. Plans the report in todo.md through file_vulnerabilities.plan, and records
       each fixed item's line under Unreleased unless a release section already names its
       vulnerabilities. Records under Unreleased's Breaking what each Go minor main carries
       since the last release requires of a built-for system, unless the changelog holds it;
@@ -42,11 +40,11 @@ from typing import NamedTuple
 
 import carried
 import changelog
+import file_vulnerabilities
 import go_release_notes
 import publish_release
 
 TAG = re.compile(r"v(\d+)\.(\d+)\.(\d+)")
-FILER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "vulnerability-filing", "file_vulnerabilities.py")
 GORELEASER_YAML = "release-tooling/goreleaser.yaml"
 
 
@@ -157,10 +155,10 @@ def patch_tree(
 	before = scan(tree, carried.dotted(released.go), os.path.join(work, "before"))
 	prepare(tree, released, patch)
 	after = scan(tree, carried.dotted(patch.go), os.path.join(work, "after"))
-	found = known_vulnerabilities(after)
+	found = file_vulnerabilities.known(read(after))
 	if found:
 		raise ValueError(f"{last}'s patched tree still carries {found}; a patch waits for a release the maintainer cuts")
-	return out(sys.executable, FILER, "fixed-between", before, after)
+	return file_vulnerabilities.fixed_between(read(before), read(after))
 
 
 def carry_workflows(root: str, tree: str) -> None:
@@ -192,16 +190,10 @@ def shown(root: str, tag: str, path: str) -> str:
 	return run("git", "show", f"{tag}:{path}", cwd=root, ok=(0, 128)).stdout
 
 
-def known_vulnerabilities(report: str) -> str:
-	"""The vulnerabilities the report names, as the filer's `check` prints them, or "" where it names none."""
-	checked = run(sys.executable, FILER, "check", report, ok=(0, 1))
-	return checked.stdout.strip() if checked.returncode else ""
-
-
 def wait_for_modules(root: str, last: str, released: carried.Carried, scan: Callable[[str, str, str], str]) -> None:
 	"""Says main's modules wait for a release the maintainer cuts; refuses a last release that a known vulnerability holds meanwhile."""
 	with tempfile.TemporaryDirectory() as work, worktree(root, last, os.path.join(work, "tree")) as tree:
-		found = known_vulnerabilities(scan(tree, carried.dotted(released.go), os.path.join(work, "report")))
+		found = file_vulnerabilities.known(read(scan(tree, carried.dotted(released.go), os.path.join(work, "report"))))
 	if found:
 		raise ValueError(
 			f"{last} still carries {found}; main's modules wait for a release the maintainer cuts, since its go.mod changes more than module versions"
@@ -243,9 +235,8 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 def plan(report: str, todo: str, changelog_path: str, last: str, notes: Callable[[str], str]) -> int:
 	breaking = unreleased_breaking(last, notes)
 	text = changelog.reconcile(read(changelog_path), out("git", "show", f"{last}:CHANGELOG.md"))
-	planned = run(sys.executable, FILER, "plan", report, todo, "--patch", next_patch(last))
-	sys.stderr.write(planned.stderr)
-	write(changelog_path, changelog.record(text, planned.stdout.splitlines(), breaking))
+	fixed = file_vulnerabilities.plan(report, todo, next_patch(last))
+	write(changelog_path, changelog.record(text, changelog.fixed_lines(fixed), breaking))
 	return 0
 
 
@@ -269,9 +260,6 @@ def publish_on_forge(text: str, sha: str) -> tuple[int, str | None]:
 def main(argv: list[str]) -> int:
 	try:
 		match argv:
-			case ["last"]:
-				print(last_release())
-				return 0
 			case ["cut"]:
 				root = os.getcwd()
 				today = datetime.datetime.now(datetime.UTC).date().isoformat()
