@@ -11,7 +11,7 @@
 		"misc.httpstatus": {"paths":["","code","reason"]},
 		"misc.iban-test": {"paths":["","country","iban"]},
 		"misc.ip": {"paths":["","cidr","documentation","private","wide4","wide4.o","wide6"]},
-		"misc.ipv6": {"paths":[""]},
+		"misc.ipv6": {"paths":["","g","g.n","g.t"]},
 		"misc.language": {"paths":["","code","code3","name"]},
 		"misc.loglevel": {"paths":["","code","keyword","severity"]},
 		"misc.mac": {"paths":["","local","local.n"]},
