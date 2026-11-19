@@ -318,6 +318,9 @@ et_EE.person.first	string
 et_EE.person.last	string
 et_EE.person.prefix	string null
 et_EE.person.sex	string
+et_EE.phone	format "{number as n}{national}"
+et_EE.phone.international	string
+et_EE.phone.national	string
 et_EE.sex	format "{name}"	key code	name name	weight count
 et_EE.sex-digit	format "{digit}"	parent sex
 et_EE.sex-digit.digit	string
