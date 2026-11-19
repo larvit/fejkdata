@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names and persons, with names weighted by how common they are. Every Swedish postal town ships, and so
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons and NIRs, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
@@ -1072,8 +1072,8 @@ person's, so keep it out of anything that reaches a real system. To make one agr
 
 ### `fr_FR`
 
-`fr_FR`, French, carries `first-name`, `last-name`, `person`, `sex` and `title`. `sex` is `femme` and `homme`, and `title` is `Dr`
-and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
+`fr_FR`, French, carries `department`, `first-name`, `last-name`, `nir`, `person`, `sex`, `sex-digit` and `title`. `sex` is
+`femme` and `homme`, and `title` is `Dr` and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
 
 `fr_FR.first-name` holds the 2,000 commonest first names of each sex and `fr_FR.last-name` the 5,000 commonest last
 names, from INSEE's open files. A first name weighs the children who got it as their first one in the births of 1944
@@ -1086,6 +1086,36 @@ from Eurostat's table `demo_pjan`; Eurostat marks that figure provisional.
 
 A program showing the name counts credits "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee,
 Fichier des noms de famille, 22/05/2018", and one showing the sex counts "Source: Eurostat".
+
+#### NIR
+
+`fr_FR.nir` is a French NIR, the numéro d'inscription au répertoire that INSEE gives everyone born in France and that is
+printed as the numéro de sécurité sociale, written as 15 characters with no spaces, such as `253059724702338`. It passes the
+key check but is not synthetic: INSEE publishes no test series and no unassigned range, so a number may be a living person's.
+The 13 characters before the key are the sex, `1` for a man and `2` for a woman, the year and month of birth, the 5 of the
+department and commune of birth, and the order number, `001` to `999`. The key is 97 less the remainder of those 13
+divided by 97, with Corsica's `2A` and `2B` counted as 19 and 18.
+
+fejkdata draws a birth of someone under 100 by INSEE's counts of under 18, 18 to 64 and 65 and over on 1 January 2026
+("Population au 1er janvier par sexe et âge détaillé", Bilan démographique 2025), a department evenly from 01 to 95 without 20,
+2A, 2B and the overseas 971 to 974 and 976, and a commune and the order number evenly from 001 to 999, 01 to 99 for the
+overseas communes. The commune is a code in its department's range, not one that exists. Corsica is always `2A` or `2B`,
+though a birth there before 1976 is under `20`. A person born abroad, who has `99` for a department, and the numbers that
+start with 3, 4, 7 or 8 are not drawn. A fixture of a few thousand rows starts to repeat a number, and a `UNIQUE`
+column needs a category of your own.
+
+`{nir()}` completes a NIR: it reads the last 13 letters and digits emitted and prints the key. `fr_FR.sex-digit`, under `sex`,
+holds the first character of each sex, so to make a number agree with the sex the template below binds as `s`, write that digit,
+the `body` field of `fr_FR.nir`, which is everything between the sex and the key, then `{nir()}`:
+
+```json
+{ "format": "{first} {last}, {nir}",
+  "first": "{/fr_FR.sex as s}{s.first-name}",
+  "last": "{/fr_FR.last-name}",
+  "nir": "{s.sex-digit.digit}{/fr_FR.nir.body}{nir()}" }
+```
+
+Renders e.g. `Cassie Duflot, 253059724702338`.
 
 ### `geo`
 
@@ -1894,6 +1924,7 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
 | `{cpr(x)}` | derivation | completes a Danish CPR number after the last six digits emitted, its date, with a seventh digit that the CPR office's table of century digits allows for the year, an eighth and a ninth digit it picks, and the check digit, whose parity is that of the digit `x` reads; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1858 to 2057, renders nothing |
+| `{nir()}` | derivation | the key of a French NIR: 97 less the remainder, divided by 97, of the last 13 letters and digits emitted, with a department `2A` or `2B` at the sixth and seventh counted as 19 or 18; two digits, and nothing where those are not a NIR's 13 characters |
 | `{hetu(x)}`, `{hetu(x,'issued')}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number from 900 to 999 of the parity of the digit `x` reads, and the control character; `{hetu(x,'issued')}` takes the individual number from 002 to 899, which DVV issues; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
 | `{bgmod11(x)}` | derivation | a random digit, then the check digit, that complete the digits emitted so far in this expansion to a number Bankgirot's 11-modul accepts: its digits, weighted 1 to 10 from the right and then 1 again, sum to a multiple of 11; the literal digits `x` count as coming first and are not printed (`0` for none) |
 | `{digits(n)}` | sample | `n` digits 0–9 |

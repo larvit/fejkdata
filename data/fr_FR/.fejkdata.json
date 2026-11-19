@@ -1,9 +1,12 @@
 {
 	"index": {
+		"fr_FR.department": {"paths":["","code","commune"]},
 		"fr_FR.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"fr_FR.last-name": {"paths":["","count","name"]},
+		"fr_FR.nir": {"paths":["","body","body.birth","body.place","body.three","body.two"]},
 		"fr_FR.person": {"paths":["","first","last","prefix","sex"]},
-		"fr_FR.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name"]},
+		"fr_FR.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name","sex-digit","sex-digit.digit","sex-digit.sex"]},
+		"fr_FR.sex-digit": {"parent":"sex","paths":["","digit","sex"]},
 		"fr_FR.title": {"paths":["","name","share"]}
 	},
 	"namespace": "fr_FR"

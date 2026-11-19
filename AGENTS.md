@@ -109,6 +109,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `misc.territory` carries a currency code, it does not link to `misc.currency`
 - An extension may name two media types
 - The Danish id draws valid CPR numbers over the last hundred years
+- The French id draws valid NIRs over the last hundred years
 - The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only

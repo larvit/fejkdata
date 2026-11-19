@@ -1,6 +1,9 @@
 package fejktest
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 // CprDigits reads a CPR number, written with or without its hyphen, as ten digits.
 func CprDigits(s string) (d [10]int, ok bool) {
@@ -173,4 +176,21 @@ func steuerCheckDigit(d [11]int) int {
 		product = 2 * sum % 11
 	}
 	return (11 - product) % 10
+}
+
+// ValidNir is INSEE's check of a NIR: thirteen digits, where Corsica's department may be 2A or
+// 2B, then a key that is 97 less the remainder of those digits divided by 97, with 2A and 2B
+// counted as 19 and 18.
+func ValidNir(s string) bool {
+	if len(s) != 15 {
+		return false
+	}
+	number := strings.NewReplacer("2A", "19", "2B", "18").Replace(s[5:7])
+	number = s[:5] + number + s[7:13]
+	if DigitsOnly(number) != number || DigitsOnly(s[13:]) != s[13:] {
+		return false
+	}
+	n, _ := strconv.Atoi(number)
+	key, _ := strconv.Atoi(s[13:])
+	return key == 97-n%97
 }
