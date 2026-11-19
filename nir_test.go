@@ -64,7 +64,7 @@ func TestBuiltinNirReadsOnlyTheLastThirteenLettersAndDigitsEmitted(t *testing.T)
 
 func TestBuiltinNirRendersNothingWhereTheThirteenAreNoNumber(t *testing.T) {
 	f := emptyGenerator(1)
-	for _, pre := range []string{"", "121127713123", "18505cx041012", "185052C041012", "185052a041012", "2A12345678901"} {
+	for _, pre := range []string{"", "121127713123", "18505cx041012", "185052C041012", "185052a041012", "185051A041012", "121127713123a2", "2A12345678901"} {
 		t.Run(pre, func(t *testing.T) {
 			if got := mustRender(t, f, `{"format":"{pre}{nir()}","pre":"`+pre+`"}`); got != pre {
 				t.Errorf("nir() after %q = %q, want nothing after it", pre, got)
