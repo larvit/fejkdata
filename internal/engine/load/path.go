@@ -175,27 +175,25 @@ func CallerPathSteps(n tree.Node, tail []string, steps []tree.PathStep) ([]tree.
 // Paths lists the dot paths a caller is shown below n, relative to it, where "" is n itself.
 // A folder has no value of its own, so it contributes only its children's. A field in a
 // template's "let", and every path below it, is left out: it stays readable by its path.
-func Paths(n tree.Node) []string { return walkPaths(n, pathScope{}) }
+func Paths(n tree.Node) []string { return walkPaths(n, false) }
 
-// pathScope is what walkPaths lists. With intoRepeats, it also lists the paths below a level
-// carrying a repeat, so a path there meets the repeat's refusal. With withLets, it lists the
-// fields in "let" too, the paths a read can reach.
-type pathScope struct{ intoRepeats, withLets bool }
-
-func walkPaths(n tree.Node, s pathScope) []string {
+// walkPaths lists what Paths lists, or with reachable, every path a read can reach: also the
+// paths below a level carrying a repeat, where a path meets the repeat's refusal, and the fields
+// in "let".
+func walkPaths(n tree.Node, reachable bool) []string {
 	switch n := n.(type) {
 	case *tree.Folder:
-		return folderPaths(n, s)
+		return folderPaths(n, reachable)
 	case *tree.Template:
-		return templatePaths(n, s)
+		return templatePaths(n, reachable)
 	case *tree.Table:
-		return tablePaths(n, s)
+		return tablePaths(n, reachable)
 	case *tree.TableColumn, *tree.TableRow, *tree.NullItem:
 		return []string{""}
 	case *tree.Choice:
-		shared := n.Shared()
-		if s != (pathScope{intoRepeats: true, withLets: true}) {
-			shared = sharedPaths(n.Items(), s)
+		shared := n.Shared() // built by compileChoice, with reachable set
+		if !reachable {
+			shared = sharedPaths(n.Items(), false)
 		}
 		return append([]string{""}, tree.SortedNames(shared)...)
 	default:
@@ -205,10 +203,10 @@ func walkPaths(n tree.Node, s pathScope) []string {
 
 // folderPaths is each child's paths under its name, the loaded children first, then those its
 // index lists.
-func folderPaths(f *tree.Folder, s pathScope) []string {
+func folderPaths(f *tree.Folder, reachable bool) []string {
 	var out []string
 	for _, name := range tree.SortedNames(f.Children()) {
-		out = appendUnder(out, name, walkPaths(f.Children()[name], s))
+		out = appendUnder(out, name, walkPaths(f.Children()[name], reachable))
 	}
 	for _, name := range tree.SortedNames(f.Unloaded()) {
 		out = appendUnder(out, name, f.Unloaded()[name].Entry().Paths)
@@ -217,17 +215,17 @@ func folderPaths(f *tree.Folder, s pathScope) []string {
 }
 
 // templatePaths is the template itself, then each field's paths under its name, none below a
-// repeat unless s.intoRepeats, and none of a let field unless s.withLets.
-func templatePaths(t *tree.Template, s pathScope) []string {
+// repeat and none of a let field, unless reachable.
+func templatePaths(t *tree.Template, reachable bool) []string {
 	out := []string{""}
-	if t.Repeat() > 1 && !s.intoRepeats {
+	if t.Repeat() > 1 && !reachable {
 		return out
 	}
 	for _, name := range tree.SortedNames(t.Fields()) {
-		if t.Lets()[name] && !s.withLets {
+		if t.Lets()[name] && !reachable {
 			continue
 		}
-		out = appendUnder(out, name, walkPaths(t.Fields()[name], s))
+		out = appendUnder(out, name, walkPaths(t.Fields()[name], reachable))
 	}
 	return out
 }
@@ -241,11 +239,11 @@ func appendUnder(out []string, name string, ps []string) []string {
 
 // tablePaths is a table's columns, then each table linked to it under its name: the
 // direct descents, a step at a time.
-func tablePaths(t *tree.Table, s pathScope) []string {
+func tablePaths(t *tree.Table, reachable bool) []string {
 	out := append([]string{""}, t.Rows().Header()...)
 	sort.Strings(out[1:])
 	for _, c := range t.ChildTables() {
-		out = appendUnder(out, c.Rows().Segment(), walkPaths(c, s))
+		out = appendUnder(out, c.Rows().Segment(), walkPaths(c, reachable))
 	}
 	return out
 }
@@ -266,13 +264,13 @@ func join(prefix, name string) string {
 // sharedPaths is the sub-paths every item carries — the only ones a path may step
 // through a choice to reach. It intersects, bailing as soon as the set
 // is empty, which is immediate for a choice of plain strings.
-func sharedPaths(items []tree.Node, s pathScope) map[string]bool {
-	shared := subPaths(items[0], s)
+func sharedPaths(items []tree.Node, reachable bool) map[string]bool {
+	shared := subPaths(items[0], reachable)
 	for _, it := range items[1:] {
 		if len(shared) == 0 {
 			return nil
 		}
-		next := subPaths(it, s)
+		next := subPaths(it, reachable)
 		for p := range shared {
 			if !next[p] {
 				delete(shared, p)
@@ -282,10 +280,10 @@ func sharedPaths(items []tree.Node, s pathScope) map[string]bool {
 	return shared
 }
 
-// subPaths is walkPaths(n, s) as a set, without the empty path that means n itself.
-func subPaths(n tree.Node, s pathScope) map[string]bool {
+// subPaths is walkPaths(n, reachable) as a set, without the empty path that means n itself.
+func subPaths(n tree.Node, reachable bool) map[string]bool {
 	out := map[string]bool{}
-	for _, p := range walkPaths(n, s) {
+	for _, p := range walkPaths(n, reachable) {
 		if p != "" {
 			out[p] = true
 		}

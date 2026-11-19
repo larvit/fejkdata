@@ -195,7 +195,7 @@ func compileChoice(items []any, pos position) (tree.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return tree.NewChoice(compiled, cum, sharedPaths(compiled, pathScope{intoRepeats: true, withLets: true})), nil
+	return tree.NewChoice(compiled, cum, sharedPaths(compiled, true)), nil
 }
 
 // compileItems compiles each of items at pos. cum is their cumulative weights, or nil where every
