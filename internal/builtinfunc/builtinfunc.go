@@ -55,7 +55,6 @@ type parsed struct {
 	floats []float64
 }
 
-// plain makes a checkArgs for a builtin whose args hold no number: it checks and returns none.
 // fieldArgs refuses a call as an operand of the builtin called name, which reads a field, a path or a name of its own.
 func fieldArgs(name string) func([]string) error {
 	return func(a []string) error {
@@ -68,6 +67,7 @@ func fieldArgs(name string) func([]string) error {
 	}
 }
 
+// plain makes a checkArgs for a builtin whose args hold no number: it checks and returns none.
 func plain(check func(args []string) error) func([]string) (parsed, error) {
 	return func(a []string) (parsed, error) { return parsed{}, check(a) }
 }
