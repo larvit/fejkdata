@@ -1003,6 +1003,25 @@ place of birth is a department of INSEE's 101 drawn evenly and a commune code in
 that need not exist, and Corsica is always `2A` or `2B`. Item 23 ends the departure from goal
 3.3. Valid while INSEE publishes no test series or unassigned range.
 
+## The Estonian id draws valid isikukoodid over the last hundred years
+
+2026-11-19, Lilleman auf Larv.
+
+Goal 3 (a valid id passes the check the real system applies) is served, and goal 3.3 (a form
+that reaches nothing real) is not: the Interior Minister's regulation "Isikukoodide moodustamise
+ja andmise kord" (RT I, 08.01.2019, 11), which names EVS 585 for the structure, publishes no test
+series and no unassigned range, and neither does the Population Register. So `et_EE.isikukood` is
+valid and may be a living person's, and the README says so, as it does for `fr_FR.nir`. Item 23
+ends the departure from goal 3.3. The regulation lists the first digits 1 to 6, so the id stops at
+the 2000s, and `{isikukood(x,d)}` prints no code for a later year. EVS 585 is not public, so the
+check digit follows python-stdnum's `ee.ik`, which weights 1 to 9 and 1 and then 3 to 9, 1, 2 and 3.
+No source states which serial numbers the register gives, so the serial number is drawn evenly from
+001 to 999, never 000. The first digit names the century of a date that follows it, so the builtin
+takes the date as an operand and prints the whole code, where `hetu` and `cpr` complete one after
+its date; its first operand is `et_EE.sex-digit`'s digit, 1 for a man and 2 for a woman, as
+`fr_FR.sex-digit` does. The age bands weigh Statistics Estonia's population of 1 January 2026.
+Valid while the regulation and the register publish no test series or unassigned range.
+
 ## The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 
 2026-11-12, Lilleman auf Larv.

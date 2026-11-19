@@ -48,6 +48,12 @@ with its replacement, and each removed path, column or flag.
   `fr_FR.sex-digit`, which makes a number agree with a sex bound as `s`, and `fr_FR.department` and
   `fr_FR.nonzero-number`, which `fr_FR.nir` reads. A program showing the birth years credits "Source : Insee, Bilan
   démographique 2025", as `DATA-LICENSES.md` says.
+- `et_EE.isikukood`, an Estonian personal identification code such as `36805280109`, drawn over the last hundred
+  years by Statistics Estonia's counts of people under 18, 18 to 64 and 65 to 99. It passes the check digit but the
+  regulation names no test series and no unassigned range, so a code may be a living person's. Also
+  `{isikukood(x,d)}`, which prints a whole code for the sex digit `x` reads and the `YYYYMMDD` date `d` reads, and
+  `et_EE.sex-digit`, which makes a code agree with a sex bound as `s`. A program showing the birth years credits
+  "Source: Statistics Estonia", as `DATA-LICENSES.md` says.
 - `misc.ip.documentation`, `.private` and `.cidr`, which draw only reserved addresses and blocks: RFC 5737's
   192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24, and RFC 1918's 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16.
   Also `misc.ipv6`, inside RFC 3849's 2001:db8::/32, and `misc.mac.local`, a locally administered unicast address.
