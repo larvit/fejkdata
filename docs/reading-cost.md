@@ -2526,3 +2526,5 @@ Read most (opens and searches):
 - `data/de_DE/email.json` 1
 - `data/en_US/email.json` 1
 - `data/fi_FI/email.json` 1
+
+## Reading cost reset, 2026-11-19T21:36:20Z
