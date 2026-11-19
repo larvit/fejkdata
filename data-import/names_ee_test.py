@@ -8,7 +8,7 @@ names_ee = script("names-ee")
 
 class Recalled(unittest.TestCase):
     def test_a_ranked_name_weighs_100000_over_the_square_root_of_its_rank_and_the_rarer_ones_share_the_last(self) -> None:
-        rows = names_ee.recalled("names", "Aa Bb Cc Dd Ee Ff Gg Hh Ii\n=\nXx Yy")
+        rows = recalled_names.weighted("names", "Aa Bb Cc Dd Ee Ff Gg Hh Ii\n=\nXx Yy", 100000)
         self.assertEqual(
             rows,
             [("Aa", 100000), ("Bb", 70711), ("Cc", 57735), ("Dd", 50000), ("Ee", 44721), ("Ff", 40825), ("Gg", 37796), ("Hh", 35355), ("Ii", 33333), ("Xx", 33333), ("Yy", 33333)],

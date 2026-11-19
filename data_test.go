@@ -320,7 +320,7 @@ func femaleFirstNamesDrawnBesidePeopleOfTheirSex(t *testing.T, f *Generator, loc
 // from one pick, and that two names bound to one person category are two people.
 func TestShippedPersonIsOneNamedPick(t *testing.T) {
 	f := shipped(t, WithSeed(9))
-	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK", "de_DE", "et_EE", "fr_FR"} {
+	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK", "de_DE", "et_EE", "lv_LV", "fr_FR"} {
 		t.Run(locale, func(t *testing.T) {
 			if !twoPeopleOf300RendersDrawApart(t, f, locale) {
 				t.Errorf("%s: two names bound to person drew one first name in 300 renders, want two people", locale)
@@ -438,6 +438,8 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 		"en_US.sex[m].count": "168337882",
 		"et_EE.sex[f].count": "720242",
 		"et_EE.sex[m].count": "649753",
+		"lv_LV.sex[f].count": "997641",
+		"lv_LV.sex[m].count": "862924",
 	} {
 		t.Run(path, func(t *testing.T) {
 			if got := fejktest.Fake(t, f, path); got != want {
