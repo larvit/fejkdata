@@ -683,8 +683,9 @@ What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is s
 `sv_SE.title[dr]` rather than inside a sex.
 
 `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`, `time`, `url`,
-`username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too, and `et_EE`, `fr_FR`, `lt_LT` and
-`lv_LV` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`, written as the country writes them:
+`username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too. `et_EE`, `fr_FR`, `lt_LT` and
+`lv_LV` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`. `price` and `time` are written as the
+country writes them:
 
 | Locale | `price` | `time` |
 |---|---|---|
@@ -697,12 +698,11 @@ What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is s
 A `url` and a `username` are made of the locale's own words, in ASCII, and a `color` is a colour name in the locale's
 language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `weekday` are Unicode CLDR's stand-alone
 names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As for `sv_SE`, `month` is selected by 1 to 12
-and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
+and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`. `lv_LV.weekday` is capitalised, `Pirmdiena`, as CLDR gives it.
 
 The `url` of every locale that has one carries a path `reserved`, and so does the `email` of `da_DK`, `de_DE`, `en_US`,
 `et_EE`, `fi_FI`, `fr_FR`, `lv_LV`, `nb_NO`, `nn_NO` and `sv_SE`. Each `reserved` draws only domains nobody can register:
-`example.com`,
-`example.org` and `example.net`, or a subdomain of one, which [RFC 2606](https://www.rfc-editor.org/rfc/rfc2606)
+`example.com`, `example.org` and `example.net`, or a subdomain of one, which [RFC 2606](https://www.rfc-editor.org/rfc/rfc2606)
 reserves, so `{/sv_SE.url.reserved}` never reaches a real site and `{/sv_SE.email.reserved}` never a real mailbox.
 The default of each of those `url`s also draws domains anyone may register, such as `example.se` and `example.io`, and so
 do the default `sv_SE.email` and `en_US.email`; the other locales' default `email` draws only reserved domains.
