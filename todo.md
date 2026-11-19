@@ -15,7 +15,6 @@
 | 526 | 0.7.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 3 | 6.1 |
 | 528 | 0.7.0 |  |  | **Rebuild the et_EE and fr_FR company words with a word counted once per name.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 3.3 |
 | 511 | 0.7.0 |  |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
-| 513 | 0.7.0 |  |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 514 | 0.7.0 |  |  | **Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 515 | 0.7.0 |  |  | **Add `et_EE.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as Estonia writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
 | 516 | 0.7.0 |  |  | **Add `et_EE.word` with its noun, verb, adjective and adverb forms, and `et_EE.sentence` and `et_EE.paragraph`.** | 2 | 2 | 1 | 3 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
@@ -250,15 +249,6 @@ Touches:
 - `data/lt_LT/`
 - `README.md`: `### Locale categories` (small)
 - `DATA-LICENSES.md`
-
-### 513. Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.
-
-Follow the Nordic and German locales: a price in the country's currency format, a time in its clock style, `url` and `username` from the locale's own words in ASCII, a colour name in its language or a hex code, and `month` and `weekday` as Unicode CLDR's stand-alone names.
-
-Touches:
-
-- `data/fr_FR/`
-- `README.md`: `### Locale categories`
 
 ### 514. Add `fr_FR.word` with its noun, verb, adjective and adverb forms, and `fr_FR.sentence` and `fr_FR.paragraph`.
 
