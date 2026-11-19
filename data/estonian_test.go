@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/larvit/fejkdata"
 	"github.com/larvit/fejkdata/internal/fejktest"
 )
 
@@ -150,21 +151,35 @@ func TestEstonianIsikukoodAgreesWithABoundSex(t *testing.T) {
 }
 
 var (
-	estonianFixed  = regexp.MustCompile(`^(3[23589]|4[3-8]|6[0-8])\d \d{4}$`)
+	estonianFixed  = regexp.MustCompile(`^(3[23589]|4[3-8]|6[0-8]|7[1-9]|88)\d \d{4}$`)
 	estonianMobile = regexp.MustCompile(`^5\d{3} \d{4}$`)
 )
 
-func estonianFixedPhone(t *testing.T) func(n string) bool {
-	t.Helper()
-	return estonianFixed.MatchString
-}
+func estonianFixedPhone(*testing.T) func(n string) bool { return estonianFixed.MatchString }
 
-// The Estonian numbering plan, Annex to the minister's regulation no. 25 of 21 May 2018: 7-digit fixed numbers
-// in 32, 33, 35, 38, 39, 43-48 and 60-68, and 8-digit mobile numbers in 50-59.
+// The Annex to the Estonian numbering plan, regulation no. 25 of 21 May 2018.
 func TestShippedEstonianPhoneLiesInARangeTheNumberingPlanAllocates(t *testing.T) {
 	eachPhone(t, "et_EE", func(n string) {
 		if !estonianFixed.MatchString(n) && !estonianMobile.MatchString(n) {
-			t.Fatalf("phone %q is neither a fixed number in 32 33 35 38 39 43-48 60-68 nor a mobile 5xxx xxxx", n)
+			t.Fatalf("phone %q is neither a fixed number in 32 33 35 38 39 43-48 60-68 71-79 88 nor a mobile 5xxx xxxx", n)
 		}
 	})
+}
+
+func TestShippedEstonianFixedPhoneDrawsEachOfItsThirtyStartsEvenly(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(17))
+	starts := map[string]int{}
+	fejktest.EachDraw(200000, func() string { return fejktest.Fake(t, f, "et_EE.phone") }, func(n string) {
+		if estonianFixed.MatchString(n) {
+			starts[n[:2]]++
+		}
+	})
+	if len(starts) != 30 {
+		t.Fatalf("drew %d fixed starts, want the plan's 30: %v", len(starts), starts)
+	}
+	for start, n := range starts {
+		if n < 480 || n > 730 {
+			t.Errorf("start %s drew %d of about 18182 fixed numbers, want about 606 give or take 125", start, n)
+		}
+	}
 }
