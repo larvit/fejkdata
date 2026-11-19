@@ -142,7 +142,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Fetch govulncheck's report on this Go version and the required modules from vuln.go.dev
+      - name: Fetch govulncheck's report from vuln.go.dev
         id: report
         run: docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
       - name: Release nothing while the report names a known vulnerability
