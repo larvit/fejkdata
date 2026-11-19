@@ -906,6 +906,34 @@ geo.US.street	format "{name}"	weight addresses	parent locality
 geo.US.street.addresses	string
 geo.US.street.locality	string
 geo.US.street.name	string
+lv_LV.first-name	format "{name}"	name name	weight count	parent sex
+lv_LV.first-name.count	string
+lv_LV.first-name.name	string
+lv_LV.first-name.sex	string
+lv_LV.last-name	format "{name}"	name name	weight count	parent sex
+lv_LV.last-name.count	string
+lv_LV.last-name.name	string
+lv_LV.last-name.sex	string
+lv_LV.person	format "{prefix}{first} {last}"	reads lv_LV.first-name lv_LV.title
+lv_LV.person.first	string
+lv_LV.person.last	string
+lv_LV.person.prefix	string null
+lv_LV.person.sex	string
+lv_LV.sex	format "{name}"	key code	name name	weight count
+lv_LV.sex.code	string
+lv_LV.sex.count	string
+lv_LV.sex.first-name
+lv_LV.sex.first-name.count
+lv_LV.sex.first-name.name
+lv_LV.sex.first-name.sex
+lv_LV.sex.last-name
+lv_LV.sex.last-name.count
+lv_LV.sex.last-name.name
+lv_LV.sex.last-name.sex
+lv_LV.sex.name	string
+lv_LV.title	format "{name}"	key name	weight share
+lv_LV.title.name	string
+lv_LV.title.share	string
 misc.car	format "{make} {model}"
 misc.car.make	string
 misc.car.model	string
