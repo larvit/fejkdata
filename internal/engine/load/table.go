@@ -96,7 +96,7 @@ func compileCells(rs *tree.RowsTable) (map[int]*tree.Template, error) {
 			}
 			n, err := compileCell(cell)
 			if err != nil {
-				return nil, fmt.Errorf("line %d, %s: %w", row+2, header[col], err)
+				return nil, fmt.Errorf("line %d, %s: %w", rs.Line(row), header[col], err)
 			}
 			if cells == nil {
 				cells = map[int]*tree.Template{}
