@@ -9,16 +9,17 @@ with its replacement, and each removed path, column or flag.
 
 ### Breaking
 
-- A field in `let` is left out of the listing, outside a record too: `--list` and the `.fejkdata.json` index leave it
-  out, and a record writes no column for it, as it already didn't at its top level. A read of its path still
-  draws it. These fields, which only other fields read, moved into `let`, so they left the listing and the
-  record: `misc.version.n`, `.pre` and `.suffix`; `company-coined.a` and `.b` in `da_DK`, `fi_FI`, `nb_NO`
-  and `sv_SE`; `en_US.price.amt` and `.cents`; `sv_SE.price.amt` and `.ore`; and
-  `sv_SE.organisationsnummer.group`, `.head` and `.tail`. A `--format csv` of a category whose every field
-  moved, such as `misc.version`, fails with `ErrNoColumns`.
+- A field in `let` is left out of the listing at any depth: `--list` and the `.fejkdata.json` index no longer
+  show it or any path below it. A read of its path still draws it. A record never wrote a column for a
+  `let` field. These fields, which only other fields read, moved into `let`, so their paths left the listing:
+  `misc.ip.wide4.o`, `misc.ipv6.g` with `.n` and `.t`, `misc.mac.local.n`, `misc.version.n`, `.pre` and
+  `.suffix`; `company-coined.a` and `.b` in `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `sv_SE`; `price.amt` and
+  `.cents` or `.ore` in `da_DK`, `de_DE`, `en_US`, `fi_FI`, `nb_NO` and `sv_SE`; and
+  `sv_SE.organisationsnummer.group`, `.head` and `.tail`. Already a `let` field, `sv_SE.person.birth` with
+  `.date` and `.sign` left the listing too. A `--format csv` of a category whose every field moved, such as
+  `misc.version`, fails with `ErrNoColumns` and names the one-column record to write instead.
 
 ### Added
-
 
 - `et_EE`, Estonian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/et_EE.person}` renders e.g.
   `Liis Tamm`. Both name tables are a language model's recall, ranked and weighted by rank; the weights are
