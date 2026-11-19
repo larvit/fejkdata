@@ -2528,3 +2528,52 @@ Read most (opens and searches):
 - `data/fi_FI/email.json` 1
 
 ## Reading cost reset, 2026-11-19T21:36:20Z
+
+## Reading cost, chunk ef871465aca1, finished 2026-11-19T21:57:04Z
+
+70621 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/company_ee_test.py` 6
+- `README.md` 4
+- `data-import/company-ee.py` 4
+- `data-import/company_lv_test.py` 4
+- `compose.yaml` 3
+- `data-import/company-lv.py` 3
+- `data-import/geo_test.py` 2
+- `data-import/company_names.py` 1
+
+## Reading cost, chunk 42a70ef0e8f8, finished 2026-11-19T22:09:56Z
+
+74641 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/locales_test.go` 9
+- `README.md` 4
+- `data-import/cldr.py` 3
+- `data/fi_FI/price.json` 3
+- `data/locale_everyday_test.go` 3
+- `CHANGELOG.md` 2
+- `DATA-LICENSES.md` 2
+- `compose.yaml` 2
+- `data/de_DE/.fejkdata.json` 1
+- `data/de_DE/fs.go` 1
+
+## Reading cost, chunk ed75b6cb8b75, finished 2026-11-19T22:31:48Z
+
+73807 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 19
+- `readme_test.go` 10
+- `data/geo_de_test.go` 2
+- `AGENTS.md` 1
+- `DATA-LICENSES.md` 1
+- `cli/cli_test.go` 1
+- `cli/report.go` 1
+- `doc.go` 1
+- `doc_test.go` 1
+- `docs/decisions.md` 1
