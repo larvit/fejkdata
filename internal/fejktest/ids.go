@@ -234,24 +234,23 @@ func isikukoodCheckDigit(s string) int {
 // less the sum of the first ten digits weighted 1, 6, 3, 7, 9, 10, 5, 8, 4 and 2, modulo 11, and
 // modulo 10 where that is 10.
 func ValidPersonasKods(s string) bool {
-	if len(s) != 11 || DigitsOnly(s) != s {
+	if len(s) != 11 || DigitsOnly(s) != s || s[:2] != "32" && !personasKodsDateExists(s) {
 		return false
-	}
-	if s[:2] != "32" {
-		year := 1800 + 100*int(s[6]-'0') + atoi(s[4:6])
-		month, day := atoi(s[2:4]), atoi(s[:2])
-		if s[6] > '2' {
-			return false
-		}
-		if d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC); d.Month() != time.Month(month) || d.Day() != day {
-			return false
-		}
 	}
 	sum := 0
 	for i, w := range [10]int{1, 6, 3, 7, 9, 10, 5, 8, 4, 2} {
 		sum += w * int(s[i]-'0')
 	}
 	return int(s[10]-'0') == (1101-sum)%11%10
+}
+
+// personasKodsDateExists is whether the first seven digits of a code are a date that exists, in the
+// century the seventh names.
+func personasKodsDateExists(s string) bool {
+	year := 1800 + 100*int(s[6]-'0') + atoi(s[4:6])
+	month, day := atoi(s[2:4]), atoi(s[:2])
+	d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	return s[6] <= '2' && d.Month() == time.Month(month) && d.Day() == day
 }
 
 func atoi(s string) int {
