@@ -1021,6 +1021,30 @@ geo.US.street.name	string
 lt_LT.asmens-kodas	format "{/lt_LT.sex as s}{asmenskodas(s.sex-digit.digit,birth)}"	reads lt_LT.sex
 lt_LT.asmens-kodas.birth	string
 lt_LT.color
+lt_LT.company	format "{registered as r}{r}"	reads lt_LT.company lt_LT.company-coined lt_LT.company-word lt_LT.first-name
+lt_LT.company-coined	format "{word}"	weight count
+lt_LT.company-coined.count	string
+lt_LT.company-coined.word	string
+lt_LT.company-word	format "{word}"	weight count
+lt_LT.company-word.count	string
+lt_LT.company-word.word	string
+lt_LT.company.ab	string
+lt_LT.company.ab.name
+lt_LT.company.legal	string
+lt_LT.company.mb	string
+lt_LT.company.mb.name
+lt_LT.company.registered	string
+lt_LT.company.registered.legal
+lt_LT.company.uab	string
+lt_LT.company.uab.name
+lt_LT.company.zub	string
+lt_LT.company.zub.name
+lt_LT.date	format "{date(1970-01-01,2029-12-31,'2006-01-02')}"
+lt_LT.email	format "{local}@{domain}"	reads lt_LT.email lt_LT.person
+lt_LT.email.domain	string
+lt_LT.email.local	string
+lt_LT.email.local.n
+lt_LT.email.reserved	string
 lt_LT.first-name	format "{name}"	name name	weight count	parent sex
 lt_LT.first-name.count	string
 lt_LT.first-name.name	string
