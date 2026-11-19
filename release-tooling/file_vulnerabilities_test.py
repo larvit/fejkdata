@@ -163,6 +163,9 @@ class ReleaseFor(unittest.TestCase):
 		todo = TODO.replace("| 5 | 0.2.0 |", "| 5 | 0.1.2 |")
 		self.assertEqual(file_vulnerabilities.release_for(todo, "0.1.1"), "0.1.2")
 
+	def test_a_row_of_another_table_names_no_release(self) -> None:
+		self.assertEqual(file_vulnerabilities.release_for(TODO.replace("## Items", "| 1 | 0.1.2 |\n\n## Items"), "0.1.1"), "0.1.1")
+
 	def test_a_plan_with_no_items_takes_the_patch(self) -> None:
 		empty = TODO.split("| 5 |")[0] + "\n## Details\n\n"
 		self.assertEqual(file_vulnerabilities.release_for(empty, "0.1.1"), "0.1.1")
@@ -177,11 +180,17 @@ class Retarget(unittest.TestCase):
 		todo = TODO.replace("| 5 | 0.2.0 |  |", "| 5 | 0.1.1 | 3, 4 |")
 		self.assertIn("\n| 5 | 0.1.2 | 3, 4 |", file_vulnerabilities.retarget(todo, "0.1.2"))
 
-	def test_a_row_of_another_table_stays(self) -> None:
-		todo = TODO.replace("## Items", "| 1 | 0.1.1 |\n\n## Items").replace("| 5 | 0.2.0 |", "| 5 | 0.1.1 |")
+	def test_only_the_item_table_s_rows_move_and_every_one_of_them(self) -> None:
+		todo = (
+			TODO.replace("## Items", "| 1 | 0.1.1 |\n\n## Items")
+			.replace("| 5 | 0.2.0 |", "| 5 | 0.1.1 |")
+			.replace("\n\n## Details", "\n| 6 | 0.1.1 |  |  | **Add another.** | 2 | 2 | 2 | 4 | 2 | 1 by 7 | 17.9 |\n\n## Details\n\n| 2 | 0.1.1 |")
+		)
 		moved = file_vulnerabilities.retarget(todo, "0.1.2")
 		self.assertIn("| 1 | 0.1.1 |\n\n## Items", moved)
 		self.assertIn("\n| 5 | 0.1.2 |", moved)
+		self.assertIn("\n| 6 | 0.1.2 |", moved)
+		self.assertIn("## Details\n\n| 2 | 0.1.1 |", moved)
 
 	def test_a_row_under_an_older_minor_stays(self) -> None:
 		todo = TODO.replace("| 5 | 0.2.0 |", "| 5 | 0.1.0 |")
