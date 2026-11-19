@@ -22,7 +22,7 @@ WORDS_MIN = 100
 FORM_MIN = 10
 COINED_MIN = 40
 COINED_ENDS_MIN = 0.05
-VOWELS = "aeiouyåäöæøéüõāēīū"
+VOWELS = "aeiouyåäöæøéüõāēīūąęėįų"
 PERSONS = "pqrstuvw"
 SLOTS = {"X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "F": "{.first-name}", "N": "{int(1,30)}"}
 # A name's kinds of word in order, each a key of SLOTS, a connecting word, or FS for a person.

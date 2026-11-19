@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails and dates, `lt_LT`'s names, persons, asmens kodai and phone numbers, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails and dates, `lt_LT`'s names, persons, asmens kodai, phone numbers, companies, emails and dates, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](docs/locales/geo.md#german-places)).
@@ -700,13 +700,13 @@ names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As f
 and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`. `lv_LV.weekday` is capitalised, `Pirmdiena`, as CLDR gives it.
 
 The `url` of every locale that has one carries a path `reserved`, and so does the `email` of `da_DK`, `de_DE`, `en_US`,
-`et_EE`, `fi_FI`, `fr_FR`, `lv_LV`, `nb_NO`, `nn_NO` and `sv_SE`. Each `reserved` draws only domains nobody can register:
+`et_EE`, `fi_FI`, `fr_FR`, `lt_LT`, `lv_LV`, `nb_NO`, `nn_NO` and `sv_SE`. Each `reserved` draws only domains nobody can register:
 `example.com`, `example.org` and `example.net`, or a subdomain of one, which [RFC 2606](https://www.rfc-editor.org/rfc/rfc2606)
 reserves, so `{/sv_SE.url.reserved}` never reaches a real site and `{/sv_SE.email.reserved}` never a real mailbox.
 The default of each of those `url`s also draws domains anyone may register, such as `example.se` and `example.io`, and so
 do the default `sv_SE.email` and `en_US.email`; the other locales' default `email` draws only reserved domains.
 
-The dates of `da_DK.date`, `de_DE.date`, `en_US.date`, `et_EE.date`, `fi_FI.date`, `fr_FR.date`, `lv_LV.date`, `nb_NO.date`, `nn_NO.date` and `sv_SE.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
+The dates of `da_DK.date`, `de_DE.date`, `en_US.date`, `et_EE.date`, `fi_FI.date`, `fr_FR.date`, `lt_LT.date`, `lv_LV.date`, `nb_NO.date`, `nn_NO.date` and `sv_SE.date` are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 
 #### Names and sex
 
@@ -747,7 +747,7 @@ neighbouring postort.
 | `fi_FI` | [Finnish](docs/locales/fi_FI.md) | Finnish companies; Finnish dates and emails; Finnish phone numbers; Finnish words; Henkilötunnus; Henkilötunnus matched to a sex; Henkilötunnus of the issued range |
 | `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers |
 | `geo` | [Places](docs/locales/geo.md) | Across countries; Danish places; Finnish places; German places; Norwegian places; Swedish places; US places |
-| `lt_LT` | [Lithuanian](docs/locales/lt_LT.md) | Lithuanian phone numbers |
+| `lt_LT` | [Lithuanian](docs/locales/lt_LT.md) | Lithuanian companies; Lithuanian dates and emails; Lithuanian phone numbers |
 | `lv_LV` | [Latvian](docs/locales/lv_LV.md) | Latvian companies; Latvian dates and emails; Latvian phone numbers |
 | `misc` | [Shared by every locale](docs/locales/misc.md) | Reserved addresses; Credit cards and IBANs; Registry tables; Territories; Time zones |
 | `nb_NO` | [Norwegian Bokmål](docs/locales/nb_NO.md) | Fødselsnummer; Fødselsnummer matched to a sex; Norwegian companies; Norwegian dates and emails; Norwegian phone numbers; Norwegian words |
@@ -1926,7 +1926,7 @@ A shipped table built from a source is rebuilt by its script under
 read a table another one writes. `cldr.py` and `timezone.py` read
 `misc/territory.tsv`. `company-se.py` reads the sv_SE names and `geo/SE`,
 `company-no.py` the nb_NO names and `geo/NO`, `company-fr.py` the fr_FR names,
-`company-ee.py` the et_EE names and `company-lv.py` the lv_LV names.
+`company-ee.py` the et_EE names, `company-lt.py` the lt_LT names and `company-lv.py` the lv_LV names.
 
 Downloads are cached under `data-import/cache/`, which version control ignores and
 which grows past a gigabyte. Delete that folder to fetch afresh, or pass
@@ -1942,6 +1942,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `geo-se.py` fetches SCB's småort polygons, about 120 MB, and its tätort polygons.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 - `company-fr.py` fetches Sirene's StockUniteLegale, about a gigabyte.
+- `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.
 - `company-lv.py` fetches the Register of Enterprises' open data, 129 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
@@ -1966,6 +1967,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/car-s
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-ee.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-fr.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-lt.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-lv.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py

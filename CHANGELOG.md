@@ -61,6 +61,12 @@ with its replacement, and each removed path, column or flag.
   put them. The name shapes and the words of `company-word` and `company-coined` come from the register's names, and a
   word weighs the names that hold it. Also `lv_LV.date`, a date from 1970 to 2029 such as `02.04.2019`, and
   `lv_LV.email`, built like `de_DE.email`, with a `reserved` path.
+- `lt_LT.company`, an invented name such as `UAB "Alfa"` and a legal form: a `UAB`, `MB`, `ŽŪB` or `AB`, each drawn as
+  often as the Register of Legal Entities' open data (CC BY 4.0) counts the entities of that form. The abbreviation and
+  the quotes sit where the register's names of that form put them. The name shapes and the words of `company-word` and
+  `company-coined` come from the register's names, and a word weighs the names that hold it. A program showing it
+  credits "Valstybės įmonė Registrų centras". Also `lt_LT.date`, a date from 1970 to 2029 such as `2019-04-02`, and
+  `lt_LT.email`, built like `de_DE.email`, with a `reserved` path.
 - `et_EE`, Estonian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/et_EE.person}` renders e.g.
   `Liis Tamm`. Both name tables are a language model's recall, ranked and weighted by rank; the weights are
   estimates. A woman bears the feminine form of a Russian last name, such as `Ivanova`. `et_EE.sex` carries Estonia's population on 1 January 2025 from

@@ -2577,3 +2577,15 @@ Read most (opens and searches):
 - `doc.go` 1
 - `doc_test.go` 1
 - `docs/decisions.md` 1
+
+## Reading cost, chunk 5174eb0cb27c, finished 2026-11-19T23:08:37Z
+
+68992 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 4
+- `CHANGELOG.md` 3
+- `DATA-LICENSES.md` 1
+- `data-import/company-ee.py` 1
+- `data/fr_FR/company-coined.tsv` 1
