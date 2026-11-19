@@ -1,6 +1,6 @@
 # `geo`
 
-The `geo` namespace holds one tree per country under its alpha-2 code: five [linked tables](../../README.md#linked-tables) named alike, and an `address` record binding one locality and drawing its postal code inside it, and its street too where the country's streets are real. The locale's `address` prints that record, and each of its columns describes the address printed.
+The `geo` namespace holds one tree per country under its alpha-2 code: five [linked tables](../../README.md#linked-tables) named alike, and an `address` record binding one locality and drawing its postal code inside it, and its street too where the country's streets are real. A locale's `address` prints that record, and each of its columns describes the address printed.
 
 | Table | `geo.DE` | `geo.DK` | `geo.FI` | `geo.NO` | `geo.SE` | `geo.US` | Weight |
 |-------|----------|----------|----------|----------|----------|----------|--------|
