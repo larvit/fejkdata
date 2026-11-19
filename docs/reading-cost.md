@@ -2157,3 +2157,20 @@ Read most (opens and searches):
 - `data-import/geo_test.py` 1
 - `data/danish_test.go` 1
 - `data/finnish_test.go` 1
+
+## Reading cost, chunk 4eb1c0d1f2d8, finished 2026-11-19T09:09:55Z
+
+65777 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/builtinfunc/builtinfunc_test.go` 3
+- `internal/builtinfunc/builtins.go` 3
+- `internal/builtinfunc/checksum.go` 3
+- `internal/builtinfunc/builtinfunc.go` 2
+- `internal/builtinfunc/calc.go` 2
+- `internal/builtinfunc/layout.go` 2
+- `README.md` 1
+- `compose.yaml` 1
+- `internal/builtinfunc/daybound.go` 1
+- `internal/builtinfunc/tick.go` 1
