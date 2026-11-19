@@ -432,6 +432,26 @@ Touches:
 - `data/lt_LT/`
 - `README.md`: `### Locale categories` (small)
 
+### 350. Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.
+
+The decisions "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" and "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag" each record a paired ruling that found the project reads worse, and this item ends both costs. f90b4d6 is from before CI filed vulnerabilities into the plan, and 5aca8a1 from before it cut patches. The means: less of `todo.md`'s layout in the filer and the merge gate, one writer of `CHANGELOG.md`'s release sections, and fewer linked jobs between the gate, the release and the plan. The ruling against f90b4d6, on filing vulnerabilities into the plan, named the merge gate reading `todo.md`, the filer splicing `todo.md` as text, and a release waiting on vuln.go.dev. The ruling against 5aca8a1, on CI cutting patches, named two linked scripts, four linked jobs and several writers of `CHANGELOG.md`. A ruling against 5aca8a1 alone can't see the first loss, since 5aca8a1 already holds it. The seats' places from the 2026-10-14 and 2026-10-15 rulings name what to make easier to read: `vulnerability-filing/file_vulnerabilities.py` `ROW`, `file_items`, `plan` and `release_for`, `release-tooling/patch_release.py` `FILER`, `.github/workflows/test.yml` `release` and `plan` with their combined conditions, `.github/workflows/packages.yml` "Whether the tag is the latest release", which reads the latest release from a script named for patches, `Dockerfile`'s `vulnerability-filing` stage, which copies `todo.md` into the merge gate, and `CHANGELOG.md`'s three writers.
+
+Touches:
+
+- `vulnerability-filing/file_vulnerabilities.py`
+- `vulnerability-filing/file_vulnerabilities_test.py`
+- `release-tooling/patch_release.py`
+- `release-tooling/patch_release_test.py`
+- `release-tooling/changelog.py`
+- `release-tooling/changelog_test.py`
+- `release-tooling/propose_plan.py`
+- `release-tooling/propose_plan_test.py`
+- `.github/workflows/test.yml`: lines 102-223
+- `.github/workflows/packages.yml`: lines 75-87
+- `Dockerfile`: lines 31-46, lines 69-75 (small)
+- `README.md`: `## Layout` (small), `## Development`
+- `AGENTS.md`: lines 125-126 (small)
+
 ### 274. Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.
 
 Touches:
