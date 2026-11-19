@@ -371,7 +371,7 @@ func (t *Table[O]) Link(p *Table[O], sibling func(name string) *Table[O]) error 
 	}
 	for r := 0; r < p.Len(); r++ {
 		if k := p.Cell(r, p.keyIndex); !linked[k] {
-			return fmt.Errorf("%s links no row to %s %q; every %s row needs one, or drop line %d of %s", t.file, name, k, name, t.Line(r), p.file)
+			return fmt.Errorf("%s links no row to %s %q; every %s row needs one, or drop line %d of %s", t.file, name, k, name, p.Line(r), p.file)
 		}
 	}
 	t.parent = p
