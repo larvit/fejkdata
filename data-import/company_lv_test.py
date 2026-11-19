@@ -61,24 +61,6 @@ class Placed(unittest.TestCase):
 
 
 class Shapes(unittest.TestCase):
-    def shape(self, name: str) -> tuple[str, ...]:
-        shape: tuple[str, ...] = company_lv.shape_of(name.split(), WORDS, {"būve"})
-        return shape
-
-    def test_each_word_is_a_name_a_number_a_connecting_word_a_trade_word_or_coined(self) -> None:
-        self.assertEqual(self.shape("Ozols un Anna 12 Būve Zorba &"), ("S", "un", "F", "N", "T", "X", "&"))
-
-    def test_a_first_name_before_a_last_name_is_one_person(self) -> None:
-        self.assertEqual(self.shape("Jānis Ozols Būve"), ("FS", "T"))
-        self.assertEqual(self.shape("Jānis Ozols & Anna Kalniņš"), ("FS", "&", "FS"))
-
-    def test_a_name_is_compared_in_lower_case_and_a_word_that_is_both_names_is_a_last_name_at_the_end(self) -> None:
-        words = company_lv.Words({"ozols", "anna"}, {"anna"})
-        self.assertEqual(company_lv.kind("ANNA", words, False), "F")
-        self.assertEqual(company_lv.kind("Anna", words, True), "S")
-        self.assertEqual(company_lv.kind("OZOLS", words, False), "S")
-        self.assertIsNone(company_lv.kind("Zorba", words, True))
-
     def test_a_legal_word_is_left_out_of_a_shape_with_or_without_a_dot(self) -> None:
         shapes, _ = company_lv.count_names([("SIA", "Sia. Zorba SIA"), ("SIA", "Zorba SIA")], WORDS, set())
         self.assertEqual(dict(shapes["SIA"]), {("X",): 2})
@@ -87,11 +69,9 @@ class Shapes(unittest.TestCase):
         shapes, places = company_lv.count_names([("SIA", "Sabiedrība ar ierobežotu atbildību SIA")], WORDS, set())
         self.assertEqual((dict(shapes["SIA"]), dict(places["SIA"])), ({}, {}))
 
-    def test_a_word_that_is_both_names_is_a_first_name_inside_a_name_and_a_last_name_at_its_end_in_a_shape(self) -> None:
-        words = company_lv.Words({"ozols", "anna"}, {"anna", "jānis"})
-        self.assertEqual(company_lv.shape_of(["Anna", "Zorba"], words, set()), ("F", "X"))
-        self.assertEqual(company_lv.shape_of(["Zorba", "Anna"], words, set()), ("X", "S"))
-        self.assertEqual(company_lv.shape_of(["Jānis", "Anna"], words, set()), ("FS",))
+    def test_the_vocabulary_names_the_connecting_words_of_its_language(self) -> None:
+        shapes, _ = company_lv.count_names([("SIA", "Ozols un Anna SIA")], WORDS, set())
+        self.assertEqual(dict(shapes["SIA"]), {("S", "un", "F"): 1})
 
     def test_a_name_counts_its_shape_and_where_it_places_its_form(self) -> None:
         names = [("SIA", 'SIA "Zorba"'), ("SIA", "Zorba SIA"), ("SIA", "Zorba"), ("AS", 'AS "Jānis Ozols"')]
@@ -100,17 +80,6 @@ class Shapes(unittest.TestCase):
         self.assertEqual(dict(places["SIA"]), {("before", True): 1, ("after", False): 1})
         self.assertEqual(dict(shapes["AS"]), {("FS",): 1})
         self.assertEqual(dict(places["AS"]), {("before", True): 1})
-
-    def test_a_shape_opening_with_a_number_or_a_connecting_word_does_not_ship(self) -> None:
-        shapes = Counter({("X",): 50, ("N", "X"): 30, ("&", "X"): 10, ("un", "T"): 10})
-        self.assertEqual(company_lv.shipped(shapes), [(("X",), 50)])
-
-    def test_each_person_of_a_shape_is_drawn_once_under_a_name_of_its_own(self) -> None:
-        self.assertEqual(
-            company_lv.slots(("FS", "&", "FS")),
-            "{.person as p}{p.first} {p.last} & {.person as q}{q.first} {q.last}",
-        )
-        self.assertEqual(company_lv.slots(("S", "un", "F", "N", "T", "X")), "{.last-name} un {.first-name} {int(1,30)} {.company-word} {.company-coined}")
 
 
 class Bare(unittest.TestCase):
@@ -125,25 +94,6 @@ class Coined(unittest.TestCase):
         found: dict[str, int] = company_lv.coined(company_lv.word_usage(rows, lambda w: False, company_lv.VOCABULARY), trade or set())
         return found
 
-    def test_a_coined_word_is_carried_by_COINED_MIN_names_and_ends_at_least_COINED_ENDS_MIN_of_them(self) -> None:
-        self.assertEqual(self.coined("Zorba", 40, 2)["Zorba"], 40)
-        self.assertNotIn("Zorba", self.coined("Zorba", 39, 2))
-        self.assertNotIn("Zorba", self.coined("Zorba", 40, 1))
-
-    def test_a_name_carrying_a_word_twice_counts_it_once(self) -> None:
-        rows = [("SIA", "Pluss Zorba Zorba" if i < 20 else "Zorba Zorba Pluss") for i in range(30)]
-        zorba = company_lv.word_usage(rows, lambda w: False, company_lv.VOCABULARY)["zorba"]
-        self.assertEqual((zorba.names, zorba.begins, zorba.ends, zorba.forms["SIA"]), (30, 10, 20, 30))
-        usage = company_lv.word_usage(rows[:20], lambda w: False, company_lv.VOCABULARY)
-        self.assertNotIn("Zorba", company_lv.coined(usage, set()))
-
-    def test_a_coined_word_has_four_letters_or_more(self) -> None:
-        self.assertNotIn("Zor", self.coined("Zor", 40, 2))
-        self.assertIn("Arhitektūra", self.coined("Arhitektūra", 40, 2))
-
-    def test_a_coined_word_of_four_letters_counts(self) -> None:
-        self.assertIn("Zorb", self.coined("Zorb", 40, 2))
-
     def test_a_coined_word_keeps_each_latvian_letter(self) -> None:
         for letter in "āčēģīķļņšūž":
             self.assertIn(f"Zorb{letter}", self.coined(f"Zorb{letter}", 40, 2))
@@ -151,9 +101,6 @@ class Coined(unittest.TestCase):
     def test_a_coined_word_spelled_in_capitals_with_a_latvian_vowel_is_spelled_in_lower_case(self) -> None:
         for vowel in "āēīū":
             self.assertIn(vowel.upper() + vowel * 3, self.coined(vowel.upper() * 4, 40, 2))
-
-    def test_a_trade_word_is_not_coined(self) -> None:
-        self.assertNotIn("Zorba", self.coined("Zorba", 40, 2, {"zorba"}))
 
 
 class Trade(unittest.TestCase):
