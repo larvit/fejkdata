@@ -1013,8 +1013,8 @@ ja andmise kord" (RT I, 08.01.2019, 11), which names EVS 585 for the structure, 
 series and no unassigned range, and neither does the Population Register. So `et_EE.isikukood` is
 valid and may be a living person's, and the README says so, as it does for `fr_FR.nir`. Item 23
 ends the departure from goal 3.3. The regulation lists the first digits 1 to 6, so the id stops at
-the 2000s, and `{isikukood(x,d)}` renders nothing for a later year. EVS 585 is not public, so the
-check digit follows python-stdnum's `ee.ik`, which weighs 1 to 9 and 1 and then 3 to 9, 1, 2 and 3.
+the 2000s, and `{isikukood(x,d)}` prints no code for a later year. EVS 585 is not public, so the
+check digit follows python-stdnum's `ee.ik`, which weights 1 to 9 and 1 and then 3 to 9, 1, 2 and 3.
 No source states which serial numbers the register gives, so the serial number is drawn evenly from
 001 to 999, never 000. The first digit names the century of a date that follows it, so the builtin
 takes the date as an operand and prints the whole code, where `hetu` and `cpr` complete one after
