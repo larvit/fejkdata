@@ -1293,8 +1293,8 @@ country's streets, the only source is OpenStreetMap. ODbL binds a database deriv
 to share-alike and attribution, and every program linking that country's geo package would
 inherit both terms. So that country's `address` draws an invented street: names from a
 language model's recall, each weighing the same, as the project principle for `da_DK.company`
-states. A half address helps no one, and an invented street is better than none. The
-README's Data section says beside each such country that its streets are invented.
+states. A half address helps no one, and an invented street is better than none.
+The `geo` page's section for each such country says that its streets are invented.
 `data-import/geo.py`'s `invented_streets` builds the fallback, and `geo.DE` is its first user. Goal 3 allows invented values but ranks them after
 real ones, so a country's streets offer one kind until `todo.md` item 218 gives it its real
 streets. Valid until `todo.md` item 218 ships: the decision "The project takes open licences, share-alike ones included" accepts ODbL data.
