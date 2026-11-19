@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 350 | 0.7.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 4.1 |
 | 273 | 0.7.0 |  |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
 | 498 | 0.7.0 |  |  | **Add `et_EE` with its given names by sex, last names and titles, and `et_EE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
 | 499 | 0.7.0 | 498 |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
@@ -239,26 +238,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 350. Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.
-
-The decisions "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" and "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag" each record a paired ruling that found the project reads worse, and this item ends both costs. f90b4d6 is from before CI filed vulnerabilities into the plan, and 5aca8a1 from before it cut patches. The means: less of `todo.md`'s layout in the filer and the merge gate, one writer of `CHANGELOG.md`'s release sections, and fewer linked jobs between the gate, the release and the plan. The ruling against f90b4d6, on filing vulnerabilities into the plan, named the merge gate reading `todo.md`, the filer splicing `todo.md` as text, and a release waiting on vuln.go.dev. The ruling against 5aca8a1, on CI cutting patches, named two linked scripts, four linked jobs and several writers of `CHANGELOG.md`. A ruling against 5aca8a1 alone can't see the first loss, since 5aca8a1 already holds it. The seats' places from the 2026-10-14 and 2026-10-15 rulings name what to make easier to read: `vulnerability-filing/file_vulnerabilities.py` `ROW`, `file_items`, `plan` and `release_for`, `release-tooling/patch_release.py` `FILER`, `.github/workflows/test.yml` `release` and `plan` with their combined conditions, `.github/workflows/packages.yml` "Whether the tag is the latest release", which reads the latest release from a script named for patches, `Dockerfile`'s `vulnerability-filing` stage, which copies `todo.md` into the merge gate, and `CHANGELOG.md`'s three writers.
-
-Touches:
-
-- `vulnerability-filing/file_vulnerabilities.py`
-- `vulnerability-filing/file_vulnerabilities_test.py`
-- `release-tooling/patch_release.py`
-- `release-tooling/patch_release_test.py`
-- `release-tooling/changelog.py`
-- `release-tooling/changelog_test.py`
-- `release-tooling/propose_plan.py`
-- `release-tooling/propose_plan_test.py`
-- `.github/workflows/test.yml`: lines 102-223
-- `.github/workflows/packages.yml`: lines 75-87
-- `Dockerfile`: lines 31-46, lines 69-75 (small)
-- `README.md`: `## Layout` (small), `## Development`
-- `AGENTS.md`: lines 125-126 (small)
 
 ### 273. Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.
 
