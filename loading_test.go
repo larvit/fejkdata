@@ -33,7 +33,7 @@ func TestList(t *testing.T) {
 	}
 }
 
-func letFieldData(t *testing.T) string {
+func hiddenFieldData(t *testing.T) string {
 	t.Helper()
 	return writeData(t, map[string]string{
 		"ip":    `{"format":"{v4}.{v4}","v4":{"format":"{o}.{o}","hidden":{"o":["1","2"]}}}`,
@@ -46,7 +46,7 @@ func letFieldData(t *testing.T) string {
 // TestListLeavesOutHiddenFields pins that a "hidden" field is left out of the listing at any depth,
 // with every path below it.
 func TestListLeavesOutHiddenFields(t *testing.T) {
-	got := newGenerator(t, letFieldData(t), WithSeed(1)).List()
+	got := newGenerator(t, hiddenFieldData(t), WithSeed(1)).List()
 	want := []string{"cheat", "coin", "coin.name", "ip", "ip.v4", "ver", "ver.tag"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("List() = %v, want %v", got, want)
@@ -56,7 +56,7 @@ func TestListLeavesOutHiddenFields(t *testing.T) {
 // TestHiddenFieldStaysReadableByItsPath pins that a read of a "hidden" field renders, directly and
 // through a choice's variants.
 func TestHiddenFieldStaysReadableByItsPath(t *testing.T) {
-	f := newGenerator(t, letFieldData(t), WithSeed(1))
+	f := newGenerator(t, hiddenFieldData(t), WithSeed(1))
 	for _, p := range []string{"ip.v4.o", "ver.n", "ver.n.d", "coin.code"} {
 		t.Run(p, func(t *testing.T) {
 			if _, err := f.Fake(p); err != nil {
@@ -283,6 +283,10 @@ func TestNewNamesAnOptionWithNoEffectAndANameNoPathCanReach(t *testing.T) {
 		"an option name used as a token": {
 			map[string]string{"a": `"{weight}"`},
 			`"weight" is an option and can never be a field`,
+		},
+		"the old option name used as a token": {
+			map[string]string{"a": `"{let}"`},
+			`"let" was the option now named hidden and can never be a field`,
 		},
 		"category name with a dot": {
 			map[string]string{"a.b": `"1"`},

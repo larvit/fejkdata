@@ -708,7 +708,7 @@ func threeRecordsAsTheCLIWritesThem(t *testing.T, f *Generator, path string, csv
 	return got
 }
 
-func TestReadmeLetAndNameReadExamplesOutput(t *testing.T) {
+func TestReadmeHiddenAndNameReadExamplesOutput(t *testing.T) {
 	src := readme(t)
 	for _, c := range []struct {
 		after, name, command string
