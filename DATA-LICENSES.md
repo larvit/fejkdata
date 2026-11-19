@@ -420,9 +420,10 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 - Source, first names: the Office of Citizenship and Migration Affairs (PMLP)'s [Personu
   vārdi](https://data.gov.lv/dati/dataset/personu-vardi) of 1 July 2026, the file `Vardi-dz`: the
-  persons of the Natural Persons Register bearing each first given name, by sex, for the 2,000
-  commonest names of each sex. The register holds foreigners' names too, so some names are not
-  Latvian
+  persons of the Natural Persons Register bearing each name or combination of names, by sex. The
+  import counts each person under the first of their given names, summing the rows, and keeps the
+  2,000 commonest names of each sex. The register holds foreigners' names too, so some names are
+  not Latvian
 - Source, last names: a language model's recall of names common in Latvia, as PMLP publishes no
   last names. The commoner names are ranked from the most to the least common, each with an
   estimated count of 100000 over the square root of its rank, then the rarer ones, sharing the
@@ -620,9 +621,10 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Files: `sv_SE/birth-number.tsv`, `sv_SE/title.tsv`, `nb_NO/title.tsv`, `nn_NO/title.tsv`,
   `da_DK/title.tsv`, `fi_FI/title.tsv`, `de_DE/title.tsv`, `et_EE/title.tsv`, `lv_LV/title.tsv`,
   `en_US/title.tsv`, `misc/car.tsv`
-- Source: curated; Skatteverket's test birth numbers are facts, `lv_LV/title.tsv` follows the
-  abbreviations `Dr.` and `prof.` of the Cabinet's regulation on the spelling of personal names in
-  Latvian, and `car.tsv` waits for an international source (goal 3.2)
+- Source: curated; Skatteverket's test birth numbers are facts, `lv_LV/title.tsv` holds the
+  abbreviations `Dr.` and `prof.` that [Cabinet Regulation No. 114](https://likumi.lv/ta/id/85209)
+  of 2 March 2004, on the writing and use of personal names in Latvian, lists among an academic
+  degree's and title's abbreviations, and `car.tsv` waits for an international source (goal 3.2)
 - Licence: —
 - Attribution: —
 - Rebuild: —

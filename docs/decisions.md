@@ -1752,8 +1752,8 @@ not end as these do, such as `Liepa`, is the same under both. So `last-name` lin
 each, and `person` draws the last name under its first name's sex. `data-import/names-lv.py` holds the
 endings, and its test the pairs.
 
-The sex counts are Eurostat's table demo_pjan for Latvia. `title` holds `Dr.` and `prof.`, as the Cabinet's
-regulation on the spelling of personal names in Latvian writes them. Valid while PMLP publishes no last names; an
+The sex counts are Eurostat's table demo_pjan for Latvia. `title` holds `Dr.` and `prof.`, abbreviations
+Cabinet Regulation No. 114 of 2 March 2004 lists for an academic degree and title. Valid while PMLP publishes no last names; an
 open register of them replaces the recall.
 
 ## `da_DK.company` weighs its legal forms by Statistics Denmark's enterprises and draws its names from a language model's recall
