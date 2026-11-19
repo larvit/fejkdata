@@ -18,6 +18,7 @@ func TestValidIsikukoodAppliesTheTwoWeightsAndTheZero(t *testing.T) {
 		"36805280109": true, "36805280108": false, "36805280113": true, "36805280112": false,
 		"36805280600": true, "36805280609": false, "3680528010": false, "368052801090": false,
 		"96805280109": false, "06805280109": false, "36813280109": false, "36805320109": false,
+		"36813280103": false, "36805320106": false, "76805280102": false, "06805280106": false,
 	} {
 		if got := fejktest.ValidIsikukood(code); got != want {
 			t.Errorf("ValidIsikukood(%q) = %v, want %v", code, got, want)
@@ -58,7 +59,7 @@ func TestBuiltinIsikukoodRendersNothingForAnOperandItDoesNotRead(t *testing.T) {
 	f := emptyGenerator(12)
 	for _, c := range []struct{ date, sex string }{
 		{"19680528", ""}, {"19680528", "0"}, {"19680528", "3"}, {"19680528", "12"}, {"19680528", "m"},
-		{"", "1"}, {"680528", "1"}, {"196805280", "1"}, {"1968-05-28", "1"}, {"17991231", "1"},
+		{"", "1"}, {"1968052a", "1"}, {"1968052", "1"}, {"680528", "1"}, {"196805280", "1"}, {"1968-05-28", "1"}, {"17991231", "1"},
 		{"21000101", "1"}, {"21991231", "2"}, {"19681328", "1"}, {"19680532", "1"}, {"20230229", "1"},
 	} {
 		t.Run(c.date+" "+c.sex, func(t *testing.T) {
