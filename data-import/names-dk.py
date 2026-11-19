@@ -12,10 +12,10 @@
 A name that girls and boys both bear has a row under each sex.
 """
 import argparse
-import sys
 from collections.abc import Mapping
 from pathlib import Path
 
+import recalled_names
 import tsv
 
 OUT = Path(__file__).resolve().parent.parent / "data" / "da_DK"
@@ -151,14 +151,8 @@ Vang Weber Wilhelmsen Wittrup Østergaard
 
 def ranked(top: Mapping[str, int], recalled: str, what: str) -> list[tuple[str, int]]:
     """The rows (name, count) of a list: the top 20 as published, the recalled names in order, then the rarer ones, which share a count."""
-    ordered, _, rarer = (part.split() for part in recalled.partition("\n=\n"))
-    names = list(top) + ordered + rarer
-    dupes = sorted({n for n in names if names.count(n) > 1})
-    if dupes:
-        sys.exit(f"{what}: listed twice: {', '.join(dupes)}")
-    for name in names:
-        if not tsv.NAME.match(name):
-            sys.exit(f"{what}: {name!r} is not a name in letters")
+    ordered, rarer = recalled_names.split(what, recalled, top)
+    names = [*top, *ordered, *rarer]
     twentieth = min(top.values())
     rows = list(top.items())
     for rank, name in enumerate(ordered, start=len(top) + 1):

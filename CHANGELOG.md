@@ -9,6 +9,11 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
+- `et_EE`, Estonian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/et_EE.person}` renders e.g.
+  `Liis Tamm`. Both name tables are a language model's recall, ranked and weighted by rank; the weights are
+  estimates. A woman bears the feminine form of a Russian last name, such as `Ivanova`. `et_EE.sex` carries Estonia's population on 1 January 2025 from
+  Eurostat, and a program showing it credits "Source: Eurostat". The Go package is
+  `github.com/larvit/fejkdata/data/et_EE`, and the CLI carries it.
 - `fr_FR`, French: `first-name` by sex, `last-name`, `title`, `sex` and `person`, such as `Danielle Faucher`. A first name
   weighs the children who got it as their first one in 1944 to 2023, and a last name the people born in 1891 to 2000 who
   bear it, from INSEE (Licence Ouverte 2.0); `sex` weighs femme and homme by the population on 1 January 2025 from
