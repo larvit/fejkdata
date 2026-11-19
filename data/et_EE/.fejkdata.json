@@ -1,5 +1,10 @@
 {
 	"index": {
+		"et_EE.company": {"paths":["","as","as.name","fie","fie.name","legal","ou","ou.name","registered","registered.legal","tu","tu.name","uu","uu.name"]},
+		"et_EE.company-coined": {"paths":["","count","word"]},
+		"et_EE.company-word": {"paths":["","count","word"]},
+		"et_EE.date": {"paths":[""]},
+		"et_EE.email": {"paths":["","domain","local","local.n"]},
 		"et_EE.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"et_EE.isikukood": {"paths":["","birth"]},
 		"et_EE.last-name": {"parent":"sex","paths":["","count","name","sex"]},
