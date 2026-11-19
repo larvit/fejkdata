@@ -2191,3 +2191,26 @@ Read most (opens and searches):
 - `inline.go` 1
 - `inline_test.go` 1
 - `internal/grammar/reference.go` 1
+
+## Reading cost, chunk 20d9c572ca6b, finished 2026-11-19T09:59:03Z
+
+41308 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/rows/rows.go` 4
+- `internal/rows/rows_test.go` 3
+- `internal/engine/load/graph.go` 2
+- `internal/engine/load/table.go` 2
+
+## Reading cost, chunk 23b39ccd809d, finished 2026-11-19T10:04:19Z
+
+61769 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `struct.go` 4
+- `record.go` 2
+- `README.md` 1
+- `compose.yaml` 1
+- `internal/engine/record.go` 1
