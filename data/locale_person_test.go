@@ -56,7 +56,7 @@ func TestLocaleFirstNameOfBothSexesIsARowUnderEach(t *testing.T) {
 
 func TestLocaleNameTablesHoldTwoHundredNamesOrMore(t *testing.T) {
 	eachLocale(t, hasNames, func(t *testing.T, l shippedLocale) {
-		first, last := nameCounts(t, l.name, "first-name"), nameCounts(t, l.name, "last-name")[""]
+		first, last := nameCounts(t, l.name, "first-name"), lastNameCounts(t, l.name)
 		for what, got := range map[string]map[string]int{"girls": first["f"], "boys": first["m"], "last names": last} {
 			t.Run(what, func(t *testing.T) {
 				if len(got) < fewestNames {
@@ -114,7 +114,7 @@ func TestLocalePersonHasAFirstNameOfItsSex(t *testing.T) {
 
 func TestLocalePersonHasAShippedLastName(t *testing.T) {
 	eachLocale(t, hasPerson, func(t *testing.T, l shippedLocale) {
-		last := nameCounts(t, l.name, "last-name")[""]
+		last := lastNameCounts(t, l.name)
 		eachPerson(t, l.name, func(p drawnPerson) {
 			if last[p.last] == 0 {
 				t.Fatalf("%q: %q is not a shipped last name", p.raw, p.last)

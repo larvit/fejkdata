@@ -145,6 +145,11 @@ var shippedLocales = []shippedLocale{
 		testedElsewhere: []string{"color", "company", "email", "person", "phone", "price", "sex", "time", "title", "url", "username"},
 	},
 	{
+		name:   "et_EE",
+		names:  &names{map[string]string{"Liis": "f", "Kristiina": "f", "Andres": "m", "Toomas": "m"}, nil},
+		person: &person{map[string]string{"f": "naine", "m": "mees"}, []string{"dr", "prof"}},
+	},
+	{
 		name:     "fi_FI",
 		names:    &names{map[string]string{"Anne": "f", "Aino": "f", "Juha": "m", "Matti": "m"}, []string{"Kim"}},
 		words:    map[string]wordTable{"noun": {"", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},

@@ -37,3 +37,15 @@ func nameColumnSet(t *testing.T, file string) map[string]bool {
 	}
 	return out
 }
+
+// lastNameCounts reads a locale's last names as the count of each name, whether or not the table has a sex column.
+func lastNameCounts(t *testing.T, locale string) map[string]int {
+	t.Helper()
+	out := map[string]int{}
+	for _, names := range nameCounts(t, locale, "last-name") {
+		for name, n := range names {
+			out[name] = max(out[name], n)
+		}
+	}
+	return out
+}
