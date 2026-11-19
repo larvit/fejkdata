@@ -1171,7 +1171,7 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 
 `misc` carries `car`, `coordinate`, `creditcard`
 (Luhn-valid), `creditcard-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
-`httpstatus`, `iban-test`, `ip` (IPv4, or IPv6 one time in nine), `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
+`httpstatus`, `iban-test`, `ip` (IPv4, or IPv6 one time in nine), `ipv6`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
 severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
 3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent`, `uuid` (v4) and `version` (such as `1.24.3` or `v2.0.1-rc.1`). Many
 carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
@@ -1181,6 +1181,14 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 `misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
 `useragent` carry no key or name, so they are drawn from rather than selected in.
 `misc.useragent` carries `browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`, until an international source replaces them.
+
+#### Addresses that reach nothing
+
+`misc.ip` draws any address, which a real host may hold, through its `wide4` and `wide6`. Its other
+sub-fields draw only addresses the public internet doesn't route: `documentation` is inside RFC 5737's `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24`,
+`private` inside RFC 1918's `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`, and `cidr` is a block
+of either, such as `192.168.7.0/24`. `misc.ipv6` is inside RFC 3849's `2001:db8::/32`. `misc.mac.local` sets the
+locally administered bit and clears the multicast bit, so no vendor holds it; `misc.mac` draws any.
 
 #### Credit cards and IBANs
 

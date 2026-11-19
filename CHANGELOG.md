@@ -15,6 +15,11 @@ with its replacement, and each removed path, column or flag.
   Eurostat (CC BY 4.0, provisional). A program showing the counts credits "Source : Insee, Fichier des prénoms,
   08/07/2024" and "Source : Insee, Fichier des noms de famille, 22/05/2018", and for the sexes "Source: Eurostat", as
   `DATA-LICENSES.md` says.
+- `misc.ip.documentation`, `.private` and `.cidr`, which draw only addresses and blocks that reach nothing: RFC 5737's
+  192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24, and RFC 1918's 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16.
+  Also `misc.ipv6`, inside RFC 3849's 2001:db8::/32, and `misc.mac.local`, a locally administered unicast address.
+  `misc.ip` still draws any address, now through `misc.ip.wide4` and `.wide6`, so a seed draws a different `misc.ip`
+  than before.
 - `PathName` returns the final name of a path, selectors left out, such as `currency` for `misc.currency[US Dollar]`; the
   CLI takes its default `--table` from it.
 - `word`, `sentence` and `paragraph` for `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO`, with `word.noun`, `.verb`,
