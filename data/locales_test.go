@@ -58,7 +58,7 @@ type person struct {
 	titles   []string
 }
 
-// A company's legal forms: the one whose names carry no abbreviation, and those whose names carry their own.
+// A company's legal forms: the one whose names carry no abbreviation, where the country has one, and those whose names carry their own.
 type company struct {
 	name   *regexp.Regexp
 	bare   legalForm
@@ -199,7 +199,15 @@ var shippedLocales = []shippedLocale{
 		name:   "lv_LV",
 		names:  &names{map[string]string{"Anna": "f", "Līga": "f", "Jānis": "m", "Mārtiņš": "m"}, nil},
 		person: &person{map[string]string{"f": "sieviete", "m": "vīrietis"}, []string{"Dr.", "prof."}},
-		phone:  &phone{"+371", "", latvianFixedPhone, nil},
+		// The Register of Enterprises' open data of 19 November 2026, the merchants of the Commercial Register
+		// with no termination date, by type: SIA, IK, AS, PS and KS. A name quotes the rest of it, as `SIA "Alfa"`.
+		company: &company{regexp.MustCompile(`^["\p{Lu}][\p{L}\p{N} &'".-]*[\p{L}\p{N}"]$`), legalForm{}, []legalForm{
+			{"SIA", "sia", "SIA", 140485}, {"IK", "ik", "IK", 12146}, {"AS", "as", "AS", 765}, {"PS", "ps", "PS", 535}, {"KS", "ks", "KS", 166},
+		}},
+		companyFormOpens: true,
+		dateLayout:       "02.01.2006",
+		emailFold:        strings.NewReplacer("ā", "a", "č", "c", "ē", "e", "ģ", "g", "ī", "i", "ķ", "k", "ļ", "l", "ņ", "n", "š", "s", "ū", "u", "ž", "z"),
+		phone:            &phone{"+371", "", latvianFixedPhone, nil},
 	},
 	{
 		name:     "nb_NO",
