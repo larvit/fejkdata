@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 22 | 0.7.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 3.4 |
-| 501 | 0.7.0 |  |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 506 | 0.7.0 |  |  | **Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 511 | 0.7.0 |  |  | **Add `lt_LT.company`, `lt_LT.email` and `lt_LT.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
 | 513 | 0.7.0 |  |  | **Add `fr_FR.price`, `time`, `url`, `username`, `color`, `month` and `weekday`, each written as France writes it.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2.1 by 4 | 1.5 |
@@ -28,6 +27,7 @@
 | 502 | 0.7.0 |  |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 507 | 0.7.0 |  |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 512 | 0.7.0 |  |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 501 | 0.7.0 |  |  | **Add `et_EE.company`, `et_EE.email` and `et_EE.date`.** | 3 | 2 | 2 | 5 | 6 | 1 by 1, 2.1 by 3 | 0.4 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
@@ -258,16 +258,6 @@ Touches:
 - `testdata/shipped_shape.txt`: lines 30-33 (small), lines 86-88 (small), lines 143-146 (small), lines 198-200 (small), lines 234-237 (small), lines 292-294 (small), lines 343-346 (small), lines 408-410 (small), lines 978-981 (small), lines 1036-1038 (small), lines 1075-1077 (small), lines 1102-1104 (small), lines 1181-1184 (small), lines 1289-1291 (small)
 - `README.md`: `#### Data sources` (small), `### Locale categories`, `#### Norwegian dates and emails` (small), `#### Danish dates and emails` (small), `#### German dates and emails` (small), `#### Finnish dates and emails` (small)
 
-### 501. Add `et_EE.company`, `et_EE.email` and `et_EE.date`.
-
-Draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
-
-Touches:
-
-- `data/et_EE/`
-- `README.md`: `### Locale categories` (small)
-- `DATA-LICENSES.md`
-
 ### 506. Add `lv_LV.company`, `lv_LV.email` and `lv_LV.date`.
 
 Draw company forms from the country's business register statistics where it publishes them, as `de_DE.company` does.
@@ -420,6 +410,18 @@ Touches:
 - `data-import/`
 - `README.md`: `` ### `geo` ``
 - `DATA-LICENSES.md`
+
+### 501. Add `et_EE.company`, `et_EE.email` and `et_EE.date`.
+
+Estonia's e-Business Register publishes an open bulk file of every legal person's name and legal form (`ettevotja_rekvisiidid__lihtandmed.csv.zip` on avaandmed.ariregister.rik.ee; its terms link CC BY 4.0's legal code and state no attribution wording), so AGENTS.md's first principle doesn't apply: weigh the legal forms and draw the names from the register, as `fr_FR.company` does from Sirene, with a `data-import/company-ee.py` and its test on `company_names.py`. Draw `OÜ`, `AS`, `UÜ`, `TÜ` and `FIE` (named by its person); leave out the non-profits, flat associations and public bodies. Items 506 and 511 need the same check of Latvia's and Lithuania's registers.
+
+Touches:
+
+- `data/et_EE/`
+- `data-import/`
+- `README.md`: `### Locale categories` (small)
+- `DATA-LICENSES.md`
+- `CHANGELOG.md`
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
