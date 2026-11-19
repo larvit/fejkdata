@@ -130,6 +130,13 @@ class Coined(unittest.TestCase):
         self.assertNotIn("Zorba", self.coined("Zorba", 39, 2))
         self.assertNotIn("Zorba", self.coined("Zorba", 40, 1))
 
+    def test_a_name_carrying_a_word_twice_counts_it_once(self) -> None:
+        rows = [("SIA", "Pluss Zorba Zorba" if i < 20 else "Zorba Zorba Pluss") for i in range(30)]
+        zorba = company_lv.word_usage(rows, lambda w: False, company_lv.VOCABULARY)["zorba"]
+        self.assertEqual((zorba.names, zorba.begins, zorba.ends, zorba.forms["SIA"]), (30, 10, 20, 30))
+        usage = company_lv.word_usage(rows[:20], lambda w: False, company_lv.VOCABULARY)
+        self.assertNotIn("Zorba", company_lv.coined(usage, set()))
+
     def test_a_coined_word_has_four_letters_or_more(self) -> None:
         self.assertNotIn("Zor", self.coined("Zor", 40, 2))
         self.assertIn("Arhitektūra", self.coined("Arhitektūra", 40, 2))
