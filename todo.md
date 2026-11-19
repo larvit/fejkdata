@@ -123,7 +123,7 @@
 | 193 | 0.8.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.4 |
 | 393 | 0.8.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 6 | 0.4 |
 | 407 | 0.8.0 |  |  | **Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.** | 3 | 2 | 2 | 5 | 6 | 1 by 3 | 0.3 |
-| 218 | 0.8.0 |  | decision | **Replace each country's invented streets with its real streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
+| 218 | 0.8.0 |  | decision | **Replace each country's invented streets with its real streets, from OpenStreetMap under ODbL or from the country's register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
 | 129 | 0.8.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
 | 41 | 0.8.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 4 by 4 | 0.2 |
 | 186 | 0.8.0 |  | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 4 | 1 | 3 | 6 | 7 | 1 by 3 | 0.2 |
@@ -531,7 +531,7 @@ Touches:
 
 ### 502. Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.
 
-Candidate source: the Estonian Land Board's address data (Maa-amet ADS), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README, and ask the human before importing ODbL data.
+Candidate source: the Estonian Land Board's address data (Maa-amet ADS), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
 
 Touches:
 
@@ -543,7 +543,7 @@ Touches:
 
 ### 507. Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.
 
-Candidate source: the Latvian State Land Service's address register (VARIS) on data.gov.lv. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README, and ask the human before importing ODbL data.
+Candidate source: the Latvian State Land Service's address register (VARIS) on data.gov.lv. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
 
 Touches:
 
@@ -555,7 +555,7 @@ Touches:
 
 ### 512. Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.
 
-Candidate source: the Centre of Registers' address register (Adresų registras), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README, and ask the human before importing ODbL data.
+Candidate source: the Centre of Registers' address register (Adresų registras), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
 
 Touches:
 
@@ -765,9 +765,9 @@ Goal 3 says the docs say which kind each value is, but today that sits in prose 
 
 ### 522. Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.
 
-Ends the decision "`et_EE`'s names are a language model's recall". The maintainer took open licences in general, CC BY-SA 4.0 included, on 2026-11-19, so Statistics Estonia's name counts are under a licence the project takes.
+Ends the decision "`et_EE`'s names are a language model's recall".
 
-Write `data-import/names-ee.py` to read the office's published counts by sex and year, as `names-de.py` reads Munich's, and keep the feminine form of a Russian surname under `f`. Name the licence, its share-alike terms and the attribution in `DATA-LICENSES.md` and the README, and drop `et_EE.first-name` and `et_EE.last-name` from the name-table principle's list in `AGENTS.md`.
+Change `data-import/names-ee.py` to read the office's published counts by sex and year, as `names-de.py` reads Munich's, and keep the feminine form of a Russian surname under `f`. Name the licence, its share-alike terms and the attribution in `DATA-LICENSES.md`, and say in the README's License section what share-alike data asks of a user: the table needs its attribution, and a changed copy stays CC BY-SA 4.0. Remove `et_EE.first-name` and `et_EE.last-name` from the name-table principle's list in `AGENTS.md`.
 
 ### 259. Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.
 
@@ -883,9 +883,9 @@ Three of the bench's readers feared a category named `run` clashing with `{/run.
 
 A fixture often needs a fixed mix: of 200 issues, 4 in progress, 30 done and the rest to do. A weighted choice gives about 4, and the count shifts with the seed, so a test asserting on it needs a loader to fix the counts. A dealt choice is a deck, drawn without replacement. Decide what a render past the last card does: refuse at `New` where the repeat is known to exceed the deck, start a fresh deck, or fall back to the weights; and which renders share one deck: the run, as `{seq()}` shares one counter, or each `repeat`. The deck is per-generator state beside `seq()`'s counters, so the same seed and date still give the same output (goal 9). A writer panel picks the spelling.
 
-### 218. Replace each country's invented streets with its real streets, once the maintainer accepts ODbL data or the country opens a register.
+### 218. Replace each country's invented streets with its real streets, from OpenStreetMap under ODbL or from the country's register.
 
-Ends the decision "A country with no open address register covering it whole draws invented streets".
+Ends the decision "A country with no open address register covering it whole draws invented streets". The decision "The project takes open licences, share-alike ones included" accepts ODbL data, so only the build waits.
 
 ### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 

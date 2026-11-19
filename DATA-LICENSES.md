@@ -171,7 +171,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 - Source: a language model's recall of names common in Estonia, as no open register publishes Estonian
   name counts under a licence the project takes: Statistics Estonia's [name
-  statistics](https://www.stat.ee/nimed/) are CC BY-SA 4.0, so none of its counts is used. The commoner
+  statistics](https://www.stat.ee/nimed/) are CC BY-SA 4.0, and none of its counts is used yet. The commoner
   names of each list are ranked from the most to the least common, each with an estimated count of
   100000 over the square root of its rank, then the rarer ones, sharing the count of the last rank. A
   woman's last name is the masculine one with an `a` added where a Russian name ends in `ov` or `ev`
