@@ -13,15 +13,20 @@ import (
 // second, modulo 11, or where that is 10 too, 0.
 var isikukoodWeights = [2][10]int{{1, 2, 3, 4, 5, 6, 7, 8, 9, 1}, {3, 4, 5, 6, 7, 8, 9, 1, 2, 3}}
 
-func isikukoodArgs(a []string) error {
-	for _, arg := range a {
-		if _, _, isCall := grammar.FuncCall(arg); isCall {
-			return fmt.Errorf("isikukood takes a field, path or name, not the call %s", arg)
+// fieldArgs refuses a call as an operand of the builtin name, which reads a field, path or name.
+func fieldArgs(name string) func([]string) error {
+	return func(a []string) error {
+		for _, arg := range a {
+			if _, _, isCall := grammar.FuncCall(arg); isCall {
+				return fmt.Errorf("%s takes a field, path or name, not the call %s", name, arg)
+			}
 		}
+		return nil
 	}
-	return nil
 }
 
+// isikukoodPrep also draws asmenskodas, a Lithuanian personal code, which python-stdnum's lt.asmens
+// takes from ee.ik: the same century digits, serial number and check digit.
 func isikukoodPrep([]string, parsed) Call {
 	return func(s *drawstate.State, _ string, operands []string) string {
 		sex, date := operands[0], operands[1]

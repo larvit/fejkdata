@@ -89,6 +89,12 @@ with its replacement, and each removed path, column or flag.
   `{isikukood(x,d)}`, which prints a whole code for the sex digit `x` reads and the `YYYYMMDD` date `d` reads, and
   `et_EE.sex-digit`, which makes a code agree with a sex bound as `s`. A program showing the birth years credits
   "Source: Statistics Estonia", as `DATA-LICENSES.md` says.
+- `lt_LT.asmens-kodas`, a Lithuanian personal identification code such as `36707114290`, drawn over the last hundred
+  years by Eurostat's counts of people under 18, 18 to 64 and 65 to 99. It passes the check digit but neither the
+  Population Register nor the standard LST 1185-91 names a test series or an unassigned range, so a code may be a living
+  person's. Also `{asmenskodas(x,d)}`, which prints a whole code for the sex digit `x` reads and the `YYYYMMDD` date `d`
+  reads, and `lt_LT.sex-digit`, which makes a code agree with a sex bound as `s`. A program showing the birth years
+  credits "Source: Eurostat", as `DATA-LICENSES.md` says.
 - `misc.ip.documentation`, `.private` and `.cidr`, which draw only reserved addresses and blocks: RFC 5737's
   192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24, and RFC 1918's 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16.
   Also `misc.ipv6`, inside RFC 3849's 2001:db8::/32, and `misc.mac.local`, a locally administered unicast address.

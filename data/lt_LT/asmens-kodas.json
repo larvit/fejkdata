@@ -1,0 +1,8 @@
+{
+  "format": "{/lt_LT.sex as s}{asmenskodas(s.sex-digit.digit,birth)}",
+  "birth": [
+    { "format": "{born(0,17,'20060102')}", "weight": 497128 },
+    { "format": "{born(18,64,'20060102')}", "weight": 1790026 },
+    { "format": "{born(65,99,'20060102')}", "weight": 603130 }
+  ]
+}

@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names, persons and phone numbers, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid and phone numbers, `lt_LT`'s names, persons, asmens kodai and phone numbers, `lv_LV`'s names, persons, personas kodi and phone numbers, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
@@ -21,7 +21,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
   requires a month of 1 to 12 refuses the fødselsnummer, and one that applies the extra checks of the
   synthetic henkilötunnus refuses those; Steuer-IDs from ELSTER's test series, which a checker that refuses a leading zero refuses; Danish CPR numbers that pass the
-  office's modulus 11 check, and French NIRs that pass INSEE's key check, and Estonian isikukoodid and Latvian personas kodi that pass the check digit, so a drawn one may be a living person's; Swedish
+  office's modulus 11 check, and French NIRs that pass INSEE's key check, and Estonian isikukoodid, Latvian personas kodi and Lithuanian asmens kodai that pass the check digit, so a drawn one may be a living person's; Swedish
   organisationsnummer and VAT numbers that pass the format and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
   and ITINs in the ranges the SSA and the IRS assign, so a drawn one may be a real
   person's; Luhn-valid card numbers; and IBANs for seven European countries.
@@ -1307,7 +1307,7 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 
 ### `lt_LT`
 
-`lt_LT`, Lithuanian, carries `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`. `sex` is `moteris` and `vyras`, `title` is
+`lt_LT`, Lithuanian, carries `asmens-kodas`, `first-name`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex`, `sex-digit` and `title`. `sex` is `moteris` and `vyras`, `title` is
 `dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
 
 `first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
@@ -1322,6 +1322,34 @@ ones are ranked, a first name weighing the smallest published count times 50 ove
 takes its own language's ending, `Ivanova` for `Ivanov`.
 `lt_LT.sex` carries Lithuania's population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the sex
 counts credits "Source: Eurostat".
+
+`lt_LT.asmens-kodas` is a Lithuanian personal identification code, the asmens kodas that the Population Register gives
+each person: 11 digits with no spaces, such as `33309240064`. It passes the check digit but is not synthetic: neither the
+Register nor the standard LST 1185-91 that sets its structure publishes a test series or an unassigned range, so a code may be a
+living person's. Its digits are the sex and the century of birth (`1` for a man and `2` for a woman born in the 1800s, `3`
+and `4` in the 1900s, `5` and `6` in the 2000s), the date of birth as `YYMMDD`, a serial number and a check digit. LST 1185-91
+is not public, so fejkdata computes the check digit as python-stdnum's `lt.asmens` does, which takes it from its Estonian one:
+the ten digits are summed with the weights 1 to 9 and 1, and the check digit is the sum modulo 11. Where that is 10, the weights
+are 3 to 9, 1, 2 and 3 instead, and where that is 10 again, the check digit is 0.
+
+fejkdata draws the year of birth by Eurostat's counts of people under 18, 18 to 64 and 65 to 99 on 1 January 2025 (table
+`demo_pjan`) and the serial number evenly from 001 to 999. No source states which serial numbers are issued, so 000, the one number
+outside the range, is left out. A fixture of some ten thousand rows starts to repeat a code, and a `UNIQUE` column needs a
+category of your own. It draws no code with a month or day of 00, which the Register gives a person who doesn't know the
+birth date, and none that starts with 9, which has no date. A program showing the birth years credits "Source: Eurostat".
+
+`{asmenskodas(x,d)}` prints a whole code, since its first digit depends on the date that follows. The template below binds
+the sex as `s` and the `birth` field of `lt_LT.asmens-kodas`, a day written `YYYYMMDD`, as `b`. The call's operands are the
+digit of `lt_LT.sex-digit` under `s`, and `b`:
+
+```json
+{ "format": "{first} {last}, {code}",
+  "first": "{/lt_LT.sex as s}{s.first-name}",
+  "last": "{s.last-name}",
+  "code": "{/lt_LT.asmens-kodas.birth as b}{asmenskodas(s.sex-digit.digit,b)}" }
+```
+
+Renders e.g. `Andrius Jurevičius, 36707114290`.
 
 #### Lithuanian phone numbers
 
@@ -2140,6 +2168,7 @@ time-based id takes its timestamp from the rng, not the clock. A builtin also re
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
 | `{cpr(x)}` | derivation | completes a Danish CPR number after the last six digits emitted, its date, with a seventh digit that the CPR office's table of century digits allows for the year, an eighth and a ninth digit it picks, and the check digit, whose parity is that of the digit `x` reads; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1858 to 2057, renders nothing |
 | `{nir()}` | derivation | the key of a French NIR: two digits, 97 less the remainder, divided by 97, of the last 13 letters and digits emitted, where the sixth and seventh may be `2A` or `2B`, counted as 19 or 18; nothing unless they are 13 digits once `2A` and `2B` are so counted |
+| `{asmenskodas(x,d)}` | derivation | a Lithuanian asmens kodas, 11 digits: the digit for the sex that `x` reads, `1` for a man or `2` for a woman, raised by 2 for each century after the 1800s; the date that `d` reads, written `YYYYMMDD`, as `YYMMDD`; a serial number from 001 to 999 it picks; and the check digit. Prints no code for another `x`, or for a `d` that is no day from 1800 to 2099 ([Lithuanian personal codes](#lt_lt)) |
 | `{isikukood(x,d)}` | derivation | an Estonian isikukood, 11 digits: the digit for the sex that `x` reads, `1` for a man or `2` for a woman, raised by 2 for each century after the 1800s; the date that `d` reads, written `YYYYMMDD`, as `YYMMDD`; a serial number from 001 to 999 it picks; and the check digit. Prints no code for another `x`, or for a `d` that is no day from 1800 to 2099 ([Estonian personal codes](#et_ee)) |
 | `{personaskods(d)}` | derivation | a Latvian personas kods, 11 digits: for a `d` before 1 July 2017, written `YYYYMMDD`, the date as `DDMMYY`, `0`, `1` or `2` for the 1800s, 1900s or 2000s, a serial number from 000 to 999 it picks, and the check digit; for a `d` of 1 July 2017 or later, `32`, eight digits it picks and the check digit. Prints no code where `d` isn't a date from 1800 to 2099 ([Latvian personal codes](#lv_lv)) |
 | `{hetu(x)}`, `{hetu(x,'issued')}` | derivation | completes a Finnish henkilötunnus after the last six digits emitted, its date, with the century sign DVV gives the year, an individual number from 900 to 999 of the parity of the digit `x` reads, and the control character; `{hetu(x,'issued')}` takes the individual number from 002 to 899, which DVV issues; the year is the latest one not after today that bears the year digits; fewer than six digits read as if zeros came first, and `x` that is not one digit, or a year outside 1800 to 2099, renders nothing |
