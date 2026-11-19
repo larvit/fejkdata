@@ -305,7 +305,8 @@ Touches:
 - `data/geo_fr_test.go`
 - `data/geo_test.go`: lines 126-130 (small)
 - `testdata/shipped_shape.txt`: lines 429-430 (small), lines 639-640 (small)
-- `README.md`: `# fejkdata` (small), `### Shipped modules` (small), `` ### `geo` ``, `#### French places`
+- `README.md`: `# fejkdata` (small), `### Shipped modules` (small)
+- `docs/locales/geo.md`
 - `DATA-LICENSES.md`: `` ## `geo/FR/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv` ``
 
 ### 502. Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.
@@ -317,7 +318,7 @@ Touches:
 - `data/geo/EE/`
 - `data/et_EE/`: `address.json`
 - `data-import/`
-- `README.md`: `` ### `geo` ``
+- `docs/locales/geo.md`
 - `DATA-LICENSES.md`
 
 ### 507. Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.
@@ -329,7 +330,7 @@ Touches:
 - `data/geo/LV/`
 - `data/lv_LV/`: `address.json`
 - `data-import/`
-- `README.md`: `` ### `geo` ``
+- `docs/locales/geo.md`
 - `DATA-LICENSES.md`
 
 ### 512. Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.
@@ -341,7 +342,7 @@ Touches:
 - `data/geo/LT/`
 - `data/lt_LT/`: `address.json`
 - `data-import/`
-- `README.md`: `` ### `geo` ``
+- `docs/locales/geo.md`
 - `DATA-LICENSES.md`
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.

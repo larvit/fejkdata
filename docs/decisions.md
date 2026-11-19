@@ -953,7 +953,7 @@ Goal 3 (a valid id passes the check the real system applies) and goal 3.1 (value
 together share one pick) are served. Goal 3.3 (a form that reaches nothing real) is not:
 the CPR office publishes no test series and no unassigned range, and says every number it issues
 is real and never reused. Digitaliseringsstyrelsen's test data is handed out on application, not
-published. So `da_DK.cpr` is valid and may be a living person's, and the README says so. The
+published. So `da_DK.cpr` is valid and may be a living person's, and its page under `docs/locales` says so. The
 office's own "fiktive" form, 6 added to the first day digit, is used for real payroll cases and
 fails every date check, so it isn't a series that reaches nothing real. A form that reaches
 nothing real isn't shipped. Item 23 in `todo.md` ends the departure from goal 3.3. The maintainer
@@ -998,7 +998,7 @@ Goal 3 (a valid id passes the check the real system applies) is served, and goal
 that reaches nothing real) is not: INSEE publishes no test series and no unassigned range for
 the NIR, and the Sécurité sociale's own test data is not published. The "fictif" NIRs in the
 SNDS documentation are a pattern seen in its data, not a series INSEE keeps. So `fr_FR.nir` is
-valid and may be a living person's, and the README says so, as it does for `da_DK.cpr`. Its
+valid and may be a living person's, and its page under `docs/locales` says so, as it does for `da_DK.cpr`. Its
 place of birth is a department of INSEE's 101 drawn evenly and a commune code in its range
 that need not exist, and Corsica is always `2A` or `2B`. Item 23 ends the departure from goal
 3.3. Valid while INSEE publishes no test series or unassigned range.
@@ -1011,7 +1011,7 @@ Goal 3 (a valid id passes the check the real system applies) is served, and goal
 that reaches nothing real) is not: the Interior Minister's regulation "Isikukoodide moodustamise
 ja andmise kord" (RT I, 08.01.2019, 11), which names EVS 585 for the structure, publishes no test
 series and no unassigned range, and neither does the Population Register. So `et_EE.isikukood` is
-valid and may be a living person's, and the README says so, as it does for `fr_FR.nir`. Item 23
+valid and may be a living person's, and its page under `docs/locales` says so, as it does for `fr_FR.nir`. Item 23
 ends the departure from goal 3.3. The regulation lists the first digits 1 to 6, so the id stops at
 the 2000s, and `{isikukood(x,d)}` prints no code for a later year. EVS 585 is not public, so the
 check digit follows python-stdnum's `ee.ik`, which weights 1 to 9 and 1 and then 3 to 9, 1, 2 and 3.
@@ -1029,7 +1029,7 @@ Valid while the regulation and the register publish no test series or unassigned
 Goal 3 (a valid id passes the check the real system applies) is served, and goal 3.3 (a form that
 reaches nothing real) is not: the Office of Citizenship and Migration Affairs, which gives the
 codes, and the Population Register Act publish no test series and no unassigned range. So
-`lv_LV.personas-kods` is valid and may be a living person's, and the README says so, as it does for
+`lv_LV.personas-kods` is valid and may be a living person's, and its page under `docs/locales` says so, as it does for
 `et_EE.isikukood`. Item 23 ends the departure from goal 3.3. The Act gives a person registered from
 1 July 2017 a code that starts with 32 and then random digits, with no date, so `{personaskods(d)}`
 prints one for a birth date from 1 July 2017 and a dated code for an earlier one; the shipped bands
@@ -1054,7 +1054,7 @@ Valid while the Office and the Act publish no test series or unassigned range.
 Goal 3 (a valid id passes the check the real system applies) is served, and goal 3.3 (a form that
 reaches nothing real) is not: the Population Register publishes no test series and no unassigned
 range, and no page of the Centre of Registers states one. So `lt_LT.asmens-kodas` is valid and may
-be a living person's, and the README says so, as it does for `et_EE.isikukood`. Item 23 ends the
+be a living person's, and its page under `docs/locales` says so, as it does for `et_EE.isikukood`. Item 23 ends the
 departure from goal 3.3.
 
 The standard LST 1185-91, which the Lithuanian Wikipedia names for the code's structure, is not
@@ -1083,7 +1083,7 @@ issued are 002 to 899, and the test table linked from "Reform of personal identi
 hypothetical codes with 902 to 904. So `fi_FI.henkilotunnus` draws 900 to 999, 50 of each
 parity, and no drawn code is a living person's. The Vero API FAQ on testing (vero.fi, "Vero API: testaus, onko henkilötunnuksen muodolle jotain tiettyjä vaatimuksia") calls codes whose ending
 starts with 9 synthetic ("keinohenkilötunnuksia") that may take extra checks, so a checker may
-refuse them; the README says so, as it does for the fødselsnummer. This follows the Swedish and
+refuse them; its page under `docs/locales` says so, as it does for the fødselsnummer. This follows the Swedish and
 Norwegian ids, which draw an issuer's test series, and not the Danish, whose office publishes
 none.
 
@@ -1095,7 +1095,7 @@ through `{hetu(x,'issued')}`: the sign and the control character are the same, s
 would add a name for one meaning. A panel of three readers, seated as a validator-facing author, a
 hand fixture author and a Go test author, chose `henkilotunnus-issued` over `-real`, `-valid` and
 `.issued`, and `'issued'` over a number range, a bare word and `{hetu-issued(x)}`. A drawn number
-may be a living person's, which the README says beside it; the default stays 900 to 999 for goal
+may be a living person's, which the `fi_FI` page says beside it; the default stays 900 to 999 for goal
 3.3.
 
 The control character, the century signs and the parity of the individual number are DVV's. The
@@ -1979,7 +1979,7 @@ Stripe's testing page (docs.stripe.com/testing, "Simulate a payment by card bran
 The IBANs are the first row, the success case, of its SEPA Direct Debit test IBANs for BE, DE, ES, FI,
 NO and SE. Stripe lists no Danish IBAN, so `DK` is the example on Danske Bank's page
 (danskeci.com, "IBAN"), which calls its example accounts fictive. Neither source says that no real card
-or account holds a number, so the README claims only that they are published for testing. Valid while
+or account holds a number, so the `misc` page claims only that they are published for testing. Valid while
 those pages state them.
 
 ## A date offset is `adddays(d,n)`, and its `d` reads `date` or `born` calls in one layout that reads back
