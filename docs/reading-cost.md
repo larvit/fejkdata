@@ -2458,3 +2458,20 @@ Read most (opens and searches):
 - `data/de_DE/.fejkdata.json` 1
 - `data/de_DE/fs.go` 1
 - `data/fr_FR/.fejkdata.json` 1
+
+## Reading cost, chunk 8affd78b50d3, finished 2026-11-19T20:02:52Z
+
+109924 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/estonian_test.go` 4
+- `compose.yaml` 3
+- `internal/fejktest/ids.go` 3
+- `isikukood_test.go` 3
+- `DATA-LICENSES.md` 2
+- `data/lt_LT/sex.json` 2
+- `data/lt_LT/sex.tsv` 2
+- `docs/decisions.md` 2
+- `internal/builtinfunc/builtins.go` 2
+- `CHANGELOG.md` 1
