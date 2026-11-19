@@ -1052,22 +1052,26 @@ Valid while the Office and the Act publish no test series or unassigned range.
 2026-11-19, Lilleman auf Larv.
 
 Goal 3 (a valid id passes the check the real system applies) is served, and goal 3.3 (a form that
-reaches nothing real) is not: the Population Register and the standard LST 1185-91, which the
-Lithuanian Wikipedia names for the code's structure, publish no test series and no unassigned
+reaches nothing real) is not: the Population Register publishes no test series and no unassigned
 range, and no page of the Centre of Registers states one. So `lt_LT.asmens-kodas` is valid and may
 be a living person's, and the README says so, as it does for `et_EE.isikukood`. Item 23 ends the
-departure from goal 3.3. LST 1185-91 is not public, so the check digit follows python-stdnum's
-`lt.asmens`, which takes it from its `ee.ik`: the weights 1 to 9 and 1 and then 3 to 9, 1, 2 and 3,
-with the first digits 1 to 6 for the 1800s to the 2000s. Two forms of the code are left out: the
-Wikipedia says a person who doesn't know the birth month or day has a 0 for it, and a code starting
-with 9 has no date and, it says, no check digit, but python-stdnum checks the digit on it all the
-same, so neither source says what a valid one is. No source states which serial numbers the
-register gives, so the serial number is drawn evenly from 001 to 999, never 000. The first digit
-names the century of a date that follows it, so `{asmenskodas(x,d)}` takes the date as an operand
-and prints the whole code, and shares its draw with `{isikukood(x,d)}`, since the two schemes are
-the same today and each name says whose code it is; its first operand is `lt_LT.sex-digit`'s
-digit, 1 for a man and 2 for a woman. The age bands weigh Eurostat's population of 1 January 2025.
-Valid while the Register and the standard publish no test series or unassigned range.
+departure from goal 3.3.
+
+The standard LST 1185-91, which the Lithuanian Wikipedia names for the code's structure, is not
+public. So the check digit follows python-stdnum's `lt.asmens`, which takes it from its `ee.ik`:
+the weights 1 to 9 and 1 and then 3 to 9, 1, 2 and 3, with the first digits 1 to 6 for the 1800s
+to the 2000s. Two forms of the code are left out. The Wikipedia says a person who doesn't know the
+birth month or day has a 0 for it, and a code starting with 9 has no date and no check digit, but
+python-stdnum checks the digit on such a code all the same, so no source says what a valid one is.
+No source states which serial numbers the register gives, and the Wikipedia calls the serial number
+the order number of those born that day, so it is drawn evenly from 001 to 999, never 000. The age
+bands weigh Eurostat's population of 1 January 2025.
+
+The first digit names the century of a date that follows it, so `{asmenskodas(x,d)}` takes the date
+as an operand and prints the whole code; its first operand is `lt_LT.sex-digit`'s digit, 1 for a man
+and 2 for a woman. It shares its draw with `{isikukood(x,d)}`, since the two schemes agree today,
+and keeps its own name, since each name says whose code it prints. Valid while the Register
+publishes no test series or unassigned range.
 
 ## The Finnish id draws DVV's unissued 900 to 999, and `henkilotunnus-issued` the issued 002 to 899 through `{hetu(x,'issued')}`
 
