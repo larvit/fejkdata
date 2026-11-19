@@ -103,24 +103,35 @@ func TestUrlHasAReservedPathThatDrawsOnlyDomainsNobodyCanRegister(t *testing.T) 
 	}
 }
 
-func TestEnglishAndSwedishUrlAndEmailKeepTheWideSetByDefault(t *testing.T) {
+// The share of the default draw that is already reserved: the reserved hosts of the old flat list over all its hosts.
+func TestUrlAndEmailKeepTheirMixOfReservedAndRegistrableDomainsByDefault(t *testing.T) {
+	const draws = 6000
 	f := shipped(t, fejkdata.WithSeed(4))
-	for _, name := range []string{"en_US", "sv_SE"} {
-		t.Run(name, func(t *testing.T) {
-			var email, url int
-			fejktest.EachDraw(600, func() string { return fejktest.Fake(t, f, name+".email") }, func(got string) {
-				if !exampleEmail.MatchString(got) {
-					email++
+	urlShare := map[string]float64{
+		"da_DK": 7.0 / 12, "de_DE": 7.0 / 12, "en_US": 13.0 / 16, "fi_FI": 7.0 / 12, "nb_NO": 7.0 / 12, "nn_NO": 7.0 / 12, "sv_SE": 7.0 / 12,
+	}
+	for name, want := range urlShare {
+		t.Run(name+".url", func(t *testing.T) {
+			seen := fejktest.TallyDraws(draws, func() string { return fejktest.Fake(t, f, name+".url") })
+			var reserved int
+			for got, n := range seen {
+				if reservedHost.MatchString(got) {
+					reserved += n
 				}
-			})
-			fejktest.EachDraw(600, func() string { return fejktest.Fake(t, f, name+".url") }, func(got string) {
-				if !reservedHost.MatchString(got) {
-					url++
-				}
-			})
-			if email == 0 || url == 0 {
-				t.Errorf("%s drew %d emails and %d urls outside example.com, example.org and example.net in 600 draws each, want some of both", name, email, url)
 			}
+			assertShare(t, name+".url at example.com, example.org or example.net", reserved, draws, want)
+		})
+	}
+	for name, want := range map[string]float64{"en_US": 10.0 / 15, "sv_SE": 4.0 / 13} {
+		t.Run(name+".email", func(t *testing.T) {
+			seen := fejktest.TallyDraws(draws, func() string { return fejktest.Fake(t, f, name+".email") })
+			var reserved int
+			for got, n := range seen {
+				if exampleEmail.MatchString(got) {
+					reserved += n
+				}
+			}
+			assertShare(t, name+".email at example.com, example.org or example.net", reserved, draws, want)
 		})
 	}
 }
