@@ -338,7 +338,7 @@ func compileFieldsInto(fields map[string]tree.Node, raw map[string]any, pos posi
 			if skipOptions {
 				continue
 			}
-			return fmt.Errorf("hidden holds fields, and %q is an option; name the field otherwise", k)
+			return fmt.Errorf("hidden holds fields, and %s; name the field otherwise", optionPhrase(k))
 		}
 		if err := grammar.CheckIdentifier(k); err != nil {
 			return fmt.Errorf("field %w", err)
@@ -419,6 +419,15 @@ func numberOf(v any) (float64, bool) {
 	}
 	f, _ := n.Float64()
 	return f, true
+}
+
+// optionPhrase says what an option name is: let is the retired name of hidden, and stays reserved
+// so that a template written with it fails rather than turns into a field.
+func optionPhrase(name string) string {
+	if name == "let" {
+		return `"let" was the option now named hidden`
+	}
+	return fmt.Sprintf("%q is an option", name)
 }
 
 func isOption(name string) bool {
