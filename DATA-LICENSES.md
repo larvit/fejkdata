@@ -279,6 +279,20 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Source : Insee, Bilan démographique 2025"
 - Rebuild: —
 
+## `fr_FR/phone-fixed.tsv`, `phone-mobile.tsv`
+
+- Source: the Arcep's [plan national de numérotation, version of 1 January
+  2026](https://www.arcep.fr/uploads/tx_gsavis/25-2215.pdf), Annex 1 to decision no 2018-0881 as decision
+  no 2025-2215 amends it, section 2.5 "Numéros pour œuvres audiovisuelles": the six roots `01 99 00`,
+  `02 61 91`, `03 53 01`, `04 65 71`, `05 36 49` and `06 39 98`, which the plan says may be used as
+  telephone numbers in fiction; the first five are the fixed table and `06 39 98` the mobile one
+- Licence: none stated for the decision. The six roots are facts, not an expression the Arcep's rights
+  could cover. The Arcep's [legal notice](https://www.arcep.fr/mentions-legales.html) allows
+  reproducing its pages whole with the source and date, and bars using their information for
+  commercial or advertising ends; the table copies no page
+- Attribution: none required
+- Rebuild: —
+
 ## `geo/DE/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`
 
 - Source: [GeoNames](https://www.geonames.org/)' [Postleitzahlen of

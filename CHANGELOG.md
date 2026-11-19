@@ -48,6 +48,10 @@ with its replacement, and each removed path, column or flag.
   `fr_FR.sex-digit`, which makes a number agree with a sex bound as `s`, and `fr_FR.department` and
   `fr_FR.nonzero-number`, which `fr_FR.nir` reads. A program showing the birth years credits "Source : Insee, Bilan
   démographique 2025", as `DATA-LICENSES.md` says.
+- `fr_FR.phone`, a French phone number such as `06 39 98 12 34`, mobile ten times as often as fixed. Every one lies in
+  a root the Arcep's plan national de numérotation keeps for fiction, so none reaches anyone: `phone-mobile` holds
+  `06 39 98`, `phone-fixed` the five fixed roots, `01 99 00`, `02 61 91`, `03 53 01`, `04 65 71` and `05 36 49`. Its
+  `national` field is `06 39 98 12 34` and its `international` field `+33 6 39 98 12 34`.
 - `et_EE.isikukood`, an Estonian personal identification code such as `36805280109`, drawn over the last hundred
   years by Statistics Estonia's counts of people under 18, 18 to 64 and 65 to 99. It passes the check digit but the
   regulation names no test series and no unassigned range, so a code may be a living person's. Also
