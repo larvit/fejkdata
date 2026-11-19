@@ -2357,3 +2357,54 @@ Read most (opens and searches):
 - `README.md` 2
 - `compose.yaml` 2
 - `.gitignore` 1
+
+## Reading cost, chunk 3c6625e61b75, finished 2026-11-19T17:44:31Z
+
+76138 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/locales_test.go` 7
+- `README.md` 3
+- `data/french_test.go` 2
+- `data/locale_phone_test.go` 2
+- `DATA-LICENSES.md` 1
+- `compose.yaml` 1
+- `data-import/phone-dk.py` 1
+- `data/da_DK/.fejkdata.json` 1
+- `data/da_DK/phone-fixed.json` 1
+- `data/da_DK/phone-fixed.tsv` 1
+
+## Reading cost, chunk 723edccb4a84, finished 2026-11-19T17:50:43Z
+
+94302 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/names-dk.py` 5
+- `data-import/sex-population.py` 4
+- `README.md` 3
+- `data-import/names-lv.py` 3
+- `data/latvian_test.go` 3
+- `docs/decisions.md` 3
+- `compose.yaml` 2
+- `data-import/names-ee.py` 2
+- `data/locales_test.go` 2
+- `data-import/geo_test.py` 1
+
+## Reading cost, chunk d5ea58f17072, finished 2026-11-19T18:13:40Z
+
+79593 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/locales_test.go` 5
+- `README.md` 3
+- `data/locale_phone_test.go` 3
+- `data/estonian_test.go` 2
+- `compose.yaml` 1
+- `data/da_DK/phone.json` 1
+- `data/danish_test.go` 1
+- `data/et_EE/.fejkdata.json` 1
+- `data/et_EE/person.json` 1
+- `data/fi_FI/phone-mobile.tsv` 1
