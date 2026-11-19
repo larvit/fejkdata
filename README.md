@@ -12,8 +12,8 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `fr_FR`'s names and persons, `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, and `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names and persons, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
   place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](#geo)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
@@ -1077,14 +1077,15 @@ and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Fauch
 
 `fr_FR.first-name` holds the 2,000 commonest first names of each sex and `fr_FR.last-name` the 5,000 commonest last
 names, from INSEE's open files. A first name weighs the children who got it as their first one in the births of 1944
-to 2023, the 80 years whose people can still be alive, in the "Fichier des prénoms". INSEE publishes a name
-only if 20 children got it in 1900 to 1945 or in 1946 to 2023, and only for a year in which 3 did, so a rarer one is missing. A last name
+to 2023, the last 80 years, in the "Fichier des prénoms"; a name gone out of use weighs less than in the whole file,
+and the children of a year in which fewer than 3 got the name are left out, so a count runs slightly low. A last name
 weighs the people born in 1891 to 2000 who bear it, in the "Fichier des noms". INSEE writes last names in capitals
-without accents, so `Lefevre` also counts the bearers of `Lefèvre`. `fr_FR.last-name` has no name with a one-letter part,
+without accents, so `Lefevre` also counts the bearers of `Lefèvre`. Neither table has a name with a one-letter part,
 such as `N'Diaye`. `fr_FR.sex` carries France's population on 1 January 2025
-from Eurostat's table `demo_pjan`, which marks the figure provisional.
+from Eurostat's table `demo_pjan`; Eurostat marks that figure provisional.
 
-A program showing those counts credits "Source : Insee", and one showing the sex counts "Source: Eurostat".
+A program showing the name counts credits "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee,
+Fichier des noms de famille, 22/05/2018", and one showing the sex counts "Source: Eurostat".
 
 ### `geo`
 
@@ -2711,6 +2712,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-dk.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-fi.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-fr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
