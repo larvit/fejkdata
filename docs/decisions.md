@@ -1756,22 +1756,22 @@ office's counts, which "The project takes open licences, share-alike ones includ
 
 The State Enterprise Centre of Registers publishes on data.gov.lt, under CC BY 4.0, the 50 commonest men's names and
 women's names in the Population Register, with the count of people born since 1900 bearing each. It publishes no other
-first name, a top 20 of the newborns of each quarter aside, whose counts are of births and not of the living, so they are
-not mixed with these. Statistics Lithuania and the Centre publish no last names. So the top 50 of each sex keep their
+first name, a top 20 of the newborns of each quarter aside, whose counts are of births and not of the living, so the
+decision leaves them out. Statistics Lithuania and the Centre publish no last names. So the top 50 of each sex keep their
 published counts, and every other first name and every last name is a language model's recall of a name common in Lithuania.
 
-A recalled first name outranks no published one: the commoner ones, 50 per sex, are ranked, and one of rank `r`
-below the published 50 weighs the smallest published count times 50 over `r`, so the first of them weighs a little
+A recalled first name doesn't outrank any published one: the commoner ones, 50 per sex, are ranked on from 51, and one of rank `r`
+weighs the smallest published count times 50 over `r`, so the first of them weighs a little
 less than the fiftieth published name. The rarer ones share the weight of the last rank. A recalled last name
 weighs 100000 over the square root of its rank, as `et_EE`'s and `lv_LV`'s do, and the rarer ones share the last rank's weight. The
 figures are estimates. The register holds the names of foreigners in Latin transliteration too, such as `Ivan`, and
 they weigh as published.
 
-A Lithuanian last name has the ending of its bearer's sex, and a woman has two feminine forms: the unmarried, `Kazlauskaitė`
-for `Kazlauskas`, and the married, `Kazlauskienė`. Both are shipped under `f` with the masculine name's weight, so a
-woman is drawn either. The ending is a rule by the masculine ending (`-ius`, `-us`, `-ys`, `-is`, `-as`, `-a`), so a name that
-Lithuanian spells as an exception takes the rule's form. A Russian or Polish name ending in `ov`, `ev` or `ski` takes
-`a`, as `Ivanova` and `Kowalska`; any other is the same under both. So `last-name` links to `sex`, and `person`
+A Lithuanian last name has the ending of its bearer's sex, and a name ships two feminine forms: the unmarried, `Kazlauskaitė`
+for `Kazlauskas`, and the married, `Kazlauskienė`. Both are shipped under `f`, sharing the masculine name's weight, so a
+woman's last names weigh as a man's and a woman is drawn either form. The feminine form follows from the masculine name's last
+letters (`-ius`, `-us`, `-ys`, `-is`, `-as`, `-a`), so a name that Lithuanian spells as an exception takes the form the rule
+gives. A Russian or Polish name ending in `ov` or `ski` takes `a`, as `Ivanova` and `Kowalska`; any other is the same under both. So `last-name` links to `sex`, and `person`
 draws the last name under its first name's sex. `data-import/names-lt.py` holds the endings, and its test the pairs.
 
 The sex counts are Eurostat's table demo_pjan for Lithuania. `title` holds `dr.` and `prof.`, curated. Valid while no open

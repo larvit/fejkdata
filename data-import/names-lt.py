@@ -97,7 +97,7 @@ def published(text: str) -> list[tuple[str, int]]:
 
 
 def ranked(top: Sequence[tuple[str, int]], recalled: str, what: str) -> list[tuple[str, int]]:
-    """The rows (name, count) of a list: the published names as published, the recalled names in order, then the rarer ones, which share a count."""
+    """The rows (name, count) of a list: the published names as published, the commoner recalled names in order, then the rarer recalled ones, which share a count."""
     ordered, rarer = recalled_names.split(what, recalled, [name for name, _ in top])
     smallest = min(n for _, n in top)
     rows = list(top)

@@ -122,7 +122,6 @@ In [docs/decisions.md](docs/decisions.md):
 - Goal 6.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 - Locales ship by region: the Nordic countries, then the rest of the EU, then the rest of Europe, then the rest of the world
 - A country with no open address register covering it whole draws invented streets
-- `lt_LT`'s top 50 first names are the Centre of Registers', and every other name a language model's recall
 - `lv_LV`'s first names are the register's first given names, and its last names a language model's recall
 - The project takes open licences, share-alike ones included
 - The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
