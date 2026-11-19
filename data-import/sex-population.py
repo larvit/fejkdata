@@ -1,4 +1,4 @@
-"""Rebuild data/sv_SE/sex.tsv, nb_NO/sex.tsv, da_DK/sex.tsv, fi_FI/sex.tsv, de_DE/sex.tsv and en_US/sex.tsv: the people of each sex.
+"""Rebuild data/sv_SE/sex.tsv, nb_NO/sex.tsv, da_DK/sex.tsv, fi_FI/sex.tsv, de_DE/sex.tsv, fr_FR/sex.tsv and en_US/sex.tsv: the people of each sex.
 
     data-import/sex-population.py [--cache DIR] [--out-dir DIR]
 
@@ -9,10 +9,12 @@
 - fi_FI: Statistics Finland's table 11rb, the population on 31 December 2025 (CC BY 4.0, "Source: Statistics Finland")
 - de_DE: Eurostat's table demo_pjan, the population of Germany on 1 January 2025, from the Federal Statistical
   Office (CC BY 4.0, "Source: Eurostat")
+- fr_FR: Eurostat's table demo_pjan, the population of France on 1 January 2025, from INSEE (CC BY 4.0,
+  "Source: Eurostat"); Eurostat marks the figure provisional
 - en_US: the Census Bureau's national population estimates by age and sex, the resident population on
   1 July 2024 (vintage 2024, public domain)
 
-The names are ours: `kvinna` and `man`, `kvinne` and `mann`, `kvinde` and `mand`, `nainen` and `mies`, `Frau` and `Mann`, `female` and `male`.
+The names are ours: `kvinna` and `man`, `kvinne` and `mann`, `kvinde` and `mand`, `nainen` and `mies`, `Frau` and `Mann`, `femme` and `homme`, `female` and `male`.
 """
 import argparse
 import csv
@@ -28,13 +30,13 @@ import tsv
 SCB = "https://api.scb.se/OV0104/v1/doris/en/ssd/BE/BE0101/BE0101A/BefolkningR1860N"
 SSB = "https://data.ssb.no/api/v0/en/table/07459"
 DST = "https://api.statbank.dk/v1/data"
-EUROSTAT = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_pjan?format=JSON&lang=EN&geo=DE&age=TOTAL&sex=M&sex=F&time=2025"
+EUROSTAT = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_pjan?format=JSON&lang=EN&geo={geo}&age=TOTAL&sex=M&sex=F&time=2025"
 STATFIN = "https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/vaerak/11rb.px"
 CENSUS = "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/national/asrh/nc-est2024-agesex-res.csv"
 ROOT = Path(__file__).resolve().parent.parent / "data"
 CACHE = Path(__file__).resolve().parent / "cache"
 JSON = {"Content-Type": "application/json"}
-NAMES = {"sv_SE": ("kvinna", "man"), "nb_NO": ("kvinne", "mann"), "da_DK": ("kvinde", "mand"), "fi_FI": ("nainen", "mies"), "de_DE": ("Frau", "Mann"), "en_US": ("female", "male")}
+NAMES = {"sv_SE": ("kvinna", "man"), "nb_NO": ("kvinne", "mann"), "da_DK": ("kvinde", "mand"), "fi_FI": ("nainen", "mies"), "de_DE": ("Frau", "Mann"), "fr_FR": ("femme", "homme"), "en_US": ("female", "male")}
 
 
 def post(url: str, cache: str, name: str, query: object) -> Any:
@@ -80,14 +82,22 @@ def denmark(cache: str) -> tuple[int, int]:
     return counts["Kvinder"], counts["Mænd"]
 
 
-def germany(cache: str) -> tuple[int, int]:
-    """(women, men) on 1 January 2025."""
-    cube = json.loads(source.fetch(EUROSTAT, cache, "eurostat-demo_pjan-DE-2025.json", magic=b"{"))
+def eurostat(cache: str, geo: str) -> tuple[int, int]:
+    """(women, men) of a country on 1 January 2025."""
+    cube = json.loads(source.fetch(EUROSTAT.format(geo=geo), cache, f"eurostat-demo_pjan-{geo}-2025.json", magic=b"{"))
     sexes = cube["dimension"]["sex"]["category"]
     if cube["id"] != ["freq", "unit", "age", "sex", "geo", "time"] or cube["size"] != [1, 1, 1, 2, 1, 1] or sexes["label"] != {"M": "Males", "F": "Females"}:
-        sys.exit(f"table demo_pjan answers {cube['id']} of sizes {cube['size']} with sexes {sexes['label']}, not the Males and Females of Germany in 2025")
+        sys.exit(f"table demo_pjan answers {cube['id']} of sizes {cube['size']} with sexes {sexes['label']}, not the Males and Females of {geo} in 2025")
     counts = {code: cube["value"][str(i)] for code, i in sexes["index"].items()}
     return counts["F"], counts["M"]
+
+
+def germany(cache: str) -> tuple[int, int]:
+    return eurostat(cache, "DE")
+
+
+def france(cache: str) -> tuple[int, int]:
+    return eurostat(cache, "FR")
 
 
 def finland(cache: str) -> tuple[int, int]:
@@ -115,7 +125,7 @@ def main() -> None:
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--out-dir", default=str(ROOT))
     a = p.parse_args()
-    for locale, read in (("sv_SE", sweden), ("nb_NO", norway), ("da_DK", denmark), ("fi_FI", finland), ("de_DE", germany), ("en_US", america)):
+    for locale, read in (("sv_SE", sweden), ("nb_NO", norway), ("da_DK", denmark), ("fi_FI", finland), ("de_DE", germany), ("fr_FR", france), ("en_US", america)):
         (women, men), (woman, man) = read(a.cache), NAMES[locale]
         tsv.write(Path(a.out_dir) / locale / "sex.tsv", ["code", "name", "count"], [{"code": "f", "name": woman, "count": women}, {"code": "m", "name": man, "count": men}])
 
