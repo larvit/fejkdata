@@ -1,0 +1,68 @@
+# `lt_LT`
+
+`lt_LT`, Lithuanian, carries `asmens-kodas`, `color`, `first-name`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `moteris` and `vyras`, `title` is
+`dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
+
+`first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
+Population Register (CC BY 4.0), the 50 commonest men's names and women's names, and more names without a published count. A program
+showing the first names credits "Valstybės įmonė Registrų centras". The register holds foreigners' names too, so some names, such
+as `Ivan`, are not Lithuanian. The Centre publishes no count of a name below its top 50, and no open file of Lithuanian last names
+was found, so every other first name and every last name is a language model's recall of a name common in Lithuania: the commoner
+ones are ranked, a first name weighing the smallest published count times 50 over its rank, counted on from 51, and a last name
+100000 over the square root of its rank, and the rarer ones share one weight. These weights are estimates. `last-name` links to
+`sex` so that a woman bears a feminine form of a last name. A Lithuanian name ships two, under `f`: the unmarried, such as
+`Kazlauskaitė` for `Kazlauskas`, and the married, `Kazlauskienė`. They share the masculine name's weight. A Russian or Polish name
+takes its own language's ending, `Ivanova` for `Ivanov`.
+`lt_LT.sex` carries Lithuania's population on 1 January 2025 from Eurostat's table `demo_pjan`. A program showing the sex
+counts credits "Source: Eurostat".
+
+`lt_LT.asmens-kodas` is a Lithuanian personal identification code, the asmens kodas that the Population Register gives
+each person: 11 digits with no spaces, such as `33309240064`. It passes the check digit but is not synthetic: the
+Register publishes no test series and no unassigned range, so a code may be a living person's. Its digits are the sex and the century of birth (`1` for a man and `2` for a woman born in the 1800s, `3`
+and `4` in the 1900s, `5` and `6` in the 2000s), the date of birth as `YYMMDD`, a serial number and a check digit. The standard
+that sets this structure, LST 1185-91, is not public, so fejkdata computes the check digit as python-stdnum's `lt.asmens` does,
+which takes it from python-stdnum's Estonian check: the ten digits are summed with the weights 1 to 9 and 1, and the check digit is the sum modulo 11. Where that is 10, the weights
+are 3 to 9, 1, 2 and 3 instead, and where that is 10 again, the check digit is 0.
+
+fejkdata draws the year of birth by Eurostat's counts of people under 18, 18 to 64 and 65 to 99 on 1 January 2025 (table
+`demo_pjan`) and the serial number evenly from 001 to 999. No source states which serial numbers are issued, and the Lithuanian Wikipedia calls it the order
+number of those born that day, so 000 is left out. A fixture of some ten thousand rows starts to repeat a code, and a `UNIQUE` column needs a
+category of your own. fejkdata draws no code with a month or day of 00, which the Lithuanian Wikipedia says a person who
+doesn't know the birth date has, and none that starts with 9, which it says has no date. A program showing the birth years credits "Source: Eurostat".
+
+`{asmenskodas(x,d)}` prints a whole code, since its first digit depends on the date that follows. The template below binds
+the sex as `s` and the `birth` field of `lt_LT.asmens-kodas`, a day written `YYYYMMDD`, as `b`. The call's operands are the
+digit of `lt_LT.sex-digit` under `s`, and `b`:
+
+```json
+{ "format": "{first} {last}, {code}",
+  "first": "{/lt_LT.sex as s}{s.first-name}",
+  "last": "{s.last-name}",
+  "code": "{/lt_LT.asmens-kodas.birth as b}{asmenskodas(s.sex-digit.digit,b)}" }
+```
+
+Renders e.g. `Andrius Jurevičius, 36707114290`.
+
+## Lithuanian phone numbers
+
+`lt_LT.phone` is a mobile number ten times as often as a fixed one: `0 612 34567`, or `0 5 234 5678`
+where it is fixed in Vilnius. Its `national` field is that form, and its `international` field is
+`+370 612 34567`, with the country code and without the 0 that opens the national form, which replaced
+the old 8 on 1 March 2024. A number is valid, not real: a real subscriber may hold it, since Lithuania's
+numbering plan keeps no range for fiction.
+
+The plan is the one the Communications Regulatory Authority (RRT) adopted on 1 September 2023, which the
+ITU published on 6 March 2025. A number has 8 digits after the 0, and a mobile number opens with 6.
+`lt_LT.phone-fixed` holds the 47 area codes that the plan's table of fixed numbers allots to a city or
+district and doesn't mark "Reserved", and `lt_LT.phone-mobile` the one mobile code, 6. Each row's `area` is
+its code with the trunk 0, such as `037` for Kaunas, and its `ndc` is the code without the 0. Its
+`subscriber` is the digits after the code, and a fixed row also has a `name`, the city or district. A row is selected by its `area`,
+`phone-fixed[037]`, and each is drawn evenly, since the plan publishes no frequency. Where the plan fixes
+the first digits of the subscriber numbers, `subscriber` draws only those: Vilnius's `5` is followed by
+20 to 27, Panevėžys's `45` by 4 or 5, and Klaipėda's `46` by 2 to 4.
+
+The digits are grouped by the length of the area code, `0 5 234 5678` for Vilnius's 1 digit, `0 37 12 3456`
+for a 2-digit code such as Kaunas's, and `0 310 12345` for a district's 3; a mobile number groups as a
+district. The plan fixes only the digits, and RRT's recommendation, as the Klaipėda city municipality's
+page "Telefonų numerių rašymas" gives it, lets them be grouped as the writer likes, so the groups are this
+project's choice.
