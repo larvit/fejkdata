@@ -698,7 +698,7 @@ names, so `{/fi_FI.month[1]}` is `tammikuu`, not the declined `tammikuuta`. As f
 and `weekday` by 1 (Monday) to 7 (Sunday), as ISO 8601 numbers them: `en_US.weekday[1]` is `Monday`, not `Sunday`.
 
 `url` and `email` carry a path `reserved` in `da_DK`, `de_DE`, `en_US`, `fi_FI`, `nb_NO`, `nn_NO` and `sv_SE`, and
-the `email` of `et_EE` and `fr_FR` carries one. Each `reserved` draws only domains nobody can register: `example.com`,
+the `email` of `et_EE`, `fr_FR` and `lv_LV` carries one. Each `reserved` draws only domains nobody can register: `example.com`,
 `example.org` and `example.net`, or a subdomain of one, which [RFC 2606](https://www.rfc-editor.org/rfc/rfc2606)
 reserves, so `{/sv_SE.url.reserved}` never reaches a real site and `{/sv_SE.email.reserved}` never a real mailbox.
 The default of each of those `url`s also draws domains anyone may register, such as `example.se` and `example.io`, and so
@@ -1483,7 +1483,8 @@ is CC0 1.0, so a program showing it needs no credit; `DATA-LICENSES.md` names th
 `lv_LV.date` is a date from 1970 to 2029 as Latvia writes it, a two-digit day and month and a four-digit year with
 dots between, such as `02.04.2019`. `lv_LV.email` is built like `de_DE.email`: half its local parts are the first and
 last name of one person from `lv_LV.person`, folded to ASCII, such as `janis.berzins7`. Its domains are `example.com`,
-`example.org` and `example.net`, or a subdomain of one, which IANA reserves, so no address reaches a real mailbox.
+`example.org` and `example.net`, or a subdomain of one, which IANA reserves, so no address reaches a real mailbox; its
+`reserved` path draws the same.
 
 #### Latvian phone numbers
 
