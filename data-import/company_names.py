@@ -1,8 +1,8 @@
 """What the company imports share: the words of a register's company names, and the trade words among them.
 
 A trade word is neither a name nor a place, is carried by WORDS_MIN or more names, ends a name in at least a
-third of its uses, and is carried by FORM_MIN names in each of at least three of the forms a Vocabulary names,
-so a word one company family repeats stays out. A word's spelling is the one most names that are not in
+third of its uses, and is carried by FORM_MIN names in each of at least form_spread of the forms a Vocabulary
+names, three unless it says otherwise, so a word one company family repeats stays out. A word's spelling is the one most names that are not in
 capitals use. A word in capitals in such a name counts as written only if it is an acronym, such as VVS: it has
 at most the vocabulary's acronym_max letters, or no vowel.
 """
@@ -27,6 +27,7 @@ class Vocabulary:
     legal_words: frozenset[str]
     word_forms: frozenset[str]
     acronym_max: int
+    form_spread: int = 3
 
 
 class Usage:
@@ -88,5 +89,5 @@ def trade_words(usage: Mapping[str, Usage], vocabulary: Vocabulary) -> dict[str,
     return {
         w: (u.spellings.most_common(1)[0][0] if u.spellings else w.capitalize(), u.names)
         for w, u in usage.items()
-        if u.names >= WORDS_MIN and 3 * u.ends >= u.names and sum(u.forms[f] >= FORM_MIN for f in vocabulary.word_forms) >= 3
+        if u.names >= WORDS_MIN and 3 * u.ends >= u.names and sum(u.forms[f] >= FORM_MIN for f in vocabulary.word_forms) >= vocabulary.form_spread
     }

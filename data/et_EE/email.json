@@ -1,0 +1,24 @@
+{
+  "format": "{local}@{domain}",
+  "local": [
+    {
+      "format": "{/et_EE.person as p}{slugify(p.first)}{sep}{slugify(p.last)}{n}",
+      "weight": 3,
+      "sep": [{ "format": ".", "weight": 2 }, "_", "-", ""],
+      "n": [{ "format": "", "weight": 3 }, "1", "7", "42", "88", "99"]
+    },
+    {
+      "format": "{adj}{noun}{n}",
+      "weight": 2,
+      "adj": ["kiire", "lahe", "tark", "vapper", "tugev", "julge", "osav", "vahva", "kaval", "rahulik", "super", "turbo", "metsik", "agar"],
+      "noun": ["kotkas", "rebane", "karu", "hunt", "kass", "koer", "siil", "hiir", "ilves", "orav", "konn", "ninja", "panda", "piraat", "robot", "kaku"],
+      "n": [{ "format": "", "weight": 2 }, "7", "13", "14", "42", "77", "99", "123", "420", "2024"]
+    },
+    {
+      "format": "{w}{n}",
+      "w": ["blip", "boop", "fizz", "kapow", "kazoo", "lahekass", "pauh", "pikselrebane", "plaks", "superkoer", "turbokaru", "vurr", "yeet", "zap", "zoom"],
+      "n": [{ "format": "", "weight": 2 }, "7", "14", "42", "69", "99", "123", "420", "1337", "2000", "9000"]
+    }
+  ],
+  "domain": ["demo.example.net", "dev.example.com", "example.com", "example.net", "example.org", "mail.example.com", "mail.example.org", "post.example.com", "test.example.org", "webmail.example.net"]
+}
