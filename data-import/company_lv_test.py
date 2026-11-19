@@ -1,7 +1,10 @@
 import json
-import re
+import sys
+import tempfile
 import unittest
 from collections import Counter
+from pathlib import Path
+from unittest import mock
 
 from geo_test import script
 
@@ -22,7 +25,7 @@ class Register(unittest.TestCase):
                 ('SIA "Alfa"', "K", "SIA", ""), ('SIA "Beta"', "K", "SIA", "2019-01-14"), ('IK "Gamma"', "K", "IK", ""),
                 ('AS "Delta"', "K", "AS", ""), ('PS "Epsilon"', "K", "PS", ""), ('KS "Zeta"', "K", "KS", ""),
                 ('Biedrība "Eta"', "B", "BDR", ""), ('Teta SIA filiāle', "K", "FIL", ""), ('Ārvalsts "Jota"', "K", "AKF", ""),
-                ('Zemnieku saimniecība "Kapa"', "Z", "ZEM", ""),
+                ('Zemnieku saimniecība "Kapa"', "Z", "ZEM", ""), ('SIA "Lambda"', "Z", "SIA", ""),
             ])
         )
         self.assertEqual(dict(counts), {"SIA": 1, "IK": 1, "AS": 1, "PS": 1, "KS": 1})
@@ -40,7 +43,7 @@ class Placed(unittest.TestCase):
         self.assertEqual(company_lv.placed("SIA", "Alfa SIA"), ("after", False, ["Alfa"]))
         self.assertEqual(company_lv.placed("SIA", '"Alfa" SIA'), ("after", True, ["Alfa"]))
 
-    def test_the_form_counts_as_its_abbreviation_or_its_words_in_any_case(self) -> None:
+    def test_the_form_counts_as_its_abbreviation_or_its_words_in_any_case_and_with_or_without_a_dot(self) -> None:
         self.assertEqual(company_lv.placed("SIA", 'Sabiedrība ar ierobežotu atbildību "Alfa"'), ("before", True, ["Alfa"]))
         self.assertEqual(company_lv.placed("SIA", 'SABIEDRĪBA AR IEROBEŽOTU ATBILDĪBU "ALFA"'), ("before", True, ["ALFA"]))
         self.assertEqual(company_lv.placed("AS", "Alfa akciju sabiedrība"), ("after", False, ["Alfa"]))
@@ -84,7 +87,7 @@ class Shapes(unittest.TestCase):
         shapes, places = company_lv.count_names([("SIA", "Sabiedrība ar ierobežotu atbildību SIA")], WORDS, set())
         self.assertEqual((dict(shapes["SIA"]), dict(places["SIA"])), ({}, {}))
 
-    def test_a_word_that_is_both_names_is_a_first_name_inside_a_name_and_a_last_name_at_its_end(self) -> None:
+    def test_a_word_that_is_both_names_is_a_first_name_inside_a_name_and_a_last_name_at_its_end_in_a_shape(self) -> None:
         words = company_lv.Words({"ozols", "anna"}, {"anna", "jānis"})
         self.assertEqual(company_lv.shape_of(["Anna", "Zorba"], words, set()), ("F", "X"))
         self.assertEqual(company_lv.shape_of(["Zorba", "Anna"], words, set()), ("X", "S"))
@@ -111,7 +114,7 @@ class Shapes(unittest.TestCase):
 
 
 class Bare(unittest.TestCase):
-    def test_the_names_a_form_is_placed_in_lose_the_form_and_its_quotes_and_the_others_are_dropped(self) -> None:
+    def test_a_name_that_places_its_form_loses_the_form_and_its_quotes_and_any_other_name_is_dropped(self) -> None:
         names = [("SIA", 'Sabiedrība ar ierobežotu atbildību "Alfa Būve"'), ("AS", "Beta AS"), ("IK", "Gamma"), ("SIA", "SIA")]
         self.assertEqual(company_lv.bare(names), [("SIA", "Alfa Būve"), ("AS", "Beta")])
 
@@ -131,10 +134,16 @@ class Coined(unittest.TestCase):
         self.assertNotIn("Zor", self.coined("Zor", 40, 2))
         self.assertIn("Arhitektūra", self.coined("Arhitektūra", 40, 2))
 
-    def test_a_coined_word_keeps_its_latvian_letters(self) -> None:
-        self.assertEqual(self.coined("ĒDIENS", 40, 2)["Ēdiens"], 40)
-        self.assertIn("Šķūnis", self.coined("Šķūnis", 40, 2))
-        self.assertIn("Ģildes", self.coined("Ģildes", 40, 2))
+    def test_a_coined_word_of_four_letters_counts(self) -> None:
+        self.assertIn("Zorb", self.coined("Zorb", 40, 2))
+
+    def test_a_coined_word_keeps_each_latvian_letter(self) -> None:
+        for letter in "āčēģīķļņšūž":
+            self.assertIn(f"Zorb{letter}", self.coined(f"Zorb{letter}", 40, 2))
+
+    def test_a_coined_word_spelled_in_capitals_with_a_latvian_vowel_is_spelled_in_lower_case(self) -> None:
+        for vowel in "āēīū":
+            self.assertIn(vowel.upper() + vowel * 3, self.coined(vowel.upper() * 4, 40, 2))
 
     def test_a_trade_word_is_not_coined(self) -> None:
         self.assertNotIn("Zorba", self.coined("Zorba", 40, 2, {"zorba"}))
@@ -146,12 +155,10 @@ class Trade(unittest.TestCase):
         trade = company_lv.trade_words(company_lv.word_usage(rows, lambda w: False, company_lv.VOCABULARY), company_lv.VOCABULARY)
         self.assertEqual(trade["būve"], ("Būve", 100))
 
-    def test_a_trade_word_spans_three_forms_where_a_vocabulary_names_no_spread(self) -> None:
-        vocabulary = company_lv.Vocabulary(re.compile(r"^[a-zū]{3,}$"), frozenset(), frozenset(), frozenset({"A", "B", "C"}), 0)
-        rows = [("AB"[i % 2], "Alfa Būve" if i < 40 else "Būve Alfa") for i in range(100)]
-        self.assertNotIn("būve", company_lv.trade_words(company_lv.word_usage(rows, lambda w: False, vocabulary), vocabulary))
-        rows = [("ABC"[i % 3], name) for i, (_, name) in enumerate(rows)]
-        self.assertIn("būve", company_lv.trade_words(company_lv.word_usage(rows, lambda w: False, vocabulary), vocabulary))
+    def test_a_trade_word_has_three_letters_or_more(self) -> None:
+        rows = [("SIA", "Art Ab" if i < 50 else "Ab Art") for i in range(100)]
+        trade = company_lv.trade_words(company_lv.word_usage(rows, lambda w: False, company_lv.VOCABULARY), company_lv.VOCABULARY)
+        self.assertEqual(sorted(trade), ["art"])
 
 
 SHAPES = {"SIA": {("X",): 200, ("T", "X"): 1}, "IK": {("FS",): 10}, "AS": {("X",): 1}, "PS": {("X",): 1}, "KS": {("X",): 1}}
@@ -169,14 +176,14 @@ class Output(unittest.TestCase):
         data: dict[str, dict[str, object]] = json.loads(company_lv.company_json({"IK": 50, "SIA": 80, "AS": 20, "PS": 2, "KS": 1}, SHAPES, PLACES))
         return data
 
-    def test_the_forms_weigh_their_businesses(self) -> None:
+    def test_the_forms_weigh_their_merchants(self) -> None:
         registered = self.company()["registered"]
         assert isinstance(registered, list)
         self.assertEqual([(r["format"], r["legal"], r["weight"]) for r in registered], [
             ("{.company.sia}", "SIA", 80), ("{.company.ik}", "IK", 50), ("{.company.as}", "AS", 20), ("{.company.ps}", "PS", 2), ("{.company.ks}", "KS", 1),
         ])
 
-    def test_a_form_places_its_abbreviation_and_its_quotes_as_the_names_of_that_form_do_and_ships_its_shapes_above_share_min(self) -> None:
+    def test_a_form_places_its_abbreviation_and_its_quotes_as_the_names_of_that_form_do_and_ships_its_shapes_of_share_min_or_more(self) -> None:
         self.assertEqual(self.company()["sia"], {
             "format": "{name as sia_name}{placed}",
             "name": [{"format": "{.company-coined}", "weight": 200}],
@@ -191,6 +198,24 @@ class Output(unittest.TestCase):
 
     def test_an_ik_draws_the_person_its_names_carry(self) -> None:
         self.assertEqual(self.company()["ik"]["name"], [{"format": "{.person as p}{p.first} {p.last}", "weight": 10}])
+
+
+class Main(unittest.TestCase):
+    def test_the_script_reads_a_register_file_and_writes_the_company_files_from_its_names_and_the_shipped_tables(self) -> None:
+        rows = [('SIA "Alfa Būve"', "K", "SIA", "")] * 100 + [('SIA "Bērziņš"', "K", "SIA", "")] * 60 + [('SIA "Zorba"', "K", "SIA", "")] * 40
+        with tempfile.TemporaryDirectory() as folder:
+            register = Path(folder) / "register.csv"
+            register.write_bytes(register_csv(rows))
+            with mock.patch.object(sys, "argv", ["company-lv.py", "--register", str(register), "--out", folder]):
+                company_lv.main()
+            company = json.loads((Path(folder) / "company.json").read_text(encoding="utf-8"))
+            self.assertEqual(company["registered"][0], {"format": "{.company.sia}", "legal": "SIA", "weight": 200})
+            self.assertEqual(
+                company["sia"]["name"],
+                [{"format": "{.company-coined} {.company-word}", "weight": 100}, {"format": "{.last-name}", "weight": 60}, {"format": "{.company-coined}", "weight": 40}],
+            )
+            self.assertEqual((Path(folder) / "company-coined.tsv").read_text(encoding="utf-8").splitlines(), ["word\tcount", "Zorba\t40"])
+            self.assertEqual((Path(folder) / "company-word.tsv").read_text(encoding="utf-8").splitlines(), ["word\tcount", "Būve\t100"])
 
 
 if __name__ == "__main__":
