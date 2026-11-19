@@ -144,7 +144,7 @@ jobs:
       - name: Fetch govulncheck's report from vuln.go.dev
         id: report
         run: docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
-      - name: Release nothing while the report names a known vulnerability
+      - name: Stop the release while the report names a known vulnerability
         run: python3 release-tooling/file_vulnerabilities.py check "$RUNNER_TEMP/vulnerabilities/report.json"
       - id: publish
         if: github.event_name == 'push'
@@ -158,16 +158,18 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python3 release-tooling/patch_release.py cut
-      - name: Plan known vulnerabilities, record fixed ones, the last release and new Go minors' Breaking lines, and propose them to main
-        # Runs after a failed step too: a known vulnerability or a patch waiting for a human fails the job, and fixed items still move.
+      - name: Plan known vulnerabilities, record fixed ones, the last release's section and new Go minors' Breaking lines, and propose them to main
+        # Runs after a failed step too: a known vulnerability or a patch waiting for a human fails the job, and the plan still takes what the report names.
         if: ${{ !cancelled() && steps.report.outcome == 'success' }}
         run: |
+          # The forge made the tag of a release this job published, so the checkout lacks it.
+          git fetch -q --tags origin
           python3 release-tooling/patch_release.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md
           python3 release-tooling/propose_plan.py
 
   packages:
     needs: release
-    # A release job that failed after it published, as where the plan step fails, still hands its tag on.
+    # A release job whose plan step fails after it published still hands its tag on.
     if: ${{ !cancelled() && needs.release.outputs.tag != '' }}
     permissions:
       contents: write
