@@ -33,25 +33,36 @@ func TestList(t *testing.T) {
 	}
 }
 
-// TestListLeavesOutLetFields pins that a "let" field is left out of the listing at any depth and
-// in a choice's shared paths, while a read of it still renders.
-func TestListLeavesOutLetFields(t *testing.T) {
-	dir := writeData(t, map[string]string{
+func letFieldData(t *testing.T) string {
+	t.Helper()
+	return writeData(t, map[string]string{
 		"ip":    `{"format":"{v4}.{v4}","v4":{"format":"{o}.{o}","let":{"o":["1","2"]}}}`,
 		"ver":   `{"format":"{n}.{n}","let":{"n":{"format":"{d}","d":["1","2"]}},"tag":"x"}`,
 		"coin":  `[{"format":"{code}","let":{"code":"A"},"name":"Aa"},{"format":"{code}","let":{"code":"B"},"name":"Bb"}]`,
 		"cheat": `{"format":"{/coin.code}"}`,
 	})
-	f := newGenerator(t, dir, WithSeed(1))
-	got := f.List()
+}
+
+// TestListLeavesOutLetFields pins that a "let" field is left out of the listing at any depth,
+// with every path below it.
+func TestListLeavesOutLetFields(t *testing.T) {
+	got := newGenerator(t, letFieldData(t), WithSeed(1)).List()
 	want := []string{"cheat", "coin", "coin.name", "ip", "ip.v4", "ver", "ver.tag"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("List() = %v, want %v", got, want)
 	}
+}
+
+// TestLetFieldStaysReadableByItsPath pins that a read of a "let" field renders, directly and
+// through a choice's variants.
+func TestLetFieldStaysReadableByItsPath(t *testing.T) {
+	f := newGenerator(t, letFieldData(t), WithSeed(1))
 	for _, p := range []string{"ip.v4.o", "ver.n", "ver.n.d", "coin.code"} {
-		if _, err := f.Fake(p); err != nil {
-			t.Errorf("Fake(%q) = %v, but a let field stays readable by its path", p, err)
-		}
+		t.Run(p, func(t *testing.T) {
+			if _, err := f.Fake(p); err != nil {
+				t.Errorf("Fake(%q) = %v, but a let field stays readable by its path", p, err)
+			}
+		})
 	}
 	if got := fejktest.Fake(t, f, "cheat"); got != "A" && got != "B" {
 		t.Errorf("Fake(cheat) = %q, want a read through a choice into its variants' let field", got)
