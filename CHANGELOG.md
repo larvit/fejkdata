@@ -134,11 +134,11 @@ with its replacement, and each removed path, column or flag.
 - `price`, `time`, `url`, `username` and `color` for `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO`, each as the country
   writes it: a price as `1.234,50 kr.` in Denmark and `1 234,50 €` in Finland, a time as `15.04` in Finland and `15:04` in
   Germany, and a colour name in the locale's language or, two draws in three, a hex code.
-- `price`, `time`, `url`, `username`, `color`, `month` and `weekday` for `et_EE`, `fr_FR`, `lt_LT` and `lv_LV`, written the
-  same way: a price as `1 234,50 €`, a time as `15:04`, and `month` and `weekday` as CLDR's stand-alone names, such as
-  `jaanuar`, `lundi`, `sausis` and `Pirmdiena`. Each `url` carries a path `reserved` that draws only `example.com`,
-  `example.org` and `example.net`, or a subdomain of one, and its default `url` still draws registrable domains such as
-  `example.ee`.
+- `color`, `month`, `price`, `time`, `url`, `username` and `weekday` for `et_EE`, `fr_FR`, `lt_LT` and `lv_LV`, written as
+  the country writes them: a price as `1 234,50 €`, a time as `15:04`, and `month` and `weekday` as CLDR's stand-alone
+  names, such as `jaanuar`, `lundi`, `sausis` and `Pirmdiena`. Each `url` carries a path `reserved` that draws only
+  `example.com`, `example.org` and `example.net`, or a subdomain of one, and its default `url` also draws registrable
+  domains such as `example.ee`.
 - `de_DE.company`, drawing a sole proprietorship, a partnership or a corporation as often as Destatis counted legal units
   of that kind in 2024, and the forms of a group evenly. Also `de_DE.email` and `de_DE.date`, such as `02.04.2019`. A program showing the counts credits "© Statistisches Bundesamt (Destatis), 2025", names the licence
   Datenlizenz Deutschland – Namensnennung 2.0 (`dl-de/by-2-0`), links it, and says that the groups are split and the

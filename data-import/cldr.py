@@ -4,9 +4,9 @@
 
 A month is numbered 1 to 12 and a weekday 1 (Monday) to 7 (Sunday), as ISO 8601 does. Each
 name is CLDR's stand-alone wide form, the one that names a month or weekday on its own. CLDR's other,
-format form is the one inside a date: Finnish declines it (`tammikuuta`, `maanantaina`) and Lithuanian declines its
-months (`sausio`), and the other languages spell both alike. The
-territory table holds one row for each alpha-2 code in data/misc/territory.tsv; when CLDR has no
+format form is the one inside a date: Finnish declines it (`tammikuuta`, `maanantaina`), Lithuanian declines its
+months (`sausio`) and Latvian writes its weekdays in lower case (`pirmdiena`; the stand-alone form is `Pirmdiena`).
+The other languages spell both alike. The territory table holds one row for each alpha-2 code in data/misc/territory.tsv; when CLDR has no
 Swedish name for a code, the script exits with an error before it writes territory.tsv.
 """
 import argparse
