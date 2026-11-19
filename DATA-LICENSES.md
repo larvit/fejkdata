@@ -504,6 +504,17 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Source: Eurostat"
 - Rebuild: —
 
+## `lv_LV/phone.json`
+
+- Source: Table 1 of the National Numbering Plan (Nacionālais numerācijas plāns), decision no. 1/33
+  of 27 September 2022 of the Public Utilities Commission (Sabiedrisko pakalpojumu regulēšanas
+  komisija), [on likumi.lv](https://likumi.lv/ta/en/en/id/335981): the eight-digit mobile numbers
+  2XXXXXXX and the eight-digit fixed numbers 6XXXXXXX
+- Licence: none stated, facts only; a decision of a state institution is a legislative act,
+  which section 6 of the Latvian Copyright Law (Autortiesību likums) excludes from copyright
+- Attribution: none required
+- Rebuild: curated
+
 ## `misc/currency.tsv`
 
 - Source: [datasets/currency-codes](https://github.com/datasets/currency-codes); symbols from

@@ -47,6 +47,8 @@ with its replacement, and each removed path, column or flag.
   Citizenship and Migration Affairs names no test series and no unassigned range, so a code may be a living
   person's. Also `{personaskods(d)}`, which prints a whole code for the `YYYYMMDD` date `d` reads. A program
   showing the birth years credits "Source: Eurostat", as `DATA-LICENSES.md` says.
+- `lv_LV.phone`, a Latvian phone number such as `29 123 456`, or `+371 29 123 456` in its `international` form, drawn
+  from the two ranges of the Latvian numbering plan, mobile 2XXXXXXX ten times as often as fixed 6XXXXXXX.
 - `et_EE`, Estonian, with `first-name`, `last-name`, `person`, `sex` and `title`. `{/et_EE.person}` renders e.g.
   `Liis Tamm`. Both name tables are a language model's recall, ranked and weighted by rank; the weights are
   estimates. A woman bears the feminine form of a Russian last name, such as `Ivanova`. `et_EE.sex` carries Estonia's population on 1 January 2025 from

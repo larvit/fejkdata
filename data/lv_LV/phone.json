@@ -1,0 +1,11 @@
+{
+  "format": "{number as n}{national}",
+  "hidden": {
+    "number": [
+      { "format": "2{digits(1)} {digits(3)} {digits(3)}", "weight": 10 },
+      "6{digits(1)} {digits(3)} {digits(3)}"
+    ]
+  },
+  "national": "{n}",
+  "international": "+371 {n}"
+}
