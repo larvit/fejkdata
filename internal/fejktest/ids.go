@@ -3,6 +3,7 @@ package fejktest
 import (
 	"strconv"
 	"strings"
+	"time"
 )
 
 // CprDigits reads a CPR number, written with or without its hyphen, as ten digits.
@@ -193,4 +194,37 @@ func ValidNir(s string) bool {
 	n, _ := strconv.Atoi(number)
 	key, _ := strconv.Atoi(s[13:])
 	return key == 97-n%97
+}
+
+// ValidIsikukood is the check of an Estonian personal code, EVS 585's structure as the Population
+// Register applies it: eleven digits, a first digit 1 to 8, a date that exists in the century the
+// first digit names, and a check digit that is the weighted sum of the first ten digits, weights 1
+// to 9 and 1, modulo 11; where that is 10, the sum weighted 3 to 9, 1, 2 and 3, modulo 11, and
+// where that is 10 too, 0.
+func ValidIsikukood(s string) bool {
+	if len(s) != 11 || DigitsOnly(s) != s || s[0] == '0' || s[0] > '8' {
+		return false
+	}
+	year := 1800 + 100*(int(s[0]-'1')/2) + atoi(s[1:3])
+	month, day := atoi(s[3:5]), atoi(s[5:7])
+	if d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC); d.Month() != time.Month(month) || d.Day() != day {
+		return false
+	}
+	sum := func(weights string) int {
+		n := 0
+		for i := range 10 {
+			n += int(weights[i]-'0') * int(s[i]-'0')
+		}
+		return n % 11
+	}
+	check := sum("1234567891")
+	if check == 10 {
+		check = sum("3456789123")
+	}
+	return int(s[10]-'0') == check%10
+}
+
+func atoi(s string) int {
+	n, _ := strconv.Atoi(s)
+	return n
 }
