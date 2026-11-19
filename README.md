@@ -15,7 +15,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails and dates, `lt_LT`'s names, persons, asmens kodai and phone numbers, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places and every German
-  place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](docs/locales/geo.md)).
+  place with a postal code. Each address takes its postal code from one town, and its street too, save in Germany, whose streets are invented ([`geo`](docs/locales/geo.md#german-places)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
@@ -733,25 +733,26 @@ Renders e.g. `Louice Kajsa Grönberg`. About one draw in 220 repeats the first n
 
 ### Locale pages
 
-Each module's own notes sit on a page of its own: its categories, the register each comes from, and what its ids
-and companies are. The places of every country are on one page, [`geo`](docs/locales/geo.md), where
-[Swedish places](docs/locales/geo.md#swedish-places) says why a street may sit under a neighbouring postort.
+Each folder of `data/` has a page under [`docs/locales`](docs/locales) with its notes: where its data comes from, which
+checker accepts its ids, and how its companies, phone numbers and words are drawn. The `geo` page holds the places of
+every country that ships them; its [Swedish places](docs/locales/geo.md#swedish-places) says why a street may sit under a
+neighbouring postort.
 
-| Module | Page |
-|---|---|
-| `da_DK` | [Danish](docs/locales/da_DK.md) |
-| `de_DE` | [German](docs/locales/de_DE.md) |
-| `en_US` | [US English](docs/locales/en_US.md) |
-| `et_EE` | [Estonian](docs/locales/et_EE.md) |
-| `fi_FI` | [Finnish](docs/locales/fi_FI.md) |
-| `fr_FR` | [French](docs/locales/fr_FR.md) |
-| `geo` | [Places of Denmark, Finland, Germany, Norway, Sweden and the US](docs/locales/geo.md) |
-| `lt_LT` | [Lithuanian](docs/locales/lt_LT.md) |
-| `lv_LV` | [Latvian](docs/locales/lv_LV.md) |
-| `misc` | [What every locale shares](docs/locales/misc.md) |
-| `nb_NO` | [Norwegian Bokmål](docs/locales/nb_NO.md) |
-| `nn_NO` | [Norwegian Nynorsk](docs/locales/nn_NO.md) |
-| `sv_SE` | [Swedish](docs/locales/sv_SE.md) |
+| Folder | Page | Sections |
+|---|---|---|
+| `da_DK` | [Danish](docs/locales/da_DK.md) | CPR number; CPR number matched to a sex; Danish companies; Danish dates and emails; Danish phone numbers; Danish words |
+| `de_DE` | [German](docs/locales/de_DE.md) | Steuer-ID; German companies; German dates and emails; German phone numbers; German words |
+| `en_US` | [US English](docs/locales/en_US.md) | English words; Social Security numbers and ITINs; US phone exchanges |
+| `et_EE` | [Estonian](docs/locales/et_EE.md) | Estonian companies; Estonian dates and emails; Estonian phone numbers |
+| `fi_FI` | [Finnish](docs/locales/fi_FI.md) | Finnish companies; Finnish dates and emails; Finnish phone numbers; Finnish words; Henkilötunnus; Henkilötunnus matched to a sex; Henkilötunnus of the issued range |
+| `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers |
+| `geo` | [Places](docs/locales/geo.md) | Across countries; Danish places; Finnish places; German places; Norwegian places; Swedish places; US places |
+| `lt_LT` | [Lithuanian](docs/locales/lt_LT.md) | Lithuanian phone numbers |
+| `lv_LV` | [Latvian](docs/locales/lv_LV.md) | Latvian companies; Latvian dates and emails; Latvian phone numbers |
+| `misc` | [Shared by every locale](docs/locales/misc.md) | Reserved addresses; Credit cards and IBANs; Registry tables; Territories; Time zones |
+| `nb_NO` | [Norwegian Bokmål](docs/locales/nb_NO.md) | Fødselsnummer; Fødselsnummer matched to a sex; Norwegian companies; Norwegian dates and emails; Norwegian phone numbers; Norwegian words |
+| `nn_NO` | [Norwegian Nynorsk](docs/locales/nn_NO.md) | Persons, ids, contact details and companies; Nynorsk months, weekdays and titles; Nynorsk words |
+| `sv_SE` | [Swedish](docs/locales/sv_SE.md) | Bankgiro, plusgiro and bank accounts; Blood types; Cars; Industries and occupations; Licence plates; Months, weekdays, holidays and territories; Organisationsnummer and VAT numbers; Person; Personnummer and samordningsnummer; Personnummer and samordningsnummer, twelve digits; Personnummer of a sex or an age band; Swedish companies; Swedish phone numbers; Swedish words |
 
 ## Data format
 
@@ -1802,7 +1803,7 @@ internal/rows/  a table's rows: the TSV, the options proved over it, the links b
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; Modules, which lists them; and the tests of the shipped data
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the shared modules they import
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
-docs/           the decision log, the locale pages (`docs/locales`, one per shipped module), the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
+docs/           the decision log, the locale pages (`docs/locales`, one per folder of `data/`), the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ what CI releases with: the release from the changelog heading; the patch of the last release for main's newer Go, modules or GoReleaser; a release's binaries, packages, image and package repositories; and the filer of known vulnerabilities as `todo.md` items
 testdata/       the pinned shipped shape (see Versioning)
 ```
@@ -2060,7 +2061,7 @@ A pull request that adds a locale ships, in this order:
    [the paragraph on a change to the shipped data](#development) says.
 5. A raised `base` in `TestNoNewAllocRegression` (`perf_test.go`), where the new manifest paths
    take `New` past its 10% slack.
-6. Its page, `docs/locales/<name>.md`: a `#` heading, and a `##` heading per feature. Its row in the README's "Locale pages" table, and its name in the "Data built in" bullet.
+6. Its page, `docs/locales/<name>.md`, with a `#` heading naming the folder and a `##` heading per feature; its row in the "Locale pages" table, listing those headings; and its name in the "Data built in" bullet.
 7. A `CHANGELOG.md` entry under `Unreleased`.
 8. A [`DATA-LICENSES.md`](DATA-LICENSES.md) entry for each dataset the locale adds.
 
