@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 523`
+`Next ID = 524`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 523 | 0.7.0 |  | question | **Decide whether to rename the `let` option to `hidden`, and record the answer in the decision on `let`.** | 2 | 1 | 2 | 3 | 4 | 4 by 2 | 0.5 |
 | 522 | 0.7.0 |  |  | **Add a mutation tool for Go.** | 3 | 2 | 1 | 4 | 2 | code health by 3 | 8.2 |
 | 521 | 0.7.0 |  |  | **Leave a `let` field out of `--list`, `.fejkdata.json` and `testdata/shipped_shape.txt` in any category, and move the shipped helper fields, such as `misc.ipv6.g`, into `let`.** | 2 | 2 | 2 | 4 | 3 | 4 by 3, code health by 2 | 5.3 |
 | 499 | 0.7.0 |  |  | **Add `et_EE`'s national personal id, the isikukood, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
@@ -237,6 +238,49 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
+
+### 523. Decide whether to rename the `let` option to `hidden`, and record the answer in the decision on `let`.
+
+`let` shipped in 0.5.0. It holds the fields that write no column. Since item 521, these fields are also left out of `--list`, the `.fejkdata.json` index and the shape pin, while a read of their path still draws them.
+
+Two panels of fresh readers, seated as the README's audience, disagreed on the name. The writer panel of 2026-11-08 picked `let` over `hidden`. Item 521's three readers (a data author, a hand fixture author and a contributor) all predicted the behaviour correctly. All three named `hidden` the better word for a field its path can read but no listing shows, and two took `let` for a local binding no path can reach.
+
+README goal 4.8 says a clearer name replaces the old one, even at a major. Renaming breaks every template that uses `let`. The decision "A `let` field writes no column and is left out of the listing" in `docs/decisions.md` records the bench.
+
+Recommendation: keep `let`. A field that binds a value for other fields to read is its main use, and the listing is secondary. The maintainer decides.
+
+If the answer is to keep `let`, only the decision changes. If it is to rename, the change reaches the files below. `internal/engine/tree/node.go`'s `TemplateSyntax` sits beside a place the comprehension seats found hard (`Template`, one name over three concepts), so the rename keeps that struct easy to read.
+
+Touches:
+
+- `internal/engine/load/node.go`: `compileFields`, `isOption` (small)
+- `internal/engine/load/path.go`: lines 175-185 (small)
+- `internal/engine/tree/node.go`: `TemplateSyntax` (small)
+- `internal/engine/record.go`: lines 100-120 (small)
+- `record.go`: lines 225-230 (small)
+- `README.md`: `### Let`
+- `CHANGELOG.md`: `## Unreleased` (small)
+- `data/da_DK/company-coined.json`
+- `data/da_DK/price.json`
+- `data/de_DE/company-coined.json`
+- `data/de_DE/price.json`
+- `data/en_US/price.json`
+- `data/fi_FI/company-coined.json`
+- `data/fi_FI/price.json`
+- `data/misc/ip.json`
+- `data/misc/ipv6.json`
+- `data/misc/mac.json`
+- `data/misc/version.json`
+- `data/nb_NO/company-coined.json`
+- `data/nb_NO/price.json`
+- `data/sv_SE/company-coined.json`
+- `data/sv_SE/organisationsnummer.json`
+- `data/sv_SE/person.json`
+- `data/sv_SE/price.json`
+- `internal/engine/load/path_test.go`
+- `record_test.go`
+- `loading_test.go`
+- `distinct_test.go`
 
 ### 522. Add a mutation tool for Go.
 
