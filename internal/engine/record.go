@@ -67,7 +67,10 @@ func RecordAt(s *drawstate.State, root *tree.Folder, path string) (Record, error
 // recordAtNode is the record n makes in row, or an error naming path.
 func recordAtNode(path string, segments []string, n tree.Node, row render.Row) (Record, error) {
 	record, err := recordOf(n)
-	if errors.Is(err, ErrNoColumns) && err != holdsOnlyLets {
+	if err == holdsOnlyLets {
+		err = holdsOnlyLetsInData
+	}
+	if errors.Is(err, ErrNoColumns) {
 		ns := grammar.IdentifierSegments(segments)
 		return Record{}, fmt.Errorf(`%s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, err, ns[len(ns)-1], path)
 	}
@@ -96,8 +99,8 @@ func tableRecord(s *drawstate.State, t *tree.Table, tail []string) (tree.Node, r
 }
 
 // ErrNoColumns matches the error for a record with no fields, naming a choice or holding every
-// field in "let". For the first two, RecordAt's error also names the one-column record to write
-// instead.
+// field in "let". RecordAt's error also names the one-column record to write instead, for a
+// category.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
 // noColumnsError keeps its own message and matches ErrNoColumns.
@@ -110,6 +113,9 @@ func (noColumnsError) Is(target error) bool { return target == ErrNoColumns }
 const (
 	namesAChoice  = noColumnsError("names a choice, not a template; a record is a template whose fields are its columns")
 	holdsOnlyLets = noColumnsError(`holds every field in "let", which writes no column; move one out of "let"`)
+
+	// holdsOnlyLetsInData is holdsOnlyLets for a category, whose data a caller can't edit.
+	holdsOnlyLetsInData = noColumnsError(`holds every field in "let", which writes no column`)
 )
 
 // recordOf is the record template n is; its load fixed its columns.
