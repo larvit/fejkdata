@@ -1276,8 +1276,7 @@ govulncheck has no ignore list: the maintainer drops the release job's step "Sto
 release while the report names a known vulnerability" until one does, and records why
 here. The paired ruling against f90b4d6 found the project reads worse for it: the gate
 read `todo.md`, the filer spliced `todo.md` as text, and a release waits on vuln.go.dev.
-The maintainer merged it anyway, as the cost of filing into the plan. Since 2026-11-19,
-when `todo.md` item 350 shipped, the gate doesn't read `todo.md`, and the filer reads the
+The maintainer merged it anyway, as the cost of filing into the plan. Since 2026-11-19 the gate doesn't read `todo.md`, and the filer reads the
 plan's rows only inside the item table. The filer still splices its item in as text, since
 CI cannot run the maintainer's plan tools, and a release still waits on vuln.go.dev, which
 this decision asks. The paired ruling of that change against f90b4d6 found the project
@@ -1360,8 +1359,7 @@ no section, and moves rows planned under a patch CI took to the next patch. The 
 workflow builds a tag with the Go its own Dockerfile names. The paired ruling against
 5aca8a1 found the project reads worse for the Go patches: two linked scripts, four linked
 jobs and several writers of `CHANGELOG.md`. The maintainer merged it anyway, as the cost
-of releasing Go patches without waiting. Since 2026-11-19, when `todo.md` item 350
-shipped, the filer is a module `patch_release.py` imports, and one release job scans,
+of releasing Go patches without waiting. Since 2026-11-19 the filer is a module `patch_release.py` imports, and one release job scans,
 releases and plans, with the Packages workflow after it. `changelog.py` writes every
 section and line CI puts in `CHANGELOG.md`; `go_release_notes.py` words the Breaking lines.
 The paired ruling of that change against 5aca8a1 found the project reads better, by the
