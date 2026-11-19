@@ -85,10 +85,10 @@ func eachLatvianPersonasKods(t *testing.T, check func(got string)) {
 	fejktest.EachDraw(latvianPersonasKodsDraws, func() string { return fejktest.Fake(t, f, "lv_LV.personas-kods") }, check)
 }
 
-func TestLatvianPersonasKodsIsElevenDigitsWithAValidDateAndCheckDigit(t *testing.T) {
+func TestLatvianPersonasKodsIsElevenDigitsWithAValidCheckDigit(t *testing.T) {
 	eachLatvianPersonasKods(t, func(got string) {
-		if !fejktest.ValidPersonasKods(got) || got[:2] == "32" {
-			t.Fatalf("%q is not a valid personas kods with a date", got)
+		if !fejktest.ValidPersonasKods(got) {
+			t.Fatalf("%q is not a valid personas kods", got)
 		}
 	})
 }
@@ -110,35 +110,54 @@ func latvianPersonasKodsAge(got string) int {
 	return age
 }
 
-// The register gives a code without a date to everyone it registered from July 2017, so the
-// category draws no one younger than 9.
-func TestLatvianPersonasKodsIsOfSomeoneAged9To99(t *testing.T) {
+// A code with a date is of someone born before the register's change on 1 July 2017 and not more
+// than 100 years ago.
+func TestLatvianPersonasKodsWithADateIsOfSomeoneBornBeforeJuly2017Within100Years(t *testing.T) {
 	eachLatvianPersonasKods(t, func(got string) {
-		if age := latvianPersonasKodsAge(got); age < 9 || age > 99 {
-			t.Fatalf("%q is of someone aged %d, want 9 to 99 on %s", got, age, fejktest.TestDay.Format("2006-01-02"))
+		if got[:2] == "32" {
+			return
+		}
+		born := latvianPersonasKodsBirth(got)
+		if !born.Before(time.Date(2017, 7, 1, 0, 0, 0, 0, time.UTC)) || born.Before(fejktest.TestDay.AddDate(-100, 0, 0)) {
+			t.Fatalf("%q is of someone born %s, want a day from %s to 30 June 2017", got, born.Format("2006-01-02"), fejktest.TestDay.AddDate(-100, 0, 0).Format("2006-01-02"))
 		}
 	})
 }
 
-// Eurostat's table demo_pjan, the population on 1 January 2025: 1,700,722 people aged 9 to 99,
-// of whom 183,940 were 9 to 17, 1,110,183 were 18 to 64 and 406,599 were 65 to 99.
+// Eurostat's table demo_pjan, the population on 1 January 2025: 1,860,337 people aged 0 to 99,
+// of whom 343,555 were under 18, 1,110,183 were 18 to 64 and 406,599 were 65 to 99. A code with no
+// date is of someone under 18.
 func TestLatvianPersonasKodsFollowsTheAgeBandsOfEurostatsPopulation(t *testing.T) {
 	bands := map[string]int{}
 	eachLatvianPersonasKods(t, func(got string) {
-		switch age := latvianPersonasKodsAge(got); {
-		case age < 18:
-			bands["9 to 17"]++
-		case age < 65:
+		switch {
+		case got[:2] == "32", latvianPersonasKodsAge(got) < 18:
+			bands["under 18"]++
+		case latvianPersonasKodsAge(got) < 65:
 			bands["18 to 64"]++
 		default:
 			bands["65 to 99"]++
 		}
 	})
-	for band, want := range map[string]float64{"9 to 17": 10.82, "18 to 64": 65.28, "65 to 99": 23.91} {
+	for band, want := range map[string]float64{"under 18": 18.47, "18 to 64": 59.68, "65 to 99": 21.86} {
 		t.Run(band, func(t *testing.T) {
 			if share := 100 * float64(bands[band]) / latvianPersonasKodsDraws; share < want-1.5 || share > want+1.5 {
 				t.Errorf("%s were %.1f%% of the codes, want %.2f%% by Eurostat's population", band, share, want)
 			}
 		})
+	}
+}
+
+// Of the people under 18 on the test day, those born from 1 July 2017 are about half, so some 9% of
+// all codes have no date.
+func TestLatvianPersonasKodsHasNoDateForSomeoneBornFromJuly2017(t *testing.T) {
+	undated := 0
+	eachLatvianPersonasKods(t, func(got string) {
+		if got[:2] == "32" {
+			undated++
+		}
+	})
+	if share := 100 * float64(undated) / latvianPersonasKodsDraws; share < 7 || share > 11.5 {
+		t.Errorf("%.1f%% of the codes had no date, want about 9%%", share)
 	}
 }
