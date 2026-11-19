@@ -153,8 +153,6 @@ func TestLatvianPersonasKodsFollowsTheAgeBandsOfEurostatsPopulation(t *testing.T
 	}
 }
 
-// Of the people under 18 on the test day, those born from 1 July 2017 are about half, so some 9% of
-// all codes have no date.
 func TestLatvianPersonasKodsHasNoDateForSomeoneBornFromJuly2017(t *testing.T) {
 	undated := 0
 	eachLatvianPersonasKods(t, func(got string) {

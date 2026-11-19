@@ -40,8 +40,8 @@ with its replacement, and each removed path, column or flag.
   1 January 2025 from Eurostat, and a program showing it credits "Source: Eurostat". The Go package is
   `github.com/larvit/fejkdata/data/lv_LV`, and the CLI carries it.
 - `lv_LV.personas-kods`, a Latvian personal code such as `16117519997`, drawn over the last hundred years by
-  Eurostat's counts of under 18, 18 to 64 and 65 to 99. A person born from 1 July 2017 gets a code that starts
-  with `32` and holds no date. It passes the check digit as python-stdnum computes it, but the Office of
+  Eurostat's counts of people under 18, 18 to 64 and 65 to 99. A person born from 1 July 2017 gets a code that starts
+  with `32` and holds no date. A code passes the check digit as python-stdnum computes it, but the Office of
   Citizenship and Migration Affairs names no test series and no unassigned range, so a code may be a living
   person's. Also `{personaskods(d)}`, which prints a whole code for the `YYYYMMDD` date `d` reads. A program
   showing the birth years credits "Source: Eurostat", as `DATA-LICENSES.md` says.
