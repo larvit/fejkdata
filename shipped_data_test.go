@@ -77,7 +77,7 @@ func TestIPAndVersionLiveInMiscAlone(t *testing.T) {
 	}
 	for p, want := range map[string]*regexp.Regexp{
 		"misc.ip":      regexp.MustCompile(`^((\d{1,3}\.){3}\d{1,3}|([0-9a-f]{4}:){7}[0-9a-f]{4})$`),
-		"misc.ipv6":    regexp.MustCompile(`^2001:db8(:[0-9a-f]{4}){6}$`),
+		"misc.ipv6":    regexp.MustCompile(`^2001:db8(:[1-9a-f][0-9a-f]{0,3}){6}$`),
 		"misc.version": regexp.MustCompile(`^v?\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$`),
 	} {
 		fejktest.EachDraw(200, func() string { return fejktest.Fake(t, f, p) }, func(v string) {
