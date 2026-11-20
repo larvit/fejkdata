@@ -2606,3 +2606,20 @@ Read most (opens and searches):
 - `data/lt_LT/last-name.tsv` 3
 - `docs/locales/lt_LT.md` 3
 - `docs/locales/lv_LV.md` 3
+
+## Reading cost, chunk 06b0a2fc3ee0, finished 2026-11-20T01:27:55Z
+
+71166 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/locale_word_test.go` 7
+- `README.md` 5
+- `data/locales_test.go` 5
+- `DATA-LICENSES.md` 2
+- `compose.yaml` 2
+- `data-import/wordtables.py` 2
+- `shipped_test.go` 2
+- `data-import/source.py` 1
+- `data-import/word-de.py` 1
+- `data-import/word-fr.py` 1
