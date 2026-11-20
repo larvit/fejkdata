@@ -1157,7 +1157,7 @@ it.
 The scope is lexical. A read entering a category, by a reference, through a name or from
 `Fake`, sees no frame (one render of a scope's picks) opened above it, so a category renders
 the same whoever references it. Such a read opens the frames around where it lands: a read through a
-name from its pick's memo, so `{n}` and `{n.path}` read one pick of each name inside, and a
+name from its pick, so `{n}` and `{n.path}` read one pick of each name inside, and a
 reference or `Fake` fresh ones.
 
 A name is a closure. It reaches every field, choice item and repeat nested inside the

@@ -54,7 +54,7 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 	for b, rs := range reads {
 		keys[b] = map[PickKey]string{}
 		for _, r := range rs {
-			for _, key := range r.Levels()[len(l.Binding(b).Target().Tail()):] {
+			for _, key := range l.Binding(b).Target().Addressed(*r) {
 				if _, seen := keys[b][key]; !seen {
 					keys[b][key] = r.Spelling()
 				}

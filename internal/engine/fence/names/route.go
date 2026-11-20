@@ -45,11 +45,11 @@ func (r route) placedAt(at tree.PickKey, addressed map[tree.PickKey]string) rout
 		return r
 	}
 	r.kind, r.at = routeFresh, at
-	placed, by, kept := tree.LandsInPick(addressed, at, *r.a)
+	_, by, kept := tree.LandsInPick(addressed, at, *r.a)
 	if kept {
 		r.kind, r.by = routeKept, by
 	}
-	r.levels = placed.Levels()
+	r.levels = tree.ReadAt(at, *r.a).Levels()
 	return r
 }
 

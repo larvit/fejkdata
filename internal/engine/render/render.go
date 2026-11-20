@@ -137,8 +137,8 @@ func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read)
 	if a.Kind() == tree.NamedRead {
 		return readName(s, env, a)
 	}
-	if placed, kept := placedInPick(env, a); kept {
-		return readUnder(s, t, env, a, placed)
+	if v, kept := readUnder(s, t, env, a); kept {
+		return v
 	}
 	if grammar.IsRef(a.Head()) {
 		return readReference(s, t, env, a)
