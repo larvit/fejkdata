@@ -550,8 +550,9 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   of its kind. A korpusas is dropped from a house number, an address with no postal code is not
   counted, and a locality with no numbered address on a street is dropped
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the centre's page of the
-  data states. The licence of table M3010320 itself was not found: the agency's portal names none
-  beside it. Lithuania's open data portal publishes the same indicator's other tables as the
+  data states. The licence of table M3010320 itself was not found: its response names none,
+  and the agency's portal refuses a program's reads, so its terms were not read. The table gives
+  the `population` columns of `region.tsv`, `municipality.tsv` and `locality.tsv`. Lithuania's open data portal publishes the same indicator's other tables as the
   dataset [Nuolatinių gyventojų skaičius metų pradžioje](https://data.gov.lt/datasets/2689/) under
   CC BY 4.0, and the project takes the table under that licence
 - Attribution: "VĮ Registrų centras, Adresų registras": the page asks a user to name the data's
