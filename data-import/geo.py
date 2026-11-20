@@ -196,6 +196,13 @@ def homes[K](in_municipality: Mapping[tuple[K, str], int], people: Mapping[str, 
     return {place: (municipality, max(1, round(share[place]))) for place, municipality in home_municipalities(in_municipality).items()}
 
 
+def every_counted(municipalities: Iterable[str], counts: Mapping[str, int]) -> None:
+    """Raises ValueError naming each municipality counts holds no count for."""
+    missing = sorted(set(municipalities) - counts.keys())
+    if missing:
+        raise ValueError(f"the source gives no count for municipality {', '.join(missing)}")
+
+
 def populations[K](addresses: Mapping[K, int], municipality_of: Mapping[K, str], counted: Mapping[K, int], people: Mapping[str, int], outside: Mapping[str, int] | None = None) -> dict[K, int]:
     """The population of each locality in addresses, which maps it to its addresses: its count in counted, or else its
     share of the rest. The rest is what a municipality's people leave once its counted localities are taken away, shared

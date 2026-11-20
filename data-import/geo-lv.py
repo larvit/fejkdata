@@ -171,13 +171,16 @@ def people(rows: Iterable[list[str]]) -> dict[str, int]:
     """Each unit's people in the bureau's table: a ciems under its code in the register, and a pilsēta, a pagasts and a
     novads under ATVK. A row opens with `LV`, the code and the name, and ends in the count. A row of another kind, and
     one whose count the bureau does not give, is left out. The table draws the borders of 1 January 2026, when
-    Carnikava was a ciems of its pagasts, so the pilsēta takes that ciems's people and the pagasts the rest."""
+    Carnikava was a ciems of its pagasts, so the pilsēta takes that ciems's people and the pagasts the rest, and a
+    table counting the ciems without that pagasts raises ValueError."""
     out: dict[str, int] = {}
     for row in rows:
         m = UNIT.match(row[0])
         if m and row[-1].isdecimal():
             out[m[1]] = int(row[-1])
     if CARNIKAVA_CIEMS in out:
+        if CARNIKAVAS_PAGASTS_BEFORE not in out:
+            raise ValueError(f"the table counts Carnikava, and gives no count for {CARNIKAVAS_PAGASTS_BEFORE}, the pagasts it was a ciems of")
         out[CARNIKAVA] = out[CARNIKAVA_CIEMS]
         out[CARNIKAVAS_PAGASTS] = out[CARNIKAVAS_PAGASTS_BEFORE] - out[CARNIKAVA_CIEMS]
     return out
@@ -186,7 +189,8 @@ def people(rows: Iterable[list[str]]) -> dict[str, int]:
 def weighed(register: Register, counted: Tally, people: Mapping[str, int]) -> None:
     """Gives each locality with an address its population by geo.populations and its point, each municipality its
     people, and each region those of its municipalities. A pilsēta has no count under its code in the register, so it
-    takes its municipality's, which is its own."""
+    takes its municipality's, which is its own. A municipality the table gives no count for raises ValueError."""
+    geo.every_counted(register.municipalities, people)
     municipality_of = {code: row["municipality"] for code, row in register.localities.items()}
     for code, n in geo.populations(counted.addresses, municipality_of, people, people, counted.outside).items():
         register.localities[code]["population"] = n
