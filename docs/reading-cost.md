@@ -2738,3 +2738,20 @@ Read most (opens and searches):
 - `data/geo_test.go` 4
 - `docs/locales/fr_FR.md` 4
 - `docs/locales/geo.md` 4
+
+## Reading cost, chunk 9a8f66d04fff, finished 2026-11-20T18:40:52Z
+
+395447 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/geo-lv.py` 8
+- `README.md` 5
+- `data-import/geo-lt.py` 4
+- `data-import/geo_lv_test.py` 4
+- `data-import/geo-ee.py` 3
+- `data-import/geo.py` 3
+- `data-import/geo_ee_test.py` 3
+- `data-import/geo_lt_test.py` 3
+- `data/geo/LT/locality.tsv` 3
+- `DATA-LICENSES.md` 2
