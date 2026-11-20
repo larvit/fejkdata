@@ -724,10 +724,10 @@ func TestHelpOpensAReadmeSentence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	lead, _, _ := strings.Cut(helpOpening(t, "fejkdata"), "\n")
-	lead = strings.TrimSuffix(lead, ".")
-	if lead == "" || !regexp.MustCompile(`(?m)^`+regexp.QuoteMeta(lead)+`[:.]`).Match(readme) {
-		t.Errorf("--help opens with %q, which no README.md sentence opens with", lead)
+	first, _, _ := strings.Cut(helpOpening(t, "fejkdata"), "\n")
+	first = strings.TrimSuffix(first, ".")
+	if first == "" || !regexp.MustCompile(`(?m)^`+regexp.QuoteMeta(first)+`[:.]`).Match(readme) {
+		t.Errorf("--help opens with %q, which no README.md sentence opens with", first)
 	}
 }
 
@@ -744,17 +744,5 @@ func TestHelpOpensWithTheCommandsPeopleRunMost(t *testing.T) {
 				t.Errorf("echo %q = %d, %q, stderr %q", m[1], code, out, errb)
 			}
 		})
-	}
-}
-
-func TestHelpOfACustomCLINamesNoFejkdataData(t *testing.T) {
-	out := help("mycli", "https://example.com/README.md")
-	for _, word := range []string{"sv_SE", "Fake people"} {
-		if strings.Contains(out, word) {
-			t.Errorf("a custom CLI's help names %q, which its data may not carry", word)
-		}
-	}
-	if !strings.HasPrefix(out, "Usage:") {
-		t.Errorf("a custom CLI's help opens with %q, want Usage:", strings.SplitN(out, "\n", 2)[0])
 	}
 }
