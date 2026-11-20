@@ -300,23 +300,24 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 
 ### For coding agents
 
-A coding agent that writes templates for a developer needs one shell line and no setup:
+A coding agent that writes templates and runs the CLI needs only a shell line each time:
 
 ```sh
 fejkdata --list | grep personnummer                       # find a path: --list names every one
-echo '{/sv_SE.personnummer}' | fejkdata                   # render it: one line out
-echo '{/sv_SE.person.first} {/sv_SE.person.last}' | fejkdata --seed 1 --today 2026-11-21   # the same line on every run
-echo '{a}' | fejkdata                                     # exit 2, and stderr says: write {/a}
+echo '{sv_SE.personnummer}' | fejkdata                    # exit 2, and stderr says: write {/sv_SE.personnummer}
+echo '{/sv_SE.personnummer}' | fejkdata                   # the fix, one line out
+echo '{/sv_SE.personnummer}' | fejkdata --seed 1 --today 2026-11-21   # the same line on every run
 ```
 
-A template that doesn't compile exits 2 and says what is wrong. Where a fix exists, as
-with `{a}` above, the error names it, so the agent fixes the template and runs it again.
-`--seed` repeats a run, and `--today` repeats one that reads a date, such as an age.
+A template that doesn't compile exits 2 and says what is wrong. A reference missing its
+leading slash, as above, gets the fix named; a misspelled path says `no entry`, so check it
+against `--list`. `--seed` repeats a run, and `--today` repeats it on another day where
+the template reads a date, as `{/sv_SE.personnummer}` does.
 
-To tell an agent this, paste into the project's `AGENTS.md`:
+To tell an agent about fejkdata, paste this into the project's `AGENTS.md`:
 
 ```markdown
-Fake data: use the `fejkdata` CLI, never made-up values. Find a path with `fejkdata --list | grep personnummer`, then render it with `echo '{/sv_SE.personnummer}' | fejkdata`. A template that fails exits 2 and its error names the fix: apply it and run again. Add `--seed 1 --today 2026-11-21` to repeat a run.
+Fake data: use the `fejkdata` CLI, never made-up values. Find a path with `fejkdata --list | grep personnummer`, then render it with `echo '{/sv_SE.personnummer}' | fejkdata`. A template that fails exits 2 and says what is wrong: read the error, and where it says `no entry`, check the path against `--list`. Add `--seed 1 --today 2026-11-21` to repeat a run.
 ```
 
 ### PowerShell and cmd.exe
