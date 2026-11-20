@@ -1,12 +1,11 @@
-"""Rebuild data/fr_FR/word.json and word-noun.tsv, word-verb.tsv, word-adj.tsv and word-adv.tsv from Wiktionary's French words.
+"""Rebuild data/fr_FR/word.json and word-noun.tsv, word-verb.tsv, word-adj.tsv and word-adv.tsv from the English Wiktionary's French entries.
 
     data-import/word-fr.py [--wiktionary URL_OR_FILE] [--cache DIR] [--out DIR]
 
-kaikki.org extracts the English Wiktionary's French entries (CC BY-SA 4.0), one JSON object a line, each with its
-part of speech and its forms, tagged. A row is a noun, a verb, an adjective or an adverb whose headword is lower-case
-letters alone, and which some sense does not call an inflected form or a variant of another entry. A noun carries its
-first plural, and one without a plural in lower-case letters alone is dropped. No word is dropped for being rude.
-Wiktionary gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
+kaikki.org extracts those entries (CC BY-SA 4.0), one JSON object a line, each with its part of speech, head template and
+forms. A row is a headword in lower-case letters alone, whose head template is the French one for its part of speech, so a
+verb is an infinitive and never a conjugated form, and which has a sense that is not a form or variant of another entry.
+A noun carries its first plural, or its own spelling where Wiktionary marks it invariable; a noun with neither is dropped.
 """
 import io
 import json
@@ -20,6 +19,7 @@ import wordtables
 WIKTIONARY = "https://kaikki.org/dictionary/French/kaikki.org-dictionary-French.jsonl"
 OUT = Path(__file__).resolve().parent.parent / "data" / "fr_FR"
 FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
+HEADS = {"noun": {"fr-noun"}, "verb": {"fr-verb"}, "adj": {"fr-adj", "fr-adjective"}, "adv": {"fr-adv", "fr-adverb"}}
 
 
 def spelled(word: str, _part: str) -> bool:
@@ -28,14 +28,17 @@ def spelled(word: str, _part: str) -> bool:
 
 
 def headword(entry: Mapping[str, Any]) -> bool:
-    """Whether some sense of the entry stands on its own, rather than naming an inflected form or a variant of another entry."""
-    return any("form_of" not in sense and "alt_of" not in sense for sense in entry.get("senses", []))
+    """Whether the entry's head template is the French one for its part of speech, and some sense stands on its own, not as a form or variant of another entry."""
+    templates = {template.get("name") for template in entry.get("head_templates", [])}
+    return bool(templates & HEADS[entry["pos"]]) and any("form_of" not in sense and "alt_of" not in sense for sense in entry.get("senses", []))
 
 
 def plural(entry: Mapping[str, Any]) -> str:
     for form in entry.get("forms", []):
         if "plural" in form.get("tags", []):
             return str(form["form"])
+    if any("invariable" in sense.get("tags", []) for sense in entry.get("senses", [])):
+        return str(entry["word"])
     return ""
 
 
@@ -43,7 +46,7 @@ def candidates(dump: bytes) -> Iterator[wordtables.Candidate]:
     for line in io.BytesIO(dump):
         entry = json.loads(line)
         part = entry.get("pos", "")
-        if part in FORMS and headword(entry):
+        if part in HEADS and headword(entry):
             yield part, entry.get("word", ""), plural(entry) if FORMS[part] else ""
 
 
