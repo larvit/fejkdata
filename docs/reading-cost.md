@@ -2691,3 +2691,50 @@ Read most (opens and searches):
 - `data-import/geo-fi.py` 3
 - `data/geo_de_test.go` 3
 - `data-import/geo_test.py` 2
+
+## Reading cost, chunk 145c9b95161e, finished 2026-11-20T06:14:17Z
+
+48096 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 2
+- `compose.yaml` 2
+- `data-import/geo-fr.py` 1
+- `data-import/geo.py` 1
+- `data-import/geo_test.py` 1
+- `data/geo/DK/address.json` 1
+
+## Reading cost, chunk 1a0eaa6fcad0, finished 2026-11-20T08:47:55Z
+
+84798 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `DATA-LICENSES.md` 3
+- `docs/decisions.md` 3
+- `isikukood_test.go` 3
+- `compose.yaml` 2
+- `data/estonian_test.go` 2
+- `data/latvian_test.go` 2
+- `internal/builtinfunc/builtins.go` 2
+- `internal/fejktest/ids.go` 2
+- `data/et_EE/.fejkdata.json` 1
+
+## Reading cost, chunk 8cee28aa836d, finished 2026-11-20T14:20:38Z
+
+355054 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 26
+- `compose.yaml` 9
+- `CHANGELOG.md` 8
+- `DATA-LICENSES.md` 8
+- `data/geo/EE/locality.tsv` 4
+- `data/geo/EE/region.tsv` 4
+- `data/geo_fr_test.go` 4
+- `data/geo_test.go` 4
+- `docs/locales/fr_FR.md` 4
+- `docs/locales/geo.md` 4
