@@ -778,13 +778,13 @@ geo.EE.address.postal-code	string
 geo.EE.address.region	string
 geo.EE.address.street	string
 geo.EE.address.street-number	string
-geo.EE.locality	format "{name}"	key code	weight addresses	parent municipality
-geo.EE.locality.addresses	string
+geo.EE.locality	format "{name}"	key code	weight population	parent municipality
 geo.EE.locality.code	string
 geo.EE.locality.lat	string
 geo.EE.locality.lon	string
 geo.EE.locality.municipality	string
 geo.EE.locality.name	string
+geo.EE.locality.population	string
 geo.EE.locality.postal-code
 geo.EE.locality.postal-code.addresses
 geo.EE.locality.postal-code.code
@@ -793,16 +793,15 @@ geo.EE.locality.street
 geo.EE.locality.street.addresses
 geo.EE.locality.street.locality
 geo.EE.locality.street.name
-geo.EE.municipality	format "{name}"	key code	name name	weight addresses	parent region
-geo.EE.municipality.addresses	string
+geo.EE.municipality	format "{name}"	key code	name name	weight population	parent region
 geo.EE.municipality.code	string
 geo.EE.municipality.locality
-geo.EE.municipality.locality.addresses
 geo.EE.municipality.locality.code
 geo.EE.municipality.locality.lat
 geo.EE.municipality.locality.lon
 geo.EE.municipality.locality.municipality
 geo.EE.municipality.locality.name
+geo.EE.municipality.locality.population
 geo.EE.municipality.locality.postal-code
 geo.EE.municipality.locality.postal-code.addresses
 geo.EE.municipality.locality.postal-code.code
@@ -812,24 +811,23 @@ geo.EE.municipality.locality.street.addresses
 geo.EE.municipality.locality.street.locality
 geo.EE.municipality.locality.street.name
 geo.EE.municipality.name	string
+geo.EE.municipality.population	string
 geo.EE.municipality.region	string
 geo.EE.postal-code	format "{code}"	weight addresses	parent locality
 geo.EE.postal-code.addresses	string
 geo.EE.postal-code.code	string
 geo.EE.postal-code.locality	string
-geo.EE.region	format "{name}"	key code	name name	weight addresses
-geo.EE.region.addresses	string
+geo.EE.region	format "{name}"	key code	name name	weight population
 geo.EE.region.code	string
 geo.EE.region.municipality
-geo.EE.region.municipality.addresses
 geo.EE.region.municipality.code
 geo.EE.region.municipality.locality
-geo.EE.region.municipality.locality.addresses
 geo.EE.region.municipality.locality.code
 geo.EE.region.municipality.locality.lat
 geo.EE.region.municipality.locality.lon
 geo.EE.region.municipality.locality.municipality
 geo.EE.region.municipality.locality.name
+geo.EE.region.municipality.locality.population
 geo.EE.region.municipality.locality.postal-code
 geo.EE.region.municipality.locality.postal-code.addresses
 geo.EE.region.municipality.locality.postal-code.code
@@ -839,8 +837,10 @@ geo.EE.region.municipality.locality.street.addresses
 geo.EE.region.municipality.locality.street.locality
 geo.EE.region.municipality.locality.street.name
 geo.EE.region.municipality.name
+geo.EE.region.municipality.population
 geo.EE.region.municipality.region
 geo.EE.region.name	string
+geo.EE.region.population	string
 geo.EE.region.timezone	string
 geo.EE.street	format "{name}"	weight addresses	parent locality
 geo.EE.street.addresses	string
@@ -995,11 +995,11 @@ geo.LT.address.postal-code	string
 geo.LT.address.region	string
 geo.LT.address.street	string
 geo.LT.address.street-number	string
-geo.LT.locality	format "{name}"	key code	weight addresses	parent municipality
-geo.LT.locality.addresses	string
+geo.LT.locality	format "{name}"	key code	weight population	parent municipality
 geo.LT.locality.code	string
 geo.LT.locality.municipality	string
 geo.LT.locality.name	string
+geo.LT.locality.population	string
 geo.LT.locality.postal-code
 geo.LT.locality.postal-code.addresses
 geo.LT.locality.postal-code.code
@@ -1008,14 +1008,13 @@ geo.LT.locality.street
 geo.LT.locality.street.addresses
 geo.LT.locality.street.locality
 geo.LT.locality.street.name
-geo.LT.municipality	format "{name}"	key code	name name	weight addresses	parent region
-geo.LT.municipality.addresses	string
+geo.LT.municipality	format "{name}"	key code	name name	weight population	parent region
 geo.LT.municipality.code	string
 geo.LT.municipality.locality
-geo.LT.municipality.locality.addresses
 geo.LT.municipality.locality.code
 geo.LT.municipality.locality.municipality
 geo.LT.municipality.locality.name
+geo.LT.municipality.locality.population
 geo.LT.municipality.locality.postal-code
 geo.LT.municipality.locality.postal-code.addresses
 geo.LT.municipality.locality.postal-code.code
@@ -1025,22 +1024,21 @@ geo.LT.municipality.locality.street.addresses
 geo.LT.municipality.locality.street.locality
 geo.LT.municipality.locality.street.name
 geo.LT.municipality.name	string
+geo.LT.municipality.population	string
 geo.LT.municipality.region	string
 geo.LT.postal-code	format "{code}"	weight addresses	parent locality
 geo.LT.postal-code.addresses	string
 geo.LT.postal-code.code	string
 geo.LT.postal-code.locality	string
-geo.LT.region	format "{name}"	key code	name name	weight addresses
-geo.LT.region.addresses	string
+geo.LT.region	format "{name}"	key code	name name	weight population
 geo.LT.region.code	string
 geo.LT.region.municipality
-geo.LT.region.municipality.addresses
 geo.LT.region.municipality.code
 geo.LT.region.municipality.locality
-geo.LT.region.municipality.locality.addresses
 geo.LT.region.municipality.locality.code
 geo.LT.region.municipality.locality.municipality
 geo.LT.region.municipality.locality.name
+geo.LT.region.municipality.locality.population
 geo.LT.region.municipality.locality.postal-code
 geo.LT.region.municipality.locality.postal-code.addresses
 geo.LT.region.municipality.locality.postal-code.code
@@ -1050,8 +1048,10 @@ geo.LT.region.municipality.locality.street.addresses
 geo.LT.region.municipality.locality.street.locality
 geo.LT.region.municipality.locality.street.name
 geo.LT.region.municipality.name
+geo.LT.region.municipality.population
 geo.LT.region.municipality.region
 geo.LT.region.name	string
+geo.LT.region.population	string
 geo.LT.region.timezone	string
 geo.LT.street	format "{name}"	weight addresses	parent locality
 geo.LT.street.addresses	string
@@ -1064,13 +1064,13 @@ geo.LV.address.postal-code	string
 geo.LV.address.region	string
 geo.LV.address.street	string
 geo.LV.address.street-number	string
-geo.LV.locality	format "{name}"	key code	weight addresses	parent municipality
-geo.LV.locality.addresses	string
+geo.LV.locality	format "{name}"	key code	weight population	parent municipality
 geo.LV.locality.code	string
 geo.LV.locality.lat	string
 geo.LV.locality.lon	string
 geo.LV.locality.municipality	string
 geo.LV.locality.name	string
+geo.LV.locality.population	string
 geo.LV.locality.postal-code
 geo.LV.locality.postal-code.addresses
 geo.LV.locality.postal-code.code
@@ -1079,16 +1079,15 @@ geo.LV.locality.street
 geo.LV.locality.street.addresses
 geo.LV.locality.street.locality
 geo.LV.locality.street.name
-geo.LV.municipality	format "{name}"	key code	name name	weight addresses	parent region
-geo.LV.municipality.addresses	string
+geo.LV.municipality	format "{name}"	key code	name name	weight population	parent region
 geo.LV.municipality.code	string
 geo.LV.municipality.locality
-geo.LV.municipality.locality.addresses
 geo.LV.municipality.locality.code
 geo.LV.municipality.locality.lat
 geo.LV.municipality.locality.lon
 geo.LV.municipality.locality.municipality
 geo.LV.municipality.locality.name
+geo.LV.municipality.locality.population
 geo.LV.municipality.locality.postal-code
 geo.LV.municipality.locality.postal-code.addresses
 geo.LV.municipality.locality.postal-code.code
@@ -1098,24 +1097,23 @@ geo.LV.municipality.locality.street.addresses
 geo.LV.municipality.locality.street.locality
 geo.LV.municipality.locality.street.name
 geo.LV.municipality.name	string
+geo.LV.municipality.population	string
 geo.LV.municipality.region	string
 geo.LV.postal-code	format "{code}"	weight addresses	parent locality
 geo.LV.postal-code.addresses	string
 geo.LV.postal-code.code	string
 geo.LV.postal-code.locality	string
-geo.LV.region	format "{name}"	key code	name name	weight addresses
-geo.LV.region.addresses	string
+geo.LV.region	format "{name}"	key code	name name	weight population
 geo.LV.region.code	string
 geo.LV.region.municipality
-geo.LV.region.municipality.addresses
 geo.LV.region.municipality.code
 geo.LV.region.municipality.locality
-geo.LV.region.municipality.locality.addresses
 geo.LV.region.municipality.locality.code
 geo.LV.region.municipality.locality.lat
 geo.LV.region.municipality.locality.lon
 geo.LV.region.municipality.locality.municipality
 geo.LV.region.municipality.locality.name
+geo.LV.region.municipality.locality.population
 geo.LV.region.municipality.locality.postal-code
 geo.LV.region.municipality.locality.postal-code.addresses
 geo.LV.region.municipality.locality.postal-code.code
@@ -1125,8 +1123,10 @@ geo.LV.region.municipality.locality.street.addresses
 geo.LV.region.municipality.locality.street.locality
 geo.LV.region.municipality.locality.street.name
 geo.LV.region.municipality.name
+geo.LV.region.municipality.population
 geo.LV.region.municipality.region
 geo.LV.region.name	string
+geo.LV.region.population	string
 geo.LV.region.timezone	string
 geo.LV.street	format "{name}"	weight addresses	parent locality
 geo.LV.street.addresses	string
