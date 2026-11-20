@@ -27,7 +27,7 @@ import source
 
 FILE = "https://www.registrucentras.lt/aduomenys/?byla={}.csv"
 TIMEZONE = "Europe/Vilnius"
-NUMBER = re.compile(r"^([1-9]\d{0,3})([A-ZĄČĘĖĮŠŲŪŽ]?)$")
+NUMBER = re.compile(r"^([1-9]\d{0,3})([A-Z]?)$")
 
 
 class Register:
