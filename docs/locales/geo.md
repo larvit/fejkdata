@@ -128,7 +128,8 @@ holds that name. A house number may end in a capital letter, as in `17A`; a korp
 hold no point, so a Lithuanian locality has no `lat` or `lon`. A Lithuanian street sits under each locality where it
 has a numbered address. A program showing the places credits "VĮ Registrų centras, Adresų registras" and "Valstybės duomenų agentūra", links
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as
-[DATA-LICENSES.md](../../DATA-LICENSES.md) describes.
+[DATA-LICENSES.md](../../DATA-LICENSES.md) describes. The licence of the agency's table was not found: the project
+takes its `population` columns under the CC BY 4.0 of the same indicator's tables on Lithuania's open data portal.
 
 ## Norwegian places
 

@@ -192,7 +192,8 @@ with its replacement, and each removed path, column or flag.
   `lon`. A program showing the places credits "VĮ Registrų centras, Adresų registras" and "Valstybės duomenų
   agentūra", links
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as `DATA-LICENSES.md`
-  describes. The Go package is `github.com/larvit/fejkdata/data/geo/LT`, which `data/lt_LT` imports, and the CLI
+  describes. The licence of the agency's table was not found, and its `population` columns are taken under the
+  CC BY 4.0 of the same indicator's other tables. The Go package is `github.com/larvit/fejkdata/data/geo/LT`, which `data/lt_LT` imports, and the CLI
   carries it.
 - `geo.LV`, Latvia's novadi and state cities, municipalities, localities, postal codes and streets, with
   `lv_LV.address` printing one place with a street and a house number, such as `Strautu ceļš 32\nJelgava, LV-3001`. A
