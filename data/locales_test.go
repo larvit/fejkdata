@@ -148,6 +148,7 @@ var shippedLocales = []shippedLocale{
 	},
 	{
 		name:     "et_EE",
+		words:    map[string]wordTable{"noun": {"plural", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
 		months:   []string{"jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"},
 		weekdays: []string{"esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede", "laupäev", "pühapäev"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|ee)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Sinine", "Roheline", "Punane"}},
