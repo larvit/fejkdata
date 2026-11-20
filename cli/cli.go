@@ -21,7 +21,7 @@ import (
 
 const lead = `Fake people for your tests. Names, ids, emails and addresses match. CSV, SQL or JSON.
 
-  echo '{/sv_SE.person}' | COMMAND
+  echo '{/sv_SE.person}' | COMMAND    # Sara Eriksson
   COMMAND --list    # every path to write after {/
 
 `
@@ -241,8 +241,6 @@ func about(name string, wantsHelp bool) string {
 	return versionLine(name, info) + "\n"
 }
 
-// help opens with fejkdata's lead only for the CLI named fejkdata: a custom CLI's data
-// may hold no person.
 func help(name, docs string) string {
 	var lines []string
 	line := " "
@@ -255,6 +253,7 @@ func help(name, docs string) string {
 	}
 	lines = append(lines, line)
 	text := usage
+	// A custom CLI's data may not hold the people the lead shows.
 	if name == "fejkdata" {
 		text = lead + usage
 	}
