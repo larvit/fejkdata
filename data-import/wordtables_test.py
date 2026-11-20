@@ -13,5 +13,11 @@ class LowerLetters(unittest.TestCase):
             self.assertFalse(wordtables.lower_letters(word, "noun"), word)
 
 
+class Rows(unittest.TestCase):
+    def test_a_part_with_a_form_drops_a_word_whose_form_is_empty(self) -> None:
+        got = wordtables.rows([("noun", "māja", "mājas"), ("noun", "ūdens", "")], {"noun": "plural"}, set(), wordtables.lower_letters)
+        self.assertEqual(got, {"noun": [{"word": "māja", "plural": "mājas"}]})
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -17,10 +17,14 @@ def inflection(orth: str, case: str, number: str) -> str:
     return f'<form type="inflection"><orth>{orth}</orth><gramGrp type="properties">{gram("Locījums", case)}{gram("Skaitlis", number)}</gramGrp></form>'
 
 
-def entry(pos: str, lemma: str, forms: list[tuple[str, str, str]] | None = None, labels: tuple[str, ...] = ()) -> str:
-    """One wordform entry as Tēzaurs.lv writes it: the lemma with its properties, then each of its forms."""
+def derivative(orth: str, pos: str) -> str:
+    return f'<form type="derivative"><orth>{orth}</orth><gramGrp type="properties">{gram("Vārdšķira", pos)}</gramGrp></form>'
+
+
+def entry(pos: str, lemma: str, forms: list[tuple[str, str, str]] | None = None, labels: tuple[str, ...] = (), derived: list[tuple[str, str]] | None = None) -> str:
+    """One wordform entry as Tēzaurs.lv writes it: the lemma with its properties, then each of its inflections and derivatives."""
     props = gram("Vārdšķira", pos) + "".join(gram("Lietojums", label) for label in labels)
-    shown = "".join(inflection(*f) for f in forms or [])
+    shown = "".join(inflection(*f) for f in forms or []) + "".join(derivative(*d) for d in derived or [])
     return f'<entry type="supplemental"><form><orth type="lemma">{lemma}</orth><gramGrp type="properties">{props}</gramGrp>{shown}</form></entry>'
 
 
@@ -93,22 +97,12 @@ class Candidates(unittest.TestCase):
         forms = [("mājas", "Ģenitīvs", "Vienskaitlis"), ("māju", "Ģenitīvs", "Daudzskaitlis"), ("māja", "Nominatīvs", "Vienskaitlis")]
         self.assertEqual(drawn(entry(NOUN, "māja", forms)), [("noun", "māja", "")])
 
+    def test_a_derivative_keeps_neither_its_text_nor_its_part_of_speech_from_the_lemma(self) -> None:
+        got = drawn(entry(VERB, "abacilēt", derived=[("abacilējoši", ADV), ("abacilējošs", ADJ)]))
+        self.assertEqual(got, [("verb", "abacilēt", "")])
+
     def test_a_dump_with_no_entry_has_no_candidate(self) -> None:
         self.assertEqual(drawn(), [])
-
-
-class Tables(unittest.TestCase):
-    def test_the_import_writes_the_four_parts(self) -> None:
-        self.assertEqual(dict(word_lv.FORMS), {"noun": "plural", "verb": "", "adj": "", "adv": ""})
-
-    def test_a_noun_with_no_plural_is_left_out_of_the_tables(self) -> None:
-        table = word_lv.wordtables.rows(drawn(entry(NOUN, "māja", HOUSE), entry(NOUN, "ūdens")), word_lv.FORMS, set(), word_lv.wordtables.lower_letters)
-        self.assertEqual(table["noun"], [{"word": "māja", "plural": "mājas"}])
-
-    def test_a_lemma_with_a_digit_or_capital_is_left_out_of_the_tables(self) -> None:
-        got = drawn(entry(NOUN, "1diena", [("1dienas", "Nominatīvs", "Daudzskaitlis")]), entry(NOUN, "Rīga", [("Rīgas", "Nominatīvs", "Daudzskaitlis")]))
-        table = word_lv.wordtables.rows(got, word_lv.FORMS, set(), word_lv.wordtables.lower_letters)
-        self.assertEqual(table["noun"], [])
 
 
 if __name__ == "__main__":
