@@ -35,9 +35,9 @@ def kind(line: bytes) -> str:
 
 
 def candidates(dump: bytes) -> Iterator[wordtables.Candidate]:
-    """A part of speech, lemma and nominative plural per lemma of the wordforms zip that is a noun, verb, adjective or adverb in use; the plural is empty for any other part and for a noun with none.
+    """A part of speech, lemma and nominative plural per noun, verb, adjective or adverb of the wordforms zip that no label marks as regional or out of date, and per verb only an infinitive; the plural is empty for any other part and for a noun with none.
 
-    Each tag stands on a line of its own: a lemma's properties come first, then each form's text, case and number."""
+    Each tag stands on a line of its own. An entry's lemma and properties come first, then an `inflection` form per case and number and a `derivative` form per participle or adverb it makes. Each form has its own `<orth>` and part of speech, so only the first of each is the lemma's."""
     lemma = part = plural = case = number = form = ""
     labels: set[str] = set()
     inflected = False
