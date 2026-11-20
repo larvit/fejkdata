@@ -4,9 +4,11 @@
 [![Tests](https://github.com/larvit/fejkdata/actions/workflows/test.yml/badge.svg)](https://github.com/larvit/fejkdata/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/larvit/fejkdata)](CHANGELOG.md)
 
-Most fake data is a bag of unrelated values: a man named Anna, a postal code from another
-town, an id that no checker accepts. fejkdata, a CLI and a Go library, makes fake test data
-whose fields agree, so a row still passes when your code checks it. Docs and examples:
+Fake people for your tests. Names, ids, emails and addresses match. CSV, SQL or JSON.
+
+Most fake data is a bag of unrelated values. You get a man named Anna, a postal code from
+another town and an id that no checker accepts. fejkdata is a CLI and a Go library. Its values
+fit together, so a row still passes when your code checks it. Docs and examples:
 [fejkdata.dev](https://fejkdata.dev).
 
 ```sh
@@ -29,21 +31,22 @@ viktoria.larsson@example.com,Viktoria,Larsson,Östersund,501120-2388,831 73,kvin
 
 What sets it apart:
 
-1. **Correlated fields.** The template draws a sex, a last name and an address once each, and
-   every column reads those draws. Viktoria is a woman's name, and `kvinna` is Swedish for
+1. **Correlated fields.** The template draws a sex, a last name and an address once each.
+   Every column reads those draws. Viktoria is a woman's name and `kvinna` is Swedish for
    woman. The personnummer is Sweden's national id, and this one is a woman's. 831 73 is a
    postal code of Östersund.
-2. **Valid national ids that no real person holds.** The personnummer passes its check digit,
-   and comes from the series the Swedish Tax Agency keeps for tests. Norwegian, Finnish and
-   German ids come from such a series too, which a few strict checkers refuse. Other
+2. **Valid national ids that no real person has.** The personnummer passes its check digit.
+   It comes from the series the Swedish Tax Agency keeps for tests. Norwegian, Finnish and
+   German ids come from such a series too. A few strict checkers refuse those. Other
    countries' ids are valid and may be a living person's. [Shipped data](#shipped-data) says
    which, and which checker refuses what.
 3. **CSV and SQL test data from one template.** The same JSON template prints one value or
-   a million rows of seed data, as CSV, SQL `INSERT`s, PostgreSQL `COPY`, JSON or NDJSON.
-   One binary carries the data, with no dependencies, and nothing is fetched.
-4. **Errors that name the fix.** A mistake in a template stops the run before the first row,
-   with exit 2 and one line saying what is wrong. `{sv_SE.person}` fails with
-   `write {/sv_SE.person} to reference the data`, which a coding agent fixes in one retry.
+   a million rows of seed data. The formats are CSV, SQL `INSERT`s, PostgreSQL `COPY`, JSON
+   and NDJSON. One binary carries the data. It has no dependencies and fetches nothing.
+4. **Errors that explain the fix.** A mistake in a template stops the run before the first
+   row, with exit 2. The error says what is wrong, and many say how to fix it.
+   `{sv_SE.person}` fails with `write {/sv_SE.person} to reference the data`. A coding agent
+   fixes that in one retry.
 
 Locale-aware fake data for tests and fixtures, from JSON templates. US English, Swedish,
 German, French and the other [locales](#shipped-data) each ship persons, addresses, national
@@ -1827,7 +1830,7 @@ against each other in the order listed.
 How the README serves goal 11:
 
 - The first screen says what sets fejkdata apart, most important to the audience first:
-  fields that agree, valid ids, bulk output from one template, and errors that name the
+  fields that agree, valid ids, bulk output from one template, and errors that explain the
   fix. It links [fejkdata.dev](https://fejkdata.dev).
 - Headings and first lines use the words people search for, such as "valid national ids"
   and "CSV and SQL test data".
