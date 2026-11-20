@@ -109,7 +109,8 @@ alone is left out. Bind a noun to read it and its plural from one pick: `{/fr_FR
 
 Rude words stay in the tables, so read the output before showing it to anyone. `fr_FR.sentence` builds on plural
 nouns, infinitives and adverbs, so it needs no gender and no agreement: `Il y a des données et des garennes.` and
-`Voit-on souvent des dirigeables ?` Its words are drawn at random, so a sentence is grammatical but not always
-sensible, such as a verb with an object it can't take. `fr_FR.paragraph` joins three to six sentences.
-A program showing these words credits "Wiktionary contributors, CC BY-SA 4.0" and shares any change to them under
-the same licence.
+`Voit-on souvent des dirigeables ?` Its words are drawn at random, so a sentence may be senseless or even
+ungrammatical, such as an intransitive verb given an object. `fr_FR.paragraph` joins three to six sentences.
+A program showing these words credits "Wiktionary contributors, CC BY-SA 4.0" with links to
+[the licence](https://creativecommons.org/licenses/by-sa/4.0/) and to [en.wiktionary.org](https://en.wiktionary.org/),
+says that the words were changed from Wiktionary's entries, and shares any change to them under the same licence.
