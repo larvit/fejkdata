@@ -178,6 +178,16 @@ with its replacement, and each removed path, column or flag.
   and ships no place, which leaves out most külad and the municipalities Kihnu, Muhu, Ruhnu and Vormsi. A program
   showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026". The Go package is
   `github.com/larvit/fejkdata/data/geo/EE`, which `data/et_EE` imports, and the CLI carries it.
+- `geo.LV`, Latvia's novadi and state cities, municipalities, localities, postal codes and streets, with
+  `lv_LV.address` printing one place with a street and a house number, such as `Strautu ceļš 32\nJelgava, LV-3001`. A
+  region and a municipality are selected by ATVK code or name, as `{/geo.LV.region[0051000]}`, and a locality by its
+  code in the State Address Register, as `{/geo.LV.locality[100003003]}`. Each row weighs its addresses in the State
+  Land Service's register, a building as one and each apartment in it as one more. A place whose addresses are houses'
+  names has no street and ships no place, which leaves out most ciemi and 141 pagasti. A program showing the places
+  credits "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati", links
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as `DATA-LICENSES.md`
+  describes. The Go package is `github.com/larvit/fejkdata/data/geo/LV`, which `data/lv_LV` imports, and the CLI
+  carries it.
 - `de_DE`, German, with `de_DE.person` and the tables it reads: `de_DE.first-name`, `de_DE.last-name`,
   `de_DE.sex` (`Frau` and `Mann`) and `de_DE.title` (`Dr.`, `Prof.` and `Prof. Dr.`). A first name that
   girls and boys both bear has a row under each sex, and a person's first name and sex agree. The first
