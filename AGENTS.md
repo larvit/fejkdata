@@ -25,7 +25,7 @@
 - A national id draws a series its issuer keeps for tests or never issues, where one is published. The README says which checker, if any, refuses it. Goal 3.3. Applied by `de_DE.steuer-id`, `fi_FI.henkilotunnus`, `nb_NO.fodselsnummer`, `nn_NO.fodselsnummer`, `sv_SE.personnummer`, `sv_SE.personnummer-12`, `sv_SE.samordningsnummer` and `sv_SE.samordningsnummer-12`.
 - A national id whose issuer publishes no test series and no unassigned range draws valid ids for people born over the last hundred years, weighted by age band. Such an id may be a living person's, and the locale's page says so. Goal 3. It breaks goal 3.3 until item 23 ships. Applied by `da_DK.cpr`, `et_EE.isikukood`, `fr_FR.nir`, `lt_LT.asmens-kodas` and `lv_LV.personas-kods`.
 - A locale's `word` holds an open dictionary's words, one table per part of speech, under `noun`, `verb`, `adj` and `adv`, and draws each word evenly. It drops no word for being rude. Goal 3.2. Applied by `da_DK.word`, `de_DE.word`, `en_US.word`, `et_EE.word`, `fi_FI.word`, `fr_FR.word`, `lt_LT.word`, `lv_LV.word`, `nb_NO.word`, `nn_NO.word` and `sv_SE.word`. Until item 497 ships, each of their imports but `et_EE.word`'s, `fr_FR.word`'s, `lt_LT.word`'s and `lv_LV.word`'s still drops rude words.
-- A geo module built from an address register, with no source of populations, weighs each row by its addresses and leaves out a locality with no street. Goal 3.2. Applied by `geo.EE`, `geo.LT` and `geo.LV`.
+- A geo module built from an address register weighs each locality by its population, and leaves out a locality with no street. The population is one an open source publishes under a licence the project takes, or else a language model's guess, which the README and `DATA-LICENSES.md` call an estimate. Goal 3.2. `geo.EE`, `geo.LT` and `geo.LV` break it until item 531 ships: each weighs a locality by its addresses.
 
 # Decisions
 
@@ -157,6 +157,7 @@ In [docs/decisions.md](docs/decisions.md):
 - One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`
 - `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
 - A `geo.FI` `swedish-name` holds the Finnish name where its source gives no Swedish one
+- `geo.EE` weighs each row by its addresses, and a place with no street ships no place
 - `geo.LV` takes a novads or a state city as its region, counts each apartment as an address, and writes the postal code after the locality
 - `geo.LT` names an apskritis and a savivaldybė with its kind, counts each of the premises as an address, and ships no point
 - `geo.EE` takes its EHAK codes from settlement units whose licence was not found
