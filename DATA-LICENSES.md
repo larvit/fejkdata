@@ -543,7 +543,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Changes: an address counts as one and each of the premises at it as one more, which weighs a
   postal code and a street. A locality and a municipality weigh their residents, and a region its
   municipalities'. The table counts 6,741 of the 7,066 localities; each of the rest shares, by its
-  addresses, the residents of its municipality whom no locality counts. An apskritis and a savivaldybė are named with their kind, and a street with the short form
+  addresses, the residents of its municipality whom no locality counts. An apskritis and a
+  savivaldybė are named with their kind, and a street with the short form
   of its kind. A korpusas is dropped from a house number, an address with no postal code is not
   counted, and a locality with no numbered address on a street is dropped
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the centre's page of the
@@ -571,7 +572,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   a postal code and a street. A locality and a municipality weigh their people, and a region its
   municipalities'. The table writes a count of one to ten as 5, and counts 793 of the 819
   localities; each of the rest shares, by its addresses, the people of its pagasts whom no ciems
-  counts, with the houses outside every ciems. A locality's point is the mean of its buildings' points. A korpuss and a second
+  counts, with the houses outside every ciems. A locality's point is the mean of its buildings'
+  points. A korpuss and a second
   house number are dropped from a house number, and a locality with no numbered address on a
   street is dropped. So is a pagasts that then holds no locality
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the service's [terms of
