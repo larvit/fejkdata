@@ -62,7 +62,7 @@ class Candidates(unittest.TestCase):
         self.assertEqual(drawn(entry("verb", "aimer", "fr-verb", senses=senses)), [])
 
     def test_an_entry_with_one_sense_of_its_own_stays(self) -> None:
-        senses = [{"form_of": [{"word": "aimer"}]}, {"glosses": ["x"]}]
+        senses: list[dict[str, Any]] = [{"form_of": [{"word": "aimer"}]}, {"glosses": ["x"]}]
         self.assertEqual(drawn(entry("verb", "aimer", "fr-verb", senses=senses)), [("verb", "aimer", "")])
 
     def test_an_entry_with_no_sense_is_left_out(self) -> None:
