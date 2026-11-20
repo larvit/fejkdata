@@ -6,7 +6,6 @@ from typing import Any
 
 import wordtables
 
-# What a head template may call a word of each part of speech: its name, or for the generic `head` its second argument.
 Heads = Mapping[str, set[str]]
 
 
