@@ -10,7 +10,6 @@ A noun carries its first plural, or its own spelling where Wiktionary marks it i
 """
 import io
 import json
-import unicodedata
 from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
@@ -26,11 +25,6 @@ HEADS = {
     "adj": {"fr-adj", "fr-adjective", "adj", "adjective"},
     "adv": {"fr-adv", "fr-adverb", "adverb"},
 }
-
-
-def spelled(word: str, _part: str) -> bool:
-    """Lower-case letters alone: Unicode's Ll, which leaves out the modifier letters Python's islower() accepts."""
-    return bool(word) and all(unicodedata.category(c) == "Ll" for c in word)
 
 
 def heads(entry: Mapping[str, Any]) -> set[str]:
@@ -61,4 +55,4 @@ def candidates(dump: bytes) -> Iterator[wordtables.Candidate]:
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "", OUT, FORMS, [wordtables.Source(flag="wiktionary", url=WIKTIONARY, name="kaikki-french.jsonl", magic=b"{", candidates=candidates)], spelled)
+    wordtables.main(__doc__, "", OUT, FORMS, [wordtables.Source(flag="wiktionary", url=WIKTIONARY, name="kaikki-french.jsonl", magic=b"{", candidates=candidates)], wordtables.lower_letters)

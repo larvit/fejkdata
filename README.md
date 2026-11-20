@@ -1946,7 +1946,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.
 - `company-lv.py` fetches the Register of Enterprises' open data, 129 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
-- `word-et.py` fetches the same lexeme dump, which the two share in the cache.
+- `word-et.py` reads the same lexeme dump, so it downloads the 670 MB only where `word-de.py` hasn't.
 - `word-fr.py` fetches kaikki.org's French dictionary, about 590 MB.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
 
@@ -1996,8 +1996,8 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.p
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-de.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-dk.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fi.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-et.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fi.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-se.py
