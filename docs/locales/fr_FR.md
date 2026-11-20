@@ -1,6 +1,6 @@
 # `fr_FR`
 
-`fr_FR`, French, carries `color`, `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `last-name`, `month`, `nir`, `nonzero-number`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is
+`fr_FR`, French, carries `color`, `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `last-name`, `month`, `nir`, `nonzero-number`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is
 `femme` and `homme`, and `title` is `Dr` and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
 `department` prints the code INSEE gives a department in a NIR, such as `75`, `2A` or `974`, and `nonzero-number` a number
 from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from `001` to `999`. Both exist for `nir`.
@@ -95,3 +95,18 @@ root without the 0, and its `subscriber`, the last four digits. A row is selecte
 The tables hold 60,000 numbers, and the 10,000 mobile ones are ten draws in eleven, so a fixture of a few
 hundred rows repeats a number and a `UNIQUE` column needs a category of your own. No
 checker is promised to accept a number: the roots are no operator's.
+
+## French words
+
+`fr_FR.word` draws evenly from about 64,000 words of the English Wiktionary's French entries, as kaikki.org
+extracts them: the nouns, verbs, adjectives and adverbs whose headword is lower-case letters alone and which some
+sense does not call an inflected form or a variant of another entry. Wiktionary has no frequencies, so a word
+may be rare. `fr_FR.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech, and `fr_FR.word.noun.plural`
+draws a noun and prints its first plural, such as `chevaux`. A noun is left out where Wiktionary gives it no plural
+of letters alone. Bind a noun to read it and its plural from one pick: `{/fr_FR.word.noun as n}{n} {n.plural}`
+prints `cheval chevaux`.
+
+The tables hold every word of the source, rude ones too, so read the output before showing it to anyone.
+`fr_FR.sentence` builds on plurals and infinitives, so it needs no gender and no agreement: `Il y a des données et
+des garennes.` and `Voit-on souvent des dirigeables ?` A verb stands whole in its infinitive, so some sentences
+aren't sensible, though the grammar holds. `fr_FR.paragraph` joins three to six sentences.
