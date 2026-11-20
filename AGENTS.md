@@ -160,6 +160,7 @@ In [docs/decisions.md](docs/decisions.md):
 - One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`
 - `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
 - A `geo.FI` `swedish-name` holds the Finnish name where its source gives no Swedish one
+- `geo.EE` weighs each row by its addresses, and a place with no street ships no place
 - A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 - Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, and a weighted draw stays a binary search over cumulative weights
 
