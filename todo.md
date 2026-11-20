@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 529 | 0.7.0 |  |  | **Make `data-import/geo.py`'s `address_json` write the `municipality` and `region` columns.** | 1 | 1 | 1 | 1 | 1 | code health by 3 | 9.8 |
-| 270 | 0.7.0 |  |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 502 | 0.7.0 |  |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 507 | 0.7.0 |  |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 512 | 0.7.0 |  |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
@@ -190,7 +189,7 @@
 | 312 | 1.3.0 | 211 |  | **Add `geo/BD` with Bangladesh's places and postal codes, and `bn_BD.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 316 | 1.3.0 | 213 |  | **Add `geo/ID` with Indonesia's places and postal codes, and `id_ID.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 320 | 1.3.0 | 214 |  | **Add `geo/PK` with Pakistan's places and postal codes, and `ur_PK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
-| 271 | 1.3.0 | 270 |  | **Give `geo/FR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
+| 271 | 1.3.0 |  |  | **Give `geo/FR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 280 | 1.3.0 | 279 |  | **Give `geo/MX`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 285 | 1.3.0 | 284 |  | **Give `geo/BR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 432 | 2.0.0 |  | question | **Reword goals 2.2, 7, 8.1, 8.5, 8.6, 9.2 and 10, and the README's Versioning table, for a Rust core that a native Go library and the npm package both serve.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.7 |
@@ -222,24 +221,6 @@ Commit 8c40e654 added `municipality` and `region` columns by hand to every shipp
 Touches:
 - `data-import/geo.py`: `address_json` (small)
 - `data-import/geo_test.py`: `AddressJson` (small)
-
-### 270. Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.
-
-The Base Adresse Nationale (Licence Ouverte 2.0) names each address's commune and code postal.
-
-Touches:
-
-- `data/geo/FR/`
-- `data/fr_FR/`: `address.json`, `fs.go`, `.fejkdata.json`
-- `data-import/geo-fr.py`
-- `data/modules.go`: lines 7-28 (small)
-- `shipped_test.go`: lines 20-33 (small), lines 85-98 (small)
-- `data/geo_fr_test.go`
-- `data/geo_test.go`: lines 126-130 (small)
-- `testdata/shipped_shape.txt`: lines 429-430 (small), lines 639-640 (small)
-- `README.md`: `# fejkdata` (small), `### Shipped modules` (small)
-- `docs/locales/geo.md`
-- `DATA-LICENSES.md`: `` ## `geo/FR/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv` ``
 
 ### 502. Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.
 
