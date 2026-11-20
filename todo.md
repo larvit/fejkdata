@@ -274,20 +274,20 @@ ISO 3166 reserves it for Western Sahara and the root zone has never been delegat
 
 ### 462. Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.
 
-The two scoring runs at 5125b795 (PR #467) left Locality at 5.63 and 6.25, Shape 6.25 and 6.75, Self-sufficiency 6.38 and 6.63 and Overall 6.25 and 6.75, under the floor of 7.0; those at daaa1020 (PR #414) had left Locality at 6.00. All three pairs of runs named the same render unit for Locality, and its frame stack:
+The two scoring runs at 16b6a1aa (PR #472) left Locality at 6.13 and 6.00, Shape 6.63 and 6.63, Self-sufficiency 6.50 and 6.50 and Overall 6.63 and 6.50, under the floor of 7.0; those at 5125b795 (PR #467) had left Locality at 5.63 and 6.25, and those at daaa1020 (PR #414) at 6.00. All four pairs of runs named the same render unit for Locality, and its frame stack:
 
-- Locality: `internal/engine/render/pick.go:150` `readPath`: frame stack, memo and step-down state held at once, with env.go open beside it
-- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: memo, entered frames, pins and env held at once to read one name
-- Locality: `internal/engine/render/pick.go:150` `readPath`: memoized frames and pins changed through pointers, shaped by heap constraints the types don't show
-- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: a name keeps its pick through frames another pick's memo keeps alive
-- Locality: `internal/engine/render/env.go:36` `frameStack.enter`: `base` and `mark` decide which frames a read sees, and the path taken changes their reach
-- Locality: `internal/engine/render/render.go:140` `readField`: a by-value env carries a pointer to a frame stack that `enter` and `openOwn` change behind the caller
-- Locality: `internal/engine/render/render.go:153` `readSibling`: sets `env.pick = nil`, which correctness rests on, under a one-line comment
-- Shape: `internal/engine/render/path.go:57` `drawAcrossTables`: two near-identical memos, `keptDraws` and `drawMemo`, differ only in key type
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: it changes the shared frame stack and stores entered frames in the memo, so its correctness depends on base marks set elsewhere
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: pushes, borrows and pops frames on a shared stack and moves `env.base` out of the caller's sight
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: the shared mutable `frameStack` with mark, pop, base and `entered` has to be traced through `env.go`
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: a pick's consistency hangs on `frameStack.enter`/`pop` marks and memo frames, held in mind across `env.go:36`
+- Locality, Shape: `internal/engine/render/pick.go:38` `namedPick`: memo, pins and the frame lifecycle all have to be held at once to trust that `l.street` and `l.postal-code` share one row
+- Shape, Locality: `internal/engine/render/env.go:230` `frameStack.enter`: pick state is pushed from a memo and changed through env copies, split across env.go and pick.go
+- Locality: `internal/engine/render/path.go:57` `drawAcrossTables`: a `climbed` flag and the step-down pins make the loop a small state machine
+- Self-sufficiency: `internal/engine/render/env.go:73` `renderEnv`: the rules against heap escape are prose only, so a change that breaks them still compiles
 
 Give the frames a pick enters one owner: a value the pick holds and hands to a read, so `readPath` needs no `base` mark, `openOwn` scans no shared `frameStack`, and `renderEnv.entered` clears no pick out of sight. Group `drawMemo`'s maps by what they keep per level, so a new clause adds a field to one named value, not a fifth map. No render output, seed or allocation count changes; the performance gate holds.
 
-`render.frameStack` also holds the reword fakes, which its name hides: rename it, or move `fakes` out, in this item. The seats' other Locality places, for the floor items after this one: `internal/engine/tree/pick.go:112` `LandsInPick`, whose agreement between load, render and the name fence is held by prose; `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`; `internal/engine/tree/renderedge.go:9` `RenderEdges`; `internal/engine/lazy.go:133` `batch.load`.
+`render.frameStack` also holds the reword fakes, which its name hides: rename it, or move `fakes` out, in this item. The seats' other Locality places, for the floor items after this one: `internal/engine/render/render.go:33` `render`, which must take every child through `tree/renderedge.go` with only a comment enforcing it; `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`; `internal/engine/tree/pick.go:112` `LandsInPick`, whose agreement between load, render and the name fence is held by prose; `internal/engine/tree/loadfinds.go:52` `LoadFinds.Of`, whose readers must know which load phase has run; `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`; `internal/engine/lazy.go:107` `loadReached`.
 
 ### 255. Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.
 
