@@ -2755,3 +2755,7 @@ Read most (opens and searches):
 - `data-import/geo_lt_test.py` 3
 - `data/geo/LT/locality.tsv` 3
 - `DATA-LICENSES.md` 2
+
+## Reading cost, chunk fbc6f3af0938, finished 2026-11-20T22:37:20Z
+
+49454 new input tokens before the first commit.
