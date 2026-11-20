@@ -172,7 +172,7 @@ def stat(*places: tuple[str, str, int | None]) -> dict[str, Any]:
 
 STAT = stat(
     ("1", "Kogu Eesti", 1331824), ("L2", "Linnaline asustuspiirkond", 800000),
-    ("00370000000000", "HARJU MAAKOND", 510), ("003707840000L4", "..Tallinn", 400), ("003707840596L6", "....0596 Pirita linnaosa", 30),
+    ("00370000000000", "HARJU MAAKOND", 510), ("003707840000L4", "..Tallinn", 400), ("003707840596L6", "....Pirita linnaosa", 30), ("003707840524M6", "....Nõmme linnaosa", 20),
     ("003702960000L4", "..Keila linn", 50), ("00370198000001", "..Harku vald", 60), ("003701988008M5", "....8008 Tabasalu alevik", 60),
     ("00740000000000", "SAARE MAAKOND", 0), ("00740689000001", "..Ruhnu vald", None), ("007406897185M8", "....7185 Ruhnu küla", None),
     ("006009283092M5", "....3092 Kiltsi alevik", 180), ("00370141000001", "..Anija vald", 9), ("003701411001M8", "....1001 Aru küla", 4), ("003701982002M8", "....2002 Aru küla", 5),
@@ -196,7 +196,7 @@ class CensusOfSettlements(unittest.TestCase):
             geo_ee.Census(STAT).of("1002", "Aru küla", "0037")
 
     def test_a_maakond_a_vald_and_a_linnaosa_are_no_settlement(self) -> None:
-        for code, name in (("0037", "HARJU MAAKOND"), ("0198", "Harku vald"), ("0596", "Pirita linnaosa")):
+        for code, name in (("0037", "HARJU MAAKOND"), ("0198", "Harku vald"), ("0596", "Pirita linnaosa"), ("0524", "Nõmme linnaosa")):
             with self.assertRaises(KeyError):
                 geo_ee.Census(STAT).of(code, name, "0037")
 
@@ -222,7 +222,13 @@ class Weighed(unittest.TestCase):
         self.assertEqual([regions[c]["population"] for c in ("0037", "0074", "0056")], [510, 2, 0])
         self.assertNotIn("population", localities["7185"])
 
-    def test_a_locality_with_an_address_and_no_count_stops_the_import(self) -> None:
+    def test_a_locality_with_no_street_and_no_count_counts_no_one(self) -> None:
+        regions, municipalities, localities, _ = geo_ee.units(UNITS)
+        geo_ee.weighed(regions, municipalities, localities, tally(address("90502", "Antsu", "Lääne maakond, Haapsalu linn, Haapsalu linn")), geo_ee.Census(STAT))
+        self.assertNotIn("population", localities["1692"])
+        self.assertEqual(municipalities["0184"]["population"], 0)
+
+    def test_a_locality_with_a_street_and_no_count_stops_the_import(self) -> None:
         regions, municipalities, localities, _ = geo_ee.units(UNITS)
         with self.assertRaises(KeyError):
             geo_ee.weighed(regions, municipalities, localities, tally(address("90502", "Posti tn 1", "Lääne maakond, Haapsalu linn, Haapsalu linn")), geo_ee.Census(STAT))
