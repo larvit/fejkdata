@@ -10,18 +10,25 @@
 		"lt_LT.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"lt_LT.last-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"lt_LT.month": {"paths":["","code","name"]},
+		"lt_LT.paragraph": {"paths":[""]},
 		"lt_LT.person": {"paths":["","first","last","prefix","sex"]},
 		"lt_LT.phone": {"paths":["","international","national"]},
 		"lt_LT.phone-fixed": {"paths":["","area","name","ndc","subscriber"]},
 		"lt_LT.phone-mobile": {"paths":["","area","ndc","subscriber"]},
 		"lt_LT.price": {"paths":[""]},
+		"lt_LT.sentence": {"paths":[""]},
 		"lt_LT.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","last-name","last-name.count","last-name.name","last-name.sex","name","sex-digit","sex-digit.digit","sex-digit.sex"]},
 		"lt_LT.sex-digit": {"parent":"sex","paths":["","digit","sex"]},
 		"lt_LT.time": {"paths":[""]},
 		"lt_LT.title": {"paths":["","name","share"]},
 		"lt_LT.url": {"paths":["","host","path","reserved"]},
 		"lt_LT.username": {"paths":["","n"]},
-		"lt_LT.weekday": {"paths":["","code","name"]}
+		"lt_LT.weekday": {"paths":["","code","name"]},
+		"lt_LT.word": {"paths":["","adj","adv","any","noun","noun.plural","verb"]},
+		"lt_LT.word-adj": {"paths":["","word"]},
+		"lt_LT.word-adv": {"paths":["","word"]},
+		"lt_LT.word-noun": {"paths":["","plural","word"]},
+		"lt_LT.word-verb": {"paths":["","word"]}
 	},
 	"namespace": "lt_LT"
 }
