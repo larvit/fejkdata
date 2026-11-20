@@ -162,15 +162,76 @@ class TallyOfAddresses(unittest.TestCase):
         self.assertEqual(counted.point("0296"), (f"{lat:.4f}", f"{lon:.4f}"))
 
 
+def stat(*places: tuple[str, str, int | None]) -> dict[str, Any]:
+    """The census table, in JSON-stat: each place's code, its label and its count."""
+    return {
+        "dimension": {"Elukoht": {"category": {"index": {code: i for i, (code, _, _) in enumerate(places)}, "label": {code: label for code, label, _ in places}}}},
+        "value": [n for _, _, n in places],
+    }
+
+
+STAT = stat(
+    ("1", "Kogu Eesti", 1331824), ("L2", "Linnaline asustuspiirkond", 800000),
+    ("00370000000000", "HARJU MAAKOND", 510), ("003707840000L4", "..Tallinn", 400), ("003707840596L6", "....0596 Pirita linnaosa", 30),
+    ("003702960000L4", "..Keila linn", 50), ("00370198000001", "..Harku vald", 60), ("003701988008M5", "....8008 Tabasalu alevik", 60),
+    ("00740000000000", "SAARE MAAKOND", 0), ("00740689000001", "..Ruhnu vald", None), ("007406897185M8", "....7185 Ruhnu küla", None),
+    ("006009283092M5", "....3092 Kiltsi alevik", 180), ("00370141000001", "..Anija vald", 9), ("003701411001M8", "....1001 Aru küla", 4), ("003701982002M8", "....2002 Aru küla", 5),
+)
+
+
+class CensusOfSettlements(unittest.TestCase):
+    def test_a_settlement_counts_under_its_ehak_code(self) -> None:
+        self.assertEqual(geo_ee.Census(STAT).of("8008", "Tabasalu alevik", "0037"), 60)
+
+    def test_a_linn_that_holds_no_settlement_counts_under_its_own_code(self) -> None:
+        self.assertEqual([geo_ee.Census(STAT).of(c, n, "0037") for c, n in (("0784", "Tallinn"), ("0296", "Keila linn"))], [400, 50])
+
+    def test_a_settlement_whose_code_changed_since_the_census_counts_under_its_name_in_its_maakond(self) -> None:
+        self.assertEqual(geo_ee.Census(STAT).of("8009", "Tabasalu alevik", "0037"), 60)
+        with self.assertRaises(KeyError):
+            geo_ee.Census(STAT).of("8009", "Tabasalu alevik", "0074")
+
+    def test_a_name_two_settlements_of_a_maakond_share_counts_for_neither(self) -> None:
+        with self.assertRaises(KeyError):
+            geo_ee.Census(STAT).of("1002", "Aru küla", "0037")
+
+    def test_a_maakond_a_vald_and_a_linnaosa_are_no_settlement(self) -> None:
+        for code, name in (("0037", "HARJU MAAKOND"), ("0198", "Harku vald"), ("0596", "Pirita linnaosa")):
+            with self.assertRaises(KeyError):
+                geo_ee.Census(STAT).of(code, name, "0037")
+
+    def test_a_withheld_count_is_two(self) -> None:
+        self.assertEqual(geo_ee.Census(STAT).of("7185", "Ruhnu küla", "0074"), 2)
+
+    def test_kiltsi_counts_as_the_alevik_it_was(self) -> None:
+        self.assertEqual(geo_ee.Census(STAT).of("3091", "Kiltsi küla", "0060"), 180)
+
+    def test_a_settlement_formed_since_the_census_takes_its_estimate(self) -> None:
+        self.assertEqual(geo_ee.Census(STAT).of("6674", "Raadi alev", "0079"), geo_ee.ESTIMATES["6674"])
+        self.assertEqual(sorted(geo_ee.ESTIMATES), ["2975", "3262", "3440", "6674"])
+
+
 class Weighed(unittest.TestCase):
-    def test_a_municipality_and_a_region_sum_their_localities_addresses(self) -> None:
+    def test_a_locality_takes_its_census_count_and_a_municipality_and_a_region_sum_theirs(self) -> None:
         regions, municipalities, localities, _ = geo_ee.units(UNITS)
         tabasalu, tallinn = "Harju maakond, Harku vald, Tabasalu alevik", "Harju maakond, Tallinn, Pirita linnaosa"
-        geo_ee.weighed(regions, municipalities, localities, tally(address("76901", "Sarapuu tn 70", tabasalu), address("11911", "Pirita tee 26", tallinn), address("11911", "Pirita tee 28", tallinn)))
-        self.assertEqual([localities[c]["addresses"] for c in ("8009", "0784")], [1, 2])
-        self.assertEqual([municipalities[c]["addresses"] for c in ("0198", "0784", "0689")], [1, 2, 0])
-        self.assertEqual([regions[c]["addresses"] for c in ("0037", "0074")], [3, 0])
-        self.assertNotIn("addresses", localities["7185"])
+        counted = tally(address("76901", "Sarapuu tn 70", tabasalu), address("11911", "Pirita tee 26", tallinn), address("11911", "Pirita tee 28", tallinn))
+        geo_ee.weighed(regions, municipalities, localities, counted, geo_ee.Census(STAT))
+        self.assertEqual([localities[c]["population"] for c in ("8009", "0784")], [60, 400])
+        self.assertEqual([municipalities[c]["population"] for c in ("0198", "0784", "0296", "0689", "0184")], [60, 400, 50, 2, 0])
+        self.assertEqual([regions[c]["population"] for c in ("0037", "0074", "0056")], [510, 2, 0])
+        self.assertNotIn("population", localities["7185"])
+
+    def test_a_locality_with_an_address_and_no_count_stops_the_import(self) -> None:
+        regions, municipalities, localities, _ = geo_ee.units(UNITS)
+        with self.assertRaises(KeyError):
+            geo_ee.weighed(regions, municipalities, localities, tally(address("90502", "Posti tn 1", "Lääne maakond, Haapsalu linn, Haapsalu linn")), geo_ee.Census(STAT))
+
+    def test_a_locality_holds_at_least_one_person(self) -> None:
+        regions, municipalities, localities, _ = geo_ee.units(UNITS)
+        census = geo_ee.Census(stat(("003701988009M5", "....8009 Tabasalu alevik", 0)))
+        geo_ee.weighed(regions, municipalities, localities, tally(address("76901", "Sarapuu tn 70", "Harju maakond, Harku vald, Tabasalu alevik")), census)
+        self.assertEqual(localities["8009"]["population"], 1)
 
 
 if __name__ == "__main__":

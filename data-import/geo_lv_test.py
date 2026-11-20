@@ -143,17 +143,34 @@ class Apartments(unittest.TestCase):
         self.assertEqual(geo_lv.apartments(rows), {"101000034": 2, "101000042": 1})
 
 
+class People(unittest.TestCase):
+    def test_a_village_counts_under_its_register_code_and_a_town_a_pagasts_and_a_novads_under_atvk(self) -> None:
+        rows = [["Teritoriālā vienība", "2026"], ["LV Latvija", "1860565"], ["LV0051000 Talsu novads", "34000"], ["LV0051400 ..Abavas pagasts", "1100"], ["LV100195988 ...Dreimaņciems", "140"]]
+        self.assertEqual(geo_lv.people(rows), {"0051000": 34000, "0051400": 1100, "100195988": 140})
+
+    def test_a_count_the_bureau_does_not_give_and_a_row_of_another_kind_are_left_out(self) -> None:
+        rows = [["LV100187337 ...Lielvirbi", "…"], ["LVDPA0001 Rīga", "600000"], ["LVRIG01 Centrs", "30000"], ["UNK_LV Nezināma", "12"]]
+        self.assertEqual(geo_lv.people(rows), {})
+
+    def test_carnikava_and_its_pagasts_split_the_pagasts_the_town_was_a_village_of(self) -> None:
+        got = geo_lv.people([["LV0023410 ..Carnikavas pagasts", "10669"], ["LV100184532 ...Carnikava", "5078"]])
+        self.assertEqual((got["0023210"], got["0023411"]), (5078, 5591))
+
+
 class Weighed(unittest.TestCase):
-    def test_a_municipality_sums_its_localities_and_the_houses_outside_them_and_a_region_its_municipalities(self) -> None:
+    def test_a_village_a_municipality_and_a_town_take_their_people_and_a_region_sums_its_municipalities(self) -> None:
         r = register()
-        geo_lv.weighed(r, tally(
-            address("18", "100366498", IELA), address("Auliki", "100003366", PILSETA),
-            address("3", "100500001", IELA, "LV-3294"), address("Riņņi", "100013922", PAGASTS, "LV-3294"), address("Šķetras", "100013922", PAGASTS, "LV-3294"),
-        ))
-        self.assertEqual([r.localities[c]["addresses"] for c in ("100003366", "100195988")], [2, 1])
-        self.assertEqual([r.municipalities[c]["addresses"] for c in ("0035200", "0051400", "0001000")], [2, 3, 0])
-        self.assertEqual([r.regions[c]["addresses"] for c in ("0035000", "0051000", "0001000")], [2, 3, 0])
-        self.assertNotIn("addresses", r.localities["100187337"])
+        geo_lv.weighed(r, tally(address("18", "100366498", IELA), address("3", "100500001", IELA, "LV-3294")), {"0035200": 700, "0051400": 1100, "100195988": 140, "0001000": 600000})
+        self.assertEqual([r.localities[c]["population"] for c in ("100003366", "100195988")], [700, 140])
+        self.assertEqual([r.municipalities[c]["population"] for c in ("0035200", "0051400", "0001000")], [700, 1100, 600000])
+        self.assertEqual([r.regions[c]["population"] for c in ("0035000", "0051000", "0001000")], [700, 1100, 600000])
+        self.assertNotIn("population", r.localities["100187337"])
+
+    def test_a_village_with_no_count_shares_the_rest_of_its_pagasts_with_the_houses_outside_every_village(self) -> None:
+        r = register()
+        counted = tally(address("3", "100500001", IELA, "LV-3294"), address("Riņņi", "100013922", PAGASTS, "LV-3294"), address("Šķetras", "100013922", PAGASTS, "LV-3294"), address("Kalni", "100187337", CIEMS, "LV-3294"))
+        geo_lv.weighed(r, counted, {"0035200": 700, "0051400": 1100, "100187337": 200, "0001000": 600000})
+        self.assertEqual(r.localities["100195988"]["population"], 300)
 
 
 class AddressJson(unittest.TestCase):
