@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 542`
+`Next ID = 543`
 
 ## Items
 
@@ -20,6 +20,7 @@
 | 408 | 0.7.1 |  | owner | **List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
 | 535 | 0.7.1 |  | owner | **Name coding agents in `## Audience`, and widen goal 1.1 to "developers, and the coding agents working for them, hear about it where they look".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 2 | 1.5 |
 | 541 | 0.7.2 | 408 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
+| 542 | 0.7.2 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.2 |
 | 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
 | 532 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 6.1 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
@@ -295,6 +296,15 @@ The maintainer, 2026-11-21: automate fejkdata.dev's deployment from fejkdata's o
 Touches:
 
 - `.github/workflows/packages.yml`
+
+### 542. Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.
+
+CodeRabbit found it on PR 476: `{` piped to the CLI exits 2 with `unterminated '{' in "{\n"` and only `try 'fejkdata --help'`, which names no fix, against goal 5. Keep the word "unterminated", which `internal/grammar/format_test.go` and `cli/input_test.go` assert, and add a CLI test on the new text. Once it ships, the README's coding-agent bullet may say the exit 2 error names the fix.
+
+Touches:
+
+- `internal/grammar/format.go`
+- `cli/input_test.go`
 
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
