@@ -186,14 +186,13 @@ with its replacement, and each removed path, column or flag.
   one place with a street and a house number, such as `Pramonės g. 30\nLT-17107 Šalčininkai`. A region, a
   municipality and a locality are selected by their code in the Address Register, as `{/geo.LT.locality[31003]}`,
   and a region or a municipality by its name too.
-  A region, a municipality and a locality weigh their residents at the start of 2026, as the State Data Agency counts
-  them. A postal code and a street weigh their addresses in the Centre of Registers' register, an address as one and
+  A municipality weighs its residents at the start of 2026, as the State Data Agency counts them, a region its
+  municipalities', and a locality its share, by its addresses, of its municipality's. A postal code and a street weigh their addresses in the Centre of Registers' register, an address as one and
   each of the premises at it as one more. A place with no street ships no place, which leaves out most small kaimai. A locality has no `lat` or
   `lon`. A program showing the places credits "VĮ Registrų centras, Adresų registras" and "Valstybės duomenų
   agentūra", links
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as `DATA-LICENSES.md`
-  describes. The licence of the agency's table was not found, and its `population` columns are taken under the
-  CC BY 4.0 of the same indicator's other tables. The Go package is `github.com/larvit/fejkdata/data/geo/LT`, which `data/lt_LT` imports, and the CLI
+  describes. The Go package is `github.com/larvit/fejkdata/data/geo/LT`, which `data/lt_LT` imports, and the CLI
   carries it.
 - `geo.LV`, Latvia's novadi and state cities, municipalities, localities, postal codes and streets, with
   `lv_LV.address` printing one place with a street and a house number, such as `Strautu ceļš 32\nJelgava, LV-3001`. A

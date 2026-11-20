@@ -114,9 +114,9 @@ sistēmas dati" and "Centrālā statistikas pārvalde, Oficiālās statistikas p
 `lt_LT.address` prints `geo.LT.address`, such as `Pramonės g. 30\nLT-17107 Šalčininkai`: the postal code stands left
 of the locality, after `LT-`, as the Universal Postal Union's guide to Lithuanian addresses writes it. A postal code and
 a street weigh their addresses in the Centre of Registers' Address Register: an address is one, and each of the premises
-at it, such as an apartment, one more. A region, a municipality and a locality weigh their residents at the start of
-2026, as the State Data Agency's table M3010320 counts them. A locality the table doesn't count, one in twenty, shares,
-by its addresses, the residents of its municipality that the table counts under no locality. A region is an apskritis, a municipality a savivaldybė, and a locality a
+at it, such as an apartment, one more. A municipality weighs its residents at the start of 2026, as the State Data Agency's
+table M3010202 counts them, and a region its municipalities'. The table counts no locality, so a locality weighs its
+share, by its addresses, of its municipality's residents. A region is an apskritis, a municipality a savivaldybė, and a locality a
 gyvenamoji vietovė, such as a miestas, a kaimas or a viensėdis. Each keeps its code in the register, `10` for
 Vilniaus apskritis, `13` for Vilniaus miesto savivaldybė and `31003` for Vilnius. The register names an apskritis and a
 savivaldybė in the genitive, `Vilniaus`, so `geo.LT` names each with its kind. A locality keeps its nominative name. A

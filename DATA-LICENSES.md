@@ -538,26 +538,22 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   apskritis, savivaldybė, gyvenamoji vietovė and street, each address with its number and postal
   code, and each of the premises given an address. The State Data Agency's, Valstybės duomenų
   agentūra's, [table
-  M3010320](https://osp-rs.stat.gov.lt/rest_json/data/S3R167_M3010320?startPeriod=2026&endPeriod=2026)
+  M3010202](https://osp-rs.stat.gov.lt/rest_json/data/S3R167_M3010202?startPeriod=2026&endPeriod=2026)
   of the indicator "Nuolatinių gyventojų skaičius metų pradžioje" gives the residents of each
-  savivaldybė and gyvenamoji vietovė at the start of 2026, under the register's codes
+  savivaldybė at the start of 2026, under the register's codes
 - Changes: an address counts as one and each of the premises at it as one more, which weighs a
-  postal code and a street. A locality and a municipality weigh their residents, and a region its
-  municipalities'. The table counts 6,741 of the 7,066 localities; each of the rest shares, by its
-  addresses, the residents of its municipality that the table counts under no locality. An
+  postal code and a street. A municipality weighs its residents, and a region its municipalities'. The table counts no
+  locality, so each locality weighs its share, by its addresses, of its municipality's residents. An
   apskritis and a
   savivaldybė are named with their kind, and a street with the short form
   of its kind. A korpusas is dropped from a house number, an address with no postal code is not
   counted, and a locality with no numbered address on a street is dropped
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the centre's page of the
-  data states. The licence of table M3010320 itself was not found: its response names none,
-  and neither does the agency's portal, whose page on its web service gives no terms and whose
-  footer reserves all rights. The agency's dissemination rules say only that its statistics are
-  given to the public free of charge on the portal. The table gives
-  the `population` columns of `region.tsv`, `municipality.tsv` and `locality.tsv`. Lithuania's open
-  data portal publishes the same indicator's other tables as the
+  data states. The agency's table is under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) too:
+  Lithuania's open data portal publishes it in the
   dataset [Nuolatinių gyventojų skaičius metų pradžioje](https://data.gov.lt/datasets/2689/) under
-  CC BY 4.0, and the project takes the table under that licence
+  that licence. It gives the `population` columns of `region.tsv`, `municipality.tsv` and
+  `locality.tsv`
 - Attribution: "VĮ Registrų centras, Adresų registras": the page asks a user to name the data's
   author, to link the licence and to say whether changes were made, and gives no wording. For the
   residents, "Valstybės duomenų agentūra", on the same terms
