@@ -12,7 +12,7 @@ import (
 )
 
 // frenchPlaces maps each commune's code in geo/FR to its row, and each postal code to the codes
-// of the communes the Base Adresse Nationale has an address in under it.
+// of the communes with an address under it in the Base Adresse Nationale.
 func frenchPlaces(t *testing.T) (communes map[string]map[string]string, byPostalCode map[string][]string) {
 	t.Helper()
 	communes, byPostalCode = map[string]map[string]string{}, map[string][]string{}
@@ -201,9 +201,6 @@ func TestFrenchAddressColumnsAreOnePlace(t *testing.T) {
 	})
 }
 
-// Item 271 gives geo.FR its real streets. Until then its address draws an invented one, as the
-// decision "A country with no open address register covering it whole draws invented streets" has
-// it: each name weighs the same, and a street belongs to no place.
 func TestGeoFRStreetsAreInventedNamesDrawnEvenly(t *testing.T) {
 	t.Parallel()
 	rows := fejktest.TSVRows(t, "geo/FR/street.tsv")
