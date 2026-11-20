@@ -15,7 +15,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails and dates, `lt_LT`'s names, persons, asmens kodai, phone numbers, companies, emails and dates, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places, every German
-  place with a postal code and every French commune with people. Each address takes its postal code from one town, and its street too, save in France and Germany, whose streets are invented ([`geo`](docs/locales/geo.md#french-places)).
+  place with a postal code and every French commune with people and an address. Each address takes its postal code from one town, and its street too, save in [France](docs/locales/geo.md#french-places) and [Germany](docs/locales/geo.md#german-places), whose streets are invented.
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
@@ -1942,6 +1942,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `geo-se.py` fetches SCB's småort polygons, about 120 MB, and its tätort polygons.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 - `company-fr.py` fetches Sirene's StockUniteLegale, about a gigabyte.
+- `geo-fr.py` fetches the Base Adresse Nationale's address file, about 940 MB.
 - `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.
 - `company-lv.py` fetches the Register of Enterprises' open data, 129 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
