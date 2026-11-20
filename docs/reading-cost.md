@@ -2674,3 +2674,20 @@ Read most (opens and searches):
 - `data-import/wordtables.py` 2
 - `data-import/geo_test.py` 1
 - `data-import/source.py` 1
+
+## Reading cost, chunk 34795e537e86, finished 2026-11-20T05:55:33Z
+
+207943 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/geo.py` 8
+- `README.md` 4
+- `data/geo_test.go` 4
+- `shipped_test.go` 4
+- `compose.yaml` 3
+- `data-import/geo-de.py` 3
+- `data-import/geo-dk.py` 3
+- `data-import/geo-fi.py` 3
+- `data/geo_de_test.go` 3
+- `data-import/geo_test.py` 2
