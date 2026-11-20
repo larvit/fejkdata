@@ -1,1 +1,1 @@
-{ "format": "{name}", "rows": "municipality.tsv", "key": "code", "name": "name", "parent": "region", "weight": "addresses" }
+{ "format": "{name}", "rows": "municipality.tsv", "key": "code", "name": "name", "parent": "region", "weight": "population" }

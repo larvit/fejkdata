@@ -1,11 +1,11 @@
-code	name	addresses	timezone
-1	Alytaus apskritis	117728	Europe/Vilnius
-10	Vilniaus apskritis	674297	Europe/Vilnius
-2	Kauno apskritis	464817	Europe/Vilnius
-3	Klaipėdos apskritis	297311	Europe/Vilnius
-4	Marijampolės apskritis	99390	Europe/Vilnius
-5	Panevėžio apskritis	177232	Europe/Vilnius
-6	Šiaulių apskritis	202485	Europe/Vilnius
-7	Tauragės apskritis	67539	Europe/Vilnius
-8	Telšių apskritis	99429	Europe/Vilnius
-9	Utenos apskritis	123369	Europe/Vilnius
+code	name	population	timezone
+1	Alytaus apskritis	130630	Europe/Vilnius
+10	Vilniaus apskritis	888712	Europe/Vilnius
+2	Kauno apskritis	587094	Europe/Vilnius
+3	Klaipėdos apskritis	345218	Europe/Vilnius
+4	Marijampolės apskritis	131348	Europe/Vilnius
+5	Panevėžio apskritis	203565	Europe/Vilnius
+6	Šiaulių apskritis	263692	Europe/Vilnius
+7	Tauragės apskritis	88803	Europe/Vilnius
+8	Telšių apskritis	128136	Europe/Vilnius
+9	Utenos apskritis	120394	Europe/Vilnius

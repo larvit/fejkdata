@@ -1,16 +1,16 @@
-code	name	addresses	timezone
-0037	Harju maakond	503564	Europe/Tallinn
-0039	Hiiu maakond	17969	Europe/Tallinn
-0045	Ida-Viru maakond	134464	Europe/Tallinn
-0050	Jõgeva maakond	38820	Europe/Tallinn
-0052	Järva maakond	40367	Europe/Tallinn
-0056	Lääne maakond	33371	Europe/Tallinn
-0060	Lääne-Viru maakond	76914	Europe/Tallinn
-0064	Põlva maakond	31324	Europe/Tallinn
-0068	Pärnu maakond	101971	Europe/Tallinn
-0071	Rapla maakond	47291	Europe/Tallinn
-0074	Saare maakond	55432	Europe/Tallinn
-0079	Tartu maakond	150846	Europe/Tallinn
-0081	Valga maakond	32871	Europe/Tallinn
-0084	Viljandi maakond	53878	Europe/Tallinn
-0087	Võru maakond	50797	Europe/Tallinn
+code	name	population	timezone
+0037	Harju maakond	614568	Europe/Tallinn
+0039	Hiiu maakond	8516	Europe/Tallinn
+0045	Ida-Viru maakond	132809	Europe/Tallinn
+0050	Jõgeva maakond	27849	Europe/Tallinn
+0052	Järva maakond	29680	Europe/Tallinn
+0056	Lääne maakond	20191	Europe/Tallinn
+0060	Lääne-Viru maakond	58712	Europe/Tallinn
+0064	Põlva maakond	23989	Europe/Tallinn
+0068	Pärnu maakond	85657	Europe/Tallinn
+0071	Rapla maakond	33528	Europe/Tallinn
+0074	Saare maakond	31293	Europe/Tallinn
+0079	Tartu maakond	160666	Europe/Tallinn
+0081	Valga maakond	27737	Europe/Tallinn
+0084	Viljandi maakond	45413	Europe/Tallinn
+0087	Võru maakond	34193	Europe/Tallinn
