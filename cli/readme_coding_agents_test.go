@@ -14,12 +14,23 @@ type codingAgentLine struct {
 	check   func(t *testing.T, code int, out, errb string)
 }
 
+const (
+	missingSlashLine = "echo '{sv_SE.personnummer}' | fejkdata"
+	seededLine       = "echo '{/sv_SE.personnummer}' | fejkdata --seed 1 --today 2026-11-21"
+)
+
 // codingAgentLines holds each command the README's "For coding agents" section shows,
-// with what it must do: find a path, render one line, repeat a run, fail with the fix.
+// in the order it shows them.
 var codingAgentLines = []codingAgentLine{
 	{"fejkdata --list | grep personnummer", func(t *testing.T, code int, out, _ string) {
 		if code != 0 || !strings.Contains("\n"+out, "\nsv_SE.personnummer\n") {
 			t.Errorf("= %d, %q, want sv_SE.personnummer among the paths", code, out)
+		}
+	}},
+	{missingSlashLine, func(t *testing.T, code int, _, errb string) {
+		fixed, out, _ := runAgentLine(strings.Replace(missingSlashLine, "{sv", "{/sv", 1))
+		if code != 2 || !strings.Contains(errb, "write {/sv_SE.personnummer}") || fixed != 0 || out == "" {
+			t.Errorf("= %d, stderr %q, want exit 2 naming the fix, write {/sv_SE.personnummer}, and the fixed template rendering (%d, %q)", code, errb, fixed, out)
 		}
 	}},
 	{"echo '{/sv_SE.personnummer}' | fejkdata", func(t *testing.T, code int, out, errb string) {
@@ -27,22 +38,17 @@ var codingAgentLines = []codingAgentLine{
 			t.Errorf("= %d, %q, stderr %q, want one personnummer line", code, out, errb)
 		}
 	}},
-	{"echo '{/sv_SE.person.first} {/sv_SE.person.last}' | fejkdata --seed 1 --today 2026-11-21", func(t *testing.T, code int, out, errb string) {
-		line := "echo '{/sv_SE.person.first} {/sv_SE.person.last}' | fejkdata --seed 1 --today 2026-11-21"
-		_, again, _ := runAgentLine(line)
-		_, otherSeed, _ := runAgentLine(strings.Replace(line, "--seed 1", "--seed 2", 1))
-		if code != 0 || out == "" || again != out || otherSeed == out {
-			t.Errorf("= %d, %q, stderr %q, again %q, seed 2 %q, want the same line again and another under another seed", code, out, errb, again, otherSeed)
-		}
-	}},
-	{"echo '{a}' | fejkdata", func(t *testing.T, code int, _, errb string) {
-		if code != 2 || !strings.Contains(errb, "write {/a}") {
-			t.Errorf("= %d, stderr %q, want exit 2 and an error naming the fix, write {/a}", code, errb)
+	{seededLine, func(t *testing.T, code int, out, errb string) {
+		_, again, _ := runAgentLine(seededLine)
+		_, otherSeed, _ := runAgentLine(strings.Replace(seededLine, "--seed 1", "--seed 2", 1))
+		_, otherDay, _ := runAgentLine(strings.Replace(seededLine, "2026-11-21", "2020-01-01", 1))
+		if code != 0 || out == "" || again != out || otherSeed == out || otherDay == out {
+			t.Errorf("= %d, %q, stderr %q, again %q, seed 2 %q, another day %q, want the same line again, and another under another seed or day", code, out, errb, again, otherSeed, otherDay)
 		}
 	}},
 }
 
-// runAgentLine runs one README line: an optional echo, fejkdata, and a grep word when the line ends in one.
+// runAgentLine runs one README line: an optional echo into fejkdata, then the lines of its output holding grep's word, if the line ends in one.
 func runAgentLine(line string) (code int, out, errb string) {
 	stages := strings.Split(line, " | ")
 	stdin := ""
