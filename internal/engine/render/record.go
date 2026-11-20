@@ -9,11 +9,8 @@ import (
 // pick of each name. It calls emit with each column's index, its text and whether it drew null;
 // a table's columns read row.
 func Record(s *drawstate.State, t *tree.Template, row Row, emit func(i int, text string, null bool)) {
-	var frames frameStack
-	env := renderEnv{frames: &frames, row: row}
-	if mark := env.frames.openOwn(t, env.base); mark >= 0 {
-		defer env.frames.pop(mark)
-	}
+	var fakes rewordFakes
+	env := renderEnv{fakes: &fakes, row: row}.inScopeOf(t)
 	for i, c := range t.Columns() {
 		var v readValue
 		if c.BoundWhole() != nil {

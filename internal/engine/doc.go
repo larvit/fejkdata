@@ -7,7 +7,7 @@
 //   - draw — one item taken from a choice, or one row from a table: `render.drawItem`,
 //     `render.drawThroughChoices`, `render.renderEnv.drawRowOf`. Every {…} draws afresh, bar a read of a name.
 //   - expansion — one render of one format: `render.expand`.
-//   - render — one walk of the tree from an entry point, over one `render.frameStack`:
+//   - render — one walk of the tree from an entry point, sharing one `render.rewordFakes`:
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
 //     start one each, and `FakeStruct` one per record.
 //   - env — what a render reads names and rows through: `render.renderEnv`.
