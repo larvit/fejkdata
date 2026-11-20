@@ -12,7 +12,7 @@ import (
 // afresh a level another read of the name reads from the pick. For example, {n} and {n.ab.name}
 // could differ where n's format reads {/cat.ab.name}, and so could {n} and {n.ab} where ab's format
 // reads {name}. It refuses read where a node a reference reaches (refsReached) meets all three of
-// these, each checked where it is named:
+// these, each checked by the function named after it:
 //   - the node is a level of the pick, below the name's start (levelOf)
 //   - two draws of that level can differ (canDiffer)
 //   - another read of the name reads that level from the pick (readingFromPick)
@@ -39,10 +39,6 @@ type refReach struct {
 
 // refsReached is every node the references among routes land on, and every node those render in turn,
 // across categories. Each node is listed once, with the first reference to reach it.
-//
-// pending holds the reads still to follow, routes first. Following a reference adds every read
-// its leaves make, in whatever category they sit, so the loop ends when no reference reaches a
-// node it has not seen.
 func refsReached(routes []route) []refReach {
 	var found []refReach
 	seen := map[tree.Node]bool{}
@@ -82,7 +78,7 @@ func (nr nameRead) levelOf(n tree.Node) (pickLevel, bool) {
 }
 
 // canDiffer reports whether two draws of l can differ: the walk down to it meets a choice or a
-// table, or it ends on a level that isn't a constant. A reference to a constant can't differ.
+// table, or it ends on a level that isn't a constant.
 func (l pickLevel) canDiffer() bool { return drawsAlong(l.start, l.path, true) }
 
 // readingFromPick is the spelling of the first read of the name, other than nr's own, that reads
@@ -96,9 +92,8 @@ func (nr nameRead) readingFromPick(level pickLevel, reached refReach) (string, b
 	return "", false
 }
 
-// readsFromPick reports whether r, a read of the name, reads level from the pick. It does where it
-// lands on or passes the level's key, or where it lands on a level whose render reads
-// reached.leaf, the node at level, through a field read and doesn't render reached.ref.
+// readsFromPick reports whether r, a read of the name, reads level from the pick: it lands on or
+// passes the level's key, or its render reads the level through a field (rendersField).
 func (nr nameRead) readsFromPick(r *tree.Read, level pickLevel, reached refReach) bool {
 	return nr.pick.addresses(r, level.key) || rendersField(nr.names, r, reached)
 }

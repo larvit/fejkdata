@@ -17,7 +17,7 @@ func placedInPick(env renderEnv, a tree.Read) (tree.PlacedRead, bool) {
 	return placed, kept
 }
 
-// readUnder reads a, a read of t that env.pick keeps as placed, once per pick.
+// readUnder reads a, a read of t landing in env.pick at placed, once per pick.
 func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read, placed tree.PlacedRead) readValue {
 	p, key := env.pick, placed.Key()
 	if d := p.memo.levels[key]; d.read {
@@ -34,15 +34,14 @@ func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read,
 //  1. It is created with its frame, by openFrames.with, and holds no draw yet.
 //  2. It draws on the first read of the name.
 //  3. Each read keeps its value by key, so a later read of that key prints the same value.
-//  4. It ends with its frame, when the render that opened the frame returns. A frame the pick
-//     of another category's name keeps in entered lasts as long as that pick.
+//  4. It ends with its frame, when the render that opened the frame returns. A frame in
+//     another pick's entered ends with that pick.
 type namedPick struct {
 	named *tree.NameBinding
 	memo  drawMemo
 	pins  tree.PinSet
 	// entered is the frames of the other category this pick renders, by the innermost scope a
-	// read lands inside: the pick makes them on the first such read, and hands them to every
-	// later one.
+	// read lands inside (framesFrom).
 	entered map[*tree.NameScope]openFrames
 	// drawn is what a where or a distinct clause drew, nil before the first read.
 	drawn []string
@@ -58,8 +57,8 @@ type levelDraw struct {
 	// variant is the variant the level's choice was drawn as, so every path under it reads one
 	// variant; nil before that draw.
 	variant tree.Node
-	// value is what the read with this key produced, and read whether it has, so the same read
-	// written twice reads one value.
+	// value is what the read with this key produced, once the flag read is set, so the same
+	// read written twice reads one value.
 	value readValue
 	read  bool
 	// steppedDown is the rows drawn by the step down at this level after a "..", nil before it.
