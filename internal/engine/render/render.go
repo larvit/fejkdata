@@ -134,12 +134,13 @@ func readOperands(s *drawstate.State, t *tree.Template, env renderEnv, o *tree.O
 // a level that a read of the name being rendered addresses; every other read draws afresh, so
 // {word} {word} draws twice and {p.a} {p.b} reads two draws of p.
 func readField(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
-	switch {
-	case a.Kind() == tree.NamedRead:
+	if a.Kind() == tree.NamedRead {
 		return readName(s, env, a)
-	case keptInPick(env, a):
-		return readUnder(s, t, env, a)
-	case grammar.IsRef(a.Head()):
+	}
+	if placed, kept := placedInPick(env, a); kept {
+		return readUnder(s, t, env, a, placed)
+	}
+	if grammar.IsRef(a.Head()) {
 		return readReference(s, t, env, a)
 	}
 	return readSibling(s, t, env, a)

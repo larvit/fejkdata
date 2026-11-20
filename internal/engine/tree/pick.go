@@ -76,43 +76,55 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 // the path a named read's does. Where p binds a category whose format reads {first}, the {first}
 // that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
 //
-// It holds the length of the template's key, and cuts the key itself from its own. On a render
+// It is the one value that holds the alignment. Its three keys are its first level, which a read of the
+// name must address for the pick to keep the read; Levels, the keys the pick keeps the read's
+// draws under; and Key, the last of them, which its value is kept under.
+//
+// It holds the length of the template's key, and cuts the key itself from its first. On a render
 // the template's key is the one the render's env holds. A pick keeps the keys Levels returns, so
 // a PlacedRead holding the template's key would move every render's env to the heap.
 type PlacedRead struct {
-	key    PickKey
+	first  PickKey
 	atLen  int
 	levels []PickKey
 }
 
 // ReadAt places a, a fresh read in a template the pick renders, under at, that template's key.
 func ReadAt(at PickKey, a Read) PlacedRead {
-	return PlacedRead{key: at.Under(a.Key()), atLen: len(at), levels: a.levels}
+	return PlacedRead{first: at.Under(a.levels[0]), atLen: len(at), levels: a.levels}
 }
+
+func (p PlacedRead) at() PickKey { return p.first[:p.atLen] }
 
 // Key is the key the pick keeps the read's value under, the last of Levels. Render looks a value
 // up by it before it builds the levels.
-func (p PlacedRead) Key() PickKey { return p.key }
+func (p PlacedRead) Key() PickKey {
+	if len(p.levels) == 1 {
+		return p.first
+	}
+	return p.at().Under(p.levels[len(p.levels)-1])
+}
 
 // Levels is the read's levels, each moved under the template's key.
 func (p PlacedRead) Levels() []PickKey {
-	at, levels := p.key[:p.atLen], make([]PickKey, len(p.levels))
-	for i, l := range p.levels[:len(levels)-1] {
-		levels[i] = at.Under(l)
+	levels := make([]PickKey, len(p.levels))
+	levels[0] = p.first
+	for i := 1; i < len(levels); i++ {
+		levels[i] = p.at().Under(p.levels[i])
 	}
-	levels[len(levels)-1] = p.key
 	return levels
 }
 
-// LandsInPick reports whether a pick keeps the value of a. a is a read in a template the pick
-// renders, at is that template's key, and by is the spelling of the read of the name that addresses
-// a. Load and render both call it, so they agree on what a pick keeps. A reference draws afresh and
-// a read through a name reads its own name's pick, so the pick keeps neither. It keeps any other
-// read where a read of the name addresses the first of PlacedRead.Levels' keys, built here alone to spare the slice.
-func LandsInPick(addressed map[PickKey]string, at PickKey, a Read) (by string, lands bool) {
+// LandsInPick places a, a read in a template the pick renders at key at, and reports whether the
+// pick keeps its value; by is then the spelling of the read of the name that addresses a. Load
+// and render both call it, so they agree on what a pick keeps. A reference draws afresh and a
+// read through a name reads its own name's pick, so the pick keeps neither, and neither is
+// placed. It keeps any other read where a read of the name addresses its first level.
+func LandsInPick(addressed map[PickKey]string, at PickKey, a Read) (placed PlacedRead, by string, lands bool) {
 	if grammar.IsRef(a.Head()) || a.Kind() == NamedRead {
-		return "", false
+		return PlacedRead{}, "", false
 	}
-	by, lands = addressed[at.Under(a.levels[0])]
-	return by, lands
+	placed = ReadAt(at, a)
+	by, lands = addressed[placed.first]
+	return placed, by, lands
 }

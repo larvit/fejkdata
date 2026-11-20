@@ -8,23 +8,23 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// keptInPick is tree.LandsInPick for a read rendering in env; with no pick in env it is false.
-func keptInPick(env renderEnv, a tree.Read) bool {
+// placedInPick is tree.LandsInPick for a read rendering in env; with no pick in env it is false.
+func placedInPick(env renderEnv, a tree.Read) (tree.PlacedRead, bool) {
 	if env.pick == nil {
-		return false
+		return tree.PlacedRead{}, false
 	}
-	_, kept := tree.LandsInPick(env.pick.named.Addressed(), env.pickAt, a)
-	return kept
+	placed, _, kept := tree.LandsInPick(env.pick.named.Addressed(), env.pickAt, a)
+	return placed, kept
 }
 
-// readUnder reads a, a read of t kept in env.pick, once per pick, keyed by a's key under env.pickAt.
-func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
-	p, placed := env.pick, tree.ReadAt(env.pickAt, a)
-	if d := p.memo.levels[placed.Key()]; d.read {
+// readUnder reads a, a read of t that env.pick keeps as placed, once per pick.
+func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read, placed tree.PlacedRead) readValue {
+	p, key := env.pick, placed.Key()
+	if d := p.memo.levels[key]; d.read {
 		return d.value
 	}
 	leaf, pins := p.draw(s, t.StartOf(a.Head(), t.Refs()), a.Steps(), placed.Levels())
-	return p.renderAt(s, leaf, pins, placed.Key(), env)
+	return p.renderAt(s, leaf, pins, key, env)
 }
 
 // namedPick is one draw of a name: the variant drawn at each level a read of it addresses, the
