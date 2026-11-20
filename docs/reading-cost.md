@@ -2623,3 +2623,20 @@ Read most (opens and searches):
 - `data-import/source.py` 1
 - `data-import/word-de.py` 1
 - `data-import/word-fr.py` 1
+
+## Reading cost, chunk 4dd20fec5a51, finished 2026-11-20T02:24:24Z
+
+90147 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `data-import/word_fr_test.py` 4
+- `data-import/wordtables.py` 3
+- `data/locale_word_test.go` 3
+- `data/locales_test.go` 3
+- `compose.yaml` 2
+- `data-import/word-fr.py` 2
+- `AGENTS.md` 1
+- `CHANGELOG.md` 1
+- `DATA-LICENSES.md` 1
