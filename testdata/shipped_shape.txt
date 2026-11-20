@@ -1179,6 +1179,7 @@ lv_LV.last-name.sex	string
 lv_LV.month	format "{name}"	key code	name name
 lv_LV.month.code	string
 lv_LV.month.name	string
+lv_LV.paragraph	reads lv_LV.sentence
 lv_LV.person	format "{prefix}{first} {last}"	reads lv_LV.first-name lv_LV.title
 lv_LV.person.first	string
 lv_LV.person.last	string
@@ -1190,6 +1191,7 @@ lv_LV.phone	format "{number as n}{national}"
 lv_LV.phone.international	string
 lv_LV.phone.national	string
 lv_LV.price	format "{amt},{cents} €"
+lv_LV.sentence	reads lv_LV.word-adj lv_LV.word-adv lv_LV.word-noun lv_LV.word-verb
 lv_LV.sex	format "{name}"	key code	name name	weight count
 lv_LV.sex.code	string
 lv_LV.sex.count	string
@@ -1215,6 +1217,22 @@ lv_LV.username.n
 lv_LV.weekday	format "{name}"	key code	name name
 lv_LV.weekday.code	string
 lv_LV.weekday.name	string
+lv_LV.word	format "{any}"	reads lv_LV.word-adj lv_LV.word-adv lv_LV.word-noun lv_LV.word-verb
+lv_LV.word-adj	format "{word}"
+lv_LV.word-adj.word	string
+lv_LV.word-adv	format "{word}"
+lv_LV.word-adv.word	string
+lv_LV.word-noun	format "{word}"
+lv_LV.word-noun.plural	string
+lv_LV.word-noun.word	string
+lv_LV.word-verb	format "{word}"
+lv_LV.word-verb.word	string
+lv_LV.word.adj	string
+lv_LV.word.adv	string
+lv_LV.word.any	string
+lv_LV.word.noun	string
+lv_LV.word.noun.plural
+lv_LV.word.verb	string
 misc.car	format "{make} {model}"
 misc.car.make	string
 misc.car.model	string
