@@ -660,7 +660,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   the Artificial Intelligence Laboratory of the Institute of Mathematics and Computer Science,
   University of Latvia: the nouns, verbs, adjectives and adverbs that are lemmas in lower-case letters
   alone, each verb an infinitive and each noun with its nominative plural, except a word whose usage
-  label is a regional word, a dialectism, an obsolete, historical or outdated word or a rarely used old one
+  label is a regional word, a dialectism, an obsolete, historical or outdated word or a rarely used
+  old one
 - Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 - Attribution: "© Artificial Intelligence Laboratory, IMCS, University of Latvia, 2009–2026", the
   licence's name and link, a link to [tezaurs.lv](https://tezaurs.lv), and that the data was changed:
