@@ -1710,18 +1710,19 @@ use base forms alone. A German definite form needs the noun's gender, so `de_DE.
 seated as bulk, Go and data authors, chose `plural` over `pl` and `many`, 3 to 0.
 Valid while none of these languages has an open word list with a frequency for every word.
 
-## `fr_FR.word` holds Wiktionary's French words, and its nouns carry `plural`
+## `fr_FR.word` holds the English Wiktionary's French words, and its nouns carry `plural`
 
 2026-11-20, the maintainer. Goal 3.2.
 
-The tables hold the nouns, verbs, adjectives and adverbs of the English Wiktionary's French entries as kaikki.org
-extracts them (CC BY-SA 4.0), whose headword is lower-case letters alone and which some sense does not call an
-inflected form or a variant of another entry. Wikidata's French lexemes (CC0) hold 12,800 nouns, and Lexique 3.83
-(CC BY-SA 4.0) lists a plural only for a noun its corpus held in the plural, 16,000 of its 28,000, so
-neither reaches the tens of thousands of nouns the other locales hold. A noun carries `plural`, as `de_DE`'s does,
-since an article needs the noun's gender and its elision. `fr_FR.sentence` builds on plurals and infinitives, whose
-`des` and `il faut` agree with nothing. The import drops no rude word, per the project principle on a locale's `word`.
-Valid while neither source reaches 20,000 nouns with a plural.
+The tables hold the nouns, verbs, adjectives and adverbs of the English Wiktionary's French entries, as kaikki.org
+extracts them (CC BY-SA 4.0), in lower-case letters alone. A word is a headword under its French head template, so
+a verb is an infinitive: kaikki.org gives a conjugated form the generic head template alone. Wikidata's French
+lexemes (CC0) hold 12,800 nouns, and Lexique 3.83 (CC BY-SA 4.0) lists a plural only for a noun its corpus held in
+the plural, 16,000 of its 28,000, so neither reaches the tens of thousands of nouns the other locales hold. A noun
+carries `plural`, as `de_DE`'s does: a French article needs the noun's gender and its elision, and `des` before a
+plural needs neither. An invariable noun is its own plural, since kaikki.org lists it no form.
+`fr_FR.sentence` builds on plural nouns, infinitives and adverbs, which take no agreement.
+Valid while neither Wikidata nor Lexique reaches 20,000 nouns with a plural.
 
 ## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 
