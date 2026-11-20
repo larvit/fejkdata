@@ -6,7 +6,7 @@ from word_fr_test import dump, entry
 
 word_lt = script("word-lt")
 
-PUPA_PLURAL: dict[str, Any] = {"form": "pùpos", "links": [["pùpos", "pupos"]], "tags": ["plural"]}
+PUPA_PLURAL: dict[str, Any] = {"form": "pùpos", "links": [["pùpos", "pupos"]], "tags": ["nominative", "plural"]}
 
 
 def drawn(*entries: dict[str, Any]) -> list[tuple[str, str, str]]:
@@ -14,8 +14,12 @@ def drawn(*entries: dict[str, Any]) -> list[tuple[str, str, str]]:
 
 
 class Candidates(unittest.TestCase):
-    def test_a_noun_carries_its_first_plural_without_the_stress_marks(self) -> None:
-        forms: list[dict[str, Any]] = [PUPA_PLURAL, {"form": "pupų", "tags": ["genitive", "plural"]}]
+    def test_a_noun_carries_its_nominative_plural_without_the_stress_marks(self) -> None:
+        forms: list[dict[str, Any]] = [
+            {"form": "pupa", "tags": ["plural"]},
+            {"form": "pupų", "links": [["pupų", "pupų"]], "tags": ["genitive", "plural"]},
+            PUPA_PLURAL,
+        ]
         self.assertEqual(drawn(entry("noun", "pupa", "lt-noun", forms=forms)), [("noun", "pupa", "pupos")])
 
     def test_a_plural_names_the_page_it_links_to_and_not_its_language_section(self) -> None:
@@ -23,7 +27,10 @@ class Candidates(unittest.TestCase):
         self.assertEqual(drawn(entry("noun", "mama", "lt-noun", forms=forms)), [("noun", "mama", "mamos")])
 
     def test_a_noun_whose_plural_links_nowhere_has_none(self) -> None:
-        self.assertEqual(drawn(entry("noun", "pupa", "lt-noun", forms=[{"form": "pùpos", "tags": ["plural"]}])), [("noun", "pupa", "")])
+        self.assertEqual(drawn(entry("noun", "pupa", "lt-noun", forms=[{"form": "pùpos", "tags": ["nominative", "plural"]}])), [("noun", "pupa", "")])
+
+    def test_a_noun_whose_only_plural_is_typed_in_its_head_template_has_none(self) -> None:
+        self.assertEqual(drawn(entry("noun", "pupa", "lt-noun", forms=[{"form": "pupos", "tags": ["plural"]}])), [("noun", "pupa", "")])
 
     def test_a_noun_with_no_plural_has_none(self) -> None:
         self.assertEqual(drawn(entry("noun", "tenisas", "lt-noun")), [("noun", "tenisas", "")])
