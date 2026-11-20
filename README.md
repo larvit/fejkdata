@@ -255,6 +255,27 @@ newline after it allowed. Some shells' `echo` reads a backslash as an escape, so
 template holding one from a quoted heredoc or a file. The rest of stdin's rules are under
 [Decisions](docs/decisions.md#the-cli-renders-exactly-the-template-on-its-stdin-and-adds-nothing).
 
+### For coding agents
+
+A coding agent that writes templates for a developer needs one shell line and no setup:
+
+```sh
+fejkdata --list | grep personnummer                       # find a path: --list names every one
+echo '{/sv_SE.personnummer}' | fejkdata                   # render it: one line out
+echo '{/sv_SE.person.first} {/sv_SE.person.last}' | fejkdata --seed 1 --today 2026-11-21   # the same line on every run
+echo '{a}' | fejkdata                                     # exit 2, and stderr says: write {/a}
+```
+
+A template that doesn't compile exits 2 and says what is wrong. Where a fix exists, as
+with `{a}` above, the error names it, so the agent fixes the template and runs it again.
+`--seed` repeats a run, and `--today` repeats one that reads a date, such as an age.
+
+To tell an agent this, paste into the project's `AGENTS.md`:
+
+```markdown
+Fake data: use the `fejkdata` CLI, never made-up values. Find a path with `fejkdata --list | grep personnummer`, then render it with `echo '{/sv_SE.personnummer}' | fejkdata`. A template that fails exits 2 and its error names the fix: apply it and run again. Add `--seed 1 --today 2026-11-21` to repeat a run.
+```
+
 ### PowerShell and cmd.exe
 
 In cmd.exe, `echo` sends the space before `|` and any single quotes, so write neither: around `{/sv_SE.person}` they are text, and `--format` stops naming the record.
