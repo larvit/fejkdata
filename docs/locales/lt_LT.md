@@ -1,6 +1,6 @@
 # `lt_LT`
 
-`lt_LT`, Lithuanian, carries `asmens-kodas`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `moteris` and `vyras`, `title` is
+`lt_LT`, Lithuanian, carries `asmens-kodas`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday` and `word`. `sex` is `moteris` and `vyras`, `title` is
 `dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
 
 `first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
@@ -96,3 +96,21 @@ for a 2-digit code such as Kaunas's, and `0 310 12345` for a district's 3; a mob
 district. The plan fixes only the digits, and RRT's recommendation, as the Klaipėda city municipality's
 page "Telefonų numerių rašymas" gives it, lets them be grouped as the writer likes, so the groups are this
 project's choice.
+
+## Lithuanian words
+
+`lt_LT.word` draws evenly from about 4,900 words of the English Wiktionary's Lithuanian entries: the nouns, verbs, adjectives
+and adverbs that are headwords in lower-case letters alone, not an inflected form or a participle. A verb is an
+infinitive, such as `bėgti`. Wiktionary has no frequencies, so a word may be rare.
+`lt_LT.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech, and `lt_LT.word.noun.plural` draws a noun and
+prints its nominative plural, such as `mamos`. A noun with no plural is left out. Bind a noun to read it and its plural
+from one pick: `{/lt_LT.word.noun as n}{n} {n.plural}` prints `vyras vyrai`.
+
+Rude words stay in the tables, so read the output before showing it to anyone. `lt_LT.sentence` builds on nouns in the
+nominative, infinitives and adverbs, and its adjectives follow `viskas aplink yra`, which takes a masculine singular
+adjective, so it needs no agreement: `Čia yra barakai ir mamos.` and `Ar tai yra vardiklis?` Its words are drawn at random,
+so a sentence may be senseless or even ungrammatical, such as an adjective that doesn't suit its noun. `lt_LT.paragraph`
+joins three to six sentences.
+A program showing these words credits "Wiktionary contributors" with links to
+[the licence](https://creativecommons.org/licenses/by-sa/4.0/) and to [en.wiktionary.org](https://en.wiktionary.org/),
+says that the words were changed from Wiktionary's entries, and shares any change to them under the same licence.

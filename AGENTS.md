@@ -23,7 +23,7 @@
 - A company category whose country has no open bulk file of company names weighs its legal forms by the counts the country's statistics office publishes, and draws its names from a language model's recall. Each name shape and word weighs the same. Goal 3.2. Applied by `da_DK.company`, `de_DE.company` and `fi_FI.company`.
 - A name table for which no open bulk file of name counts exists under a licence the project takes, not even one covering part of the country, keeps any counts a source publishes, and draws every other name from a language model's recall. The commoner recalled names are ranked from the most to the least common. Each weighs a function of its rank, which the decision applying this principle states, and never more than the smallest published count. The rarer ones follow in no order and share one weight, no higher than the last ranked name's. The README and `DATA-LICENSES.md` call these weights estimates. Goal 3.2. Applied by `da_DK.first-name`, `da_DK.last-name`, `de_DE.last-name`, `lt_LT.first-name`, `lt_LT.last-name`, `lv_LV.last-name`; `et_EE.first-name` and `et_EE.last-name` apply it until item 522 ships.
 - A national id draws a series its issuer keeps for tests or never issues, where one is published. The README says which checker, if any, refuses it. Goal 3.3. Applied by `de_DE.steuer-id`, `fi_FI.henkilotunnus`, `nb_NO.fodselsnummer`, `nn_NO.fodselsnummer`, `sv_SE.personnummer`, `sv_SE.personnummer-12`, `sv_SE.samordningsnummer` and `sv_SE.samordningsnummer-12`.
-- A locale's `word` holds an open dictionary's words, one table per part of speech, under `noun`, `verb`, `adj` and `adv`, and draws each word evenly. It drops no word for being rude. Goal 3.2. Applied by `da_DK.word`, `de_DE.word`, `en_US.word`, `et_EE.word`, `fi_FI.word`, `fr_FR.word`, `lv_LV.word`, `nb_NO.word`, `nn_NO.word` and `sv_SE.word`. Until item 497 ships, each of their imports but `et_EE.word`'s, `fr_FR.word`'s and `lv_LV.word`'s still drops rude words.
+- A locale's `word` holds an open dictionary's words, one table per part of speech, under `noun`, `verb`, `adj` and `adv`, and draws each word evenly. It drops no word for being rude. Goal 3.2. Applied by `da_DK.word`, `de_DE.word`, `en_US.word`, `et_EE.word`, `fi_FI.word`, `fr_FR.word`, `lt_LT.word`, `lv_LV.word`, `nb_NO.word`, `nn_NO.word` and `sv_SE.word`. Until item 497 ships, each of their imports but `et_EE.word`'s, `fr_FR.word`'s, `lt_LT.word`'s and `lv_LV.word`'s still drops rude words.
 
 # Decisions
 
@@ -145,6 +145,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `de_DE.word.noun` carries `plural`, where the nouns of `nb_NO`, `nn_NO`, `da_DK` and `sv_SE` carry `definite`
 - `fr_FR.word` holds the English Wiktionary's French words, and its nouns carry `plural`
 - `et_EE.word` holds Wikidata's Estonian words, and its nouns carry `plural`
+- `lt_LT.word` holds the English Wiktionary's Lithuanian words, and its nouns carry `plural`
 - `lv_LV.word` holds Tēzaurs.lv's Latvian words in use, and its nouns carry `plural`
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
