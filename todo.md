@@ -231,12 +231,20 @@ Give the frames a pick enters one owner: a value the pick holds and hands to a r
 Touches:
 
 - `internal/engine/render/env.go`: `frameStack`, `rewordFakes`, `renderEnv`, `openFrames`, `openFrames.with`, `openFrames.of`, `freshFrames`, `namingScope`, `renderEnv.inScopeOf`, `renderEnv.entered`, `renderEnv.frameOf`
-- `internal/engine/render/pick.go`: `namedPick`, `namedPick.framesFrom`, `namedPick.readPath`, `namedPick.renderAt` (small), `drawMemo`, `levelDraw`, `drawMemo.keep`, `drawMemo.stepDownPins`, `drawMemo.variantOf`, `drawMemo.enteredFrame`, `newPickFrame`, `pickFrame`, `readUnder` (small), `readName` (small)
-- `internal/engine/render/render.go`: `Pinned` (small), `Once` (small), `renderTemplate` (small), `renderRepeat` (small), `readReference` (small)
+- `internal/engine/render/pick.go`: `namedPick`, `namedPick.framesFrom`, `namedPick.readPath`, `namedPick.renderAt` (small), `drawMemo`, `levelDraw`, `drawMemo.keep`, `drawMemo.stepDownPins`, `drawMemo.variantOf`, `drawMemo.enteredFrame`, `newPickFrame`, `pickFrame`, `readUnder`, `readName` (small), `keptInPick`, `placedInPick`
+- `internal/engine/render/render.go`: `Pinned` (small), `Once` (small), `renderTemplate` (small), `renderRepeat` (small), `readReference` (small), `readField`
 - `internal/engine/render/record.go`: `Record` (small)
 - `internal/engine/render/columnread.go`: `readColumnItem` (small)
 - `internal/engine/render/reword.go`: `drawReword` (small), `reword` (small), `fakeWord` (small)
 - `internal/engine/doc.go`: `lines 10-26` (small)
+- `internal/engine/render/path.go`: `drawAcrossTables`, `keptDraws.pinsBelow`, `keptDraws.stepDownPins`
+- `internal/engine/fence/names/refusefreshdraw.go`: `refuseFreshDraw`, `refsReached`, `pickLevel`, `nameRead.levelOf`, `pickLevel.canDiffer`, `nameRead.readingFromPick`, `nameRead.readsFromPick`, `pickReads.readAddressing`
+- `internal/engine/fence/names/pickreads.go`: `pickReads.addresses` (small)
+- `internal/engine/fence/names/route.go`: `route.placedAt` (small)
+- `internal/engine/tree/pick.go`: `PlacedRead`, `ReadAt`, `PlacedRead.Key`, `PlacedRead.Levels`, `LandsInPick`, `AddressedKeys` (small)
+- `internal/engine/tree/name.go`: `NameTarget.Addressed`
+- `internal/engine/load/pick_test.go`: `TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel` (small)
+- `table_test.go`: `TestTableStepUpAndDownDrawsAreSeeded`
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
