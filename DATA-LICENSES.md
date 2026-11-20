@@ -552,7 +552,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   data states. The agency's table is under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) too:
   Lithuania's open data portal publishes it in the
   dataset [Nuolatinių gyventojų skaičius metų pradžioje](https://data.gov.lt/datasets/2689/) under
-  that licence. It gives the `population` columns of `region.tsv`, `municipality.tsv` and
+  that licence. The table gives the `population` columns of `region.tsv`, `municipality.tsv` and
   `locality.tsv`
 - Attribution: "VĮ Registrų centras, Adresų registras": the page asks a user to name the data's
   author, to link the licence and to say whether changes were made, and gives no wording. For the

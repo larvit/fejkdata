@@ -1,5 +1,5 @@
 """Rebuild data/geo/LT/*.tsv and address.json from the Centre of Registers' Address Register and the State Data
-Agency's residents.
+Agency's count of residents.
 
     data-import/geo-lt.py [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]
 
@@ -31,7 +31,7 @@ import geo
 import source
 
 FILE = "https://www.registrucentras.lt/aduomenys/?byla={}.csv"
-# The State Data Agency's residents of each municipality at the start of YEAR, table M3010202 of indicator S3R167.
+# The State Data Agency's count of each municipality's residents at the start of YEAR, table M3010202 of indicator S3R167.
 YEAR = 2026
 RESIDENTS = f"https://osp-rs.stat.gov.lt/rest_json/data/S3R167_M3010202?startPeriod={YEAR}&endPeriod={YEAR}"
 # The table's codes for men and women together and for every age together.
