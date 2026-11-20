@@ -5,6 +5,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), with headings 
 their brackets. A release's `Breaking` section comes first and names each rejected spelling
 with its replacement, and each removed path, column or flag.
 
+## Unreleased
+
+### Added
+
+- The README's CLI section gains "For coding agents": a command to find a path with `--list`, a one-line render, the
+  fix an error names for a reference missing its leading slash, `--seed` and `--today` to repeat a run, and a snippet
+  to paste into a project's `AGENTS.md`.
+
 ## 0.7.0 - 2026-11-20
 
 ### Breaking
