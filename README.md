@@ -5,13 +5,20 @@
 [![Release](https://img.shields.io/github/v/release/larvit/fejkdata)](CHANGELOG.md)
 
 Most fake data is a bag of unrelated values: a man named Anna, a postal code from another
-town, an id that no checker accepts. fejkdata makes fake test data whose fields agree, so a
-row still passes when your code checks it. Docs and examples: [fejkdata.dev](https://fejkdata.dev).
+town, an id that no checker accepts. fejkdata, a CLI and a Go library, makes fake test data
+whose fields agree, so a row still passes when your code checks it. Docs and examples:
+[fejkdata.dev](https://fejkdata.dev).
 
 ```sh
 brew install larvit/tap/fejkdata
-echo '{/sv_SE.person}' | fejkdata                                    # Sara Eriksson
-fejkdata --format csv --repeat 1000000 < person.json > people.csv    # a million rows like the one below
+echo '{/sv_SE.person}' | fejkdata    # Sara Eriksson
+```
+
+`person.json`, the eleven-line template under [CSV and SQL seed data](#csv-and-sql-seed-data),
+fills a file with rows like the one below:
+
+```sh
+fejkdata --format csv --repeat 1000000 < person.json > people.csv
 fejkdata --format sql --table people --repeat 1000000 < person.json > people.sql
 ```
 
@@ -20,24 +27,26 @@ email,first,last,locality,personnummer,postal-code,sex,street
 viktoria.larsson@example.com,Viktoria,Larsson,Östersund,501120-2388,831 73,kvinna,Kärrvägen 1
 ```
 
-`person.json` is the eleven-line template under [CSV and SQL seed data](#csv-and-sql-seed-data). What the row shows:
+What sets it apart:
 
-1. **Correlated fields.** The template draws a sex, a last name and an address once each, and every column reads
-   those draws. Viktoria is a woman's name, `kvinna` is Swedish for woman, the personnummer, Sweden's
-   national id, is a woman's, and 831 73 is a postal code of Östersund.
-2. **Valid national ids that no real person holds.** The personnummer passes the real check,
+1. **Correlated fields.** The template draws a sex, a last name and an address once each, and
+   every column reads those draws. Viktoria is a woman's name, and `kvinna` is Swedish for
+   woman. The personnummer is Sweden's national id, and this one is a woman's. 831 73 is a
+   postal code of Östersund.
+2. **Valid national ids that no real person holds.** The personnummer passes its check digit,
    and comes from the series the Swedish Tax Agency keeps for tests. Norwegian, Finnish and
-   German ids come from such a series too. Other countries' ids pass their check and may be
-   a living person's: [Built-in data](#built-in-data) says which.
-3. **CSV and SQL test data, one value or millions of rows.** The same JSON template prints
-   one value or a million rows of seed data, as CSV, SQL `INSERT`s, PostgreSQL `COPY`, JSON
-   or NDJSON. One binary carries the data, and nothing is fetched.
-4. **Errors that name the fix.** A mistake stops the run before the first row, with exit 2
-   and one line saying what is wrong. `{sv_SE.person}` fails with
+   German ids come from such a series too, which a few strict checkers refuse. Other
+   countries' ids are valid and may be a living person's. [Shipped data](#shipped-data) says
+   which, and which checker refuses what.
+3. **CSV and SQL test data from one template.** The same JSON template prints one value or
+   a million rows of seed data, as CSV, SQL `INSERT`s, PostgreSQL `COPY`, JSON or NDJSON.
+   One binary carries the data, with no dependencies, and nothing is fetched.
+4. **Errors that name the fix.** A mistake in a template stops the run before the first row,
+   with exit 2 and one line saying what is wrong. `{sv_SE.person}` fails with
    `write {/sv_SE.person} to reference the data`, which a coding agent fixes in one retry.
 
-Locale-aware fake data for tests and fixtures, from JSON templates: US English, Swedish,
-German, French and the other [locales](#built-in-data) each ship persons, addresses, national
+Locale-aware fake data for tests and fixtures, from JSON templates. US English, Swedish,
+German, French and the other [locales](#shipped-data) each ship persons, addresses, national
 ids, phone numbers, companies, emails and dates.
 
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags ([Go tests](#go-tests)).
@@ -52,19 +61,17 @@ ids, phone numbers, companies, emails and dates.
 
 ## Why fejkdata
 
-What each tool's own docs say, read on 2026-11-21. Where a cell says the docs don't say, the
-pages read are the ones listed under the table.
-
 | | fejkdata | [Faker](https://fakerjs.dev) (JavaScript) | [gofakeit](https://github.com/brianvoe/gofakeit) | [Mockaroo](https://www.mockaroo.com) |
 |---|---|---|---|---|
 | Correlated fields | One named draw feeds every field that reads it | "all properties are just randomly generated" until your code passes one result to the next call, as in `firstName(sex)` | A template binds one `Person` and reads its fields; the docs don't say that a struct tag can read another tag's draw | First name, gender, last name, email and username agree, and a formula reads other fields |
-| Valid national ids, and postal codes that match the town | Ids for ten countries, four from the issuer's test series; a postal code and a street from one town | No national id; `zipCode` takes a state, not a city | `SSN` and `EIN`, each "a random" number; the docs don't say that `Zip` matches `City` | Country, city, state and postal code agree; the pages read name no national id |
-| CSV and SQL test data | One template and one command: CSV, SQL, `COPY`, JSON, NDJSON, any number of rows | No CLI and no file output: "you most likely need to write a factory function" | Go functions `CSV`, `JSON`, `XML` and `SQL`; its CLI runs one function, `-loop` times | CSV, JSON, SQL and Excel; 1,000 rows a file on the free plan, 10 million on the largest hosted one |
-| Errors | At load, before the first row, exit 2, naming what is wrong | Thrown at run time where a locale lacks the data; "we don't have dedicated error messages for wrong parameter types" | `Template`, `CSV` and `SQL` return an `error`; the docs don't say when | The pages read don't say |
+| Valid national ids, and postal codes that match the town | Ids for ten countries, four from the issuer's test series; a postal code of the address's own town | No national id; `zipCode` takes a state, not a city | `SSN` and `EIN`, each "a random" number; the docs don't say that `Zip` matches `City` | Country, city, state and postal code agree; the pages read name no national id |
+| CSV and SQL test data | One template and one command: CSV, SQL, `COPY`, JSON, NDJSON, up to 1,048,576 rows a run | No CLI and no file output: "you most likely need to write a factory function" | Go functions `CSV`, `JSON`, `XML` and `SQL`; its CLI runs one function, `-loop` times | CSV, JSON, SQL and Excel; 1,000 rows a file on the free plan, 10 million on the largest hosted one |
+| Errors | Before the first row, naming what is wrong; a mistake in a template exits 2 | Thrown at run time where a locale lacks the data; "we don't have dedicated error messages for wrong parameter types" | `Template`, `CSV` and `SQL` return an `error`; the docs don't say when | The pages read don't say |
 | Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
-| Runtime | One binary, or a Go library; no network | Node.js 20 or above, or a browser | A Go program | Its web service, or its API with a key |
+| Runtime | One binary, or a Go library; no network | Node.js 20 or above, or a browser | A Go program, or its CLI | Its web service, or its API with a key |
 
-Pages read. Faker: [Getting started](https://fakerjs.dev/guide/), [Usage](https://fakerjs.dev/guide/usage),
+Each cell states what the tool's own docs said on 2026-11-21. Where a cell says the docs don't
+say, these are the pages read. Faker: [Getting started](https://fakerjs.dev/guide/), [Usage](https://fakerjs.dev/guide/usage),
 [Localization](https://fakerjs.dev/guide/localization), [the API index](https://fakerjs.dev/api/) and its
 [Person](https://fakerjs.dev/api/person) and [Location](https://fakerjs.dev/api/location) pages. gofakeit: its
 [README](https://github.com/brianvoe/gofakeit#readme), [its CLI's README](https://github.com/brianvoe/gofakeit/tree/master/cmd/gofakeit)
@@ -647,12 +654,12 @@ template calls. `--no-shipped-data` leaves out the modules passed to
 
 ## Data
 
-### Built-in data
+### Shipped data
 
 - **Locales:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails, dates and addresses, `lt_LT`'s names, persons, asmens kodai, phone numbers, companies, emails, dates and addresses, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails, dates and addresses, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places, every German
-  place with a postal code, every French commune with people and an address, and every Estonian, Latvian and Lithuanian place with a street. Each address takes its postal code from one town, and its street too, save in [France](docs/locales/geo.md#french-places) and [Germany](docs/locales/geo.md#german-places), whose streets are invented.
+  place with a postal code, every French commune with people and an address, and every Estonian, Latvian and Lithuanian place with a street. Each address takes its postal code from one town, and its street too, save in [France](docs/locales/geo.md#french-places) and [Germany](docs/locales/geo.md#german-places), whose streets are invented. A Swedish street may in fact lie in a [neighbouring postal town](docs/locales/geo.md#swedish-places).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
@@ -1828,7 +1835,7 @@ How the README serves goal 11:
   state.
 - The quick starts show the CLI and the library side by side, each rendering the same
   person.
-- A table of the shipped data follows: every path, an example value, its kind and its
+- A table of the shipped data will follow: every path, an example value, its kind and its
   source.
 - Recipes show common tasks end to end, such as filling a database or a Go struct.
 - Edge cases and a category's caveats sit in the reference sections, below what a first
@@ -2141,7 +2148,7 @@ A pull request that adds a locale ships, in this order:
    [the paragraph on a change to the shipped data](#development) says.
 5. A raised `base` in `TestNoNewAllocRegression` (`perf_test.go`), where the new manifest paths
    take `New` past its 10% slack.
-6. Its page, `docs/locales/<name>.md`, with a `#` heading naming the folder and a `##` heading per feature; its row in the "Locale pages" table, listing those headings; and its name in the "Locales" bullet of [Built-in data](#built-in-data).
+6. Its page, `docs/locales/<name>.md`, with a `#` heading naming the folder and a `##` heading per feature; its row in the "Locale pages" table, listing those headings; and its name in the "Locales" bullet of [Shipped data](#shipped-data).
 7. A `CHANGELOG.md` entry under `Unreleased`.
 8. A [`DATA-LICENSES.md`](DATA-LICENSES.md) entry for each dataset the locale adds.
 
