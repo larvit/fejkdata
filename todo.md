@@ -6,20 +6,18 @@
 
 `Bar = 0`
 
-`Next ID = 542`
+`Next ID = 543`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 539 | 0.7.1 |  | owner | **Rewrite the README so its first screen says what sets fejkdata apart, in words a tired reader gets on one pass, and so searches and language models match it to the problems it solves.** | 3 | 2 | 1 | 4 | 7 | 1.1 by 7, 11 by 6 | 0.7 |
-| 540 | 0.7.1 | 539 |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
+| 540 | 0.7.1 |  |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
 | 537 | 0.7.1 |  |  | **Add a "For coding agents" section: `--list` to find a path, one-line renders, exit 2 with an error naming the fix, `--seed` and `--today` to repeat a run, and a snippet to paste into a project's `AGENTS.md`.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4, 11 by 4 | 4.5 |
-| 536 | 0.7.1 |  |  | **Add a "Why fejkdata" table setting it beside Faker, gofakeit and Mockaroo, each cell checked against that tool's own docs.** | 2 | 2 | 1 | 3 | 3 | 1.1 by 5, 11 by 3 | 3.5 |
 | 538 | 0.7.1 |  |  | **Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
 | 408 | 0.7.1 |  | owner | **List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
-| 535 | 0.7.1 |  | owner | **Name coding agents in `## Audience`, and widen goal 1.1 to "developers, and the coding agents working for them, hear about it where they look".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 2 | 1.5 |
 | 541 | 0.7.2 | 408 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
+| 542 | 0.7.2 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.2 |
 | 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
 | 532 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 6.1 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
@@ -218,24 +216,6 @@
 
 ## Details
 
-### 539. Rewrite the README so its first screen says what sets fejkdata apart, in words a tired reader gets on one pass, and so searches and language models match it to the problems it solves.
-
-The maintainer, 2026-11-21: put a Fable agent on high effort on it. The README must turn up in searches and language-model matches once indexed, put what matters most to the audience first, and read fluently and plainly, never like a language model wrote it, for a tired, overloaded reader, without dropping any fact.
-
-Lead with what the alternatives lack, in this order:
-
-1. Fields that agree: one named pick feeds every field, so a row's name, sex, personnummer, email and address fit together.
-2. Ids a real checker accepts that no real person holds, from the issuers' test series where one exists, and postal codes that match their town and street.
-3. One JSON template and one command give a value or millions of rows, as CSV, SQL, `COPY` or NDJSON, from a single binary.
-4. A mistake fails at load with an error that names the fix, which a coding agent fixes in one retry.
-
-"Locale-aware" stops being the lead, and the long "Data built in" list leaves the top. Link fejkdata.dev near the top. Put the phrases people search for in headings and the first lines: valid national ids, CSV and SQL test data, correlated fields, seed data. A panel of fresh readers, seated as the personas in `## Audience`, reads candidate first screens and picks the one they understand fastest; each claim stays true of what ships. Rewrite `### Documentation`, the method section, to match. The README examples still run under `readme_test.go`, and `dockerhub/description.txt` keeps opening a README sentence.
-
-Touches:
-
-- `README.md`: `# fejkdata`, `## Install`, `## Quick start`, `### Bulk fixtures`, `### Go tests`, `### Replacing real data with fakes`, `### Documentation`
-- `readme_test.go`: `TestDockerhubDescriptionOpensAReadmeSentence` (small)
-
 ### 540. Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.
 
 The maintainer, 2026-11-21: `--help` needs updating, with a mechanical trigger so it isn't forgotten again. Today it opens with the grammar and never says what the tool is for, or that `--list` finds a path. Tests already hold every flag in the help and the README, and run the help's `echo` examples. Nothing checks the four README headings it links (`#names`, `#functions`, `#data-format`, `#your-own-data`), which item 539 may rename. Add a test that turns each `DOCS#…` into the GitHub slug of a README heading, and one that the help's opening sentence opens a README sentence, as `TestDockerhubDescriptionOpensAReadmeSentence` does for Docker Hub. The help is also a custom CLI's: its examples name no path a custom CLI may not carry, as the test on `usage`'s references already requires, so a lead naming fejkdata's own data prints only for fejkdata's own CLI, or stays true for any.
@@ -252,14 +232,6 @@ Written for the coding agent `## Audience` names. Its commands are examples `rea
 Touches:
 
 - `README.md`: `## CLI`
-
-### 536. Add a "Why fejkdata" table setting it beside Faker, gofakeit and Mockaroo, each cell checked against that tool's own docs.
-
-Rows are the four points the README leads with, plus install and runtime. A cell about another tool states what that tool's docs state, and names the page read, as `AGENTS.md` asks of prose naming a source. No speed row until item 473's benchmark ships.
-
-Touches:
-
-- `README.md`: `# fejkdata`
 
 ### 538. Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.
 
@@ -280,14 +252,6 @@ Touches:
 - `readme_test.go`
 - `release-tooling/data-listing.go`
 
-### 535. Name coding agents in `## Audience`, and widen goal 1.1 to "developers, and the coding agents working for them, hear about it where they look".
-
-The maintainer approved both on 2026-11-21. A coding agent writes templates and runs the CLI on a developer's behalf; it may rely on one shell line, on `--list` naming every path, and on a load error, exit 2, that names the fix. The items rewriting the README, `--help`, the GitHub and Docker Hub texts are written for this reader beside the people already named.
-
-Touches:
-
-- `README.md`: `## Audience`, `## Goals` (small)
-
 ### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
 
 The maintainer, 2026-11-21: automate fejkdata.dev's deployment from fejkdata's own; fejkdata 0.7.2 holds fejkdata's side, and fejkdata.dev's 0.1.2 the site's side, which rebuilds the WebAssembly and the data grid from item 408's listing at the named release. The site lives on gitea.larvit.se, so the step calls its Actions API with a token the maintainer creates and stores as a GitHub secret. Patches CI cuts for a Go or module update trigger it too. A failed call fails no release: it only reports.
@@ -295,6 +259,15 @@ The maintainer, 2026-11-21: automate fejkdata.dev's deployment from fejkdata's o
 Touches:
 
 - `.github/workflows/packages.yml`
+
+### 542. Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.
+
+CodeRabbit found it on PR 476: `{` piped to the CLI exits 2 with `unterminated '{' in "{\n"` and only `try 'fejkdata --help'`, which names no fix, against goal 5. Keep the word "unterminated", which `internal/grammar/format_test.go` and `cli/input_test.go` assert, and add a CLI test on the new text. Once it ships, the README's coding-agent bullet may say the exit 2 error names the fix.
+
+Touches:
+
+- `internal/grammar/format.go`
+- `cli/input_test.go`
 
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
