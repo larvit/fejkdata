@@ -3,22 +3,21 @@ import json
 import unittest
 from typing import Any
 
-from geo_test import script
-
-word_et = script("word-et")
+import wikidata_lexemes
 
 NOMINATIVE = "Q131105"
 PLURAL = "Q146786"
 SINGULAR = "Q110786"
 PARTITIVE = "Q857325"
+FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
 
 
-def form(value: str, *features: str) -> dict[str, Any]:
-    return {"representations": {"et": {"language": "et", "value": value}}, "grammaticalFeatures": list(features)}
+def form(value: str, *features: str, code: str = "et") -> dict[str, Any]:
+    return {"representations": {code: {"language": code, "value": value}}, "grammaticalFeatures": list(features)}
 
 
-def lexeme(category: str, lemma: str, forms: list[dict[str, Any]] | None = None, language: str = "Q9072") -> dict[str, Any]:
-    return {"type": "lexeme", "lemmas": {"et": {"language": "et", "value": lemma}}, "lexicalCategory": category, "language": language, "forms": forms or []}
+def lexeme(category: str, lemma: str, forms: list[dict[str, Any]] | None = None, language: str = "Q9072", code: str = "et") -> dict[str, Any]:
+    return {"type": "lexeme", "lemmas": {code: {"language": code, "value": lemma}}, "lexicalCategory": category, "language": language, "forms": forms or []}
 
 
 def dump(*lexemes: dict[str, Any]) -> bytes:
@@ -27,19 +26,8 @@ def dump(*lexemes: dict[str, Any]) -> bytes:
     return gzip.compress(lines.encode())
 
 
-def drawn(*lexemes: dict[str, Any]) -> list[tuple[str, str, str]]:
-    return list(word_et.candidates(dump(*lexemes)))
-
-
-class Spelled(unittest.TestCase):
-    def test_lower_case_letters_alone_are_a_word(self) -> None:
-        for part in ["noun", "verb", "adj", "adv"]:
-            for word in ["maja", "õun", "šokolaad"]:
-                self.assertTrue(word_et.spelled(word, part), word)
-
-    def test_a_capital_a_hyphen_a_digit_a_modifier_letter_or_nothing_is_not(self) -> None:
-        for word in ["Tallinn", "-ki", "b2b", "mᶜˣ", "t'ee", "", "maja maja"]:
-            self.assertFalse(word_et.spelled(word, "noun"), word)
+def drawn(*lexemes: dict[str, Any], language: str = "Q9072", code: str = "et") -> list[tuple[str, str, str]]:
+    return list(wikidata_lexemes.candidates(dump(*lexemes), language, code, FORMS))
 
 
 class Candidates(unittest.TestCase):
@@ -61,7 +49,11 @@ class Candidates(unittest.TestCase):
     def test_a_lexeme_of_another_language_is_left_out(self) -> None:
         self.assertEqual(drawn(lexeme("Q1084", "house", language="Q1860"), lexeme("Q1084", "talo", language="Q1412")), [])
 
-    def test_a_line_that_is_not_a_lexeme_is_skipped(self) -> None:
+    def test_the_language_and_its_code_are_the_caller_s(self) -> None:
+        german = lexeme("Q1084", "Haus", [form("Häuser", NOMINATIVE, PLURAL, code="de")], language="Q188", code="de")
+        self.assertEqual(drawn(german, lexeme("Q1084", "maja"), language="Q188", code="de"), [("noun", "Haus", "Häuser")])
+
+    def test_a_dump_with_no_lexeme_has_no_candidate(self) -> None:
         self.assertEqual(drawn(), [])
 
 
