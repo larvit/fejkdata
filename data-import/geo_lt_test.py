@@ -150,6 +150,12 @@ class Weighed(unittest.TestCase):
         self.assertEqual([r.municipalities[c]["population"] for c in ("13", "62")], [610, 90])
         self.assertEqual([r.regions[c]["population"] for c in ("10", "9")], [610, 90])
 
+    def test_a_region_sums_every_municipality_in_it(self) -> None:
+        utena = {"SAV_KODAS": "82", "TIPAS": "savivaldybė", "TIPO_SANTRUMPA": "sav.", "VARDAS_K": "Utenos rajono", "ADM_KODAS": "9"}
+        r = geo_lt.Register(APSKRITYS, [*SAVIVALDYBES, utena], VIETOVES, GATVES)
+        geo_lt.weighed(r, geo_lt.tally([], r, collections.Counter()), {"13": 610, "62": 90, "82": 200})
+        self.assertEqual([r.regions[c]["population"] for c in ("10", "9")], [610, 290])
+
     def test_a_locality_with_no_count_shares_what_its_municipalitys_counted_localities_leave(self) -> None:
         r = geo_lt.Register(APSKRITYS, SAVIVALDYBES, [*VIETOVES, {"GYV_KODAS": "14416", "VARDAS": "Gojus", "SAV_KODAS": "62"}], GATVES)
         counted = geo_lt.tally([address("5", "", "14415", "LT-33264")], r, collections.Counter())
