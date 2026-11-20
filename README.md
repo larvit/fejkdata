@@ -691,9 +691,9 @@ country writes them:
 |---|---|---|
 | `da_DK` | `1.234,50 kr.` | `15.04` |
 | `de_DE` | `1.234,50 €` | `15:04` |
+| `et_EE`, `fr_FR`, `lt_LT`, `lv_LV` | `1 234,50 €` | `15:04` |
 | `fi_FI` | `1 234,50 €` | `15.04` |
 | `nb_NO`, `nn_NO` | `1 234,50 kr` | `15:04` |
-| `et_EE`, `fr_FR`, `lt_LT`, `lv_LV` | `1 234,50 €` | `15:04` |
 
 A `url` and a `username` are made of the locale's own words, in ASCII, and a `color` is a colour name in the locale's
 language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `weekday` are Unicode CLDR's stand-alone
