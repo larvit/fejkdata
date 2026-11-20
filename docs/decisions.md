@@ -1739,6 +1739,22 @@ and adjectives beside `on`, `-ma` infinitives after `hakkama`, and adverbs, none
 lack.
 Valid while no open source of Estonian words holds as many nouns with a plural as Wikidata's lexemes.
 
+## `lv_LV.word` holds Tēzaurs.lv's Latvian words in use, and its nouns carry `plural`
+
+2026-11-20, Lilleman auf Larv. Goal 3.2.
+
+The tables hold the nouns, verbs, adjectives and adverbs of Tēzaurs.lv's wordforms (Spring 2026, CC BY-SA 4.0), each with
+a lemma of lower-case letters alone: about 51,000 nouns, 20,500 verbs, 8,700 adjectives and 7,500 adverbs. A lemma
+that carries a usage label calling it regional, a dialectism, obsolete, historical or outdated is left out, since Tēzaurs.lv
+holds many such words and a fake sentence should read as today's Latvian. The labels of colloquial, slang and rude
+words stay, as the project principle on a locale's `word` keeps rude words. A verb is an infinitive, ending in `-t` or
+`-ties`, since Tēzaurs.lv files some participles as verbs. A noun carries its nominative plural, such as `mājas`, and
+one with none is left out. Wikidata's Latvian lexemes (CC0) hold 300 nouns, and the English Wiktionary's Latvian
+entries, as kaikki.org extracts them (CC BY-SA 4.0), 5,200 nouns with a plural, so neither reaches the tens of thousands
+the other locales hold. `lv_LV.sentence` builds on plural nouns, infinitives and adverbs, which need no gender, and
+puts an adjective after `tas ir`, which agrees with a masculine singular noun alone.
+Valid while no open source of Latvian words holds as many nouns with a plural as Tēzaurs.lv.
+
 ## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 
 2026-11-04, the maintainer. Goals 4.3 and 4.6.

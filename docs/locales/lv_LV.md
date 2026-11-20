@@ -1,6 +1,6 @@
 # `lv_LV`
 
-`lv_LV`, Latvian, carries `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `person`, `personas-kods`, `phone`, `price`, `sex`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `sieviete` and `vīrietis`, `title` is
+`lv_LV`, Latvian, carries `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `paragraph`, `person`, `personas-kods`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday` and `word`. `sex` is `sieviete` and `vīrietis`, `title` is
 `Dr.` and `prof.`, drawn whatever the sex. `{/lv_LV.person}` renders e.g. `Anna Bērziņa`.
 
 `first-name` holds the 2,000 commonest first given names of each sex, each weighted by the persons bearing it in the
@@ -90,3 +90,21 @@ A number is valid, not real: it lies in a range the plan allocates, and a real s
 reserve any range for fiction or tests, so don't call or text a drawn number. The plan doesn't split either range
 further, but Google's libphonenumber refuses some blocks of the mobile range 23: it rejects about one mobile number
 in a hundred that fejkdata draws.
+
+## Latvian words
+
+`lv_LV.word` draws evenly from about 88,000 words of Tēzaurs.lv: the nouns, verbs, adjectives and adverbs whose lemma is
+lower-case letters alone and that carry no label calling them regional, a dialectism, obsolete, historical or outdated. A
+verb is an infinitive, ending in `-t` or `-ties`. Tēzaurs.lv has no frequencies, so a word may be rare.
+`lv_LV.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech, and `lv_LV.word.noun.plural` draws a noun and
+prints its nominative plural, such as `mājas`. A noun with no plural in lower-case letters alone is left out. Bind a noun
+to read it and its plural from one pick: `{/lv_LV.word.noun as n}{n} {n.plural}` prints `iedaliena iedalienas`.
+
+Rude words stay in the tables, so read the output before showing it to anyone. `lv_LV.sentence` builds on plural nouns,
+infinitives and adverbs, and its adjectives follow `tas ir`, so it needs no gender and no agreement:
+`Tad vingrojumi sāka glāsaini nobraukāt.` and `Vai skalbes var ieteicami atdalīt?` Its words are drawn at random, so a
+sentence may be senseless or even ungrammatical, such as an adjective that doesn't suit its noun. `lv_LV.paragraph` joins
+three to six sentences.
+A program showing these words credits "© Artificial Intelligence Laboratory, IMCS, University of Latvia, 2009–2026"
+with links to [the licence](https://creativecommons.org/licenses/by-sa/4.0/) and to [tezaurs.lv](https://tezaurs.lv),
+says that the words were changed from Tēzaurs.lv's entries, and shares any change to them under the same licence.
