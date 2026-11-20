@@ -546,7 +546,7 @@ func readmeStruct(t *testing.T, block string) reflect.Type {
 
 func TestReadmeBulkQuickStart(t *testing.T) {
 	t.Parallel()
-	section := readmeSection(t, readme(t), "### Bulk fixtures")
+	section := readmeSection(t, readme(t), "### CSV and SQL seed data")
 	block := jsonBlock.FindStringSubmatch(section)
 	if block == nil {
 		t.Fatal("README's bulk quick start has no json record")
@@ -567,7 +567,7 @@ func TestReadmeBulkQuickStart(t *testing.T) {
 }
 
 func TestReadmeBulkQuickStartOutput(t *testing.T) {
-	section := readmeSection(t, readme(t), "### Bulk fixtures")
+	section := readmeSection(t, readme(t), "### CSV and SQL seed data")
 	block := jsonBlock.FindStringSubmatch(section)
 	out := textBlock.FindStringSubmatch(section)
 	if block == nil || out == nil {
@@ -586,6 +586,32 @@ func TestReadmeBulkQuickStartOutput(t *testing.T) {
 	}
 	if got, want := r.CSVHeader()+"\n"+r.CSVLine(), strings.TrimSpace(out[1]); got != want {
 		t.Errorf("README prints %q for --seed 1 --today 2026-01-15 --format csv, it renders %q", want, got)
+	}
+}
+
+func TestReadmeLeadShowsTheRowItsQuickStartPrints(t *testing.T) {
+	doc := readme(t)
+	shown := textBlock.FindStringSubmatch(readmeSection(t, doc, "# fejkdata"))
+	printed := textBlock.FindStringSubmatch(readmeSection(t, doc, "### CSV and SQL seed data"))
+	if shown == nil || printed == nil {
+		t.Fatal("README's lead or its bulk quick start lost its printed output")
+	}
+	if shown[1] != printed[1] {
+		t.Errorf("README's lead shows %q, its bulk quick start prints %q", shown[1], printed[1])
+	}
+}
+
+func TestReadmeLeadQuotesTheErrorItsMistakeRaises(t *testing.T) {
+	quoted := regexp.MustCompile("`(\\{[^`]+\\})` fails with `([^`]+)`").FindStringSubmatch(readmeSection(t, readme(t), "# fejkdata"))
+	if quoted == nil {
+		t.Fatal("README's lead no longer quotes a mistake and its error")
+	}
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.FakeTemplate(quoted[1]); err == nil || !strings.Contains(err.Error(), quoted[2]) {
+		t.Errorf("README's lead says %s fails with %q, it fails with %v", quoted[1], quoted[2], err)
 	}
 }
 
