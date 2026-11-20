@@ -6,19 +6,26 @@
 
 `Bar = 0`
 
-`Next ID = 535`
+`Next ID = 542`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 539 | 0.7.1 |  | owner | **Rewrite the README so its first screen says what sets fejkdata apart, in words a tired reader gets on one pass, and so searches and language models match it to the problems it solves.** | 3 | 2 | 1 | 4 | 7 | 1.1 by 7, 11 by 6 | 0.7 |
+| 540 | 0.7.1 | 539 |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
+| 537 | 0.7.1 |  |  | **Add a "For coding agents" section: `--list` to find a path, one-line renders, exit 2 with an error naming the fix, `--seed` and `--today` to repeat a run, and a snippet to paste into a project's `AGENTS.md`.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4, 11 by 4 | 4.5 |
+| 536 | 0.7.1 |  |  | **Add a "Why fejkdata" table setting it beside Faker, gofakeit and Mockaroo, each cell checked against that tool's own docs.** | 2 | 2 | 1 | 3 | 3 | 1.1 by 5, 11 by 3 | 3.5 |
+| 538 | 0.7.1 |  |  | **Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
+| 408 | 0.7.1 |  | owner | **List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
+| 535 | 0.7.1 |  | owner | **Name coding agents in `## Audience`, and widen goal 1.1 to "developers, and the coding agents working for them, hear about it where they look".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 2 | 1.5 |
+| 541 | 0.7.2 | 408 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
 | 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
 | 532 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 6.1 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
 | 256 | 0.8.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 3.0 |
-| 254 | 0.8.0 |  |  | **Say in the docs which of three kinds each category's values are: real, valid or invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 3 by 8 | 2.9 |
 | 220 | 0.8.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.9 |
 | 24 | 0.8.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.8 |
 | 30 | 0.8.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 2.7 |
@@ -67,7 +74,6 @@
 | 46 | 0.8.0 |  |  | **Report the same error every load for a table with two bad options.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
 | 51 | 0.8.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
 | 115 | 0.8.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 408 | 0.8.0 |  |  | **List every shipped path in the README's Data section with an example value and whether it is real, plausible or valid, and where it comes from.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
 | 522 | 0.8.0 |  | decision | **Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.** | 2 | 2 | 2 | 4 | 4 | 3.2 by 6 | 1.7 |
 | 259 | 0.8.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 1.6 |
 | 267 | 0.8.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.5 |
@@ -127,7 +133,6 @@
 | 470 | 0.11.0 | 465 | decision | **Hold a parsed block of a table as its text and its row offsets, not one string per cell.** | 3 | 1 | 3 | 5 | 6 | 1 by 2 | 0.2 |
 | 348 | 1.0.0 |  | question | **Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 3 | 2.3 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 4.0 |
-| 70 | 1.0.0 |  |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 2 | 2 | 5 | 6 | 1 by 6 | 0.7 |
 | 396 | 1.1.0 |  | question | **Decide whether `fejkdata` writes Go struct types, and TypeScript types for the npm package, from a record's columns.** | 1 | 1 | 1 | 1 | 1 | 1 by 2 | 1.6 |
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 | 357 | 1.2.0 |  | question | **Create the `@larvit` organisation on npm, and make this repository's Packages workflow the trusted publisher of `@larvit/fejkdata`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.8 |
@@ -213,6 +218,84 @@
 
 ## Details
 
+### 539. Rewrite the README so its first screen says what sets fejkdata apart, in words a tired reader gets on one pass, and so searches and language models match it to the problems it solves.
+
+The maintainer, 2026-11-21: put a Fable agent on high effort on it. The README must turn up in searches and language-model matches once indexed, put what matters most to the audience first, and read fluently and plainly, never like a language model wrote it, for a tired, overloaded reader, without dropping any fact.
+
+Lead with what the alternatives lack, in this order:
+
+1. Fields that agree: one named pick feeds every field, so a row's name, sex, personnummer, email and address fit together.
+2. Ids a real checker accepts that no real person holds, from the issuers' test series where one exists, and postal codes that match their town and street.
+3. One JSON template and one command give a value or millions of rows, as CSV, SQL, `COPY` or NDJSON, from a single binary.
+4. A mistake fails at load with an error that names the fix, which a coding agent fixes in one retry.
+
+"Locale-aware" stops being the lead, and the long "Data built in" list leaves the top. Link fejkdata.dev near the top. Put the phrases people search for in headings and the first lines: valid national ids, CSV and SQL test data, correlated fields, seed data. A panel of fresh readers, seated as the personas in `## Audience`, reads candidate first screens and picks the one they understand fastest; each claim stays true of what ships. Rewrite `### Documentation`, the method section, to match. The README examples still run under `readme_test.go`, and `dockerhub/description.txt` keeps opening a README sentence.
+
+Touches:
+
+- `README.md`: `# fejkdata`, `## Install`, `## Quick start`, `### Bulk fixtures`, `### Go tests`, `### Replacing real data with fakes`, `### Documentation`
+- `readme_test.go`: `TestDockerhubDescriptionOpensAReadmeSentence` (small)
+
+### 540. Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.
+
+The maintainer, 2026-11-21: `--help` needs updating, with a mechanical trigger so it isn't forgotten again. Today it opens with the grammar and never says what the tool is for, or that `--list` finds a path. Tests already hold every flag in the help and the README, and run the help's `echo` examples. Nothing checks the four README headings it links (`#names`, `#functions`, `#data-format`, `#your-own-data`), which item 539 may rename. Add a test that turns each `DOCS#…` into the GitHub slug of a README heading, and one that the help's opening sentence opens a README sentence, as `TestDockerhubDescriptionOpensAReadmeSentence` does for Docker Hub. The help is also a custom CLI's: its examples name no path a custom CLI may not carry, as the test on `usage`'s references already requires, so a lead naming fejkdata's own data prints only for fejkdata's own CLI, or stays true for any.
+
+Touches:
+
+- `cli/cli.go`: `usage`, `help`
+- `cli/cli_test.go`: `TestHelpLinksTheDocsItIsGiven`
+
+### 537. Add a "For coding agents" section: `--list` to find a path, one-line renders, exit 2 with an error naming the fix, `--seed` and `--today` to repeat a run, and a snippet to paste into a project's `AGENTS.md`.
+
+Written for the coding agent `## Audience` names. Its commands are examples `readme_test.go` runs.
+
+Touches:
+
+- `README.md`: `## CLI`
+
+### 536. Add a "Why fejkdata" table setting it beside Faker, gofakeit and Mockaroo, each cell checked against that tool's own docs.
+
+Rows are the four points the README leads with, plus install and runtime. A cell about another tool states what that tool's docs state, and names the page read, as `AGENTS.md` asks of prose naming a source. No speed row until item 473's benchmark ships.
+
+Touches:
+
+- `README.md`: `# fejkdata`
+
+### 538. Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.
+
+The maintainer approves the exact texts before they go out: the GitHub settings change with `gh repo edit`, and the Docker Hub workflow publishes the two files once they merge. Topics take the phrases people search for, such as `test-data-generator`, `mock-data`, `synthetic-data`, `csv` and `sql`. Docker Hub's short description holds 100 characters.
+
+Touches:
+
+- `dockerhub/description.txt`
+- `dockerhub/overview.md`
+
+### 408. List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.
+
+The maintainer, 2026-11-21: list all the data available in the README, not necessarily at the top, and on fejkdata.dev too. Goal 3 says the docs say which kind each value is, but today that sits in prose spread over the Data section, and a reader can't scan for whether a path exists or what it prints. Generate the table, or test it, against what loads, so a new path can't ship without a row, and keep the example values seeded. Write the listing as a generated file in the repository, such as JSON beside the README, so fejkdata.dev reads it from the Go module at any version; a new exported name would need a minor. A panel of readers seated as the README's audience picks how the three kinds are spelt, as item 254 asked, which this item replaces. Fits item 343, which splits the Data section by feature.
+
+Touches:
+
+- `README.md`: `## Data`, `### Locale categories`
+- `readme_test.go`
+- `release-tooling/data-listing.go`
+
+### 535. Name coding agents in `## Audience`, and widen goal 1.1 to "developers, and the coding agents working for them, hear about it where they look".
+
+The maintainer approved both on 2026-11-21. A coding agent writes templates and runs the CLI on a developer's behalf; it may rely on one shell line, on `--list` naming every path, and on a load error, exit 2, that names the fix. The items rewriting the README, `--help`, the GitHub and Docker Hub texts are written for this reader beside the people already named.
+
+Touches:
+
+- `README.md`: `## Audience`, `## Goals` (small)
+
+### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
+
+The maintainer, 2026-11-21: automate fejkdata.dev's deployment from fejkdata's own; fejkdata 0.7.2 holds fejkdata's side, and fejkdata.dev's 0.1.2 the site's side, which rebuilds the WebAssembly and the data grid from item 408's listing at the named release. The site lives on gitea.larvit.se, so the step calls its Actions API with a token the maintainer creates and stores as a GitHub secret. Patches CI cuts for a Go or module update trigger it too. A failed call fails no release: it only reports.
+
+Touches:
+
+- `.github/workflows/packages.yml`
+
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
 `compose.yaml`'s `mutate` runs Gremlins without `--coverpkg`, so its coverage step credits a line under `internal/` only to its own package's tests. The engine's behaviour is tested mostly from the root package, so on item 462's branch all 31 mutants of `internal/engine/…` printed `NOT COVERED`, with `Mutator coverage: 0.00%`, and a reader could take that for nothing to kill.
@@ -246,10 +329,6 @@ The AUR closed new account registration on 2026-10-14, so 0.1.0's packaging ship
 ### 256. Add `misc.bic`, built by its structure rules.
 
 A template; the structure rules are facts.
-
-### 254. Say in the docs which of three kinds each category's values are: real, valid or invented.
-
-Goal 3 names the kinds. A real value is a thing that exists, such as the territory `SE`. A valid value is made up but passes the check the real system applies, such as a Swedish personal number. An invented value is made up entirely, such as a town that does not exist. The maintainer, 2026-10-18: all three have their place, and it is good to tell them apart. Before the three words ship, a panel of readers seated as the README's audience picks the spelling.
 
 ### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
 
@@ -456,10 +535,6 @@ In `internal/rows`, `Pins.PinRow` names `t.path` and `Pins.MustRow` panics with 
 ### 115. Spell a rows file's line one way in every error, naming the file.
 
 Today a cell reads `g.t.b, line 3` (`containedNode.labelIn`), a cell check `t.tsv: line 3, b` (`compileCells`) and a link `t.tsv line 3` (`rows.Table.Link`). A reference cycle found from a table's format through a cell names no line at all: `reference cycle: g.t -> format -> b -> b -> /h -> …`, where the column-to-cell step in `renderEdges` repeats the column name.
-
-### 408. List every shipped path in the README's Data section with an example value and whether it is real, plausible or valid, and where it comes from.
-
-Goal 3 says the docs say which kind each value is, but today that sits in prose spread over the Data section, and a reader can't scan for whether a path exists or what it prints. With a Nordic locale added each release, a table is how a reader finds `fi_FI.phone` and what it looks like. Generate or test the table against what loads, so a new path can't ship without a row, and keep the example values seeded. Fits item 343, which splits the Data section by feature.
 
 ### 522. Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.
 
@@ -803,7 +878,7 @@ The declarations are written by hand beside the bridge. The usage test calls eve
 
 ### 362. Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.
 
-Goal 1.1's counter-signal is a channel serving an old release, so the patch releases CI cuts for a new Go, a module or GoReleaser publish too. The package's version is the release tag's. A version npm has published cannot be published again, so the dry run on a pull request packs the tarball and checks its contents without publishing.
+Goal 1.1's counter-signal is a channel serving an old release, so the patch releases CI cuts for a new Go, a module or GoReleaser publish too. The package's version is the release tag's. A version npm has published cannot be published again, so the dry run on a pull request packs the tarball and checks its contents without publishing. The package's `description` opens with the README's lead sentence, under a test like `TestDockerhubDescriptionOpensAReadmeSentence`.
 
 ### 361. Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.
 
