@@ -1092,6 +1092,7 @@ lt_LT.last-name.sex	string
 lt_LT.month	format "{name}"	key code	name name
 lt_LT.month.code	string
 lt_LT.month.name	string
+lt_LT.paragraph	reads lt_LT.sentence
 lt_LT.person	format "{prefix}{first} {last}"	reads lt_LT.first-name lt_LT.title
 lt_LT.person.first	string
 lt_LT.person.last	string
@@ -1110,6 +1111,7 @@ lt_LT.phone-mobile.subscriber	string
 lt_LT.phone.international
 lt_LT.phone.national
 lt_LT.price	format "{amt},{cents} €"
+lt_LT.sentence	reads lt_LT.word-adj lt_LT.word-adv lt_LT.word-noun lt_LT.word-verb
 lt_LT.sex	format "{name}"	key code	name name	weight count
 lt_LT.sex-digit	format "{digit}"	parent sex
 lt_LT.sex-digit.digit	string
@@ -1141,6 +1143,22 @@ lt_LT.username.n
 lt_LT.weekday	format "{name}"	key code	name name
 lt_LT.weekday.code	string
 lt_LT.weekday.name	string
+lt_LT.word	format "{any}"	reads lt_LT.word-adj lt_LT.word-adv lt_LT.word-noun lt_LT.word-verb
+lt_LT.word-adj	format "{word}"
+lt_LT.word-adj.word	string
+lt_LT.word-adv	format "{word}"
+lt_LT.word-adv.word	string
+lt_LT.word-noun	format "{word}"
+lt_LT.word-noun.plural	string
+lt_LT.word-noun.word	string
+lt_LT.word-verb	format "{word}"
+lt_LT.word-verb.word	string
+lt_LT.word.adj	string
+lt_LT.word.adv	string
+lt_LT.word.any	string
+lt_LT.word.noun	string
+lt_LT.word.noun.plural
+lt_LT.word.verb	string
 lv_LV.color
 lv_LV.company	format "{registered as r}{r}"	reads lv_LV.company lv_LV.company-coined lv_LV.company-word lv_LV.first-name lv_LV.person
 lv_LV.company-coined	format "{word}"	weight count
