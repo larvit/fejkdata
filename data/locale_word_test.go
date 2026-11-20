@@ -376,7 +376,7 @@ func sentencePatternWords(t *testing.T, locale string) map[string]bool {
 	return words
 }
 
-func sentenceSeparator(r rune) bool { return strings.ContainsRune(" .,!?", r) }
+func sentenceSeparator(r rune) bool { return strings.ContainsRune(" .,!?„“", r) }
 
 // localeWordsAndForms is every word and form the locale's tables of parts hold.
 func localeWordsAndForms(t *testing.T, locale string, parts ...string) map[string]bool {
