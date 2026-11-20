@@ -18,7 +18,6 @@
 | 536 | 0.7.1 |  |  | **Add a "Why fejkdata" table setting it beside Faker, gofakeit and Mockaroo, each cell checked against that tool's own docs.** | 2 | 2 | 1 | 3 | 3 | 1.1 by 5, 11 by 3 | 3.5 |
 | 538 | 0.7.1 |  |  | **Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
 | 408 | 0.7.1 |  | owner | **List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
-| 535 | 0.7.1 |  | owner | **Name coding agents in `## Audience`, and widen goal 1.1 to "developers, and the coding agents working for them, hear about it where they look".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 2 | 1.5 |
 | 541 | 0.7.2 | 408 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
 | 542 | 0.7.2 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.2 |
 | 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
@@ -280,14 +279,6 @@ Touches:
 - `README.md`: `## Data`, `### Locale categories`
 - `readme_test.go`
 - `release-tooling/data-listing.go`
-
-### 535. Name coding agents in `## Audience`, and widen goal 1.1 to "developers, and the coding agents working for them, hear about it where they look".
-
-The maintainer approved both on 2026-11-21. A coding agent writes templates and runs the CLI on a developer's behalf; it may rely on one shell line, on `--list` naming every path, and on a load error, exit 2, that names the fix. The items rewriting the README, `--help`, the GitHub and Docker Hub texts are written for this reader beside the people already named.
-
-Touches:
-
-- `README.md`: `## Audience`, `## Goals` (small)
 
 ### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
 
