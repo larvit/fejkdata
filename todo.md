@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 512 | 0.7.0 |  |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
@@ -210,20 +209,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 512. Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.
-
-Candidate source: the Centre of Registers' address register (Adresų registras), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
-
-Research of 2026-11-20, to verify again when built. Registrų centras publishes the Address Register under CC BY 4.0 (data.gov.lt datasets 1342 and 1285); its credit wording was found only secondhand and must be read from the publisher. `https://www.registrucentras.lt/aduomenys/?byla=adr_stat_lr.csv` (57 MB) is `|`-separated, `SAV_KODAS|AOB_KODAS|GYV_KODAS|GAT_KODAS|NR|KORPUSO_NR|PASTO_KODAS|AOB_NUO`, of 1,132,892 addresses under 16,726 postal codes, each written `LT-85113`. The divisions are CSVs at `https://get.data.gov.lt/datasets/gov/rc/ar/<table>/:format/csv`, for `apskritis/Apskritis` (10 counties, `adm_kodas`), `savivaldybe/Savivaldybe` (60 municipalities, `sav_kodas`), `seniunija/Seniunija` and `gyvenamojivietove/GyvenamojiVietove` (26,231 settlements, `gyv_kodas`, with `pavadinimas` in the nominative and `pavadinimas_k` in the genitive); a row links to its parent by `_id`, and county and municipality names are genitives, as `Alytaus`. The streets' table, joined by `GAT_KODAS`, was not fetched. get.data.gov.lt answers 429 under load. No open population per settlement was found; weighing a settlement by its addresses needs no second source. GeoNames (CC BY 4.0) is the fallback.
-
-Touches:
-
-- `data/geo/LT/`
-- `data/lt_LT/`: `address.json`
-- `data-import/`
-- `docs/locales/geo.md`
-- `DATA-LICENSES.md`
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
