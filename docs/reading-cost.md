@@ -2657,3 +2657,20 @@ Read most (opens and searches):
 - `.gitignore` 1
 - `CHANGELOG.md` 1
 - `DATA-LICENSES.md` 1
+
+## Reading cost, chunk 7df0efb01a20, finished 2026-11-20T04:48:45Z
+
+91363 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/locales_test.go` 6
+- `data/locale_word_test.go` 5
+- `README.md` 3
+- `compose.yaml` 2
+- `data-import/wikidata_lexemes.py` 2
+- `data-import/wikidata_lexemes_test.py` 2
+- `data-import/word-et.py` 2
+- `data-import/wordtables.py` 2
+- `data-import/geo_test.py` 1
+- `data-import/source.py` 1
