@@ -132,6 +132,8 @@ func TestLocaleWordTablesHoldTheirSourcesWordsAndForms(t *testing.T) {
 		{"de_DE", "adv", "oft", ""},
 		{"fr_FR", "noun", "maison", "maisons"},
 		{"fr_FR", "noun", "cheval", "chevaux"},
+		{"fr_FR", "noun", "pays", "pays"},
+		{"fr_FR", "noun", "souris", "souris"},
 		{"fr_FR", "verb", "courir", ""},
 		{"fr_FR", "adj", "grand", ""},
 		{"fr_FR", "adv", "souvent", ""},
@@ -202,6 +204,9 @@ func TestLocaleWordTablesHoldOnlyTheirSourcesHeadwords(t *testing.T) {
 		{"nb_NO", "adj", "dumma"},
 		{"da_DK", "adv", "afsindig"},
 		{"da_DK", "noun", "aalborgenser"},
+		{"fr_FR", "verb", "aimez"},
+		{"fr_FR", "verb", "abolisses"},
+		{"fr_FR", "verb", "expliquent"},
 	}, "a form or variant its source doesn't list as a headword of that part")
 }
 
