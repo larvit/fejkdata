@@ -13,6 +13,8 @@
 - Prose naming a source states what that source states: read the register's own field
   before paraphrasing it, and name the register you read before claiming none
   publishes a spelling.
+- A locale page's credit sentence carries each element that `DATA-LICENSES.md`'s attribution for the source lists, and a
+  claim about generated text is checked against a draw that could break it.
 - A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one.
 - Cyclomatic complexity is gated at 7: split a function that would go over it.
 
