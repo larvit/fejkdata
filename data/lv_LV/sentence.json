@@ -15,7 +15,7 @@
     "end": [{ "format": ".", "weight": 3 }, "!"]
   },
   {
-    "format": "Mēs redzējām {noun}, un tas bija {adj}{end}",
+    "format": "Lūk, {noun}, un tas ir {adj}{end}",
     "noun": "{.word-noun.plural}",
     "adj": "{.word-adj}",
     "end": [{ "format": ".", "weight": 3 }, "!"]
