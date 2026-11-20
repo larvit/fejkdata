@@ -117,19 +117,50 @@ class Premises(unittest.TestCase):
         self.assertEqual(geo_lt.premises(rows), {"156841097": 2, "157192713": 1})
 
 
+def stat(*units: tuple[str, int | None, int | None]) -> dict[str, Any]:
+    """The agency's answer, in SDMX-JSON: each unit's code, its residents and the index of its status. Men and women
+    together are the sex at index 1."""
+    return {
+        "structure": {
+            "dimensions": {"observation": [
+                {"id": "Lytis", "values": [{"id": "1"}, {"id": "0"}]},
+                {"id": "admin_vnt_M3010320", "values": [{"id": code} for code, _, _ in units]},
+                {"id": "MATVNT", "values": [{"id": "asmenys"}]},
+                {"id": "LAIKOTARPIS", "values": [{"id": "2026"}]},
+            ]},
+            "attributes": {"observation": [{"id": "OBS_DECIMALS", "values": [{"id": "0"}]}, {"id": "OBS_STATUS", "values": [{"id": "konfidencialus"}, {"id": "nebuvo"}]}]},
+        },
+        "dataSets": [{"observations": {f"{sex}:{i}:0:0": [n if sex else 1, 0, status] for i, (_, n, status) in enumerate(units) for sex in (0, 1)}}],
+    }
+
+
+class Residents(unittest.TestCase):
+    def test_a_unit_holds_its_men_and_women_together_under_its_code(self) -> None:
+        self.assertEqual(geo_lt.residents(stat(("13", 607404, None), ("31003", 605000, None))), {"13": 607404, "31003": 605000})
+
+    def test_a_withheld_count_is_left_out_and_a_unit_with_no_residents_holds_none(self) -> None:
+        self.assertEqual(geo_lt.residents(stat(("14415", None, 0), ("14416", None, 1))), {"14416": 0})
+
+
 class Weighed(unittest.TestCase):
-    def test_a_municipality_sums_its_localities_and_a_region_its_municipalities(self) -> None:
+    def test_a_locality_and_a_municipality_take_their_residents_and_a_region_sums_its_municipalities(self) -> None:
         r = register()
-        geo_lt.weighed(r, tally(address("40"), address("42"), address("5", "", "14415", "LT-33264")))
-        self.assertEqual([r.localities[c]["addresses"] for c in ("31003", "14415")], [2, 1])
-        self.assertEqual([r.municipalities[c]["addresses"] for c in ("13", "62")], [2, 1])
-        self.assertEqual([r.regions[c]["addresses"] for c in ("10", "9")], [2, 1])
+        geo_lt.weighed(r, tally(address("40"), address("42"), address("5", "", "14415", "LT-33264")), {"31003": 600, "13": 610, "14415": 30, "62": 90})
+        self.assertEqual([r.localities[c]["population"] for c in ("31003", "14415")], [600, 30])
+        self.assertEqual([r.municipalities[c]["population"] for c in ("13", "62")], [610, 90])
+        self.assertEqual([r.regions[c]["population"] for c in ("10", "9")], [610, 90])
+
+    def test_a_locality_with_no_count_shares_what_its_municipalitys_counted_localities_leave(self) -> None:
+        r = geo_lt.Register(APSKRITYS, SAVIVALDYBES, [*VIETOVES, {"GYV_KODAS": "14416", "VARDAS": "Gojus", "SAV_KODAS": "62"}], GATVES)
+        counted = geo_lt.tally([address("5", "", "14415", "LT-33264")], r, collections.Counter())
+        geo_lt.weighed(r, counted, {"13": 610, "62": 90, "14416": 50})
+        self.assertEqual(r.localities["14415"]["population"], 40)
 
     def test_a_locality_with_no_address_gets_no_weight(self) -> None:
         r = register()
-        geo_lt.weighed(r, tally(address("40")))
-        self.assertNotIn("addresses", r.localities["14415"])
-        self.assertEqual(r.municipalities["62"]["addresses"], 0)
+        geo_lt.weighed(r, tally(address("40")), {"31003": 600, "13": 610, "62": 90})
+        self.assertNotIn("population", r.localities["14415"])
+        self.assertEqual(r.municipalities["62"]["population"], 90)
 
 
 if __name__ == "__main__":

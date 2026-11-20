@@ -354,44 +354,65 @@ class Localities(unittest.TestCase):
         self.assertEqual(postal_codes, {"Helsinki": {"00100": 10, "00102": 5}})
 
 
-class WriteByAddresses(unittest.TestCase):
-    def test_each_table_weighs_by_addresses_and_a_locality_with_no_street_is_dropped_with_its_parents(self) -> None:
-        regions = {"1": {"code": "1", "name": "Nord", "addresses": 9, "timezone": "Europe/Riga"}, "2": {"code": "2", "name": "Syd", "addresses": 4, "timezone": "Europe/Riga"}}
-        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "addresses": 9}, "02": {"code": "02", "name": "Land", "region": "2", "addresses": 4}}
+class Populations(unittest.TestCase):
+    def test_a_counted_locality_keeps_its_count(self) -> None:
+        self.assertEqual(geo.populations({"A": 10}, {"A": "01"}, {"A": 70}, {"01": 500}), {"A": 70})
+
+    def test_the_rest_of_a_municipalitys_people_is_shared_out_by_addresses_over_its_other_localities(self) -> None:
+        addresses, municipality_of = {"A": 10, "B": 30, "C": 10, "D": 5}, {"A": "01", "B": "01", "C": "01", "D": "02"}
+        self.assertEqual(geo.populations(addresses, municipality_of, {"A": 100, "D": 9}, {"01": 500, "02": 9}), {"A": 100, "B": 300, "C": 100, "D": 9})
+
+    def test_a_counted_locality_with_no_address_still_takes_its_people_from_the_rest(self) -> None:
+        self.assertEqual(geo.populations({"B": 4}, {"A": "01", "B": "01"}, {"A": 100}, {"01": 150}), {"B": 50})
+
+    def test_addresses_outside_every_locality_take_their_share(self) -> None:
+        self.assertEqual(geo.populations({"B": 10}, {"B": "01"}, {}, {"01": 400}, {"01": 30}), {"B": 100})
+
+    def test_a_locality_holds_at_least_one_person(self) -> None:
+        self.assertEqual(geo.populations({"A": 3, "B": 3}, {"A": "01", "B": "01"}, {"A": 0}, {"01": 0}), {"A": 1, "B": 1})
+
+    def test_counted_localities_that_outnumber_their_municipality_leave_no_one_to_share(self) -> None:
+        self.assertEqual(geo.populations({"B": 3}, {"A": "01", "B": "01"}, {"A": 90}, {"01": 80}), {"B": 1})
+
+
+class WriteByCode(unittest.TestCase):
+    def test_each_table_but_a_postal_code_and_a_street_weighs_by_population_and_a_locality_with_no_street_is_dropped_with_its_parents(self) -> None:
+        regions = {"1": {"code": "1", "name": "Nord", "population": 9, "timezone": "Europe/Riga"}, "2": {"code": "2", "name": "Syd", "population": 4, "timezone": "Europe/Riga"}}
+        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "population": 9}, "02": {"code": "02", "name": "Land", "region": "2", "population": 4}}
         localities = {
-            "A": {"code": "A", "name": "Alby", "municipality": "01", "addresses": 9, "lat": "3", "lon": "4"},
-            "B": {"code": "B", "name": "Borg", "municipality": "02", "addresses": 4, "lat": "1", "lon": "2"},
+            "A": {"code": "A", "name": "Alby", "municipality": "01", "population": 9, "lat": "3", "lon": "4"},
+            "B": {"code": "B", "name": "Borg", "municipality": "02", "population": 4, "lat": "1", "lon": "2"},
         }
         streets = {"A": [{"name": "Gade", "locality": "A", "addresses": 6}]}
         with tempfile.TemporaryDirectory() as d:
             out = Path(d)
-            geo.write_by_addresses(out, regions, municipalities, localities, {("A", "2000"): 2, ("A", "1000"): 7, ("B", "3000"): 4}, streets)
+            geo.write_by_code(out, regions, municipalities, localities, {("A", "2000"): 2, ("A", "1000"): 7, ("B", "3000"): 4}, streets)
             tables = {t: (out / f"{t}.tsv").read_text(encoding="utf-8") for t in ("region", "municipality", "locality", "postal-code", "street")}
         self.assertEqual(tables, {
-            "region": "code\tname\taddresses\ttimezone\n1\tNord\t9\tEurope/Riga\n",
-            "municipality": "code\tname\tregion\taddresses\n01\tBy\t1\t9\n",
-            "locality": "code\tname\tmunicipality\taddresses\tlat\tlon\nA\tAlby\t01\t9\t3\t4\n",
+            "region": "code\tname\tpopulation\ttimezone\n1\tNord\t9\tEurope/Riga\n",
+            "municipality": "code\tname\tregion\tpopulation\n01\tBy\t1\t9\n",
+            "locality": "code\tname\tmunicipality\tpopulation\tlat\tlon\nA\tAlby\t01\t9\t3\t4\n",
             "postal-code": "code\tlocality\taddresses\n1000\tA\t7\n2000\tA\t2\n",
             "street": "name\tlocality\taddresses\nGade\tA\t6\n",
         })
 
     def test_a_postal_code_two_localities_share_lists_them_in_their_codes_order(self) -> None:
-        regions = {"1": {"code": "1", "name": "Nord", "addresses": 9, "timezone": "Europe/Riga"}}
-        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "addresses": 9}}
-        localities = {c: {"code": c, "name": c, "municipality": "01", "addresses": n, "lat": "1", "lon": "2"} for c, n in (("C", 4), ("A", 5))}
+        regions = {"1": {"code": "1", "name": "Nord", "population": 9, "timezone": "Europe/Riga"}}
+        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "population": 9}}
+        localities = {c: {"code": c, "name": c, "municipality": "01", "population": n, "lat": "1", "lon": "2"} for c, n in (("C", 4), ("A", 5))}
         streets = {c: [{"name": "Gade", "locality": c, "addresses": 1}] for c in ("A", "C")}
         with tempfile.TemporaryDirectory() as d:
-            geo.write_by_addresses(Path(d), regions, municipalities, localities, {("C", "1000"): 4, ("A", "1000"): 5}, streets)
+            geo.write_by_code(Path(d), regions, municipalities, localities, {("C", "1000"): 4, ("A", "1000"): 5}, streets)
             self.assertEqual((Path(d) / "postal-code.tsv").read_text(encoding="utf-8"), "code\tlocality\taddresses\n1000\tA\t5\n1000\tC\t4\n")
 
     def test_the_locality_table_has_no_point_where_no_locality_has_one(self) -> None:
-        regions = {"1": {"code": "1", "name": "Nord", "addresses": 9, "timezone": "Europe/Vilnius"}}
-        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "addresses": 9}}
-        localities = {"A": {"code": "A", "name": "Alby", "municipality": "01", "addresses": 9}}
+        regions = {"1": {"code": "1", "name": "Nord", "population": 9, "timezone": "Europe/Vilnius"}}
+        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "population": 9}}
+        localities = {"A": {"code": "A", "name": "Alby", "municipality": "01", "population": 9}}
         with tempfile.TemporaryDirectory() as d:
-            geo.write_by_addresses(Path(d), regions, municipalities, localities, {("A", "1000"): 9}, {"A": [{"name": "Gade", "locality": "A", "addresses": 6}]})
+            geo.write_by_code(Path(d), regions, municipalities, localities, {("A", "1000"): 9}, {"A": [{"name": "Gade", "locality": "A", "addresses": 6}]})
             got = (Path(d) / "locality.tsv").read_text(encoding="utf-8")
-        self.assertEqual(got, "code\tname\tmunicipality\taddresses\nA\tAlby\t01\t9\n")
+        self.assertEqual(got, "code\tname\tmunicipality\tpopulation\nA\tAlby\t01\t9\n")
 
 
 if __name__ == "__main__":
