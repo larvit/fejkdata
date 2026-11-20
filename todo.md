@@ -14,7 +14,6 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 540 | 0.7.1 |  |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
 | 537 | 0.7.1 |  |  | **Add a "For coding agents" section: `--list` to find a path, one-line renders, exit 2 with an error naming the fix, `--seed` and `--today` to repeat a run, and a snippet to paste into a project's `AGENTS.md`.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4, 11 by 4 | 4.5 |
-| 536 | 0.7.1 |  |  | **Add a "Why fejkdata" table setting it beside Faker, gofakeit and Mockaroo, each cell checked against that tool's own docs.** | 2 | 2 | 1 | 3 | 3 | 1.1 by 5, 11 by 3 | 3.5 |
 | 538 | 0.7.1 |  |  | **Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
 | 408 | 0.7.1 |  | owner | **List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
 | 541 | 0.7.2 | 408 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
@@ -233,14 +232,6 @@ Written for the coding agent `## Audience` names. Its commands are examples `rea
 Touches:
 
 - `README.md`: `## CLI`
-
-### 536. Add a "Why fejkdata" table setting it beside Faker, gofakeit and Mockaroo, each cell checked against that tool's own docs.
-
-Rows are the four points the README leads with, plus install and runtime. A cell about another tool states what that tool's docs state, and names the page read, as `AGENTS.md` asks of prose naming a source. No speed row until item 473's benchmark ships.
-
-Touches:
-
-- `README.md`: `# fejkdata`
 
 ### 538. Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.
 
