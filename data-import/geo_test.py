@@ -60,6 +60,12 @@ class AddressJson(unittest.TestCase):
     def test_a_lettered_number_draws_an_upper_case_letter_where_no_template_is_given(self) -> None:
         self.assertIn('{ "format": "{int(1,9)}{upper(1)}", "weight": 3 }', geo.address_json(collections.Counter({(0, True): 3})))
 
+    def test_the_address_ends_with_its_municipality_and_region(self) -> None:
+        self.assertTrue(geo.address_json(collections.Counter({(0, False): 3})).endswith(
+            '  "locality": "{l.name}",\n'
+            '  "municipality": "{l..municipality.name}",\n  "region": "{l..municipality..region.name}"\n}\n'
+        ))
+
 
 class NumberRange(unittest.TestCase):
     def test_a_number_counts_under_the_range_it_falls_in(self) -> None:
