@@ -41,10 +41,8 @@ func (k *keptDraws) variantOf(s *drawstate.State, c *tree.Choice, level int) tre
 }
 
 // pinsBelow is the pins a step down to a child table draws in, level being the index of the
-// step's level. Inside, they are pins. Climbed, they hold only the rows from climbedTo up, not
-// the row the path came from, so the step draws the child's row afresh inside the row stepped up
-// to; a pick's path keeps them under the level, so every path of the pick stepping down there
-// reads one draw.
+// step's level, in either state of drawAcrossTables' walk. After a climb they hold only the rows
+// from climbedTo up, so the step draws the child's row afresh inside the row stepped up to.
 func (k *keptDraws) pinsBelow(pins *tree.PinSet, climbedTo *tree.RowsTable, level int) *tree.PinSet {
 	switch {
 	case climbedTo == nil:
@@ -63,9 +61,6 @@ func (k *keptDraws) pinsBelow(pins *tree.PinSet, climbedTo *tree.RowsTable, leve
 //   - inside, climbedTo nil, where a path starts: every step draws inside the rows pins holds.
 //   - climbed, after a ".." stepped up to a row of climbedTo: the next step down leaves the row
 //     the path came from (pinsBelow), and puts the walk back inside.
-//
-// The state is a local beside pins, not a struct holding both: a struct would mix kept and pins
-// for the compiler, and move every render's reword fakes to the heap.
 func drawAcrossTables(s *drawstate.State, n tree.Node, steps []tree.PathStep, pins *tree.PinSet, kept *keptDraws) (tree.Node, *tree.PinSet) {
 	var climbedTo *tree.RowsTable
 	for _, st := range steps {

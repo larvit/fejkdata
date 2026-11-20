@@ -13,8 +13,7 @@ type readValue struct {
 }
 
 // rewordFakes is the fakes a render's {reword()} calls drew, which last the whole render: each
-// word a call met, and its fake. A render's env points at it, and every env copied from that one
-// shares it.
+// word a call met, and its fake.
 type rewordFakes struct {
 	byWord map[fakeKey]string
 }
@@ -49,7 +48,7 @@ func (fs openFrames) with(scope *tree.NameScope) openFrames {
 	return longer
 }
 
-// of is the frame of scope, innermost first, nil where none is open.
+// of is the innermost open frame of scope, nil where none is open.
 func (fs openFrames) of(scope *tree.NameScope) *pickFrame {
 	for i := len(fs) - 1; i >= 0; i-- {
 		if fs[i].scope == scope {

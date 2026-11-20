@@ -76,13 +76,13 @@ func AddressedKeys(reads map[*NameBinding][]*Read, l *LoadFinds) map[*NameBindin
 // the path a named read's does. Where p binds a category whose format reads {first}, the {first}
 // that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
 //
-// It is the one value that holds the alignment. Its three keys are its first level, which a read of the
-// name must address for the pick to keep the read; Levels, the keys the pick keeps the read's
-// draws under; and Key, the last of them, which its value is kept under.
+// first is the read's first level under the template's key; a read of the name must address it
+// for the pick to keep the read. Levels is the keys the pick keeps the read's draws under, and Key
+// the last of them, which its value is kept under.
 //
-// It holds the length of the template's key, and cuts the key itself from its first. On a render
-// the template's key is the one the render's env holds. A pick keeps the keys Levels returns, so
-// a PlacedRead holding the template's key would move every render's env to the heap.
+// The template's key is kept only as the first atLen bytes of first. On a render it is the key
+// the render's env holds, and the pick keeps the keys Levels returns, so a field holding it would
+// move every render's env to the heap.
 type PlacedRead struct {
 	first  PickKey
 	atLen  int
@@ -115,11 +115,11 @@ func (p PlacedRead) Levels() []PickKey {
 	return levels
 }
 
-// LandsInPick places a, a read in a template the pick renders at key at, and reports whether the
-// pick keeps its value; by is then the spelling of the read of the name that addresses a. Load
-// and render both call it, so they agree on what a pick keeps. A reference draws afresh and a
-// read through a name reads its own name's pick, so the pick keeps neither, and neither is
-// placed. It keeps any other read where a read of the name addresses its first level.
+// LandsInPick places a, a read in a template the pick renders under the key at, and reports
+// whether the pick keeps its value; by is then the spelling of the read of the name that addresses
+// a. Render and the name fence both call it, so they agree on what a pick keeps. A reference draws
+// afresh and a read through a name reads its own name's pick, so the pick keeps neither, and
+// neither is placed. The pick keeps any other read whose first level a read of the name addresses.
 func LandsInPick(addressed map[PickKey]string, at PickKey, a Read) (placed PlacedRead, by string, lands bool) {
 	if grammar.IsRef(a.Head()) || a.Kind() == NamedRead {
 		return PlacedRead{}, "", false
