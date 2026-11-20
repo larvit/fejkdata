@@ -619,6 +619,24 @@ func TestHelpLeadsToNamesFunctionsAndTheReadme(t *testing.T) {
 	}
 }
 
+var slugDropped = regexp.MustCompile(`[^\p{L}\p{N} _-]`)
+
+func githubSlug(heading string) string {
+	return strings.ReplaceAll(slugDropped.ReplaceAllString(strings.ToLower(heading), ""), " ", "-")
+}
+
+func TestGithubSlugDropsPunctuation(t *testing.T) {
+	for heading, want := range map[string]string{
+		"Your own data":          "your-own-data",
+		"PowerShell and cmd.exe": "powershell-and-cmdexe",
+		"Why fejkdata?":          "why-fejkdata",
+	} {
+		if got := githubSlug(heading); got != want {
+			t.Errorf("githubSlug(%q) = %q, want %q", heading, got, want)
+		}
+	}
+}
+
 func readmeHeadingAnchors(t *testing.T) map[string]bool {
 	t.Helper()
 	readme, err := os.ReadFile(filepath.Join("..", "README.md"))
@@ -627,7 +645,7 @@ func readmeHeadingAnchors(t *testing.T) map[string]bool {
 	}
 	anchors := map[string]bool{}
 	for _, m := range regexp.MustCompile(`(?m)^#+ (.+)$`).FindAllStringSubmatch(string(readme), -1) {
-		anchors[strings.ReplaceAll(strings.ToLower(m[1]), " ", "-")] = true
+		anchors[githubSlug(m[1])] = true
 	}
 	return anchors
 }
@@ -688,5 +706,55 @@ func TestReadmeLoadIntoADatabaseKeepsALineForEachTool(t *testing.T) {
 				t.Errorf("README's Load into a database lost its %s line", tool)
 			}
 		})
+	}
+}
+
+func helpOpening(t *testing.T, name string) string {
+	t.Helper()
+	out := help(name, "https://github.com/larvit/fejkdata")
+	opening, _, found := strings.Cut(out, "\nUsage:")
+	if !found {
+		t.Fatalf("help has no Usage line:\n%s", out)
+	}
+	return opening
+}
+
+func TestHelpOpensAReadmeSentence(t *testing.T) {
+	readme, err := os.ReadFile(filepath.Join("..", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	lead, _, _ := strings.Cut(helpOpening(t, "fejkdata"), "\n")
+	lead = strings.TrimSuffix(lead, ".")
+	if lead == "" || !regexp.MustCompile(`(?m)^`+regexp.QuoteMeta(lead)+`[:.]`).Match(readme) {
+		t.Errorf("--help opens with %q, which no README.md sentence opens with", lead)
+	}
+}
+
+func TestHelpOpensWithTheCommandsPeopleRunMost(t *testing.T) {
+	opening := helpOpening(t, "fejkdata")
+	for _, command := range []string{"echo '{/sv_SE.person}' | fejkdata", "fejkdata --list"} {
+		if !strings.Contains(opening, "\n  "+command) {
+			t.Errorf("--help opens without the command %q:\n%s", command, opening)
+		}
+	}
+	for _, m := range regexp.MustCompile(`(?m)^  echo '([^']*)' \| fejkdata$`).FindAllStringSubmatch(opening, -1) {
+		t.Run(m[1], func(t *testing.T) {
+			if code, out, errb := runOut(m[1]); code != 0 || strings.TrimSpace(out) == "" {
+				t.Errorf("echo %q = %d, %q, stderr %q", m[1], code, out, errb)
+			}
+		})
+	}
+}
+
+func TestHelpOfACustomCLINamesNoFejkdataData(t *testing.T) {
+	out := help("mycli", "https://example.com/README.md")
+	for _, word := range []string{"sv_SE", "Fake people"} {
+		if strings.Contains(out, word) {
+			t.Errorf("a custom CLI's help names %q, which its data may not carry", word)
+		}
+	}
+	if !strings.HasPrefix(out, "Usage:") {
+		t.Errorf("a custom CLI's help opens with %q, want Usage:", strings.SplitN(out, "\n", 2)[0])
 	}
 }
