@@ -375,6 +375,15 @@ class WriteByAddresses(unittest.TestCase):
             "street": "name\tlocality\taddresses\nGade\tA\t6\n",
         })
 
+    def test_the_locality_table_has_no_point_where_no_locality_has_one(self) -> None:
+        regions = {"1": {"code": "1", "name": "Nord", "addresses": 9, "timezone": "Europe/Vilnius"}}
+        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "addresses": 9}}
+        localities = {"A": {"code": "A", "name": "Alby", "municipality": "01", "addresses": 9}}
+        with tempfile.TemporaryDirectory() as d:
+            geo.write_by_addresses(Path(d), regions, municipalities, localities, {("A", "1000"): 9}, {"A": [{"name": "Gade", "locality": "A", "addresses": 6}]})
+            got = (Path(d) / "locality.tsv").read_text(encoding="utf-8")
+        self.assertEqual(got, "code\tname\tmunicipality\taddresses\nA\tAlby\t01\t9\n")
+
 
 if __name__ == "__main__":
     unittest.main()
