@@ -55,6 +55,15 @@ class Tally(unittest.TestCase):
         t = geo_fr.tally([address("01001", "01400", lat="46.0", lon="5.0"), address("01001", "01400", lat="47.0", lon="6.0"), address("01001", "01400", lat="", lon="")])
         self.assertEqual(t.centre("01001"), ("46.5000", "5.5000"))
 
+    def test_half_a_point_is_no_point(self) -> None:
+        t = geo_fr.tally([address("01001", "01400", lat="46.0", lon=""), address("01001", "01400", lat="", lon="5.0")])
+        self.assertIsNone(t.centre("01001"))
+
+    def test_asking_for_a_centre_adds_no_commune(self) -> None:
+        t = geo_fr.tally([])
+        self.assertIsNone(t.centre("01001"))
+        self.assertEqual(dict(t.points), {})
+
 
 class Communes(unittest.TestCase):
     def test_a_commune_holds_its_name_departement_region_and_municipal_population(self) -> None:
@@ -105,14 +114,20 @@ class Places(unittest.TestCase):
 
 
 class AddressJson(unittest.TestCase):
-    def test_the_number_leads_the_street_and_bis_follows_it_after_a_space(self) -> None:
-        text = geo_fr.address_json(collections.Counter({(0, False): 5, (1, True): 3}))
-        self.assertIn('"format": "{street-number} {street}\\n{postal-code} {locality}"', text)
-        self.assertIn('{ "format": "{int(1,9)}", "weight": 5 }', text)
-        self.assertIn('{ "format": "{int(10,99)} bis", "weight": 3 }', text)
-
-    def test_the_street_is_an_invented_one_beside_the_bound_locality(self) -> None:
-        self.assertIn('"street": "{.locality as l}{/geo.FR.street}"', geo_fr.address_json(collections.Counter({(0, False): 1})))
+    def test_the_number_leads_an_invented_street_bis_follows_it_and_a_length_no_address_has_is_left_out(self) -> None:
+        self.assertEqual(geo_fr.address_json(collections.Counter({(0, False): 5, (1, True): 3})), """{
+  "format": "{street-number} {street}\\n{postal-code} {locality}",
+  "street": "{.locality as l}{/geo.FR.street}",
+  "street-number": [
+    { "format": "{int(1,9)}", "weight": 5 },
+    { "format": "{int(10,99)} bis", "weight": 3 }
+  ],
+  "postal-code": "{l.postal-code.code}",
+  "locality": "{l.name}",
+  "municipality": "{l..municipality.name}",
+  "region": "{l..municipality..region.name}"
+}
+""")
 
 
 if __name__ == "__main__":
