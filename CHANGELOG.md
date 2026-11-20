@@ -197,6 +197,15 @@ with its replacement, and each removed path, column or flag.
   data was changed.
 - `sv_SE.paragraph`, three to six `sv_SE.sentence` joined by a space, as `en_US.paragraph` joins its own.
 - The README's per-locale notes moved to one page per folder of `data/` under `docs/locales`, listed in the README's Locale pages table; the release archives ship the pages.
+- `geo.FR`, France's régions, départements, communes and postal codes, with `fr_FR.address` printing one place
+  with a house number and a street, such as `94 Rue des Hirondelles\n14490 Balleroy-sur-Drôme`. A commune is selected by
+  its INSEE code, as `{/geo.FR.locality[75056]}`, and weighs its people in INSEE's legal populations of 2023. Paris, Lyon
+  and Marseille are one commune each. A postal code weighs the commune's addresses under it in the Base Adresse
+  Nationale. Mayotte and the overseas collectivities ship no place. The streets are invented: a language model's
+  recall of street names common in France, each drawn as often as another and belonging to no place. A program
+  showing the places credits "Source : Insee, Fichier d'ensemble des populations en 2023, 18/12/2025" and "Source :
+  Base Adresse Nationale, 20/11/2026". The Go package is `github.com/larvit/fejkdata/data/geo/FR`, which `data/fr_FR`
+  imports, and the CLI carries it.
 
 ## 0.6.0 - 2026-11-15
 

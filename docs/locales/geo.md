@@ -2,17 +2,17 @@
 
 The `geo` namespace holds one tree per country under its alpha-2 code: five [linked tables](../../README.md#linked-tables) named alike, and an `address` record binding one locality and drawing its postal code inside it, and its street too where the country's streets are real. A locale's `address` prints that record, and each of its columns describes the address printed.
 
-| Table | `geo.DE` | `geo.DK` | `geo.FI` | `geo.NO` | `geo.SE` | `geo.US` | Weight |
-|-------|----------|----------|----------|----------|----------|----------|--------|
-| `region` | Land, by code (`BY`) or name | region, by code or name | maakunta, by code or name | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | DE: postal codes; elsewhere population |
-| `municipality` | Kreis, by code or name | kommune, by code or name | kunta, by code or name, with its `swedish-name` | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | DE: postal codes; elsewhere population |
-| `locality` | place name within a Kreis, by code: every one with an accuracy, GeoNames' measure of how exactly it knows the point | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | postitoimipaikka, by name, with its `swedish-name`: every one with a street in Posti's basic address file under a normal postinumero with residents | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](../../data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DE: its postal codes; DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; FI: its postinumerot's residents; SE: tätort population, the kommun's where the postort names it, the småort's where one holds the postort's centre, else 200; US: place population |
-| `postal-code` | Postleitzahl, one row per place it holds: every one with an accuracy | postnummer with a street address, by code | normal postinumero with a street and residents, by code | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DE: one; DK and NO: addresses; FI: residents in Statistics Finland's Paavo; SE: one; US: address ranges |
-| `street` | invented street name, belonging to no place | street name, every one in Danmarks Adresseregister | street name, every one [`geo-fi.py`](../../data-import/geo-fi.py)'s `street_name` accepts, with its `swedish-name` | street name, every one [`geo-no.py`](../../data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](../../data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DE: one; DK and NO: addresses; FI: ranges in Posti's basic address file; SE: segments; US: address ranges |
+| Table | `geo.DE` | `geo.DK` | `geo.FI` | `geo.FR` | `geo.NO` | `geo.SE` | `geo.US` | Weight |
+|-------|----------|----------|----------|----------|----------|----------|----------|--------|
+| `region` | Land, by code (`BY`) or name | region, by code or name | maakunta, by code or name | région, by INSEE code (`84`) or name | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | DE: postal codes; elsewhere population |
+| `municipality` | Kreis, by code or name | kommune, by code or name | kunta, by code or name, with its `swedish-name` | département, by code (`2A`) or name | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | DE: postal codes; elsewhere population |
+| `locality` | place name within a Kreis, by code: every one with an accuracy, GeoNames' measure of how exactly it knows the point | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | postitoimipaikka, by name, with its `swedish-name`: every one with a street in Posti's basic address file under a normal postinumero with residents | commune, by INSEE code (`75056`): every one with people and an address in the Base Adresse Nationale | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](../../data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DE: its postal codes; FR: the commune's population; DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; FI: its postinumerot's residents; SE: tätort population, the kommun's where the postort names it, the småort's where one holds the postort's centre, else 200; US: place population |
+| `postal-code` | Postleitzahl, one row per place it holds: every one with an accuracy | postnummer with a street address, by code | normal postinumero with a street and residents, by code | code postal, one row per commune it holds | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DE: one; DK, FR and NO: addresses; FI: residents in Statistics Finland's Paavo; SE: one; US: address ranges |
+| `street` | invented street name, belonging to no place | street name, every one in Danmarks Adresseregister | street name, every one [`geo-fi.py`](../../data-import/geo-fi.py)'s `street_name` accepts, with its `swedish-name` | invented street name, belonging to no place | street name, every one [`geo-no.py`](../../data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](../../data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DE and FR: one; DK and NO: addresses; FI: ranges in Posti's basic address file; SE: segments; US: address ranges |
 
 ## Across countries
 
-What ports across countries is the five table names, their `name` column, selection by name, and the `address` record's columns: `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`. The record's `region` is a US state's abbreviation, and elsewhere the region's name. A locality in `geo.DE` is selected by its code alone, since place names repeat. Every other column of a table is the country's own, `code` on a Swedish region but `abbr` on a US one.
+What ports across countries is the five table names, their `name` column, selection by name, and the `address` record's columns: `street`, `street-number`, `postal-code`, `locality`, `municipality` and `region`. The record's `region` is a US state's abbreviation, and elsewhere the region's name. A locality in `geo.DE` or `geo.FR` is selected by its code alone, since place names repeat. Every other column of a table is the country's own, `code` on a Swedish region but `abbr` on a US one.
 
 ## Danish places
 
@@ -32,6 +32,24 @@ Posti gives its postinumerot most often, written as a place name, such as `Helsi
 Statistics Finland's, such as `Åbo` for `Turku`. A street's is the one Posti gives it most often in its
 postitoimipaikka, such as `Nylandsvägen` for `Uudenmaantie`. Where the source gives none, `swedish-name` holds the
 Finnish name. A Finnish street sits under each postitoimipaikka where Posti lists it.
+
+## French places
+
+`fr_FR.address` prints `geo.FR.address`, such as `94 Rue des Hirondelles\n14490 Balleroy-sur-Drôme`. A region is a
+région, a municipality a département, and a locality a commune, selected by its INSEE code: `{/geo.FR.locality[2A004]}`
+prints `Ajaccio`. The names, the divisions and each commune's population are those of
+[INSEE](https://www.insee.fr/fr/statistiques/8680726)'s legal populations of 2023, counting the people whose usual home
+is in the commune. The postal codes are the ones the [Base Adresse Nationale](https://adresse.data.gouv.fr/) files a
+commune's addresses under, each weighted by its addresses there. Both sources file Paris, Lyon and Marseille by
+arrondissement. `geo.FR` holds each as one commune, `75056`, `69123` and `13055`, with all its arrondissements' people
+and postal codes, as a letter addresses `75011 Paris`. A commune with no people, or with no address under a postal code,
+ships no place. INSEE's file leaves out Mayotte and the overseas collectivities, such as Saint-Pierre-et-Miquelon, so
+they ship none either. A région overseas keeps its own time zone.
+
+The streets are invented, until `geo.FR` takes its streets from the Base Adresse Nationale. `geo.FR.street` holds street
+names that a language model recalls as common in France. Each is drawn as often as any other, beside any commune. A
+street number is drawn from 1 to 9999, as often per number of digits as the Base Adresse Nationale's addresses hold
+one. About one in twenty-five ends in ` bis`, as theirs do. A `ter`, a `quater` or a letter is never drawn.
 
 ## German places
 

@@ -1,6 +1,6 @@
 # `fr_FR`
 
-`fr_FR`, French, carries `color`, `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `last-name`, `month`, `nir`, `nonzero-number`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is
+`fr_FR`, French, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `last-name`, `month`, `nir`, `nonzero-number`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is
 `femme` and `homme`, and `title` is `Dr` and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
 `department` prints the code INSEE gives a department in a NIR, such as `75`, `2A` or `974`, and `nonzero-number` a number
 from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from `001` to `999`. Both exist for `nir`.
