@@ -1,0 +1,13 @@
+{
+  "format": "{any}",
+  "any": [
+    { "format": "{.word-noun}", "weight": 3879 },
+    { "format": "{.word-verb}", "weight": 682 },
+    { "format": "{.word-adj}", "weight": 648 },
+    { "format": "{.word-adv}", "weight": 288 }
+  ],
+  "noun": { "format": "{.word-noun as nounword}{nounword}", "plural": "{nounword.plural}" },
+  "verb": "{.word-verb}",
+  "adj": "{.word-adj}",
+  "adv": "{.word-adv}"
+}

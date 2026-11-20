@@ -1,0 +1,6 @@
+[
+  { "format": "{.sentence} {.sentence} {.sentence}" },
+  { "format": "{.sentence} {.sentence} {.sentence} {.sentence}" },
+  { "format": "{.sentence} {.sentence} {.sentence} {.sentence} {.sentence}" },
+  { "format": "{.sentence} {.sentence} {.sentence} {.sentence} {.sentence} {.sentence}" }
+]

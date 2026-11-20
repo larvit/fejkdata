@@ -10,16 +10,23 @@
 		"et_EE.isikukood": {"paths":["","birth"]},
 		"et_EE.last-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"et_EE.month": {"paths":["","code","name"]},
+		"et_EE.paragraph": {"paths":[""]},
 		"et_EE.person": {"paths":["","first","last","prefix","sex"]},
 		"et_EE.phone": {"paths":["","international","national"]},
 		"et_EE.price": {"paths":[""]},
+		"et_EE.sentence": {"paths":[""]},
 		"et_EE.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","last-name","last-name.count","last-name.name","last-name.sex","name","sex-digit","sex-digit.digit","sex-digit.sex"]},
 		"et_EE.sex-digit": {"parent":"sex","paths":["","digit","sex"]},
 		"et_EE.time": {"paths":[""]},
 		"et_EE.title": {"paths":["","name","share"]},
 		"et_EE.url": {"paths":["","host","path","reserved"]},
 		"et_EE.username": {"paths":["","n"]},
-		"et_EE.weekday": {"paths":["","code","name"]}
+		"et_EE.weekday": {"paths":["","code","name"]},
+		"et_EE.word": {"paths":["","adj","adv","any","noun","noun.plural","verb"]},
+		"et_EE.word-adj": {"paths":["","word"]},
+		"et_EE.word-adv": {"paths":["","word"]},
+		"et_EE.word-noun": {"paths":["","plural","word"]},
+		"et_EE.word-verb": {"paths":["","word"]}
 	},
 	"namespace": "et_EE"
 }
