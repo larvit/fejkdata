@@ -6,13 +6,14 @@
 
 `Bar = 0`
 
-`Next ID = 533`
+`Next ID = 534`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 462 | 0.7.0 |  | owner | **Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.7 |
+| 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
 | 532 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 6.1 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
@@ -246,6 +247,16 @@ Touches:
 - `internal/engine/tree/name.go`: `NameTarget.Addressed`
 - `internal/engine/load/pick_test.go`: `TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel` (small)
 - `table_test.go`: `TestTableStepUpAndDownDrawsAreSeeded`
+
+### 533. Make the `mutate` service count a line as covered when any package's tests run it.
+
+`compose.yaml`'s `mutate` runs Gremlins without `--coverpkg`, so its coverage step credits a line under `internal/` only to its own package's tests. The engine's behaviour is tested mostly from the root package, so on item 462's branch all 31 mutants of `internal/engine/…` printed `NOT COVERED`, with `Mutator coverage: 0.00%`, and a reader could take that for nothing to kill.
+
+Pass `--coverpkg ./...` and `--integration`, so each mutant runs the whole suite, and say in the README's paragraph on `mutate` how long a run takes then. Item 462's chunk ran it that way by hand.
+
+Touches:
+- `compose.yaml`: `mutate` (small)
+- `README.md`: `lines 1825-1843` (small)
 
 ### 532. Lower the reading cost of the files a chunk reads most before its first commit.
 
