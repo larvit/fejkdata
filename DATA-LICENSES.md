@@ -449,7 +449,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   [metadata
   record](https://metadata.geoportaal.ee/geonetwork/srv/api/records/b0bd266e-b4c6-45db-b7ea-f47486b6258b)
   states. The settlement units' licence was not found: their page calls the data open data and names
-  no licence, and the board's
+  no licence. The board's
   [terms of
   use](https://kataster.ee/sites/default/files/documents/2024-03/MTP_andmeteenuste_kasutustingimused.pdf)
   allow using and publishing them free of charge, commercially or not
