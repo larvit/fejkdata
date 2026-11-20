@@ -1,5 +1,6 @@
 {
 	"index": {
+		"et_EE.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"et_EE.color": {"paths":[""]},
 		"et_EE.company": {"paths":["","as","as.name","fie","fie.name","legal","ou","ou.name","registered","registered.legal","tu","tu.name","uu","uu.name"]},
 		"et_EE.company-coined": {"paths":["","count","word"]},

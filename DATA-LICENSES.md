@@ -430,6 +430,32 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Kilde: Danmarks Statistik"
 - Rebuild: `data-import/geo-dk.py`
 
+## `geo/EE/region.tsv` and 5 more
+
+- Files: `geo/EE/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`, `street.tsv`,
+  and the house-number weights of `address.json`
+- Source: the Estonian Land and Spatial Development Board, [Maa- ja
+  Ruumiamet](https://geoportaal.maaruum.ee/). Its [file of postal
+  codes](https://geoportaal.maaruum.ee/docs/aadress/sihtnumbrid.zip) of 5 November 2026 lists every
+  address of the address data system, ADS, with its sihtnumber, its near and full address and a
+  point. It gives each locality's postal codes and streets, each weighted by its addresses, the
+  locality's own addresses, its point, the mean of its addresses' points, and how often a house
+  number has one to four digits, bare or with a letter. The board's [settlement
+  units](https://geoportaal.maaruum.ee/est/ruumiandmed/haldus-ja-asustusjaotus-p119.html), the file
+  `asustusyksus_shp.zip` exported 1 November 2026, give each asustusüksus, vald or linn and maakond
+  its name and its EHAK code. A linnaosa is summed into its linn, and a locality with no street is
+  dropped
+- Licence: the address data is [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/), as its
+  [metadata
+  record](https://metadata.geoportaal.ee/geonetwork/srv/api/records/b0bd266e-b4c6-45db-b7ea-f47486b6258b)
+  states. The settlement units' page names no licence: it calls the data open data, and the board's
+  [terms of
+  use](https://kataster.ee/sites/default/files/documents/2024-03/MTP_andmeteenuste_kasutustingimused.pdf)
+  allow using and publishing them free of charge, commercially or not
+- Attribution: "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026": the settlement units' page
+  asks for a reference to the board and for the data's date. The address data asks for none
+- Rebuild: `data-import/geo-ee.py`
+
 ## `geo/FI/locality.tsv` and 3 more
 
 - Files: `geo/FI/locality.tsv`, `postal-code.tsv`, `street.tsv`, and the house-number weights of

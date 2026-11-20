@@ -171,6 +171,13 @@ with its replacement, and each removed path, column or flag.
   place, as no open register is known to cover the country whole. A program showing the places credits
   "Postal codes from GeoNames, www.geonames.org". The Go package is `github.com/larvit/fejkdata/data/geo/DE`, which
   `data/de_DE` imports, and the CLI carries it.
+- `geo.EE`, Estonia's maakonnad, municipalities, localities, postal codes and streets, with `et_EE.address` printing
+  one place with a street and a house number, such as `Sarapuu tn 70\n76901 Tabasalu alevik`. Each row is selected by
+  its EHAK code, as `{/geo.EE.locality[0784]}`, and weighs its addresses in the Land and Spatial Development Board's
+  address data. Tallinn is one place, without its linnaosad. A place whose addresses are farms' names has no street
+  and ships no place, which leaves out most külad and the municipalities Kihnu, Muhu, Ruhnu and Vormsi. A program
+  showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026". The Go package is
+  `github.com/larvit/fejkdata/data/geo/EE`, which `data/et_EE` imports, and the CLI carries it.
 - `de_DE`, German, with `de_DE.person` and the tables it reads: `de_DE.first-name`, `de_DE.last-name`,
   `de_DE.sex` (`Frau` and `Mann`) and `de_DE.title` (`Dr.`, `Prof.` and `Prof. Dr.`). A first name that
   girls and boys both bear has a row under each sex, and a person's first name and sex agree. The first

@@ -2269,3 +2269,15 @@ a list written by hand, which also spells the roots that take an accent, and any
 a source of French spelling that the project doesn't take yet.
 
 Valid while Sirene holds no accents and no French word list is shipped.
+
+## `geo.EE` weighs each row by its addresses, and a place with no street ships no place
+
+2026-11-20, in the chunk that added `geo.EE`. Serves goal 3.2.
+
+The Land and Spatial Development Board's file of postal codes lists every address of its address data system with its sihtnumber, its full address and a point, under CC0 1.0. It names each address's maakond, vald or linn and asustusüksus, so one file gives every table its rows and a count of addresses for each. `geo.EE` weighs by that count rather than fetch a second source for populations: a draw then lands where the letters go, as `geo.DK`'s postal codes and streets already weigh.
+
+The file names places without their codes, and külad share names, as three named Uusküla do, so the board's settlement units give each place its EHAK code, which selects it. Their page calls them open data and asks for a credit with the data's date, which DATA-LICENSES.md carries. A linnaosa is a part of its linn, and a letter to one names the linn, so its addresses are summed into the linn: Tallinn is one place.
+
+An address in most külad is a farm's name, such as `Antsu`, with no street and no house number. Every other country's address is a street and a number, and `geo.EE.address` keeps that one layout, so a locality with no street is dropped. 1,131 localities remain, holding 78% of the addresses; the municipalities Kihnu, Muhu, Ruhnu and Vormsi hold none of them and are dropped too. A street is a near address ending in a house number after one of eight kinds: `tn`, `mnt` and `pst`, the three the board's handbook of address data abbreviates in section 27.14, and `tee`, `allee`, `põik`, `väljak` and `plats`, the kinds it names as written in full.
+
+Valid while the address data is CC0 1.0 and a locale's `address` prints one layout.
