@@ -2322,4 +2322,6 @@ Valid while the register's open data is CC BY 4.0 and a locale's `address` print
 
 The Land and Spatial Development Board's page for its settlement units calls them open data and asks for a credit with the data's date, but names no licence. The board's terms of use allow using and publishing its data free of charge, commercially or not. The maintainer chose to ship the EHAK codes and names read from the settlement units anyway, and `DATA-LICENSES.md` marks the licence as not found. Only `geo.EE`'s codes and names come from them; its addresses are CC0 1.0.
 
+The maintainer confirmed this on 2026-11-20 before 0.7.0 was cut. The board is asked to name a licence only if a user needs one.
+
 Valid while the board names no licence for the settlement units and its terms of use allow publishing them.
