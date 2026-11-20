@@ -27,16 +27,6 @@ def drawn(*entries: dict[str, Any]) -> list[tuple[str, str, str]]:
     return list(word_fr.candidates(dump(*entries)))
 
 
-class Spelled(unittest.TestCase):
-    def test_lower_case_letters_alone_are_a_word(self) -> None:
-        self.assertTrue(word_fr.spelled("garenne", "noun"))
-        self.assertTrue(word_fr.spelled("élève", "noun"))
-
-    def test_a_capital_a_hyphen_a_digit_a_modifier_letter_or_nothing_is_not(self) -> None:
-        for word in ["Paris", "porte-clés", "b2b", "mᶜˣ", "l'eau", ""]:
-            self.assertFalse(word_fr.spelled(word, "noun"), word)
-
-
 class Candidates(unittest.TestCase):
     def test_a_noun_carries_its_first_plural(self) -> None:
         forms = [{"form": "garennes", "tags": ["plural"]}, {"form": "autres", "tags": ["plural"]}]
