@@ -150,6 +150,11 @@ class Weighed(unittest.TestCase):
         self.assertEqual([r.municipalities[c]["population"] for c in ("13", "62")], [610, 90])
         self.assertEqual([r.regions[c]["population"] for c in ("10", "9")], [610, 90])
 
+    def test_a_municipality_with_no_count_stops_the_import_and_is_named(self) -> None:
+        r = register()
+        with self.assertRaisesRegex(ValueError, "no count for municipality 62$"):
+            geo_lt.weighed(r, geo_lt.tally([], r, collections.Counter()), {"13": 610})
+
     def test_a_region_sums_every_municipality_in_it(self) -> None:
         utena = {"SAV_KODAS": "82", "TIPAS": "savivaldybė", "TIPO_SANTRUMPA": "sav.", "VARDAS_K": "Utenos rajono", "ADM_KODAS": "9"}
         r = geo_lt.Register(APSKRITYS, [*SAVIVALDYBES, utena], VIETOVES, GATVES)
