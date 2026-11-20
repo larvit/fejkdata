@@ -594,10 +594,10 @@ func TestReadmeLeadShowsTheRowItsQuickStartPrints(t *testing.T) {
 	shown := textBlock.FindStringSubmatch(readmeSection(t, doc, "# fejkdata"))
 	printed := textBlock.FindStringSubmatch(readmeSection(t, doc, "### CSV and SQL seed data"))
 	if shown == nil || printed == nil {
-		t.Fatal("README's lead or its bulk quick start lost its printed output")
+		t.Fatal("README's lead or its CSV and SQL quick start lost its printed output")
 	}
 	if shown[1] != printed[1] {
-		t.Errorf("README's lead shows %q, its bulk quick start prints %q", shown[1], printed[1])
+		t.Errorf("README's lead shows %q, its CSV and SQL quick start prints %q", shown[1], printed[1])
 	}
 }
 
