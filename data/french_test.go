@@ -1,6 +1,7 @@
 package data_test
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -179,5 +180,23 @@ func TestFrenchNirStartsWithItsSexAndAgreesWithABoundOne(t *testing.T) {
 	})
 	if !seen["m"] || !seen["f"] {
 		t.Errorf("500 numbers drew the sexes %v, want both", seen)
+	}
+}
+
+func TestFrenchSentenceSpacesAQuestionOrExclamationMarkFromItsWord(t *testing.T) {
+	t.Parallel()
+	f := shipped(t, fejkdata.WithSeed(7))
+	tight := regexp.MustCompile(`[^ ][!?]$`)
+	seen := map[string]bool{}
+	fejktest.EachDraw(400, func() string { return fejktest.Fake(t, f, "fr_FR.sentence") }, func(s string) {
+		if tight.MatchString(s) {
+			t.Fatalf("fr_FR.sentence = %q, want a space before its closing ! or ?, as French sets it", s)
+		}
+		seen[s[len(s)-1:]] = true
+	})
+	for _, mark := range []string{"!", "?"} {
+		if !seen[mark] {
+			t.Errorf("400 sentences never ended in %q", mark)
+		}
 	}
 }
