@@ -61,6 +61,13 @@ class Candidates(unittest.TestCase):
         got = drawn(entry(VERB, "skriet", plural), entry(ADJ, "labs", plural), entry(ADV, "bieži"))
         self.assertEqual(got, [("verb", "skriet", ""), ("adj", "labs", ""), ("adv", "bieži", "")])
 
+    def test_a_verb_is_an_infinitive_and_a_participle_filed_as_a_verb_is_left_out(self) -> None:
+        got = drawn(entry(VERB, "pamācīt"), entry(VERB, "baidīties"), entry(VERB, "pamācošs"), entry(VERB, "rakstāms"), entry(VERB, "cietušais"), entry(VERB, "nodarīts"))
+        self.assertEqual(got, [("verb", "pamācīt", ""), ("verb", "baidīties", "")])
+
+    def test_a_noun_or_adjective_need_not_end_as_an_infinitive(self) -> None:
+        self.assertEqual(drawn(entry(NOUN, "māja"), entry(ADJ, "labs")), [("noun", "māja", ""), ("adj", "labs", "")])
+
     def test_a_part_of_speech_the_tables_do_not_hold_is_left_out(self) -> None:
         pos = ("Saīsinājums", "Reziduālis", "Divdabis", "Vietniekvārds", "Prievārds", "Saiklis", "Partikula", "Izsauksmes vārds", "Skaitļa vārds")
         self.assertEqual(drawn(*[entry(p, "kā") for p in pos]), [])
