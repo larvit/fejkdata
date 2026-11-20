@@ -16,13 +16,15 @@ import (
 type shippedLocale struct {
 	name string
 	// Its word tables by part of speech.
-	words    map[string]wordTable
-	months   []string
-	weekdays []string
-	everyday *everyday
-	names    *names
-	person   *person
-	company  *company
+	words map[string]wordTable
+	// The fewest nouns its word-noun holds; zero means 20,000, the least any other locale's source gives.
+	fewestNouns int
+	months      []string
+	weekdays    []string
+	everyday    *everyday
+	names       *names
+	person      *person
+	company     *company
 	// Whether a company name may open with its legal form, as well as end in it.
 	companyFormOpens bool
 	// Go's layout of the locale's date: "2.1.2006" pads neither the day nor the month.
@@ -198,13 +200,15 @@ var shippedLocales = []shippedLocale{
 		phone: &phone{"+33", "0", frenchFixedPhone, trunkAreaTables},
 	},
 	{
-		name:     "lt_LT",
-		words:    map[string]wordTable{"noun": {"plural", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
-		months:   []string{"sausis", "vasaris", "kovas", "balandis", "gegužė", "birželis", "liepa", "rugpjūtis", "rugsėjis", "spalis", "lapkritis", "gruodis"},
-		weekdays: []string{"pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis", "sekmadienis"},
-		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|lt)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Mėlyna", "Žalia", "Raudona"}},
-		names:    &names{map[string]string{"Ona": "f", "Danutė": "f", "Jonas": "m", "Kęstutis": "m"}, nil},
-		person:   &person{map[string]string{"f": "moteris", "m": "vyras"}, []string{"dr.", "prof."}},
+		name: "lt_LT",
+		// The English Wiktionary lists about 4,200 Lithuanian nouns, and about 3,400 of them have a plural.
+		fewestNouns: 3000,
+		words:       map[string]wordTable{"noun": {"plural", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
+		months:      []string{"sausis", "vasaris", "kovas", "balandis", "gegužė", "birželis", "liepa", "rugpjūtis", "rugsėjis", "spalis", "lapkritis", "gruodis"},
+		weekdays:    []string{"pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis", "sekmadienis"},
+		everyday:    &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|lt)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Mėlyna", "Žalia", "Raudona"}},
+		names:       &names{map[string]string{"Ona": "f", "Danutė": "f", "Jonas": "m", "Kęstutis": "m"}, nil},
+		person:      &person{map[string]string{"f": "moteris", "m": "vyras"}, []string{"dr.", "prof."}},
 		// The Centre of Registers' open data of 19 November 2026, the legal entities in the Register of Legal Entities
 		// of four forms: UAB, MB, AB and ŽŪB. A name may place its form before or after it, quoted or not, as `UAB "Alfa"` does.
 		company: &company{regexp.MustCompile(`^["\p{Lu}][\p{L}\p{N} &'".-]*[\p{L}\p{N}"]$`), legalForm{}, []legalForm{

@@ -1,6 +1,7 @@
 package data_test
 
 import (
+	"cmp"
 	"maps"
 	"os"
 	"regexp"
@@ -237,13 +238,10 @@ func TestLocaleWordTablesHoldOnlyTheirSourcesHeadwords(t *testing.T) {
 	}, "a form or variant its source doesn't list as a headword of that part")
 }
 
-func TestLocaleNounTablesHoldTensOfThousandsOfNouns(t *testing.T) {
+func TestLocaleNounTablesHoldTheirSourcesNouns(t *testing.T) {
 	t.Parallel()
 	eachLocale(t, hasWords, func(t *testing.T, l shippedLocale) {
-		want := 20000
-		if l.name == "lt_LT" {
-			want = 3000 // the English Wiktionary lists about 4,200 Lithuanian nouns
-		}
+		want := cmp.Or(l.fewestNouns, 20000)
 		if n := len(localeWordForms(t, l.name, "noun")); n < want {
 			t.Errorf("%s word-noun holds %d nouns, want its source's, at least %d", l.name, n, want)
 		}
