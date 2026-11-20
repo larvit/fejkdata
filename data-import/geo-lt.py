@@ -109,7 +109,8 @@ def residents(stat: Mapping[str, Any]) -> dict[str, int]:
 
 def weighed(register: Register, counted: Tally, residents: Mapping[str, int]) -> None:
     """Gives each locality with an address its population by geo.populations, each municipality its residents, and each
-    region those of its municipalities."""
+    region those of its municipalities. A municipality the table gives no count for raises ValueError."""
+    geo.every_counted(register.municipalities, residents)
     municipality_of = {code: row["municipality"] for code, row in register.localities.items()}
     for code, n in geo.populations(counted.addresses, municipality_of, residents, residents).items():
         register.localities[code]["population"] = n
