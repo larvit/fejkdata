@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 502 | 0.7.0 |  |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 507 | 0.7.0 |  |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 512 | 0.7.0 |  |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
@@ -212,20 +211,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 502. Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.
-
-Candidate source: the Estonian Land Board's address data (Maa-amet ADS), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
-
-Research of 2026-11-20, to verify again when built. Maa- ja Ruumiamet (the Land and Spatial Development Board, Maa-amet's successor) publishes the address data system (ADS) under CC0 1.0, per its INSPIRE metadata record b0bd266e-b4c6-45db-b7ea-f47486b6258b. `https://geoportaal.maaruum.ee/docs/aadress/sihtnumbrid.zip` (30 MB) is a `;`-separated UTF-8 CSV, `ADR_ID;SIHTNUMBER;LAHIAADRESS;TAISAADRESS;VIITEPUNKT_X;VIITEPUNKT_Y`, of 1,369,879 addresses under 5,437 postal codes. `TAISAADRESS` spells the county, municipality, settlement and near address, comma-separated, as `Harju maakond, Harku vald, Tabasalu alevik, Sarapuu tn 70`; 112,065 rows have three parts, a town that is its own municipality, as `Harju maakond, Keila linn, Pargi tn 2b`. `LAHIAADRESS` is a street and number, with an apartment after a hyphen (`Saue tn 13-5`), or a farm's name (`Antsu`). The file carries no codes: the EHAK codes of counties, municipalities and settlements are in the DBF of `https://geoportaal.maaruum.ee/docs/haldus_asustus/asustusyksus_shp.zip` (15 MB), whose licence is still to check, and in `KEHTIVAD_KOMPONENDID.csv` on the agency's SFTP server, which the import container's Python cannot read. Population: Statistics Estonia's census table RL21003 (CC BY-SA 4.0, credit Statistics Estonia), whose join to ADS's settlements is untested; weighing a settlement by its addresses needs no second source. GeoNames (CC BY 4.0) is the fallback for points.
-
-Touches:
-
-- `data/geo/EE/`
-- `data/et_EE/`: `address.json`
-- `data-import/`
-- `docs/locales/geo.md`
-- `DATA-LICENSES.md`
 
 ### 507. Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.
 
