@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 540 | 0.7.1 |  |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
-| 538 | 0.7.1 |  |  | **Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
 | 408 | 0.7.1 |  | owner | **List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
 | 543 | 0.7.2 |  |  | **Reword the package description in `release-tooling/goreleaser.yaml` and the package comment in `doc.go` to the README's new lead.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
 | 541 | 0.7.2 | 408 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
@@ -224,15 +223,6 @@ Touches:
 
 - `cli/cli.go`: `usage`, `help`
 - `cli/cli_test.go`: `TestHelpLinksTheDocsItIsGiven`
-
-### 538. Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.
-
-The maintainer approves the exact texts before they go out: the GitHub settings change with `gh repo edit`, and the Docker Hub workflow publishes the two files once they merge. Topics take the phrases people search for, such as `test-data-generator`, `mock-data`, `synthetic-data`, `csv` and `sql`. Docker Hub's short description holds 100 characters.
-
-Touches:
-
-- `dockerhub/description.txt`
-- `dockerhub/overview.md`
 
 ### 408. List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.
 
