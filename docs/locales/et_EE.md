@@ -1,6 +1,6 @@
 # `et_EE`
 
-`et_EE`, Estonian, carries `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `isikukood`, `last-name`, `month`, `person`, `phone`, `price`, `sex`, `sex-digit`, `time`, `title`, `url`, `username` and `weekday`. `sex` is `naine` and `mees`, `title` is
+`et_EE`, Estonian, carries `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `isikukood`, `last-name`, `month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `naine` and `mees`, `title` is
 `dr` and `prof`, drawn whatever the sex. `{/et_EE.person}` renders e.g. `Liis Tamm`.
 
 Both name tables are a language model's recall of names common in Estonia: the commoner ones of each list are
@@ -82,3 +82,20 @@ number for another service, such as 900 for premium rates.
 
 A number is valid, not real: it lies in a range the Annex allocates, and a real subscriber may hold it. The
 Annex doesn't reserve any range for fiction or tests, so don't call or text a drawn number.
+
+## Estonian words
+
+`et_EE.word` draws evenly from about 5,500 words of the English Wiktionary's Estonian entries, as kaikki.org extracts
+them: the nouns, verbs, adjectives and adverbs in lower-case letters alone that Wiktionary lists as words of their own,
+not as an inflected form or a variant of another entry, so a verb is its `-ma` infinitive and never a conjugated form.
+Wiktionary has no frequencies, so a word may be rare, and the tables are small beside the other locales' because no
+larger Estonian word list is open without an account. `et_EE.word.noun`, `.verb`, `.adj` and `.adv` each draw one part
+of speech, and `et_EE.word.noun.plural` draws a noun and prints its nominative plural, such as `majad`. A noun with no
+nominative plural in lower-case letters alone is left out. Bind a noun to read it and its plural from one pick:
+`{/et_EE.word.noun as n}{n} {n.plural}` prints `konn konnad`.
+
+Rude words stay in the tables, so read the output before showing it to anyone. `et_EE.sentence` builds on singular
+nouns beside `on`, plural nouns and `-ma` infinitives after `hakkama`, so it needs no case ending the tables lack: `Kas see
+karjalane on valge?` and `Siis hakkasid lennujaamad niimoodi eelistama.` Its words are drawn at random, so a sentence may
+be senseless or even ungrammatical, such as an adjective that doesn't suit its noun. `et_EE.paragraph` joins three to six
+sentences.
