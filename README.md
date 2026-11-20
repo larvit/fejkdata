@@ -682,8 +682,8 @@ as `example.com` into the template; `todo.md` plans the paths. [`url` and `email
 What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
-`da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`, `time`,
-`url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too. `et_EE`, `lt_LT` and
+`da_DK`, `de_DE`, `et_EE`, `fi_FI`, `fr_FR`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`,
+`time`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too. `lt_LT` and
 `lv_LV` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`. `price` and `time` are written as the
 country writes them:
 
@@ -744,7 +744,7 @@ neighbouring postort.
 | `da_DK` | [Danish](docs/locales/da_DK.md) | CPR number; CPR number matched to a sex; Danish companies; Danish dates and emails; Danish phone numbers; Danish words |
 | `de_DE` | [German](docs/locales/de_DE.md) | Steuer-ID; German companies; German dates and emails; German phone numbers; German words |
 | `en_US` | [US English](docs/locales/en_US.md) | English words; Social Security numbers and ITINs; US phone exchanges |
-| `et_EE` | [Estonian](docs/locales/et_EE.md) | Estonian companies; Estonian dates and emails; Estonian phone numbers |
+| `et_EE` | [Estonian](docs/locales/et_EE.md) | Estonian companies; Estonian dates and emails; Estonian phone numbers; Estonian words |
 | `fi_FI` | [Finnish](docs/locales/fi_FI.md) | Finnish companies; Finnish dates and emails; Finnish phone numbers; Finnish words; Henkilötunnus; Henkilötunnus matched to a sex; Henkilötunnus of the issued range |
 | `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers; French words |
 | `geo` | [Places](docs/locales/geo.md) | Across countries; Danish places; Finnish places; German places; Norwegian places; Swedish places; US places |
@@ -1946,6 +1946,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.
 - `company-lv.py` fetches the Register of Enterprises' open data, 129 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
+- `word-et.py` fetches kaikki.org's Estonian dictionary, about 56 MB.
 - `word-fr.py` fetches kaikki.org's French dictionary, about 590 MB.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
 
@@ -1996,6 +1997,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/usera
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-de.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-dk.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fi.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-et.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-se.py

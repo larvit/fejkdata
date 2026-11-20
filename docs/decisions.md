@@ -1724,6 +1724,21 @@ plural needs neither. An invariable noun is its own plural, since kaikki.org lis
 `fr_FR.sentence` builds on plural nouns, infinitives and adverbs, which take no agreement.
 Valid while neither Wikidata nor Lexique reaches 20,000 nouns with a plural.
 
+## `et_EE.word` holds the English Wiktionary's Estonian words, and its nouns carry `plural`
+
+2026-11-20, Lilleman auf Larv. Goal 3.2.
+
+The tables hold the nouns, verbs, adjectives and adverbs of the English Wiktionary's Estonian entries, as kaikki.org
+extracts them (CC BY-SA 4.0), in lower-case letters alone: 3,879 nouns, 682 verbs, 648 adjectives and 288 adverbs.
+A word is a headword under its Estonian head template, so a verb is its `-ma` infinitive and a comparative or a
+participle is left out. A noun carries its nominative plural, such as `majad`, as `fr_FR`'s does, and one with none
+is left out. The other open sources are out of reach: the EKI Combined Dictionary and Estonian WordNet (CC BY and
+CC BY-SA on META-SHARE) offer no download without asking their maintainers, Ekilex (CC BY 4.0) needs an account's API
+key, and Eesthetic (CC BY 4.0) holds 5,000 nouns and 5,000 verbs and no adjective or adverb. The tables are small
+beside the other locales' for that reason. `et_EE.sentence` builds on plural nouns, singular nouns beside `on`,
+`-ma` infinitives after `hakkama` and adverbs, none of which takes a case ending the tables lack.
+Valid while no open file of Estonian words by part of speech can be fetched without an account.
+
 ## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 
 2026-11-04, the maintainer. Goals 4.3 and 4.6.
