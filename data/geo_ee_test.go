@@ -111,11 +111,11 @@ func TestGeoEELocalityIsSelectedByItsEHAKCode(t *testing.T) {
 	}
 }
 
-func TestGeoEEDrawsALocalityByItsAddresses(t *testing.T) {
+func TestGeoEEDrawsALocalityByItsPopulation(t *testing.T) {
 	t.Parallel()
-	for _, table := range []string{"region", "municipality", "locality", "postal-code", "street"} {
-		if got := readJSON[map[string]any](t, "geo/EE/"+table+".json")["weight"]; got != "addresses" {
-			t.Errorf("geo/EE/%s.json weighs by %v, want its addresses", table, got)
+	for table, want := range map[string]string{"region": "population", "municipality": "population", "locality": "population", "postal-code": "addresses", "street": "addresses"} {
+		if got := readJSON[map[string]any](t, "geo/EE/"+table+".json")["weight"]; got != want {
+			t.Errorf("geo/EE/%s.json weighs by %v, want its %s", table, got, want)
 		}
 	}
 	f := shipped(t, fejkdata.WithSeed(3))
@@ -125,7 +125,7 @@ func TestGeoEEDrawsALocalityByItsAddresses(t *testing.T) {
 	}, func(got string) { count[got]++ })
 	for name, n := range count {
 		if n > count["Tallinn"] {
-			t.Errorf("drew %s %d times and Tallinn %d, want the locality with most addresses drawn most", name, n, count["Tallinn"])
+			t.Errorf("drew %s %d times and Tallinn %d, want the locality with most people drawn most", name, n, count["Tallinn"])
 		}
 	}
 }
