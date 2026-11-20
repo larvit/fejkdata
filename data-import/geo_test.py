@@ -354,5 +354,27 @@ class Localities(unittest.TestCase):
         self.assertEqual(postal_codes, {"Helsinki": {"00100": 10, "00102": 5}})
 
 
+class WriteByAddresses(unittest.TestCase):
+    def test_each_table_weighs_by_addresses_and_a_locality_with_no_street_is_dropped_with_its_parents(self) -> None:
+        regions = {"1": {"code": "1", "name": "Nord", "addresses": 9, "timezone": "Europe/Riga"}, "2": {"code": "2", "name": "Syd", "addresses": 4, "timezone": "Europe/Riga"}}
+        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "addresses": 9}, "02": {"code": "02", "name": "Land", "region": "2", "addresses": 4}}
+        localities = {
+            "A": {"code": "A", "name": "Alby", "municipality": "01", "addresses": 9, "lat": "3", "lon": "4"},
+            "B": {"code": "B", "name": "Borg", "municipality": "02", "addresses": 4, "lat": "1", "lon": "2"},
+        }
+        streets = {"A": [{"name": "Gade", "locality": "A", "addresses": 6}]}
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d)
+            geo.write_by_addresses(out, regions, municipalities, localities, {("A", "2000"): 2, ("A", "1000"): 7, ("B", "3000"): 4}, streets)
+            tables = {t: (out / f"{t}.tsv").read_text(encoding="utf-8") for t in ("region", "municipality", "locality", "postal-code", "street")}
+        self.assertEqual(tables, {
+            "region": "code\tname\taddresses\ttimezone\n1\tNord\t9\tEurope/Riga\n",
+            "municipality": "code\tname\tregion\taddresses\n01\tBy\t1\t9\n",
+            "locality": "code\tname\tmunicipality\taddresses\tlat\tlon\nA\tAlby\t01\t9\t3\t4\n",
+            "postal-code": "code\tlocality\taddresses\n1000\tA\t7\n2000\tA\t2\n",
+            "street": "name\tlocality\taddresses\nGade\tA\t6\n",
+        })
+
+
 if __name__ == "__main__":
     unittest.main()
