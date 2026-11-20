@@ -1,0 +1,28 @@
+[
+  {
+    "format": "Siin on {a} ja {b}{end}",
+    "weight": 3,
+    "a": "{.word-noun.plural}",
+    "b": "{.word-noun.plural}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Siis hakkasid {noun} {adv} {verb}{end}",
+    "weight": 2,
+    "noun": "{.word-noun.plural}",
+    "adv": "{.word-adv}",
+    "verb": "{.word-verb}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "See {noun} on {adj}{end}",
+    "noun": "{.word-noun}",
+    "adj": "{.word-adj}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Kas see {noun} on {adj}?",
+    "noun": "{.word-noun}",
+    "adj": "{.word-adj}"
+  }
+]
