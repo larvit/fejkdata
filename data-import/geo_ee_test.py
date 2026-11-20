@@ -103,6 +103,9 @@ class StreetOf(unittest.TestCase):
     def test_an_apartment_and_a_second_building_are_dropped(self) -> None:
         self.assertEqual([geo_ee.street_of(near) for near in ("Saue tn 13-5", "Toome tn 18/2", "Reinu tee 8a/1-3")], [("Saue tn", 13, False), ("Toome tn", 18, False), ("Reinu tee", 8, True)])
 
+    def test_a_street_in_a_vaikekoht_is_named_without_it(self) -> None:
+        self.assertEqual(geo_ee.street_of("Aseri AÜ, Roosi tn 5"), ("Roosi tn", 5, False))
+
     def test_each_kind_of_street(self) -> None:
         for kind in ("tn", "mnt", "pst", "tee", "allee", "põik", "väljak", "plats"):
             self.assertEqual(geo_ee.street_of(f"Vana-Narva {kind} 4"), (f"Vana-Narva {kind}", 4, False))
@@ -135,6 +138,11 @@ class TallyOfAddresses(unittest.TestCase):
         counted = tally(address("76607", "Pargi tn 2b", keila), address("76607", "Metsa tn 12", keila), address("76607", "Jõe tn 7", keila), address("76607", "Jõe tn 30000", keila))
         self.assertEqual(counted.numbers, {(0, True): 1, (1, False): 1, (0, False): 1})
 
+    def test_an_address_in_a_vaikekoht_counts_for_its_asustusyksus(self) -> None:
+        counted = tally(address("76901", "Aia AÜ, Roosi tn 5", "Harju maakond, Harku vald, Tabasalu alevik"))
+        self.assertEqual((counted.addresses, counted.unplaced), ({"8009": 1}, {}))
+        self.assertEqual(counted.streets, {("8009", "Roosi tn"): 1})
+
     def test_a_house_number_of_zero_or_of_five_digits_counts_for_no_street(self) -> None:
         keila = "Harju maakond, Keila linn"
         for near in ("Pargi tn 0", "Pargi tn 10000"):
@@ -145,7 +153,7 @@ class TallyOfAddresses(unittest.TestCase):
     def test_an_address_in_no_settlement_unit_is_noted_and_not_counted(self) -> None:
         counted = tally(address("74114", "Kroodi raudteeharu, maatükk I", "Harju maakond, Maardu linn"))
         self.assertEqual(counted.addresses, {})
-        self.assertEqual(counted.unplaced, {("Harju maakond", "Maardu linn", "Kroodi raudteeharu"): 1})
+        self.assertEqual(counted.unplaced, {("Harju maakond", "Maardu linn"): 1})
 
     def test_a_localitys_point_is_the_mean_of_its_addresses(self) -> None:
         keila = "Harju maakond, Keila linn"
