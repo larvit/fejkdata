@@ -349,6 +349,7 @@ et_EE.last-name.sex	string
 et_EE.month	format "{name}"	key code	name name
 et_EE.month.code	string
 et_EE.month.name	string
+et_EE.paragraph	reads et_EE.sentence
 et_EE.person	format "{prefix}{first} {last}"	reads et_EE.first-name et_EE.title
 et_EE.person.first	string
 et_EE.person.last	string
@@ -358,6 +359,7 @@ et_EE.phone	format "{number as n}{national}"
 et_EE.phone.international	string
 et_EE.phone.national	string
 et_EE.price	format "{amt},{cents} €"
+et_EE.sentence	reads et_EE.word-adj et_EE.word-adv et_EE.word-noun et_EE.word-verb
 et_EE.sex	format "{name}"	key code	name name	weight count
 et_EE.sex-digit	format "{digit}"	parent sex
 et_EE.sex-digit.digit	string
@@ -389,6 +391,22 @@ et_EE.username.n
 et_EE.weekday	format "{name}"	key code	name name
 et_EE.weekday.code	string
 et_EE.weekday.name	string
+et_EE.word	format "{any}"	reads et_EE.word-adj et_EE.word-adv et_EE.word-noun et_EE.word-verb
+et_EE.word-adj	format "{word}"
+et_EE.word-adj.word	string
+et_EE.word-adv	format "{word}"
+et_EE.word-adv.word	string
+et_EE.word-noun	format "{word}"
+et_EE.word-noun.plural	string
+et_EE.word-noun.word	string
+et_EE.word-verb	format "{word}"
+et_EE.word-verb.word	string
+et_EE.word.adj	string
+et_EE.word.adv	string
+et_EE.word.any	string
+et_EE.word.noun	string
+et_EE.word.noun.plural
+et_EE.word.verb	string
 fi_FI.address	format "{/geo.FI.address as a}{a}"	reads geo.FI.address
 fi_FI.address.locality	string
 fi_FI.address.municipality	string
