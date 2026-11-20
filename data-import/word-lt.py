@@ -3,11 +3,12 @@
     data-import/word-lt.py [--wiktionary URL_OR_FILE] [--cache DIR] [--out DIR]
 
 kaikki.org extracts those entries (CC BY-SA 4.0), one JSON object a line. A row is a headword in lower-case letters alone,
-whose head template calls it a noun, verb, adjective or adverb, not a form or a participle, so a verb is an infinitive, and
-which has a sense that is not a form or variant of another entry. A noun carries its nominative plural from the entry's
-declension table, spelled without stress marks; a noun with no such plural is dropped. No word is dropped for being rude.
+whose head template calls it a noun, verb, adjective or adverb, not a form or a participle, and which has a sense that is
+not a form or variant of another entry. A noun carries its plural, spelled without stress marks: the nominative plural of
+its declension table, or the plural of its head template where it has no such one; a noun whose two differ, or which has
+neither linked, is dropped. No word is dropped for being rude.
 """
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -27,9 +28,15 @@ HEADS = {
 
 
 def plural(entry: Mapping[str, Any]) -> str:
-    """The page the entry's nominative plural links to, which is the form without its stress marks and its section anchor."""
+    """The page a plural of the entry links to, which is the form without its stress marks and its section anchor: the one its declension table gives for the nominative and its head template gives, else whichever of them links, and none where they differ."""
+    typed = linked(entry, lambda tags: tags == ["plural"])
+    nominative = linked(entry, lambda tags: {"nominative", "plural"} <= set(tags))
+    return "" if typed and nominative and typed != nominative else nominative or typed
+
+
+def linked(entry: Mapping[str, Any], wanted: Callable[[list[str]], bool]) -> str:
     for form in entry.get("forms", []):
-        if {"nominative", "plural"} <= set(form.get("tags", [])) and form.get("links"):
+        if wanted(form.get("tags", [])) and form.get("links"):
             return str(form["links"][0][1]).split("#")[0]
     return ""
 
