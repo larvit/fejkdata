@@ -180,6 +180,7 @@ var shippedLocales = []shippedLocale{
 	},
 	{
 		name:     "fr_FR",
+		words:    map[string]wordTable{"noun": {"plural", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
 		months:   []string{"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"},
 		weekdays: []string{"lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|fr)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Bleu", "Vert", "Rouge"}},
