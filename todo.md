@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 543`
+`Next ID = 544`
 
 ## Items
 
@@ -15,6 +15,7 @@
 | 540 | 0.7.1 |  |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
 | 538 | 0.7.1 |  |  | **Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
 | 408 | 0.7.1 |  | owner | **List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
+| 543 | 0.7.2 |  |  | **Reword the package description in `release-tooling/goreleaser.yaml` and the package comment in `doc.go` to the README's new lead.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
 | 541 | 0.7.2 | 408 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
 | 542 | 0.7.2 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.2 |
 | 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
@@ -242,6 +243,15 @@ Touches:
 - `README.md`: `## Data`, `### Locale categories`
 - `readme_test.go`
 - `release-tooling/data-listing.go`
+
+### 543. Reword the package description in `release-tooling/goreleaser.yaml` and the package comment in `doc.go` to the README's new lead.
+
+Both still open with "locale-aware fake data": goreleaser's description is what brew, apt and dnf show, and doc.go is what pkg.go.dev shows. Item 538's product-owner pass found them. Use the Docker Hub short description's wording, "Fake data for tests. Related values match, like a postcode and its city.", and keep the claim true of what ships. A change to what a release packages runs the Packages workflow as a dry run.
+
+Touches:
+
+- `release-tooling/goreleaser.yaml`
+- `doc.go`
 
 ### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
 
