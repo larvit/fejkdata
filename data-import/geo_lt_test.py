@@ -94,6 +94,11 @@ class TallyOfAddresses(unittest.TestCase):
         self.assertEqual(counted.addresses, {"31003": 1})
         self.assertEqual(counted.streets, {})
 
+    def test_an_address_whose_number_is_no_house_number_counts_for_no_street(self) -> None:
+        counted = tally(address("12-3"))
+        self.assertEqual((counted.addresses, counted.postal_codes), ({"31003": 1}, {("31003", "LT-04339"): 1}))
+        self.assertEqual((counted.streets, counted.numbers), ({}, {}))
+
     def test_house_numbers_count_by_their_length_and_letter(self) -> None:
         counted = tally(address("40"), address("4A"), address("7"), address("195", block="2"))
         self.assertEqual(counted.numbers, {(1, False): 1, (0, True): 1, (0, False): 1, (2, False): 1})

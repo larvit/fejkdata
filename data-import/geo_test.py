@@ -375,6 +375,15 @@ class WriteByAddresses(unittest.TestCase):
             "street": "name\tlocality\taddresses\nGade\tA\t6\n",
         })
 
+    def test_a_postal_code_two_localities_share_lists_them_in_their_codes_order(self) -> None:
+        regions = {"1": {"code": "1", "name": "Nord", "addresses": 9, "timezone": "Europe/Riga"}}
+        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "addresses": 9}}
+        localities = {c: {"code": c, "name": c, "municipality": "01", "addresses": n, "lat": "1", "lon": "2"} for c, n in (("C", 4), ("A", 5))}
+        streets = {c: [{"name": "Gade", "locality": c, "addresses": 1}] for c in ("A", "C")}
+        with tempfile.TemporaryDirectory() as d:
+            geo.write_by_addresses(Path(d), regions, municipalities, localities, {("C", "1000"): 4, ("A", "1000"): 5}, streets)
+            self.assertEqual((Path(d) / "postal-code.tsv").read_text(encoding="utf-8"), "code\tlocality\taddresses\n1000\tA\t5\n1000\tC\t4\n")
+
     def test_the_locality_table_has_no_point_where_no_locality_has_one(self) -> None:
         regions = {"1": {"code": "1", "name": "Nord", "addresses": 9, "timezone": "Europe/Vilnius"}}
         municipalities = {"01": {"code": "01", "name": "By", "region": "1", "addresses": 9}}

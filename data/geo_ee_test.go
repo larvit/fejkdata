@@ -106,8 +106,8 @@ func TestGeoEELocalityIsSelectedByItsEHAKCode(t *testing.T) {
 		}
 	}
 	f := shipped(t, fejkdata.WithSeed(3))
-	if got := fejktest.FakeTemplate(t, f, "{/geo.EE.locality[0784]}, {/geo.EE.locality[0296].name}, {/geo.EE.region[0037]}"); got != "Tallinn, Keila linn, Harju maakond" {
-		t.Errorf("localities 0784 and 0296 and region 0037 printed %q, want \"Tallinn, Keila linn, Harju maakond\"", got)
+	if got := fejktest.FakeTemplate(t, f, "{/geo.EE.locality[0784]}, {/geo.EE.locality[0296].name}, {/geo.EE.locality[8151]}, {/geo.EE.region[0037]}"); got != "Tallinn, Keila linn, Tartu linn, Harju maakond" {
+		t.Errorf("localities 0784, 0296 and 8151 and region 0037 printed %q, want \"Tallinn, Keila linn, Tartu linn, Harju maakond\"", got)
 	}
 }
 

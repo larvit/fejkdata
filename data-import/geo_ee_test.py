@@ -13,6 +13,7 @@ UNITS = [dict(zip(FIELDS, row, strict=True)) for row in (
     ("Pirita linnaosa", "0596", "6", "Tallinn", "0784", "Harju maakond", "0037"),
     ("Nõmme linnaosa", "0524", "6", "Tallinn", "0784", "Harju maakond", "0037"),
     ("Ruhnu küla", "7185", "8", "Ruhnu vald", "0689", "Saare maakond", "0074"),
+    ("Haapsalu linn", "1692", "5", "Haapsalu linn", "0184", "Lääne maakond", "0056"),
 )]
 
 
@@ -62,6 +63,13 @@ class Units(unittest.TestCase):
 
     def test_a_linn_with_no_asustusyksus_is_placed_by_its_own_name(self) -> None:
         self.assertEqual(geo_ee.units(UNITS)[3][("Harju maakond", "Keila linn")], "0296")
+
+    def test_a_linn_inside_a_municipality_of_its_name_keeps_its_own_ehak_code(self) -> None:
+        _, _, localities, code_of = geo_ee.units(UNITS)
+        self.assertEqual(localities["1692"], {"code": "1692", "name": "Haapsalu linn", "municipality": "0184"})
+        self.assertEqual(code_of[("Lääne maakond", "Haapsalu linn", "Haapsalu linn")], "1692")
+        self.assertNotIn("0184", localities)
+        self.assertNotIn(("Lääne maakond", "Haapsalu linn"), code_of)
 
     def test_a_vald_is_no_place_without_its_asustusyksus(self) -> None:
         self.assertNotIn(("Harju maakond", "Harku vald"), geo_ee.units(UNITS)[3])
@@ -126,6 +134,13 @@ class TallyOfAddresses(unittest.TestCase):
         keila = "Harju maakond, Keila linn"
         counted = tally(address("76607", "Pargi tn 2b", keila), address("76607", "Metsa tn 12", keila), address("76607", "Jõe tn 7", keila), address("76607", "Jõe tn 30000", keila))
         self.assertEqual(counted.numbers, {(0, True): 1, (1, False): 1, (0, False): 1})
+
+    def test_a_house_number_of_zero_or_of_five_digits_counts_for_no_street(self) -> None:
+        keila = "Harju maakond, Keila linn"
+        for near in ("Pargi tn 0", "Pargi tn 10000"):
+            counted = tally(address("76607", near, keila))
+            self.assertEqual((counted.addresses, counted.postal_codes), ({"0296": 1}, {("0296", "76607"): 1}), near)
+            self.assertEqual((counted.streets, counted.numbers), ({}, {}), near)
 
     def test_an_address_in_no_settlement_unit_is_noted_and_not_counted(self) -> None:
         counted = tally(address("74114", "Kroodi raudteeharu, maatükk I", "Harju maakond, Maardu linn"))
