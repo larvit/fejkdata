@@ -1609,7 +1609,7 @@ or TypeScript, and at a shell:
 - a **custom-CLI builder**, who ships a CLI like `fejkdata` with data and functions of
   their own
 - a **coding agent**, which runs the CLI for a developer: it finds a path with `--list`,
-  and fixes a template from the error that exit 2 prints, which names the fix
+  and fixes a template from the error that exit 2 prints
 
 and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
 the Development section below, and who ships a register the eight above then draw from.
