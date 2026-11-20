@@ -17,6 +17,7 @@ addresses that carry one.
 import collections
 import csv
 import io
+import json
 import math
 import re
 import struct
@@ -24,12 +25,35 @@ import sys
 import zipfile
 from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
+from typing import Any
 
 import geo
 import source
 
 ADDRESSES = "https://geoportaal.maaruum.ee/docs/aadress/sihtnumbrid.zip"
 UNITS = "https://s3.pilw.io/rp-kemit-kataster/EHAK/asustusyksus_shp.zip"
+# Statistics Estonia's table RL21003: the people of each settlement in the census of 31 December 2021.
+CENSUS = "https://andmed.stat.ee/api/v1/et/stat/rahvaloendus/rel2021/rahvastiku_paiknemine/elukoht-ja-soo-vanusjaotus/RL21003.px"
+QUERY = {
+    "query": [
+        {"code": "Aasta", "selection": {"filter": "item", "values": ["2021"]}},
+        {"code": "Sugu", "selection": {"filter": "item", "values": ["1"]}},
+        {"code": "Vanus", "selection": {"filter": "item", "values": ["1"]}},
+        {"code": "Elukoht", "selection": {"filter": "all", "values": ["*"]}},
+    ],
+    "response": {"format": "json-stat2"},
+}
+# In a place's key in the census: the code that stands where a level has none, and the kind of a linnaosa.
+NO_CODE, CENSUS_LINNAOSA = "0000", "L6"
+# What a place's label in the census opens with: dots for its depth and, before a settlement, its EHAK code.
+LABEL = re.compile(r"^\.+(?:\d{4} )?")
+# The census publishes no count of 1 or 2, so a settlement whose count it withholds holds 2.
+WITHHELD = 2
+# Kiltsi küla was Kiltsi alevik in the census, under another code.
+RECODED = {"3091": "3092"}
+# The settlements formed since the census, which counts their people in the settlements they were cut from: Keskküla,
+# Kohtla-Uueküla, Koplimetsa küla and Raadi alev. Each population is a language model's guess.
+ESTIMATES = {"2975": 90, "3262": 60, "3440": 150, "6674": 3000}
 TIMEZONE = "Europe/Tallinn"
 LINNAOSA = "6"
 # The words that end a street's name. The board's handbook of address data, section 27.14, abbreviates tänav, maantee
@@ -158,18 +182,56 @@ def tally(lines: Iterable[str], code_of: Mapping[Place, str]) -> Tally:
     return counted
 
 
-def weighed(regions: Mapping[str, geo.Row], municipalities: Mapping[str, geo.Row], localities: Mapping[str, geo.Row], counted: Tally) -> None:
-    """Gives each locality with an address its addresses and its point, and each municipality and region the addresses
-    of its localities."""
+class Census:
+    """The 2021 census's count of each settlement, by its EHAK code, and by its maakond and name where one settlement of
+    the maakond bears the name. A place's key is the EHAK codes of its maakond, its municipality and its settlement, then
+    its kind. A linn that holds no settlement is one itself, under its municipality's code. A linnaosa, a vald and a
+    maakond are none."""
+
+    def __init__(self, stat: Mapping[str, Any]) -> None:
+        category = stat["dimension"]["Elukoht"]["category"]
+        places = [(key, LABEL.sub("", category["label"][key]), stat["value"][i]) for key, i in category["index"].items() if len(key) == 14 and key[4:8] != NO_CODE and key[12:] != CENSUS_LINNAOSA]
+        holders = {key[4:8] for key, _, _ in places if key[8:12] != NO_CODE}
+        self.by_code: dict[str, int] = {}
+        named: dict[tuple[str, str], list[int]] = collections.defaultdict(list)
+        for key, name, n in places:
+            if key[8:12] == NO_CODE and key[4:8] in holders:
+                continue
+            people = WITHHELD if n is None else n
+            self.by_code[key[4:8] if key[8:12] == NO_CODE else key[8:12]] = people
+            named[(key[:4], name)].append(people)
+        self.by_name = {place: counts[0] for place, counts in named.items() if len(counts) == 1}
+
+    def of(self, code: str, name: str, region: str) -> int:
+        """A settlement's people: the census's count under its code, or else under its name in its maakond, since EHAK
+        gave some settlements a new code after the census; or else its estimate."""
+        code = RECODED.get(code, code)
+        if code in self.by_code:
+            return self.by_code[code]
+        if (region, name) in self.by_name:
+            return self.by_name[(region, name)]
+        return ESTIMATES[code]
+
+
+def weighed(regions: Mapping[str, geo.Row], municipalities: Mapping[str, geo.Row], localities: Mapping[str, geo.Row], counted: Tally, census: Census) -> None:
+    """Gives each locality with an address its population, at least one person, and its point, and each municipality
+    and region the people of its localities. A locality with no address counts for its municipality where the census
+    holds it."""
     for row in (*regions.values(), *municipalities.values()):
-        row["addresses"] = 0
-    for code, n in counted.addresses.items():
-        locality = localities[code]
+        row["population"] = 0
+    for code, locality in localities.items():
         municipality = municipalities[locality["municipality"]]
-        locality["addresses"] = n
-        locality["lat"], locality["lon"] = counted.point(code)
-        municipality["addresses"] += n
-        regions[municipality["region"]]["addresses"] += n
+        try:
+            people = census.of(code, locality["name"], municipality["region"])
+        except KeyError:
+            if code in counted.addresses:
+                raise
+            continue
+        municipality["population"] += people
+        regions[municipality["region"]]["population"] += people
+        if code in counted.addresses:
+            locality["population"] = max(1, people)
+            locality["lat"], locality["lon"] = counted.point(code)
 
 
 def unzipped(url: str, cache: Path, member: str) -> bytes:
@@ -183,9 +245,10 @@ def main() -> None:
     cache, out = geo.directories(a)
     regions, municipalities, localities, code_of = units(dbf_rows(unzipped(UNITS, cache, "asustusyksus.dbf")))
     counted = tally(unzipped(ADDRESSES, cache, "sihtnumbrid.csv").decode("utf-8").splitlines(), code_of)
-    weighed(regions, municipalities, localities, counted)
+    answer = source.fetch(CENSUS, cache, "rl21003.json", magic=b"{", data=json.dumps(QUERY).encode(), headers={"Content-Type": "application/json"})
+    weighed(regions, municipalities, localities, counted, Census(json.loads(answer)))
     streets = geo.top_streets(counted.streets, a.street_share, a.min_streets, "addresses")
-    geo.write_by_addresses(out, regions, municipalities, {c: row for c, row in localities.items() if "addresses" in row}, counted.postal_codes, streets)
+    geo.write_by_code(out, regions, municipalities, {c: row for c, row in localities.items() if "population" in row}, counted.postal_codes, streets)
     (out / "address.json").write_text(geo.address_json(counted.numbers, "{lower(1)}"), encoding="utf-8")
 
 
