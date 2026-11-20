@@ -9,9 +9,9 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
-- The README's CLI section gains "For coding agents": a command to find a path with `--list`, a one-line render, the
-  fix an error names for a reference missing its leading slash, `--seed` and `--today` to repeat a run, and a snippet
-  to paste into a project's `AGENTS.md`.
+- The README's [For coding agents](https://github.com/larvit/fejkdata#for-coding-agents) section has a snippet
+  to paste into a project's `AGENTS.md`, and the shell lines an agent runs: find a path with `--list`, render it,
+  fix a reference that lacks its leading slash as the error says, and repeat a run with `--seed` and `--today`.
 
 ## 0.7.0 - 2026-11-20
 
