@@ -18,14 +18,21 @@ with a letter or without, by the addresses that carry one.
 import collections
 import csv
 import io
+import json
 import re
 from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
+from typing import Any
 
 import geo
 import source
 
 FILE = "https://www.registrucentras.lt/aduomenys/?byla={}.csv"
+# The State Data Agency's residents of each unit at the start of YEAR, table M3010320 of indicator S3R167.
+YEAR = 2026
+RESIDENTS = f"https://osp-rs.stat.gov.lt/rest_json/data/S3R167_M3010320?startPeriod={YEAR}&endPeriod={YEAR}"
+# The table's code for men and women together, and its status for a unit where nobody lived.
+BOTH_SEXES, NONE_LIVED_THERE = "0", "nebuvo"
 TIMEZONE = "Europe/Vilnius"
 NUMBER = re.compile(r"^([1-9]\d{0,3})([A-Z]?)$")
 
@@ -82,17 +89,32 @@ def tally(rows: Iterable[Mapping[str, str]], register: Register, premises: Mappi
     return counted
 
 
-def weighed(register: Register, counted: Tally) -> None:
-    """Gives each locality with an address its addresses, each municipality those of its localities, and each region
-    those of its municipalities."""
-    for row in (*register.regions.values(), *register.municipalities.values()):
-        row["addresses"] = 0
-    for code, n in counted.addresses.items():
-        locality = register.localities[code]
-        locality["addresses"] = n
-        register.municipalities[locality["municipality"]]["addresses"] += n
-    for municipality in register.municipalities.values():
-        register.regions[municipality["region"]]["addresses"] += municipality["addresses"]
+def residents(stat: Mapping[str, Any]) -> dict[str, int]:
+    """Each unit's residents in the agency's answer, by its code: a gyvenamoji vietovė under its code in the register,
+    and a savivaldybė under its own. A unit the agency says had no residents holds 0, and one whose count it withholds
+    is left out."""
+    sexes, units = (stat["structure"]["dimensions"]["observation"][i]["values"] for i in (0, 1))
+    statuses = next(a["values"] for a in stat["structure"]["attributes"]["observation"] if a["id"] == "OBS_STATUS")
+    both = next(i for i, sex in enumerate(sexes) if sex["id"] == BOTH_SEXES)
+    out: dict[str, int] = {}
+    for i, unit in enumerate(units):
+        n, _, status = stat["dataSets"][0]["observations"][f"{both}:{i}:0:0"]
+        if n is not None or statuses[status]["id"] == NONE_LIVED_THERE:
+            out[unit["id"]] = n or 0
+    return out
+
+
+def weighed(register: Register, counted: Tally, residents: Mapping[str, int]) -> None:
+    """Gives each locality with an address its population by geo.populations, each municipality its residents, and each
+    region those of its municipalities."""
+    municipality_of = {code: row["municipality"] for code, row in register.localities.items()}
+    for code, n in geo.populations(counted.addresses, municipality_of, residents, residents).items():
+        register.localities[code]["population"] = n
+    for row in register.regions.values():
+        row["population"] = 0
+    for code, municipality in register.municipalities.items():
+        municipality["population"] = residents[code]
+        register.regions[municipality["region"]]["population"] += residents[code]
 
 
 def table(cache: Path, name: str, first_column: str) -> Iterator[dict[str, str]]:
@@ -106,9 +128,9 @@ def main() -> None:
     cache, out = geo.directories(a)
     register = Register(table(cache, "adr_apskritys", "ADM_KODAS"), table(cache, "adr_savivaldybes", "SAV_KODAS"), table(cache, "adr_gyvenamosios_vietoves", "GYV_KODAS"), table(cache, "adr_gatves", "GAT_KODAS"))
     counted = tally(table(cache, "adr_stat_lr", "SAV_KODAS"), register, premises(table(cache, "adr_pat_lr", "SAV_KODAS")))
-    weighed(register, counted)
+    weighed(register, counted, residents(json.loads(source.fetch(RESIDENTS, cache, f"residents-{YEAR}.json", magic=b"{"))))
     streets = geo.top_streets(counted.streets, a.street_share, a.min_streets, "addresses")
-    geo.write_by_addresses(out, register.regions, register.municipalities, {c: row for c, row in register.localities.items() if "addresses" in row}, counted.postal_codes, streets)
+    geo.write_by_code(out, register.regions, register.municipalities, {c: row for c, row in register.localities.items() if "population" in row}, counted.postal_codes, streets)
     (out / "address.json").write_text(geo.address_json(counted.numbers), encoding="utf-8")
 
 

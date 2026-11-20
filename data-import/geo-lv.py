@@ -18,6 +18,7 @@ address.json weighs each length of house number, with a letter or without, by th
 import collections
 import csv
 import io
+import json
 import re
 from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
@@ -35,6 +36,23 @@ RESOURCES = {
     "aw_eka": "a510737a-18ce-400f-ad4b-04fce5228272",
     "aw_dziv": "b83be373-f444-4f50-9b98-28741845325e",
 }
+# The Central Statistical Bureau's people of each unit at the start of YEAR, table RIG010.
+YEAR = 2026
+PEOPLE = "https://data.stat.gov.lv/api/v1/lv/OSP_PUB/POP/IR/IRD/RIG010"
+QUERY = {
+    "query": [
+        {"code": "AllAreaLV", "selection": {"filter": "all", "values": ["*"]}},
+        {"code": "AgeGroup", "selection": {"filter": "item", "values": ["TOTAL"]}},
+        {"code": "SEX", "selection": {"filter": "item", "values": ["T"]}},
+        {"code": "ContentsCode", "selection": {"filter": "item", "values": ["RIG010"]}},
+        {"code": "TIME", "selection": {"filter": "item", "values": [str(YEAR)]}},
+    ],
+    "response": {"format": "csv"},
+}
+# A unit's row in the table: an ATVK code of seven digits, or a ciems's code in the register, of nine.
+UNIT = re.compile(r"^LV(\d{7}|\d{9}) ")
+# Carnikava became a pilsēta on 22 August 2026: its ATVK code and its pagasts's since, and the codes the table holds.
+CARNIKAVA, CARNIKAVAS_PAGASTS, CARNIKAVA_CIEMS, CARNIKAVAS_PAGASTS_BEFORE = "0023210", "0023411", "100184532", "0023410"
 TIMEZONE = "Europe/Riga"
 IN_FORCE = "EKS"
 # The register's kinds of row, as TIPS_CD and VKUR_TIPS name them.
@@ -145,20 +163,35 @@ def tally(rows: Iterable[Mapping[str, str]], register: Register, apartments: Map
     return counted
 
 
-def weighed(register: Register, counted: Tally) -> None:
-    """Gives each locality with an address its addresses and its point, each municipality the addresses of its localities
-    and of the houses outside them, and each region those of its municipalities."""
-    for row in (*register.regions.values(), *register.municipalities.values()):
-        row["addresses"] = 0
-    for code, n in counted.addresses.items():
-        locality = register.localities[code]
-        locality["addresses"] = n
-        locality["lat"], locality["lon"] = counted.point(code)
-        register.municipalities[locality["municipality"]]["addresses"] += n
-    for code, n in counted.outside.items():
-        register.municipalities[code]["addresses"] += n
-    for municipality in register.municipalities.values():
-        register.regions[municipality["region"]]["addresses"] += municipality["addresses"]
+def people(rows: Iterable[list[str]]) -> dict[str, int]:
+    """Each unit's people in the bureau's table: a ciems under its code in the register, and a pilsēta, a pagasts and a
+    novads under ATVK. A row opens with `LV`, the code and the name, and ends in the count. A row of another kind, and
+    one whose count the bureau does not give, is left out. The table draws the borders of 1 January 2026, when
+    Carnikava was a ciems of its pagasts, so the pilsēta takes that ciems's people and the pagasts the rest."""
+    out: dict[str, int] = {}
+    for row in rows:
+        m = UNIT.match(row[0])
+        if m and row[-1].isdecimal():
+            out[m[1]] = int(row[-1])
+    if CARNIKAVA_CIEMS in out:
+        out[CARNIKAVA] = out[CARNIKAVA_CIEMS]
+        out[CARNIKAVAS_PAGASTS] = out[CARNIKAVAS_PAGASTS_BEFORE] - out[CARNIKAVA_CIEMS]
+    return out
+
+
+def weighed(register: Register, counted: Tally, people: Mapping[str, int]) -> None:
+    """Gives each locality with an address its population by geo.populations and its point, each municipality its
+    people, and each region those of its municipalities. A pilsēta has no count under its code in the register, so it
+    takes its municipality's, which is its own."""
+    municipality_of = {code: row["municipality"] for code, row in register.localities.items()}
+    for code, n in geo.populations(counted.addresses, municipality_of, people, people, counted.outside).items():
+        register.localities[code]["population"] = n
+        register.localities[code]["lat"], register.localities[code]["lon"] = counted.point(code)
+    for row in register.regions.values():
+        row["population"] = 0
+    for code, municipality in register.municipalities.items():
+        municipality["population"] = people[code]
+        register.regions[municipality["region"]]["population"] += people[code]
 
 
 def table(cache: Path, name: str) -> Iterator[dict[str, str]]:
@@ -172,9 +205,10 @@ def main() -> None:
     cache, out = geo.directories(a)
     register = Register(*(table(cache, name) for name in ("aw_novads", "aw_pilseta", "aw_pagasts", "aw_ciems", "aw_iela")))
     counted = tally(table(cache, "aw_eka"), register, apartments(table(cache, "aw_dziv")))
-    weighed(register, counted)
+    answer = source.fetch(PEOPLE, cache, f"people-{YEAR}.csv", magic=b"\xef\xbb\xbf", data=json.dumps(QUERY).encode(), headers={"Content-Type": "application/json"})
+    weighed(register, counted, people(csv.reader(io.StringIO(answer.decode("utf-8-sig"), newline=""))))
     streets = geo.top_streets(counted.streets, a.street_share, a.min_streets, "addresses")
-    geo.write_by_addresses(out, register.regions, register.municipalities, {c: row for c, row in register.localities.items() if "addresses" in row}, counted.postal_codes, streets)
+    geo.write_by_code(out, register.regions, register.municipalities, {c: row for c, row in register.localities.items() if "population" in row}, counted.postal_codes, streets)
     (out / "address.json").write_text(geo.address_json(counted.numbers, layout=LAYOUT), encoding="utf-8")
 
 

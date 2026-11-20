@@ -196,6 +196,23 @@ def homes[K](in_municipality: Mapping[tuple[K, str], int], people: Mapping[str, 
     return {place: (municipality, max(1, round(share[place]))) for place, municipality in home_municipalities(in_municipality).items()}
 
 
+def populations[K](addresses: Mapping[K, int], municipality_of: Mapping[K, str], counted: Mapping[K, int], people: Mapping[str, int], outside: Mapping[str, int] | None = None) -> dict[K, int]:
+    """The population of each locality in addresses, which maps it to its addresses: its count in counted, or else its
+    share of the rest. The rest is what a municipality's people leave once its counted localities are taken away, shared
+    out by addresses over its other localities and its addresses outside every locality. A locality holds at least one
+    person."""
+    rest = collections.Counter(people)
+    for place, n in counted.items():
+        if place in municipality_of:
+            rest[municipality_of[place]] -= n
+    uncounted = collections.Counter(outside or {})
+    for place, n in addresses.items():
+        if place not in counted:
+            uncounted[municipality_of[place]] += n
+    shares = {place: max(0, rest[municipality_of[place]]) * n / uncounted[municipality_of[place]] for place, n in addresses.items() if place not in counted}
+    return {place: max(1, counted[place] if place in counted else round(shares[place])) for place in addresses}
+
+
 def number_range(number: int, lettered: bool) -> tuple[int, bool]:
     """The key address_json counts a house number under: its range's index in NUMBER_RANGES, and whether a letter follows."""
     return next(i for i, (_, top) in enumerate(NUMBER_RANGES) if number <= top), lettered
@@ -228,9 +245,10 @@ def write_tables(out: Path, kept: Tables, postal_codes: Iterable[Row], streets: 
     tsv.write(out / "street.tsv", columns["street"], [s for locality in sorted(kept["locality"]) for s in streets[locality]])
 
 
-def write_by_addresses[K](out: Path, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[K, Row], postal_codes: Mapping[tuple[K, str], int], streets: Mapping[K, list[Row]]) -> None:
-    """Writes the tables of a country that weighs every row by its addresses and selects it by its code. localities
-    holds each locality with an address, and postal_codes maps (locality, postal code) to the addresses they share.
+def write_by_code[K](out: Path, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[K, Row], postal_codes: Mapping[tuple[K, str], int], streets: Mapping[K, list[Row]]) -> None:
+    """Writes the tables of a country that selects a row by its code. It weighs a region, a municipality and a locality
+    by the population each row holds, and a postal code and a street by its addresses. localities holds each locality
+    with an address, and postal_codes maps (locality, postal code) to the addresses they share.
     A locality with no street is dropped and logged, and so is a municipality or a region left with no row under it. The
     locality table has a lat and a lon column where a locality has a point."""
     of: dict[K, list[Row]] = collections.defaultdict(list)
@@ -242,4 +260,4 @@ def write_by_addresses[K](out: Path, regions: Mapping[str, Row], municipalities:
         print(f"{row['code']} {row['name']}: no locality with a street, dropped", file=sys.stderr)
     rows = sorted((row for locality in kept["locality"] for row in of[locality]), key=lambda r: r["locality"])
     point = ["lat", "lon"] if any("lat" in row for row in localities.values()) else []
-    write_tables(out, kept, rows, streets, region=["code", "name", "addresses", "timezone"], municipality=["code", "name", "region", "addresses"], locality=["code", "name", "municipality", "addresses", *point])
+    write_tables(out, kept, rows, streets, region=["code", "name", "population", "timezone"], municipality=["code", "name", "region", "population"], locality=["code", "name", "municipality", "population", *point])
