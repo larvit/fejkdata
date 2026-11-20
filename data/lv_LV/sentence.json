@@ -15,7 +15,7 @@
     "end": [{ "format": ".", "weight": 3 }, "!"]
   },
   {
-    "format": "Lūk, {noun}, un tas ir {adj}{end}",
+    "format": "Šeit ir {noun}, un viss ir {adj}{end}",
     "noun": "{.word-noun.plural}",
     "adj": "{.word-adj}",
     "end": [{ "format": ".", "weight": 3 }, "!"]

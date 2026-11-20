@@ -102,7 +102,7 @@ prints its nominative plural, such as `mājas`. A noun with no plural in lower-c
 to read it and its plural from one pick: `{/lv_LV.word.noun as n}{n} {n.plural}` prints `iedaliena iedalienas`.
 
 Rude words stay in the tables, so read the output before showing it to anyone. `lv_LV.sentence` builds on plural nouns,
-infinitives and adverbs, and its adjectives follow `tas ir`, so it needs no gender and no agreement:
+infinitives and adverbs, and its adjectives follow `viss ir`, so it needs no gender and no agreement:
 `Tad vingrojumi sāka glāsaini nobraukāt.` and `Vai skalbes var ieteicami atdalīt?` Its words are drawn at random, so a
 sentence may be senseless. `lv_LV.paragraph` joins three to six sentences.
 
