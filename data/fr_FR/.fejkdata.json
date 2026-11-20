@@ -1,5 +1,6 @@
 {
 	"index": {
+		"fr_FR.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"fr_FR.color": {"paths":[""]},
 		"fr_FR.company": {"paths":["","ei","ei.name","legal","registered","registered.legal","sa","sa.name","sarl","sarl.name","sas","sas.name","snc","snc.name"]},
 		"fr_FR.company-coined": {"paths":["","count","word"]},

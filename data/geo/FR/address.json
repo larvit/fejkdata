@@ -1,0 +1,18 @@
+{
+  "format": "{street-number} {street}\n{postal-code} {locality}",
+  "street": "{.locality as l}{/geo.FR.street}",
+  "street-number": [
+    { "format": "{int(1,9)}", "weight": 7941284 },
+    { "format": "{int(10,99)}", "weight": 11536195 },
+    { "format": "{int(100,999)}", "weight": 3845922 },
+    { "format": "{int(1000,9999)}", "weight": 736596 },
+    { "format": "{int(1,9)} bis", "weight": 387894 },
+    { "format": "{int(10,99)} bis", "weight": 524524 },
+    { "format": "{int(100,999)} bis", "weight": 61453 },
+    { "format": "{int(1000,9999)} bis", "weight": 4135 }
+  ],
+  "postal-code": "{l.postal-code.code}",
+  "locality": "{l.name}",
+  "municipality": "{l..municipality.name}",
+  "region": "{l..municipality..region.name}"
+}

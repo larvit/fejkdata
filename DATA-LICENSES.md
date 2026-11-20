@@ -461,6 +461,36 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Source: Statistics Finland"
 - Rebuild: `data-import/geo-fi.py`
 
+## `geo/FR/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`
+
+- Files: `geo/FR/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`, and the
+  house-number weights of `address.json`
+- Source: [INSEE](https://www.insee.fr/)'s ["Fichier d'ensemble des populations en
+  2023"](https://www.insee.fr/fr/statistiques/8680726), published 18 December 2025, for each région,
+  département and commune within the limits of 1 January 2025, with the commune's municipal
+  population; the file leaves out Mayotte and the overseas collectivities. The [Base Adresse
+  Nationale](https://adresse.data.gouv.fr/)'s address file `adresses-france.csv.gz` of 20 November
+  2026, for the postal codes a commune's addresses are filed under, each weighted by its addresses
+  there, for the commune's point, the mean of its addresses' points, and for how often a house number
+  has one to four digits, bare or with `bis`. The arrondissements of Paris, Lyon and Marseille are
+  summed into their city, and a commune with no people or no address under a postal code is dropped
+- Licence: both [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/),
+  as INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) and the Base Adresse
+  Nationale's [dataset page](https://www.data.gouv.fr/datasets/base-adresse-nationale/) state
+- Attribution: "Source : Insee, Fichier d'ensemble des populations en 2023, 18/12/2025": INSEE's
+  conditions ask for the date of the data's last update. "Source : Base Adresse Nationale,
+  20/11/2026": the licence asks for the source's name and the date of its last update, and the
+  dataset page words no credit of its own
+- Rebuild: `data-import/geo-fr.py`
+
+## `geo/FR/street.tsv`
+
+- Source: a language model's recall of street names common in France, until the streets are taken
+  from the Base Adresse Nationale; every name weighs the same and belongs to no place
+- Licence: the project's own [LICENSE](LICENSE)
+- Attribution: none required
+- Rebuild: `data-import/geo-fr.py`, hand-written
+
 ## `geo/NO/locality.tsv` and 3 more
 
 - Files: `geo/NO/locality.tsv`, `postal-code.tsv`, `street.tsv`, and the house-number weights of
