@@ -49,7 +49,7 @@ What sets it apart:
    fixes that in one retry.
 
 US English, Swedish, German, French and the other [locales](#shipped-data) each ship
-persons, addresses, national ids, phone numbers, companies, emails and dates.
+persons, addresses, national ids, phone numbers, companies, emails and dates. Beyond the data:
 
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags ([Go tests](#go-tests)).
 - **Your own data:** each JSON file in a folder you pass adds a path, such as
