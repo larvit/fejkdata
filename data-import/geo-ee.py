@@ -36,7 +36,7 @@ LINNAOSA = "6"
 # and puiestee as tn, mnt and pst, and names tee, allee, põik, väljak and plats as the words written in full.
 STREET_KINDS = ("tn", "mnt", "pst", "tee", "allee", "põik", "väljak", "plats")
 # A street, a house number, its letter, then what the import drops: a second building after a slash, an apartment after a hyphen.
-NEAR = re.compile(rf"^(.+ (?:{'|'.join(STREET_KINDS)})) (\d+)([a-zõäöü]?)(?:/[^-]+)?(?:-.+)?$")
+NEAR = re.compile(rf"^(.+ (?:{'|'.join(STREET_KINDS)})) (\d+)([a-z]?)(?:/[^-]+)?(?:-.+)?$")
 
 # A place as a full address names it: its maakond, its vald or linn and, where it has one, its asustusüksus.
 type Place = tuple[str, ...]
@@ -57,7 +57,8 @@ def dbf_rows(data: bytes) -> Iterator[dict[str, str]]:
 
 def units(rows: Iterable[Mapping[str, str]]) -> tuple[dict[str, geo.Row], dict[str, geo.Row], dict[str, geo.Row], dict[Place, str]]:
     """The regions, the municipalities and the localities of the settlement units' rows, each by its EHAK code, and each
-    place's locality code. A linnaosa's locality is its linn, and so is that of a linn's own name with no asustusüksus."""
+    place's locality code. A linnaosa's locality is its linn. A linn that is its own municipality is also placed by its
+    name alone, with no asustusüksus."""
     regions: dict[str, geo.Row] = {}
     municipalities: dict[str, geo.Row] = {}
     localities: dict[str, geo.Row] = {}
@@ -65,7 +66,7 @@ def units(rows: Iterable[Mapping[str, str]]) -> tuple[dict[str, geo.Row], dict[s
     for r in rows:
         regions[r["MKOOD"]] = {"code": r["MKOOD"], "name": r["MNIMI"], "timezone": TIMEZONE}
         municipalities[r["OKOOD"]] = {"code": r["OKOOD"], "name": r["ONIMI"], "region": r["MKOOD"]}
-        whole = r["TYYP"] == LINNAOSA or r["ANIMI"] == r["ONIMI"]
+        whole = r["TYYP"] == LINNAOSA or r["AKOOD"] == r["OKOOD"]
         code, name = (r["OKOOD"], r["ONIMI"]) if whole else (r["AKOOD"], r["ANIMI"])
         localities[code] = {"code": code, "name": name, "municipality": r["OKOOD"]}
         code_of[(r["MNIMI"], r["ONIMI"], r["ANIMI"])] = code
