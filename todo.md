@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 507 | 0.7.0 |  |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 512 | 0.7.0 |  |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
@@ -211,20 +210,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 507. Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.
-
-Candidate source: the Latvian State Land Service's address register (VARIS) on data.gov.lv. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
-
-Research of 2026-11-20, to verify again when built. The State Land Service (VZD) publishes the State Address Register as open data on data.gov.lv, dataset `varis-atvertie-dati` (id 6b06a7e8-dedf-4705-a47b-2a7c51177473), under CC BY 4.0; the credit it is reported to ask for is "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati", with the licence's link and a note of changes, which the dataset's own page must confirm. The files are comma-separated UTF-8 with a BOM: `aw_novads.csv` (35 municipalities), `aw_pilseta.csv` (towns; the 7 state cities have `VKUR_CD` 100000000), `aw_pagasts.csv` (parishes), `aw_ciems.csv` (villages), `aw_iela.csv` (streets) and `aw_eka.csv` (142 MB; 551,133 addresses in force, the postal code in `ATRIB`, 693 codes). `STATUSS` `EKS` marks a row in force and `VKUR_CD` names its parent. The register has no level above the municipality, so `region` needs a choice: the statistics office's regions from a second source, or the municipalities and state cities as regions with parishes and towns under them. The population the Office of Citizenship and Migration Affairs publishes (CC0) reaches only parishes and towns, not villages. GeoNames (CC BY 4.0) is the fallback.
-
-Touches:
-
-- `data/geo/LV/`
-- `data/lv_LV/`: `address.json`
-- `data-import/`
-- `docs/locales/geo.md`
-- `DATA-LICENSES.md`
 
 ### 512. Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.
 
