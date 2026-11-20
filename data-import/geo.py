@@ -231,7 +231,8 @@ def write_tables(out: Path, kept: Tables, postal_codes: Iterable[Row], streets: 
 def write_by_addresses[K](out: Path, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[K, Row], postal_codes: Mapping[tuple[K, str], int], streets: Mapping[K, list[Row]]) -> None:
     """Writes the tables of a country that weighs every row by its addresses and selects it by its code. localities
     holds each locality with an address, and postal_codes maps (locality, postal code) to the addresses they share.
-    A locality with no street is dropped and logged, and so is a municipality or a region left with no row under it."""
+    A locality with no street is dropped and logged, and so is a municipality or a region left with no row under it. The
+    locality table has a lat and a lon column where a locality has a point."""
     of: dict[K, list[Row]] = collections.defaultdict(list)
     for (locality, code), n in postal_codes.items():
         of[locality].append({"code": code, "locality": locality, "addresses": n})
@@ -240,4 +241,5 @@ def write_by_addresses[K](out: Path, regions: Mapping[str, Row], municipalities:
     for row in (*dropped["municipality"].values(), *dropped["region"].values()):
         print(f"{row['code']} {row['name']}: no locality with a street, dropped", file=sys.stderr)
     rows = sorted((row for locality in kept["locality"] for row in of[locality]), key=lambda r: r["locality"])
-    write_tables(out, kept, rows, streets, region=["code", "name", "addresses", "timezone"], municipality=["code", "name", "region", "addresses"], locality=["code", "name", "municipality", "addresses", "lat", "lon"])
+    point = ["lat", "lon"] if any("lat" in row for row in localities.values()) else []
+    write_tables(out, kept, rows, streets, region=["code", "name", "addresses", "timezone"], municipality=["code", "name", "region", "addresses"], locality=["code", "name", "municipality", "addresses", *point])

@@ -1,5 +1,6 @@
 {
 	"index": {
+		"lt_LT.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"lt_LT.asmens-kodas": {"paths":["","birth"]},
 		"lt_LT.color": {"paths":[""]},
 		"lt_LT.company": {"paths":["","ab","ab.name","legal","mb","mb.name","registered","registered.legal","uab","uab.name","zub","zub.name"]},
