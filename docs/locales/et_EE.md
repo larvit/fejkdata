@@ -85,15 +85,16 @@ Annex doesn't reserve any range for fiction or tests, so don't call or text a dr
 
 ## Estonian words
 
-`et_EE.word` draws evenly from about 77,000 words of Wikidata's Estonian lexemes: the nouns, verbs, adjectives and
-adverbs whose lemma is lower-case letters alone, so a verb is its `-ma` infinitive. Wikidata has no frequencies, so a
-word may be rare. `et_EE.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech, and
+`et_EE.word` draws evenly from about 78,000 words of Wikidata's Estonian lexemes: the nouns, verbs, adjectives and
+adverbs whose lemma is lower-case letters alone. Wikidata lemmatises a verb as its `-ma` infinitive. Wikidata has no
+frequencies, so a word may be rare, and some of its categories are wrong: a few `.adv` words are nouns. `et_EE.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech, and
 `et_EE.word.noun.plural` draws a noun and prints its nominative plural, such as `majad`. A noun is left out where
 Wikidata gives it no plural of lower-case letters alone. Bind a noun to read it and its plural from one pick:
 `{/et_EE.word.noun as n}{n} {n.plural}` prints `kolonel kolonelid`.
 
 Rude words stay in the tables, so read the output before showing it to anyone. `et_EE.sentence` builds on singular
-nouns beside `on`, plural nouns and `-ma` infinitives after `hakkama`, so it needs no case ending the tables lack:
+nouns and adjectives beside `on`, plural nouns, adverbs and `-ma` infinitives after `hakkama`, none of which takes a case
+ending the tables lack:
 `Siin on sukmanid ja ostsillograafid.` and `Kas see siniliilia on mängutehniline?` Its words are drawn at random, so a
 sentence may be senseless or even ungrammatical, such as an adjective that doesn't suit its noun. `et_EE.paragraph`
 joins three to six sentences.

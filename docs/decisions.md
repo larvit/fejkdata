@@ -1728,16 +1728,16 @@ Valid while neither Wikidata nor Lexique reaches 20,000 nouns with a plural.
 
 2026-11-20, Lilleman auf Larv. Goal 3.2.
 
-The tables hold the nouns, verbs, adjectives and adverbs of Wikidata's Estonian lexemes (CC0), as `de_DE`'s do, whose
-lemma is lower-case letters alone: about 58,000 nouns, 5,900 verbs, 9,100 adjectives and 4,200 adverbs. A verb is its `-ma`
-infinitive. A noun carries its nominative plural, such as `majad`, and one with none is left out. The English
-Wiktionary's Estonian entries (CC BY-SA 4.0, as kaikki.org extracts them) hold 3,900 such nouns, so they don't reach
-the tens of thousands the other locales hold, and the EKI Combined Dictionary and Estonian WordNet offer no download
-without asking their maintainers. Ekilex (CC BY 4.0) needs an account's API key, and Eesthetic (CC BY 4.0) holds
-5,000 nouns and 5,000 verbs and no adjective or adverb. `et_EE.sentence` builds on plural nouns, singular nouns beside
-`on`, `-ma` infinitives after `hakkama` and adverbs, none of which takes a case ending the tables lack. The import drops no
-rude word, per the project principle on a locale's `word`.
-Valid while no open source of Estonian words reaches Wikidata's count with a plural.
+The tables hold the nouns, verbs, adjectives and adverbs of Wikidata's Estonian lexemes (CC0), as `de_DE`'s do, each
+with a lemma of lower-case letters alone: about 59,000 nouns, 5,900 verbs, 9,100 adjectives and 4,200 adverbs. Wikidata
+lemmatises a verb as its `-ma` infinitive. A noun carries its nominative plural, such as `majad`, and one with none is
+left out. The English Wiktionary's Estonian entries (CC BY-SA 4.0, as kaikki.org extracts them) hold 3,900 such nouns,
+so they don't reach the tens of thousands the other locales hold. The EKI Combined Dictionary and Estonian WordNet can
+be had only by asking their maintainers, Ekilex (CC BY 4.0) needs an account's API key, and Eesthetic (CC BY 4.0) holds
+5,000 nouns and 5,000 verbs, and neither adjectives nor adverbs. `et_EE.sentence` builds on plural nouns, singular nouns
+and adjectives beside `on`, `-ma` infinitives after `hakkama`, and adverbs, none of which takes a case ending the tables
+lack.
+Valid while no open source of Estonian words holds as many nouns with a plural as Wikidata's lexemes.
 
 ## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 
