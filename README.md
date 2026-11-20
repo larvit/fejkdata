@@ -15,7 +15,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails, dates and addresses, `lt_LT`'s names, persons, asmens kodai, phone numbers, companies, emails and dates, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places, every German
-  place with a postal code, every French commune with people and an address, and every Estonian place with a street. Each address takes its postal code from one town, and its street too, save in [France](docs/locales/geo.md#french-places) and [Germany](docs/locales/geo.md#german-places), whose streets are invented.
+  place with a postal code, every French commune with people and an address, and every Estonian and Latvian place with a street. Each address takes its postal code from one town, and its street too, save in [France](docs/locales/geo.md#french-places) and [Germany](docs/locales/geo.md#german-places), whose streets are invented.
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, and henkilötunnus with the individual numbers
   900 to 999, which DVV issues to no one, none of which a real person holds, though a checker that
@@ -617,9 +617,9 @@ template calls. `--no-shipped-data` leaves out the modules passed to
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
 its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/de_DE`, `data/en_US`, `data/et_EE`, `data/fi_FI`, `data/fr_FR`, `data/lt_LT`, `data/lv_LV`, `data/nb_NO`,
-`data/nn_NO`, `data/sv_SE`), one per country's tree of places (`data/geo/DE`, `data/geo/DK`, `data/geo/EE`, `data/geo/FI`, `data/geo/FR`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
+`data/nn_NO`, `data/sv_SE`), one per country's tree of places (`data/geo/DE`, `data/geo/DK`, `data/geo/EE`, `data/geo/FI`, `data/geo/FR`, `data/geo/LV`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`dadk`, `dede`, `enus`, `etee`, `fifi`, `frfr`, `ltlt`, `lvlv`, `nbno`, `nnno`, `svse`, `geode`, `geodk`, `geoee`, `geofi`, `geofr`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `dede`, `enus`, `etee`, `fifi`, `frfr`, `ltlt`, `lvlv`, `nbno`, `nnno`, `svse`, `geode`, `geodk`, `geoee`, `geofi`, `geofr`, `geolv`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -746,7 +746,7 @@ neighbouring postort.
 | `et_EE` | [Estonian](docs/locales/et_EE.md) | Estonian companies; Estonian dates and emails; Estonian phone numbers; Estonian words |
 | `fi_FI` | [Finnish](docs/locales/fi_FI.md) | Finnish companies; Finnish dates and emails; Finnish phone numbers; Finnish words; Henkilötunnus; Henkilötunnus matched to a sex; Henkilötunnus of the issued range |
 | `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers; French words |
-| `geo` | [Places](docs/locales/geo.md) | Across countries; Danish places; Estonian places; Finnish places; French places; German places; Norwegian places; Swedish places; US places |
+| `geo` | [Places](docs/locales/geo.md) | Across countries; Danish places; Estonian places; Finnish places; French places; German places; Latvian places; Norwegian places; Swedish places; US places |
 | `lt_LT` | [Lithuanian](docs/locales/lt_LT.md) | Lithuanian companies; Lithuanian dates and emails; Lithuanian phone numbers; Lithuanian words |
 | `lv_LV` | [Latvian](docs/locales/lv_LV.md) | Latvian companies; Latvian dates and emails; Latvian phone numbers; Latvian words |
 | `misc` | [Shared by every locale](docs/locales/misc.md) | Reserved addresses; Credit cards and IBANs; Registry tables; Territories; Time zones |
@@ -1943,6 +1943,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 - `company-fr.py` fetches Sirene's StockUniteLegale, about a gigabyte.
 - `geo-fr.py` fetches the Base Adresse Nationale's address file, about 940 MB.
+- `geo-lv.py` fetches the State Address Register's buildings and apartments, about 290 MB.
 - `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.
 - `company-lv.py` fetches the Register of Enterprises' open data, 129 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
@@ -1966,6 +1967,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-d
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-ee.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-fi.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-fr.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-lv.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py

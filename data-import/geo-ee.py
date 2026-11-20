@@ -184,15 +184,7 @@ def main() -> None:
     counted = tally(unzipped(ADDRESSES, cache, "sihtnumbrid.csv").decode("utf-8").splitlines(), code_of)
     weighed(regions, municipalities, localities, counted)
     streets = geo.top_streets(counted.streets, a.street_share, a.min_streets, "addresses")
-    postal_codes: dict[str, list[geo.Row]] = collections.defaultdict(list)
-    for (locality, code), n in counted.postal_codes.items():
-        postal_codes[locality].append({"code": code, "locality": locality, "addresses": n})
-    kept, dropped = geo.fence(regions, municipalities, {c: row for c, row in localities.items() if "addresses" in row}, streets, postal_codes)
-    geo.log_dropped_localities(dropped["locality"])
-    for row in dropped["municipality"].values():
-        print(f"{row['code']} {row['name']}: no locality with a street, dropped", file=sys.stderr)
-    rows = sorted((row for locality in kept["locality"] for row in postal_codes[locality]), key=lambda r: r["locality"])
-    geo.write_tables(out, kept, rows, streets, region=["code", "name", "addresses", "timezone"], municipality=["code", "name", "region", "addresses"], locality=["code", "name", "municipality", "addresses", "lat", "lon"])
+    geo.write_by_addresses(out, regions, municipalities, {c: row for c, row in localities.items() if "addresses" in row}, counted.postal_codes, streets)
     (out / "address.json").write_text(geo.address_json(counted.numbers, "{lower(1)}"), encoding="utf-8")
 
 

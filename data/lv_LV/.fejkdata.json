@@ -1,5 +1,6 @@
 {
 	"index": {
+		"lv_LV.address": {"paths":["","locality","municipality","postal-code","region","street","street-number"]},
 		"lv_LV.color": {"paths":[""]},
 		"lv_LV.company": {"paths":["","as","as.name","ik","ik.name","ks","ks.name","legal","ps","ps.name","registered","registered.legal","sia","sia.name"]},
 		"lv_LV.company-coined": {"paths":["","count","word"]},

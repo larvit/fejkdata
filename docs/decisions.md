@@ -2281,3 +2281,19 @@ The file names places without their codes, and külad share names, as three name
 An address in most külad is a farm's name, such as `Antsu`, with no street and no house number. Every other country's address is a street and a number, and `geo.EE.address` keeps that one layout, so a locality with no street is dropped. 1,131 localities remain, holding 78% of the addresses; the municipalities Kihnu, Muhu, Ruhnu and Vormsi hold none of them and are dropped too. A street is a near address ending in a house number after one of eight kinds: `tn`, `mnt` and `pst`, the three the board's handbook of address data abbreviates in section 27.14, and `tee`, `allee`, `põik`, `väljak` and `plats`, the kinds it names as written in full.
 
 Valid while the address data is CC0 1.0 and a locale's `address` prints one layout.
+
+## `geo.LV` takes a novads or a state city as its region, counts each apartment as an address, and writes the postal code after the locality
+
+2026-11-20, in the chunk that added `geo.LV`. Serves goal 3.2.
+
+The State Land Service publishes the State Address Register as open data under CC BY 4.0: each novads, pilsēta, pagasts, ciems and iela, each building's address with its postal code and a point, and each apartment with its building. `geo.LV` reads only the rows in force, and weighs every table by addresses, as `geo.EE` does, rather than fetch a second source for populations.
+
+The register holds no level above the novads: the planning regions are no part of an address. So a region is a novads or one of the seven state cities, a municipality a pagasts or a pilsēta, and a locality a pilsēta or a ciems. A pilsēta is then a municipality and a locality of one name, and a state city a region too, which keeps every table's parent link whole. A region and a municipality keep the ATVK code the register carries for them. A ciems has no ATVK code, so a locality keeps its code in the register.
+
+A building alone would weigh a block of flats as one farmhouse: Rīga holds 30% of the addresses once each apartment counts, so a building is one address and each apartment in it one more. House numbers are counted per building, since an apartment's number is no part of the record.
+
+An address straight under a ciems or a pagasts is a house's name, such as `Riņņi`. `geo.LV.address` keeps the one layout of a street and a number, so a locality with no numbered address on a street is dropped, as in `geo.EE`. 819 localities remain, holding 83% of the addresses; 141 pagasti hold none of them and are dropped too. A korpuss, as in `195 k-1`, and a second number, as in `11/13`, are dropped from a number before it is counted.
+
+The Universal Postal Union's guide to Latvian addresses, of September 2023, puts the postal code to the right of the locality's name, preceded by `LV` and a dash, and separated from the name by a comma. So the layout is `{street} {street-number}\n{locality}, {postal-code}`, and a postal code is stored with its prefix, `LV-1050`, as the register writes it.
+
+Valid while the register's open data is CC BY 4.0 and a locale's `address` prints one layout.

@@ -517,6 +517,25 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: `data-import/geo-fr.py`, hand-written
 
+## `geo/LV/region.tsv` and 5 more
+
+- Files: `geo/LV/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`, `street.tsv`,
+  and the house-number weights of `address.json`
+- Source: the Latvian State Land Service, Valsts zemes dienests, whose [open data of the State
+  Address Register](https://data.gov.lv/dati/lv/dataset/varis-atvertie-dati), fetched on 20
+  November 2026, lists each novads, pilsēta, pagasts, ciems and iela in force, each building's
+  address with its postal code and a point, and each apartment with its building
+- Changes: a building counts as one address and each apartment in it as one more, which weighs
+  every row. A locality's point is the mean of its buildings' points. A korpuss and a second
+  house number are dropped from a house number, and a locality with no numbered address on a
+  street is dropped, with each pagasts left holding no locality
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the service's [terms of
+  use](https://www.vzd.gov.lv/lv/par-datu-izmantosanas-noteikumiem) and the dataset's page state
+- Attribution: "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati": the terms ask for a
+  reference to the source, giving this one as their example, for a link to the licence, and for a
+  note of the changes made to the data
+- Rebuild: `data-import/geo-lv.py`
+
 ## `geo/NO/locality.tsv` and 3 more
 
 - Files: `geo/NO/locality.tsv`, `postal-code.tsv`, `street.tsv`, and the house-number weights of

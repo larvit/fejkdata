@@ -25,6 +25,8 @@ type Tables = dict[str, dict[Any, Row]]
 DATA = Path(__file__).resolve().parent.parent / "data" / "geo"
 CACHE = Path(__file__).resolve().parent / "cache"
 GEONAMES = "https://download.geonames.org/export/zip/{}.zip"
+# The address every country prints unless its own differs: a street and a house number, then a postal code and its locality.
+LAYOUT = "{street} {street-number}\\n{postal-code} {locality}"
 NUMBER_RANGES = ((1, 9), (10, 99), (100, 999), (1000, 9999))
 # An invented street's name: a letter first, then letters, digits and the space, full stop, apostrophe and hyphen that join them.
 STREET = re.compile(r"^[^\W\d_][^\W_]*([ .'-]+[^\W_]+)*\.?$")
@@ -199,15 +201,16 @@ def number_range(number: int, lettered: bool) -> tuple[int, bool]:
     return next(i for i, (_, top) in enumerate(NUMBER_RANGES) if number <= top), lettered
 
 
-def address_json(numbers: Mapping[tuple[int, bool], int], letter: str = "{upper(1)}") -> str:
+def address_json(numbers: Mapping[tuple[int, bool], int], letter: str = "{upper(1)}", layout: str = LAYOUT) -> str:
     """A country's address, its street-number choice weighted by numbers, which counts house numbers by number_range.
-    letter is the template that draws a number's delivery letter."""
+    letter is the template that draws a number's delivery letter, and layout the format that prints the address."""
     items = ",\n".join(
         f'    {{ "format": "{{int({low},{top})}}{letter if lettered else ""}", "weight": {numbers[(i, lettered)]} }}'
         for lettered in (False, True) for i, (low, top) in enumerate(NUMBER_RANGES) if numbers[(i, lettered)]
     )
     return (
-        '{\n  "format": "{street} {street-number}\\n{postal-code} {locality}",\n  "street": "{.locality as l}{l.street.name}",\n'
+        f'{{\n  "format": "{layout}",\n'
+        '  "street": "{.locality as l}{l.street.name}",\n'
         f'  "street-number": [\n{items}\n  ],\n'
         '  "postal-code": "{l.postal-code.code}",\n  "locality": "{l.name}",\n'
         '  "municipality": "{l..municipality.name}",\n  "region": "{l..municipality..region.name}"\n}\n'
@@ -223,3 +226,18 @@ def write_tables(out: Path, kept: Tables, postal_codes: Iterable[Row], streets: 
         tsv.write(out / f"{table}.tsv", columns[table], [row for _, row in sorted(kept[table].items())])
     tsv.write(out / "postal-code.tsv", columns["postal_code"], sorted(postal_codes, key=lambda r: r["code"]))
     tsv.write(out / "street.tsv", columns["street"], [s for locality in sorted(kept["locality"]) for s in streets[locality]])
+
+
+def write_by_addresses[K](out: Path, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[K, Row], postal_codes: Mapping[tuple[K, str], int], streets: Mapping[K, list[Row]]) -> None:
+    """Writes the tables of a country that weighs every row by its addresses and selects it by its code. localities
+    holds each locality with an address, and postal_codes maps (locality, postal code) to the addresses they share.
+    A locality with no street is dropped and logged, and so is a municipality or a region left with no row under it."""
+    of: dict[K, list[Row]] = collections.defaultdict(list)
+    for (locality, code), n in postal_codes.items():
+        of[locality].append({"code": code, "locality": locality, "addresses": n})
+    kept, dropped = fence(regions, municipalities, localities, streets, of)
+    log_dropped_localities(dropped["locality"])
+    for row in (*dropped["municipality"].values(), *dropped["region"].values()):
+        print(f"{row['code']} {row['name']}: no locality with a street, dropped", file=sys.stderr)
+    rows = sorted((row for locality in kept["locality"] for row in of[locality]), key=lambda r: r["locality"])
+    write_tables(out, kept, rows, streets, region=["code", "name", "addresses", "timezone"], municipality=["code", "name", "region", "addresses"], locality=["code", "name", "municipality", "addresses", "lat", "lon"])
