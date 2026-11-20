@@ -548,6 +548,7 @@ fr_FR.nir.body.place
 fr_FR.nonzero-number	format "{three}"
 fr_FR.nonzero-number.three	string
 fr_FR.nonzero-number.two	string
+fr_FR.paragraph	reads fr_FR.sentence
 fr_FR.person	format "{prefix}{first} {last}"	reads fr_FR.first-name fr_FR.last-name fr_FR.title
 fr_FR.person.first	string
 fr_FR.person.last	string
@@ -565,6 +566,7 @@ fr_FR.phone-mobile.subscriber	string
 fr_FR.phone.international
 fr_FR.phone.national
 fr_FR.price	format "{amt},{cents} €"
+fr_FR.sentence	reads fr_FR.word-adj fr_FR.word-adv fr_FR.word-noun fr_FR.word-verb
 fr_FR.sex	format "{name}"	key code	name name	weight count
 fr_FR.sex-digit	format "{digit}"	parent sex
 fr_FR.sex-digit.digit	string
@@ -592,6 +594,22 @@ fr_FR.username.n
 fr_FR.weekday	format "{name}"	key code	name name
 fr_FR.weekday.code	string
 fr_FR.weekday.name	string
+fr_FR.word	format "{any}"	reads fr_FR.word-adj fr_FR.word-adv fr_FR.word-noun fr_FR.word-verb
+fr_FR.word-adj	format "{word}"
+fr_FR.word-adj.word	string
+fr_FR.word-adv	format "{word}"
+fr_FR.word-adv.word	string
+fr_FR.word-noun	format "{word}"
+fr_FR.word-noun.plural	string
+fr_FR.word-noun.word	string
+fr_FR.word-verb	format "{word}"
+fr_FR.word-verb.word	string
+fr_FR.word.adj	string
+fr_FR.word.adv	string
+fr_FR.word.any	string
+fr_FR.word.noun	string
+fr_FR.word.noun.plural
+fr_FR.word.verb	string
 geo.DE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DE.locality geo.DE.street
 geo.DE.address.locality	string
 geo.DE.address.municipality	string
