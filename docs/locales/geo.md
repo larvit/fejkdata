@@ -25,7 +25,8 @@ postdistrikt Gudhjem, on Bornholm. A Danish street sits under each postdistrikt 
 
 `et_EE.address` prints `geo.EE.address`, such as `Sarapuu tn 70\n76901 Tabasalu alevik`. A delivery letter
 is written in lower case, as in `2b`. Every table weighs a row by its addresses in the Land and Spatial Development
-Board's address data, and each code is the four-digit EHAK code, the board's classification of Estonia's divisions.
+Board's address data. A region, a municipality and a locality are selected by their four-digit code in EHAK, the
+board's classification of Estonia's divisions.
 A locality is an asustusüksus: a küla, an alevik, an alev or a linn inside a vald. A linn that governs itself is one
 locality under its own code, and its linnaosad are no places, so Tallinn is `0784` whole. A street's name ends in its
 kind, written as the address data writes it: `tn`, `mnt` and `pst` for tänav, maantee and puiestee, and `tee`, `allee`,
@@ -33,7 +34,7 @@ kind, written as the address data writes it: `tn`, `mnt` and `pst` for tänav, m
 locality with no street is left out, which leaves 1,131 localities holding 78% of the addresses, and leaves out four
 island municipalities whole: Kihnu, Muhu, Ruhnu and Vormsi. A letter to a küla names its vald and its maakond, which
 the record's `municipality` and `region` columns hold. An Estonian street sits under each locality where it has an
-address.
+address. A program showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026".
 
 ## Finnish places
 
@@ -96,7 +97,9 @@ locality keeps its nine-digit code in the register. An address on a street is a 
 ciems or a pagasts is a house's name, such as `Riņņi`. A locality with no numbered address on a street is left out,
 which leaves 819 localities holding 83% of the addresses, and leaves out 141 pagasti whole. A house number may end in a
 capital letter, as in `4A`; a korpuss, as in `195 k-1`, is never drawn. A Latvian street sits under each locality where
-it has a numbered address.
+it has a numbered address. A program showing the places credits "Izmantoti Valsts adrešu reģistra informācijas
+sistēmas dati", links [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as
+[DATA-LICENSES.md](../../DATA-LICENSES.md) describes.
 
 ## Lithuanian places
 
@@ -110,10 +113,12 @@ savivaldybė in the genitive, `Vilniaus`, so `geo.LT` names each with its kind. 
 street's name ends in the short form of its kind, as an address writes it: `g.` for gatvė, `pr.` for prospektas, `al.`
 for alėja, `tak.` for takas. An address in a small kaimas is a number with no street. A locality with no street is left
 out, which leaves 7,066 localities holding 97% of the addresses, in all sixty municipalities. A letter to a locality
-that is not its municipality's seat names the municipality after the postal code, which the record's `municipality`
-column holds. A house number may end in a capital letter, as in `17A`; a korpusas is never drawn. The register's files
+that is not its municipality's seat names the municipality after the postal code. The record's `municipality` column
+holds that name. A house number may end in a capital letter, as in `17A`; a korpusas is never drawn. The register's files
 hold no point, so a Lithuanian locality has no `lat` or `lon`. A Lithuanian street sits under each locality where it
-has a numbered address.
+has a numbered address. A program showing the places credits "VĮ Registrų centras, Adresų registras", links
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as
+[DATA-LICENSES.md](../../DATA-LICENSES.md) describes.
 
 ## Norwegian places
 

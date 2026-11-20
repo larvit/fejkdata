@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails, dates and addresses, `lt_LT`'s names, persons, asmens kodai, phone numbers, companies, emails and dates, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails and dates, `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers, phone numbers, companies, emails and dates, `de_DE`'s names, persons, addresses, Steuer-IDs, phone numbers, companies, emails and dates, `et_EE`'s names, persons, isikukoodid, phone numbers, companies, emails, dates and addresses, `lt_LT`'s names, persons, asmens kodai, phone numbers, companies, emails, dates and addresses, `lv_LV`'s names, persons, personas kodi, phone numbers, companies, emails, dates and addresses, `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, `nn_NO`'s persons, fødselsnummer, phone numbers, companies, emails, dates, addresses, months and weekdays, `fi_FI`'s names, persons, henkilötunnus, phone numbers, companies, emails, dates and addresses, and `fr_FR`'s names, persons, NIRs, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, and every mainland Finnish one with a street and residents, beside a sample of US places, every German
   place with a postal code, every French commune with people and an address, and every Estonian, Latvian and Lithuanian place with a street. Each address takes its postal code from one town, and its street too, save in [France](docs/locales/geo.md#french-places) and [Germany](docs/locales/geo.md#german-places), whose streets are invented.
@@ -1943,6 +1943,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 - `company-fr.py` fetches Sirene's StockUniteLegale, about a gigabyte.
 - `geo-fr.py` fetches the Base Adresse Nationale's address file, about 940 MB.
+- `geo-ee.py` fetches the address data's postal codes and the settlement units, about 45 MB.
 - `geo-lt.py` fetches the Address Register's addresses and premises, about 105 MB.
 - `geo-lv.py` fetches the State Address Register's buildings and apartments, about 290 MB.
 - `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.

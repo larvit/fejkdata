@@ -41,7 +41,7 @@ class Register:
 
 
 def house_number(number: str) -> tuple[int, bool] | None:
-    """A house number and whether a letter follows it, or None where it is neither."""
+    """A house number and whether a letter follows it, or None where the text is no house number."""
     m = NUMBER.match(number)
     return (int(m[1]), bool(m[2])) if m else None
 

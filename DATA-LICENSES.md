@@ -438,9 +438,9 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   Ruumiamet](https://geoportaal.maaruum.ee/). Its [file of postal
   codes](https://geoportaal.maaruum.ee/docs/aadress/sihtnumbrid.zip) of 5 November 2026 lists every
   address of the address data system, ADS, with its sihtnumber, its near and full address and a
-  point. It gives each locality's postal codes and streets, each weighted by its addresses, the
-  locality's own addresses, its point, the mean of its addresses' points, and how often a house
-  number has one to four digits, bare or with a letter. The board's [settlement
+  point. It gives each locality's postal codes and streets, each weighted by its addresses, and the
+  locality's own addresses. A locality's point is the mean of its addresses' points. The file
+  also gives how often a house number has one to three digits, bare or with a letter. The board's [settlement
   units](https://geoportaal.maaruum.ee/est/ruumiandmed/haldus-ja-asustusjaotus-p119.html), the file
   `asustusyksus_shp.zip` exported 1 November 2026, give each asustusüksus, vald or linn and maakond
   its name and its EHAK code. A linnaosa is summed into its linn, and a locality with no street is
@@ -546,7 +546,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Changes: a building counts as one address and each apartment in it as one more, which weighs
   every row. A locality's point is the mean of its buildings' points. A korpuss and a second
   house number are dropped from a house number, and a locality with no numbered address on a
-  street is dropped, with each pagasts left holding no locality
+  street is dropped. So is a pagasts that then holds no locality
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the service's [terms of
   use](https://www.vzd.gov.lv/lv/par-datu-izmantosanas-noteikumiem) and the dataset's page state
 - Attribution: "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati": the terms ask for a
