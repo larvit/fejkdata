@@ -2491,3 +2491,105 @@ Inherited architect, would restructure first:
 - Navigation: `README.md:739` street caveat: "a street may sit under a neighbouring postort" reads as the cause of a mixed address, and the tables cannot pair one
 - Locality: `internal/engine/render/env.go:36` `frameStack.enter`: load-computed keys meet render-time frames and memos, under heap rules kept by comment
 - Self-sufficiency: `internal/engine/draw.go:36` `drawCallerPath`: the reason is a link into the decision log
+
+## 2026-11-20T15:56:20Z, PR #472 at 16b6a1aa
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7.5 | 6 | 6.5 | 6.5 | 6.5 |
+| Mid A | 7 | 6 | 7 | 6 | 6.5 |
+| Maintainability senior | 7.5 | 6.5 | 7 | 7 | 7 |
+| Inherited architect | 7 | 6 | 6 | 6.5 | 6.5 |
+| Mean | 7.25 | 6.13 | 6.63 | 6.50 | 6.63 |
+
+Junior A, hardest first:
+
+- Shape, Self-sufficiency: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: a three-condition rule over transitive reference reach that I could trace but not predict.
+- Locality, Shape: `internal/engine/fence/names/refusekeptandfreshfield.go:167` `readsFieldApart`: deepest-shared-level reasoning that spreads over route.go, pathwalk.go and pickreads.go.
+- Shape, Locality: `internal/engine/render/env.go:230` `frameStack.enter`: pick state is pushed from a memo and changed through env copies, split across env.go and pick.go.
+- Shape: `internal/engine/lazy.go:107` `loadReached`: the queue grows while iterated and `putBack` restores on error, so lazy loading depends on order.
+- Shape: `internal/engine/render/path.go:251` `drawAcrossTables`: a `climbed` flag carried across steps and nil-means-fresh `keptDraws`.
+- Locality: `internal/engine/render/render.go:33` `render`: correctness depends on an invariant in tree/renderedge.go that nothing enforces here.
+- Self-sufficiency: `internal/engine/fence/names/pickreads.go:227` `keyAt`: the selector special case only made sense after reading the `pickReads` doc.
+
+Mid A, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: a transitive walk of references across categories, gated by three conditions and checked against every other read's addressing, with its rationale in the decision log.
+- Locality: `internal/engine/tree/pick.go:112` `LandsInPick`: load and render must agree on how fresh and named read keys align under `at`, with heap constraints alongside.
+- Locality: `internal/engine/render/pick.go:150` `readPath`: frames kept in the memo and reached through a base pointer inside a value env, so state changes out of sight.
+- Shape: `internal/engine/fence/names/route.go:31` `route`: the levels/at/by semantics must be held while reading readsFieldApart in another file.
+- Locality: `internal/engine/render/path.go:57` `drawAcrossTables`: the climbed state across step kinds, plus nil versus memo-kept stepDownPins.
+- Locality: `internal/engine/lazy.go:133` `batch.load`: a queue that grows during iteration, with putBack and a stop on parent mismatch.
+- Self-sufficiency: `data-import/geo-se.py:252` `streets`: assigns streets to a postort by distance heuristics whose rationale is only in docs/decisions.md.
+- Shape: `internal/grammar/where.go:59` `cutWord`: string-position scanning with an exception for " as" in a hand-rolled parser.
+
+Maintainability senior, hardest first:
+
+- Locality, Shape: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: an open-ended walk over four level kinds whose correctness rests on `PickKey` addressing defined in another package.
+- Locality: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: a growing queue of reached references feeds three ordered conditions, one of which re-walks routes through `rendersField`.
+- Shape, Self-sufficiency: `internal/engine/tree/pick.go:82` `PlacedRead`: the rule lining up fresh and named keys is hidden behind an `atLen` trick to avoid heap escape.
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: the shared mutable `frameStack` with mark, pop, base and `entered` has to be traced through `env.go`.
+- Locality: `internal/engine/tree/loadfinds.go:52` `LoadFinds.Of`: nodes have two phases, and every reader must know whether it runs before or after `Finish`.
+- Locality: `internal/engine/lazy.go:107` `loadReached`: a queue that grows while consumed, a reused `LoadFinds` and rollback on error make lazy loading hard to prove safe.
+- Shape: `internal/engine/load/path.go:132` `compiledPath.walkEvery`: correctness depends on a three-index slice forcing copies, stated in one comment.
+- Self-sufficiency: `data-import/geo-se.py:167` `street_delivery`: the heuristic's justification lives in `docs/decisions.md`, outside the code.
+
+Inherited architect, would restructure first:
+
+- Locality, Shape: `internal/engine/render/pick.go:38` `namedPick`: memo, pins and the frame lifecycle all have to be held at once to trust that `l.street` and `l.postal-code` share one row.
+- Shape: `internal/engine/load/where.go:19` `clauseSpellings`: one clause's behaviour is split across grammar, tree, load, fence, names, render and avoid, so reading it means opening six packages.
+- Locality: `internal/engine/tree/loadfinds.go:122` `LoadFinds.Finish`: the passes write into a side map that is copied into nodes later, so what a node holds depends on pass order elsewhere.
+- Self-sufficiency, Navigation: `data-import/geo-se.py:252` `streets`: the cause of the 3am symptom, whose tie-break rationale is deferred to `docs/decisions.md` rather than stated.
+- Shape: `internal/engine/fence/names/rules.go:14` `RefuseReads`: a growing set of one-file refusal rules for name ambiguities, where it rots first.
+- Shape: `internal/engine/tree/pathvalues.go:8` `LengthIndex`: the file name says path values, but the unit is a length index, which cost one wrong turn.
+
+## 2026-11-20T16:00:12Z, PR #472 rerun at 16b6a1aa
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7 | 6 | 7 | 6.5 | 6.5 |
+| Maintainability senior | 7 | 6 | 6.5 | 6.5 | 6.5 |
+| Inherited architect | 8 | 6.5 | 6.5 | 7 | 7 |
+| Mean | 7.25 | 6.00 | 6.63 | 6.50 | 6.50 |
+
+Junior A, hardest first:
+
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: it changes the shared frame stack and stores entered frames in the memo, so its correctness depends on base marks set elsewhere.
+- Self-sufficiency, Locality: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: three conditions checked through a queue that crosses categories, readable only with the README's Names refusals open.
+- Shape: `internal/engine/tree/pick.go:82` `PlacedRead`: aligning named and fresh keys across levels took the long comment and several rereads by hand.
+- Locality: `internal/engine/render/path.go:57` `drawAcrossTables`: a `climbed` flag and the step-down pins make the loop a small state machine.
+- Shape: `internal/engine/load/table.go:227` `routeThrough`: the route state is spread across `drawsRow`, `past` and `stepOnto`, so one decision lives in four helpers.
+- Locality: `internal/engine/lazy.go:107` `loadReached`: a work queue that grows through `needs` and rolls back with `putBack`, with its order inferred rather than stated.
+- Locality: `internal/rows/pins.go:55` `Pins.pin`: it checks nothing and relies on the caller to call `clash` first.
+- Self-sufficiency: `internal/engine/render/env.go:73` `renderEnv`: the rules against heap escape are prose only, so a change that breaks them still compiles.
+
+Mid A, hardest first:
+
+- Locality, Self-sufficiency: `internal/engine/tree/pick.go:112` `LandsInPick`: the kept-read rule shared by load and render needs named levels, fresh levels and the template-key offset held at once, plus a heap-driven key cut.
+- Shape, Locality: `internal/engine/fence/names/refusefreshdraw.go:98` `refuseFreshDraw`: three conditions over a breadth-first walk across categories, with a fourth tucked into `rendersField`.
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: pushes, borrows and pops frames on a shared stack and moves `env.base` out of the caller's sight.
+- Locality: `internal/engine/render/render.go:33` `render`: its switch must stay in step with `RenderEdges` in another file, or the fences silently miss a child.
+- Locality: `internal/engine/lazy.go:105` `loadReached`: loading on first reach, with put-back on error, makes the outcome depend on which call reaches a category first.
+- Shape: `internal/engine/fence/names/route.go:203` `route`: a dense invariant on `levels` and three route kinds to hold while reading every rule.
+- Navigation, Self-sufficiency: `data-import/geo-se.py:252` `streets`: the actual source of the 3am mismatch is in a Python import, and its rationale is deferred to `docs/decisions.md`.
+
+Maintainability senior, hardest first:
+
+- Locality, Shape: `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`: three conditions, a queue across categories, and keys and levels all had to be held at once.
+- Self-sufficiency, Locality: `internal/engine/tree/pick.go:82` `PlacedRead`: a key-alignment rule shared by load and render, readable only through a long comment mixed with heap-escape notes.
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: frames pushed into a shared stack and kept in another pick's memo.
+- Locality: `internal/engine/render/render.go:33` `render`: a child read here but missing from `tree.RenderEdges` silently escapes the fences, and only a comment says so.
+- Shape: `data-import/geo-se.py:252` `streets`: the `Point` alias claims lon, lat while callers use lat, lon, and `find` is called in both orders side by side.
+- Locality: `internal/engine/lazy.go:107` `loadReached`: transitive loading with `putBack` on error needs the whole batch held in mind.
+- Locality: `internal/engine/load/resolve.go:77` `CompileTemplates`: five ordered stages write into staged hidden state in `LoadFinds`.
+- Shape: `internal/builtinfunc/builtins.go:31` `builtins`: a registry whose entries carry long inline closures, with high fan-out per entry.
+
+Inherited architect, would restructure first:
+
+- Locality, Shape: `internal/engine/render/render.go:33` `render`: correctness of the fences depends on a comment saying every child must come through `tree/renderedge.go`'s `Rendered*` methods, and nothing enforces it.
+- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: a pick's consistency hangs on `frameStack.enter`/`pop` marks and memo frames, which I had to hold in my head across `env.go:36`.
+- Locality: `internal/engine/tree/loadfinds.go:52` `LoadFinds.Of`: its result and whether it panics depend on which load phase has run, so staged order is hidden state.
+- Shape: `internal/engine/load/doc.go:1` `package load`: one token kind (`where`, `reword`, `columnread`) is split across 4–5 same-stem files in `grammar`, `tree`, `load`, `render` and `fence`.
+- Shape, Navigation: `data-import/geo-se.py:252` `streets`: it sits among 91 flat files mixing scripts, shared modules and tests, so I found it only through `geo.md`.
+- Self-sufficiency: `data-import/geo-se.py:245` `reach_distance`: the fourth-root rule's reason is deferred to `docs/decisions.md`, so a cold reader cannot judge whether a misplaced street is a bug or by design.
