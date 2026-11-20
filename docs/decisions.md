@@ -2270,11 +2270,11 @@ a source of French spelling that the project doesn't take yet.
 
 Valid while Sirene holds no accents and no French word list is shipped.
 
-## `geo.EE` weighs each row by its addresses, and a place with no street ships no place
+## `geo.EE` reads its places and addresses from one file, sums a linnaosa into its linn, and a place with no street ships no place
 
-2026-11-20, in the chunk that added `geo.EE`. Serves goal 3.2. Applies the project principle on a locality with no street. Until item 531 ships, this entry breaks the project principle on a guessed population: a locality weighs its addresses.
+2026-11-20, in the chunk that added `geo.EE`. Serves goal 3.2. Applies the project principle on a locality with no street.
 
-The Land and Spatial Development Board's file of postal codes lists every address of its address data system with its sihtnumber, its full address and a point, under CC0 1.0. It names each address's maakond, vald or linn and asustusüksus, so one file gives every table its rows and a count of addresses for each. `geo.EE` weighs by that count rather than fetch a second source for populations: a draw then lands where the letters go, as `geo.DK`'s postal codes and streets already weigh.
+The Land and Spatial Development Board's file of postal codes lists every address of its address data system with its sihtnumber, its full address and a point, under CC0 1.0. It names each address's maakond, vald or linn and asustusüksus, so one file gives every table its rows and a count of addresses for each. A postal code and a street weigh by that count, and a place by its people, as the decision on the three Baltic modules' weights says.
 
 The file names places without their codes, and külad share names, as three named Uusküla do, so the board's settlement units give each place its EHAK code, which selects it. Their page calls them open data and asks for a credit with the data's date, which DATA-LICENSES.md carries. A linnaosa is a part of its linn, and a letter to one names the linn, so its addresses are summed into the linn: Tallinn is one place.
 
@@ -2284,9 +2284,9 @@ Valid while the address data is CC0 1.0 and a locale's `address` prints one layo
 
 ## `geo.LV` takes a novads or a state city as its region, counts each apartment as an address, and writes the postal code after the locality
 
-2026-11-20, in the chunk that added `geo.LV`. Serves goal 3.2. Applies the project principle on a locality with no street. Until item 531 ships, this entry breaks the project principle on a guessed population: a locality weighs its addresses.
+2026-11-20, in the chunk that added `geo.LV`. Serves goal 3.2. Applies the project principle on a locality with no street.
 
-The State Land Service publishes the State Address Register as open data under CC BY 4.0: each novads, pilsēta, pagasts, ciems and iela, each building's address with its postal code and a point, and each apartment with its building. `geo.LV` reads only the rows in force, and weighs every table by addresses, as `geo.EE` does, rather than fetch a second source for populations.
+The State Land Service publishes the State Address Register as open data under CC BY 4.0: each novads, pilsēta, pagasts, ciems and iela, each building's address with its postal code and a point, and each apartment with its building. `geo.LV` reads only the rows in force, and counts a building as one address and each apartment in it as one more.
 
 The register holds no level above the novads: the planning regions are no part of an address. So a region is a novads or one of the seven state cities, a municipality a pagasts or a pilsēta, and a locality a pilsēta or a ciems. A pilsēta is then a municipality and a locality of one name, and a state city a region too, which keeps every table's parent link whole. A region and a municipality keep the ATVK code the register carries for them. A ciems has no ATVK code, so a locality keeps its code in the register.
 
@@ -2300,9 +2300,9 @@ Valid while the register's open data is CC BY 4.0 and a locale's `address` print
 
 ## `geo.LT` names an apskritis and a savivaldybė with its kind, counts each of the premises as an address, and ships no point
 
-2026-11-20, in the chunk that added `geo.LT`. Serves goal 3.2. Applies the project principle on a locality with no street. Until item 531 ships, this entry breaks the project principle on a guessed population: a locality weighs its addresses.
+2026-11-20, in the chunk that added `geo.LT`. Serves goal 3.2. Applies the project principle on a locality with no street.
 
-The Centre of Registers publishes the Address Register as open data under CC BY 4.0, in files of its own site: each apskritis, savivaldybė, gyvenamoji vietovė and street, each address with its number and postal code, and each of the premises given an address. `geo.LT` reads them there rather than from the national open data portal, which serves the same tables and refuses requests under load. Every table weighs by addresses, as `geo.EE` and `geo.LV` do.
+The Centre of Registers publishes the Address Register as open data under CC BY 4.0, in files of its own site: each apskritis, savivaldybė, gyvenamoji vietovė and street, each address with its number and postal code, and each of the premises given an address. `geo.LT` reads them there rather than from the national open data portal, which serves the same tables and refuses requests under load.
 
 An apskritis is a region, a savivaldybė a municipality and a gyvenamoji vietovė a locality, each under the code the register gives it. A seniūnija is no part of an address and is left out. The register names an apskritis and a savivaldybė only in the genitive, `Vilniaus` and `Vilniaus miesto`. A genitive alone doesn't name a place, so each is named with its kind, `Vilniaus apskritis` and `Vilniaus miesto savivaldybė`. A locality keeps its nominative name, and a street its genitive name and the short form of its kind, `Laisvės pr.`, as an address writes them. Kaimai share names, so a locality is selected by its code.
 
@@ -2315,6 +2315,20 @@ The Universal Postal Union's guide to Lithuanian addresses, of June 2018, puts f
 The register's CSV files hold no point. Its boundary files do, as polygons, and reading them is left until a point is asked for: a Lithuanian locality has no `lat` or `lon`.
 
 Valid while the register's open data is CC BY 4.0 and a locale's `address` prints one layout.
+
+## `geo.EE`, `geo.LT` and `geo.LV` weigh a place by its people and a postal code or a street by its addresses, and a locality its source doesn't count shares what its municipality's people leave
+
+2026-11-20, in the chunk that moved the three modules' places from address weights to people. Serves goal 3.2. Applies the project principle on a guessed population, for four Estonian localities.
+
+Each country's statistics office publishes the people of every settlement as open data, so a place weighs its people rather than its addresses, which count a summer house as much as a home. The table is `population` in `region`, `municipality` and `locality`, as in every other `geo` module. A postal code and a street keep `addresses`: no office counts people by postal code or street, and a draw then lands where the letters go, as `geo.DK`'s do.
+
+`geo.EE` reads Statistics Estonia's table RL21003, the census of 31 December 2021, under CC BY-SA 4.0. The table keys a settlement by its EHAK code. A settlement whose code changed since is found by its name within its maakond, and Kiltsi, renamed too, by a table in the import. The municipalities' codes changed with the reform of 2017 and later mergers, so a municipality and a region sum the census counts of their settlements, those with no street included. The census withholds a count under three, which weighs 2. Keskküla, Kohtla-Uueküla, Koplimetsa küla and Raadi alev were formed after the census, which counts their people in the settlements they were cut from, so no area's count is left to share out: each weighs a language model's guess, which the page and DATA-LICENSES.md call an estimate. A locality with a street and no count stops the import.
+
+`geo.LT` reads the State Data Agency's table M3010320, the residents at the start of 2026, keyed by the Address Register's codes. The agency's portal names no licence beside the table. Lithuania's open data portal publishes the same indicator's other tables under CC BY 4.0, and the project takes this one on those terms, as DATA-LICENSES.md says. `geo.LV` reads the Central Statistical Bureau's experimental table RIG010, the people at the start of 2026, under CC BY 4.0, keyed by ATVK code and, for a ciems, by its code in the register. It writes a count of one to ten as 5. The bureau's table IRD081 counts the same places by another method, and the two are never mixed. Carnikava became a pilsēta in August 2026; the table still counts it as a ciems of its pagasts, so the import moves both counts to the codes in force.
+
+In both, a municipality weighs its own count and a region the sum of its municipalities. A locality the table doesn't count, 325 Lithuanian and 26 Latvian ones, shares the people of its municipality whom no locality counts, by its addresses, and weighs at least one. A Latvian pagasts also houses people outside every ciems, so its houses there take their share first.
+
+Valid while each office publishes the table under an open licence, and while the Lithuanian agency states no other terms for M3010320.
 
 ## `geo.EE` takes its EHAK codes from settlement units whose licence was not found
 
