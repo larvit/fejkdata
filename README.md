@@ -1595,8 +1595,8 @@ renamed or retyped line is a major.
 
 ## Audience
 
-App developers, and the coding agents working for them, writing tests and fixtures, in
-Go, in JavaScript or TypeScript, and at a shell:
+App developers and their coding agents, writing tests and fixtures, in Go, in JavaScript
+or TypeScript, and at a shell:
 
 - a **bulk fixture author**, millions of rows into CSV or SQL
 - a **Go test author**, filling a struct with `FakeStruct`
@@ -1608,9 +1608,8 @@ Go, in JavaScript or TypeScript, and at a shell:
   error the fences raise
 - a **custom-CLI builder**, who ships a CLI like `fejkdata` with data and functions of
   their own
-- a **coding agent**, which writes templates and runs the CLI for a developer, and relies
-  on one shell line, on `--list` naming every path, and on a load error, exit 2, that
-  names the fix
+- a **coding agent**, which runs the CLI for a developer: it finds a path with `--list`,
+  and fixes a template from the error that exit 2 prints, which names the fix
 
 and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
 the Development section below, and who ships a register the eight above then draw from.
