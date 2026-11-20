@@ -660,7 +660,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   on 30 October 2026 from the English [Wiktionary](https://en.wiktionary.org/)
   by [wiktextract](https://github.com/tatuylonen/wiktextract): the Lithuanian nouns, verbs,
   adjectives and adverbs that are headwords in lower-case letters alone, not forms or variants of
-  another entry, each noun with its nominative plural, spelled without stress marks
+  another entry, each noun with its plural, spelled without stress marks
 - Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); Wiktionary's text is also
   under the GFDL, and the project takes it under CC BY-SA 4.0
 - Attribution: "Wiktionary contributors", the licence's name and link, a link to

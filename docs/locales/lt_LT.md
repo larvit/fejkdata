@@ -100,11 +100,11 @@ project's choice.
 ## Lithuanian words
 
 `lt_LT.word` draws evenly from about 5,100 words of the English Wiktionary's Lithuanian entries: the nouns, verbs, adjectives
-and adverbs that are headwords in lower-case letters alone, not forms or variants of another entry. A verb is an
+and adverbs that are headwords in lower-case letters alone, not forms or variants of another entry. A verb is almost always an
 infinitive, such as `bėgti`; an adjective may be a participle used as one, such as `sergantis`. Wiktionary has no
 frequencies, so a word may be rare.
 `lt_LT.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech, and `lt_LT.word.noun.plural` draws a noun and
-prints its nominative plural, such as `mamos`. A noun whose entry has no nominative plural is left out. Bind a noun to read it and its plural
+prints its plural, such as `mamos`. A noun whose entry gives no plural is left out. Bind a noun to read it and its plural
 from one pick: `{/lt_LT.word.noun as n}{n} {n.plural}` prints `vyras vyrai`.
 
 Rude words stay in the tables, so read the output before showing it to anyone. `lt_LT.sentence` builds on nouns in the
