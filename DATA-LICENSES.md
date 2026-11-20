@@ -551,7 +551,9 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   counted, and a locality with no numbered address on a street is dropped
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the centre's page of the
   data states. The licence of table M3010320 itself was not found: its response names none,
-  and the agency's portal refuses a program's reads, so its terms were not read. The table gives
+  and neither does the agency's portal, whose page on its web service gives no terms and whose
+  footer reserves all rights. The agency's dissemination rules say only that its statistics are
+  given to the public free of charge on the portal. The table gives
   the `population` columns of `region.tsv`, `municipality.tsv` and `locality.tsv`. Lithuania's open
   data portal publishes the same indicator's other tables as the
   dataset [Nuolatinių gyventojų skaičius metų pradžioje](https://data.gov.lt/datasets/2689/) under
