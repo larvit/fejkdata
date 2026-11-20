@@ -144,7 +144,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `en_US.word` holds WordNet's words, under one short path per part of speech, and its notice ships with them
 - `de_DE.word.noun` carries `plural`, where the nouns of `nb_NO`, `nn_NO`, `da_DK` and `sv_SE` carry `definite`
 - `fr_FR.word` holds the English Wiktionary's French words, and its nouns carry `plural`
-- `et_EE.word` holds the English Wiktionary's Estonian words, and its nouns carry `plural`
+- `et_EE.word` holds Wikidata's Estonian words, and its nouns carry `plural`
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
 - `de_DE`'s first names are Munich's newborns

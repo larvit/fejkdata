@@ -1946,7 +1946,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.
 - `company-lv.py` fetches the Register of Enterprises' open data, 129 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
-- `word-et.py` fetches kaikki.org's Estonian dictionary, about 56 MB.
+- `word-et.py` fetches the same lexeme dump, which the two share in the cache.
 - `word-fr.py` fetches kaikki.org's French dictionary, about 590 MB.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
 

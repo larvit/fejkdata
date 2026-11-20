@@ -85,17 +85,15 @@ Annex doesn't reserve any range for fiction or tests, so don't call or text a dr
 
 ## Estonian words
 
-`et_EE.word` draws evenly from about 5,500 words of the English Wiktionary's Estonian entries, as kaikki.org extracts
-them: the nouns, verbs, adjectives and adverbs in lower-case letters alone that Wiktionary lists as words of their own,
-not as an inflected form or a variant of another entry, so a verb is its `-ma` infinitive and never a conjugated form.
-Wiktionary has no frequencies, so a word may be rare, and the tables are small beside the other locales' because no
-larger Estonian word list is open without an account. `et_EE.word.noun`, `.verb`, `.adj` and `.adv` each draw one part
-of speech, and `et_EE.word.noun.plural` draws a noun and prints its nominative plural, such as `majad`. A noun with no
-nominative plural in lower-case letters alone is left out. Bind a noun to read it and its plural from one pick:
-`{/et_EE.word.noun as n}{n} {n.plural}` prints `konn konnad`.
+`et_EE.word` draws evenly from about 77,000 words of Wikidata's Estonian lexemes: the nouns, verbs, adjectives and
+adverbs whose lemma is lower-case letters alone, so a verb is its `-ma` infinitive. Wikidata has no frequencies, so a
+word may be rare. `et_EE.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech, and
+`et_EE.word.noun.plural` draws a noun and prints its nominative plural, such as `majad`. A noun is left out where
+Wikidata gives it no plural of lower-case letters alone. Bind a noun to read it and its plural from one pick:
+`{/et_EE.word.noun as n}{n} {n.plural}` prints `kolonel kolonelid`.
 
 Rude words stay in the tables, so read the output before showing it to anyone. `et_EE.sentence` builds on singular
-nouns beside `on`, plural nouns and `-ma` infinitives after `hakkama`, so it needs no case ending the tables lack: `Kas see
-karjalane on valge?` and `Siis hakkasid lennujaamad niimoodi eelistama.` Its words are drawn at random, so a sentence may
-be senseless or even ungrammatical, such as an adjective that doesn't suit its noun. `et_EE.paragraph` joins three to six
-sentences.
+nouns beside `on`, plural nouns and `-ma` infinitives after `hakkama`, so it needs no case ending the tables lack:
+`Siin on sukmanid ja ostsillograafid.` and `Kas see siniliilia on mängutehniline?` Its words are drawn at random, so a
+sentence may be senseless or even ungrammatical, such as an adjective that doesn't suit its noun. `et_EE.paragraph`
+joins three to six sentences.
