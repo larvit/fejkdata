@@ -20,8 +20,8 @@ func keptInPick(env renderEnv, a tree.Read) bool {
 // readUnder reads a, a read of t kept in env.pick, once per pick, keyed by a's key under env.pickAt.
 func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
 	p, placed := env.pick, tree.ReadAt(env.pickAt, a)
-	if r, done := p.memo.value[placed.Key()]; done {
-		return r
+	if d := p.memo.levels[placed.Key()]; d.read {
+		return d.value
 	}
 	leaf, pins := p.draw(s, t.StartOf(a.Head(), t.Refs()), a.Steps(), placed.Levels())
 	return p.renderAt(s, leaf, pins, placed.Key(), env)
@@ -48,27 +48,40 @@ type namedPick struct {
 	drawn []string
 }
 
-// drawMemo is what a named pick has drawn: the variant each level was drawn as, so every path
-// under it reads one variant; the value each read produced, by its tree.PickKey, so the same read written
-// twice reads one value; and the rows drawn by each step down after a "..", by level.
+// drawMemo is what a named pick has drawn at each level, by the level's tree.PickKey.
 type drawMemo struct {
-	variant     map[tree.PickKey]tree.Node
-	value       map[tree.PickKey]readValue
-	steppedDown map[tree.PickKey]*tree.PinSet
+	levels map[tree.PickKey]levelDraw
+}
+
+// levelDraw is what a named pick keeps of one level.
+type levelDraw struct {
+	// variant is the variant the level's choice was drawn as, so every path under it reads one
+	// variant; nil before that draw.
+	variant tree.Node
+	// value is what the read with this key produced, and read whether it has, so the same read
+	// written twice reads one value.
+	value readValue
+	read  bool
+	// steppedDown is the rows drawn by the step down at this level after a "..", nil before it.
+	steppedDown *tree.PinSet
+}
+
+func (m *drawMemo) keep(level tree.PickKey, d levelDraw) {
+	if m.levels == nil {
+		m.levels = map[tree.PickKey]levelDraw{}
+	}
+	m.levels[level] = d
 }
 
 // stepDownPins is the pins a path steps down into after stepping up to t, drawn once per level
 // and kept in m, so every path of the pick stepping down at that level reads one draw.
 func (m *drawMemo) stepDownPins(pins *tree.PinSet, t *tree.RowsTable, level tree.PickKey) *tree.PinSet {
-	p, ok := m.steppedDown[level]
-	if !ok {
-		p = pins.Above(t)
-		if m.steppedDown == nil {
-			m.steppedDown = map[tree.PickKey]*tree.PinSet{}
-		}
-		m.steppedDown[level] = p
+	d := m.levels[level]
+	if d.steppedDown == nil {
+		d.steppedDown = pins.Above(t)
+		m.keep(level, d)
 	}
-	return p
+	return d.steppedDown
 }
 
 // pickFrame is one render of a name scope: a pick per binding, each drawn on its first read.
@@ -118,8 +131,8 @@ func readName(s *drawstate.State, env renderEnv, a tree.Read) readValue {
 		panic(invariant.Broken("name %q is read where no frame of its scope renders", a.Named().Name()))
 	}
 	p := &f.picks[a.Named().Index()]
-	if r, done := p.memo.value[a.Key()]; done {
-		return r
+	if d := p.memo.levels[a.Key()]; d.read {
+		return d.value
 	}
 	if v := a.Named().Values(); v != nil {
 		return p.readValues(s, env, v, a.Member())
@@ -166,22 +179,18 @@ func (p *namedPick) renderAt(s *drawstate.State, leaf tree.Node, pins *tree.PinS
 	env = env.at(leaf, pins)
 	env.pick, env.pickAt = p, key
 	r := renderLeaf(s, leaf, env)
-	if p.memo.value == nil {
-		p.memo.value = map[tree.PickKey]readValue{}
-	}
-	p.memo.value[key] = r
+	d := p.memo.levels[key]
+	d.value, d.read = r, true
+	p.memo.keep(key, d)
 	return r
 }
 
 // variantOf is the variant of c drawn at level, drawn now where none was.
 func (m *drawMemo) variantOf(s *drawstate.State, c *tree.Choice, level tree.PickKey) tree.Node {
-	n, drew := m.variant[level]
-	if !drew {
-		n = drawThroughChoices(s, c)
-		if m.variant == nil {
-			m.variant = map[tree.PickKey]tree.Node{}
-		}
-		m.variant[level] = n
+	d := m.levels[level]
+	if d.variant == nil {
+		d.variant = drawThroughChoices(s, c)
+		m.keep(level, d)
 	}
-	return n
+	return d.variant
 }

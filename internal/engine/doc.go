@@ -22,7 +22,7 @@
 //     `render.namedPick`, `render.pickFrame`.
 //   - level, pick key, addressed key — `tree.PickKey`.
 //   - memo — what a named pick keeps its draws in, the variant drawn at each level
-//     and the value each path read: `render.drawMemo`.
+//     and the value each path read: `render.drawMemo`, `render.levelDraw`.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
 //     `tree.PinSet`, `render.namedPick.pins`, `render.followStep`.
 //   - link — a table's tie to its parent table, each row to its parent row:
