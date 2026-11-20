@@ -82,15 +82,16 @@ def write(out: Path, forms: Mapping[str, str], table: Mapping[str, Sequence[Mapp
 
 
 def main(doc: str, language: str, out: Path, forms: Mapping[str, str], sources: Sequence[Source], spelled: Callable[[str, str], bool] = lower) -> None:
-    """Run a word import: read its flags, fetch each source and LDNOOBW's list for the language, and write each source's tables."""
+    """Run a word import: read its flags, fetch each source and LDNOOBW's list for the language, none where the language is "", and write each source's tables."""
     parser = argparse.ArgumentParser(description=doc.splitlines()[0])
     parser.add_argument("--cache", default=str(CACHE))
     for src in sources:
         parser.add_argument(f"--{src.flag}", default=src.url)
-    parser.add_argument("--rude", default="")
+    if language:
+        parser.add_argument("--rude", default="")
     parser.add_argument("--out", default=str(out))
     args = parser.parse_args()
-    listed = rude(language, args.cache, args.rude)
+    listed = rude(language, args.cache, args.rude) if language else set()
     for src in sources:
         url = getattr(args, src.flag)
         body = source.fetch(url, args.cache, src.name or Path(url).name, magic=src.magic)

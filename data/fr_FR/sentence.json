@@ -1,0 +1,34 @@
+[
+  {
+    "format": "Il y a des {a} et des {b}{end}",
+    "weight": 3,
+    "a": "{.word-noun.plural}",
+    "b": "{.word-noun.plural}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Il faut {verb} des {noun} {adv}{end}",
+    "weight": 2,
+    "verb": "{.word-verb}",
+    "noun": "{.word-noun.plural}",
+    "adv": "{.word-adv}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Tout est {adj} chez les {noun}{end}",
+    "adj": "{.word-adj}",
+    "noun": "{.word-noun.plural}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "{q} des {noun} ?",
+    "q": ["Y a-t-il encore", "Voit-on souvent", "Connaît-on vraiment"],
+    "noun": "{.word-noun.plural}"
+  },
+  {
+    "format": "Peut-on {verb} des {noun} {adv} ?",
+    "verb": "{.word-verb}",
+    "noun": "{.word-noun.plural}",
+    "adv": "{.word-adv}"
+  }
+]

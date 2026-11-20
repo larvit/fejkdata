@@ -12,18 +12,25 @@
 		"fr_FR.month": {"paths":["","code","name"]},
 		"fr_FR.nir": {"paths":["","body","body.birth","body.place"]},
 		"fr_FR.nonzero-number": {"paths":["","three","two"]},
+		"fr_FR.paragraph": {"paths":[""]},
 		"fr_FR.person": {"paths":["","first","last","prefix","sex"]},
 		"fr_FR.phone": {"paths":["","international","national"]},
 		"fr_FR.phone-fixed": {"paths":["","area","ndc","subscriber"]},
 		"fr_FR.phone-mobile": {"paths":["","area","ndc","subscriber"]},
 		"fr_FR.price": {"paths":[""]},
+		"fr_FR.sentence": {"paths":[""]},
 		"fr_FR.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name","sex-digit","sex-digit.digit","sex-digit.sex"]},
 		"fr_FR.sex-digit": {"parent":"sex","paths":["","digit","sex"]},
 		"fr_FR.time": {"paths":[""]},
 		"fr_FR.title": {"paths":["","name","share"]},
 		"fr_FR.url": {"paths":["","host","path","reserved"]},
 		"fr_FR.username": {"paths":["","n"]},
-		"fr_FR.weekday": {"paths":["","code","name"]}
+		"fr_FR.weekday": {"paths":["","code","name"]},
+		"fr_FR.word": {"paths":["","adj","adv","any","noun","noun.plural","verb"]},
+		"fr_FR.word-adj": {"paths":["","word"]},
+		"fr_FR.word-adv": {"paths":["","word"]},
+		"fr_FR.word-noun": {"paths":["","plural","word"]},
+		"fr_FR.word-verb": {"paths":["","word"]}
 	},
 	"namespace": "fr_FR"
 }
