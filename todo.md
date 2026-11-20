@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 534`
+`Next ID = 535`
 
 ## Items
 
@@ -23,6 +23,7 @@
 | 220 | 0.8.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.9 |
 | 24 | 0.8.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.8 |
 | 30 | 0.8.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 2.7 |
+| 534 | 0.8.0 |  | owner | **Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.7 |
 | 255 | 0.8.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 2.7 |
 | 117 | 0.8.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 2.7 |
 | 168 | 0.8.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.5 |
@@ -291,6 +292,46 @@ Goal 3 names the kinds. A real value is a thing that exists, such as the territo
 ### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
+
+### 534. Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.
+
+The two scoring runs at b0ebfb80 (PR #474) left Locality at 5.63 and 6.38, Shape 6.63 and 6.88, Self-sufficiency 6.13 and 6.63 and Overall 6.25 and 6.88, under the floor of 7.0. Item 462 gave a pick its own frames, and the seats moved on to how the one-pick rule is split between `tree/pick.go`, `render/pick.go` and `fence/names`, joined only by prose:
+
+- Locality: `internal/engine/tree/pick.go:86` `PlacedRead`: dotted string keys and `first[:atLen]` shaped to keep the render env off the heap, not by meaning
+- Locality: `internal/engine/tree/pick.go:123` `LandsInPick`: one rule, a name keeps one pick, enforced across render, tree and fence/names that must agree
+- Locality: `internal/engine/render/pick.go:157` `readPath`: frame swaps, framesFrom's memo and steppedDown pins; unclear that sibling fields reach one memo entry
+- Locality: `internal/engine/render/render.go:32` `render`: the type switch must stay in step with tree.RenderEdges by convention only
+- Locality: `internal/engine/tree/renderedge.go:34` `RenderEdges`: a render path added without its Rendered method leaves a hole in three fences
+- Shape: `internal/engine/load/read.go:121` `compileNamedRead`: `Read.tail` is relative to the name while levels and steps span the path, and no type says which
+- Self-sufficiency: `internal/engine/fence/names/pickreads.go:73` `keyOf`: agrees with grammar's JoinSegments only for the inputs it sees, which nothing states
+- Self-sufficiency: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: early return justified by an invariant whose source wasn't found
+- Self-sufficiency: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: rendersField adds a fourth, negative condition the doc doesn't list
+- Shape: `internal/engine/tree/loadfinds.go:12` `LoadFinds`: tree holds cross-phase working state, not only node types
+- Shape: `internal/engine/fence/names/refusetwicedrawn.go:32` `readTwiceApart`: nearly the same boolean over route ends as readsFieldApart, and nothing says why they stay separate
+- Self-sufficiency: `internal/engine/tree/read.go:11` `Read`: says levels run from the head, wrong for named reads whose levels start at ""
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: a nil keptDraws means fresh, invisible at the call sites
+- Shape: `internal/engine/render/pick.go:38` `namedPick`: render/pick.go would read truer as namedpick.go, with keptDraws beside it
+
+Give the pick-key model one home that holds its own invariants: the keys, where a read lands and which levels a binding addresses, in one place render and the name fence both call, with a key built by one function, so `keyOf` and `JoinSegments` can't disagree. Make render reach a node's children only through what `tree.RenderEdges` lists, or check the two agree in a test that fails when a new node type skips one, so the comment at `renderedge.go:9` is enforced. Let a type say whether a read's segments count from the name or from the path's head. Have each name rule's doc state every condition its code checks, and state the invariant `sharedDraw`'s early return rests on where it is established. Say why `readTwiceApart` and `readsFieldApart` differ, or merge them, and correct `Read.levels`'s doc. No render output or seed changes, and no allocation count rises; the performance gate holds.
+
+Touches:
+
+- `internal/engine/tree/pick.go`
+- `internal/engine/tree/renderedge.go`: `RenderEdges`, `templateEdges`, `choiceEdges`, `cellEdges`
+- `internal/engine/tree/read.go`
+- `internal/engine/fence/names/refusetwicedrawn.go`: `readTwiceApart`
+- `internal/engine/load/read.go`: `compileNamedRead`
+- `internal/engine/load/resolve.go`: `setAddressed` (small)
+- `internal/engine/render/render.go`: `render`
+- `internal/engine/render/pick.go`: `readUnder`, `namedPick.readPath`, `namedPick.framesFrom`
+- `internal/engine/render/path.go`: `drawFresh` (small)
+- `internal/engine/fence/names/pickreads.go`: `keyOf`, `pickReads.keyAt`, `pickReads.addresses`
+- `internal/engine/fence/names/route.go`: `route.placedAt`
+- `internal/engine/fence/names/routewalk.go`: `routesUnder` (small), `walkRoutes` (small)
+- `internal/engine/fence/names/refusefreshdraw.go`: `refuseFreshDraw`, `rendersField`
+- `internal/engine/fence/names/refusedrawnapart.go`: `sharedDraw`
+- `internal/engine/fence/names/refusekeptandfreshfield.go`: `drawnAfresh` (small), `freshFieldReads` (small), `readsFieldApart` (small)
+- `internal/engine/doc.go`: `lines 10-26` (small)
 
 ### 255. Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.
 
