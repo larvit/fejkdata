@@ -1,6 +1,7 @@
 """A locale's word tables: a TSV and the JSON category reading it per part of speech, and word.json, which draws from them."""
 import argparse
 import json
+import unicodedata
 from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -37,6 +38,11 @@ def rude(language: str, cache: str | Path, url: str = "") -> set[str]:
 def lower(word: str, _part: str) -> bool:
     """Lower-case letters alone, whatever the part of speech."""
     return word.isalpha() and word.islower()
+
+
+def lower_letters(word: str, _part: str) -> bool:
+    """Lower-case letters alone, as Unicode's Ll: that leaves out the modifier letters `lower` accepts."""
+    return bool(word) and all(unicodedata.category(c) == "Ll" for c in word)
 
 
 def rows(candidates: Iterable[Candidate], forms: Mapping[str, str], rude_words: Collection[str], spelled: Callable[[str, str], bool] = lower) -> dict[str, list[dict[str, str]]]:
