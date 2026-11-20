@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 529`
+`Next ID = 530`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 529 | 0.7.0 |  |  | **Make `data-import/geo.py`'s `address_json` write the `municipality` and `region` columns.** | 1 | 1 | 1 | 1 | 1 | code health by 3 | 9.8 |
 | 270 | 0.7.0 |  |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 502 | 0.7.0 |  |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 507 | 0.7.0 |  |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
@@ -189,7 +190,7 @@
 | 312 | 1.3.0 | 211 |  | **Add `geo/BD` with Bangladesh's places and postal codes, and `bn_BD.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 316 | 1.3.0 | 213 |  | **Add `geo/ID` with Indonesia's places and postal codes, and `id_ID.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 320 | 1.3.0 | 214 |  | **Add `geo/PK` with Pakistan's places and postal codes, and `ur_PK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
-| 271 | 1.3.0 | 270 |  | **Give `geo/FR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
+| 271 | 1.3.0 | 270 | decision | **Give `geo/FR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 280 | 1.3.0 | 279 |  | **Give `geo/MX`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 285 | 1.3.0 | 284 |  | **Give `geo/BR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
 | 432 | 2.0.0 |  | question | **Reword goals 2.2, 7, 8.1, 8.5, 8.6, 9.2 and 10, and the README's Versioning table, for a Rust core that a native Go library and the npm package both serve.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.7 |
@@ -214,6 +215,14 @@
 
 ## Details
 
+### 529. Make `data-import/geo.py`'s `address_json` write the `municipality` and `region` columns.
+
+Commit 8c40e654 added `municipality` and `region` columns by hand to every shipped `data/geo/*/address.json` and locale `address.json`, but `geo.address_json` in `data-import/geo.py`, which `geo-dk.py`, `geo-fi.py` and `geo-no.py` call to write that file, was not changed. A rerun of any of those imports drops both columns, which the shipped shape pin would then report as a breaking change. `geo-se.py` writes no `address.json`, so `data/geo/SE/address.json` is kept by hand. `geo-fr.py` has its own `address_json` that writes them.
+
+Touches:
+- `data-import/geo.py`: `address_json` (small)
+- `data-import/geo_test.py`: `AddressJson` (small)
+
 ### 270. Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.
 
 The Base Adresse Nationale (Licence Ouverte 2.0) names each address's commune and code postal.
@@ -236,6 +245,8 @@ Touches:
 
 Candidate source: the Estonian Land Board's address data (Maa-amet ADS), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
 
+Research of 2026-11-20, to verify again when built. Maa- ja Ruumiamet (the Land and Spatial Development Board, Maa-amet's successor) publishes the address data system (ADS) under CC0 1.0, per its INSPIRE metadata record b0bd266e-b4c6-45db-b7ea-f47486b6258b. `https://geoportaal.maaruum.ee/docs/aadress/sihtnumbrid.zip` (30 MB) is a `;`-separated UTF-8 CSV, `ADR_ID;SIHTNUMBER;LAHIAADRESS;TAISAADRESS;VIITEPUNKT_X;VIITEPUNKT_Y`, of 1,369,879 addresses under 5,437 postal codes. `TAISAADRESS` spells the county, municipality, settlement and near address, comma-separated, as `Harju maakond, Harku vald, Tabasalu alevik, Sarapuu tn 70`; 112,065 rows have three parts, a town that is its own municipality, as `Harju maakond, Keila linn, Pargi tn 2b`. `LAHIAADRESS` is a street and number, with an apartment after a hyphen (`Saue tn 13-5`), or a farm's name (`Antsu`). The file carries no codes: the EHAK codes of counties, municipalities and settlements are in the DBF of `https://geoportaal.maaruum.ee/docs/haldus_asustus/asustusyksus_shp.zip` (15 MB), whose licence is still to check, and in `KEHTIVAD_KOMPONENDID.csv` on the agency's SFTP server, which the import container's Python cannot read. Population: Statistics Estonia's census table RL21003 (CC BY-SA 4.0, credit Statistics Estonia), whose join to ADS's settlements is untested; weighing a settlement by its addresses needs no second source. GeoNames (CC BY 4.0) is the fallback for points.
+
 Touches:
 
 - `data/geo/EE/`
@@ -248,6 +259,8 @@ Touches:
 
 Candidate source: the Latvian State Land Service's address register (VARIS) on data.gov.lv. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
 
+Research of 2026-11-20, to verify again when built. The State Land Service (VZD) publishes the State Address Register as open data on data.gov.lv, dataset `varis-atvertie-dati` (id 6b06a7e8-dedf-4705-a47b-2a7c51177473), under CC BY 4.0; the credit it is reported to ask for is "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati", with the licence's link and a note of changes, which the dataset's own page must confirm. The files are comma-separated UTF-8 with a BOM: `aw_novads.csv` (35 municipalities), `aw_pilseta.csv` (towns; the 7 state cities have `VKUR_CD` 100000000), `aw_pagasts.csv` (parishes), `aw_ciems.csv` (villages), `aw_iela.csv` (streets) and `aw_eka.csv` (142 MB; 551,133 addresses in force, the postal code in `ATRIB`, 693 codes). `STATUSS` `EKS` marks a row in force and `VKUR_CD` names its parent. The register has no level above the municipality, so `region` needs a choice: the statistics office's regions from a second source, or the municipalities and state cities as regions with parishes and towns under them. The population the Office of Citizenship and Migration Affairs publishes (CC0) reaches only parishes and towns, not villages. GeoNames (CC BY 4.0) is the fallback.
+
 Touches:
 
 - `data/geo/LV/`
@@ -259,6 +272,8 @@ Touches:
 ### 512. Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.
 
 Candidate source: the Centre of Registers' address register (Adresų registras), published as open data. Check its licence first; if it needs attribution or share-alike, say so in `DATA-LICENSES.md` and the README.
+
+Research of 2026-11-20, to verify again when built. Registrų centras publishes the Address Register under CC BY 4.0 (data.gov.lt datasets 1342 and 1285); its credit wording was found only secondhand and must be read from the publisher. `https://www.registrucentras.lt/aduomenys/?byla=adr_stat_lr.csv` (57 MB) is `|`-separated, `SAV_KODAS|AOB_KODAS|GYV_KODAS|GAT_KODAS|NR|KORPUSO_NR|PASTO_KODAS|AOB_NUO`, of 1,132,892 addresses under 16,726 postal codes, each written `LT-85113`. The divisions are CSVs at `https://get.data.gov.lt/datasets/gov/rc/ar/<table>/:format/csv`, for `apskritis/Apskritis` (10 counties, `adm_kodas`), `savivaldybe/Savivaldybe` (60 municipalities, `sav_kodas`), `seniunija/Seniunija` and `gyvenamojivietove/GyvenamojiVietove` (26,231 settlements, `gyv_kodas`, with `pavadinimas` in the nominative and `pavadinimas_k` in the genitive); a row links to its parent by `_id`, and county and municipality names are genitives, as `Alytaus`. The streets' table, joined by `GAT_KODAS`, was not fetched. get.data.gov.lt answers 429 under load. No open population per settlement was found; weighing a settlement by its addresses needs no second source. GeoNames (CC BY 4.0) is the fallback.
 
 Touches:
 
