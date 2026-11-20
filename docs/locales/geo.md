@@ -24,8 +24,11 @@ postdistrikt Gudhjem, on Bornholm. A Danish street sits under each postdistrikt 
 ## Estonian places
 
 `et_EE.address` prints `geo.EE.address`, such as `Sarapuu tn 70\n76901 Tabasalu alevik`. A delivery letter
-is written in lower case, as in `2b`. Every table weighs a row by its addresses in the Land and Spatial Development
-Board's address data. A region, a municipality and a locality are selected by their four-digit code in EHAK, the
+is written in lower case, as in `2b`. A postal code and a street weigh their addresses in the Land and Spatial
+Development Board's address data. A region, a municipality and a locality weigh their people in Statistics Estonia's
+census of 31 December 2021: a locality its own count, and a municipality and a region the counts of every settlement
+in them. The census withholds a count under three, which weighs 2. Four localities formed since the census weigh
+estimates, a language model's guesses of their people: Keskküla, Kohtla-Uueküla, Koplimetsa küla and Raadi alev. A region, a municipality and a locality are selected by their four-digit code in EHAK, the
 board's classification of Estonia's divisions.
 A locality is an asustusüksus: a küla, an alevik, an alev or a linn inside a vald. A linn that governs itself is one
 locality under its own code, and its linnaosad are no places, so Tallinn is `0784` whole. A street's name ends in its
@@ -34,7 +37,9 @@ kind, written as the address data writes it: `tn`, `mnt` and `pst` for tänav, m
 locality with no street is left out, which leaves 1,131 localities holding 78% of the addresses, and leaves out four
 island municipalities whole: Kihnu, Muhu, Ruhnu and Vormsi. A letter to a küla names its vald and its maakond, which
 the record's `municipality` and `region` columns hold. An Estonian street sits under each locality where it has an
-address. A program showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026".
+address. A program showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026" and "Source:
+Statistics Estonia", and passes the population columns on under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), as
+[DATA-LICENSES.md](../../DATA-LICENSES.md) describes.
 
 ## Finnish places
 
@@ -87,9 +92,12 @@ estimates too.
 ## Latvian places
 
 `lv_LV.address` prints `geo.LV.address`, such as `Strautu ceļš 32\nJelgava, LV-3001`: the postal code follows the
-locality after a comma, as the Universal Postal Union's guide to Latvian addresses writes it. Every table weighs a row
-by its addresses in the State Land Service's State Address Register: a building is one address, and each apartment in
-it one more. The register holds no level above the novads, so a region is a novads or one of the seven state cities,
+locality after a comma, as the Universal Postal Union's guide to Latvian addresses writes it. A postal code and a street weigh
+their addresses in the State Land Service's State Address Register: a building is one address, and each apartment in
+it one more. A region, a municipality and a locality weigh their people at the start of 2026, as the Central
+Statistical Bureau's experimental table RIG010 counts them, which writes a count of one to ten as 5. A ciems the table
+doesn't count, one in thirty, shares the people of its pagasts whom no ciems counts, by its addresses, with the houses
+outside every ciems. The register holds no level above the novads, so a region is a novads or one of the seven state cities,
 such as Rīga. A municipality is a pagasts or a pilsēta, and a locality a pilsēta or a ciems: a pilsēta is both, and a
 state city all three. A name is written as the register writes it, `Talsu nov.` and `Abavas pag.`. A region and a
 municipality keep their seven-digit codes in ATVK, the classification of Latvia's territories. A ciems has none, so a
@@ -98,15 +106,17 @@ ciems or a pagasts is a house's name, such as `Riņņi`. A locality with no numb
 which leaves 819 localities holding 83% of the addresses, and leaves out 141 pagasti whole. A house number may end in a
 capital letter, as in `4A`; a korpuss, as in `195 k-1`, is never drawn. A Latvian street sits under each locality where
 it has a numbered address. A program showing the places credits "Izmantoti Valsts adrešu reģistra informācijas
-sistēmas dati", links [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as
+sistēmas dati" and "Centrālā statistikas pārvalde, Oficiālās statistikas portāls", links [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as
 [DATA-LICENSES.md](../../DATA-LICENSES.md) describes.
 
 ## Lithuanian places
 
 `lt_LT.address` prints `geo.LT.address`, such as `Pramonės g. 30\nLT-17107 Šalčininkai`: the postal code stands left
-of the locality, after `LT-`, as the Universal Postal Union's guide to Lithuanian addresses writes it. Every table
-weighs a row by its addresses in the Centre of Registers' Address Register: an address is one, and each of the premises
-at it, such as an apartment, one more. A region is an apskritis, a municipality a savivaldybė, and a locality a
+of the locality, after `LT-`, as the Universal Postal Union's guide to Lithuanian addresses writes it. A postal code and
+a street weigh their addresses in the Centre of Registers' Address Register: an address is one, and each of the premises
+at it, such as an apartment, one more. A region, a municipality and a locality weigh their residents at the start of
+2026, as the State Data Agency's table M3010320 counts them. A locality the table doesn't count, one in twenty, shares
+the residents of its municipality whom no locality counts, by its addresses. A region is an apskritis, a municipality a savivaldybė, and a locality a
 gyvenamoji vietovė, such as a miestas, a kaimas or a viensėdis. Each keeps its code in the register, `10` for
 Vilniaus apskritis, `13` for Vilniaus miesto savivaldybė and `31003` for Vilnius. The register names an apskritis and a
 savivaldybė in the genitive, `Vilniaus`, so `geo.LT` names each with its kind. A locality keeps its nominative name. A
@@ -116,7 +126,7 @@ out, which leaves 7,066 localities holding 97% of the addresses, in all sixty mu
 that is not its municipality's seat names the municipality after the postal code. The record's `municipality` column
 holds that name. A house number may end in a capital letter, as in `17A`; a korpusas is never drawn. The register's files
 hold no point, so a Lithuanian locality has no `lat` or `lon`. A Lithuanian street sits under each locality where it
-has a numbered address. A program showing the places credits "VĮ Registrų centras, Adresų registras", links
+has a numbered address. A program showing the places credits "VĮ Registrų centras, Adresų registras" and "Valstybės duomenų agentūra", links
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as
 [DATA-LICENSES.md](../../DATA-LICENSES.md) describes.
 

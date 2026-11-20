@@ -444,7 +444,12 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   units](https://geoportaal.maaruum.ee/est/ruumiandmed/haldus-ja-asustusjaotus-p119.html), the file
   `asustusyksus_shp.zip` exported 1 November 2026, give each asustusüksus, vald or linn and maakond
   its name and its EHAK code. A linnaosa is summed into its linn, and a locality with no street is
-  dropped
+  dropped. [Statistics Estonia](https://andmed.stat.ee/en/stat)'s table RL21003, the census of 31
+  December 2021, gives each settlement's people, which weigh a locality, and summed a municipality
+  and a region. A settlement is matched by its EHAK code, or else by its name within its maakond. A
+  count the census withholds, one under three, is taken as 2. Four localities formed since the
+  census weigh estimates, a language model's guesses: Keskküla 90, Kohtla-Uueküla 60, Koplimetsa
+  küla 150 and Raadi alev 3,000
 - Licence: the address data is [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/), as its
   [metadata
   record](https://metadata.geoportaal.ee/geonetwork/srv/api/records/b0bd266e-b4c6-45db-b7ea-f47486b6258b)
@@ -452,9 +457,14 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   no licence. The board's
   [terms of
   use](https://kataster.ee/sites/default/files/documents/2024-03/MTP_andmeteenuste_kasutustingimused.pdf)
-  allow using and publishing them free of charge, commercially or not
+  allow using and publishing them free of charge, commercially or not. The census table is
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), as Statistics Estonia's
+  [principles of dissemination](https://stat.ee/en/statistics-estonia/about-us/strategy/principles-dissemination-official-statistics)
+  state for its open data, so the `population` columns of `region.tsv`, `municipality.tsv` and
+  `locality.tsv` pass on under that licence
 - Attribution: "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026": the settlement units' page
-  asks for a reference to the board and for the data's date. The address data asks for none
+  asks for a reference to the board and for the data's date. The address data asks for none. For
+  the census, "Source: Statistics Estonia"
 - Rebuild: `data-import/geo-ee.py`
 
 ## `geo/FI/locality.tsv` and 3 more
@@ -525,15 +535,25 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Source: the Lithuanian Centre of Registers, VĮ Registrų centras, whose [open data of the Address
   Register](https://www.registrucentras.lt/p/1187), fetched on 20 November 2026, lists each
   apskritis, savivaldybė, gyvenamoji vietovė and street, each address with its number and postal
-  code, and each of the premises given an address
-- Changes: an address counts as one and each of the premises at it as one more, which weighs every
-  row. An apskritis and a savivaldybė are named with their kind, and a street with the short form
+  code, and each of the premises given an address. The State Data Agency, Valstybės duomenų
+  agentūra, whose [table
+  M3010320](https://osp-rs.stat.gov.lt/rest_json/data/S3R167_M3010320?startPeriod=2026&endPeriod=2026)
+  of the indicator "Nuolatinių gyventojų skaičius metų pradžioje" gives the residents of each
+  savivaldybė and gyvenamoji vietovė at the start of 2026, under the register's codes
+- Changes: an address counts as one and each of the premises at it as one more, which weighs a
+  postal code and a street. A locality and a municipality weigh their residents, and a region its
+  municipalities'. The table counts 6,741 of the 7,066 localities; each of the rest shares, by its
+  addresses, the residents of its municipality whom no locality counts. An apskritis and a savivaldybė are named with their kind, and a street with the short form
   of its kind. A korpusas is dropped from a house number, an address with no postal code is not
   counted, and a locality with no numbered address on a street is dropped
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the centre's page of the
-  data states
+  data states. The licence of table M3010320 itself was not found: the agency's portal names none
+  beside it. Lithuania's open data portal publishes the same indicator's other tables as the
+  dataset [Nuolatinių gyventojų skaičius metų pradžioje](https://data.gov.lt/datasets/2689/) under
+  CC BY 4.0, which the project takes the table under
 - Attribution: "VĮ Registrų centras, Adresų registras": the page asks a user to name the data's
-  author, to link the licence and to say whether changes were made, and gives no wording
+  author, to link the licence and to say whether changes were made, and gives no wording. For the
+  residents, "Valstybės duomenų agentūra", on the same terms
 - Rebuild: `data-import/geo-lt.py`
 
 ## `geo/LV/region.tsv` and 5 more
@@ -543,16 +563,26 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Source: the Latvian State Land Service, Valsts zemes dienests, whose [open data of the State
   Address Register](https://data.gov.lv/dati/lv/dataset/varis-atvertie-dati), fetched on 20
   November 2026, lists each novads, pilsēta, pagasts, ciems and iela in force, each building's
-  address with its postal code and a point, and each apartment with its building
+  address with its postal code and a point, and each apartment with its building. The Central
+  Statistical Bureau, Centrālā statistikas pārvalde, whose experimental [table
+  RIG010](https://data.stat.gov.lv/pxweb/lv/OSP_PUB/START__POP__IR__IRD/RIG010/) gives the people
+  of each novads, state city, pilsēta, pagasts and ciems at the start of 2026
 - Changes: a building counts as one address and each apartment in it as one more, which weighs
-  every row. A locality's point is the mean of its buildings' points. A korpuss and a second
+  a postal code and a street. A locality and a municipality weigh their people, and a region its
+  municipalities'. The table writes a count of one to ten as 5, and counts 793 of the 819
+  localities; each of the rest shares, by its addresses, the people of its pagasts whom no ciems
+  counts, with the houses outside every ciems. A locality's point is the mean of its buildings' points. A korpuss and a second
   house number are dropped from a house number, and a locality with no numbered address on a
   street is dropped. So is a pagasts that then holds no locality
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the service's [terms of
-  use](https://www.vzd.gov.lv/lv/par-datu-izmantosanas-noteikumiem) and the dataset's page state
+  use](https://www.vzd.gov.lv/lv/par-datu-izmantosanas-noteikumiem) and the dataset's page state.
+  The bureau's table is CC BY 4.0 too, as its [page about the
+  portal](https://stat.gov.lv/en/about-osp) states
 - Attribution: "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati": the terms ask for a
   reference to the source, giving this one as their example, for a link to the licence, and for a
-  note of the changes made to the data
+  note of the changes made to the data. For the people, "Centrālā statistikas pārvalde, Oficiālās
+  statistikas portāls": the bureau asks for a reference to the source and to the portal, and for
+  changes to be marked
 - Rebuild: `data-import/geo-lv.py`
 
 ## `geo/NO/locality.tsv` and 3 more

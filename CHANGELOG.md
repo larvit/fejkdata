@@ -174,8 +174,9 @@ with its replacement, and each removed path, column or flag.
 - `geo.EE`, Estonia's maakonnad, municipalities, localities, postal codes and streets, with `et_EE.address` printing
   one place with a street and a house number, such as `Sarapuu tn 70\n76901 Tabasalu alevik`. A region, a municipality
   and a locality are selected by EHAK code, as `{/geo.EE.locality[0784]}`, and a region or a municipality by its
-  name too. Each row weighs its addresses in the Land and Spatial Development Board's
-  address data. Tallinn is one place, without its linnaosad. A place whose addresses are farms' names has no street
+  name too. A region, a municipality and a locality weigh their people in Statistics Estonia's
+  census of 2021, and a postal code and a street their addresses in the Land and Spatial Development Board's address
+  data. Tallinn is one place, without its linnaosad. A place whose addresses are farms' names has no street
   and ships no place, which leaves out most külad and the municipalities Kihnu, Muhu, Ruhnu and Vormsi. A program
   showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026". The Go package is
   `github.com/larvit/fejkdata/data/geo/EE`, which `data/et_EE` imports, and the CLI carries it.
@@ -183,8 +184,9 @@ with its replacement, and each removed path, column or flag.
   one place with a street and a house number, such as `Pramonės g. 30\nLT-17107 Šalčininkai`. A region, a
   municipality and a locality are selected by their code in the Address Register, as `{/geo.LT.locality[31003]}`,
   and a region or a municipality by its name too.
-  Each row weighs its addresses in the Centre of Registers' register, an address as one and each of the premises at it
-  as one more. A place with no street ships no place, which leaves out most small kaimai. A locality has no `lat` or
+  A region, a municipality and a locality weigh their residents at the start of 2026, as the State Data Agency counts
+  them. A postal code and a street weigh their addresses in the Centre of Registers' register, an address as one and
+  each of the premises at it as one more. A place with no street ships no place, which leaves out most small kaimai. A locality has no `lat` or
   `lon`. A program showing the places credits "VĮ Registrų centras, Adresų registras", links
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as `DATA-LICENSES.md`
   describes. The Go package is `github.com/larvit/fejkdata/data/geo/LT`, which `data/lt_LT` imports, and the CLI
@@ -192,8 +194,10 @@ with its replacement, and each removed path, column or flag.
 - `geo.LV`, Latvia's novadi and state cities, municipalities, localities, postal codes and streets, with
   `lv_LV.address` printing one place with a street and a house number, such as `Strautu ceļš 32\nJelgava, LV-3001`. A
   region and a municipality are selected by ATVK code or name, as `{/geo.LV.region[0051000]}`, and a locality by its
-  code in the State Address Register, as `{/geo.LV.locality[100003003]}`. Each row weighs its addresses in the State
-  Land Service's register, a building as one and each apartment in it as one more. A place whose addresses are houses'
+  code in the State Address Register, as `{/geo.LV.locality[100003003]}`. A region, a municipality and a
+  locality weigh their people at the start of 2026, as the Central Statistical Bureau counts them. A postal code and a
+  street weigh their addresses in the State Land Service's register, a building as one and each apartment in it as one
+  more. A place whose addresses are houses'
   names has no street and ships no place, which leaves out most ciemi and 141 pagasti. A program showing the places
   credits "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati", links
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as `DATA-LICENSES.md`
