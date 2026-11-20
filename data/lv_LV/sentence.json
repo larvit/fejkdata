@@ -1,0 +1,29 @@
+[
+  {
+    "format": "Šeit ir {a} un {b}{end}",
+    "weight": 3,
+    "a": "{.word-noun.plural}",
+    "b": "{.word-noun.plural}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Tad {noun} sāka {adv} {verb}{end}",
+    "weight": 2,
+    "noun": "{.word-noun.plural}",
+    "adv": "{.word-adv}",
+    "verb": "{.word-verb}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Mēs redzējām {noun}, un tas bija {adj}{end}",
+    "noun": "{.word-noun.plural}",
+    "adj": "{.word-adj}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Vai {noun} var {adv} {verb}?",
+    "noun": "{.word-noun.plural}",
+    "adv": "{.word-adv}",
+    "verb": "{.word-verb}"
+  }
+]
