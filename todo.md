@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 530`
+`Next ID = 531`
 
 ## Items
 
@@ -26,6 +26,7 @@
 | 168 | 0.8.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.5 |
 | 457 | 0.8.0 |  |  | **Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.5 |
 | 257 | 0.8.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 2.4 |
+| 530 | 0.8.0 |  |  | **Draw `en_US.ssn` from the series the SSA never issues, area `000`, `666` or `900` to `999`, and say in the README which checker refuses it.** | 2 | 2 | 2 | 4 | 3 | 3.3 by 6 | 2.4 |
 | 389 | 0.8.0 |  |  | **Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2 by 1, 3 by 2 | 2.4 |
 | 406 | 0.8.0 |  |  | **Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.** | 2 | 1 | 1 | 2 | 2 | 1 by 2, 4 by 2 | 2.4 |
 | 260 | 0.8.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.2 |
@@ -274,6 +275,14 @@ A script under `data-import/` is named with a hyphen, as `geo-se.py`, and a modu
 ### 257. Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.
 
 Templates; the check-digit rules are facts.
+
+### 530. Draw `en_US.ssn` from the series the SSA never issues, area `000`, `666` or `900` to `999`, and say in the README which checker refuses it.
+
+Found while shipping the project principle for ids with no test series (PR #469): `data/en_US/ssn.json` draws areas 001 to 665 and 667 to 899, so every number it prints may be a living person's. `docs/locales/en_US.md` says so, but it is the one national id left under neither national-id principle in `AGENTS.md`.
+
+The SSA publishes that it assigns no area 000, 666 or 900 to 999, no group 00 and no serial 0000 (the randomization pages that page links). That is a series the issuer never issues, which the principle "A national id draws a series its issuer keeps for tests or never issues, where one is published" asks for, under goal 3.3. Many validators refuse such numbers, so the README says which one does; the draw may then fail a real check, a trade goal 3 weighs, so the first step is to check each of the SSA's published rules against the common checkers.
+
+Recommendation: ship the never-issued series as the default path, and keep today's issued draw as a second path (as `fi_FI.henkilotunnus-issued` does for the Finnish id), so a user chooses. Area 900 to 999 overlaps `en_US.itin`, whose groups differ, so the two stay apart by group. Record the choice in `docs/decisions.md`, and add the category to the principle's "Applied by" list. Its draw changes what exists, so it follows the README's Versioning table.
 
 ### 389. Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.
 
