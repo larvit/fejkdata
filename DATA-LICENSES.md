@@ -448,7 +448,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Licence: the address data is [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/), as its
   [metadata
   record](https://metadata.geoportaal.ee/geonetwork/srv/api/records/b0bd266e-b4c6-45db-b7ea-f47486b6258b)
-  states. The settlement units' page names no licence: it calls the data open data, and the board's
+  states. The settlement units' licence was not found: their page calls the data open data and names
+  no licence, and the board's
   [terms of
   use](https://kataster.ee/sites/default/files/documents/2024-03/MTP_andmeteenuste_kasutustingimused.pdf)
   allow using and publishing them free of charge, commercially or not

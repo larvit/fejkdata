@@ -24,6 +24,7 @@
 - A name table for which no open bulk file of name counts exists under a licence the project takes, not even one covering part of the country, keeps any counts a source publishes, and draws every other name from a language model's recall. The commoner recalled names are ranked from the most to the least common. Each weighs a function of its rank, which the decision applying this principle states, and never more than the smallest published count. The rarer ones follow in no order and share one weight, no higher than the last ranked name's. The README and `DATA-LICENSES.md` call these weights estimates. Goal 3.2. Applied by `da_DK.first-name`, `da_DK.last-name`, `de_DE.last-name`, `lt_LT.first-name`, `lt_LT.last-name`, `lv_LV.last-name`; `et_EE.first-name` and `et_EE.last-name` apply it until item 522 ships.
 - A national id draws a series its issuer keeps for tests or never issues, where one is published. The README says which checker, if any, refuses it. Goal 3.3. Applied by `de_DE.steuer-id`, `fi_FI.henkilotunnus`, `nb_NO.fodselsnummer`, `nn_NO.fodselsnummer`, `sv_SE.personnummer`, `sv_SE.personnummer-12`, `sv_SE.samordningsnummer` and `sv_SE.samordningsnummer-12`.
 - A locale's `word` holds an open dictionary's words, one table per part of speech, under `noun`, `verb`, `adj` and `adv`, and draws each word evenly. It drops no word for being rude. Goal 3.2. Applied by `da_DK.word`, `de_DE.word`, `en_US.word`, `et_EE.word`, `fi_FI.word`, `fr_FR.word`, `lt_LT.word`, `lv_LV.word`, `nb_NO.word`, `nn_NO.word` and `sv_SE.word`. Until item 497 ships, each of their imports but `et_EE.word`'s, `fr_FR.word`'s, `lt_LT.word`'s and `lv_LV.word`'s still drops rude words.
+- A geo module built from an address register weighs each row by its addresses and leaves out a locality with no street. Goal 3.2. Applied by `geo.EE`, `geo.LV` and `geo.LT`.
 
 # Decisions
 
@@ -160,9 +161,9 @@ In [docs/decisions.md](docs/decisions.md):
 - One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`
 - `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
 - A `geo.FI` `swedish-name` holds the Finnish name where its source gives no Swedish one
-- `geo.EE` weighs each row by its addresses, and a place with no street ships no place
 - `geo.LV` takes a novads or a state city as its region, counts each apartment as an address, and writes the postal code after the locality
 - `geo.LT` names an apskritis and a savivaldybė with its kind, counts each of the premises as an address, and ships no point
+- `geo.EE` takes its EHAK codes from settlement units whose licence was not found
 - A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 - Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, and a weighted draw stays a binary search over cumulative weights
 
