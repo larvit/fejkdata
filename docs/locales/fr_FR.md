@@ -99,14 +99,17 @@ checker is promised to accept a number: the roots are no operator's.
 ## French words
 
 `fr_FR.word` draws evenly from about 64,000 words of the English Wiktionary's French entries, as kaikki.org
-extracts them: the nouns, verbs, adjectives and adverbs whose headword is lower-case letters alone and which some
-sense does not call an inflected form or a variant of another entry. Wiktionary has no frequencies, so a word
-may be rare. `fr_FR.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech, and `fr_FR.word.noun.plural`
-draws a noun and prints its first plural, such as `chevaux`. A noun is left out where Wiktionary gives it no plural
-of letters alone. Bind a noun to read it and its plural from one pick: `{/fr_FR.word.noun as n}{n} {n.plural}`
-prints `cheval chevaux`.
+extracts them: the nouns, verbs, adjectives and adverbs in lower-case letters alone that Wiktionary lists as words of
+their own, not as an inflected form or a variant of another entry, so a verb is an infinitive, never a conjugated form.
+Wiktionary has no frequencies, so a word may be rare. `fr_FR.word.noun`, `.verb`, `.adj` and `.adv` each draw one part
+of speech, and `fr_FR.word.noun.plural` draws a noun and prints its plural, such as `chevaux`: the first plural
+Wiktionary lists, or the noun itself where it is invariable, as `pays`. A noun with no plural in lower-case letters
+alone is left out. Bind a noun to read it and its plural from one pick: `{/fr_FR.word.noun as n}{n} {n.plural}` prints
+`cheval chevaux`.
 
-The tables hold every word of the source, rude ones too, so read the output before showing it to anyone.
-`fr_FR.sentence` builds on plurals and infinitives, so it needs no gender and no agreement: `Il y a des données et
-des garennes.` and `Voit-on souvent des dirigeables ?` A verb stands whole in its infinitive, so some sentences
-aren't sensible, though the grammar holds. `fr_FR.paragraph` joins three to six sentences.
+Rude words stay in the tables, so read the output before showing it to anyone. `fr_FR.sentence` builds on plural
+nouns, infinitives and adverbs, so it needs no gender and no agreement: `Il y a des données et des garennes.` and
+`Voit-on souvent des dirigeables ?` Its words are drawn at random, so a sentence is grammatical but not always
+sensible, such as a verb with an object it can't take. `fr_FR.paragraph` joins three to six sentences.
+A program showing these words credits "Wiktionary contributors, CC BY-SA 4.0" and shares any change to them under
+the same licence.
