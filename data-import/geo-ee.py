@@ -35,8 +35,8 @@ LINNAOSA = "6"
 # The words that end a street's name. The board's handbook of address data, section 27.14, abbreviates tänav, maantee
 # and puiestee as tn, mnt and pst, and names tee, allee, põik, väljak and plats as the words written in full.
 STREET_KINDS = ("tn", "mnt", "pst", "tee", "allee", "põik", "väljak", "plats")
-# A street, a house number, its letter, then what the import drops: a second building after a slash, an apartment after a hyphen.
-NEAR = re.compile(rf"^(.+ (?:{'|'.join(STREET_KINDS)})) (\d+)([a-z]?)(?:/[^-]+)?(?:-.+)?$")
+# After any väikekoht and its comma: a street, a house number, its letter, then what the import drops: a second building after a slash, an apartment after a hyphen.
+NEAR = re.compile(rf"^(?:.+, )?([^,]+ (?:{'|'.join(STREET_KINDS)})) (\d+)([a-z]?)(?:/[^-]+)?(?:-.+)?$")
 
 # A place as a full address names it: its maakond, its vald or linn and, where it has one, its asustusüksus.
 type Place = tuple[str, ...]
@@ -107,9 +107,9 @@ def street_of(near: str) -> tuple[str, int, bool] | None:
     return (m[1], int(m[2]), bool(m[3])) if m else None
 
 
-def place_of(full: str) -> Place:
+def place_of(full: str, near: str) -> Place:
     """The place a full address names: its parts before the near address."""
-    return tuple(full.split(", ")[:-1])
+    return tuple(full.removesuffix(near).split(", ")[:-1])
 
 
 class Tally:
@@ -127,7 +127,7 @@ class Tally:
 
     def add(self, row: Mapping[str, str], code_of: Mapping[Place, str]) -> None:
         """Counts one address, or notes its place as unplaced where code_of holds no locality for it."""
-        place = place_of(row["TAISAADRESS"])
+        place = place_of(row["TAISAADRESS"], row["LAHIAADRESS"])
         if place not in code_of:
             self.unplaced[place] += 1
             return
