@@ -24,7 +24,7 @@ func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T
 		"a read through a name at a key":  {"", tree.NewRead("", "first", nil, tree.FreshLevels("first", nil), nil, nil).ThroughName(nil, 0), ""},
 	} {
 		t.Run(name, func(t *testing.T) {
-			by, lands := tree.LandsInPick(addressed, c.at, c.a)
+			_, by, lands := tree.LandsInPick(addressed, c.at, c.a)
 			if by != c.wantBy || lands != (c.wantBy != "") {
 				t.Errorf("%s: LandsInPick = %q, %v, want %q", name, by, lands, c.wantBy)
 			}

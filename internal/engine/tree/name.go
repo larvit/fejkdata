@@ -87,6 +87,11 @@ func (n NameTarget) Start() Node { return n.start }
 
 func (n NameTarget) Tail() []string { return n.tail }
 
+// Addressed is the levels that r, a read through a name bound to n, addresses in the name's pick:
+// the level the binding lands on, one below the pick's start for each segment of the tail, and
+// each level of r below it.
+func (n NameTarget) Addressed(r Read) []PickKey { return r.levels[len(n.tail):] }
+
 // BindsField reports whether b binds a path into a field, so a read of it stays in the category.
 func (b *NameBinding) BindsField() bool { return !grammar.IsRef(b.ref) }
 

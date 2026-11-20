@@ -44,7 +44,7 @@ func (p pickReads) landingOn(key tree.PickKey) (string, bool) {
 
 // addresses reports whether r, a read of the name, lands on or passes key.
 func (p pickReads) addresses(r *tree.Read, key tree.PickKey) bool {
-	return slices.Contains(r.Levels()[len(p.binding.Target().Tail()):], key)
+	return slices.Contains(p.binding.Target().Addressed(*r), key)
 }
 
 // keyAt is the key of the node at path, the fields leading down to it from the start of the
