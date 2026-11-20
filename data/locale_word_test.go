@@ -149,6 +149,11 @@ func TestLocaleWordTablesHoldTheirSourcesWordsAndForms(t *testing.T) {
 		{"et_EE", "adv", "alati", ""},
 		{"et_EE", "noun", "kurat", "kuradid"},
 		{"et_EE", "noun", "sitt", "sitad"},
+		{"lv_LV", "noun", "māja", "mājas"},
+		{"lv_LV", "noun", "vīrs", "vīri"},
+		{"lv_LV", "verb", "skriet", ""},
+		{"lv_LV", "adj", "liels", ""},
+		{"lv_LV", "adv", "bieži", ""},
 		{"nb_NO", "verb", "avslå", "avslår"},
 		{"da_DK", "noun", "abessiner", "abessineren"},
 		{"sv_SE", "noun", "hus", "huset"},
@@ -217,6 +222,8 @@ func TestLocaleWordTablesHoldOnlyTheirSourcesHeadwords(t *testing.T) {
 		{"fr_FR", "verb", "aimez"},
 		{"fr_FR", "verb", "abolisses"},
 		{"fr_FR", "verb", "expliquent"},
+		{"lv_LV", "adj", "abējs"},
+		{"lv_LV", "noun", "abanācija"},
 	}, "a form or variant its source doesn't list as a headword of that part")
 }
 
