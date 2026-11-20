@@ -98,6 +98,7 @@ alkis	alkiai
 alkoholikas	alkoholikai
 alkoholis	alkoholiai
 alkūnė	alkūnės
+altorius	altoriai
 aludaris	aludariai
 aludė	aludės
 alus	alūs
@@ -243,6 +244,7 @@ atmintis	atmintys
 atmosfera	atmosferos
 atolas	atolai
 atostogos	atostogos
+atranka	atrankos
 atsakomybė	atsakomybės
 atsakymas	atsakymai
 atskaitomybė	atskaitomybės
@@ -352,6 +354,7 @@ baronienė	baronienės
 barsukas	barsukai
 barzda	barzdos
 barzdaskutys	barzdaskučiai
+barzdelė	barzdelės
 barškuolė	barškuolės
 barščiai	barščiai
 baseinas	baseinai
@@ -412,6 +415,7 @@ bičiulis	bičiuliai
 blakstiena	blakstienos
 blandas	blandai
 blizgas	blizgai
+blizgesys	blizgesiai
 blogas	blogai
 blusa	blusos
 bobslėjus	bobslėjūs
@@ -443,6 +447,7 @@ bronza	bronzos
 bruknė	bruknės
 bruožas	bruožai
 budelis	budeliai
+budė	budės
 bugienis	bugieniai
 buhalteris	buhalteriai
 bukas	bukai
@@ -613,7 +618,6 @@ didžiokas	didžiokai
 didžėjus	didžėjai
 diemedis	diemedžiai
 diena	dienos
-dienoraštis	dienoraščiai
 dienraštis	dienraščiai
 dievas	dievai
 dieveris	dieverys
@@ -622,6 +626,7 @@ diftongas	diftongai
 diktatorius	diktatoriai
 dilgėlė	dilgėlės
 dinamitas	dinamitai
+dinastija	dinastijos
 dingstis	dingstys
 dinozauras	dinozaurai
 diplomatas	diplomatai
@@ -661,7 +666,6 @@ druskininkas	druskininkai
 dryžis	dryžiai
 drąsa	drąsos
 drėgmė	drėgmės
-drėgmėmatis	drėgmėmačiai
 dubuo	dubenys
 dugnas	dugnai
 duja	dujos
@@ -674,6 +678,7 @@ dumblas	dumblai
 duobė	duobės
 duomuo	duomenys
 duona	duonos
+dupinas	dupinai
 durnaropė	durnaropės
 durtuvas	durtuvai
 durys	durys
@@ -713,7 +718,6 @@ dūmtraukis	dūmtraukiai
 džiaugsmas	džiaugsmai
 džiazas	džiazai
 džiazva	džiazvos
-egiptietis	egiptiečiai
 eglynas	eglynai
 eglė	eglės
 egzaminas	egzaminai
@@ -791,6 +795,7 @@ filmas	filmai
 finalas	finalai
 fizioterapija	fizioterapijos
 fjordas	fjordai
+flamandas	flamandai
 fleita	fleitos
 fluidas	fluidai
 fokačija	fokačijos
@@ -872,7 +877,6 @@ gerumas	gerumai
 gervinas	gervinai
 gervuogė	gervuogės
 gervė	gervės
-gesintuvas	gestintuvai
 gestakalbis	gestakalbiai
 gestapininkas	gestapininkai
 getas	getai
@@ -957,7 +961,6 @@ gyvulys	gyvuliai
 gyvybė	gyvybės
 gyvūnas	gyvūnai
 gėda	gėdos
-gėjus	gėjūs
 gėla	gėlos
 gėlė	gėlės
 gėrimas	gėrimai
@@ -1067,11 +1070,13 @@ jogurtas	jogurtai
 jonas	jonai
 jonosfera	jonosferos
 jonvabalis	jonvabaliai
+jubiliejus	jubiliejai
 judesys	judesiai
 jungas	jungai
 jungiklis	jungikliai
 junginys	junginiai
 jungtukas	jungtukai
+juoda	juodos
 juodligė	juodligės
 juodvarnis	juodvarniai
 juokas	juokai
@@ -1141,6 +1146,7 @@ kampas	kampai
 kamuila	kamuilos
 kamuolys	kamuoliai
 kamštis	kamščiai
+kamščiatraukis	kamščiatraukiai
 kamža	kamžos
 kanadietis	kanadiečiai
 kanalas	kanalai
@@ -1357,7 +1363,6 @@ kovas	kovai
 kovotojas	kovotojai
 košė	košės
 kraigas	kraigai
-kraikas	kraigai
 kranklys	krankliai
 krantas	krantai
 krapas	krapai
@@ -1475,7 +1480,6 @@ laiškas	laiškai
 laiškininkas	laiškininkai
 langas	langai
 lankas	lankai
-lankytojas	lankytojai
 lapas	lapai
 lapinas	lapinai
 lapkritis	lapkričiai
@@ -1702,6 +1706,7 @@ ministerija	ministerijos
 ministras	ministrai
 ministrė	ministrės
 minosvaidis	minosvaidžiai
+mintis	mintys
 minutė	minutės
 mira	miros
 miražas	miražai
@@ -2041,7 +2046,6 @@ plautis	plaučiai
 plaučiai	plaučiai
 pleiskana	pleiskanos
 plienas	plienai
-plokštuma	plokštumos
 plonas	plonai
 plotas	plotai
 plunksna	plunksnos
@@ -2139,6 +2143,8 @@ protestuotojas	protestuotojai
 protokolas	protokolai
 protėvis	protėviai
 provincija	provincijos
+prūsas	prūsai
+prūsė	prūsės
 psalmynas	psalmynai
 pseudoskorpionas	pseudoskorpionai
 psichologas	psichologai
@@ -2171,7 +2177,6 @@ pusmetris	pusmetriai
 puspriekabė	puspriekabės
 pusrutulis	pusrutuliai
 pusryčiai	pusryčiai
-pusseserė	pussesserės
 pusvalandis	pusvalandžiai
 pusė	pusės
 putytis	putyčiai
@@ -2299,7 +2304,6 @@ salynas	salynai
 salė	salės
 samagonas	samagonai
 samanos	samanos
-samurajus	samurajai
 sandara	sandaros
 sankryža	sankryžos
 santaka	santakos
@@ -2424,6 +2428,7 @@ skėtis	skėčiai
 slaptažodis	slaptažodžiai
 slapyvardis	slapyvardžiai
 sloga	slogos
+slovakas	slovakai
 slovėnas	slovėnai
 slovėnė	slovėnės
 slyva	slyvos
@@ -2529,6 +2534,7 @@ stumbras	stumbrai
 stumbriena	stumbrienos
 stumbriukas	stumbriukai
 styga	stygos
+suaugęs	suaugę
 subingalvis	subingalviai
 subjektas	subjektai
 submarinas	submarinai
@@ -2565,6 +2571,7 @@ svetainė	svetainės
 svečias	svečiai
 sviestas	sviestai
 svietas	svietai
+svirtis	svirtys
 svogūnas	svogūnai
 svoris	svoriai
 syvas	syvai
@@ -2594,6 +2601,7 @@ taisyklė	taisyklės
 takas	takai
 talentas	talentai
 talka	talkos
+talonas	talonai
 tamsa	tamsos
 tankas	tankai
 tarifas	tarifai
@@ -2614,6 +2622,7 @@ taurė	taurės
 tauta	tautos
 tautietis	tautiečiai
 taškas	taškai
+teatras	teatrai
 technecis	techneciai
 technika	technikos
 teiginys	teiginiai
@@ -2762,6 +2771,7 @@ vadovėlis	vadovėliai
 vaflis	vafliai
 vaga	vagos
 vagis	vagys
+vagnorkė	vagnorkės
 vagonas	vagonai
 vagystė	vagystės
 vaidmuo	vaidmenys
@@ -2771,6 +2781,7 @@ vaikaitė	vaikaitės
 vaikas	vaikai
 vaikinas	vaikinai
 vaikystė	vaikystės
+vaina	vainos
 vainikas	vainikai
 vairas	vairai
 vairuotojas	vairuotojai
@@ -2905,7 +2916,6 @@ vilnis	vilnys
 vilniškis	vilniškiai
 viltis	viltys
 vinis	vinys
-violončelininkas	violončelininkai
 violončelė	violončelės
 virbas	virbai
 virdulys	virduliai
@@ -2945,6 +2955,7 @@ vynuogininkas	vynuogininkai
 vynuogynas	vynuogynai
 vynuogė	vynuogės
 vyras	vyrai
+vyriausiasis	vyriausieji
 vyriausybė	vyriausybės
 vyriškumas	vyriškumai
 vyrukas	vyrukai
@@ -3203,7 +3214,7 @@ zuikis	zuikiai
 žolelė	žolelės
 žolė	žolės
 žudikas	žudikai
-žuolis	žuoliai
+žurnalas	žurnalai
 žurnalistas	žurnalistai
 žuvis	žuvys
 žvaigždininkas	žvaigždininkai

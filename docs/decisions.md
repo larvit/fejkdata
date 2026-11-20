@@ -1745,10 +1745,11 @@ Valid while no open source of Estonian words holds as many nouns with a plural a
 
 The tables hold the nouns, verbs, adjectives and adverbs of the English Wiktionary's Lithuanian entries, as kaikki.org
 extracts them (CC BY-SA 4.0). Each is a headword of lower-case letters alone, not a form or variant of another entry:
-about 3,200 nouns, 900 verbs, 700 adjectives and 250 adverbs. A noun carries its nominative plural from the entry's
-declension table, spelled as the page the plural links to, which is without stress marks. The plural typed into the
-head template is not taken, since some are wrong, such as `lankytoja` for `lankytojas`. A noun with no nominative
-plural is left out. Wikidata's Lithuanian lexemes (CC0) held 14 nouns when counted on 20 November 2026, and CLARIN-LT's
+about 3,200 nouns, 900 verbs, 700 adjectives and 250 adverbs. A noun carries its plural, spelled as the page the plural
+links to, which is without stress marks. Both the entry's declension table and its head template give one, and each is
+wrong for some nouns, such as `lankytoja` for `lankytojas` in the head template. So a noun takes the one that links, and
+is left out where both link and differ, or neither does. Wikidata's Lithuanian lexemes (CC0) held 14 nouns when counted
+on 20 November 2026, and CLARIN-LT's
 Lithuanian Hunspell dictionary lists no part of speech and is under an end-user licence, so no open source reaches the
 tens of thousands the other locales hold.
 `lt_LT.sentence` builds on nominative nouns, infinitives and adverbs, which need no gender, and quotes an adjective
