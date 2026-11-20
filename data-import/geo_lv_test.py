@@ -166,6 +166,17 @@ class Weighed(unittest.TestCase):
         self.assertEqual([r.regions[c]["population"] for c in ("0035000", "0051000", "0001000")], [700, 1100, 600000])
         self.assertNotIn("population", r.localities["100187337"])
 
+    def test_a_region_sums_every_municipality_in_it(self) -> None:
+        arlava = place("100013930", PAGASTS, "Ārlavas pag.", "100016390", NOVADS, "0051420")
+        r = geo_lv.Register(NOVADI, PILSETAS, [*PAGASTI, arlava], CIEMI, IELAS)
+        geo_lv.weighed(r, geo_lv.tally([], r, collections.Counter()), {"0035200": 700, "0051400": 1100, "0051420": 300, "0001000": 600000})
+        self.assertEqual(r.regions["0051000"]["population"], 1400)
+
+    def test_a_locality_takes_the_point_of_its_addresses(self) -> None:
+        r = register()
+        geo_lv.weighed(r, tally(address("18", "100366498", IELA, lat="57.85", lon="24.36")), {"0035200": 700, "0051400": 1100, "0001000": 600000})
+        self.assertEqual((r.localities["100003366"]["lat"], r.localities["100003366"]["lon"]), ("57.8500", "24.3600"))
+
     def test_a_village_with_no_count_shares_the_rest_of_its_pagasts_with_the_houses_outside_every_village(self) -> None:
         r = register()
         counted = tally(address("3", "100500001", IELA, "LV-3294"), address("Riņņi", "100013922", PAGASTS, "LV-3294"), address("Šķetras", "100013922", PAGASTS, "LV-3294"), address("Kalni", "100187337", CIEMS, "LV-3294"))
