@@ -322,6 +322,20 @@ func TestATemplateStepsUpToTheRowATableLinksTo(t *testing.T) {
 	}
 }
 
+func TestTableStepUpAndDownDrawsAreSeeded(t *testing.T) {
+	f := generatorOfStepUpTemplates(t)
+	var got []string
+	for i := 0; i < 4; i++ {
+		for _, path := range []string{"named", "locality[L4]..municipality.locality.code", "locality[L4]..municipality..region.municipality.code", "named-down", "named-two-down", "named-twice", "locality..municipality..region.municipality.locality.name"} {
+			got = append(got, fejktest.Fake(t, f, path))
+		}
+	}
+	want := "L5|1480|14 L4 1280 L4|L7 1280|L3 L2|Solna Hisingen L7|1281|12 L7 1281 L2|L2 1280|L3 L2|Solna Malmö L5|1480|14 L7 1280 L8|L2 1280|L3 L6|Hisingen Hisingen L6|1480|14 L4 1280 L2|L8 1280|L3 L7|Sandby Hisingen"
+	if drawn := strings.Join(got, " "); drawn != want {
+		t.Errorf("seed 4 drew\n%s\nwant\n%s", drawn, want)
+	}
+}
+
 type stepUpDraws struct {
 	named, down, twoUpDown, namedDown, namedTwoDown, namedTwice string
 	downRecord, record                                          []Column
