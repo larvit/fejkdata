@@ -12,8 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 539 | 0.7.1 |  | owner | **Rewrite the README so its first screen says what sets fejkdata apart, in words a tired reader gets on one pass, and so searches and language models match it to the problems it solves.** | 3 | 2 | 1 | 4 | 7 | 1.1 by 7, 11 by 6 | 0.7 |
-| 540 | 0.7.1 | 539 |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
+| 540 | 0.7.1 |  |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
 | 537 | 0.7.1 |  |  | **Add a "For coding agents" section: `--list` to find a path, one-line renders, exit 2 with an error naming the fix, `--seed` and `--today` to repeat a run, and a snippet to paste into a project's `AGENTS.md`.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4, 11 by 4 | 4.5 |
 | 536 | 0.7.1 |  |  | **Add a "Why fejkdata" table setting it beside Faker, gofakeit and Mockaroo, each cell checked against that tool's own docs.** | 2 | 2 | 1 | 3 | 3 | 1.1 by 5, 11 by 3 | 3.5 |
 | 538 | 0.7.1 |  |  | **Rewrite the GitHub description, topics and homepage, and `dockerhub/description.txt` and `dockerhub/overview.md`, to the README's new lead, with fejkdata.dev as the homepage.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
@@ -217,24 +216,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 539. Rewrite the README so its first screen says what sets fejkdata apart, in words a tired reader gets on one pass, and so searches and language models match it to the problems it solves.
-
-The maintainer, 2026-11-21: put a Fable agent on high effort on it. The README must turn up in searches and language-model matches once indexed, put what matters most to the audience first, and read fluently and plainly, never like a language model wrote it, for a tired, overloaded reader, without dropping any fact.
-
-Lead with what the alternatives lack, in this order:
-
-1. Fields that agree: one named pick feeds every field, so a row's name, sex, personnummer, email and address fit together.
-2. Ids a real checker accepts that no real person holds, from the issuers' test series where one exists, and postal codes that match their town and street.
-3. One JSON template and one command give a value or millions of rows, as CSV, SQL, `COPY` or NDJSON, from a single binary.
-4. A mistake fails at load with an error that names the fix, which a coding agent fixes in one retry.
-
-"Locale-aware" stops being the lead, and the long "Data built in" list leaves the top. Link fejkdata.dev near the top. Put the phrases people search for in headings and the first lines: valid national ids, CSV and SQL test data, correlated fields, seed data. A panel of fresh readers, seated as the personas in `## Audience`, reads candidate first screens and picks the one they understand fastest; each claim stays true of what ships. Rewrite `### Documentation`, the method section, to match. The README examples still run under `readme_test.go`, and `dockerhub/description.txt` keeps opening a README sentence.
-
-Touches:
-
-- `README.md`: `# fejkdata`, `## Install`, `## Quick start`, `### Bulk fixtures`, `### Go tests`, `### Replacing real data with fakes`, `### Documentation`
-- `readme_test.go`: `TestDockerhubDescriptionOpensAReadmeSentence` (small)
 
 ### 540. Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.
 
