@@ -1,4 +1,5 @@
-"""Rebuild data/geo/EE/*.tsv and address.json from the Land and Spatial Development Board's addresses and settlement units.
+"""Rebuild data/geo/EE/*.tsv and address.json from the Land and Spatial Development Board's addresses and settlement units and
+Statistics Estonia's census.
 
     data-import/geo-ee.py [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]
 
@@ -9,7 +10,10 @@ EHAK codes. A maakond is a region, a vald or a linn that governs itself a munici
 A linnaosa is a part of its linn, so its addresses are the linn's, and the linn is the locality: Tallinn is one place.
 A linn whose full addresses name no asustusüksus, such as Keila linn, is a locality too, under its own EHAK code.
 
-Each table weighs a row by its addresses in the file. A locality's point is the mean of its addresses' points. A street
+A postal code and a street weigh their addresses in the file. A region, a municipality and a locality weigh their
+people in Statistics Estonia's table RL21003, the census of 31 December 2021: a locality by its own count, and a
+municipality and a region by the counts of the settlements in them. A count the census withholds is WITHHELD, and a
+settlement formed since the census takes its ESTIMATES guess. A locality's point is the mean of its addresses' points. A street
 is a near address that ends in a house number after one of STREET_KINDS, and a farm's name, such as `Antsu`, is none, so
 a locality with no street is dropped. address.json weighs each length of house number, with a letter or without, by the
 addresses that carry one.
@@ -43,8 +47,8 @@ QUERY = {
     ],
     "response": {"format": "json-stat2"},
 }
-# In a place's key in the census: the code that stands where a level has none, and the kind of a linnaosa.
-NO_CODE, CENSUS_LINNAOSA = "0000", "L6"
+# The code that stands in a place's key in the census where a level has none.
+NO_CODE = "0000"
 # What a place's label in the census opens with: dots for its depth and, before a settlement, its EHAK code.
 LABEL = re.compile(r"^\.+(?:\d{4} )?")
 # The census publishes no count of 1 or 2, so a settlement whose count it withholds holds 2.
@@ -185,12 +189,12 @@ def tally(lines: Iterable[str], code_of: Mapping[Place, str]) -> Tally:
 class Census:
     """The 2021 census's count of each settlement, by its EHAK code, and by its maakond and name where one settlement of
     the maakond bears the name. A place's key is the EHAK codes of its maakond, its municipality and its settlement, then
-    its kind. A linn that holds no settlement is one itself, under its municipality's code. A linnaosa, a vald and a
+    two characters whose second is its kind, as the settlement units' TYYP. A linn that holds no settlement is one itself, under its municipality's code. A linnaosa, a vald and a
     maakond are none."""
 
     def __init__(self, stat: Mapping[str, Any]) -> None:
         category = stat["dimension"]["Elukoht"]["category"]
-        places = [(key, LABEL.sub("", category["label"][key]), stat["value"][i]) for key, i in category["index"].items() if len(key) == 14 and key[4:8] != NO_CODE and key[12:] != CENSUS_LINNAOSA]
+        places = [(key, LABEL.sub("", category["label"][key]), stat["value"][i]) for key, i in category["index"].items() if len(key) == 14 and key[4:8] != NO_CODE and key[13] != LINNAOSA]
         holders = {key[4:8] for key, _, _ in places if key[8:12] != NO_CODE}
         self.by_code: dict[str, int] = {}
         named: dict[tuple[str, str], list[int]] = collections.defaultdict(list)
@@ -214,9 +218,9 @@ class Census:
 
 
 def weighed(regions: Mapping[str, geo.Row], municipalities: Mapping[str, geo.Row], localities: Mapping[str, geo.Row], counted: Tally, census: Census) -> None:
-    """Gives each locality with an address its population, at least one person, and its point, and each municipality
-    and region the people of its localities. A locality with no address counts for its municipality where the census
-    holds it."""
+    """Gives each locality with an address the census counts its population, at least one person, and its point, and
+    each municipality and region the people of its localities. A locality with a street must have a count."""
+    streeted = {locality for locality, _ in counted.streets}
     for row in (*regions.values(), *municipalities.values()):
         row["population"] = 0
     for code, locality in localities.items():
@@ -224,7 +228,7 @@ def weighed(regions: Mapping[str, geo.Row], municipalities: Mapping[str, geo.Row
         try:
             people = census.of(code, locality["name"], municipality["region"])
         except KeyError:
-            if code in counted.addresses:
+            if code in streeted:
                 raise
             continue
         municipality["population"] += people

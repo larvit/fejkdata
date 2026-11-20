@@ -1,43 +1,43 @@
-code	name	addresses	timezone
-0001000	Rīga	423406	Europe/Riga
-0002000	Daugavpils	60806	Europe/Riga
-0003000	Jelgava	35509	Europe/Riga
-0004000	Jūrmala	37024	Europe/Riga
-0005000	Liepāja	48125	Europe/Riga
-0006000	Rēzekne	21756	Europe/Riga
-0007000	Ventspils	27510	Europe/Riga
-0020000	Aizkraukles nov.	22211	Europe/Riga
-0021000	Alūksnes nov.	12766	Europe/Riga
-0022000	Augšdaugavas nov.	28782	Europe/Riga
-0023000	Ādažu nov.	18342	Europe/Riga
-0024000	Balvu nov.	16718	Europe/Riga
-0025000	Bauskas nov.	29787	Europe/Riga
-0026000	Cēsu nov.	30769	Europe/Riga
-0027000	Dienvidkurzemes nov.	31145	Europe/Riga
-0028000	Dobeles nov.	21443	Europe/Riga
-0029000	Gulbenes nov.	14685	Europe/Riga
-0030000	Jelgavas nov.	22615	Europe/Riga
-0031000	Jēkabpils nov.	30680	Europe/Riga
-0032000	Krāslavas nov.	20397	Europe/Riga
-0033000	Kuldīgas nov.	20714	Europe/Riga
-0034000	Ķekavas nov.	24018	Europe/Riga
-0035000	Limbažu nov.	25454	Europe/Riga
-0036000	Līvānu nov.	8673	Europe/Riga
-0037000	Ludzas nov.	20715	Europe/Riga
-0038001	Madonas nov.	23341	Europe/Riga
-0039000	Mārupes nov.	23365	Europe/Riga
-0040000	Ogres nov.	39735	Europe/Riga
-0041000	Olaines nov.	19543	Europe/Riga
-0042000	Preiļu nov.	13007	Europe/Riga
-0043000	Rēzeknes nov.	24851	Europe/Riga
-0044000	Ropažu nov.	25621	Europe/Riga
-0045000	Salaspils nov.	17586	Europe/Riga
-0046000	Saldus nov.	21309	Europe/Riga
-0047000	Saulkrastu nov.	11751	Europe/Riga
-0048000	Siguldas nov.	19762	Europe/Riga
-0049000	Smiltenes nov.	12639	Europe/Riga
-0051000	Talsu nov.	25955	Europe/Riga
-0052000	Tukuma nov.	30948	Europe/Riga
-0053000	Valkas nov.	7324	Europe/Riga
-0054000	Valmieras nov.	38166	Europe/Riga
-0056000	Ventspils nov.	11532	Europe/Riga
+code	name	population	timezone
+0001000	Rīga	595474	Europe/Riga
+0002000	Daugavpils	77944	Europe/Riga
+0003000	Jelgava	54912	Europe/Riga
+0004000	Jūrmala	52421	Europe/Riga
+0005000	Liepāja	67068	Europe/Riga
+0006000	Rēzekne	26316	Europe/Riga
+0007000	Ventspils	32504	Europe/Riga
+0020000	Aizkraukles nov.	27589	Europe/Riga
+0021000	Alūksnes nov.	12760	Europe/Riga
+0022000	Augšdaugavas nov.	22886	Europe/Riga
+0023000	Ādažu nov.	23887	Europe/Riga
+0024000	Balvu nov.	16984	Europe/Riga
+0025000	Bauskas nov.	39526	Europe/Riga
+0026000	Cēsu nov.	40688	Europe/Riga
+0027000	Dienvidkurzemes nov.	31825	Europe/Riga
+0028000	Dobeles nov.	26828	Europe/Riga
+0029000	Gulbenes nov.	18029	Europe/Riga
+0030000	Jelgavas nov.	31137	Europe/Riga
+0031000	Jēkabpils nov.	37709	Europe/Riga
+0032000	Krāslavas nov.	18896	Europe/Riga
+0033000	Kuldīgas nov.	26162	Europe/Riga
+0034000	Ķekavas nov.	31380	Europe/Riga
+0035000	Limbažu nov.	26683	Europe/Riga
+0036000	Līvānu nov.	9803	Europe/Riga
+0037000	Ludzas nov.	19497	Europe/Riga
+0038001	Madonas nov.	29174	Europe/Riga
+0039000	Mārupes nov.	37702	Europe/Riga
+0040000	Ogres nov.	56832	Europe/Riga
+0041000	Olaines nov.	20837	Europe/Riga
+0042000	Preiļu nov.	15078	Europe/Riga
+0043000	Rēzeknes nov.	26697	Europe/Riga
+0044000	Ropažu nov.	34871	Europe/Riga
+0045000	Salaspils nov.	23598	Europe/Riga
+0046000	Saldus nov.	25937	Europe/Riga
+0047000	Saulkrastu nov.	9823	Europe/Riga
+0048000	Siguldas nov.	31353	Europe/Riga
+0049000	Smiltenes nov.	17201	Europe/Riga
+0051000	Talsu nov.	33990	Europe/Riga
+0052000	Tukuma nov.	42582	Europe/Riga
+0053000	Valkas nov.	7398	Europe/Riga
+0054000	Valmieras nov.	50000	Europe/Riga
+0056000	Ventspils nov.	10014	Europe/Riga
