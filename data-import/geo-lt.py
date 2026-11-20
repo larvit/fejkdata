@@ -1,4 +1,5 @@
-"""Rebuild data/geo/LT/*.tsv and address.json from the Centre of Registers' Address Register and the State Data Agency's residents.
+"""Rebuild data/geo/LT/*.tsv and address.json from the Centre of Registers' Address Register and the State Data
+Agency's residents.
 
     data-import/geo-lt.py [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]
 
@@ -13,7 +14,7 @@ locality keeps its nominative name, `Vilnius`, and a street its genitive name an
 A postal code and a street weigh their addresses: an address is one, and each of the premises at it one more. An address
 with no postal code is not counted. A region, a municipality and a locality weigh their residents at the start of YEAR
 in the agency's table M3010320: a municipality by its own count, and a region by its municipalities'. A locality the
-table doesn't count shares what its municipality's residents leave after the counted localities, by its addresses. An address with no street is a number in its village, so a locality with no address on a
+table doesn't count shares, by its addresses, the residents of its municipality that the table counts under no locality. An address with no street is a number in its village, so a locality with no address on a
 street is dropped. The files hold no point, so a locality has none. address.json weighs each length of house number,
 with a letter or without, by the addresses that carry one.
 """

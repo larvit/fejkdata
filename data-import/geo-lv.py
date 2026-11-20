@@ -13,8 +13,8 @@ keeps its code in the register.
 
 A postal code and a street weigh their addresses in force: a building is one, and each apartment in it one more. A
 region, a municipality and a locality weigh their people at the start of YEAR in the bureau's table RIG010: a
-municipality by its own count, and a region by its municipalities'. A ciems the table doesn't count shares what its
-pagasts's people leave after the counted ciems, by its addresses, with the houses outside every ciems. A locality's
+municipality by its own count, and a region by its municipalities'. A ciems the table doesn't count shares, by its
+addresses, the people of its pagasts that the table counts under no ciems, with the houses outside every ciems. A locality's
 point is the mean of its buildings' points. An address on an iela is a house number, and one straight under a pilsēta,
 a ciems or a pagasts is a house's name, such as `Riņņi`, so a locality with no address on an iela is dropped.
 address.json weighs each length of house number, with a letter or without, by the buildings that carry one.

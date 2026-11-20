@@ -209,7 +209,7 @@ def populations[K](addresses: Mapping[K, int], municipality_of: Mapping[K, str],
     for place, n in addresses.items():
         if place not in counted:
             uncounted[municipality_of[place]] += n
-    shares = {place: max(0, rest[municipality_of[place]]) * n / uncounted[municipality_of[place]] for place, n in addresses.items() if place not in counted}
+    shares = {place: rest[municipality_of[place]] * n / uncounted[municipality_of[place]] for place, n in addresses.items() if place not in counted}
     return {place: max(1, counted[place] if place in counted else round(shares[place])) for place in addresses}
 
 

@@ -10,7 +10,7 @@ code	name	region	population
 0214	Häädemeeste vald	0068	4616
 0245	Jõelähtme vald	0037	6972
 0247	Jõgeva vald	0050	13178
-0250	Jõhvi vald	0045	16346
+0250	Jõhvi vald	0045	16286
 0255	Järva vald	0052	8636
 0272	Kadrina vald	0060	4838
 0283	Kambja vald	0079	12852
@@ -45,7 +45,7 @@ code	name	region	population
 0624	Pärnu linn	0068	51197
 0637	Põhja-Pärnumaa vald	0068	7998
 0651	Raasiku vald	0037	5115
-0653	Rae vald	0037	23008
+0653	Rae vald	0037	22858
 0661	Rakvere vald	0060	5745
 0663	Rakvere linn	0060	15141
 0668	Rapla vald	0071	13227
@@ -60,9 +60,9 @@ code	name	region	population
 0784	Tallinn	0037	437817
 0792	Tapa vald	0060	10901
 0793	Tartu linn	0079	98296
-0796	Tartu vald	0079	14657
+0796	Tartu vald	0079	11657
 0806	Tori vald	0068	11861
-0824	Tõrva vald	0081	5962
+0824	Tõrva vald	0081	5872
 0834	Türi vald	0052	10626
 0857	Valga vald	0081	15538
 0890	Viimsi vald	0037	21760

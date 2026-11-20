@@ -206,34 +206,32 @@ class Census:
             named[(key[:4], name)].append(people)
         self.by_name = {place: counts[0] for place, counts in named.items() if len(counts) == 1}
 
-    def of(self, code: str, name: str, region: str) -> int:
+    def of(self, code: str, name: str, region: str) -> int | None:
         """A settlement's people: the census's count under its code, or else under its name in its maakond, since EHAK
-        gave some settlements a new code after the census; or else its estimate."""
+        gave some settlements a new code after the census. None where the census counts it under neither."""
         code = RECODED.get(code, code)
         if code in self.by_code:
             return self.by_code[code]
-        if (region, name) in self.by_name:
-            return self.by_name[(region, name)]
-        return ESTIMATES[code]
+        return self.by_name.get((region, name))
 
 
 def weighed(regions: Mapping[str, geo.Row], municipalities: Mapping[str, geo.Row], localities: Mapping[str, geo.Row], counted: Tally, census: Census) -> None:
-    """Gives each locality with an address the census counts its population, at least one person, and its point, and
-    each municipality and region the people of its localities. A locality with a street must have a count."""
+    """Gives each locality that has an address its point and its population: its census count, or else its estimate,
+    and at least one person. Gives each municipality and region the census counts of its localities, estimates left
+    out. A locality with neither count nor estimate is left out if it has no street, and raises ValueError if it has
+    one."""
     streeted = {locality for locality, _ in counted.streets}
     for row in (*regions.values(), *municipalities.values()):
         row["population"] = 0
     for code, locality in localities.items():
         municipality = municipalities[locality["municipality"]]
-        try:
-            people = census.of(code, locality["name"], municipality["region"])
-        except KeyError:
-            if code in streeted:
-                raise
-            continue
-        municipality["population"] += people
-        regions[municipality["region"]]["population"] += people
-        if code in counted.addresses:
+        count = census.of(code, locality["name"], municipality["region"])
+        people = ESTIMATES.get(code) if count is None else count
+        if people is None and code in streeted:
+            raise ValueError(f"{code} {locality['name']} has a street, and neither a census count nor an estimate")
+        municipality["population"] += count or 0
+        regions[municipality["region"]]["population"] += count or 0
+        if people is not None and code in counted.addresses:
             locality["population"] = max(1, people)
             locality["lat"], locality["lon"] = counted.point(code)
 
