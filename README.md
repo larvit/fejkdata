@@ -1658,8 +1658,8 @@ renamed or retyped line is a major.
 
 ## Audience
 
-App developers writing tests and fixtures, in Go, in JavaScript or TypeScript, and at a
-shell:
+App developers and their coding agents, writing tests and fixtures, in Go, in JavaScript
+or TypeScript, and at a shell:
 
 - a **bulk fixture author**, millions of rows into CSV or SQL
 - a **Go test author**, filling a struct with `FakeStruct`
@@ -1671,9 +1671,11 @@ shell:
   error the fences raise
 - a **custom-CLI builder**, who ships a CLI like `fejkdata` with data and functions of
   their own
+- a **coding agent**, which runs the CLI for a developer: it finds a path with `--list`,
+  and fixes a template from the error that exit 2 prints
 
 and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
-the Development section below, and who ships a register the seven above then draw from.
+the Development section below, and who ships a register the eight above then draw from.
 
 ## Goals
 
@@ -1685,8 +1687,8 @@ against each other in the order listed.
    - Signal: stars, image pulls and package installs rise.
    - Counter-signal: issues reporting a broken or wrong value rise.
    - Why: users won by breadth leave when the values let them down.
-   1. **Achieve:** You can install it the way you install your other tools, and people
-      hear about it where developers read.
+   1. **Achieve:** You can install it the way you install your other tools, and
+      developers, and the coding agents working for them, hear about it where they look.
       - Signal: the channels carrying the current release rise.
       - Counter-signal: a channel serves an old release.
       - Why: a channel that lags the release is worse than none.
