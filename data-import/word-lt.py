@@ -4,8 +4,8 @@
 
 kaikki.org extracts those entries (CC BY-SA 4.0), one JSON object a line. A row is a headword in lower-case letters alone,
 whose head template calls it a noun, verb, adjective or adverb, not a form or a participle, so a verb is an infinitive, and
-which has a sense that is not a form or variant of another entry. A noun carries its first plural, spelled without
-the stress marks Wiktionary writes on the entry's own line; a noun with no plural is dropped. No word is dropped for being rude.
+which has a sense that is not a form or variant of another entry. A noun carries its nominative plural from the entry's
+declension table, spelled without stress marks; a noun with no such plural is dropped. No word is dropped for being rude.
 """
 from collections.abc import Mapping
 from functools import partial
@@ -19,7 +19,7 @@ WIKTIONARY = "https://kaikki.org/dictionary/Lithuanian/kaikki.org-dictionary-Lit
 OUT = Path(__file__).resolve().parent.parent / "data" / "lt_LT"
 FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
 HEADS = {
-    "noun": {"lt-noun", "noun", "nouns"},
+    "noun": {"lt-noun", "noun"},
     "verb": {"lt-verb", "verb"},
     "adj": {"lt-adj", "adjective"},
     "adv": {"lt-adv", "adverb", "adverbs"},
@@ -27,13 +27,11 @@ HEADS = {
 
 
 def plural(entry: Mapping[str, Any]) -> str:
-    """The page the entry's first plural form links to, which is the form without its stress marks and its section anchor."""
+    """The page the entry's nominative plural links to, which is the form without its stress marks and its section anchor."""
     for form in entry.get("forms", []):
-        if "plural" in form.get("tags", []):
-            links = form.get("links", [])
-            return str(links[0][1]).split("#")[0] if links else ""
+        if {"nominative", "plural"} <= set(form.get("tags", [])) and form.get("links"):
+            return str(form["links"][0][1]).split("#")[0]
     return ""
-
 
 
 candidates = partial(wiktionary_entries.candidates, parts=HEADS, forms=FORMS, plural=plural)

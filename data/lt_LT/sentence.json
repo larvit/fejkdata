@@ -15,7 +15,7 @@
     "end": [{ "format": ".", "weight": 3 }, "!"]
   },
   {
-    "format": "Tai yra {noun}, o viskas aplink yra {adj}{end}",
+    "format": "Žodis „{adj}“ yra būdvardis, o „{noun}“ yra daiktavardis{end}",
     "noun": "{.word-noun}",
     "adj": "{.word-adj}",
     "end": [{ "format": ".", "weight": 3 }, "!"]
