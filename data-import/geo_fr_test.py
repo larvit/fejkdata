@@ -117,12 +117,12 @@ class AddressJson(unittest.TestCase):
     def test_the_number_leads_an_invented_street_bis_follows_it_and_a_length_no_address_has_is_left_out(self) -> None:
         self.assertEqual(geo_fr.address_json(collections.Counter({(0, False): 5, (1, True): 3})), """{
   "format": "{street-number} {street}\\n{postal-code} {locality}",
-  "street": "{.locality as l}{/geo.FR.street}",
+  "street": "{/geo.FR.street}",
   "street-number": [
     { "format": "{int(1,9)}", "weight": 5 },
     { "format": "{int(10,99)} bis", "weight": 3 }
   ],
-  "postal-code": "{l.postal-code.code}",
+  "postal-code": "{.locality as l}{l.postal-code.code}",
   "locality": "{l.name}",
   "municipality": "{l..municipality.name}",
   "region": "{l..municipality..region.name}"

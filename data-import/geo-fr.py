@@ -35,9 +35,9 @@ BAN = "https://adresse.data.gouv.fr/data/ban/adresses/latest/csv/adresses-france
 POPULATION = "https://www.insee.fr/fr/statistiques/fichier/8680726/ensemble.zip"
 TIMEZONE = "Europe/Paris"
 # The overseas régions, by INSEE code, which keep their own time.
-OVERSEAS_TIMEZONES = {"01": "America/Guadeloupe", "02": "America/Martinique", "03": "America/Cayenne", "04": "Indian/Reunion", "06": "Indian/Mayotte"}
+OVERSEAS_TIMEZONES = {"01": "America/Guadeloupe", "02": "America/Martinique", "03": "America/Cayenne", "04": "Indian/Reunion"}
 CITY_NAMES = {"75056": "Paris", "69123": "Lyon", "13055": "Marseille"}
-# Each arrondissement's INSEE code, under the code of its city: Paris's 20, Lyon's 9 and Marseille's 16.
+# Each arrondissement's INSEE code, mapped to its city's: Paris's 20, Lyon's 9 and Marseille's 16.
 CITY_OF = {
     **{f"751{n:02}": "75056" for n in range(1, 21)},
     **{f"6938{n}": "69123" for n in range(1, 10)},
@@ -379,7 +379,7 @@ class Tally:
 
     def centre(self, commune: str) -> tuple[str, str] | None:
         """The mean of a commune's points as lat and lon, or None where no address of it has one."""
-        lat, lon, n = self.points[commune]
+        lat, lon, n = self.points.get(commune, (0.0, 0.0, 0))
         return (f"{lat / n:.4f}", f"{lon / n:.4f}") if n else None
 
 
@@ -389,8 +389,8 @@ def city(commune: str) -> str:
 
 
 def number_key(number: str, suffix: str) -> tuple[int, bool] | None:
-    """The key geo.number_range counts a house number under, bis standing for the letter; None for a number outside 1
-    to 9999 or with another suffix."""
+    """The key geo.number_range counts a house number under, a number with bis counting as one with a letter; None for a
+    number outside 1 to 9999 or with another suffix."""
     if not number.isdigit() or not 1 <= int(number) <= geo.NUMBER_RANGES[-1][1] or suffix.lower() not in ("", "bis"):
         return None
     return geo.number_range(int(number), bool(suffix))
@@ -451,9 +451,9 @@ def address_json(numbers: Mapping[tuple[int, bool], int]) -> str:
         for bis in (False, True) for i, (low, top) in enumerate(geo.NUMBER_RANGES) if numbers[(i, bis)]
     )
     return (
-        '{\n  "format": "{street-number} {street}\\n{postal-code} {locality}",\n  "street": "{.locality as l}{/geo.FR.street}",\n'
+        '{\n  "format": "{street-number} {street}\\n{postal-code} {locality}",\n  "street": "{/geo.FR.street}",\n'
         f'  "street-number": [\n{items}\n  ],\n'
-        '  "postal-code": "{l.postal-code.code}",\n  "locality": "{l.name}",\n'
+        '  "postal-code": "{.locality as l}{l.postal-code.code}",\n  "locality": "{l.name}",\n'
         '  "municipality": "{l..municipality.name}",\n  "region": "{l..municipality..region.name}"\n}\n'
     )
 
@@ -473,14 +473,14 @@ def insee(cache: Path, table: str) -> list[dict[str, str]]:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p = argparse.ArgumentParser(description=" ".join(__doc__.split("\n\n")[0].split()))
     p.add_argument("--cache", default=str(geo.CACHE))
     p.add_argument("--out", default=str(geo.DATA / "FR"))
     cache, out = geo.directories(p.parse_args())
     t = tally(ban(cache))
     populated = communes(insee(cache, "communes"))
     unplaced = sorted(set(t.codes) - set(populated))
-    print(f"{len(unplaced)} communes of BAN are none of INSEE's file, dropped: {', '.join(unplaced[:20])}", file=sys.stderr)
+    print(f"{len(unplaced)} communes of BAN are missing from INSEE's file, dropped: {', '.join(unplaced)}", file=sys.stderr)
     departments = {r["DEP"]: r["Département"] for r in insee(cache, "departements")}
     region_names = {r["REG"]: r["Région"] for r in insee(cache, "regions")}
     regions, municipalities, localities, postal_codes = places(t, populated, departments, region_names)
