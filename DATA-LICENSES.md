@@ -542,15 +542,15 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   of the indicator "Nuolatinių gyventojų skaičius metų pradžioje" gives the residents of each
   savivaldybė at the start of 2026, under the register's codes
 - Changes: an address counts as one and each of the premises at it as one more, which weighs a
-  postal code and a street. A municipality weighs its residents, and a region its municipalities'. The table counts no
-  locality, so each locality weighs its share, by its addresses, of its municipality's residents. An
-  apskritis and a
-  savivaldybė are named with their kind, and a street with the short form
-  of its kind. A korpusas is dropped from a house number, an address with no postal code is not
+  postal code and a street. A municipality weighs its residents, and a region its
+  municipalities'. The table counts no locality, so each locality weighs its share, by its
+  addresses, of its municipality's residents. An apskritis and a savivaldybė are named with their
+  kind, and a street with the short form of its kind. A korpusas is dropped from a house number, an address with no postal code is not
   counted, and a locality with no numbered address on a street is dropped
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the centre's page of the
-  data states. The agency's table is under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) too:
-  Lithuania's open data portal publishes it in the
+  data states. The agency's table is under
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) too: Lithuania's open data portal
+  publishes it in the
   dataset [Nuolatinių gyventojų skaičius metų pradžioje](https://data.gov.lt/datasets/2689/) under
   that licence. The table gives the `population` columns of `region.tsv`, `municipality.tsv` and
   `locality.tsv`
