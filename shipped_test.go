@@ -26,6 +26,7 @@ import (
 	"github.com/larvit/fejkdata/data/geo/DE"
 	"github.com/larvit/fejkdata/data/geo/DK"
 	"github.com/larvit/fejkdata/data/geo/FI"
+	"github.com/larvit/fejkdata/data/geo/FR"
 	"github.com/larvit/fejkdata/data/geo/NO"
 	"github.com/larvit/fejkdata/data/geo/SE"
 	"github.com/larvit/fejkdata/data/geo/US"
@@ -95,6 +96,7 @@ func shippedModules(t testing.TB) []shippedModule {
 		{fsys: geode.FS, modules: geode.Modules},
 		{fsys: geodk.FS, modules: geodk.Modules},
 		{fsys: geofi.FS, modules: geofi.Modules},
+		{fsys: geofr.FS, modules: geofr.Modules},
 		{fsys: geono.FS, modules: geono.Modules},
 		{fsys: geose.FS, modules: geose.Modules},
 		{fsys: geous.FS, modules: geous.Modules},

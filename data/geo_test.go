@@ -24,6 +24,7 @@ var shippedAddressLocales = []struct{ locale, country, template, largest string 
 var addressLocalesWithoutATemplate = []struct{ locale, country, template, largest string }{
 	{locale: "nn_NO", country: "NO"},
 	{locale: "de_DE", country: "DE"},
+	{locale: "fr_FR", country: "FR"},
 }
 
 func eachNamedAddressBesideAStreet(t *testing.T, locale, template string, check func(got string, parts []string)) {
