@@ -1,24 +1,25 @@
 import unittest
+from typing import Any
 
 from geo_test import script
 from word_fr_test import dump, entry
 
 word_lt = script("word-lt")
 
-PUPA_PLURAL = {"form": "pùpos", "links": [["pùpos", "pupos"]], "tags": ["plural"]}
+PUPA_PLURAL: dict[str, Any] = {"form": "pùpos", "links": [["pùpos", "pupos"]], "tags": ["plural"]}
 
 
-def drawn(*entries: dict[str, object]) -> list[tuple[str, str, str]]:
+def drawn(*entries: dict[str, Any]) -> list[tuple[str, str, str]]:
     return list(word_lt.candidates(dump(*entries)))
 
 
 class Candidates(unittest.TestCase):
     def test_a_noun_carries_its_first_plural_without_the_stress_marks(self) -> None:
-        forms = [PUPA_PLURAL, {"form": "pupų", "tags": ["genitive", "plural"]}]
+        forms: list[dict[str, Any]] = [PUPA_PLURAL, {"form": "pupų", "tags": ["genitive", "plural"]}]
         self.assertEqual(drawn(entry("noun", "pupa", "lt-noun", forms=forms)), [("noun", "pupa", "pupos")])
 
     def test_a_plural_names_the_page_it_links_to_and_not_its_language_section(self) -> None:
-        forms = [{"form": "mãmos", "links": [["mãmos", "mamos#Lithuanian"]], "tags": ["nominative", "plural"]}]
+        forms: list[dict[str, Any]] = [{"form": "mãmos", "links": [["mãmos", "mamos#Lithuanian"]], "tags": ["nominative", "plural"]}]
         self.assertEqual(drawn(entry("noun", "mama", "lt-noun", forms=forms)), [("noun", "mama", "mamos")])
 
     def test_a_noun_whose_plural_links_nowhere_has_none(self) -> None:
