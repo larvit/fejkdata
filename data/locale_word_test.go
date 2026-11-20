@@ -222,7 +222,7 @@ func TestLocaleWordTablesHoldOnlyTheirSourcesHeadwords(t *testing.T) {
 		{"fr_FR", "verb", "aimez"},
 		{"fr_FR", "verb", "abolisses"},
 		{"fr_FR", "verb", "expliquent"},
-		{"lv_LV", "adj", "abējs"},
+		{"lv_LV", "adj", "abejāds"},
 		{"lv_LV", "noun", "abanācija"},
 	}, "a form or variant its source doesn't list as a headword of that part")
 }
