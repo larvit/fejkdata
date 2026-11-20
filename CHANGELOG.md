@@ -172,15 +172,17 @@ with its replacement, and each removed path, column or flag.
   "Postal codes from GeoNames, www.geonames.org". The Go package is `github.com/larvit/fejkdata/data/geo/DE`, which
   `data/de_DE` imports, and the CLI carries it.
 - `geo.EE`, Estonia's maakonnad, municipalities, localities, postal codes and streets, with `et_EE.address` printing
-  one place with a street and a house number, such as `Sarapuu tn 70\n76901 Tabasalu alevik`. Each row is selected by
-  its EHAK code, as `{/geo.EE.locality[0784]}`, and weighs its addresses in the Land and Spatial Development Board's
+  one place with a street and a house number, such as `Sarapuu tn 70\n76901 Tabasalu alevik`. A region, a municipality
+  and a locality are selected by EHAK code, as `{/geo.EE.locality[0784]}`, and a region or a municipality by its
+  name too. Each row weighs its addresses in the Land and Spatial Development Board's
   address data. Tallinn is one place, without its linnaosad. A place whose addresses are farms' names has no street
   and ships no place, which leaves out most külad and the municipalities Kihnu, Muhu, Ruhnu and Vormsi. A program
   showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026". The Go package is
   `github.com/larvit/fejkdata/data/geo/EE`, which `data/et_EE` imports, and the CLI carries it.
 - `geo.LT`, Lithuania's apskritys, municipalities, localities, postal codes and streets, with `lt_LT.address` printing
-  one place with a street and a house number, such as `Pramonės g. 30\nLT-17107 Šalčininkai`. Each row is selected by
-  its code in the Address Register, as `{/geo.LT.locality[31003]}`, and a region or a municipality by its name too.
+  one place with a street and a house number, such as `Pramonės g. 30\nLT-17107 Šalčininkai`. A region, a
+  municipality and a locality are selected by their code in the Address Register, as `{/geo.LT.locality[31003]}`,
+  and a region or a municipality by its name too.
   Each row weighs its addresses in the Centre of Registers' register, an address as one and each of the premises at it
   as one more. A place with no street ships no place, which leaves out most small kaimai. A locality has no `lat` or
   `lon`. A program showing the places credits "VĮ Registrų centras, Adresų registras", links

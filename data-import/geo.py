@@ -25,7 +25,7 @@ type Tables = dict[str, dict[Any, Row]]
 DATA = Path(__file__).resolve().parent.parent / "data" / "geo"
 CACHE = Path(__file__).resolve().parent / "cache"
 GEONAMES = "https://download.geonames.org/export/zip/{}.zip"
-# The address every country prints unless its own differs: a street and a house number, then a postal code and its locality.
+# The address a country prints unless its importer passes another.
 LAYOUT = "{street} {street-number}\\n{postal-code} {locality}"
 NUMBER_RANGES = ((1, 9), (10, 99), (100, 999), (1000, 9999))
 # An invented street's name: a letter first, then letters, digits and the space, full stop, apostrophe and hyphen that join them.

@@ -25,7 +25,7 @@ func codedPlaces(t *testing.T, country string) (localities map[string]map[string
 	return localities, byPostalCode
 }
 
-// codedRows maps each row of a country's table to its code.
+// codedRows maps each code of a country's table to its row.
 func codedRows(t *testing.T, country, table string) map[string]map[string]string {
 	t.Helper()
 	rows := map[string]map[string]string{}
