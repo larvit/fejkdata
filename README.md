@@ -274,7 +274,7 @@ the template reads a date, as `{/sv_SE.personnummer}` does.
 To tell an agent about fejkdata, paste this into the project's `AGENTS.md`:
 
 ```markdown
-Fake data: use the `fejkdata` CLI, never made-up values. Find a path with `fejkdata --list | grep personnummer`, then render it with `echo '{/sv_SE.personnummer}' | fejkdata`. A template that fails exits 2 and says what is wrong: read the error, and where it says `no entry`, check the path against `--list`. Add `--seed 1 --today 2026-11-21` to repeat a run.
+Fake data: use the `fejkdata` CLI, never made-up values. Find a path with `fejkdata --list | grep personnummer`, then render it with `echo '{/sv_SE.personnummer}' | fejkdata`. A template that fails prints what is wrong: read the error, and where it says `no entry`, check the path against `--list`. Add `--seed 1 --today 2026-11-21` to repeat a run.
 ```
 
 ### PowerShell and cmd.exe
