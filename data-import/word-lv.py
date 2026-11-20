@@ -4,9 +4,10 @@
 
 Tēzaurs.lv (CC BY-SA 4.0) gives each Latvian lemma its part of speech, its usage labels and its inflected forms. A row is a
 noun, verb, adjective or adverb whose lemma is lower-case letters alone and carries no label that marks it as regional or
-out of date. Latvian lemmatises a verb as its infinitive. A noun carries its nominative plural, and one without it is dropped.
-No word is dropped for being rude. Tēzaurs.lv gives no frequency, so each word is drawn evenly, and `word` weighs a part of
-speech by its row count. The wordforms file is 14 GB unzipped, so it is read as a stream.
+out of date. A verb is an infinitive, ending in `-t` or `-ties`, since Tēzaurs.lv files some participles as verbs. A noun
+carries its nominative plural, and one without it is dropped. No word is dropped for being rude. Tēzaurs.lv gives no
+frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count. The wordforms file is 14 GB
+unzipped, so it is read as a stream.
 """
 import io
 import zipfile
@@ -19,6 +20,7 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "lv_LV"
 URL = "https://repository.clarin.lv/repository/xmlui/bitstream/handle/20.500.12574/156/tezaurs_2026_2_wordforms_tei.xml.zip?sequence=5&isAllowed=y"
 FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
 PARTS = {"Lietvārds": "noun", "Darbības vārds": "verb", "Īpašības vārds": "adj", "Apstākļa vārds": "adv"}
+INFINITIVE = ("t", "ties")
 OUT_OF_USE = {"Apvidvārds", "Dialektisms", "Novecojis", "Vēsturisks", "Neaktuāls", "Sens, reti lietots vārds"}
 
 
@@ -70,7 +72,8 @@ def candidates(dump: bytes) -> Iterator[wordtables.Candidate]:
                     labels.add(value)
             elif line == b"</entry>" and part in PARTS and not labels & OUT_OF_USE:
                 kept = PARTS[part]
-                yield kept, lemma, plural if FORMS[kept] else ""
+                if kept != "verb" or lemma.endswith(INFINITIVE):
+                    yield kept, lemma, plural if FORMS[kept] else ""
 
 
 if __name__ == "__main__":
