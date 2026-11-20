@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 531 | 0.7.0 |  | owner | **Weigh each locality of `geo.EE`, `geo.LT` and `geo.LV` by its population, from an open source where one publishes it and else from a language model's guess.** | 3 | 2 | 2 | 5 | 5 | 3.2 by 4 | 0.7 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
@@ -211,42 +210,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 531. Weigh each locality of `geo.EE`, `geo.LT` and `geo.LV` by its population, from an open source where one publishes it and else from a language model's guess.
-
-Today each of the three weighs a locality by its count of addresses, in a column `addresses`, since its address register publishes no populations. The owner ruled on 2026-11-20: "I'd like the model to guess the population size as the source if we don't have a better one." Marked `owner` for that ruling. It ships in 0.7.0 because the three modules are unreleased: re-weighing them after 0.7.0 is cut would change shipped output.
-
-Per module, look first for an open source of each locality's population under a licence the project takes. The country's statistics office is the place to look. Verify that the file exists, that it reaches the localities the module ships, and what its licence says; assume none of the three. Where no such source exists, or for the localities it leaves out, look next for a larger area's published population, such as a municipality's, under such a licence, and share it out among the area's localities, as `geo.DK` and `geo.NO` share a kommune's by addresses. Only where that is missing too does a language model's recall guess each population, and the README, `docs/locales/geo.md` and `DATA-LICENSES.md` call those weights estimates. A locality with no street stays left out.
-
-The implementer decides, and records in the decisions, whether regions and municipalities sum their localities' populations, and whether postal codes and streets keep their address weights; `geo.DK` weighs its postal codes and streets by addresses. The same goes for whether the `addresses` column becomes `population`, as the other geo modules name it: that changes `testdata/shipped_shape.txt`, whose re-pin is its own commit. The item re-pins seeded output, also its own commit. E is 2 because no gate test runs the Python under `data-import/`: only regenerating the TSVs and diffing them checks it.
-
-When it ships, rewrite the last two sentences of the `AGENTS.md` principle on a guessed population ("No module applies it yet: … until item 531 ships.") into an "Applied by" list of the modules that end up guessing, or state that none does if each found a source. The principle on a locality with no street stays as it is. Revise the three decisions whose lead lines name item 531: "`geo.EE` weighs each row by its addresses", "`geo.LV` takes a novads" and "`geo.LT` names an apskritis". Reword the three `CHANGELOG.md` entries under `Unreleased`, which say each row weighs its addresses.
-
-Touches:
-
-- `data-import/geo-ee.py`: `weighed`, `main` (small)
-- `data-import/geo-lt.py`: `weighed`, `main` (small)
-- `data-import/geo-lv.py`: `weighed`, `main` (small)
-- `data-import/geo_ee_test.py`: `Weighed`
-- `data-import/geo_lt_test.py`: `Weighed`
-- `data-import/geo_lv_test.py`: `Weighed`
-- `data/geo/EE/locality.tsv`
-- `data/geo/LT/locality.tsv`
-- `data/geo/LV/locality.tsv`
-- `data/geo/EE/region.tsv`
-- `data/geo/LT/region.tsv`
-- `data/geo/LV/region.tsv`
-- `data/geo/EE/municipality.tsv`
-- `data/geo/LT/municipality.tsv`
-- `data/geo/LV/municipality.tsv`
-- `data/geo_ee_test.go`: lines 114-135
-- `data/geo_lt_test.go`: lines 67-90
-- `data/geo_lv_test.go`: lines 72-95
-- `docs/locales/geo.md`: `## Estonian places`, `## Latvian places`, `## Lithuanian places`
-- `DATA-LICENSES.md`: `` ## `geo/EE/region.tsv` and 5 more ``, `` ## `geo/LT/region.tsv` and 5 more ``, `` ## `geo/LV/region.tsv` and 5 more ``
-- `CHANGELOG.md`: `## Unreleased` (small)
-- `AGENTS.md`: `## Project principles` (small)
-- `testdata/shipped_shape.txt`
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
