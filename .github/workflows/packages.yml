@@ -91,7 +91,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: goreleaser/goreleaser-action@v7
         with:
-          version: v2.20.2
+          version: v2.20.3
           workdir: src
           args: release --clean --config ../tooling/release-tooling/goreleaser.yaml ${{ !inputs.tag && '--snapshot' || '' }}
         env:

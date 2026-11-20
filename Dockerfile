@@ -52,7 +52,7 @@ RUN ruff check --no-cache /python
 # mypy runs inside each folder, since a script imports its siblings by bare name, as `import geo`.
 RUN for folder in data-import release-tooling; do (cd /python/$folder && mypy --strict --cache-dir /dev/null .) || exit 1; done && touch /tested
 
-FROM goreleaser/goreleaser:v2.20.2 AS packaging
+FROM goreleaser/goreleaser:v2.20.3 AS packaging
 WORKDIR /check
 COPY release-tooling/goreleaser.yaml ./
 RUN git init -q && git remote add origin https://github.com/larvit/fejkdata.git && goreleaser check --config goreleaser.yaml && touch /tested
