@@ -161,7 +161,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `geo.EE` reads its places and addresses from one file, sums a linnaosa into its linn, and a place with no street ships no place
 - `geo.LV` takes a novads or a state city as its region, counts each apartment as an address, and writes the postal code after the locality
 - `geo.LT` names an apskritis and a savivaldybė with its kind, counts each of the premises as an address, and ships no point
-- `geo.EE`, `geo.LT` and `geo.LV` weigh a place by its people and a postal code or a street by its addresses, and a locality its source doesn't count shares what its municipality's people leave
+- `geo.EE`, `geo.LT` and `geo.LV` weigh a place by its people and a postal code or a street by its addresses, and the localities a source doesn't count share, by their addresses, their municipality's people that it counts under no locality
 - `geo.EE` takes its EHAK codes from settlement units whose licence was not found
 - A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 - Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, and a weighted draw stays a binary search over cumulative weights
