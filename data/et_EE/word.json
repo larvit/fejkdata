@@ -1,10 +1,10 @@
 {
   "format": "{any}",
   "any": [
-    { "format": "{.word-noun}", "weight": 3879 },
-    { "format": "{.word-verb}", "weight": 682 },
-    { "format": "{.word-adj}", "weight": 648 },
-    { "format": "{.word-adv}", "weight": 288 }
+    { "format": "{.word-noun}", "weight": 58579 },
+    { "format": "{.word-verb}", "weight": 5897 },
+    { "format": "{.word-adj}", "weight": 9082 },
+    { "format": "{.word-adv}", "weight": 4206 }
   ],
   "noun": { "format": "{.word-noun as nounword}{nounword}", "plural": "{nounword.plural}" },
   "verb": "{.word-verb}",
