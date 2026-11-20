@@ -64,11 +64,11 @@ func TestGeoLTLocalityIsSelectedByItsCodeInTheRegister(t *testing.T) {
 	}
 }
 
-func TestGeoLTDrawsALocalityByItsAddresses(t *testing.T) {
+func TestGeoLTDrawsALocalityByItsPopulation(t *testing.T) {
 	t.Parallel()
-	for _, table := range []string{"region", "municipality", "locality", "postal-code", "street"} {
-		if got := readJSON[map[string]any](t, "geo/LT/"+table+".json")["weight"]; got != "addresses" {
-			t.Errorf("geo/LT/%s.json weighs by %v, want its addresses", table, got)
+	for table, want := range map[string]string{"region": "population", "municipality": "population", "locality": "population", "postal-code": "addresses", "street": "addresses"} {
+		if got := readJSON[map[string]any](t, "geo/LT/"+table+".json")["weight"]; got != want {
+			t.Errorf("geo/LT/%s.json weighs by %v, want its %s", table, got, want)
 		}
 	}
 	f := shipped(t, fejkdata.WithSeed(3))
@@ -78,7 +78,7 @@ func TestGeoLTDrawsALocalityByItsAddresses(t *testing.T) {
 	}, func(got string) { count[got]++ })
 	for name, n := range count {
 		if n > count["Vilnius"] {
-			t.Errorf("drew %s %d times and Vilnius %d, want the locality with most addresses drawn most", name, n, count["Vilnius"])
+			t.Errorf("drew %s %d times and Vilnius %d, want the locality with most people drawn most", name, n, count["Vilnius"])
 		}
 	}
 	if share := float64(count["Vilnius"]) / 20000; share < 0.12 || share > 0.3 {
