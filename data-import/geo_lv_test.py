@@ -156,6 +156,10 @@ class People(unittest.TestCase):
         got = geo_lv.people([["LV0023410 ..Carnikavas pagasts", "10669"], ["LV100184532 ...Carnikava", "5078"]])
         self.assertEqual((got["0023210"], got["0023411"]), (5078, 5591))
 
+    def test_carnikava_counted_without_the_pagasts_it_was_a_village_of_stops_the_import(self) -> None:
+        with self.assertRaisesRegex(ValueError, "no count for 0023410"):
+            geo_lv.people([["LV100184532 ...Carnikava", "5078"]])
+
 
 class Weighed(unittest.TestCase):
     def test_a_village_a_municipality_and_a_town_take_their_people_and_a_region_sums_its_municipalities(self) -> None:
@@ -165,6 +169,11 @@ class Weighed(unittest.TestCase):
         self.assertEqual([r.municipalities[c]["population"] for c in ("0035200", "0051400", "0001000")], [700, 1100, 600000])
         self.assertEqual([r.regions[c]["population"] for c in ("0035000", "0051000", "0001000")], [700, 1100, 600000])
         self.assertNotIn("population", r.localities["100187337"])
+
+    def test_a_municipality_with_no_count_stops_the_import_and_is_named(self) -> None:
+        r = register()
+        with self.assertRaisesRegex(ValueError, "no count for municipality 0001000, 0051400$"):
+            geo_lv.weighed(r, geo_lv.tally([], r, collections.Counter()), {"0035200": 700})
 
     def test_a_region_sums_every_municipality_in_it(self) -> None:
         arlava = place("100013930", PAGASTS, "Ārlavas pag.", "100016390", NOVADS, "0051420")
