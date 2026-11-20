@@ -12,9 +12,9 @@ locality keeps its nominative name, `Vilnius`, and a street its genitive name an
 `Laisvės pr.`, as an address writes them.
 
 A postal code and a street weigh their addresses: an address is one, and each of the premises at it one more. An address
-with no postal code is not counted. A region, a municipality and a locality weigh their residents at the start of YEAR
-in the agency's table M3010320: a municipality by its own count, and a region by its municipalities'. A locality the
-table doesn't count shares, by its addresses, the residents of its municipality that the table counts under no locality. An address with no street is a number in its village, so a locality with no address on a
+with no postal code is not counted. A municipality weighs its residents at the start of YEAR in the agency's table
+M3010202, and a region its municipalities'. A locality weighs its share, by its addresses, of its municipality's
+residents. An address with no street is a number in its village, so a locality with no address on a
 street is dropped. The files hold no point, so a locality has none. address.json weighs each length of house number,
 with a letter or without, by the addresses that carry one.
 """
@@ -31,11 +31,11 @@ import geo
 import source
 
 FILE = "https://www.registrucentras.lt/aduomenys/?byla={}.csv"
-# The State Data Agency's residents of each unit at the start of YEAR, table M3010320 of indicator S3R167.
+# The State Data Agency's residents of each municipality at the start of YEAR, table M3010202 of indicator S3R167.
 YEAR = 2026
-RESIDENTS = f"https://osp-rs.stat.gov.lt/rest_json/data/S3R167_M3010320?startPeriod={YEAR}&endPeriod={YEAR}"
-# The table's code for men and women together, and its status for a unit where nobody lived.
-BOTH_SEXES, NONE_LIVED_THERE = "0", "nebuvo"
+RESIDENTS = f"https://osp-rs.stat.gov.lt/rest_json/data/S3R167_M3010202?startPeriod={YEAR}&endPeriod={YEAR}"
+# The table's codes for men and women together and for every age together.
+BOTH_SEXES, EVERY_AGE = "0", "g000g999"
 TIMEZONE = "Europe/Vilnius"
 NUMBER = re.compile(r"^([1-9]\d{0,3})([A-Z]?)$")
 
@@ -93,26 +93,25 @@ def tally(rows: Iterable[Mapping[str, str]], register: Register, premises: Mappi
 
 
 def residents(stat: Mapping[str, Any]) -> dict[str, int]:
-    """Each unit's residents in the agency's answer, by its code: a gyvenamoji vietovė under its code in the register,
-    and a savivaldybė under its own. A unit the agency says had no residents holds 0, and one whose count it withholds
-    is left out."""
-    sexes, units = (stat["structure"]["dimensions"]["observation"][i]["values"] for i in (0, 1))
-    statuses = next(a["values"] for a in stat["structure"]["attributes"]["observation"] if a["id"] == "OBS_STATUS")
+    """Each territory's residents in the agency's answer, men and women of every age together, by its code, which for a
+    savivaldybė is its code in the register. A territory the answer gives no count for is left out."""
+    sexes, ages, territories = (stat["structure"]["dimensions"]["observation"][i]["values"] for i in (0, 1, 2))
     both = next(i for i, sex in enumerate(sexes) if sex["id"] == BOTH_SEXES)
+    every = next(i for i, age in enumerate(ages) if age["id"] == EVERY_AGE)
     out: dict[str, int] = {}
-    for i, unit in enumerate(units):
-        n, _, status = stat["dataSets"][0]["observations"][f"{both}:{i}:0:0"]
-        if n is not None or statuses[status]["id"] == NONE_LIVED_THERE:
-            out[unit["id"]] = n or 0
+    for i, territory in enumerate(territories):
+        n = stat["dataSets"][0]["observations"].get(f"{both}:{every}:{i}:0:0", [None])[0]
+        if n is not None:
+            out[territory["id"]] = n
     return out
 
 
 def weighed(register: Register, counted: Tally, residents: Mapping[str, int]) -> None:
-    """Gives each locality with an address its population by geo.populations, each municipality its residents, and each
-    region those of its municipalities. A municipality the table gives no count for raises ValueError."""
+    """Gives each municipality its residents, each region those of its municipalities, and each locality with an address
+    its share, by addresses, of its municipality's. A municipality the table gives no count for raises ValueError."""
     geo.every_counted(register.municipalities, residents)
     municipality_of = {code: row["municipality"] for code, row in register.localities.items()}
-    for code, n in geo.populations(counted.addresses, municipality_of, residents, residents).items():
+    for code, n in geo.populations(counted.addresses, municipality_of, {}, residents).items():
         register.localities[code]["population"] = n
     for row in register.regions.values():
         row["population"] = 0
@@ -132,7 +131,7 @@ def main() -> None:
     cache, out = geo.directories(a)
     register = Register(table(cache, "adr_apskritys", "ADM_KODAS"), table(cache, "adr_savivaldybes", "SAV_KODAS"), table(cache, "adr_gyvenamosios_vietoves", "GYV_KODAS"), table(cache, "adr_gatves", "GAT_KODAS"))
     counted = tally(table(cache, "adr_stat_lr", "SAV_KODAS"), register, premises(table(cache, "adr_pat_lr", "SAV_KODAS")))
-    weighed(register, counted, residents(json.loads(source.fetch(RESIDENTS, cache, f"residents-{YEAR}.json", magic=b"{"))))
+    weighed(register, counted, residents(json.loads(source.fetch(RESIDENTS, cache, f"municipality-residents-{YEAR}.json", magic=b"{"))))
     streets = geo.top_streets(counted.streets, a.street_share, a.min_streets, "addresses")
     geo.write_by_code(out, register.regions, register.municipalities, {c: row for c, row in register.localities.items() if "population" in row}, counted.postal_codes, streets)
     (out / "address.json").write_text(geo.address_json(counted.numbers), encoding="utf-8")
