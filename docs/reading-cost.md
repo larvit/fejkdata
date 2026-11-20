@@ -2589,3 +2589,20 @@ Read most (opens and searches):
 - `DATA-LICENSES.md` 1
 - `data-import/company-ee.py` 1
 - `data/fr_FR/company-coined.tsv` 1
+
+## Reading cost, chunk fa8ea70e5f17, finished 2026-11-20T00:13:04Z
+
+126001 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `compose.yaml` 6
+- `data-import/company_names.py` 4
+- `data/locales_test.go` 4
+- `CHANGELOG.md` 3
+- `DATA-LICENSES.md` 3
+- `data-import/company-lv.py` 3
+- `data/lt_LT/last-name.tsv` 3
+- `docs/locales/lt_LT.md` 3
+- `docs/locales/lv_LV.md` 3
