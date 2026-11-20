@@ -1752,8 +1752,8 @@ colloquial, slang or rude stays, as the project principle on a locale's `word` k
 one with none is left out. Wikidata's Latvian lexemes (CC0) hold 300 nouns, and the English Wiktionary's Latvian
 entries, as kaikki.org extracts them (CC BY-SA 4.0), hold 5,200 nouns with a plural: neither reaches the tens of
 thousands the other locales hold. `lv_LV.sentence` builds on plural nouns, infinitives and adverbs, which need no
-gender, and puts an adjective after `tas ir`: the adjective's lemma is masculine singular, which `tas` takes, so the
-adjective needs no agreement with the drawn noun.
+gender, and puts an adjective after `viss ir`: the adjective's lemma is masculine singular, which `viss` takes whatever the noun
+beside it, so the adjective needs no agreement with the drawn noun.
 Valid while no open source of Latvian words holds as many nouns with a plural as Tēzaurs.lv.
 
 ## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
