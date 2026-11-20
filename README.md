@@ -682,9 +682,8 @@ as `example.com` into the template; `todo.md` plans the paths. [`url` and `email
 What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
-`da_DK`, `de_DE`, `et_EE`, `fi_FI`, `fr_FR`, `lv_LV`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`,
-`time`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too. `lt_LT`
-carries `color`, `month`, `price`, `time`, `url`, `username` and `weekday`. `price` and `time` are written as the
+`da_DK`, `de_DE`, `et_EE`, `fi_FI`, `fr_FR`, `lt_LT`, `lv_LV`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`,
+`time`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too. `price` and `time` are written as the
 country writes them:
 
 | Locale | `price` | `time` |
