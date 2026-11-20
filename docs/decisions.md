@@ -2272,7 +2272,7 @@ Valid while Sirene holds no accents and no French word list is shipped.
 
 ## `geo.EE` weighs each row by its addresses, and a place with no street ships no place
 
-2026-11-20, in the chunk that added `geo.EE`. Serves goal 3.2. Applies the project principle on geo modules that read no population.
+2026-11-20, in the chunk that added `geo.EE`. Serves goal 3.2. Until item 531 ships, it breaks the project principle on geo modules built from an address register: a locality weighs its addresses, not its population.
 
 The Land and Spatial Development Board's file of postal codes lists every address of its address data system with its sihtnumber, its full address and a point, under CC0 1.0. It names each address's maakond, vald or linn and asustusüksus, so one file gives every table its rows and a count of addresses for each. `geo.EE` weighs by that count rather than fetch a second source for populations: a draw then lands where the letters go, as `geo.DK`'s postal codes and streets already weigh.
 
@@ -2284,7 +2284,7 @@ Valid while the address data is CC0 1.0 and a locale's `address` prints one layo
 
 ## `geo.LV` takes a novads or a state city as its region, counts each apartment as an address, and writes the postal code after the locality
 
-2026-11-20, in the chunk that added `geo.LV`. Serves goal 3.2. Applies the project principle on geo modules that read no population.
+2026-11-20, in the chunk that added `geo.LV`. Serves goal 3.2. Until item 531 ships, it breaks the project principle on geo modules built from an address register: a locality weighs its addresses, not its population.
 
 The State Land Service publishes the State Address Register as open data under CC BY 4.0: each novads, pilsēta, pagasts, ciems and iela, each building's address with its postal code and a point, and each apartment with its building. `geo.LV` reads only the rows in force, and weighs every table by addresses, as `geo.EE` does, rather than fetch a second source for populations.
 
@@ -2300,7 +2300,7 @@ Valid while the register's open data is CC BY 4.0 and a locale's `address` print
 
 ## `geo.LT` names an apskritis and a savivaldybė with its kind, counts each of the premises as an address, and ships no point
 
-2026-11-20, in the chunk that added `geo.LT`. Serves goal 3.2. Applies the project principle on geo modules that read no population.
+2026-11-20, in the chunk that added `geo.LT`. Serves goal 3.2. Until item 531 ships, it breaks the project principle on geo modules built from an address register: a locality weighs its addresses, not its population.
 
 The Centre of Registers publishes the Address Register as open data under CC BY 4.0, in files of its own site: each apskritis, savivaldybė, gyvenamoji vietovė and street, each address with its number and postal code, and each of the premises given an address. `geo.LT` reads them there rather than from the national open data portal, which serves the same tables and refuses requests under load. Every table weighs by addresses, as `geo.EE` and `geo.LV` do.
 
