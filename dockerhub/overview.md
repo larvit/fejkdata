@@ -1,3 +1,7 @@
+fejkdata makes fake test data. Write a JSON template and run one command. You get everything from a single value to a million rows, as CSV, SQL or NDJSON.
+
+Related values stay related. A person's name, id, email and address match. So do a postcode and its city. National ids pass real validators. Where the issuer publishes test numbers, we use those, so no real person has them. If your template is wrong, loading fails at once. The error says what is wrong and often how to fix it.
+
 The image runs the fejkdata CLI: it reads a template on stdin and prints it rendered.
 
 ```sh

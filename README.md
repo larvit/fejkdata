@@ -4,7 +4,7 @@
 [![Tests](https://github.com/larvit/fejkdata/actions/workflows/test.yml/badge.svg)](https://github.com/larvit/fejkdata/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/larvit/fejkdata)](CHANGELOG.md)
 
-Fake people for your tests. Names, ids, emails and addresses match. CSV, SQL or JSON.
+Fake data for tests. Related values match, like a postcode and its city. CSV, SQL or JSON.
 
 Most fake data is a bag of unrelated values. You get a man named Anna, a postal code from
 another town and an id that no checker accepts. fejkdata is a CLI and a Go library. Its values
@@ -48,9 +48,8 @@ What sets it apart:
    `{sv_SE.person}` fails with `write {/sv_SE.person} to reference the data`. A coding agent
    fixes that in one retry.
 
-Locale-aware fake data for tests and fixtures, from JSON templates. US English, Swedish,
-German, French and the other [locales](#shipped-data) each ship persons, addresses, national
-ids, phone numbers, companies, emails and dates.
+US English, Swedish, German, French and the other [locales](#shipped-data) each ship
+persons, addresses, national ids, phone numbers, companies, emails and dates.
 
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags ([Go tests](#go-tests)).
 - **Your own data:** each JSON file in a folder you pass adds a path, such as
