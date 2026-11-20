@@ -199,6 +199,7 @@ var shippedLocales = []shippedLocale{
 	},
 	{
 		name:     "lt_LT",
+		words:    map[string]wordTable{"noun": {"plural", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
 		months:   []string{"sausis", "vasaris", "kovas", "balandis", "gegužė", "birželis", "liepa", "rugpjūtis", "rugsėjis", "spalis", "lapkritis", "gruodis"},
 		weekdays: []string{"pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis", "sekmadienis"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|lt)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Mėlyna", "Žalia", "Raudona"}},
