@@ -1,4 +1,4 @@
-| `et_EE`, `fr_FR`, `lt_LT`, `lv_LV` | `1 234,50 €` | `15:04` |# fejkdata
+# fejkdata
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/larvit/fejkdata.svg)](https://pkg.go.dev/github.com/larvit/fejkdata)
 [![Tests](https://github.com/larvit/fejkdata/actions/workflows/test.yml/badge.svg)](https://github.com/larvit/fejkdata/actions/workflows/test.yml)
@@ -682,8 +682,8 @@ as `example.com` into the template; `todo.md` plans the paths. [`url` and `email
 What `sv_SE` and `en_US` do not share: `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
-`da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`, `time`, `url`,
-`username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too. `et_EE`, `fr_FR`, `lt_LT` and
+`da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `nb_NO` and `nn_NO` carry `color`, `month`, `paragraph`, `price`, `sentence`, `time`,
+`url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb` too. `et_EE`, `lt_LT` and
 `lv_LV` carry `color`, `month`, `price`, `time`, `url`, `username` and `weekday`. `price` and `time` are written as the
 country writes them:
 
@@ -693,6 +693,7 @@ country writes them:
 | `de_DE` | `1.234,50 €` | `15:04` |
 | `fi_FI` | `1 234,50 €` | `15.04` |
 | `nb_NO`, `nn_NO` | `1 234,50 kr` | `15:04` |
+| `et_EE`, `fr_FR`, `lt_LT`, `lv_LV` | `1 234,50 €` | `15:04` |
 
 A `url` and a `username` are made of the locale's own words, in ASCII, and a `color` is a colour name in the locale's
 language or, in two draws of three, a hex code such as `#1a2b3c`. `month` and `weekday` are Unicode CLDR's stand-alone
@@ -745,7 +746,7 @@ neighbouring postort.
 | `en_US` | [US English](docs/locales/en_US.md) | English words; Social Security numbers and ITINs; US phone exchanges |
 | `et_EE` | [Estonian](docs/locales/et_EE.md) | Estonian companies; Estonian dates and emails; Estonian phone numbers |
 | `fi_FI` | [Finnish](docs/locales/fi_FI.md) | Finnish companies; Finnish dates and emails; Finnish phone numbers; Finnish words; Henkilötunnus; Henkilötunnus matched to a sex; Henkilötunnus of the issued range |
-| `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers |
+| `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers; French words |
 | `geo` | [Places](docs/locales/geo.md) | Across countries; Danish places; Finnish places; German places; Norwegian places; Swedish places; US places |
 | `lt_LT` | [Lithuanian](docs/locales/lt_LT.md) | Lithuanian companies; Lithuanian dates and emails; Lithuanian phone numbers |
 | `lv_LV` | [Latvian](docs/locales/lv_LV.md) | Latvian companies; Latvian dates and emails; Latvian phone numbers |
@@ -1945,6 +1946,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.
 - `company-lv.py` fetches the Register of Enterprises' open data, 129 MB.
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
+- `word-fr.py` fetches kaikki.org's French dictionary, about 590 MB.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
 
 ```sh
@@ -1994,6 +1996,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/usera
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-de.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-dk.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fi.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fr.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-us.py
