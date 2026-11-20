@@ -602,7 +602,7 @@ func TestReadmeLeadShowsTheRowItsQuickStartPrints(t *testing.T) {
 }
 
 func TestReadmeLeadQuotesTheErrorItsMistakeRaises(t *testing.T) {
-	quoted := regexp.MustCompile("`(\\{[^`]+\\})` fails with `([^`]+)`").FindStringSubmatch(readmeSection(t, readme(t), "# fejkdata"))
+	quoted := regexp.MustCompile("`(\\{[^`]+\\})` fails with\\s+`([^`]+)`").FindStringSubmatch(readmeSection(t, readme(t), "# fejkdata"))
 	if quoted == nil {
 		t.Fatal("README's lead no longer quotes a mistake and its error")
 	}
