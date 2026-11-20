@@ -216,6 +216,7 @@ var shippedLocales = []shippedLocale{
 	},
 	{
 		name:     "lv_LV",
+		words:    map[string]wordTable{"noun": {"plural", lowerWord}, "verb": {"", lowerWord}, "adj": {"", lowerWord}, "adv": {"", lowerWord}},
 		months:   []string{"janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs", "jūlijs", "augusts", "septembris", "oktobris", "novembris", "decembris"},
 		weekdays: []string{"Pirmdiena", "Otrdiena", "Trešdiena", "Ceturtdiena", "Piektdiena", "Sestdiena", "Svētdiena"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|lv)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Zila", "Zaļa", "Sarkana"}},
