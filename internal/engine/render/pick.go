@@ -31,27 +31,30 @@ func readUnder(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read)
 // value each read there produced, by its tree.PickKey, and the table rows they pinned.
 //
 // Its life runs in this order:
-//  1. It is created with its frame, by newPickFrame, and holds no draw yet.
+//  1. It is created with its frame, by openFrames.with, and holds no draw yet.
 //  2. It draws on the first read of the name.
 //  3. Each read keeps its value by key, so a later read of that key prints the same value.
-//  4. It ends when its frame pops. A frame kept in another pick's memo (enter) lasts as long as that pick.
+//  4. It ends with its frame, when the render that opened the frame returns. A frame the pick
+//     of another category's name keeps in entered lasts as long as that pick.
 type namedPick struct {
 	named *tree.NameBinding
 	memo  drawMemo
 	pins  tree.PinSet
+	// entered is the frames of the other category this pick renders, by the innermost scope a
+	// read lands inside: the pick makes them on the first such read, and hands them to every
+	// later one.
+	entered map[*tree.NameScope]openFrames
 	// drawn is what a where or a distinct clause drew, nil before the first read.
 	drawn []string
 }
 
 // drawMemo is what a named pick has drawn: the variant each level was drawn as, so every path
 // under it reads one variant; the value each read produced, by its tree.PickKey, so the same read written
-// twice reads one value; the frames a read opens for the name scopes around where it lands
-// (enter); and the rows drawn by each step down after a "..", by level.
+// twice reads one value; and the rows drawn by each step down after a "..", by level.
 type drawMemo struct {
-	variant       map[tree.PickKey]tree.Node
-	value         map[tree.PickKey]readValue
-	enteredFrames map[*tree.NameScope]*pickFrame
-	steppedDown   map[tree.PickKey]*tree.PinSet
+	variant     map[tree.PickKey]tree.Node
+	value       map[tree.PickKey]readValue
+	steppedDown map[tree.PickKey]*tree.PinSet
 }
 
 // stepDownPins is the pins a path steps down into after stepping up to t, drawn once per level
@@ -74,15 +77,7 @@ type pickFrame struct {
 	picks []namedPick
 }
 
-func newPickFrame(scope *tree.NameScope) *pickFrame {
-	f := &pickFrame{scope: scope, picks: make([]namedPick, len(scope.Order()))}
-	for i, b := range scope.Order() {
-		f.picks[i].named = b
-	}
-	return f
-}
-
-// scopeAround is the innermost name scope whose frame enter opens for a read landing on n. A
+// scopeAround is the innermost name scope whose frame a read landing on n opens. A
 // repeated template that owns its scope opens that scope's frame itself, once per iteration, so
 // for it this is the scope around the repeat.
 func scopeAround(n tree.Node) *tree.NameScope {
@@ -98,24 +93,27 @@ func scopeAround(n tree.Node) *tree.NameScope {
 	return nil
 }
 
-func (m *drawMemo) enteredFrame(scope *tree.NameScope) *pickFrame {
-	if m == nil {
-		return newPickFrame(scope)
+// framesFrom is the frames p keeps for the scopes from scope out that bind a name. p makes a
+// frame on the first call reaching its scope, so reads through p read one pick of each name.
+func (p *namedPick) framesFrom(scope *tree.NameScope) openFrames {
+	scope = namingScope(scope)
+	if scope == nil {
+		return nil
 	}
-	f, ok := m.enteredFrames[scope]
+	fs, ok := p.entered[scope]
 	if !ok {
-		f = newPickFrame(scope)
-		if m.enteredFrames == nil {
-			m.enteredFrames = map[*tree.NameScope]*pickFrame{}
+		fs = p.framesFrom(scope.Up()).with(scope)
+		if p.entered == nil {
+			p.entered = map[*tree.NameScope]openFrames{}
 		}
-		m.enteredFrames[scope] = f
+		p.entered[scope] = fs
 	}
-	return f
+	return fs
 }
 
 // readName reads a from the pick of its name, held in the frame of the name's scope.
 func readName(s *drawstate.State, env renderEnv, a tree.Read) readValue {
-	f := env.frameOf(a.Named().Scope())
+	f := env.frames.of(a.Named().Scope())
 	if f == nil {
 		panic(invariant.Broken("name %q is read where no frame of its scope renders", a.Named().Name()))
 	}
@@ -141,21 +139,16 @@ func (p *namedPick) readValues(s *drawstate.State, env renderEnv, v *tree.ValueD
 }
 
 // readPath draws a's path under p and renders its leaf. A read of a field stays in the category,
-// so its frames are already open. When the pick renders another category, env.frames.enter pushes
-// that category's frames above mark. The pick's memo keeps those frames. openOwn finds them and
-// opens no new one. Popping to mark after the render leaves the frames as the read found them.
-// So every read through one pick sees one pick of each name the other category binds:
-// {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l
-// that geo.SE.address binds.
+// and renders in the frames the reader holds. A read of another category renders in the frames p
+// keeps for it, so every read through p sees one pick of each name that category binds:
+// {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l that
+// geo.SE.address binds.
 func (p *namedPick) readPath(s *drawstate.State, env renderEnv, a tree.Read) readValue {
 	leaf, pins := p.draw(s, a.Named().Target().Start(), a.Steps(), a.Levels())
-	if a.Named().BindsField() {
-		return p.renderAt(s, leaf, pins, a.Key(), env)
+	if !a.Named().BindsField() {
+		env.frames = p.framesFrom(scopeAround(leaf))
 	}
-	mark := env.frames.enter(leaf, &p.memo)
-	r := p.renderAt(s, leaf, pins, a.Key(), env.entered(mark))
-	env.frames.pop(mark)
-	return r
+	return p.renderAt(s, leaf, pins, a.Key(), env)
 }
 
 // draw draws the path from start under p, keeping the variant drawn at each of levels, whose last

@@ -17,15 +17,14 @@ func Walk(s *drawstate.State, root tree.Node, steps []tree.PathStep, pins *tree.
 
 // Pinned renders n once, in the rows pins holds.
 func Pinned(s *drawstate.State, n tree.Node, pins *tree.PinSet) string {
-	var frames frameStack
-	frames.enter(n, nil)
-	return render(s, n, renderEnv{frames: &frames}.at(n, pins))
+	var fakes rewordFakes
+	return render(s, n, renderEnv{frames: freshFrames(scopeAround(n)), fakes: &fakes}.at(n, pins))
 }
 
 // Once renders n once, outside any row.
 func Once(s *drawstate.State, n tree.Node) string {
-	var frames frameStack
-	return render(s, n, renderEnv{frames: &frames})
+	var fakes rewordFakes
+	return render(s, n, renderEnv{fakes: &fakes})
 }
 
 // Take a child this switch renders from a Rendered method of tree/renderedge.go, or
@@ -64,13 +63,10 @@ func renderTemplate(s *drawstate.State, t *tree.Template, env renderEnv) string 
 	if t.Repeat() != 1 {
 		return renderRepeat(s, t, env)
 	}
-	if mark := env.frames.openOwn(t, env.base); mark >= 0 {
-		defer env.frames.pop(mark)
-	}
 	if lit, fixed := t.FixedText(); fixed {
 		return lit
 	}
-	return expand(s, t, env)
+	return expand(s, t, env.inScopeOf(t))
 }
 
 // renderRepeat renders each iteration of t inside the name scopes rendering t, where a name bound
@@ -87,9 +83,9 @@ func renderRepeat(s *drawstate.State, t *tree.Template, env renderEnv) string {
 			b.WriteString(expand(s, t, env))
 			continue
 		}
-		mark := env.frames.push(newPickFrame(own))
-		b.WriteString(expand(s, t, env))
-		env.frames.pop(mark)
+		iteration := env
+		iteration.frames = env.frames.with(own)
+		b.WriteString(expand(s, t, iteration))
 	}
 	return b.String()
 }
@@ -158,15 +154,12 @@ func readSibling(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Rea
 	return renderLeaf(s, leaf, env)
 }
 
-// readReference draws afresh a read of another category, in frames of its own, and in no pick,
-// which env.entered clears.
+// readReference draws afresh a read of another category, in frames of its own and in no pick.
 func readReference(s *drawstate.State, t *tree.Template, env renderEnv, a tree.Read) readValue {
 	var pins tree.PinSet
 	leaf, leafPins := drawFresh(s, t.StartOf(a.Head(), t.Refs()), a.Steps(), &pins)
-	mark := env.frames.enter(leaf, nil)
-	r := renderLeaf(s, leaf, env.at(leaf, leafPins).entered(mark))
-	env.frames.pop(mark)
-	return r
+	env.frames, env.pick = freshFrames(scopeAround(leaf)), nil
+	return renderLeaf(s, leaf, env.at(leaf, leafPins))
 }
 
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column that only

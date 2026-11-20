@@ -12,8 +12,5 @@ func readColumnItem(s *drawstate.State, t *tree.Template, env renderEnv) (r read
 	if t.ReadsColumn() == nil {
 		return readValue{}, false
 	}
-	if mark := env.frames.openOwn(t, env.base); mark >= 0 {
-		defer env.frames.pop(mark)
-	}
-	return readField(s, t, env, t.ReadsColumn().Read()), true
+	return readField(s, t, env.inScopeOf(t), t.ReadsColumn().Read()), true
 }

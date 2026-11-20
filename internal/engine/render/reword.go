@@ -16,12 +16,12 @@ type fakeKey struct {
 }
 
 func drawReword(d *tree.RewordDraw, s *drawstate.State, t *tree.Template, env renderEnv) string {
-	return reword(d.Words(), s, env.frames, readField(s, t, env, *d.Text()).text)
+	return reword(d.Words(), s, env.fakes, readField(s, t, env, *d.Text()).text)
 }
 
 // reword rewrites each run of letters in text as a word of its length, or of the nearest length
 // x holds, one fake per word in the render; every other rune stays.
-func reword(x *tree.WordList, s *drawstate.State, frames *frameStack, text string) string {
+func reword(x *tree.WordList, s *drawstate.State, fakes *rewordFakes, text string) string {
 	var b strings.Builder
 	rs := []rune(text)
 	for i := 0; i < len(rs); {
@@ -34,23 +34,23 @@ func reword(x *tree.WordList, s *drawstate.State, frames *frameStack, text strin
 			i++
 			continue
 		}
-		writeInCase(&b, fakeWord(x, s, frames, rs[i:j]), rs[i:j])
+		writeInCase(&b, fakeWord(x, s, fakes, rs[i:j]), rs[i:j])
 		i = j
 	}
 	return b.String()
 }
 
-func fakeWord(x *tree.WordList, s *drawstate.State, frames *frameStack, word []rune) string {
+func fakeWord(x *tree.WordList, s *drawstate.State, fakes *rewordFakes, word []rune) string {
 	key := fakeKey{x.At(), strings.ToLower(string(word))}
-	if fake, drawn := frames.fakes[key]; drawn {
+	if fake, drawn := fakes.byWord[key]; drawn {
 		return fake
 	}
-	if frames.fakes == nil {
-		frames.fakes = map[fakeKey]string{}
+	if fakes.byWord == nil {
+		fakes.byWord = map[fakeKey]string{}
 	}
 	from, to := x.Index().Nearest(len(word))
 	fake := drawIn(x.Index(), s, from, to)
-	frames.fakes[key] = fake
+	fakes.byWord[key] = fake
 	return fake
 }
 
