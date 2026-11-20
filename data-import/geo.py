@@ -209,7 +209,8 @@ def address_json(numbers: Mapping[tuple[int, bool], int], letter: str = "{upper(
     return (
         '{\n  "format": "{street} {street-number}\\n{postal-code} {locality}",\n  "street": "{.locality as l}{l.street.name}",\n'
         f'  "street-number": [\n{items}\n  ],\n'
-        '  "postal-code": "{l.postal-code.code}",\n  "locality": "{l.name}"\n}\n'
+        '  "postal-code": "{l.postal-code.code}",\n  "locality": "{l.name}",\n'
+        '  "municipality": "{l..municipality.name}",\n  "region": "{l..municipality..region.name}"\n}\n'
     )
 
 
