@@ -19,6 +19,13 @@ import (
 	"github.com/larvit/fejkdata"
 )
 
+const lead = `Fake people for your tests. Names, ids, emails and addresses match. CSV, SQL or JSON.
+
+  echo '{/sv_SE.person}' | COMMAND
+  COMMAND --list    # every path to write after {/
+
+`
+
 const usage = `Usage: <template> | COMMAND [flags]
        COMMAND --list | --help | --version
 
@@ -234,6 +241,8 @@ func about(name string, wantsHelp bool) string {
 	return versionLine(name, info) + "\n"
 }
 
+// help opens with fejkdata's lead only for the CLI named fejkdata: a custom CLI's data
+// may hold no person.
 func help(name, docs string) string {
 	var lines []string
 	line := " "
@@ -245,5 +254,9 @@ func help(name, docs string) string {
 		line += " " + b
 	}
 	lines = append(lines, line)
-	return strings.NewReplacer("COMMAND", name, "DOCS", docs, "BUILTINS", strings.Join(lines, "\n")).Replace(usage)
+	text := usage
+	if name == "fejkdata" {
+		text = lead + usage
+	}
+	return strings.NewReplacer("COMMAND", name, "DOCS", docs, "BUILTINS", strings.Join(lines, "\n")).Replace(text)
 }
