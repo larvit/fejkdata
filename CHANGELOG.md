@@ -178,7 +178,9 @@ with its replacement, and each removed path, column or flag.
   census of 2021, and a postal code and a street their addresses in the Land and Spatial Development Board's address
   data. Tallinn is one place, without its linnaosad. A place whose addresses are farms' names has no street
   and ships no place, which leaves out most külad and the municipalities Kihnu, Muhu, Ruhnu and Vormsi. A program
-  showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026". The Go package is
+  showing the places credits "Haldus- ja asustusjaotus: Maa- ja Ruumiamet 01.11.2026" and "Source:
+  Statistics Estonia", and passes the population columns on under
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The Go package is
   `github.com/larvit/fejkdata/data/geo/EE`, which `data/et_EE` imports, and the CLI carries it.
 - `geo.LT`, Lithuania's apskritys, municipalities, localities, postal codes and streets, with `lt_LT.address` printing
   one place with a street and a house number, such as `Pramonės g. 30\nLT-17107 Šalčininkai`. A region, a
@@ -187,7 +189,8 @@ with its replacement, and each removed path, column or flag.
   A region, a municipality and a locality weigh their residents at the start of 2026, as the State Data Agency counts
   them. A postal code and a street weigh their addresses in the Centre of Registers' register, an address as one and
   each of the premises at it as one more. A place with no street ships no place, which leaves out most small kaimai. A locality has no `lat` or
-  `lon`. A program showing the places credits "VĮ Registrų centras, Adresų registras", links
+  `lon`. A program showing the places credits "VĮ Registrų centras, Adresų registras" and "Valstybės duomenų
+  agentūra", links
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as `DATA-LICENSES.md`
   describes. The Go package is `github.com/larvit/fejkdata/data/geo/LT`, which `data/lt_LT` imports, and the CLI
   carries it.
@@ -199,7 +202,8 @@ with its replacement, and each removed path, column or flag.
   street weigh their addresses in the State Land Service's register, a building as one and each apartment in it as one
   more. A place whose addresses are houses'
   names has no street and ships no place, which leaves out most ciemi and 141 pagasti. A program showing the places
-  credits "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati", links
+  credits "Izmantoti Valsts adrešu reģistra informācijas sistēmas dati" and "Centrālā statistikas pārvalde, Oficiālās
+  statistikas portāls", links
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and says the data was changed, as `DATA-LICENSES.md`
   describes. The Go package is `github.com/larvit/fejkdata/data/geo/LV`, which `data/lv_LV` imports, and the CLI
   carries it.
