@@ -154,6 +154,11 @@ func TestLocaleWordTablesHoldTheirSourcesWordsAndForms(t *testing.T) {
 		{"lv_LV", "verb", "skriet", ""},
 		{"lv_LV", "adj", "liels", ""},
 		{"lv_LV", "adv", "bieži", ""},
+		{"lt_LT", "noun", "mama", "mamos"},
+		{"lt_LT", "noun", "vyras", "vyrai"},
+		{"lt_LT", "verb", "bėgti", ""},
+		{"lt_LT", "adj", "didelis", ""},
+		{"lt_LT", "adv", "dažnai", ""},
 		{"nb_NO", "verb", "avslå", "avslår"},
 		{"da_DK", "noun", "abessiner", "abessineren"},
 		{"sv_SE", "noun", "hus", "huset"},
@@ -226,14 +231,21 @@ func TestLocaleWordTablesHoldOnlyTheirSourcesHeadwords(t *testing.T) {
 		{"lv_LV", "verb", "pamācošs"},
 		{"lv_LV", "verb", "rakstāms"},
 		{"lv_LV", "noun", "abanācija"},
+		{"lt_LT", "adj", "didelio"},
+		{"lt_LT", "verb", "bėgdamas"},
+		{"lt_LT", "noun", "namų"},
 	}, "a form or variant its source doesn't list as a headword of that part")
 }
 
 func TestLocaleNounTablesHoldTensOfThousandsOfNouns(t *testing.T) {
 	t.Parallel()
 	eachLocale(t, hasWords, func(t *testing.T, l shippedLocale) {
-		if n := len(localeWordForms(t, l.name, "noun")); n < 20000 {
-			t.Errorf("%s word-noun holds %d nouns, want its source's, tens of thousands", l.name, n)
+		want := 20000
+		if l.name == "lt_LT" {
+			want = 3000 // the English Wiktionary lists about 4,200 Lithuanian nouns
+		}
+		if n := len(localeWordForms(t, l.name, "noun")); n < want {
+			t.Errorf("%s word-noun holds %d nouns, want its source's, at least %d", l.name, n, want)
 		}
 	})
 }
