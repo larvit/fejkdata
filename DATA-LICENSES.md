@@ -517,6 +517,24 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: `data-import/geo-fr.py`, hand-written
 
+## `geo/LT/region.tsv` and 5 more
+
+- Files: `geo/LT/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`, `street.tsv`,
+  and the house-number weights of `address.json`
+- Source: the Lithuanian Centre of Registers, VĮ Registrų centras, whose [open data of the Address
+  Register](https://www.registrucentras.lt/p/1187), fetched on 20 November 2026, lists each
+  apskritis, savivaldybė, gyvenamoji vietovė and street, each address with its number and postal
+  code, and each of the premises given an address
+- Changes: an address counts as one and each of the premises at it as one more, which weighs every
+  row. An apskritis and a savivaldybė are named with their kind, and a street with the short form
+  of its kind. A korpusas is dropped from a house number, an address with no postal code is not
+  counted, and a locality with no numbered address on a street is dropped
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), as the centre's page of the
+  data states
+- Attribution: "VĮ Registrų centras, Adresų registras": the page asks a user to name the data's
+  author, to link the licence and to say whether changes were made, and gives no wording
+- Rebuild: `data-import/geo-lt.py`
+
 ## `geo/LV/region.tsv` and 5 more
 
 - Files: `geo/LV/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`, `street.tsv`,

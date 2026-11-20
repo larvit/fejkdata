@@ -2297,3 +2297,21 @@ An address straight under a ciems or a pagasts is a house's name, such as `Riņ�
 The Universal Postal Union's guide to Latvian addresses, of September 2023, puts the postal code to the right of the locality's name, preceded by `LV` and a dash, and separated from the name by a comma. So the layout is `{street} {street-number}\n{locality}, {postal-code}`, and a postal code is stored with its prefix, `LV-1050`, as the register writes it.
 
 Valid while the register's open data is CC BY 4.0 and a locale's `address` prints one layout.
+
+## `geo.LT` names an apskritis and a savivaldybė with its kind, counts each of the premises as an address, and ships no point
+
+2026-11-20, in the chunk that added `geo.LT`. Serves goal 3.2.
+
+The Centre of Registers publishes the Address Register as open data under CC BY 4.0, in files of its own site: each apskritis, savivaldybė, gyvenamoji vietovė and street, each address with its number and postal code, and each of the premises given an address. `geo.LT` reads them there rather than from the national open data portal, which serves the same tables and refuses requests under load. Every table weighs by addresses, as `geo.EE` and `geo.LV` do.
+
+An apskritis is a region, a savivaldybė a municipality and a gyvenamoji vietovė a locality, each under the code the register gives it. A seniūnija is no part of an address and is left out. The register names an apskritis and a savivaldybė only in the genitive, `Vilniaus` and `Vilniaus miesto`, which names nothing alone, so each is named with its kind, `Vilniaus apskritis` and `Vilniaus miesto savivaldybė`. A locality keeps its nominative name, and a street its genitive name and the short form of its kind, `Laisvės pr.`, as an address writes them. Kaimai share names, so a locality is selected by its code.
+
+An address alone would weigh a block of flats as one house: Vilnius holds 7% of the addresses and 18% once each of the premises counts, so an address is one and each of the premises at it one more. House numbers are counted per address. A korpusas is no part of the record's number and is dropped.
+
+An address in a small kaimas is a number with no street. `geo.LT.address` keeps the one layout of a street and a number, so a locality with no numbered address on a street is dropped, as in `geo.EE`. 7,066 localities remain, holding 97% of the addresses, and every municipality keeps one.
+
+The Universal Postal Union's guide to Lithuanian addresses, of June 2018, puts five digits left of the locality's name, preceded by `LT-`. So the layout is the one most countries share, `{street} {street-number}\n{postal-code} {locality}`, and a postal code is stored with its prefix, `LT-04339`, as the register writes it. The guide writes a locality that is not its municipality's seat on a line of its own and the municipality after the postal code; `geo.LT.address` prints the one layout and holds the municipality in a column.
+
+The register's CSV files hold no point. Its boundary files do, as polygons, and reading them is left until a point is asked for: a Lithuanian locality has no `lat` or `lon`.
+
+Valid while the register's open data is CC BY 4.0 and a locale's `address` prints one layout.

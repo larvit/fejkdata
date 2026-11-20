@@ -161,6 +161,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
 - A `geo.FI` `swedish-name` holds the Finnish name where its source gives no Swedish one
 - `geo.EE` weighs each row by its addresses, and a place with no street ships no place
+- `geo.LT` names an apskritis and a savivaldybė with its kind, counts each of the premises as an address, and ships no point
 - `geo.LV` takes a novads or a state city as its region, counts each apartment as an address, and writes the postal code after the locality
 - A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 - Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, and a weighted draw stays a binary search over cumulative weights
