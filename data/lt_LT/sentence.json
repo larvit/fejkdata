@@ -1,0 +1,27 @@
+[
+  {
+    "format": "Čia yra {a} ir {b}{end}",
+    "weight": 3,
+    "a": "{.word-noun.plural}",
+    "b": "{.word-noun.plural}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Jie {adv} nori {verb}, nes čia yra {noun}{end}",
+    "weight": 2,
+    "adv": "{.word-adv}",
+    "verb": "{.word-verb}",
+    "noun": "{.word-noun}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Tai yra {noun}, o viskas aplink yra {adj}{end}",
+    "noun": "{.word-noun}",
+    "adj": "{.word-adj}",
+    "end": [{ "format": ".", "weight": 3 }, "!"]
+  },
+  {
+    "format": "Ar tai yra {noun}?",
+    "noun": "{.word-noun}"
+  }
+]
