@@ -76,12 +76,10 @@ jobs:
         id: latest
         if: inputs.tag
         env:
-          FORGE_API_URL: ${{ github.api_url }}
-          FORGE_REPOSITORY: ${{ github.repository }}
-          FORGE_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
-          last="$(python3 tooling/release-tooling/patch_release.py last)"
+          last="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)"
           if [ "$last" = "$TAG" ]; then
             echo "latest=true" >> "$GITHUB_OUTPUT"
           fi
@@ -93,7 +91,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: goreleaser/goreleaser-action@v7
         with:
-          version: v2.20.2
+          version: v2.20.3
           workdir: src
           args: release --clean --config ../tooling/release-tooling/goreleaser.yaml ${{ !inputs.tag && '--snapshot' || '' }}
         env:

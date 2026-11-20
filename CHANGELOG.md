@@ -5,6 +5,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), with headings 
 their brackets. A release's `Breaking` section comes first and names each rejected spelling
 with its replacement, and each removed path, column or flag.
 
+## 0.6.1 - 2026-11-20
+
+### Changed
+
+- The binaries, packages and image are built with GoReleaser v2.20.3.
+
 ## 0.6.0 - 2026-11-15
 
 ### Breaking
