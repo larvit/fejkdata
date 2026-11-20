@@ -651,6 +651,24 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: curated
 
+## `lt_LT/word.json` and 4 more
+
+- Files: `lt_LT/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
+  words `lt_LT/sentence.json` reads
+- Source: [kaikki.org's Lithuanian
+  dictionary](https://kaikki.org/dictionary/Lithuanian/kaikki.org-dictionary-Lithuanian.jsonl), extracted
+  on 30 October 2026 from the English [Wiktionary](https://en.wiktionary.org/)
+  by [wiktextract](https://github.com/tatuylonen/wiktextract): the Lithuanian nouns, verbs, adjectives and
+  adverbs that are headwords in lower-case letters alone, not inflected forms, participles or variants of
+  another entry, each noun with its first plural, spelled without stress marks
+- Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); Wiktionary's text is also
+  under the GFDL, and the project takes it under CC BY-SA 4.0
+- Attribution: "Wiktionary contributors", the licence's name and link, a link to
+  [en.wiktionary.org](https://en.wiktionary.org/), and that the data was changed: the entries are
+  reduced to a word and a plural. A program showing or passing on the words shares any change to them
+  under CC BY-SA 4.0
+- Rebuild: `data-import/word-lt.py`
+
 ## `lv_LV/word.json` and 4 more
 
 - Files: `lv_LV/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the

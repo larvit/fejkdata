@@ -146,6 +146,10 @@ with its replacement, and each removed path, column or flag.
   nominative `plural`, such as `mājas`, from Tēzaurs.lv (CC BY-SA 4.0). A program showing them credits the Artificial
   Intelligence Laboratory, IMCS, University of Latvia and shares any change to them under the same licence, as
   `DATA-LICENSES.md` says.
+- `word`, `word-noun`, `word-verb`, `word-adj`, `word-adv`, `sentence` and `paragraph` for `lt_LT`, with a noun's
+  nominative `plural`, such as `mamos`, from the English Wiktionary's Lithuanian entries (CC BY-SA 4.0). A program
+  showing them credits "Wiktionary contributors" and shares any change to them under the same licence, as
+  `DATA-LICENSES.md` says.
 - `month` and `weekday` for `da_DK`, `de_DE`, `en_US`, `fi_FI` and `nb_NO`, Unicode CLDR's stand-alone names, such as
   `January`, `tirsdag`, `tammikuu` and `Donnerstag`, selected by 1 to 12 and 1 (Monday) to 7.
 - `price`, `time`, `url`, `username` and `color` for `da_DK`, `de_DE`, `fi_FI`, `nb_NO` and `nn_NO`, each as the country
