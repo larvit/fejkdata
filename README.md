@@ -1943,7 +1943,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 - `company-fr.py` fetches Sirene's StockUniteLegale, about a gigabyte.
 - `geo-fr.py` fetches the Base Adresse Nationale's address file, about 940 MB.
-- `geo-ee.py` fetches the address data's postal codes and the settlement units, about 45 MB, and the census's table RL21003.
+- `geo-ee.py` fetches the address data's postal codes and the settlement units, about 45 MB, and Statistics Estonia's table RL21003.
 - `geo-lt.py` fetches the Address Register's addresses and premises, about 105 MB, and the State Data Agency's table M3010320.
 - `geo-lv.py` fetches the State Address Register's buildings and apartments, about 290 MB, and the Central Statistical Bureau's table RIG010.
 - `company-lt.py` fetches the Register of Legal Entities' open data, 41 MB.
