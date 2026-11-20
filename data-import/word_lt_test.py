@@ -17,6 +17,7 @@ class Candidates(unittest.TestCase):
     def test_a_noun_carries_its_nominative_plural_without_the_stress_marks(self) -> None:
         forms: list[dict[str, Any]] = [
             {"form": "pupa", "tags": ["plural"]},
+            {"form": "pupà", "links": [["pupà", "pupa#Lithuanian"]], "tags": ["nominative", "singular"]},
             {"form": "pupų", "links": [["pupų", "pupų"]], "tags": ["genitive", "plural"]},
             PUPA_PLURAL,
         ]
@@ -27,10 +28,16 @@ class Candidates(unittest.TestCase):
         self.assertEqual(drawn(entry("noun", "mama", "lt-noun", forms=forms)), [("noun", "mama", "mamos")])
 
     def test_a_noun_whose_plural_links_nowhere_has_none(self) -> None:
-        self.assertEqual(drawn(entry("noun", "pupa", "lt-noun", forms=[{"form": "pùpos", "tags": ["nominative", "plural"]}])), [("noun", "pupa", "")])
+        forms: list[dict[str, Any]] = [{"form": "pùpos", "tags": ["nominative", "plural"]}, {"form": "pupos", "tags": ["plural"]}]
+        self.assertEqual(drawn(entry("noun", "pupa", "lt-noun", forms=forms)), [("noun", "pupa", "")])
 
-    def test_a_noun_whose_only_plural_is_typed_in_its_head_template_has_none(self) -> None:
-        self.assertEqual(drawn(entry("noun", "pupa", "lt-noun", forms=[{"form": "pupos", "tags": ["plural"]}])), [("noun", "pupa", "")])
+    def test_a_noun_without_a_declension_table_has_the_plural_its_head_template_links(self) -> None:
+        forms: list[dict[str, Any]] = [{"form": "teãtrai", "links": [["teãtrai", "teatrai"]], "tags": ["plural"]}]
+        self.assertEqual(drawn(entry("noun", "teatras", "lt-noun", forms=forms)), [("noun", "teatras", "teatrai")])
+
+    def test_a_noun_whose_head_template_and_declension_table_disagree_on_its_plural_has_none(self) -> None:
+        forms: list[dict[str, Any]] = [{"form": "lankytoja", "links": [["lankytoja", "lankytoja"]], "tags": ["plural"]}, {"form": "lankytojai", "links": [["lankytojai", "lankytojai"]], "tags": ["nominative", "plural"]}]
+        self.assertEqual(drawn(entry("noun", "lankytojas", "lt-noun", forms=forms)), [("noun", "lankytojas", "")])
 
     def test_a_noun_with_no_plural_has_none(self) -> None:
         self.assertEqual(drawn(entry("noun", "tenisas", "lt-noun")), [("noun", "tenisas", "")])
