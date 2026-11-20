@@ -519,6 +519,13 @@ fi_FI.word.adv	string
 fi_FI.word.any	string
 fi_FI.word.noun	string
 fi_FI.word.verb	string
+fr_FR.address	format "{/geo.FR.address as a}{a}"	reads geo.FR.address
+fr_FR.address.locality	string
+fr_FR.address.municipality	string
+fr_FR.address.postal-code	string
+fr_FR.address.region	string
+fr_FR.address.street	string
+fr_FR.address.street-number	string
 fr_FR.color
 fr_FR.company	format "{registered as r}{r}"	reads fr_FR.company fr_FR.company-coined fr_FR.company-word fr_FR.first-name fr_FR.last-name
 fr_FR.company-coined	format "{word}"	weight count
@@ -838,6 +845,67 @@ geo.FI.street.addresses	string
 geo.FI.street.locality	string
 geo.FI.street.name	string
 geo.FI.street.swedish-name	string
+geo.FR.address	format "{street-number} {street}\n{postal-code} {locality}"	reads geo.FR.locality geo.FR.street
+geo.FR.address.locality	string
+geo.FR.address.municipality	string
+geo.FR.address.postal-code	string
+geo.FR.address.region	string
+geo.FR.address.street	string
+geo.FR.address.street-number	string
+geo.FR.locality	format "{name}"	key code	weight population	parent municipality
+geo.FR.locality.code	string
+geo.FR.locality.lat	string
+geo.FR.locality.lon	string
+geo.FR.locality.municipality	string
+geo.FR.locality.name	string
+geo.FR.locality.population	string
+geo.FR.locality.postal-code
+geo.FR.locality.postal-code.addresses
+geo.FR.locality.postal-code.code
+geo.FR.locality.postal-code.locality
+geo.FR.municipality	format "{name}"	key code	name name	weight population	parent region
+geo.FR.municipality.code	string
+geo.FR.municipality.locality
+geo.FR.municipality.locality.code
+geo.FR.municipality.locality.lat
+geo.FR.municipality.locality.lon
+geo.FR.municipality.locality.municipality
+geo.FR.municipality.locality.name
+geo.FR.municipality.locality.population
+geo.FR.municipality.locality.postal-code
+geo.FR.municipality.locality.postal-code.addresses
+geo.FR.municipality.locality.postal-code.code
+geo.FR.municipality.locality.postal-code.locality
+geo.FR.municipality.name	string
+geo.FR.municipality.population	string
+geo.FR.municipality.region	string
+geo.FR.postal-code	format "{code}"	weight addresses	parent locality
+geo.FR.postal-code.addresses	string
+geo.FR.postal-code.code	string
+geo.FR.postal-code.locality	string
+geo.FR.region	format "{name}"	key code	name name	weight population
+geo.FR.region.code	string
+geo.FR.region.municipality
+geo.FR.region.municipality.code
+geo.FR.region.municipality.locality
+geo.FR.region.municipality.locality.code
+geo.FR.region.municipality.locality.lat
+geo.FR.region.municipality.locality.lon
+geo.FR.region.municipality.locality.municipality
+geo.FR.region.municipality.locality.name
+geo.FR.region.municipality.locality.population
+geo.FR.region.municipality.locality.postal-code
+geo.FR.region.municipality.locality.postal-code.addresses
+geo.FR.region.municipality.locality.postal-code.code
+geo.FR.region.municipality.locality.postal-code.locality
+geo.FR.region.municipality.name
+geo.FR.region.municipality.population
+geo.FR.region.municipality.region
+geo.FR.region.name	string
+geo.FR.region.population	string
+geo.FR.region.timezone	string
+geo.FR.street	format "{name}"
+geo.FR.street.name	string
 geo.NO.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.NO.locality
 geo.NO.address.locality	string
 geo.NO.address.municipality	string
