@@ -230,6 +230,8 @@ Give the frames a pick enters one owner: a value the pick holds and hands to a r
 
 `render.frameStack` also holds the reword fakes, which its name hides: rename it, or move `fakes` out, in this item. The seats' other Locality places, for the floor items after this one: `internal/engine/render/render.go:33` `render`, which must take every child through `tree/renderedge.go` with only a comment enforcing it; `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`; `internal/engine/tree/pick.go:112` `LandsInPick`, whose agreement between load, render and the name fence is held by prose; `internal/engine/tree/loadfinds.go:52` `LoadFinds.Of`, whose readers must know which load phase has run; `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`; `internal/engine/lazy.go:107` `loadReached`.
 
+On 2026-11-20 the owner widened the scope: this item may restructure anything that raises Locality, the seats' other places above included, as long as render output, seeds and the performance gate's allocation counts hold. The chunk also took `refuseFreshDraw`, `LandsInPick` and `drawAcrossTables`, and left `loadReached` and `render` for later floor items, since restructuring them risked more than it would raise Locality.
+
 Touches:
 
 - `internal/engine/render/env.go`: `frameStack`, `rewordFakes`, `renderEnv`, `openFrames`, `openFrames.with`, `openFrames.of`, `freshFrames`, `namingScope`, `renderEnv.inScopeOf`, `renderEnv.entered`, `renderEnv.frameOf`
