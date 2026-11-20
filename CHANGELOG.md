@@ -207,6 +207,12 @@ with its replacement, and each removed path, column or flag.
   Base Adresse Nationale, 20/11/2026". The Go package is `github.com/larvit/fejkdata/data/geo/FR`, which `data/fr_FR`
   imports, and the CLI carries it.
 
+## 0.6.1 - 2026-11-20
+
+### Changed
+
+- The binaries, packages and image are built with GoReleaser v2.20.3.
+
 ## 0.6.0 - 2026-11-15
 
 ### Breaking
