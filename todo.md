@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 529 | 0.7.0 |  |  | **Make `data-import/geo.py`'s `address_json` write the `municipality` and `region` columns.** | 1 | 1 | 1 | 1 | 1 | code health by 3 | 9.8 |
 | 502 | 0.7.0 |  |  | **Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 507 | 0.7.0 |  |  | **Add `geo/LV` with Latvia's places and postal codes, and `lv_LV.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 512 | 0.7.0 |  |  | **Add `geo/LT` with Lithuania's places and postal codes, and `lt_LT.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
@@ -213,14 +212,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 529. Make `data-import/geo.py`'s `address_json` write the `municipality` and `region` columns.
-
-Commit 8c40e654 added `municipality` and `region` columns by hand to every shipped `data/geo/*/address.json` and locale `address.json`, but `geo.address_json` in `data-import/geo.py`, which `geo-dk.py`, `geo-fi.py` and `geo-no.py` call to write that file, was not changed. A rerun of any of those imports drops both columns, which the shipped shape pin would then report as a breaking change. `geo-se.py` writes no `address.json`, so `data/geo/SE/address.json` is kept by hand. `geo-fr.py` has its own `address_json` that writes them.
-
-Touches:
-- `data-import/geo.py`: `address_json` (small)
-- `data-import/geo_test.py`: `AddressJson` (small)
 
 ### 502. Add `geo/EE` with Estonia's places and postal codes, and `et_EE.address` printing them.
 
