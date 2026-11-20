@@ -461,7 +461,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Source: Statistics Finland"
 - Rebuild: `data-import/geo-fi.py`
 
-## `geo/FR/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`
+## `geo/FR/region.tsv` and 4 more
 
 - Files: `geo/FR/region.tsv`, `municipality.tsv`, `locality.tsv`, `postal-code.tsv`, and the
   house-number weights of `address.json`
