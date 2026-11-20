@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 462 | 0.7.0 |  | owner | **Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.7 |
 | 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
 | 532 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 6.1 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
@@ -213,43 +212,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 462. Reach the comprehension floor: lift Locality so a named pick owns the frames its reads enter, and no read finds a frame by scanning a stack another pick shares.
-
-The two scoring runs at 16b6a1aa (PR #472) left Locality at 6.13 and 6.00, Shape 6.63 and 6.63, Self-sufficiency 6.50 and 6.50 and Overall 6.63 and 6.50, under the floor of 7.0; those at 5125b795 (PR #467) had left Locality at 5.63 and 6.25, and those at daaa1020 (PR #414) at 6.00. All four pairs of runs named the same render unit for Locality, and its frame stack:
-
-- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: it changes the shared frame stack and stores entered frames in the memo, so its correctness depends on base marks set elsewhere
-- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: pushes, borrows and pops frames on a shared stack and moves `env.base` out of the caller's sight
-- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: the shared mutable `frameStack` with mark, pop, base and `entered` has to be traced through `env.go`
-- Locality: `internal/engine/render/pick.go:150` `namedPick.readPath`: a pick's consistency hangs on `frameStack.enter`/`pop` marks and memo frames, held in mind across `env.go:36`
-- Locality, Shape: `internal/engine/render/pick.go:38` `namedPick`: memo, pins and the frame lifecycle all have to be held at once to trust that `l.street` and `l.postal-code` share one row
-- Shape, Locality: `internal/engine/render/env.go:230` `frameStack.enter`: pick state is pushed from a memo and changed through env copies, split across env.go and pick.go
-- Locality: `internal/engine/render/path.go:57` `drawAcrossTables`: a `climbed` flag and the step-down pins make the loop a small state machine
-- Self-sufficiency: `internal/engine/render/env.go:73` `renderEnv`: the rules against heap escape are prose only, so a change that breaks them still compiles
-
-Give the frames a pick enters one owner: a value the pick holds and hands to a read, so `readPath` needs no `base` mark, `openOwn` scans no shared `frameStack`, and `renderEnv.entered` clears no pick out of sight. Group `drawMemo`'s maps by what they keep per level, so a new clause adds a field to one named value, not a fifth map. No render output or seed changes, and no allocation count rises; the performance gate holds.
-
-`render.frameStack` also holds the reword fakes, which its name hides: rename it, or move `fakes` out, in this item. The seats' other Locality places: `internal/engine/render/render.go:33` `render`, which must take every child through `tree/renderedge.go` with only a comment enforcing it; `internal/engine/fence/names/refusefreshdraw.go:21` `refuseFreshDraw`; `internal/engine/tree/pick.go:112` `LandsInPick`, whose agreement between load, render and the name fence is held by prose; `internal/engine/tree/loadfinds.go:52` `LoadFinds.Of`, whose readers must know which load phase has run; `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`; `internal/engine/lazy.go:107` `loadReached`.
-
-On 2026-11-20 the owner widened the scope: this item may restructure anything that raises Locality, the seats' other places above included, within the limits above. The chunk also took `refuseFreshDraw`, `LandsInPick` and `drawAcrossTables`. It left `render`, `LoadFinds.Of`, `sharedDraw` and `loadReached` for later floor items, since restructuring them risked more than it would raise Locality.
-
-Touches:
-
-- `internal/engine/render/env.go`: `frameStack`, `rewordFakes`, `renderEnv`, `openFrames`, `openFrames.with`, `openFrames.of`, `freshFrames`, `namingScope`, `renderEnv.inScopeOf`, `renderEnv.entered`, `renderEnv.frameOf`
-- `internal/engine/render/pick.go`: `namedPick`, `namedPick.framesFrom`, `namedPick.readPath`, `namedPick.renderAt` (small), `drawMemo`, `levelDraw`, `drawMemo.keep`, `drawMemo.stepDownPins`, `drawMemo.variantOf`, `drawMemo.enteredFrame`, `newPickFrame`, `pickFrame`, `readUnder`, `readName` (small), `keptInPick`, `placedInPick`
-- `internal/engine/render/render.go`: `Pinned` (small), `Once` (small), `renderTemplate` (small), `renderRepeat` (small), `readReference` (small), `readField`
-- `internal/engine/render/record.go`: `Record` (small)
-- `internal/engine/render/columnread.go`: `readColumnItem` (small)
-- `internal/engine/render/reword.go`: `drawReword` (small), `reword` (small), `fakeWord` (small)
-- `internal/engine/doc.go`: `lines 10-26` (small)
-- `internal/engine/render/path.go`: `drawAcrossTables`, `keptDraws.pinsBelow`, `keptDraws.stepDownPins`
-- `internal/engine/fence/names/refusefreshdraw.go`: `refuseFreshDraw`, `refsReached`, `pickLevel`, `nameRead.levelOf`, `pickLevel.canDiffer`, `nameRead.readingFromPick`, `nameRead.readsFromPick`, `pickReads.readAddressing`
-- `internal/engine/fence/names/pickreads.go`: `pickReads.addresses` (small)
-- `internal/engine/fence/names/route.go`: `route.placedAt` (small)
-- `internal/engine/tree/pick.go`: `PlacedRead`, `ReadAt`, `PlacedRead.Key`, `PlacedRead.Levels`, `LandsInPick`, `AddressedKeys` (small)
-- `internal/engine/tree/name.go`: `NameTarget.Addressed`
-- `internal/engine/load/pick_test.go`: `TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel` (small)
-- `table_test.go`: `TestTableStepUpAndDownDrawsAreSeeded`
 
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
