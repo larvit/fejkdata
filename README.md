@@ -749,7 +749,7 @@ neighbouring postort.
 | `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers; French words |
 | `geo` | [Places](docs/locales/geo.md) | Across countries; Danish places; Finnish places; German places; Norwegian places; Swedish places; US places |
 | `lt_LT` | [Lithuanian](docs/locales/lt_LT.md) | Lithuanian companies; Lithuanian dates and emails; Lithuanian phone numbers |
-| `lv_LV` | [Latvian](docs/locales/lv_LV.md) | Latvian companies; Latvian dates and emails; Latvian phone numbers |
+| `lv_LV` | [Latvian](docs/locales/lv_LV.md) | Latvian companies; Latvian dates and emails; Latvian phone numbers; Latvian words |
 | `misc` | [Shared by every locale](docs/locales/misc.md) | Reserved addresses; Credit cards and IBANs; Registry tables; Territories; Time zones |
 | `nb_NO` | [Norwegian Bokmål](docs/locales/nb_NO.md) | Fødselsnummer; Fødselsnummer matched to a sex; Norwegian companies; Norwegian dates and emails; Norwegian phone numbers; Norwegian words |
 | `nn_NO` | [Norwegian Nynorsk](docs/locales/nn_NO.md) | Persons, ids, contact details and companies; Nynorsk months, weekdays and titles; Nynorsk words |
@@ -1948,6 +1948,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - `word-de.py` fetches Wikidata's lexeme dump, about 670 MB.
 - `word-et.py` reads the same lexeme dump, so it downloads the 670 MB only where `word-de.py` hasn't.
 - `word-fr.py` fetches kaikki.org's French dictionary, about 590 MB.
+- `word-lv.py` fetches Tēzaurs.lv's wordforms, 178 MB zipped and 14 GB unzipped, and reads them as a stream.
 - `word-se.py` fetches SALDO's morphology, 254 MB.
 
 ```sh
@@ -1999,6 +2000,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-et.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fi.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-fr.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-lv.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-us.py

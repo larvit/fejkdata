@@ -651,6 +651,23 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: none required
 - Rebuild: curated
 
+## `lv_LV/word.json` and 4 more
+
+- Files: `lv_LV/word.json`, `word-noun.tsv`, `word-verb.tsv`, `word-adj.tsv`, `word-adv.tsv` and the
+  words `lv_LV/sentence.json` reads
+- Source: [Tēzaurs.lv](https://tezaurs.lv)'s [wordforms of the Spring 2026
+  edition](https://repository.clarin.lv/repository/xmlui/handle/20.500.12574/156) on CLARIN-LV, from
+  the Artificial Intelligence Laboratory of the Institute of Mathematics and Computer Science,
+  University of Latvia: the nouns, verbs, adjectives and adverbs that are lemmas in lower-case letters
+  alone and carry no usage label of a regional word, a dialectism, an obsolete, historical or outdated
+  word or a rarely used old one, each noun with its nominative plural
+- Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- Attribution: "© Artificial Intelligence Laboratory, IMCS, University of Latvia, 2009–2026", the
+  licence's name and link, a link to [tezaurs.lv](https://tezaurs.lv), and that the data was changed:
+  the entries are reduced to a word and a plural. A program showing or passing on the words shares
+  any change to them under CC BY-SA 4.0
+- Rebuild: `data-import/word-lv.py`
+
 ## `misc/currency.tsv`
 
 - Source: [datasets/currency-codes](https://github.com/datasets/currency-codes); symbols from
