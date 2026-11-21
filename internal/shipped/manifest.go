@@ -2,81 +2,72 @@ package shipped
 
 import (
 	"encoding/json"
-	"fmt"
 	"slices"
 	"sort"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/engine"
-	"github.com/larvit/fejkdata/internal/engine/tree"
 )
 
-// ManifestFile is the name of the manifest of the module mounted under namespace.
-func ManifestFile(namespace string) string {
-	return "data/" + strings.ReplaceAll(namespace, ".", "/") + "/" + datafiles.ManifestFile
+// indexedModule is the lines of one module's index, one category a line, and the modules its
+// categories read directly, each by its place in Data's namespaces.
+type indexedModule struct {
+	lines  []string
+	direct []int
 }
 
-// moduleIndex is, for each module, the lines of its manifest's index, one category a line, and
-// the modules its categories read directly.
-type moduleIndex struct {
-	lines  [][]string
-	direct [][]int
-}
-
-func indexModules(root *tree.Folder, namespaces []string) (moduleIndex, error) {
-	index := moduleIndex{lines: make([][]string, len(namespaces)), direct: make([][]int, len(namespaces))}
-	for _, s := range engine.Index(root) {
-		i := holder(namespaces, s.Path)
-		if i < 0 {
-			return index, fmt.Errorf("no shipped module holds %s", s.Path)
-		}
+func (d *Data) indexModules() ([]indexedModule, error) {
+	modules := make([]indexedModule, len(d.namespaces))
+	for _, s := range engine.Index(&d.root) {
+		i := d.holder(s.Path)
 		line, err := json.Marshal(s.Entry)
 		if err != nil {
-			return index, err
+			return nil, err
 		}
 		key, _ := json.Marshal(s.Path)
-		index.lines[i] = append(index.lines[i], "\n\t\t"+string(key)+": "+string(line))
+		modules[i].lines = append(modules[i].lines, "\n\t\t"+string(key)+": "+string(line))
 		for _, c := range s.Needs {
-			if j := holder(namespaces, c); j != i && !slices.Contains(index.direct[i], j) {
-				index.direct[i] = append(index.direct[i], j)
+			if j := d.holder(c); j != i && !slices.Contains(modules[i].direct, j) {
+				modules[i].direct = append(modules[i].direct, j)
 			}
 		}
 	}
-	return index, nil
+	return modules, nil
 }
 
-// Manifests is each module's manifest, read from root's whole tree: its index and its namespace.
-func Manifests(root *tree.Folder, namespaces []string) ([]File, error) {
-	index, err := indexModules(root, namespaces)
+// Manifests is each module's manifest, read from the whole tree: its index and its namespace.
+func (d *Data) Manifests() ([]File, error) {
+	modules, err := d.indexModules()
 	if err != nil {
 		return nil, err
 	}
-	out := make([]File, len(namespaces))
-	for i, n := range namespaces {
-		namespace, _ := json.Marshal(n)
-		out[i] = File{ManifestFile(n), []byte("{\n\t\"index\": {" + strings.Join(index.lines[i], ",") + "\n\t},\n\t\"namespace\": " + string(namespace) + "\n}\n")}
+	out := make([]File, len(modules))
+	for i, m := range modules {
+		namespace, _ := json.Marshal(d.namespaces[i])
+		name := "data/" + strings.ReplaceAll(d.namespaces[i], ".", "/") + "/" + datafiles.ManifestFile
+		out[i] = File{name, []byte("{\n\t\"index\": {" + strings.Join(m.lines, ",") + "\n\t},\n\t\"namespace\": " + string(namespace) + "\n}\n")}
 	}
 	return out, nil
 }
 
-// Reads is, for each module, the namespace of every other module it reads, directly or through
-// another, sorted.
-func Reads(root *tree.Folder, namespaces []string) ([][]string, error) {
-	index, err := indexModules(root, namespaces)
+// Reads is, by a module's namespace, the namespace of every other module it reads, directly or
+// through another, sorted.
+func (d *Data) Reads() (map[string][]string, error) {
+	modules, err := d.indexModules()
 	if err != nil {
 		return nil, err
 	}
-	out := make([][]string, len(namespaces))
-	for i := range namespaces {
-		out[i] = index.readsOf(i, namespaces)
+	out := map[string][]string{}
+	for i, n := range d.namespaces {
+		out[n] = d.readsOf(modules, i)
 	}
 	return out, nil
 }
 
-func (index moduleIndex) readsOf(i int, namespaces []string) []string {
+func (d *Data) readsOf(modules []indexedModule, i int) []string {
 	seen := map[int]bool{i: true}
-	queue := slices.Clone(index.direct[i])
+	queue := slices.Clone(modules[i].direct)
 	var out []string
 	for ; len(queue) > 0; queue = queue[1:] {
 		j := queue[0]
@@ -84,8 +75,8 @@ func (index moduleIndex) readsOf(i int, namespaces []string) []string {
 			continue
 		}
 		seen[j] = true
-		out = append(out, namespaces[j])
-		queue = append(queue, index.direct[j]...)
+		out = append(out, d.namespaces[j])
+		queue = append(queue, modules[j].direct...)
 	}
 	sort.Strings(out)
 	return out

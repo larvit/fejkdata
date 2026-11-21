@@ -32,14 +32,14 @@ func main() {
 }
 
 func generated(root string, repin bool) ([]shipped.File, error) {
-	tree, namespaces, err := shipped.Load(data.Modules())
+	loaded, err := shipped.Load(data.Modules())
 	if err != nil {
 		return nil, err
 	}
 	if repin {
-		return []shipped.File{shipped.Shape(&tree), shipped.ListingShape()}, nil
+		return []shipped.File{loaded.Shape(), shipped.ListingShape()}, nil
 	}
-	manifests, err := shipped.Manifests(&tree, namespaces)
+	manifests, err := loaded.Manifests()
 	if err != nil {
 		return nil, err
 	}
@@ -47,9 +47,9 @@ func generated(root string, repin bool) ([]shipped.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	listed, err := shipped.Listing(&tree, kinds, shipped.ListingState)
+	listed, err := loaded.Listing(kinds, shipped.ListingState)
 	if err != nil {
 		return nil, fmt.Errorf("the listing is not whole:\n%w", err)
 	}
-	return slices.Concat(manifests, shipped.ListingFiles(listed, namespaces)), nil
+	return slices.Concat(manifests, loaded.ListingFiles(listed)), nil
 }

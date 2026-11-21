@@ -51,7 +51,6 @@ func ListingState() *drawstate.State {
 type kindRow struct {
 	source string
 	kinds  []string
-	used   bool
 }
 
 // readKinds parses KindsFile. A row is tab-separated: a dot path, its kinds joined by ", " in
@@ -90,24 +89,31 @@ func inKindOrder(kinds []string) bool {
 	return true
 }
 
-// Listing is every path root lists, with the kinds and source kinds gives it, in KindsFile's
+// Listing is every path the tree lists, with the kinds and source kinds gives it, in KindsFile's
 // format: the row of the path itself, else of the category its value is drawn from. Each
 // example is drawn as a user draws it, from a state of its own that state returns, so adding a
 // path moves no other path's example. The error names every path without a row, every row
 // without a path and every mistake in kinds.
-func Listing(root *tree.Folder, kinds []byte, state func() *drawstate.State) ([]Path, error) {
+func (d *Data) Listing(kinds []byte, state func() *drawstate.State) ([]Path, error) {
 	rows, mistakes := readKinds(kinds)
+	used := map[string]bool{}
 	var out []Path
-	for _, path := range engine.List(root) {
-		listed, err := listPath(root, rows, path, state())
+	for _, path := range engine.List(&d.root) {
+		row, err := rowOf(&d.root, rows, path)
 		if err != nil {
 			mistakes = append(mistakes, err.Error())
 			continue
 		}
-		out = append(out, listed)
+		used[row] = true
+		template, err := engine.LoadTemplate(&d.root, "{/"+path+"}", "template")
+		if err != nil {
+			mistakes = append(mistakes, path+": "+err.Error())
+			continue
+		}
+		out = append(out, Path{Path: path, Kind: rows[row].kinds, Example: template.Draw(state()), Source: rows[row].source})
 	}
-	for p, r := range rows {
-		if !r.used {
+	for p := range rows {
+		if !used[p] {
 			mistakes = append(mistakes, KindsFile+": "+p+" is no shipped path")
 		}
 	}
@@ -118,30 +124,26 @@ func Listing(root *tree.Folder, kinds []byte, state func() *drawstate.State) ([]
 	return out, nil
 }
 
-func listPath(root *tree.Folder, rows map[string]*kindRow, path string, s *drawstate.State) (Path, error) {
-	row := rows[path]
-	if row == nil {
-		category, err := engine.DrawnFrom(root, path)
-		if err != nil {
-			return Path{}, err
-		}
-		row = rows[category]
+// rowOf is the path of the row in rows that lists path: its own, else that of the category its
+// value is drawn from.
+func rowOf(root *tree.Folder, rows map[string]*kindRow, path string) (string, error) {
+	if rows[path] != nil {
+		return path, nil
 	}
-	if row == nil {
-		return Path{}, errors.New("no row in " + KindsFile + " for " + path)
-	}
-	row.used = true
-	template, err := engine.LoadTemplate(root, "{/"+path+"}", "template")
+	category, err := engine.DrawnFrom(root, path)
 	if err != nil {
-		return Path{}, fmt.Errorf("%s: %w", path, err)
+		return "", err
 	}
-	return Path{Path: path, Kind: row.kinds, Example: template.Draw(s), Source: row.source}, nil
+	if rows[category] == nil {
+		return "", errors.New("no row in " + KindsFile + " for " + path)
+	}
+	return category, nil
 }
 
 // ListingFiles is the listing as PathsFile and as DocFile, which holds one folded table per
 // module.
-func ListingFiles(listed []Path, namespaces []string) []File {
-	return []File{{PathsFile, listingJSON(listed)}, {DocFile, listingMarkdown(listed, namespaces)}}
+func (d *Data) ListingFiles(listed []Path) []File {
+	return []File{{PathsFile, listingJSON(listed)}, {DocFile, d.listingMarkdown(listed)}}
 }
 
 func listingJSON(listed []Path) []byte {
@@ -161,13 +163,13 @@ func listingJSON(listed []Path) []byte {
 	return b.Bytes()
 }
 
-func listingMarkdown(listed []Path, namespaces []string) []byte {
-	namespaces = slices.Clone(namespaces)
+func (d *Data) listingMarkdown(listed []Path) []byte {
+	namespaces := slices.Clone(d.namespaces)
 	sort.Strings(namespaces)
 	var b strings.Builder
 	b.WriteString("# Every shipped path\n\nThe README's [Every shipped path](../README.md#every-shipped-path) says what a kind, an example and a source are.\n\n")
-	for i, n := range namespaces {
-		held := slices.DeleteFunc(slices.Clone(listed), func(l Path) bool { return holder(namespaces, l.Path) != i })
+	for _, n := range namespaces {
+		held := slices.DeleteFunc(slices.Clone(listed), func(l Path) bool { return d.namespaces[d.holder(l.Path)] != n })
 		if len(held) == 0 {
 			continue
 		}
