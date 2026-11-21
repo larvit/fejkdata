@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 543 | 0.7.1 |  |  | **Reword the package description in `release-tooling/goreleaser.yaml` and the package comment in `doc.go` to the README's new lead.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
-| 546 | 0.7.1 |  |  | **Add to the README a clear link to `docs/shipped-paths.md` and a summary of the shipped locales and their most important paths.** | 1 | 1 | 1 | 1 | 2 | 11 by 4 | 2.0 |
 | 541 | 0.7.2 |  |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
 | 542 | 0.7.2 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.2 |
 | 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
@@ -224,17 +223,6 @@ Touches:
 
 - `release-tooling/goreleaser.yaml`
 - `doc.go`
-
-### 546. Add to the README a clear link to `docs/shipped-paths.md` and a summary of the shipped locales and their most important paths.
-
-The maintainer accepted the table of every shipped path as a page in `docs/` on 2026-11-21, if the README links it clearly and sums up the locales and their most important paths. The decision "The table of every shipped path is a page in `docs/` that the README links" records it.
-
-Under the README's "Every shipped path", open with the link. Then give each folder of `data/` one line: what it holds and its most important paths, such as `sv_SE.person`, `sv_SE.address` and `sv_SE.personnummer`. `misc` and each `geo` country get a line too. Take the paths from the listing and keep the summary short, since goal 11's counter-signal is a README that grows faster than what ships. Test that every folder of `data/` has a line, so the summary can't fall behind a new locale.
-
-Touches:
-
-- `README.md`: `### Every shipped path`
-- `data_listing_test.go`
 
 ### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
 
