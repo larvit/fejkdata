@@ -33,11 +33,11 @@ da_DK.title	real	hand-written
 da_DK.url	invented	hand-written paths on example hosts, with the locale's words
 da_DK.username	invented	the locale's own words, in hand-written patterns
 da_DK.weekday	real	Unicode CLDR's stand-alone weekday names
-da_DK.word	real	COR1, Dansk Sprognævn's central word register
-da_DK.word-adj	real	COR1, Dansk Sprognævn's central word register
-da_DK.word-adv	real	COR1, Dansk Sprognævn's central word register
-da_DK.word-noun	real	COR1, Dansk Sprognævn's central word register
-da_DK.word-verb	real	COR1, Dansk Sprognævn's central word register
+da_DK.word	real	COR₁, Dansk Sprognævn's central word register
+da_DK.word-adj	real	COR₁, Dansk Sprognævn's central word register
+da_DK.word-adv	real	COR₁, Dansk Sprognævn's central word register
+da_DK.word-noun	real	COR₁, Dansk Sprognævn's central word register
+da_DK.word-verb	real	COR₁, Dansk Sprognævn's central word register
 de_DE.address	real, invented	real place and postal code from GeoNames; the street and house number are invented
 de_DE.address.locality	real	GeoNames' Postleitzahlen of Germany
 de_DE.address.municipality	real	GeoNames' Postleitzahlen of Germany
