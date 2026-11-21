@@ -28,8 +28,7 @@ import (
 	svse "github.com/larvit/fejkdata/data/sv_SE"
 )
 
-//go:generate env REGENERATE=1 go test -run ^TestShippedManifestsAreCurrent$ ..
-//go:generate env REGENERATE=1 go test -run ^TestDataListingIsCurrent$ ..
+//go:generate go run ../internal/shipped/generate -root ..
 
 // Modules returns every module fejkdata ships, to pass to fejkdata.WithDataFS.
 func Modules() []fs.FS {

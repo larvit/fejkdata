@@ -55,10 +55,12 @@ func noChild(n tree.Node, seg string) error {
 // compiledPath walks a path and proves it reaches a node whichever way the draws go: every
 // variant of a choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat. Once run, it holds the steps a
-// draw takes, and every leaf the path may render. headSpans is how many of tail's first segments
-// head stands for. An error names a level as head, then tail's segments after those, up to that level.
+// draw takes, every leaf the path may render, and the last table it stepped through. headSpans is
+// how many of tail's first segments head stands for. An error names a level as head, then tail's
+// segments after those, up to that level.
 type compiledPath struct {
 	pins      tree.PinSet
+	lastTable *tree.Table
 	head      string
 	headSpans int
 	tail      []string
@@ -111,6 +113,7 @@ func (w *compiledPath) compileStep(at *pathPos, steps []tree.PathStep) ([]tree.P
 		if err != nil {
 			return steps, err
 		}
+		w.lastTable = x
 		*at = r.then
 		return routeSteps(steps, &w.pins, x, r, i)
 	case *tree.Template:
@@ -170,6 +173,14 @@ func CallerPathSteps(n tree.Node, tail []string, steps []tree.PathStep) ([]tree.
 		}
 	}
 	return steps, nil
+}
+
+// LastTableOn is the last table a path from n steps through, nil where it steps through none: a
+// path that ends at a table, with no step into it, names the table and steps through none.
+func LastTableOn(n tree.Node, tail []string) (*tree.Table, error) {
+	w := compiledPath{tail: tail}
+	_, err := w.run(n)
+	return w.lastTable, err
 }
 
 // Paths lists the dot paths a caller is shown below n, relative to it, where "" is n itself.
