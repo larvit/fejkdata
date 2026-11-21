@@ -29,6 +29,7 @@ import (
 )
 
 //go:generate env REGENERATE=1 go test -run ^TestShippedManifestsAreCurrent$ ..
+//go:generate env REGENERATE=1 go test -run ^TestDataListingIsCurrent$ ..
 
 // Modules returns every module fejkdata ships, to pass to fejkdata.WithDataFS.
 func Modules() []fs.FS {
