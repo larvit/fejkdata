@@ -817,9 +817,11 @@ Renders e.g. `Louice Kajsa Grönberg`. About one draw in 220 repeats the first n
 
 ### Every shipped path
 
-[`docs/shipped-paths.md`](docs/shipped-paths.md) lists every path `--list` prints for the shipped data, one
-folded table per module, with a seeded example of each, its kind and its source. A `kind` is `real`, `valid`
-or `invented`, or several of them in that order:
+[`docs/shipped-paths.md`](docs/shipped-paths.md) lists every path `--list` prints for the shipped data, in a
+table per module that opens and folds, with its kind, a seeded example and its source. A field of a category,
+such as `sv_SE.person.personnummer`, has its own kind and source where they differ from the category's, and
+otherwise takes the category's. A table linked below a category, such as `sv_SE.sex.personnummer`, takes the
+linked table's. A `kind` is `real`, `valid` or `invented`, or several of them in that order:
 
 - `real`: a thing that exists, such as the territory `SE`.
 - `valid`: made up, and passing the check the real system applies, such as a personnummer. A valid value
@@ -827,13 +829,10 @@ or `invented`, or several of them in that order:
 - `invented`: made up, and passing no check, such as a town that doesn't exist.
 
 Where a value mixes kinds, its source says which part is which. An example is a render with `--seed 1` and
-`--today 2026-01-15`, cut at 48 characters, and `⏎` is a line break.
+`--today 2026-01-15`, cut at 48 characters; `⏎` is a line break and `(empty)` is an empty string.
 
-[`data-listing/paths.json`](data-listing/paths.json) is the same list for programs, one entry for every
-path `--list` prints for the shipped data, with `path`, `kind` (an array), `example` (not cut) and `source`.
-A field of a category, such as `sv_SE.person.personnummer`, has its own kind and source where they differ
-from the category's, and otherwise takes the category's. A table linked below a category, such as
-`sv_SE.sex.personnummer`, takes the linked table's.
+[`data-listing/paths.json`](data-listing/paths.json) is the same list for programs, with `path`, `kind` (an
+array), `example` (not cut) and `source` for each path.
 
 ### Locale pages
 
@@ -1880,7 +1879,7 @@ How the README serves goal 11:
   state.
 - The quick starts show the CLI and the library side by side, each rendering the same
   person.
-- [A table of the shipped data](docs/shipped-paths.md) lists every path: its kind, an example value and its
+- [The shipped data's tables](docs/shipped-paths.md) list every path: its kind, an example value and its
   source.
 - Recipes show common tasks end to end, such as filling a database or a Go struct.
 - Edge cases and a category's caveats sit in the reference sections, below what a first
