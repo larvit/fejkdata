@@ -2342,10 +2342,12 @@ The maintainer confirmed this on 2026-11-20 before 0.7.0 was cut. The board is a
 
 Valid while the board names no licence for the settlement units and its terms of use allow publishing them.
 
-## The table of every shipped path is a page in `docs/`, and the README links it with a summary
+## The table of every shipped path is a page in `docs/` that the README links
 
-2026-11-21, the maintainer, answering in the chunk that shipped the listing. Serves goal 11, whose counter-signal is that the README grows faster than what ships.
+2026-11-21, the maintainer, in the chunk that shipped the table of every shipped path. Serves goal 11, whose counter-signal is that the README grows faster than what ships.
 
-`docs/shipped-paths.md` lists every path `--list` prints for the shipped data, each with its kind, a seeded example and its source, and the README's "Every shipped path" links it. Put in the README, the 2,019 paths would take it from 179 KB to about 390 KB, against the 500 KiB GitHub renders, and each country adds about 20 KB. The page is about 240 KB, and `TestDataListingIsCurrent` fails if it passes that limit. The signal's "from the README alone" is met by the link being clear and by a short summary beside it: the locales, and the most important paths. The maintainer asked for the summary; item 546 plans it.
+The README stays short, so the table sits in `docs/shipped-paths.md`. All 2,019 paths in the README would take it from 179 KiB to about 390 KiB, and GitHub stops rendering a README at 500 KiB. The page is about 240 KiB, and each country added to the data would add about 20 KiB. `TestDataListingIsCurrent` fails if the page passes 500 KiB.
 
-Valid while the full table would crowd the README. Split the page per module before it reaches 500 KiB.
+The maintainer asked that the README link the page clearly and sum up the locales and their most important paths, so a reader finds a path from the README, as goal 11's signal asks. Item 546 plans that summary.
+
+Valid while the full table would crowd the README. The test's message says what to do at the limit: split the page per module.

@@ -227,9 +227,9 @@ Touches:
 
 ### 546. Add to the README a clear link to `docs/shipped-paths.md` and a summary of the shipped locales and their most important paths.
 
-The maintainer accepted the table of every shipped path as a page in `docs/` on 2026-11-21, on the condition that the README links it clearly and holds a short summary: the locales, and the most important paths. The decision "The table of every shipped path is a page in `docs/`, and the README links it with a summary" records it.
+The maintainer accepted the table of every shipped path as a page in `docs/` on 2026-11-21, if the README links it clearly and sums up the locales and their most important paths. The decision "The table of every shipped path is a page in `docs/` that the README links" records it.
 
-Under the README's "Every shipped path", open with the link, then give each shipped locale and `geo` one line: what it holds and its most important paths, such as `sv_SE.person`, `sv_SE.address` and `sv_SE.personnummer`. Take the paths from the listing and keep the summary short, since goal 11's counter-signal is a README that grows faster than what ships. Test that every folder of `data/` has a line, so the summary can't fall behind a new locale.
+Under the README's "Every shipped path", open with the link. Then give each folder of `data/` one line: what it holds and its most important paths, such as `sv_SE.person`, `sv_SE.address` and `sv_SE.personnummer`. `misc` and each `geo` country get a line too. Take the paths from the listing and keep the summary short, since goal 11's counter-signal is a README that grows faster than what ships. Test that every folder of `data/` has a line, so the summary can't fall behind a new locale.
 
 Touches:
 
