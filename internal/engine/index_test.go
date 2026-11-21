@@ -50,3 +50,18 @@ func TestDrawnFromIsTheLastTableAPathStepsThroughElseTheCategoryItEnters(t *test
 		})
 	}
 }
+
+func TestDrawnFromFindsATableThatIsTheFirstCategory(t *testing.T) {
+	root, err := Load([]datafiles.Source{datafiles.FS(fstest.MapFS{
+		"geo/city.json":    {Data: []byte(`{"format":"{name}","rows":"city.tsv","key":"name","parent":"country"}`)},
+		"geo/city.tsv":     {Data: []byte("name\tcountry\nStockholm\tSE\n")},
+		"geo/country.json": {Data: []byte(`{"format":"{name}","rows":"country.tsv","key":"code"}`)},
+		"geo/country.tsv":  {Data: []byte("code\tname\nSE\tSweden\n")},
+	})})
+	if err != nil {
+		t.Fatalf("Load() = %v", err)
+	}
+	if got, err := DrawnFrom(&root, "geo.country.city"); err != nil || got != "geo.city" {
+		t.Errorf("DrawnFrom(%q) = %q, %v, want %q", "geo.country.city", got, err, "geo.city")
+	}
+}
