@@ -17,11 +17,10 @@ import (
 )
 
 const (
-	listingPaths       = "data-listing/paths.json"
-	listingKinds       = "data-listing/kinds-and-sources.tsv"
-	readmeListingStart = "<!-- data-listing:start -->"
-	readmeListingEnd   = "<!-- data-listing:end -->"
-	readmeExampleRunes = 48
+	listingPaths        = "data-listing/paths.json"
+	listingKinds        = "data-listing/kinds-and-sources.tsv"
+	listingDoc          = "docs/shipped-paths.md"
+	listingExampleRunes = 48
 )
 
 var listingKindWords = []string{"real", "valid", "invented"}
@@ -109,15 +108,11 @@ func rowFor(rows map[string]*kindRow, lines []engine.IndexLine, path string) *ki
 
 // shippedListing is every path the whole shipped tree lists, each drawn as a user draws it, from seed 1 on
 // TestDay with a state of its own, so adding a path moves no other path's example.
-func shippedListing(t *testing.T) ([]listedPath, []string, []string) {
+func shippedListing(t *testing.T) ([]listedPath, []string) {
 	t.Helper()
 	f := newShippedWhole(t)
 	rows, errs := readKindRows()
 	lines := engine.Index(&f.root)
-	var categories []string
-	for _, l := range lines {
-		categories = append(categories, l.Path)
-	}
 	var out []listedPath
 	for _, path := range f.List() {
 		row := rowFor(rows, lines, path)
@@ -140,7 +135,7 @@ func shippedListing(t *testing.T) ([]listedPath, []string, []string) {
 		}
 	}
 	sort.Strings(errs)
-	return out, errs, categories
+	return out, errs
 }
 
 func TestCategoryOfStaysInTheCategorysFolder(t *testing.T) {
@@ -186,14 +181,15 @@ func marshalUnescaped(v any) (string, error) {
 	return strings.TrimSuffix(b.String(), "\n"), nil
 }
 
-// readmeListing is the README's table of every category, one folded table per module.
-func readmeListing(t *testing.T, listed []listedPath, categories []string) string {
+// listingMarkdown is docs/shipped-paths.md: every listed path, one folded table per module. It sits beside
+// the README, since a README past GitHub's 500 KiB render limit stops rendering.
+func listingMarkdown(t *testing.T, listed []listedPath) string {
 	t.Helper()
 	modules := shippedModules(t)
 	byModule := map[string][]listedPath{}
 	for _, l := range listed {
 		for _, m := range modules {
-			if m.holds(l.Path) && slices.Contains(categories, l.Path) {
+			if m.holds(l.Path) {
 				byModule[m.namespace] = append(byModule[m.namespace], l)
 			}
 		}
@@ -204,22 +200,23 @@ func readmeListing(t *testing.T, listed []listedPath, categories []string) strin
 	}
 	sort.Strings(namespaces)
 	var b strings.Builder
+	b.WriteString("# Every shipped path\n\nThe README's [Every shipped path](../README.md#every-shipped-path) says what a kind, an example and a source are.\n\n")
 	for _, n := range namespaces {
-		fmt.Fprintf(&b, "<details>\n<summary><code>%s</code>, %d categories</summary>\n\n", n, len(byModule[n]))
+		fmt.Fprintf(&b, "<details>\n<summary><code>%s</code>, %d paths</summary>\n\n", n, len(byModule[n]))
 		b.WriteString("| Path | Kind | Example | Source |\n|---|---|---|---|\n")
 		for _, l := range byModule[n] {
 			fmt.Fprintf(&b, "| `%s` | %s | %s | %s |\n", l.Path, strings.Join(l.Kind, ", "), markdownCell(l.Example), tableCell(l.Source))
 		}
 		b.WriteString("\n</details>\n\n")
 	}
-	return strings.TrimSuffix(b.String(), "\n")
+	return strings.TrimSuffix(b.String(), "\n") + "\n"
 }
 
 func tableCell(s string) string { return strings.ReplaceAll(s, "|", `\|`) }
 
 func markdownCell(example string) string {
-	if utf8.RuneCountInString(example) > readmeExampleRunes {
-		example = string([]rune(example)[:readmeExampleRunes]) + "…"
+	if utf8.RuneCountInString(example) > listingExampleRunes {
+		example = string([]rune(example)[:listingExampleRunes]) + "…"
 	}
 	example = strings.NewReplacer("\r", "", "\n", " ⏎ ", "|", `\|`).Replace(example)
 	if example == "" {
@@ -233,43 +230,26 @@ func markdownCell(example string) string {
 	return fence + example + fence
 }
 
-func replaceBetween(doc, start, end, body string) (string, bool) {
-	i, j := strings.Index(doc, start), strings.Index(doc, end)
-	if i < 0 || j < i {
-		return doc, false
-	}
-	return doc[:i+len(start)] + "\n\n" + body + "\n" + doc[j:], true
-}
-
-// REGENERATE=1 rewrites data-listing/paths.json and the README's table.
+// REGENERATE=1 rewrites data-listing/paths.json and docs/shipped-paths.md.
 func TestDataListingIsCurrent(t *testing.T) {
-	listed, errs, categories := shippedListing(t)
+	listed, errs := shippedListing(t)
 	if len(errs) > 0 {
 		t.Fatal("the listing is not whole:\n" + strings.Join(errs, "\n"))
 	}
-	readme, err := os.ReadFile("README.md")
-	if err != nil {
-		t.Fatal(err)
+	generated := map[string]string{
+		listingPaths: string(listingJSON(listed)),
+		listingDoc:   listingMarkdown(t, listed),
 	}
-	newReadme, ok := replaceBetween(string(readme), readmeListingStart, readmeListingEnd, readmeListing(t, listed, categories))
-	if !ok {
-		t.Fatalf("README.md needs %s and %s around the table of every category", readmeListingStart, readmeListingEnd)
-	}
-	paths := listingJSON(listed)
-	if os.Getenv("REGENERATE") == "1" {
-		if err := os.WriteFile(listingPaths, paths, 0o644); err != nil {
-			t.Fatal(err)
+	regenerating := os.Getenv("REGENERATE") == "1"
+	for file, body := range generated {
+		if regenerating {
+			if err := os.WriteFile(file, []byte(body), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			continue
 		}
-		if err := os.WriteFile("README.md", []byte(newReadme), 0o644); err != nil {
-			t.Fatal(err)
+		if have, err := os.ReadFile(file); err != nil || string(have) != body {
+			t.Errorf("%s is stale; regenerate it: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", file)
 		}
-		return
-	}
-	const regenerate = "regenerate it: docker compose run --rm --user \"$(id -u):$(id -g)\" generate"
-	if want, err := os.ReadFile(listingPaths); err != nil || string(want) != string(paths) {
-		t.Errorf("%s is stale; %s", listingPaths, regenerate)
-	}
-	if newReadme != string(readme) {
-		t.Errorf("README.md's table of every category is stale; %s", regenerate)
 	}
 }
