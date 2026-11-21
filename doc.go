@@ -1,4 +1,4 @@
-// Package fejkdata generates locale-aware fake data for tests and fixtures from JSON templates.
+// Package fejkdata makes fake data for tests. Related values match, like a postcode and its city.
 //
 // Data lives in JSON, not in Go, and comes in modules: a Go package exporting an fs.FS,
 // or a folder. A generator loads the modules you name, such as data.Modules(), every

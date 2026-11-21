@@ -46,7 +46,7 @@ nfpms:
     vendor: Larv IT AB
     homepage: &homepage https://github.com/larvit/fejkdata
     maintainer: Lilleman auf Larv <lilleman@larvit.se>
-    description: &description Render locale-aware fake data from JSON templates
+    description: &description Fake data for tests. Related values match, like a postcode and its city.
     license: &license MIT
     formats: [deb, rpm, apk]
     contents:
