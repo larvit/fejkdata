@@ -238,60 +238,120 @@ fr_FR.word-adv	real	the English Wiktionary's French words, through kaikki.org
 fr_FR.word-noun	real	the English Wiktionary's French words, through kaikki.org
 fr_FR.word-verb	real	the English Wiktionary's French words, through kaikki.org
 geo.DE.address	real, invented	real place and postal code from GeoNames; the street and house number are invented
+geo.DE.address.locality	real	GeoNames' Postleitzahlen of Germany
+geo.DE.address.municipality	real	GeoNames' Postleitzahlen of Germany
+geo.DE.address.postal-code	real	GeoNames' Postleitzahlen of Germany
+geo.DE.address.region	real	GeoNames' Postleitzahlen of Germany
+geo.DE.address.street	invented	a language model's recall of street names common in Germany
+geo.DE.address.street-number	invented	invented house numbers
 geo.DE.locality	real	GeoNames' Postleitzahlen of Germany
 geo.DE.municipality	real	GeoNames' Postleitzahlen of Germany
 geo.DE.postal-code	real	GeoNames' Postleitzahlen of Germany
 geo.DE.region	real	GeoNames' Postleitzahlen of Germany
 geo.DE.street	invented	a language model's recall of street names common in Germany
 geo.DK.address	real, invented	real postdistrikt, postnummer and street from DAR; the house number is invented
+geo.DK.address.locality	real	Danmarks Adresseregister
+geo.DK.address.municipality	real	Statistics Denmark's NUTS classification and FOLK1A
+geo.DK.address.postal-code	real	Danmarks Adresseregister
+geo.DK.address.region	real	Statistics Denmark's NUTS classification and FOLK1A
+geo.DK.address.street	real	Danmarks Adresseregister
+geo.DK.address.street-number	invented	invented house numbers
 geo.DK.locality	real	Danmarks Adresseregister
 geo.DK.municipality	real	Statistics Denmark's NUTS classification and FOLK1A
 geo.DK.postal-code	real	Danmarks Adresseregister
 geo.DK.region	real	Statistics Denmark's NUTS classification and FOLK1A
 geo.DK.street	real	Danmarks Adresseregister
 geo.EE.address	real, invented	real locality, postal code and street from Maa- ja Ruumiamet; the house number is invented
+geo.EE.address.locality	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.address.municipality	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.address.postal-code	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.address.region	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.address.street	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.address.street-number	invented	invented house numbers
 geo.EE.locality	real	Maa- ja Ruumiamet's address data and settlement units
 geo.EE.municipality	real	Maa- ja Ruumiamet's address data and settlement units
 geo.EE.postal-code	real	Maa- ja Ruumiamet's address data and settlement units
 geo.EE.region	real	Maa- ja Ruumiamet's address data and settlement units
 geo.EE.street	real	Maa- ja Ruumiamet's address data and settlement units
 geo.FI.address	real, invented	real locality, postal code and street from Posti; the house number is invented
+geo.FI.address.locality	real	Posti's postcode and basic address files
+geo.FI.address.municipality	real	Statistics Finland's kunta classification and population
+geo.FI.address.postal-code	real	Posti's postcode and basic address files
+geo.FI.address.region	real	Statistics Finland's kunta classification and population
+geo.FI.address.street	real	Posti's postcode and basic address files
+geo.FI.address.street-number	invented	invented house numbers
 geo.FI.locality	real	Posti's postcode and basic address files
 geo.FI.municipality	real	Statistics Finland's kunta classification and population
 geo.FI.postal-code	real	Posti's postcode and basic address files
 geo.FI.region	real	Statistics Finland's kunta classification and population
 geo.FI.street	real	Posti's postcode and basic address files
 geo.FR.address	real, invented	real commune and postal code from INSEE and BAN; the street and house number are invented
+geo.FR.address.locality	real	INSEE's populations file and the Base Adresse Nationale
+geo.FR.address.municipality	real	INSEE's populations file and the Base Adresse Nationale
+geo.FR.address.postal-code	real	INSEE's populations file and the Base Adresse Nationale
+geo.FR.address.region	real	INSEE's populations file and the Base Adresse Nationale
+geo.FR.address.street	invented	a language model's recall of street names common in France
+geo.FR.address.street-number	invented	invented house numbers
 geo.FR.locality	real	INSEE's populations file and the Base Adresse Nationale
 geo.FR.municipality	real	INSEE's populations file and the Base Adresse Nationale
 geo.FR.postal-code	real	INSEE's populations file and the Base Adresse Nationale
 geo.FR.region	real	INSEE's populations file and the Base Adresse Nationale
 geo.FR.street	invented	a language model's recall of street names common in France
 geo.LT.address	real, invented	real locality, postal code and street from the Address Register; the house number is invented
+geo.LT.address.locality	real	the Centre of Registers' Address Register
+geo.LT.address.municipality	real	the Centre of Registers' Address Register
+geo.LT.address.postal-code	real	the Centre of Registers' Address Register
+geo.LT.address.region	real	the Centre of Registers' Address Register
+geo.LT.address.street	real	the Centre of Registers' Address Register
+geo.LT.address.street-number	invented	invented house numbers
 geo.LT.locality	real	the Centre of Registers' Address Register
 geo.LT.municipality	real	the Centre of Registers' Address Register
 geo.LT.postal-code	real	the Centre of Registers' Address Register
 geo.LT.region	real	the Centre of Registers' Address Register
 geo.LT.street	real	the Centre of Registers' Address Register
 geo.LV.address	real, invented	real locality, postal code and street from the State Address Register; the house number is invented
+geo.LV.address.locality	real	the State Land Service's State Address Register
+geo.LV.address.municipality	real	the State Land Service's State Address Register
+geo.LV.address.postal-code	real	the State Land Service's State Address Register
+geo.LV.address.region	real	the State Land Service's State Address Register
+geo.LV.address.street	real	the State Land Service's State Address Register
+geo.LV.address.street-number	invented	invented house numbers
 geo.LV.locality	real	the State Land Service's State Address Register
 geo.LV.municipality	real	the State Land Service's State Address Register
 geo.LV.postal-code	real	the State Land Service's State Address Register
 geo.LV.region	real	the State Land Service's State Address Register
 geo.LV.street	real	the State Land Service's State Address Register
 geo.NO.address	real, invented	real poststed, postnummer and street from Kartverket; the house number is invented
+geo.NO.address.locality	real	Kartverket's address register
+geo.NO.address.municipality	real	Statistics Norway's fylke and kommune classifications
+geo.NO.address.postal-code	real	Kartverket's address register
+geo.NO.address.region	real	Statistics Norway's fylke and kommune classifications
+geo.NO.address.street	real	Kartverket's address register
+geo.NO.address.street-number	invented	invented house numbers
 geo.NO.locality	real	Kartverket's address register
 geo.NO.municipality	real	Statistics Norway's fylke and kommune classifications
 geo.NO.postal-code	real	Kartverket's address register
 geo.NO.region	real	Statistics Norway's fylke and kommune classifications
 geo.NO.street	real	Kartverket's address register
 geo.SE.address	real, invented	real locality, postal code and street from GeoNames and NVDB; the house number is invented
+geo.SE.address.locality	real	GeoNames' postal codes for SE and SCB's tätort populations
+geo.SE.address.municipality	real	SCB's län and kommun codes and population
+geo.SE.address.postal-code	real	GeoNames' postal codes for SE and SCB's tätort populations
+geo.SE.address.region	real	SCB's län and kommun codes and population
+geo.SE.address.street	real	Trafikverket's NVDB street names, placed with SCB's tätort areas
+geo.SE.address.street-number	invented	invented house numbers
 geo.SE.locality	real	GeoNames' postal codes for SE and SCB's tätort populations
 geo.SE.municipality	real	SCB's län and kommun codes and population
 geo.SE.postal-code	real	GeoNames' postal codes for SE and SCB's tätort populations
 geo.SE.region	real	SCB's län and kommun codes and population
 geo.SE.street	real	Trafikverket's NVDB street names, placed with SCB's tätort areas
 geo.US.address	real, invented	real place, postal code and street from the Census Bureau; the house number is invented
+geo.US.address.locality	real	Census Bureau Gazetteer and population estimates
+geo.US.address.municipality	real	Census Bureau Gazetteer and population estimates
+geo.US.address.postal-code	real	Census Bureau ZCTA relationships and TIGER/Line
+geo.US.address.region	real	Census Bureau Gazetteer and population estimates
+geo.US.address.street	real	Census Bureau ZCTA relationships and TIGER/Line
+geo.US.address.street-number	invented	invented house numbers
 geo.US.locality	real	Census Bureau Gazetteer and population estimates
 geo.US.municipality	real	Census Bureau Gazetteer and population estimates
 geo.US.postal-code	real	Census Bureau ZCTA relationships and TIGER/Line
