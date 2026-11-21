@@ -88,6 +88,7 @@
 | 161 | 0.8.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.2 |
 | 29 | 0.8.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.1 |
 | 497 | 0.8.0 |  | owner | **Draw every word of each locale's `word` tables from its dictionary, rude words included.** | 3 | 2 | 2 | 5 | 6 | 3.2 by 2, code health by 2 | 1.1 |
+| 544 | 0.8.0 |  |  | **Find out whether a very high repeat limit, nested repeats included, can render in bounded memory, and write down what it takes.** | 3 | 3 | 2 | 6 | 3 | 12 by 3 | 1.1 |
 | 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 0.9 |
 | 495 | 0.8.0 |  |  | **Weigh `geo.DE`'s places and Länder by population, not by the postal codes they hold.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.2 by 3 | 0.9 |
 | 56 | 0.8.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.8 |
@@ -567,6 +568,19 @@ Require the path step to reach a sibling category.
 The human chose this when asked whether a locale's `word` should be a project principle: "Why without rude words? Skip that rule, just random instead and then make it a principle."
 
 Today six import scripts, `word-se.py`, `word-us.py`, `word-no.py` (for both nb_NO and nn_NO), `word-dk.py`, `word-fi.py` and `word-de.py`, leave out each word on LDNOOBW's rude-word list for their language, through `wordtables.rude`. `word-us.py` also leaves out WordNet's usage domains of disparagement, ethnic slurs and obscenity. Remove these filters, `wordtables.rude` and each script's `--rude` flag, rerun the six scripts, and re-pin what moves. Delete `TestLocaleWordTablesDropTheRudeWordsListed` from `data/locale_word_test.go`. Replace the README's "drops the words on LDNOOBW's … list" sentences with one saying the tables hold rude words, so read the output before showing it to anyone. Drop LDNOOBW from `DATA-LICENSES.md`. Revise the three decisions that cite this item, and the principle's last sentence in `AGENTS.md`. Add the CHANGELOG entry.
+
+### 544. Find out whether a very high repeat limit, nested repeats included, can render in bounded memory, and write down what it takes.
+
+The maintainer, 2026-11-21: the CLI streams a top-level `--repeat`, yet it stops at 1,048,576, and a repeat inside a template builds its whole result in memory. Find out whether streaming can reach deep, nested structures, so the limit can be very high without memory trouble.
+
+Questions to answer with a measurement, not a guess:
+
+- Does a 100-million-row `--repeat` stream in flat memory today if the CLI's own limit is lifted, and does seeded output stay the same?
+- Can a repeat inside a template, and nested ones, write to the output as they go, so the library and the CLI need no whole result string?
+- What would the load check in `internal/engine/fence/graph.go` bound instead of a count, given goal 5.4's rule that errors surface at load?
+- Once item 393 builds `--emit`: how does `{/run.<template>}` hold a parent's rows while its children render, and what bounds that? The other questions don't wait for it.
+
+The answer is a decision in `docs/decisions.md`, replacing "The repeat cap bounds renders, not bytes" where it changes, and a plan item for the change. Goal 12 may need new wording, which is the maintainer's.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
