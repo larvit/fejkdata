@@ -12,121 +12,121 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 541 | 0.7.2 |  |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
-| 542 | 0.7.2 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.2 |
-| 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
-| 532 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 6.1 |
-| 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
-| 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
-| 545 | 0.8.0 |  |  | **Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.** | 1 | 1 | 1 | 1 | 2 | 1.1 by 5 | 3.2 |
-| 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
-| 256 | 0.8.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 3.0 |
-| 220 | 0.8.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.9 |
-| 24 | 0.8.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.8 |
-| 30 | 0.8.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 2.7 |
-| 534 | 0.8.0 |  | owner | **Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.7 |
-| 255 | 0.8.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 2.7 |
-| 117 | 0.8.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 2.7 |
-| 168 | 0.8.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.5 |
-| 457 | 0.8.0 |  |  | **Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.5 |
-| 257 | 0.8.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 2.4 |
-| 530 | 0.8.0 |  |  | **Draw `en_US.ssn` from the series the SSA never issues, area `000`, `666` or `900` to `999`, and say in the README which checker refuses it.** | 2 | 2 | 2 | 4 | 3 | 3.3 by 6 | 2.4 |
-| 389 | 0.8.0 |  |  | **Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2 by 1, 3 by 2 | 2.4 |
-| 406 | 0.8.0 |  |  | **Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.** | 2 | 1 | 1 | 2 | 2 | 1 by 2, 4 by 2 | 2.4 |
-| 260 | 0.8.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.2 |
-| 261 | 0.8.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.2 |
-| 164 | 0.8.0 |  |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 4 by 3 | 2.2 |
-| 262 | 0.8.0 |  |  | **Add `misc.bloodtype`, weighted by its global distribution.** | 1 | 2 | 1 | 2 | 1 | 1 by 1, 2 by 1, 3.2 by 1 | 2.2 |
-| 50 | 0.8.0 |  |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 52 | 0.8.0 |  |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 92 | 0.8.0 |  |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 219 | 0.8.0 |  |  | **Name the path and the Go type where a struct field's type cannot hold what its tag renders: `sv_SE.person renders text, which int cannot hold`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 221 | 0.8.0 |  |  | **Refuse two references under a record `--format` by saying a run renders one record: today `{/users}{/orders}` reports that an inline record has no fields.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 224 | 0.8.0 |  |  | **Name the module in every error about its manifest or its files: today an `fs.FS` module's errors name only the file inside it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 228 | 0.8.0 |  |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 1 | 1 | 2 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 229 | 0.8.0 |  |  | **Name the line and column where JSON parsing stopped, when a template that opens like a JSON object then fails as a format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 38 | 0.8.0 |  | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 2 | 2 | 1 | 1 by 1, 5 by 2 | 2.0 |
-| 44 | 0.8.0 |  | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
-| 45 | 0.8.0 |  |  | **Name the node a selector follows in `childNamed`'s refusal.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
-| 49 | 0.8.0 |  |  | **Report a CRLF rows file holding only its header as having no rows.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
-| 110 | 0.8.0 |  |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
-| 225 | 0.8.0 |  |  | **Drop "a field cannot be named weight" from the refusal of a `weight` that is no number, and name the column a table's `weight` reads.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
-| 355 | 0.8.0 |  |  | **Run `docker build .` and the Packages dry run on a release commit.** | 2 | 2 | 2 | 4 | 2 | 1.1 by 3 | 1.9 |
-| 181 | 0.8.0 |  | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 4 | 1 | 3 | 6 | 4 | 1 by 2, 5 by 5 | 1.9 |
-| 81 | 0.8.0 |  | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 3 | 1 | 3 | 5 | 4 | 1 by 1, 5 by 4, 3 by 2 | 1.9 |
-| 35 | 0.8.0 |  |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 1.9 |
-| 265 | 0.8.0 |  |  | **Add `misc.commit` messages, branch names and `sha`s.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 1.9 |
-| 258 | 0.8.0 |  |  | **Add `misc.product` names, adjectives, materials and departments, and `misc.garmentsize`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 3 | 1.9 |
-| 266 | 0.8.0 |  |  | **Add `misc.password`, `hash`, `jwt`, `slug`, `hostname`, `avatar` and `placeholderimage`.** | 1 | 1 | 1 | 1 | 3 | 1 by 1, 2 by 3 | 1.9 |
-| 196 | 0.8.0 |  | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 6 | 1.8 |
-| 263 | 0.8.0 |  |  | **Add `misc.color` names with their hex, rgb, hsl and cmyk forms.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 1 | 1.8 |
-| 405 | 0.8.0 |  |  | **Let `repeat` take a range, such as 5 to 15, drawing the count on each render.** | 2 | 1 | 1 | 2 | 3 | 1 by 2, 4 by 2 | 1.8 |
-| 13 | 0.8.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 3.2 by 2 | 1.8 |
-| 165 | 0.8.0 |  |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 1.7 |
-| 166 | 0.8.0 |  |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 1.7 |
-| 39 | 0.8.0 |  |  | **Stop the `fence.FieldKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 42 | 0.8.0 |  |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 46 | 0.8.0 |  |  | **Report the same error every load for a table with two bad options.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 51 | 0.8.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 115 | 0.8.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 522 | 0.8.0 |  | decision | **Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.** | 2 | 2 | 2 | 4 | 4 | 3.2 by 6 | 1.7 |
-| 259 | 0.8.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 1.6 |
-| 267 | 0.8.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.5 |
-| 32 | 0.8.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
-| 264 | 0.8.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
-| 268 | 0.8.0 |  |  | **Add `misc.lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword` and `quote`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
-| 387 | 0.8.0 |  |  | **Let a template draw a number from a bounded normal distribution, so durations and start times cluster without weighted ranges.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.4 |
-| 91 | 0.8.0 |  |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 4 | 1.4 |
-| 109 | 0.8.0 |  | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 1 | 2 | 1 | 2 | 4 | code health by 1 | 1.4 |
-| 23 | 0.8.0 |  |  | **Give every other shipped category that could reach something real a path that never does.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.3 by 6 | 1.4 |
-| 194 | 0.8.0 |  | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 5 by 4 | 1.3 |
-| 158 | 0.8.0 |  |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
-| 163 | 0.8.0 |  |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 1 | 2 | 3 | 2 | 1 by 2 | 1.3 |
-| 496 | 0.8.0 |  |  | **Name each `geo.DE` Kreis in one style, as Destatis's Gemeindeverzeichnis names it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 2 | 1.3 |
-| 269 | 0.8.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.3 |
-| 161 | 0.8.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.2 |
-| 29 | 0.8.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.1 |
-| 497 | 0.8.0 |  | owner | **Draw every word of each locale's `word` tables from its dictionary, rude words included.** | 3 | 2 | 2 | 5 | 6 | 3.2 by 2, code health by 2 | 1.1 |
-| 544 | 0.8.0 |  |  | **Find out whether a very high repeat limit, nested repeats included, can render in bounded memory, and write down what it takes.** | 3 | 3 | 2 | 6 | 3 | 12 by 3 | 1.1 |
-| 36 | 0.8.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 0.9 |
-| 495 | 0.8.0 |  |  | **Weigh `geo.DE`'s places and Länder by population, not by the postal codes they hold.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.2 by 3 | 0.9 |
-| 56 | 0.8.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.8 |
-| 53 | 0.8.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 4 by 2 | 0.7 |
-| 404 | 0.8.0 |  |  | **Let a template in a `repeat` or a choice item bind a name to a path through an enclosing name, `{l.street as s}`, so each render draws a fresh row inside the enclosing pick.** | 3 | 2 | 2 | 5 | 6 | 1 by 3, 4 by 4 | 0.7 |
-| 75 | 0.8.0 |  |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 1 | 1 | 2 | 5 | 1 by 1, 4 by 3 | 0.7 |
-| 55 | 0.8.0 |  |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.7 |
-| 17 | 0.8.0 |  |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 3 | 1 | 3 | 5 | 6 | 1 by 1, 4 by 3, 2 by 2 | 0.6 |
-| 14 | 0.8.0 |  |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 1 | 1 | 1 | 1 | 2 | 4 by 1 | 0.5 |
-| 33 | 0.8.0 |  |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 3 | 1 | 3 | 5 | 5 | 1 by 1, 4 by 2 | 0.5 |
-| 193 | 0.8.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.4 |
-| 393 | 0.8.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 6 | 0.4 |
-| 407 | 0.8.0 |  |  | **Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.** | 3 | 2 | 2 | 5 | 6 | 1 by 3 | 0.3 |
-| 218 | 0.8.0 |  | decision | **Replace each country's invented streets with its real streets, from OpenStreetMap under ODbL or from the country's register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
-| 129 | 0.8.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
-| 41 | 0.8.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 4 by 4 | 0.2 |
-| 186 | 0.8.0 |  | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 4 | 1 | 3 | 6 | 7 | 1 by 3 | 0.2 |
-| 67 | 0.9.0 |  |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 2 | 2 | code health by 2 | 5.5 |
-| 64 | 0.9.0 |  |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 2 | 1 | 2 | 4 | code health by 2 | 2.7 |
-| 62 | 0.9.0 |  |  | **Add `{btc()}` and `{eth()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 2 by 2, 3 by 2 | 1.5 |
-| 59 | 0.9.0 |  |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 0.8 |
-| 63 | 0.9.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 3 by 6 | 0.8 |
-| 68 | 0.9.0 |  | decision | **Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub.** | 1 | 3 | 2 | 4 | 1 | 1.1 by 1 | 0.8 |
-| 65 | 0.9.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.5 |
-| 205 | 0.10.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
-| 327 | 0.10.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
-| 326 | 0.10.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
-| 328 | 0.10.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
-| 324 | 0.10.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
-| 325 | 0.10.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
-| 472 | 0.11.0 |  | question | **Decide how the shipped data is split into files and modules before it reaches the first size wall.** | 1 | 2 | 1 | 2 | 1 | 2 by 3 | 2.2 |
-| 471 | 0.11.0 |  | decision | **Prove each shipped module in its own test package, so the test cache skips the data that didn't change.** | 2 | 2 | 1 | 3 | 4 | code health by 2, 1 by 1 | 3.1 |
-| 466 | 0.11.0 |  | decision | **Number a pick's memo slots at load and index child rows by parent row, so a render allocates no per-pick map.** | 3 | 1 | 2 | 4 | 5 | 12.3 by 4, 12.1 by 2 | 3.0 |
-| 467 | 0.11.0 |  | decision | **Render a record into one reused buffer, and write `CSVLine` into one buffer, so a row costs one allocation for its text.** | 2 | 1 | 2 | 3 | 3 | 12.3 by 3 | 1.0 |
-| 469 | 0.11.0 | 466, 467 | decision | **Render `--repeat` rows on every CPU, each row drawn from a seed derived from the run's seed and its row number, so the bytes don't depend on the number of CPUs.** | 4 | 2 | 3 | 7 | 8 | 12.3 by 8 | 0.2 |
-| 473 | 0.11.0 | 469 | decision | **Publish a bulk-throughput benchmark beside gofakeit, faker-js, Mimesis and Faker, with the command that reproduces each row.** | 3 | 2 | 1 | 4 | 4 | 1 by 3, 12.3 by 3 | 1.7 |
-| 468 | 0.11.0 |  | decision | **Set the CLI's GC target to 400 unless `GOGC` is set.** | 1 | 2 | 2 | 3 | 1 | 12.3 by 3 | 1.6 |
-| 465 | 0.11.0 |  | decision | **Load a table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest, for every large table.** | 4 | 2 | 3 | 7 | 8 | 12.2 by 8 | 0.2 |
-| 470 | 0.11.0 | 465 | decision | **Hold a parsed block of a table as its text and its row offsets, not one string per cell.** | 3 | 1 | 3 | 5 | 6 | 1 by 2 | 0.2 |
+| 541 | 0.8.1 |  |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
+| 542 | 0.8.1 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.2 |
+| 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
+| 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 6.1 |
+| 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
+| 155 | 0.9.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
+| 545 | 0.9.0 |  |  | **Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.** | 1 | 1 | 1 | 1 | 2 | 1.1 by 5 | 3.2 |
+| 252 | 0.9.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
+| 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 3.0 |
+| 220 | 0.9.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.9 |
+| 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.8 |
+| 30 | 0.9.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 2.7 |
+| 534 | 0.9.0 |  | owner | **Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.7 |
+| 255 | 0.9.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 2.7 |
+| 117 | 0.9.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 2.7 |
+| 168 | 0.9.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.5 |
+| 457 | 0.9.0 |  |  | **Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.5 |
+| 257 | 0.9.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 2.4 |
+| 530 | 0.9.0 |  |  | **Draw `en_US.ssn` from the series the SSA never issues, area `000`, `666` or `900` to `999`, and say in the README which checker refuses it.** | 2 | 2 | 2 | 4 | 3 | 3.3 by 6 | 2.4 |
+| 389 | 0.9.0 |  |  | **Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2 by 1, 3 by 2 | 2.4 |
+| 406 | 0.9.0 |  |  | **Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.** | 2 | 1 | 1 | 2 | 2 | 1 by 2, 4 by 2 | 2.4 |
+| 260 | 0.9.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.2 |
+| 261 | 0.9.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.2 |
+| 164 | 0.9.0 |  |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 4 by 3 | 2.2 |
+| 262 | 0.9.0 |  |  | **Add `misc.bloodtype`, weighted by its global distribution.** | 1 | 2 | 1 | 2 | 1 | 1 by 1, 2 by 1, 3.2 by 1 | 2.2 |
+| 50 | 0.9.0 |  |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
+| 52 | 0.9.0 |  |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
+| 92 | 0.9.0 |  |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
+| 219 | 0.9.0 |  |  | **Name the path and the Go type where a struct field's type cannot hold what its tag renders: `sv_SE.person renders text, which int cannot hold`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
+| 221 | 0.9.0 |  |  | **Refuse two references under a record `--format` by saying a run renders one record: today `{/users}{/orders}` reports that an inline record has no fields.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
+| 224 | 0.9.0 |  |  | **Name the module in every error about its manifest or its files: today an `fs.FS` module's errors name only the file inside it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
+| 228 | 0.9.0 |  |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 1 | 1 | 2 | 2 | 1 by 1, 5 by 3 | 2.2 |
+| 229 | 0.9.0 |  |  | **Name the line and column where JSON parsing stopped, when a template that opens like a JSON object then fails as a format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.2 |
+| 38 | 0.9.0 |  | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 2 | 2 | 1 | 1 by 1, 5 by 2 | 2.0 |
+| 44 | 0.9.0 |  | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
+| 45 | 0.9.0 |  |  | **Name the node a selector follows in `childNamed`'s refusal.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
+| 49 | 0.9.0 |  |  | **Report a CRLF rows file holding only its header as having no rows.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
+| 110 | 0.9.0 |  |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
+| 225 | 0.9.0 |  |  | **Drop "a field cannot be named weight" from the refusal of a `weight` that is no number, and name the column a table's `weight` reads.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 2.0 |
+| 355 | 0.9.0 |  |  | **Run `docker build .` and the Packages dry run on a release commit.** | 2 | 2 | 2 | 4 | 2 | 1.1 by 3 | 1.9 |
+| 181 | 0.9.0 |  | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 4 | 1 | 3 | 6 | 4 | 1 by 2, 5 by 5 | 1.9 |
+| 81 | 0.9.0 |  | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 3 | 1 | 3 | 5 | 4 | 1 by 1, 5 by 4, 3 by 2 | 1.9 |
+| 35 | 0.9.0 |  |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 1.9 |
+| 265 | 0.9.0 |  |  | **Add `misc.commit` messages, branch names and `sha`s.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 1.9 |
+| 258 | 0.9.0 |  |  | **Add `misc.product` names, adjectives, materials and departments, and `misc.garmentsize`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 3 | 1.9 |
+| 266 | 0.9.0 |  |  | **Add `misc.password`, `hash`, `jwt`, `slug`, `hostname`, `avatar` and `placeholderimage`.** | 1 | 1 | 1 | 1 | 3 | 1 by 1, 2 by 3 | 1.9 |
+| 196 | 0.9.0 |  | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 6 | 1.8 |
+| 263 | 0.9.0 |  |  | **Add `misc.color` names with their hex, rgb, hsl and cmyk forms.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 1 | 1.8 |
+| 405 | 0.9.0 |  |  | **Let `repeat` take a range, such as 5 to 15, drawing the count on each render.** | 2 | 1 | 1 | 2 | 3 | 1 by 2, 4 by 2 | 1.8 |
+| 13 | 0.9.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 3.2 by 2 | 1.8 |
+| 165 | 0.9.0 |  |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 1.7 |
+| 166 | 0.9.0 |  |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 1.7 |
+| 39 | 0.9.0 |  |  | **Stop the `fence.FieldKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
+| 42 | 0.9.0 |  |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
+| 46 | 0.9.0 |  |  | **Report the same error every load for a table with two bad options.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
+| 51 | 0.9.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
+| 115 | 0.9.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
+| 522 | 0.9.0 |  | decision | **Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.** | 2 | 2 | 2 | 4 | 4 | 3.2 by 6 | 1.7 |
+| 259 | 0.9.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 1.6 |
+| 267 | 0.9.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.5 |
+| 32 | 0.9.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
+| 264 | 0.9.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
+| 268 | 0.9.0 |  |  | **Add `misc.lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword` and `quote`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
+| 387 | 0.9.0 |  |  | **Let a template draw a number from a bounded normal distribution, so durations and start times cluster without weighted ranges.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.4 |
+| 91 | 0.9.0 |  |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 4 | 1.4 |
+| 109 | 0.9.0 |  | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 1 | 2 | 1 | 2 | 4 | code health by 1 | 1.4 |
+| 23 | 0.9.0 |  |  | **Give every other shipped category that could reach something real a path that never does.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.3 by 6 | 1.4 |
+| 194 | 0.9.0 |  | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 5 by 4 | 1.3 |
+| 158 | 0.9.0 |  |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
+| 163 | 0.9.0 |  |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 1 | 2 | 3 | 2 | 1 by 2 | 1.3 |
+| 496 | 0.9.0 |  |  | **Name each `geo.DE` Kreis in one style, as Destatis's Gemeindeverzeichnis names it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 2 | 1.3 |
+| 269 | 0.9.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.3 |
+| 161 | 0.9.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.2 |
+| 29 | 0.9.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.1 |
+| 497 | 0.9.0 |  | owner | **Draw every word of each locale's `word` tables from its dictionary, rude words included.** | 3 | 2 | 2 | 5 | 6 | 3.2 by 2, code health by 2 | 1.1 |
+| 544 | 0.9.0 |  |  | **Find out whether a very high repeat limit, nested repeats included, can render in bounded memory, and write down what it takes.** | 3 | 3 | 2 | 6 | 3 | 12 by 3 | 1.1 |
+| 36 | 0.9.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 0.9 |
+| 495 | 0.9.0 |  |  | **Weigh `geo.DE`'s places and Länder by population, not by the postal codes they hold.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.2 by 3 | 0.9 |
+| 56 | 0.9.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.8 |
+| 53 | 0.9.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 4 by 2 | 0.7 |
+| 404 | 0.9.0 |  |  | **Let a template in a `repeat` or a choice item bind a name to a path through an enclosing name, `{l.street as s}`, so each render draws a fresh row inside the enclosing pick.** | 3 | 2 | 2 | 5 | 6 | 1 by 3, 4 by 4 | 0.7 |
+| 75 | 0.9.0 |  |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 1 | 1 | 2 | 5 | 1 by 1, 4 by 3 | 0.7 |
+| 55 | 0.9.0 |  |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.7 |
+| 17 | 0.9.0 |  |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 3 | 1 | 3 | 5 | 6 | 1 by 1, 4 by 3, 2 by 2 | 0.6 |
+| 14 | 0.9.0 |  |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 1 | 1 | 1 | 1 | 2 | 4 by 1 | 0.5 |
+| 33 | 0.9.0 |  |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 3 | 1 | 3 | 5 | 5 | 1 by 1, 4 by 2 | 0.5 |
+| 193 | 0.9.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.4 |
+| 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 6 | 0.4 |
+| 407 | 0.9.0 |  |  | **Let a choice deal its items in exact counts across a run's renders, so 200 issues hold exactly 4 in progress, where weights only approach it.** | 3 | 2 | 2 | 5 | 6 | 1 by 3 | 0.3 |
+| 218 | 0.9.0 |  | decision | **Replace each country's invented streets with its real streets, from OpenStreetMap under ODbL or from the country's register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
+| 129 | 0.9.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
+| 41 | 0.9.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 4 by 4 | 0.2 |
+| 186 | 0.9.0 |  | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 4 | 1 | 3 | 6 | 7 | 1 by 3 | 0.2 |
+| 67 | 0.10.0 |  |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 2 | 2 | code health by 2 | 5.5 |
+| 64 | 0.10.0 |  |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 2 | 1 | 2 | 4 | code health by 2 | 2.7 |
+| 62 | 0.10.0 |  |  | **Add `{btc()}` and `{eth()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 2 by 2, 3 by 2 | 1.5 |
+| 59 | 0.10.0 |  |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 0.8 |
+| 63 | 0.10.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 3 by 6 | 0.8 |
+| 68 | 0.10.0 |  | decision | **Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub.** | 1 | 3 | 2 | 4 | 1 | 1.1 by 1 | 0.8 |
+| 65 | 0.10.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.5 |
+| 205 | 0.11.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.7 |
+| 327 | 0.11.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.6 |
+| 326 | 0.11.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.4 |
+| 328 | 0.11.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.8 |
+| 324 | 0.11.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 325 | 0.11.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.2 |
+| 472 | 0.12.0 |  | question | **Decide how the shipped data is split into files and modules before it reaches the first size wall.** | 1 | 2 | 1 | 2 | 1 | 2 by 3 | 2.2 |
+| 471 | 0.12.0 |  | decision | **Prove each shipped module in its own test package, so the test cache skips the data that didn't change.** | 2 | 2 | 1 | 3 | 4 | code health by 2, 1 by 1 | 3.1 |
+| 466 | 0.12.0 |  | decision | **Number a pick's memo slots at load and index child rows by parent row, so a render allocates no per-pick map.** | 3 | 1 | 2 | 4 | 5 | 12.3 by 4, 12.1 by 2 | 3.0 |
+| 467 | 0.12.0 |  | decision | **Render a record into one reused buffer, and write `CSVLine` into one buffer, so a row costs one allocation for its text.** | 2 | 1 | 2 | 3 | 3 | 12.3 by 3 | 1.0 |
+| 469 | 0.12.0 | 466, 467 | decision | **Render `--repeat` rows on every CPU, each row drawn from a seed derived from the run's seed and its row number, so the bytes don't depend on the number of CPUs.** | 4 | 2 | 3 | 7 | 8 | 12.3 by 8 | 0.2 |
+| 473 | 0.12.0 | 469 | decision | **Publish a bulk-throughput benchmark beside gofakeit, faker-js, Mimesis and Faker, with the command that reproduces each row.** | 3 | 2 | 1 | 4 | 4 | 1 by 3, 12.3 by 3 | 1.7 |
+| 468 | 0.12.0 |  | decision | **Set the CLI's GC target to 400 unless `GOGC` is set.** | 1 | 2 | 2 | 3 | 1 | 12.3 by 3 | 1.6 |
+| 465 | 0.12.0 |  | decision | **Load a table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest, for every large table.** | 4 | 2 | 3 | 7 | 8 | 12.2 by 8 | 0.2 |
+| 470 | 0.12.0 | 465 | decision | **Hold a parsed block of a table as its text and its row offsets, not one string per cell.** | 3 | 1 | 3 | 5 | 6 | 1 by 2 | 0.2 |
 | 348 | 1.0.0 |  | question | **Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 3 | 2.3 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 4.0 |
 | 396 | 1.1.0 |  | question | **Decide whether `fejkdata` writes Go struct types, and TypeScript types for the npm package, from a record's columns.** | 1 | 1 | 1 | 1 | 1 | 1 by 2 | 1.6 |
@@ -216,7 +216,7 @@
 
 ### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
 
-The maintainer, 2026-11-21: automate fejkdata.dev's deployment from fejkdata's own; fejkdata 0.7.2 holds fejkdata's side, and fejkdata.dev's 0.1.2 the site's side, which rebuilds the WebAssembly and the data grid from item 408's listing at the named release. The site lives on gitea.larvit.se, so the step calls its Actions API with a token the maintainer creates and stores as a GitHub secret. Patches CI cuts for a Go or module update trigger it too. A failed call fails no release: it only reports.
+The maintainer, 2026-11-21: automate fejkdata.dev's deployment from fejkdata's own; fejkdata 0.8.1 holds fejkdata's side, and fejkdata.dev's 0.1.2 the site's side, which rebuilds the WebAssembly and the data grid from item 408's listing at the named release. The site lives on gitea.larvit.se, so the step calls its Actions API with a token the maintainer creates and stores as a GitHub secret. Patches CI cuts for a Go or module update trigger it too. A failed call fails no release: it only reports.
 
 Touches:
 

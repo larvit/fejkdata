@@ -140,7 +140,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 5.2, 6.3, 8 and 9.1. Carried out by `todo.md` items 181, 186 and 196, all in 0.8.0. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 5.2, 6.3, 8 and 9.1. Carried out by `todo.md` items 181, 186 and 196, all in 0.9.0. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -2360,7 +2360,7 @@ Valid while the full table would crowd the README. The test's message says what 
 
 ## A first or last name a language model recalled is listed `real`, as a name in use; only its weight is an estimate
 
-2026-11-21, the agent running the release review of 0.7.1. The principles pass left the choice to the maintainer, and the agent took it without asking, since the project principle on name tables already points this way. The maintainer may reverse it. Serves goal 3, and applies the project principle on name tables with no open bulk file of counts.
+2026-11-21, the agent running the release review of 0.8.0. The principles pass left the choice to the maintainer, and the agent took it without asking, since the project principle on name tables already points this way. The maintainer may reverse it. Serves goal 3, and applies the project principle on name tables with no open bulk file of counts.
 
 Goal 3 calls a value real when it is a thing that exists. A recalled name is one the model gave as a first or last name in use in the country. The principle on such tables already treats the names as names and calls only their weights estimates, so `data-listing/kinds-and-sources.tsv` lists these tables as `real` and its source cell says no register checked them. Listing them `invented` would call names such as `Müller` made up, which misleads more than it warns.
 
