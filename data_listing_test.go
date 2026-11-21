@@ -105,7 +105,9 @@ func shippedListing(t *testing.T) ([]listedPath, []string, []string) {
 		}
 		row := rowFor(rows, category)
 		if category == "" || row == nil {
-			errs = append(errs, "no row in "+listingKinds+" for "+path+"'s category "+category)
+			if msg := "no row in " + listingKinds + " for " + category; !slices.Contains(errs, msg) {
+				errs = append(errs, msg)
+			}
 			continue
 		}
 		row.used = true

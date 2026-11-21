@@ -12,6 +12,9 @@ with its replacement, and each removed path, column or flag.
 - The README's [For coding agents](https://github.com/larvit/fejkdata#for-coding-agents) section has a snippet
   to paste into a project's `AGENTS.md`, and the shell lines an agent runs: find a path with `--list`, render it,
   fix a reference that lacks its leading slash as the error says, and repeat a run with `--seed` and `--today`.
+- `data-listing/paths.json`, every path `--list` prints for the shipped data with its `kind` (`real`, `valid` or
+  `invented`, or several), an `example` rendered with seed 1, and its `source`. The README's "Every shipped path"
+  lists each category the same way. A program reads the file from the module at any version.
 
 ### Changed
 

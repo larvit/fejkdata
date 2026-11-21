@@ -815,6 +815,622 @@ A middle name is a second draw under the first name's sex:
 
 Renders e.g. `Louice Kajsa Grönberg`. About one draw in 220 repeats the first name.
 
+### Every shipped path
+
+[`data-listing/paths.json`](data-listing/paths.json) holds every path `--list` prints for the shipped
+data, as `path`, `kind`, `example` and `source`. A category's fields share its kind and source. The tables below
+list each category. Each example is a render with seed 1 on 2026-01-15, cut at 48 characters.
+
+A `kind` is one or more of these words, most real first:
+
+- `real`: a thing that exists, such as the territory `SE`.
+- `valid`: made up, and passing the check the real system applies, such as a personnummer. A valid value
+  may still belong to someone.
+- `invented`: such as a town that doesn't exist.
+
+Where a value mixes kinds, its source says which part is which.
+
+<!-- data-listing:start -->
+
+<details>
+<summary><code>da_DK</code>, 30 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `da_DK.address` | real, invented | `Østrigsgade 690 ⏎ 2300 København S` | real postdistrikt, postnummer and street from DAR; the house number is invented |
+| `da_DK.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `da_DK.company` | invented | `Holm Transport I/S` | legal-form weights from Statistics Denmark; name shapes from a language model's recall |
+| `da_DK.company-coined` | invented | `Aquaby` | a language model's recall |
+| `da_DK.company-word` | invented | `Installation` | a language model's recall |
+| `da_DK.cpr` | valid | `031250-1619` | the CPR office's modulus 11 check; no test series is published |
+| `da_DK.date` | invented | `25.8.2001` | hand-written |
+| `da_DK.email` | invented | `floof14@mail.example.org` | the locale's names and hand-written words, at example domains |
+| `da_DK.first-name` | real, invented | `Erland` | Statistics Denmark's top 20; a language model's recall for every other name |
+| `da_DK.individ` | valid | `1` | the CPR office's modulus 11 check; no test series is published |
+| `da_DK.last-name` | real, invented | `Hansen` | Statistics Denmark's top 20; a language model's recall for every other name |
+| `da_DK.month` | real | `juli` | Unicode CLDR's stand-alone month names |
+| `da_DK.paragraph` | invented | `Den rigoristiske miskredit prøvesmager bag det t…` | a fixed pattern filled with the locale's words |
+| `da_DK.person` | real, invented | `dr. Per Larsen` | a first and a last name from the locale's name tables, paired at random |
+| `da_DK.phone` | valid | `91 16 95 55` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-fixed` | valid | `70 1` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-mobile` | valid | `49 4` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.price` | invented | `71.191 kr.` | hand-written |
+| `da_DK.sentence` | invented | `Det evige treenighed påser nær dette stereotype …` | a fixed pattern filled with the locale's words |
+| `da_DK.sex` | real | `kvinde` | Statistics Denmark's table FOLK1A |
+| `da_DK.time` | invented | `12.39` | hand-written |
+| `da_DK.title` | real | `dr.` | hand-written |
+| `da_DK.url` | invented | `https://post.example.dk` | hand-written paths on example hosts, with the locale's words |
+| `da_DK.username` | invented | `maja.moller2024` | the locale's own words, in hand-written patterns |
+| `da_DK.weekday` | real | `torsdag` | Unicode CLDR's stand-alone weekday names |
+| `da_DK.word` | real | `empirisk` | COR1, Dansk Sprognævn's central word register |
+| `da_DK.word-adj` | real | `natteblind` | COR1, Dansk Sprognævn's central word register |
+| `da_DK.word-adv` | real | `kun` | COR1, Dansk Sprognævn's central word register |
+| `da_DK.word-noun` | real | `mantisse` | COR1, Dansk Sprognævn's central word register |
+| `da_DK.word-verb` | real | `maksimere` | COR1, Dansk Sprognævn's central word register |
+
+</details>
+
+<details>
+<summary><code>de_DE</code>, 30 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `de_DE.address` | real, invented | `Auf der Platte 69 ⏎ 26736 Krummhörn Woltzeten` | real place and postal code from GeoNames; the street and house number are invented |
+| `de_DE.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `de_DE.company` | invented | `Primawald AG` | legal-form weights from Destatis; name shapes from a language model's recall |
+| `de_DE.company-coined` | invented | `Alphadorf` | a language model's recall |
+| `de_DE.company-word` | invented | `Maschinenbau` | a language model's recall |
+| `de_DE.date` | invented | `25.08.2001` | hand-written |
+| `de_DE.email` | invented | `boop14@mail.example.org` | the locale's names and hand-written words, at example domains |
+| `de_DE.first-name` | real | `Emilia` | the city of Munich's newborns' names |
+| `de_DE.last-name` | invented | `Gast` | a language model's recall of names common in Germany |
+| `de_DE.month` | real | `Juli` | Unicode CLDR's stand-alone month names |
+| `de_DE.paragraph` | invented | `Viele Pölsterchen irrefahren rubato. Manche Zins…` | a fixed pattern filled with the locale's words |
+| `de_DE.person` | real, invented | `Dr. Niko Lohmann` | a first and a last name from the locale's name tables, paired at random |
+| `de_DE.phone` | valid | `015184 469555` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed` | valid | `05347` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-mobile` | valid | `015562` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-subscriber` | valid | `66191669` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.price` | invented | `71.191,49 €` | hand-written |
+| `de_DE.sentence` | invented | `Keine Docken sind versorgungswirksam.` | a fixed pattern filled with the locale's words |
+| `de_DE.sex` | real | `Frau` | Eurostat's table demo_pjan |
+| `de_DE.steuer-id` | valid | `02014508634` | ELSTER's test numbers |
+| `de_DE.time` | invented | `12:39` | hand-written |
+| `de_DE.title` | real | `Dr.` | hand-written |
+| `de_DE.url` | invented | `https://post.example.de` | hand-written paths on example hosts, with the locale's words |
+| `de_DE.username` | invented | `max.kern2024` | the locale's own words, in hand-written patterns |
+| `de_DE.weekday` | real | `Donnerstag` | Unicode CLDR's stand-alone weekday names |
+| `de_DE.word` | real | `diffrakt` | Wikidata's German lexemes |
+| `de_DE.word-adj` | real | `metaphysisch` | Wikidata's German lexemes |
+| `de_DE.word-adv` | real | `marciale` | Wikidata's German lexemes |
+| `de_DE.word-noun` | real | `Malkasten` | Wikidata's German lexemes |
+| `de_DE.word-verb` | real | `hinüberholen` | Wikidata's German lexemes |
+
+</details>
+
+<details>
+<summary><code>en_US</code>, 27 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `en_US.address` | real, invented | `236 Kilgore Farms Cir ⏎ Simpsonville, SC 29681` | real place, postal code and street from the Census Bureau; the house number is invented |
+| `en_US.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `en_US.company` | invented | `Blueforge Inc.` | hand-written |
+| `en_US.date` | invented | `08/25/2001` | hand-written |
+| `en_US.email` | invented | `derpina14@test.example.org` | the locale's names and hand-written words, at example domains |
+| `en_US.first-name` | real | `David` | the SSA's baby names |
+| `en_US.itin` | valid | `906-73-9147` | hand-written, in the groups the IRS lists for an ITIN |
+| `en_US.last-name` | real | `Duncan` | the Census Bureau's surnames of 2010 |
+| `en_US.month` | real | `July` | Unicode CLDR's stand-alone month names |
+| `en_US.paragraph` | invented | `Their pericarditis outlandishly supplements near…` | a fixed pattern filled with the locale's words |
+| `en_US.person` | real, invented | `Mr Justin Lopez` | a first and a last name from the locale's name tables, paired at random |
+| `en_US.phone` | valid | `(718) 369-5561` | hand-written area codes; exchanges NANPA may assign |
+| `en_US.phone-exchange` | valid | `241` | the codes NANPA may assign |
+| `en_US.price` | invented | `$71,191.49` | hand-written |
+| `en_US.sentence` | invented | `Some cervine liparis chicanes toward measurable …` | a fixed pattern filled with the locale's words |
+| `en_US.sex` | real | `female` | the Census Bureau's population estimates by sex |
+| `en_US.ssn` | valid | `826-25-9147` | hand-written, in the ranges the SSA assigns |
+| `en_US.time` | invented | `12:39 PM` | hand-written |
+| `en_US.title` | real | `Mr` | hand-written |
+| `en_US.url` | invented | `https://app.example.io` | hand-written paths on example hosts, with the locale's words |
+| `en_US.username` | invented | `morganpage2024` | the locale's own words, in hand-written patterns |
+| `en_US.weekday` | real | `Thursday` | Unicode CLDR's stand-alone weekday names |
+| `en_US.word` | real | `contemporaneously` | WordNet 3.0 |
+| `en_US.word-adj` | real | `microscopic` | WordNet 3.0 |
+| `en_US.word-adv` | real | `methodologically` | WordNet 3.0 |
+| `en_US.word-noun` | real | `macrencephaly` | WordNet 3.0 |
+| `en_US.word-verb` | real | `logroll` | WordNet 3.0 |
+
+</details>
+
+<details>
+<summary><code>et_EE</code>, 28 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `et_EE.address` | real, invented | `Kaluri tee 69 ⏎ 74001 Haabneeme alevik` | real locality, postal code and street from Maa- ja Ruumiamet; the house number is invented |
+| `et_EE.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `et_EE.company` | invented | `Helina Õun` | legal-form weights and name shapes from the e-Business Register's names |
+| `et_EE.company-coined` | invented | `Enterprise` | words from the e-Business Register's company names |
+| `et_EE.company-word` | invented | `Ehitus` | words from the e-Business Register's company names |
+| `et_EE.date` | invented | `25.08.2001` | hand-written |
+| `et_EE.email` | invented | `fizz14@mail.example.org` | the locale's names and hand-written words, at example domains |
+| `et_EE.first-name` | invented | `Enn` | a language model's recall of names common in Estonia |
+| `et_EE.isikukood` | valid | `46902079132` | the check digit; no test series is published |
+| `et_EE.last-name` | invented | `Kivi` | a language model's recall of names common in Estonia |
+| `et_EE.month` | real | `juuli` | Unicode CLDR's stand-alone month names |
+| `et_EE.paragraph` | invented | `See imaginaararv on nähtav. Siis hakkasid paukel…` | a fixed pattern filled with the locale's words |
+| `et_EE.person` | invented | `dr Rein Ots` | a first and a last name from the locale's name tables, paired at random |
+| `et_EE.phone` | valid | `681 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.price` | invented | `71 191,49 €` | hand-written |
+| `et_EE.sentence` | invented | `Siin on hulgused ja puuhaamrid!` | a fixed pattern filled with the locale's words |
+| `et_EE.sex` | real | `naine` | Eurostat's table demo_pjan |
+| `et_EE.sex-digit` | valid | `1` | the check digit; no test series is published |
+| `et_EE.time` | invented | `12:39` | hand-written |
+| `et_EE.title` | real | `dr` | hand-written |
+| `et_EE.url` | invented | `https://post.example.ee` | hand-written paths on example hosts, with the locale's words |
+| `et_EE.username` | invented | `priit.parn2024` | the locale's own words, in hand-written patterns |
+| `et_EE.weekday` | real | `neljapäev` | Unicode CLDR's stand-alone weekday names |
+| `et_EE.word` | real | `iseseisvalt` | Wikidata's Estonian lexemes |
+| `et_EE.word-adj` | real | `omaealine` | Wikidata's Estonian lexemes |
+| `et_EE.word-adv` | real | `näikse` | Wikidata's Estonian lexemes |
+| `et_EE.word-noun` | real | `nõustaja` | Wikidata's Estonian lexemes |
+| `et_EE.word-verb` | real | `pagineerima` | Wikidata's Estonian lexemes |
+
+</details>
+
+<details>
+<summary><code>fi_FI</code>, 32 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `fi_FI.address` | real, invented | `Pelikarintie 69 ⏎ 29100 Luvia` | real locality, postal code and street from Posti; the house number is invented |
+| `fi_FI.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `fi_FI.company` | invented | `Kinnunen Tilitoimisto Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company-coined` | invented | `Aquakallio` | a language model's recall |
+| `fi_FI.company-word` | invented | `Maanrakennus` | a language model's recall |
+| `fi_FI.date` | invented | `25.8.2001` | hand-written |
+| `fi_FI.email` | invented | `floof14@posti.example.org` | the locale's names and hand-written words, at example domains |
+| `fi_FI.first-name` | real | `Helli` | DVV's name statistics |
+| `fi_FI.henkilotunnus` | valid | `031250-9173` | DVV's unissued individual numbers 900 to 999 |
+| `fi_FI.henkilotunnus-issued` | valid | `031250-153E` | DVV's issued individual numbers 002 to 899 |
+| `fi_FI.individ` | valid | `1` | DVV's individual numbers |
+| `fi_FI.last-name` | real | `Järvisalo` | DVV's name statistics |
+| `fi_FI.month` | real | `heinäkuu` | Unicode CLDR's stand-alone month names |
+| `fi_FI.paragraph` | invented | `Yksi rambutani on positiivinen ja useanlainen. T…` | a fixed pattern filled with the locale's words |
+| `fi_FI.person` | real, invented | `tohtori Sakari Mikkola` | a first and a last name from the locale's name tables, paired at random |
+| `fi_FI.phone` | valid | `042 695 5561` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed` | valid | `013` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-mobile` | valid | `0437` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-subscriber` | valid | `719 166` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.price` | invented | `71 191,49 €` | hand-written |
+| `fi_FI.sentence` | invented | `Tämä hyökkäävä numerotunnus on huhtikuinen.` | a fixed pattern filled with the locale's words |
+| `fi_FI.sex` | real | `nainen` | Statistics Finland's table 11rb |
+| `fi_FI.time` | invented | `12.39` | hand-written |
+| `fi_FI.title` | real | `tohtori` | hand-written |
+| `fi_FI.url` | invented | `https://posti.example.fi` | hand-written paths on example hosts, with the locale's words |
+| `fi_FI.username` | invented | `noora.niemi2024` | the locale's own words, in hand-written patterns |
+| `fi_FI.weekday` | real | `torstai` | Unicode CLDR's stand-alone weekday names |
+| `fi_FI.word` | real | `henkitoreisiin` | Kotus' Nykysuomen sanalista 2024 |
+| `fi_FI.word-adj` | real | `omenatyyppinen` | Kotus' Nykysuomen sanalista 2024 |
+| `fi_FI.word-adv` | real | `paitahihasilleen` | Kotus' Nykysuomen sanalista 2024 |
+| `fi_FI.word-noun` | real | `oluenmyynti` | Kotus' Nykysuomen sanalista 2024 |
+| `fi_FI.word-verb` | real | `oikkuilla` | Kotus' Nykysuomen sanalista 2024 |
+
+</details>
+
+<details>
+<summary><code>fr_FR</code>, 32 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `fr_FR.address` | real, invented | `236 Rue de la Gare ⏎ 24200 Vitrac` | real commune and postal code from INSEE and BAN; the street and house number are invented |
+| `fr_FR.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `fr_FR.company` | invented | `Easy World SAS` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company-coined` | invented | `Coeur` | words from INSEE's Sirene company names |
+| `fr_FR.company-word` | invented | `Consulting` | words from INSEE's Sirene company names |
+| `fr_FR.date` | invented | `25/08/2001` | hand-written |
+| `fr_FR.department` | real | `53` | INSEE's department codes in a NIR |
+| `fr_FR.email` | invented | `chatcool14@mail.example.org` | the locale's names and hand-written words, at example domains |
+| `fr_FR.first-name` | real | `Danny` | INSEE's Fichier des prénoms |
+| `fr_FR.last-name` | real | `Couderc` | INSEE's Fichier des noms |
+| `fr_FR.month` | real | `juillet` | Unicode CLDR's stand-alone month names |
+| `fr_FR.nir` | valid | `192045102665764` | INSEE's key check; no test series is published |
+| `fr_FR.nonzero-number` | invented | `719` | hand-written |
+| `fr_FR.paragraph` | invented | `Connaît-on vraiment des parqueurs ? Il faut prop…` | a fixed pattern filled with the locale's words |
+| `fr_FR.person` | real, invented | `Dr Pascal Lafitte` | a first and a last name from the locale's name tables, paired at random |
+| `fr_FR.phone` | invented | `06 39 98 16 69` | Arcep's numbering plan roots for use in fiction |
+| `fr_FR.phone-fixed` | invented | `03 53 01` | Arcep's numbering plan roots for use in fiction |
+| `fr_FR.phone-mobile` | invented | `06 39 98` | Arcep's numbering plan roots for use in fiction |
+| `fr_FR.price` | invented | `71 191,49 €` | hand-written |
+| `fr_FR.sentence` | invented | `Il y a des caladrius et des pallénis !` | a fixed pattern filled with the locale's words |
+| `fr_FR.sex` | real | `femme` | Eurostat's table demo_pjan |
+| `fr_FR.sex-digit` | valid | `1` | INSEE's key check; no test series is published |
+| `fr_FR.time` | invented | `12:39` | hand-written |
+| `fr_FR.title` | real | `Dr` | hand-written |
+| `fr_FR.url` | invented | `https://courrier.example.fr` | hand-written paths on example hosts, with the locale's words |
+| `fr_FR.username` | invented | `mathieu.martin2024` | the locale's own words, in hand-written patterns |
+| `fr_FR.weekday` | real | `jeudi` | Unicode CLDR's stand-alone weekday names |
+| `fr_FR.word` | real | `comminatoirement` | the English Wiktionary's French words, through kaikki.org |
+| `fr_FR.word-adj` | real | `jubilatoire` | the English Wiktionary's French words, through kaikki.org |
+| `fr_FR.word-adv` | real | `lexicalement` | the English Wiktionary's French words, through kaikki.org |
+| `fr_FR.word-noun` | real | `lévitation` | the English Wiktionary's French words, through kaikki.org |
+| `fr_FR.word-verb` | real | `informer` | the English Wiktionary's French words, through kaikki.org |
+
+</details>
+
+<details>
+<summary><code>geo.DE</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.DE.address` | real, invented | `Nelkenweg 67 ⏎ 83673 Bichl` | real place and postal code from GeoNames; the street and house number are invented |
+| `geo.DE.locality` | real | `Rüthen` | GeoNames' Postleitzahlen of Germany |
+| `geo.DE.municipality` | real | `Kreis Soest` | GeoNames' Postleitzahlen of Germany |
+| `geo.DE.postal-code` | real | `49597` | GeoNames' Postleitzahlen of Germany |
+| `geo.DE.region` | real | `Bayern` | GeoNames' Postleitzahlen of Germany |
+| `geo.DE.street` | invented | `Katharinenstraße` | a language model's recall of street names common in Germany |
+
+</details>
+
+<details>
+<summary><code>geo.DK</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.DK.address` | real, invented | `Tjørnevænget 67 ⏎ 2740 Skovlunde` | real postdistrikt, postnummer and street from DAR; the house number is invented |
+| `geo.DK.locality` | real | `Glesborg` | Danmarks Adresseregister |
+| `geo.DK.municipality` | real | `Furesø` | Statistics Denmark's NUTS classification and FOLK1A |
+| `geo.DK.postal-code` | real | `4130` | Danmarks Adresseregister |
+| `geo.DK.region` | real | `Region Midtjylland` | Statistics Denmark's NUTS classification and FOLK1A |
+| `geo.DK.street` | real | `Åvej` | Danmarks Adresseregister |
+
+</details>
+
+<details>
+<summary><code>geo.EE</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.EE.address` | real, invented | `Teemeistri tee 6 ⏎ 75203 Raasiku alevik` | real locality, postal code and street from Maa- ja Ruumiamet; the house number is invented |
+| `geo.EE.locality` | real | `Tallinn` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.municipality` | real | `Narva linn` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.postal-code` | real | `13612` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.region` | real | `Harju maakond` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.street` | real | `J. Koorti tn` | Maa- ja Ruumiamet's address data and settlement units |
+
+</details>
+
+<details>
+<summary><code>geo.FI</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.FI.address` | real, invented | `Metsokuja 6 ⏎ 01150 Söderkulla` | real locality, postal code and street from Posti; the house number is invented |
+| `geo.FI.locality` | real | `Hämeenkyrö` | Posti's postcode and basic address files |
+| `geo.FI.municipality` | real | `Vantaa` | Statistics Finland's kunta classification and population |
+| `geo.FI.postal-code` | real | `02920` | Posti's postcode and basic address files |
+| `geo.FI.region` | real | `Uusimaa` | Statistics Finland's kunta classification and population |
+| `geo.FI.street` | real | `Aapelinpolku` | Posti's postcode and basic address files |
+
+</details>
+
+<details>
+<summary><code>geo.FR</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.FR.address` | real, invented | `7 bis Impasse de la Fontaine ⏎ 60660 Cires-lès-Mel…` | real commune and postal code from INSEE and BAN; the street and house number are invented |
+| `geo.FR.locality` | real | `Toulouse` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.municipality` | real | `Haute-Garonne` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.postal-code` | real | `29290` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.region` | real | `Centre-Val de Loire` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.street` | invented | `Rue Sainte-Catherine` | a language model's recall of street names common in France |
+
+</details>
+
+<details>
+<summary><code>geo.LT</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.LT.address` | real, invented | `Trinapolio g. 6 ⏎ LT-07161 Vilnius` | real locality, postal code and street from the Address Register; house number invented |
+| `geo.LT.locality` | real | `Kaunas` | the Centre of Registers' Address Register |
+| `geo.LT.municipality` | real | `Druskininkų savivaldybė` | the Centre of Registers' Address Register |
+| `geo.LT.postal-code` | real | `LT-15130` | the Centre of Registers' Address Register |
+| `geo.LT.region` | real | `Vilniaus apskritis` | the Centre of Registers' Address Register |
+| `geo.LT.street` | real | `Brastos g.` | the Centre of Registers' Address Register |
+
+</details>
+
+<details>
+<summary><code>geo.LV</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.LV.address` | real, invented | `Celtnieku iela 6 ⏎ Jēkabpils, LV-5201` | real locality, postal code, street from the State Address Register; house number invented |
+| `geo.LV.locality` | real | `Rīga` | the State Land Service's State Address Register |
+| `geo.LV.municipality` | real | `Rīga` | the State Land Service's State Address Register |
+| `geo.LV.postal-code` | real | `LV-1055` | the State Land Service's State Address Register |
+| `geo.LV.region` | real | `Rīga` | the State Land Service's State Address Register |
+| `geo.LV.street` | real | `Mežrozīšu iela` | the State Land Service's State Address Register |
+
+</details>
+
+<details>
+<summary><code>geo.NO</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.NO.address` | real, invented | `Blåmeisveien 67 ⏎ 1554 Son` | real poststed, postnummer and street from Kartverket; the house number is invented |
+| `geo.NO.locality` | real | `Hauge i Dalane` | Kartverket's address register |
+| `geo.NO.municipality` | real | `Ålesund` | Statistics Norway's fylke and kommune classifications |
+| `geo.NO.postal-code` | real | `2550` | Kartverket's address register |
+| `geo.NO.region` | real | `Møre og Romsdal` | Statistics Norway's fylke and kommune classifications |
+| `geo.NO.street` | real | `Anton Brøggers gate` | Kartverket's address register |
+
+</details>
+
+<details>
+<summary><code>geo.SE</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.SE.address` | real, invented | `Båtsmansvägen 6 ⏎ 859 19 Sundsvall` | real locality, postal code and street from GeoNames and NVDB; house number invented |
+| `geo.SE.locality` | real | `Huddinge` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.municipality` | real | `Knivsta` | SCB's län and kommun codes and population |
+| `geo.SE.postal-code` | real | `512 62` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region` | real | `Uppsala län` | SCB's län and kommun codes and population |
+| `geo.SE.street` | real | `Sundvägen` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
+
+</details>
+
+<details>
+<summary><code>geo.US</code>, 6 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `geo.US.address` | real, invented | `71236 Kilgore Farms Cir ⏎ Simpsonville, SC 29681` | real place, postal code and street from the Census Bureau; the house number is invented |
+| `geo.US.locality` | real | `Thousand Oaks` | Census Bureau Gazetteer and population estimates |
+| `geo.US.municipality` | real | `District of Columbia` | Census Bureau Gazetteer and population estimates |
+| `geo.US.postal-code` | real | `33761` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.region` | real | `Florida` | Census Bureau Gazetteer and population estimates |
+| `geo.US.street` | real | `Lincoln St` | Census Bureau ZCTA relationships and TIGER/Line |
+
+</details>
+
+<details>
+<summary><code>lt_LT</code>, 30 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `lt_LT.address` | real, invented | `Lendros g. 69 ⏎ LT-99323 Pašyšiai` | real locality, postal code and street from the Address Register; house number invented |
+| `lt_LT.asmens-kodas` | valid | `46902079132` | the check digit; no test series is published |
+| `lt_LT.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `lt_LT.company` | invented | `MB Meistras` | legal-form weights and name shapes from the Register of Legal Entities |
+| `lt_LT.company-coined` | invented | `Elektra` | words from the Register of Legal Entities' names |
+| `lt_LT.company-word` | invented | `Europe` | words from the Register of Legal Entities' names |
+| `lt_LT.date` | invented | `2001-08-25` | hand-written |
+| `lt_LT.email` | invented | `boop14@mail.example.org` | the locale's names and hand-written words, at example domains |
+| `lt_LT.first-name` | real, invented | `Elena` | the Centre of Registers' top 50; a language model's recall for the rest |
+| `lt_LT.last-name` | invented | `Jankauskas` | a language model's recall of names common in Lithuania |
+| `lt_LT.month` | real | `liepa` | Unicode CLDR's stand-alone month names |
+| `lt_LT.paragraph` | invented | `Žodis „centrinis“ yra būdvardis, o „meknė“ yra d…` | a fixed pattern filled with the locale's words |
+| `lt_LT.person` | real, invented | `dr. Sigitė Mockienė` | a first and a last name from the locale's name tables, paired at random |
+| `lt_LT.phone` | valid | `0 616 69555` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed` | valid | `0389` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-mobile` | valid | `06` | the RRT's numbering plan of 2023 |
+| `lt_LT.price` | invented | `71 191,49 €` | hand-written |
+| `lt_LT.sentence` | invented | `Čia yra chalatai ir prasmės!` | a fixed pattern filled with the locale's words |
+| `lt_LT.sex` | real | `moteris` | Eurostat's table demo_pjan |
+| `lt_LT.sex-digit` | valid | `1` | the check digit; no test series is published |
+| `lt_LT.time` | invented | `12:39` | hand-written |
+| `lt_LT.title` | real | `dr.` | hand-written |
+| `lt_LT.url` | invented | `https://pastas.example.lt` | hand-written paths on example hosts, with the locale's words |
+| `lt_LT.username` | invented | `rami.pele2024` | the locale's own words, in hand-written patterns |
+| `lt_LT.weekday` | real | `ketvirtadienis` | Unicode CLDR's stand-alone weekday names |
+| `lt_LT.word` | real | `biskį` | the English Wiktionary's Lithuanian words, through kaikki.org |
+| `lt_LT.word-adj` | real | `neramus` | the English Wiktionary's Lithuanian words, through kaikki.org |
+| `lt_LT.word-adv` | real | `nuolat` | the English Wiktionary's Lithuanian words, through kaikki.org |
+| `lt_LT.word-noun` | real | `minutė` | the English Wiktionary's Lithuanian words, through kaikki.org |
+| `lt_LT.word-verb` | real | `pabandyti` | the English Wiktionary's Lithuanian words, through kaikki.org |
+
+</details>
+
+<details>
+<summary><code>lv_LV</code>, 27 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `lv_LV.address` | real, invented | `Graudu iela 69 ⏎ Liepāja, LV-3401` | real locality, postal code, street from the State Address Register; house number invented |
+| `lv_LV.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `lv_LV.company` | invented | `IK "Metāls"` | legal-form weights and name shapes from the Register of Enterprises |
+| `lv_LV.company-coined` | invented | `Distribution` | words from the Register of Enterprises' names |
+| `lv_LV.company-word` | invented | `Consulting` | words from the Register of Enterprises' names |
+| `lv_LV.date` | invented | `25.08.2001` | hand-written |
+| `lv_LV.email` | invented | `fizz14@mail.example.org` | the locale's names and hand-written words, at example domains |
+| `lv_LV.first-name` | real | `Edgars` | the Office of Citizenship and Migration Affairs' register statistics |
+| `lv_LV.last-name` | invented | `Fjodorovs` | a language model's recall of names common in Latvia |
+| `lv_LV.month` | real | `jūlijs` | Unicode CLDR's stand-alone month names |
+| `lv_LV.paragraph` | invented | `Šeit ir dubultsliedes, un viss ir veselais. Vai …` | a fixed pattern filled with the locale's words |
+| `lv_LV.person` | real, invented | `Dr. Roberts Liepiņš` | a first and a last name from the locale's name tables, paired at random |
+| `lv_LV.personas-kods` | valid | `12066316832` | the check digit; no test series is published |
+| `lv_LV.phone` | valid | `66 191 669` | Table 1 of the National Numbering Plan |
+| `lv_LV.price` | invented | `71 191,49 €` | hand-written |
+| `lv_LV.sentence` | invented | `Šeit ir diatonikas un predisponētības!` | a fixed pattern filled with the locale's words |
+| `lv_LV.sex` | real | `sieviete` | Eurostat's table demo_pjan |
+| `lv_LV.time` | invented | `12:39` | hand-written |
+| `lv_LV.title` | real | `Dr.` | hand-written |
+| `lv_LV.url` | invented | `https://pasts.example.lv` | hand-written paths on example hosts, with the locale's words |
+| `lv_LV.username` | invented | `skala.pele2024` | the locale's own words, in hand-written patterns |
+| `lv_LV.weekday` | real | `Ceturtdiena` | Unicode CLDR's stand-alone weekday names |
+| `lv_LV.word` | real | `grambaini` | Tēzaurs.lv's wordforms |
+| `lv_LV.word-adj` | real | `panamerikānistisks` | Tēzaurs.lv's wordforms |
+| `lv_LV.word-adv` | real | `pazīstami` | Tēzaurs.lv's wordforms |
+| `lv_LV.word-noun` | real | `neizskaidrojamība` | Tēzaurs.lv's wordforms |
+| `lv_LV.word-verb` | real | `novāļāties` | Tēzaurs.lv's wordforms |
+
+</details>
+
+<details>
+<summary><code>misc</code>, 25 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `misc.car` | real | `Volvo XC90` | hand-written |
+| `misc.coordinate` | valid | `84.986513, 10.676954` | hand-written |
+| `misc.creditcard` | valid | `4619166955561687` | hand-written, with a Luhn check |
+| `misc.creditcard-test` | valid | `3566002020360505` | Stripe's published test cards |
+| `misc.currency` | real | `MKD` | datasets/currency-codes (ISO 4217), with symbols from Unicode CLDR |
+| `misc.datetime` | invented | `2015-10-28T21:47:16Z` | hand-written |
+| `misc.emoji` | real | `⭐` | hand-written |
+| `misc.httpmethod` | real | `OPTIONS` | IANA's HTTP Method Registry |
+| `misc.httpstatus` | real | `409 Conflict` | IANA's HTTP Status Code Registry |
+| `misc.iban-test` | valid | `ES0700120345030000067890` | Stripe's test IBANs, and Danske Bank's fictive example for DK |
+| `misc.ip` | valid | `119.169.5.168` | hand-written |
+| `misc.ipv6` | valid | `2001:db8:b:aaa:b95d:a15:76d9:742` | hand-written, inside RFC 3849's 2001:db8::/32 |
+| `misc.language` | real | `Lithuanian` | datasets/language-codes, the Library of Congress' ISO 639-2 register |
+| `misc.loglevel` | real | `debug` | RFC 5424's syslog severities, with POSIX's keywords |
+| `misc.mac` | valid | `f4:2e:06:a4:62:aa` | hand-written |
+| `misc.mimetype` | real | `application/vnd.oasis.opendocument.chart-templat…` | mime-db, the IANA media type registry with filename extensions |
+| `misc.objectid` | valid | `f42e06a462aa0c13b95dd4c7` | hand-written |
+| `misc.port` | real | `3484` | IANA's Service Name and Transport Protocol Port Number Registry |
+| `misc.protocol` | real | `WB-MON` | IANA's Protocol Numbers |
+| `misc.territory` | real | `Lithuania` | datasets/country-codes (ISO 3166-1) |
+| `misc.timezone` | real | `America/New_York` | IANA's tzdb, weighted by GeoNames' populations |
+| `misc.tld` | real | `.mma` | IANA's Root Zone Database |
+| `misc.useragent` | real | `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) …` | microlinkhq's top-user-agents lists |
+| `misc.uuid` | valid | `f42e06a4-62aa-40c1-b95d-d4c7a152f73b` | hand-written |
+| `misc.version` | invented | `v9.69.5` | hand-written |
+
+</details>
+
+<details>
+<summary><code>nb_NO</code>, 31 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `nb_NO.address` | real, invented | `Jarlsborgveien 6908 ⏎ 0371 Oslo` | real poststed, postnummer and street from Kartverket; the house number is invented |
+| `nb_NO.birth-day` | valid | `1287` | Skatteetaten's synthetic series |
+| `nb_NO.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `nb_NO.company` | invented | `Oceanvåg Design AS` | name shapes and legal forms from Enhetsregisteret's names |
+| `nb_NO.company-coined` | invented | `Alfafjord` | words from Enhetsregisteret's names, and Norwegian place names |
+| `nb_NO.company-word` | invented | `Eiendom` | words from Enhetsregisteret's names |
+| `nb_NO.date` | invented | `25.08.2001` | hand-written |
+| `nb_NO.email` | invented | `fizz14@mail.example.org` | the locale's names and hand-written words, at example domains |
+| `nb_NO.first-name` | real | `Erik` | Statistics Norway's StatBank table 10501 |
+| `nb_NO.fodselsnummer` | valid | `25822559703` | Skatteetaten's synthetic series |
+| `nb_NO.individ` | valid | `1` | Skatteetaten's synthetic series |
+| `nb_NO.last-name` | real | `Fredriksen` | Statistics Norway's StatBank table 12891 |
+| `nb_NO.month` | real | `juli` | Unicode CLDR's stand-alone month names |
+| `nb_NO.paragraph` | invented | `Den rombeforma massearbeidsledigheta duellerer u…` | a fixed pattern filled with the locale's words |
+| `nb_NO.person` | real, invented | `dr. Rolf Langseth` | a first and a last name from the locale's name tables, paired at random |
+| `nb_NO.phone` | valid | `98 24 69 55` | Nkom's national numbering plan |
+| `nb_NO.phone-fixed` | valid | `57 78` | Nkom's national numbering plan |
+| `nb_NO.phone-mobile` | valid | `91 81` | Nkom's national numbering plan |
+| `nb_NO.price` | invented | `71 191 kr` | hand-written |
+| `nb_NO.sentence` | invented | `Det fellestyske trøndersken omsmelter bortenfor …` | a fixed pattern filled with the locale's words |
+| `nb_NO.sex` | real | `kvinne` | Statistics Norway's StatBank table 07459 |
+| `nb_NO.time` | invented | `12:39` | hand-written |
+| `nb_NO.title` | real | `dr.` | hand-written |
+| `nb_NO.url` | invented | `https://post.example.no` | hand-written paths on example hosts, with the locale's words |
+| `nb_NO.username` | invented | `maja.moen2024` | the locale's own words, in hand-written patterns |
+| `nb_NO.weekday` | real | `torsdag` | Unicode CLDR's stand-alone weekday names |
+| `nb_NO.word` | real | `erten` | Norsk ordbank bokmål 2005 |
+| `nb_NO.word-adj` | real | `myrlendt` | Norsk ordbank bokmål 2005 |
+| `nb_NO.word-adv` | real | `leilighetsvis` | Norsk ordbank bokmål 2005 |
+| `nb_NO.word-noun` | real | `lukker` | Norsk ordbank bokmål 2005 |
+| `nb_NO.word-verb` | real | `lunsje` | Norsk ordbank bokmål 2005 |
+
+</details>
+
+<details>
+<summary><code>nn_NO</code>, 22 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `nn_NO.address` | real, invented | `Jarlsborgveien 6908 ⏎ 0371 Oslo` | real poststed, postnummer and street from Kartverket; the house number is invented |
+| `nn_NO.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `nn_NO.company` | invented | `Oceanvåg Design AS` | name shapes and legal forms from Enhetsregisteret's names |
+| `nn_NO.date` | invented | `25.08.2001` | hand-written |
+| `nn_NO.email` | invented | `turbopirat2024@mail.example.com` | the locale's names and hand-written words, at example domains |
+| `nn_NO.fodselsnummer` | valid | `30910685526` | Skatteetaten's synthetic series |
+| `nn_NO.month` | real | `juli` | Unicode CLDR's stand-alone month names |
+| `nn_NO.paragraph` | invented | `Den salrygga lønnssteget dåmar under det vorne j…` | a fixed pattern filled with the locale's words |
+| `nn_NO.person` | real, invented | `dr. Rolf Langseth` | a first and a last name from the locale's name tables, paired at random |
+| `nn_NO.phone` | valid | `45 41 95 55` | Nkom's national numbering plan |
+| `nn_NO.price` | invented | `236 kr` | hand-written |
+| `nn_NO.sentence` | invented | `Det farmakologiske tviljoden overdreg bortanfor …` | a fixed pattern filled with the locale's words |
+| `nn_NO.time` | invented | `00:44` | hand-written |
+| `nn_NO.title` | real | `dr.` | hand-written |
+| `nn_NO.url` | invented | `https://post.example.no` | hand-written paths on example hosts, with the locale's words |
+| `nn_NO.username` | invented | `per.myr2024` | the locale's own words, in hand-written patterns |
+| `nn_NO.weekday` | real | `torsdag` | Unicode CLDR's stand-alone weekday names |
+| `nn_NO.word` | real | `endeleg` | Norsk ordbank nynorsk 2012 |
+| `nn_NO.word-adj` | real | `moden` | Norsk ordbank nynorsk 2012 |
+| `nn_NO.word-adv` | real | `liddeleg` | Norsk ordbank nynorsk 2012 |
+| `nn_NO.word-noun` | real | `likestillingslov` | Norsk ordbank nynorsk 2012 |
+| `nn_NO.word-verb` | real | `marmorere` | Norsk ordbank nynorsk 2012 |
+
+</details>
+
+<details>
+<summary><code>sv_SE</code>, 47 categories</summary>
+
+| Path | Kind | Example | Source |
+|---|---|---|---|
+| `sv_SE.address` | real, invented | `Guttamålavägen 690 ⏎ 372 36 Ronneby` | real locality, postal code and street from GeoNames and NVDB; house number invented |
+| `sv_SE.bankaccount` | valid | `5847-1916681` | Bankinfrastruktur i Sverige's clearing numbers, with the checks of Bankgirot |
+| `sv_SE.bankgiro` | valid | `1619-1660` | hand-written, with a Luhn check digit |
+| `sv_SE.birth-number` | valid | `239` | Skatteverket's test series |
+| `sv_SE.bloodtype` | real | `A+` | sv.wikipedia's blood type shares for Sweden |
+| `sv_SE.car` | real | `Volkswagen ID.4` | Mobility Sweden's new registrations of 2025 |
+| `sv_SE.color` | real, valid | `#20a6a0` | hand-written colour names, or a random hex code in two draws of three |
+| `sv_SE.company` | invented | `Storäng Stendal Handelsbolag` | legal-form weights, name shapes and words from Bolagsverket |
+| `sv_SE.company-coined` | invented | `Bergdal` | hand-written |
+| `sv_SE.company-word` | invented | `Entreprenad` | trade words from Bolagsverket's company names |
+| `sv_SE.date` | invented | `2001-08-25` | hand-written |
+| `sv_SE.email` | invented | `doot14@mail.example.se` | the locale's names and hand-written words, at example domains |
+| `sv_SE.first-name` | real | `Elina` | SCB's names with at least two bearers |
+| `sv_SE.holiday` | real | `Kristi himmelsfärdsdag` | lag (1989:253) om allmänna helgdagar |
+| `sv_SE.last-name` | real | `Eriksson` | SCB's names with at least two bearers |
+| `sv_SE.licenseplate` | valid | `RSP 16X` | sv.wikipedia's article on Swedish plates |
+| `sv_SE.licenseplate-letters` | valid | `NDC` | sv.wikipedia's article on Swedish plates |
+| `sv_SE.month` | real | `juli` | Unicode CLDR's stand-alone month names |
+| `sv_SE.organisationsnummer` | valid | `512166-5557` | format and checksum; group weights from Bolagsverket's statistics |
+| `sv_SE.paragraph` | invented | `Vår oratificerbara mönsterfången dinglar vid ofr…` | a fixed pattern filled with the locale's words |
+| `sv_SE.person` | real, valid, invented | `dr Per Larsen` | SCB's names, a test-series personnummer; the birth date is invented |
+| `sv_SE.personnummer` | valid | `041213-2391` | Skatteverket's test series |
+| `sv_SE.personnummer-12` | valid | `196306122380` | Skatteverket's test series |
+| `sv_SE.personnummer-date` | valid | `630612-` | Skatteverket's test series |
+| `sv_SE.phone` | valid | `070-166 95 55` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.phone-area` | real | `0512` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.phone-subscriber` | valid | `719 16` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.plusgiro` | valid | `16 19-6` | hand-written, with a Luhn check digit |
+| `sv_SE.price` | invented | `71 191 kr` | hand-written |
+| `sv_SE.samordningsnummer` | valid | `800861-2387` | Skatteverket's test series |
+| `sv_SE.samordningsnummer-12` | valid | `197711652383` | Skatteverket's test series |
+| `sv_SE.sentence` | invented | `Något fyrhjuliga ugnsstekandet pepprar bortom bl…` | a fixed pattern filled with the locale's words |
+| `sv_SE.sex` | real | `kvinna` | SCB's table BefolkningR1860N |
+| `sv_SE.sni` | real | `46.832 Partihandel med sanitetsgods` | SCB's SNI 2025 |
+| `sv_SE.ssyk` | real | `3431 Fotografer` | SCB's SSYK 2012 |
+| `sv_SE.territory` | real | `Litauen` | Unicode CLDR's territory names |
+| `sv_SE.time` | invented | `12:39` | hand-written |
+| `sv_SE.title` | real | `dr` | hand-written |
+| `sv_SE.url` | invented | `https://mail.example.se` | hand-written paths on example hosts, with the locale's words |
+| `sv_SE.username` | invented | `lena.nor2024` | the locale's own words, in hand-written patterns |
+| `sv_SE.vat` | valid | `SE598669556601` | format and checksum; group weights from Bolagsverket's statistics |
+| `sv_SE.weekday` | real | `torsdag` | Unicode CLDR's stand-alone weekday names |
+| `sv_SE.word` | real | `foglig` | SALDO, Språkbanken's dictionary |
+| `sv_SE.word-adj` | real | `oförlåtlig` | SALDO, Språkbanken's dictionary |
+| `sv_SE.word-adv` | real | `nedan` | SALDO, Språkbanken's dictionary |
+| `sv_SE.word-noun` | real | `misströstande` | SALDO, Språkbanken's dictionary |
+| `sv_SE.word-verb` | real | `motläsa` | SALDO, Språkbanken's dictionary |
+
+</details>
+
+<!-- data-listing:end -->
+
 ### Locale pages
 
 Each folder of `data/` has a page under [`docs/locales`](docs/locales) with its notes: where its data comes from, which
@@ -1859,7 +2475,7 @@ How the README serves goal 11:
   state.
 - The quick starts show the CLI and the library side by side, each rendering the same
   person.
-- A table of the shipped data will follow: every path, an example value, its kind and its
+- A table of the shipped data lists every category: its path, an example value, its kind and its
   source.
 - Recipes show common tasks end to end, such as filling a database or a Go struct.
 - Edge cases and a category's caveats sit in the reference sections, below what a first
@@ -1895,6 +2511,7 @@ internal/proven/ what a proof knows of a value, and the bounds a calc takes from
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; Modules, which lists them; and the tests of the shipped data
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the shared modules they import
+data-listing/   the generated list of every shipped path with its kind, example and source (`paths.json`), and the hand-written kind and source of each category it reads
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the locale pages (`docs/locales`, one per folder of `data/`), the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ what CI releases with: the release from the changelog heading; the patch of the last release for main's newer Go, modules or GoReleaser; a release's binaries, packages, image and package repositories; and the filer of known vulnerabilities as `todo.md` items
@@ -1939,7 +2556,7 @@ Commands that rewrite source keep your file ownership when run with `--user`:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" fmt       # gofmt -w .
-docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: each data/ module's .fejkdata.json
+docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: each data/ module's .fejkdata.json, data-listing/paths.json and the table of every category
 docker compose run --rm --user "$(id -u):$(id -g)" tidy      # go mod tidy
 ```
 
