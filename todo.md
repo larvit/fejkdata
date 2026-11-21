@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 540 | 0.7.1 |  |  | **Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.** | 2 | 2 | 1 | 3 | 3 | 6 by 4, 11 by 3 | 13.6 |
 | 408 | 0.7.1 |  | owner | **List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 3 by 4, 11 by 4 | 1.7 |
 | 543 | 0.7.2 |  |  | **Reword the package description in `release-tooling/goreleaser.yaml` and the package comment in `doc.go` to the README's new lead.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
 | 541 | 0.7.2 | 408 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
@@ -214,15 +213,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 540. Open `--help` with the README's lead and the commands people run most, and fail a test when its opening drifts from the README's lead or it links a README heading that no longer exists.
-
-The maintainer, 2026-11-21: `--help` needs updating, with a mechanical trigger so it isn't forgotten again. Today it opens with the grammar and never says what the tool is for, or that `--list` finds a path. Tests already hold every flag in the help and the README, and run the help's `echo` examples. Nothing checks the four README headings it links (`#names`, `#functions`, `#data-format`, `#your-own-data`), which item 539 may rename. Add a test that turns each `DOCS#…` into the GitHub slug of a README heading, and one that the help's opening sentence opens a README sentence, as `TestDockerhubDescriptionOpensAReadmeSentence` does for Docker Hub. The help is also a custom CLI's: its examples name no path a custom CLI may not carry, as the test on `usage`'s references already requires, so a lead naming fejkdata's own data prints only for fejkdata's own CLI, or stays true for any.
-
-Touches:
-
-- `cli/cli.go`: `usage`, `help`
-- `cli/cli_test.go`: `TestHelpLinksTheDocsItIsGiven`
 
 ### 408. List every shipped path in the README's Data section with an example value, whether it is real, valid or invented, and where it comes from, from one generated file fejkdata.dev also reads.
 
