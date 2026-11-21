@@ -74,16 +74,36 @@ func readKindRows() (map[string]*kindRow, []string) {
 	return rows, errs
 }
 
-// rowFor is the row of the path itself, else of its nearest ancestor with one.
-func rowFor(rows map[string]*kindRow, path string) *kindRow {
-	for p := path; ; p = p[:strings.LastIndex(p, ".")] {
-		if r := rows[p]; r != nil {
-			return r
-		}
-		if !strings.Contains(p, ".") {
-			return nil
+func lastSegment(path string) string { return path[strings.LastIndex(path, ".")+1:] }
+
+// categoryOf is the category a path's value comes from: the deepest category it lies under, then each
+// table linked below that category which the path names, since a linked table is a category of its own.
+func categoryOf(lines []engine.IndexLine, path string) string {
+	category := ""
+	for _, l := range lines {
+		if (path == l.Path || strings.HasPrefix(path, l.Path+".")) && len(l.Path) > len(category) {
+			category = l.Path
 		}
 	}
+	for category != "" && path != category {
+		next := strings.SplitN(strings.TrimPrefix(path, category+"."), ".", 2)[0]
+		i := slices.IndexFunc(lines, func(l engine.IndexLine) bool {
+			return l.Entry.Parent == lastSegment(category) && lastSegment(l.Path) == next
+		})
+		if i < 0 {
+			break
+		}
+		category = lines[i].Path
+	}
+	return category
+}
+
+// rowFor is the row of the path itself, else of the category its value comes from.
+func rowFor(rows map[string]*kindRow, lines []engine.IndexLine, path string) *kindRow {
+	if r := rows[path]; r != nil {
+		return r
+	}
+	return rows[categoryOf(lines, path)]
 }
 
 // shippedListing is every path the whole shipped tree lists, each drawn as a user draws it, from seed 1 on
@@ -92,13 +112,14 @@ func shippedListing(t *testing.T) ([]listedPath, []string, []string) {
 	t.Helper()
 	f := newShippedWhole(t)
 	rows, errs := readKindRows()
+	lines := engine.Index(&f.root)
 	var categories []string
-	for _, l := range engine.Index(&f.root) {
+	for _, l := range lines {
 		categories = append(categories, l.Path)
 	}
 	var out []listedPath
 	for _, path := range f.List() {
-		row := rowFor(rows, path)
+		row := rowFor(rows, lines, path)
 		if row == nil {
 			errs = append(errs, "no row in "+listingKinds+" for "+path)
 			continue
