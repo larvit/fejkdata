@@ -2359,9 +2359,9 @@ The maintainer asked that the README link the page clearly and sum up the locale
 
 Valid while the full table would crowd the README. The test's message says what to do at the limit: split the page per module.
 
-## A name a language model recalled is listed `real`, as a name in use; only its weight is an estimate
+## A first or last name a language model recalled is listed `real`, as a name in use; only its weight is an estimate
 
-2026-11-21, in the release review of 0.7.1. Serves goal 3, and applies the project principle on name tables with no open bulk file of counts.
+2026-11-21, decided in the release review of 0.7.1 without asking the maintainer, as the choice was open and this was the recommendation. Serves goal 3, and applies the project principle on name tables with no open bulk file of counts.
 
 Goal 3 calls a value real when it is a thing that exists. A recalled name is a first or last name the model knows to be in use in the country. The principle on such tables already treats the names as names and calls only their weights estimates, so `data-listing/kinds-and-sources.tsv` lists these tables as `real` and its source cell says no register checked them. Listing them `invented` would call names such as `Müller` made up, which misleads more than it warns.
 
