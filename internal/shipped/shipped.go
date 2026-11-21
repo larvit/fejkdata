@@ -74,9 +74,25 @@ func Load(modules []fs.FS) (*Data, error) {
 		sources = append(sources, datafiles.FS(whole))
 		d.namespaces = append(d.namespaces, namespace)
 	}
+	if err := d.refuseNested(); err != nil {
+		return nil, err
+	}
 	root, err := engine.Load(sources)
 	d.root = root
 	return d, err
+}
+
+// refuseNested refuses a module mounted inside another, since a category under the inner
+// namespace would lie under both.
+func (d *Data) refuseNested() error {
+	for _, outer := range d.namespaces {
+		for _, inner := range d.namespaces {
+			if strings.HasPrefix(inner, outer+".") {
+				return fmt.Errorf("the module %q is mounted inside the module %q, so a category under it has two holders", inner, outer)
+			}
+		}
+	}
+	return nil
 }
 
 // holder is the index in d.namespaces of the module holding the category or path.

@@ -135,13 +135,20 @@ func rowOf(root *tree.Folder, rows map[string]*kindRow, path string) (string, er
 	if err != nil {
 		return "", err
 	}
-	if field := category + path[strings.LastIndex(path, "."):]; rows[field] != nil {
+	if field := category + path[strings.LastIndex(path, "."):]; rows[field] != nil && endsAtField(root, path, category) {
 		return field, nil
 	}
 	if rows[category] == nil {
 		return "", errors.New("no row in " + KindsFile + " for " + path)
 	}
 	return category, nil
+}
+
+// endsAtField reports whether path's last step is a field of category, where its value is drawn,
+// and not a table linked to it: the path before that step is then drawn from category too.
+func endsAtField(root *tree.Folder, path, category string) bool {
+	before, err := engine.DrawnFrom(root, path[:strings.LastIndex(path, ".")])
+	return err == nil && before == category
 }
 
 // ListingFiles is the listing as PathsFile and as DocFile, which holds one folded table per
