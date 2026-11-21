@@ -12,25 +12,25 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 541 | 0.8.1 |  |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.8 |
-| 542 | 0.8.1 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
-| 547 | 0.9.0 |  |  | **Publish each package's test coverage from `main`'s CI to Coveralls, and show its badge in the README, so an Awesome Go application can link a coverage report.** | 3 | 2 | 1 | 4 | 2 | 1.1 by 3 | 1.8 |
-| 553 | 0.9.0 | 547 | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
-| 545 | 0.9.0 |  |  | **Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.** | 1 | 1 | 1 | 1 | 2 | 1.1 by 5 | 3.0 |
+| 547 | 0.8.1 |  |  | **Publish each package's test coverage from `main`'s CI to Coveralls, and show its badge in the README, so an Awesome Go application can link a coverage report.** | 3 | 2 | 1 | 4 | 2 | 1.1 by 3 | 1.8 |
+| 553 | 0.8.1 | 547 | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
+| 545 | 0.8.1 |  |  | **Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.** | 1 | 1 | 1 | 1 | 2 | 1.1 by 5 | 3.0 |
+| 548 | 0.8.1 |  |  | **Write the questions fejkdata should come up for, and a results table, in `docs/llm-discovery.md`, which the maintainer fills each month by asking ChatGPT, Claude and Gemini in private browser windows with no account history.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 3 | 2.2 |
+| 541 | 0.8.1 | 545, 547, 548 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.8 |
+| 542 | 0.8.1 | 545, 547, 548 |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
+| 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
+| 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
+| 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
+| 155 | 0.9.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.3 |
+| 252 | 0.9.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
+| 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
+| 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
-| 548 | 0.9.0 |  |  | **Ask ChatGPT, Claude and Gemini a fixed set of questions each month through their APIs, with web search on, and record whether each answer names fejkdata, links its GitHub repository and describes it correctly.** | 3 | 2 | 1 | 4 | 4 | 1.1 by 3 | 0.9 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 6 | 0.3 |
-| 533 | 0.10.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
-| 532 | 0.10.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
-| 34 | 0.10.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
-| 155 | 0.10.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.3 |
-| 252 | 0.10.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
-| 256 | 0.10.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 220 | 0.10.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.7 |
-| 24 | 0.10.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 30 | 0.10.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 2.6 |
 | 534 | 0.10.0 |  | owner | **Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.6 |
 | 255 | 0.10.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 2.5 |
@@ -220,6 +220,48 @@
 
 ## Details
 
+### 547. Publish each package's test coverage from `main`'s CI to Coveralls, and show its badge in the README, so an Awesome Go application can link a coverage report.
+
+Awesome Go lists a Go package only with a link to a Codecov or Coveralls report, and wants at least 80% coverage for packages that aren't data and 90% for data packages (its CONTRIBUTING.md, read 2026-11-21). Coveralls takes the workflow's own `GITHUB_TOKEN`, so the repository needs no new secret; the maintainer turns the repository on at coveralls.io once. Where a package falls under the threshold, file an item for it. The change lands on `main` and needs no release.
+
+Touches:
+
+- `.github/workflows/test.yml`: lines 53-90
+- `Dockerfile`
+- `README.md`: `# fejkdata` (small)
+
+### 553. Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
+
+The maintainer does this item, not a chunk: each step speaks for the project in public. The loop skips it.
+
+- Awesome Go: open the pull request their CONTRIBUTING.md asks for, with the pkg.go.dev link and the coverage report item 547 publishes. The repository has had 5 months of history since 2026-11-05.
+- The article: the checks behind the Swedish personnummer, the Norwegian fødselsnummer and the Finnish henkilötunnus, the test series their issuers keep, and why a postal code must match its town.
+- Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
+
+Item 548's monthly table shows whether each step moved what LLMs answer.
+
+### 545. Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.
+
+`README.md` item 2 of the lead opens "Valid national ids that no real person has", and the comparison table's first row says "Valid national ids". The body under item 2 says only some countries' ids come from a test series and that a few strict checkers refuse those. Item 538's stability pass found the headline stronger than the body. Reword the two with the "where possible" wording of the AGENTS.md rule on public texts, keeping the claim true; `readme_test.go` and `TestDockerhubPageSaysOnlyWhatReadmeSays` must stay green.
+
+Touches:
+
+- `README.md`: `# fejkdata` (small), `## Why fejkdata` (small)
+
+### 548. Write the questions fejkdata should come up for, and a results table, in `docs/llm-discovery.md`, which the maintainer fills each month by asking ChatGPT, Claude and Gemini in private browser windows with no account history.
+
+This measures goal 1.1 as the decision "Goal 1.1's "where they look" means LLMs first" reads it. It also tells two problems apart: the model doesn't know fejkdata exists, or it knows fejkdata but doesn't see why to recommend it.
+
+The maintainer asks by hand, never through an API job: a private window with no account history can't tailor its answer to what the model has learned about the maintainer, and it costs nothing. Where an app needs an account, use one with memory and history turned off.
+
+The questions, from a conversation with ChatGPT on 2026-11-21: the best fake-data generator for Go; the best Faker alternatives; generating realistic Swedish customers; generating 500,000 synthetic users; generating realistic European companies; the best database seeding tools; realistic Nordic test data; open-source synthetic data generators; correlated fake customer data; valid Swedish test personnummer.
+
+Each month's table has a row per question and app, with a column each for: fejkdata named, ranked first, GitHub repository linked, features described correctly, and the tools named instead. The change lands on `main` and needs no release.
+
+Touches:
+
+- `docs/llm-discovery.md`
+
 ### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
 
 The maintainer, 2026-11-21: automate fejkdata.dev's deployment from fejkdata's own; fejkdata 0.8.1 holds fejkdata's side, and fejkdata.dev's 0.1.2 the site's side, which rebuilds the WebAssembly and the data grid from item 408's listing at the named release. The site lives on gitea.larvit.se, so the step calls its Actions API with a token the maintainer creates and stores as a GitHub secret. Patches CI cuts for a Go or module update trigger it too. A failed call fails no release: it only reports.
@@ -236,58 +278,6 @@ Touches:
 
 - `internal/grammar/format.go`
 - `cli/input_test.go`
-
-### 547. Publish each package's test coverage from `main`'s CI to Coveralls, and show its badge in the README, so an Awesome Go application can link a coverage report.
-
-Awesome Go lists a Go package only with a link to a Codecov or Coveralls report, and wants at least 80% coverage for packages that aren't data and 90% for data packages (its CONTRIBUTING.md, read 2026-11-21). Coveralls takes the workflow's own `GITHUB_TOKEN`, so the repository needs no new secret; the maintainer turns the repository on at coveralls.io once. Where a package falls under the threshold, file an item for it. The change lands on `main` and needs no release.
-
-### 553. Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
-
-The maintainer does this item, not a chunk: each step speaks for the project in public. The loop skips it.
-
-- Awesome Go: open the pull request their CONTRIBUTING.md asks for, with the pkg.go.dev link and the coverage report item 547 publishes. The repository has had 5 months of history since 2026-11-05.
-- The article: the checks behind the Swedish personnummer, the Norwegian fødselsnummer and the Finnish henkilötunnus, the test series their issuers keep, and why a postal code must match its town.
-- Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
-
-Item 548's monthly table shows whether each step moved what LLMs answer.
-
-### 545. Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.
-
-`README.md` item 2 of the lead opens "Valid national ids that no real person has", and the comparison table's first row says "Valid national ids". The body under item 2 says only some countries' ids come from a test series and that a few strict checkers refuse those. Item 538's stability pass found the headline stronger than the body. Reword the two with the "where possible" wording of the AGENTS.md rule on public texts, keeping the claim true; `readme_test.go` and `TestDockerhubPageSaysOnlyWhatReadmeSays` must stay green.
-
-### 551. Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.
-
-Goal 1.3 asks for a package `pip` installs. A wheel per platform carrying the CLI binary is how ruff and uv ship a native tool to Python. It reuses the binaries goreleaser already builds, so every CLI feature reaches Python in the same release, and goal 9.2's bytes hold because the same binary renders them. Goal 10 allows no PyPI dependency, so the package runs the binary through `subprocess`. A template that doesn't compile exits 2; raise that as an exception carrying the CLI's error text. The name `fejkdata` was free on PyPI on 2026-11-21.
-
-### 552. Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.
-
-The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token.
-
-### 549. Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.
-
-Goal 1.2 asks for an npm package that runs wherever JavaScript does: Node, Bun, Deno and a browser. fejkdata.dev already builds the library to WebAssembly in its `wasm/main.go`, with `seed`, `render` and `paths` on `globalThis.fejkdata`; start from that, and give the package a typed, stateless API instead of the page's global. Goal 9.2 asks for the same bytes as Go, so a test renders seeded templates in both and compares them. Goal 10 allows no npm dependency.
-
-The shipped data is 59 MB under `data/`, so the WebAssembly carrying all of it is large. Measure it, and record in the README's Install section what an install downloads. Choosing to split the data into packages a program imports by choice, as goal 2's Go side does, is a decision for the chunk.
-
-### 550. Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.
-
-The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
-
-### 548. Ask ChatGPT, Claude and Gemini a fixed set of questions each month through their APIs, with web search on, and record whether each answer names fejkdata, links its GitHub repository and describes it correctly.
-
-This measures goal 1.1 as the decision "Goal 1.1's "where they look" means LLMs first" reads it. It also tells two problems apart: the model doesn't know fejkdata exists, or it knows fejkdata but doesn't see why to recommend it.
-
-The questions, from a conversation with ChatGPT on 2026-11-21: the best fake-data generator for Go; the best Faker alternatives; generating realistic Swedish customers; generating 500,000 synthetic users; generating realistic European companies; the best database seeding tools; realistic Nordic test data; open-source synthetic data generators; correlated fake customer data; valid Swedish test personnummer.
-
-A scheduled GitHub Actions workflow runs the questions and posts each month's table as a comment on one pinned issue, so CI never pushes to `main`. The maintainer adds the three API keys as repository secrets. Ten questions to three providers cost a few dollars a month. An API answer is a proxy: the chat apps add their own system prompts and memory, so the maintainer still asks in the apps by hand now and then. The change lands on `main` and needs no release.
-
-### 393. Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.
-
-Builds the decision "One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`", whose "What holds" list is the spec: the load errors (exit 2), the order of the rows, `--out-dir`, the flags `--emit` is refused beside, and that adding a template doesn't change another's rows under the same `--seed`. Take each test's expected values from that list.
-
-Three of the bench's readers feared a category named `run` clashing with `{/run.…}`. Either reserve `run` as a root name, or refuse a category named `run` in a run that reads `{/run.…}`; record which in the decision's paragraph that names this item.
-
-`--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. `{seq(name)}` counters stay per template. Ship the first chunk with two templates, then widen. `--emit` is a new flag, so it needs a `CHANGELOG.md` entry under `Unreleased` (`AGENTS.md`) and its own README heading.
 
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
@@ -326,6 +316,32 @@ A template; the structure rules are facts.
 ### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
+
+### 551. Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.
+
+Goal 1.3 asks for a package `pip` installs. A wheel per platform carrying the CLI binary is how ruff and uv ship a native tool to Python. It reuses the binaries goreleaser already builds, so every CLI feature reaches Python in the same release, and goal 9.2's bytes hold because the same binary renders them. Goal 10 allows no PyPI dependency, so the package runs the binary through `subprocess`. A template that doesn't compile exits 2; raise that as an exception carrying the CLI's error text. The name `fejkdata` was free on PyPI on 2026-11-21.
+
+### 552. Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.
+
+The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token.
+
+### 549. Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.
+
+Goal 1.2 asks for an npm package that runs wherever JavaScript does: Node, Bun, Deno and a browser. fejkdata.dev already builds the library to WebAssembly in its `wasm/main.go`, with `seed`, `render` and `paths` on `globalThis.fejkdata`; start from that, and give the package a typed, stateless API instead of the page's global. Goal 9.2 asks for the same bytes as Go, so a test renders seeded templates in both and compares them. Goal 10 allows no npm dependency.
+
+The shipped data is 59 MB under `data/`, so the WebAssembly carrying all of it is large. Measure it, and record in the README's Install section what an install downloads. Choosing to split the data into packages a program imports by choice, as goal 2's Go side does, is a decision for the chunk.
+
+### 550. Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.
+
+The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
+
+### 393. Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.
+
+Builds the decision "One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`", whose "What holds" list is the spec: the load errors (exit 2), the order of the rows, `--out-dir`, the flags `--emit` is refused beside, and that adding a template doesn't change another's rows under the same `--seed`. Take each test's expected values from that list.
+
+Three of the bench's readers feared a category named `run` clashing with `{/run.…}`. Either reserve `run` as a root name, or refuse a category named `run` in a run that reads `{/run.…}`; record which in the decision's paragraph that names this item.
+
+`--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. `{seq(name)}` counters stay per template. Ship the first chunk with two templates, then widen. `--emit` is a new flag, so it needs a `CHANGELOG.md` entry under `Unreleased` (`AGENTS.md`) and its own README heading.
 
 ### 534. Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.
 
