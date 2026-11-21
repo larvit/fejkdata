@@ -87,8 +87,9 @@ func categoryOf(lines []engine.IndexLine, path string) string {
 	}
 	for category != "" && path != category {
 		next := strings.SplitN(strings.TrimPrefix(path, category+"."), ".", 2)[0]
+		want := strings.TrimSuffix(category, lastSegment(category)) + next
 		i := slices.IndexFunc(lines, func(l engine.IndexLine) bool {
-			return l.Entry.Parent == lastSegment(category) && lastSegment(l.Path) == next
+			return l.Path == want && l.Entry.Parent == lastSegment(category)
 		})
 		if i < 0 {
 			break
@@ -147,7 +148,7 @@ func TestCategoryOfStaysInTheCategorysFolder(t *testing.T) {
 	for path, want := range map[string]string{
 		"sv_SE.sex.personnummer":      "sv_SE.personnummer",
 		"sv_SE.sex.first-name":        "sv_SE.first-name",
-		"fi_FI.sex.last-name":         "fi_FI.last-name",
+		"fi_FI.sex.first-name":        "fi_FI.first-name",
 		"geo.SE.locality.postal-code": "geo.SE.postal-code",
 		"geo.US.locality.street":      "geo.US.street",
 		"sv_SE.person.first":          "sv_SE.person",
