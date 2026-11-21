@@ -50,3 +50,30 @@ func coveredBy(file string, paths []string) bool {
 	}
 	return false
 }
+
+func TestPackageDescriptionsKeepTheREADMEsLead(t *testing.T) {
+	readme, err := os.ReadFile("README.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var lead string
+	for _, line := range strings.Split(string(readme), "\n") {
+		if strings.HasPrefix(line, "Fake data for tests.") {
+			sentences := strings.SplitAfterN(line, ". ", 3)
+			lead = strings.ToLower(strings.TrimSpace(sentences[0] + sentences[1]))
+			break
+		}
+	}
+	if lead == "" {
+		t.Fatal("the README has no line opening with \"Fake data for tests.\"")
+	}
+	for _, name := range []string{"release-tooling/goreleaser.yaml", "doc.go"} {
+		src, err := os.ReadFile(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(strings.ToLower(string(src)), lead) {
+			t.Errorf("%s does not hold the README's lead %q, so brew, apt, dnf and pkg.go.dev describe fejkdata in older words", name, lead)
+		}
+	}
+}
