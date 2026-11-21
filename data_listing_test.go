@@ -34,95 +34,90 @@ type listedPath struct {
 }
 
 type kindRow struct {
-	pattern string
-	source  string
-	kinds   []string
-	used    bool
+	source string
+	kinds  []string
+	used   bool
 }
 
-// readKindRows parses kinds-and-sources.tsv: a category's dot path, or `*.` and the last segments of
-// several, then its kinds joined by ", ", then its source.
-func readKindRows() ([]*kindRow, []string) {
+// readKindRows parses kinds-and-sources.tsv. A row is tab-separated: a dot path, its kinds joined by ", "
+// in the order of listingKindWords, and its source. A category has a row; a field of it has one where its
+// kinds or source differ from the category's.
+func readKindRows() (map[string]*kindRow, []string) {
 	raw, err := os.ReadFile(listingKinds)
 	if err != nil {
 		return nil, []string{err.Error()}
 	}
-	var rows []*kindRow
+	rows := map[string]*kindRow{}
 	var errs []string
-	seen := map[string]bool{}
 	for i, line := range strings.Split(strings.TrimSuffix(string(raw), "\n"), "\n") {
 		where := fmt.Sprintf("%s:%d", listingKinds, i+1)
 		cells := strings.Split(line, "\t")
 		if len(cells) != 3 || cells[0] == "" || cells[2] == "" {
-			errs = append(errs, where+": want category, kinds and source, tab-separated, none empty")
+			errs = append(errs, where+": want path, kinds and source, tab-separated, none empty")
 			continue
 		}
-		if seen[cells[0]] {
+		if rows[cells[0]] != nil {
 			errs = append(errs, where+": "+cells[0]+" is listed twice")
 		}
-		seen[cells[0]] = true
 		kinds := strings.Split(cells[1], ", ")
+		last := -1
 		for _, k := range kinds {
-			if !slices.Contains(listingKindWords, k) {
-				errs = append(errs, where+": kind "+k+" is none of "+strings.Join(listingKindWords, ", "))
+			at := slices.Index(listingKindWords, k)
+			if at <= last {
+				errs = append(errs, where+": kinds are "+strings.Join(listingKindWords, ", ")+", each at most once and in that order")
+				break
 			}
+			last = at
 		}
-		rows = append(rows, &kindRow{pattern: cells[0], kinds: kinds, source: cells[2]})
+		rows[cells[0]] = &kindRow{kinds: kinds, source: cells[2]}
 	}
 	return rows, errs
 }
 
-// rowFor is the row naming category exactly, else the wildcard row with the most segments that ends it.
-func rowFor(rows []*kindRow, category string) *kindRow {
-	var best *kindRow
-	for _, r := range rows {
-		switch {
-		case r.pattern == category:
+// rowFor is the row of the path itself, else of its nearest ancestor with one.
+func rowFor(rows map[string]*kindRow, path string) *kindRow {
+	for p := path; ; p = p[:strings.LastIndex(p, ".")] {
+		if r := rows[p]; r != nil {
 			return r
-		case strings.HasPrefix(r.pattern, "*.") && strings.HasSuffix(category, r.pattern[1:]):
-			if best == nil || len(r.pattern) > len(best.pattern) {
-				best = r
-			}
+		}
+		if !strings.Contains(p, ".") {
+			return nil
 		}
 	}
-	return best
 }
 
-// shippedListing is every path the whole shipped tree lists, each drawn once from a state of its own, so
-// adding a path moves no other path's example.
+// shippedListing is every path the whole shipped tree lists, each drawn as a user draws it, from seed 1 on
+// TestDay with a state of its own, so adding a path moves no other path's example.
 func shippedListing(t *testing.T) ([]listedPath, []string, []string) {
 	t.Helper()
 	f := newShippedWhole(t)
 	rows, errs := readKindRows()
-	categories := loadedCategories(f)
+	var categories []string
+	for _, l := range engine.Index(&f.root) {
+		categories = append(categories, l.Path)
+	}
 	var out []listedPath
 	for _, path := range f.List() {
-		category := ""
-		for _, c := range categories {
-			if (path == c || strings.HasPrefix(path, c+".")) && len(c) > len(category) {
-				category = c
-			}
-		}
-		row := rowFor(rows, category)
-		if category == "" || row == nil {
-			if msg := "no row in " + listingKinds + " for " + category; !slices.Contains(errs, msg) {
-				errs = append(errs, msg)
-			}
+		row := rowFor(rows, path)
+		if row == nil {
+			errs = append(errs, "no row in "+listingKinds+" for "+path)
 			continue
 		}
 		row.used = true
-		example, err := engine.Fake(drawstate.New(1, fejktest.TestDay), &f.root, path)
+		f.drawState = drawstate.New(1, fejktest.TestDay)
+		example, err := f.FakeTemplate("{/" + path + "}")
 		if err != nil {
 			errs = append(errs, path+": "+err.Error())
 			continue
 		}
 		out = append(out, listedPath{Path: path, Kind: row.kinds, Example: example, Source: row.source})
 	}
-	for _, r := range rows {
+	for p, r := range rows {
 		if !r.used {
-			errs = append(errs, listingKinds+": "+r.pattern+" names no shipped category")
+			errs = append(errs, listingKinds+": "+p+" is no shipped path")
 		}
 	}
+	sort.Strings(errs)
 	return out, errs, categories
 }
 
@@ -153,12 +148,13 @@ func marshalUnescaped(v any) (string, error) {
 	return strings.TrimSuffix(b.String(), "\n"), nil
 }
 
-// readmeListing is the README's table of every category, one folded table a module.
+// readmeListing is the README's table of every category, one folded table per module.
 func readmeListing(t *testing.T, listed []listedPath, categories []string) string {
 	t.Helper()
+	modules := shippedModules(t)
 	byModule := map[string][]listedPath{}
 	for _, l := range listed {
-		for _, m := range shippedModules(t) {
+		for _, m := range modules {
 			if m.holds(l.Path) && slices.Contains(categories, l.Path) {
 				byModule[m.namespace] = append(byModule[m.namespace], l)
 			}
