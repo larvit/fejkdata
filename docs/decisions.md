@@ -14,8 +14,9 @@ a fork on a personal instance. Valid while the project wants contribution from o
 2026-10-03, decided by the maintainer. Technical principle: one owner per value
 (`~/.claude/principles/technical-principles.md`). GitHub owns the history, and
 `gitea.larvit.se/larvit/fejkdata` stays as a read-only pull mirror of it, so it is never
-a second owner. Until `todo.md` item 68 converts it, the Gitea copy goes stale. Valid
-while the maintainer keeps a Gitea copy.
+a second owner. It syncs every hour, and its description and website link name GitHub. The
+copy from before the move is kept private and archived as `larvit/fejkdata-pre-github`,
+for its old pull requests. Valid while the maintainer keeps a Gitea copy.
 
 ## The vocabulary sits in `internal/engine`'s package doc
 
@@ -1457,6 +1458,19 @@ the commit before the change named the imported filer and the one release job as
 better.
 Valid while a release carries only its Go, the modules `go.mod` requires and the GoReleaser
 that packages it.
+
+## Goal 1.1's "where they look" means LLMs first: the ones developers ask, and the coding agents that pick a tool
+
+2026-11-21, Lilleman auf Larv. Serves goal 1.1.
+
+Developers find a tool by asking an LLM, by searching the web and by asking other people.
+LLMs come first, in two ways. A developer asks one which tool to use, and a coding agent
+picks one by itself while it builds something. A search for "fejkdata" by its own name
+found nothing on 2026-11-21, and an LLM asked about fake-data tools named Faker, Mimesis
+and Mockaroo instead. So an item that helps an LLM find fejkdata, recommend it for the
+right task or use it correctly names goal 1.1. Such an item weighs more than one aimed only
+at search engines or word of mouth. Valid while developers choose most of their tools
+through LLMs.
 
 ## A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
 
