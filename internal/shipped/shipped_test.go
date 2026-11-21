@@ -66,6 +66,34 @@ func TestListingGivesAPathItsOwnRowElseItsCategorys(t *testing.T) {
 	}
 }
 
+func TestListingGivesAFieldReachedThroughALinkedTableTheFieldsOwnRow(t *testing.T) {
+	d := loaded(t, module("ns", map[string]string{
+		"r.json": `{"format":"{name}","rows":"r.tsv","key":"code","name":"name"}`,
+		"r.tsv":  "code\tname\n1\ta\n",
+		"m.json": `{"format":"{name}","rows":"m.tsv","key":"code","parent":"r"}`,
+		"m.tsv":  "code\tname\tr\n10\tc\t1\n",
+	}))
+	got, err := d.Listing([]byte("ns.m\treal\tthe m register\nns.m.name\tvalid\tthe name office\nns.r\tinvented\tmade up\n"), ListingState)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sources := map[string]string{}
+	for _, p := range got {
+		sources[p.Path] = strings.Join(p.Kind, ", ") + " from " + p.Source
+	}
+	for path, want := range map[string]string{
+		"ns.m.name":   "valid from the name office",
+		"ns.r.m.name": "valid from the name office",
+		"ns.r.m.code": "real from the m register",
+		"ns.r.m":      "real from the m register",
+		"ns.r.name":   "invented from made up",
+	} {
+		if sources[path] != want {
+			t.Errorf("%s is %q, want %q", path, sources[path], want)
+		}
+	}
+}
+
 func TestListingNamesEveryMistakeInTheKinds(t *testing.T) {
 	const file = "data-listing/kinds-and-sources.tsv"
 	whole := "ns.color\treal\tthe palette\nns.size\tinvented\tmade up\n"
