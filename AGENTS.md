@@ -15,7 +15,7 @@
   publishes a spelling.
 - A locale page's credit sentence carries each element that `DATA-LICENSES.md`'s attribution for the source lists, and a
   claim about generated text is checked against a draw that could break it.
-- Public texts (README, Docker Hub, GitHub description, package descriptions) use plain words and short sentences with few commas, and read like a person wrote them. They describe data that fits together in general, such as a postcode and its city, not only people. A claim about ids says "where possible", since a strict checker refuses some test series. Say "a million rows", the `--repeat` cap, never "millions".
+- Public texts (README, Docker Hub, GitHub description, package descriptions) use plain words and short sentences with few commas, and read like a person wrote them. They say that related values match, such as a postcode and its city, not only a person's. A text too short to name which checkers refuse an id says that ids pass validation "where possible", since a strict checker refuses some test series. Call the `--repeat` cap "a million rows", not "millions"; item 544 may change the cap, and then this rule changes with it.
 - A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one.
 - Cyclomatic complexity is gated at 7: split a function that would go over it.
 
