@@ -2348,6 +2348,6 @@ Valid while the board names no licence for the settlement units and its terms of
 
 The README stays short, so the table sits in `docs/shipped-paths.md`. All 2,019 paths in the README would take it from 179 KiB to about 390 KiB, and GitHub stops rendering a README at 500 KiB. The page is about 240 KiB, and each country added to the data would add about 20 KiB. `TestDataListingIsCurrent` fails if the page passes 500 KiB.
 
-The maintainer asked that the README link the page clearly and sum up the locales and their most important paths, so a reader finds a path from the README, as goal 11's signal asks. Item 546 plans that summary.
+The maintainer asked that the README link the page clearly and sum up the locales and their most important paths, so a reader finds a path from the README, as goal 11's signal asks. The README's Every shipped path sums them up.
 
 Valid while the full table would crowd the README. The test's message says what to do at the limit: split the page per module.
