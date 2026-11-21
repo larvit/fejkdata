@@ -98,26 +98,26 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `da_DK.weekday` | real | `mandag` | Unicode CLDR's stand-alone weekday names |
 | `da_DK.weekday.code` | real | `1` | Unicode CLDR's stand-alone weekday names |
 | `da_DK.weekday.name` | real | `mandag` | Unicode CLDR's stand-alone weekday names |
-| `da_DK.word` | real | `tørlægge` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-adj` | real | `antonym` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-adj.definite` | real | `antonyme` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-adj.word` | real | `antonym` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-adv` | real | `an` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-adv.word` | real | `an` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-noun` | real | `ansættelsesstop` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-noun.definite` | real | `ansættelsesstoppet` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-noun.word` | real | `ansættelsesstop` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-verb` | real | `afskrække` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-verb.present` | real | `afskrækker` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word-verb.word` | real | `afskrække` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word.adj` | real | `sektoriel` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word.adj.definite` | real | `sektorielle` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word.adv` | real | `opad` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word.any` | real | `empirisk` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word.noun` | real | `rankefod` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word.noun.definite` | real | `rankefoden` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word.verb` | real | `puffe` | COR1, Dansk Sprognævn's central word register |
-| `da_DK.word.verb.present` | real | `puffer` | COR1, Dansk Sprognævn's central word register |
+| `da_DK.word` | real | `tørlægge` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-adj` | real | `antonym` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-adj.definite` | real | `antonyme` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-adj.word` | real | `antonym` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-adv` | real | `an` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-adv.word` | real | `an` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-noun` | real | `ansættelsesstop` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-noun.definite` | real | `ansættelsesstoppet` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-noun.word` | real | `ansættelsesstop` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-verb` | real | `afskrække` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-verb.present` | real | `afskrækker` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word-verb.word` | real | `afskrække` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word.adj` | real | `sektoriel` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word.adj.definite` | real | `sektorielle` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word.adv` | real | `opad` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word.any` | real | `empirisk` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word.noun` | real | `rankefod` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word.noun.definite` | real | `rankefoden` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word.verb` | real | `puffe` | COR₁, Dansk Sprognævn's central word register |
+| `da_DK.word.verb.present` | real | `puffer` | COR₁, Dansk Sprognævn's central word register |
 
 </details>
 
@@ -812,20 +812,20 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.DK.region.code` | real | `1085` | Statistics Denmark's NUTS classification and FOLK1A |
 | `geo.DK.region.municipality` | real | `Næstved` | Statistics Denmark's NUTS classification and FOLK1A |
 | `geo.DK.region.municipality.code` | real | `0370` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality` | real | `Næstved` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.lat` | real | `55.2237` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.lon` | real | `11.7629` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.municipality` | real | `0370` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.name` | real | `Næstved` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.population` | real | `48640` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.postal-code` | real | `4700` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.postal-code.addresses` | real | `23588` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.postal-code.code` | real | `4700` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.postal-code.locality` | real | `Næstved` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.street` | real | `Carl Nielsens Vej` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.street.addresses` | real | `53` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.street.locality` | real | `Næstved` | Statistics Denmark's NUTS classification and FOLK1A |
-| `geo.DK.region.municipality.locality.street.name` | real | `Carl Nielsens Vej` | Statistics Denmark's NUTS classification and FOLK1A |
+| `geo.DK.region.municipality.locality` | real | `Næstved` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.lat` | real | `55.2237` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.lon` | real | `11.7629` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.municipality` | real | `0370` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.name` | real | `Næstved` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.population` | real | `48640` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.postal-code` | real | `4700` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.postal-code.addresses` | real | `23588` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.postal-code.code` | real | `4700` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.postal-code.locality` | real | `Næstved` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.street` | real | `Carl Nielsens Vej` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.street.addresses` | real | `53` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.street.locality` | real | `Næstved` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.street.name` | real | `Carl Nielsens Vej` | Danmarks Adresseregister |
 | `geo.DK.region.municipality.name` | real | `Næstved` | Statistics Denmark's NUTS classification and FOLK1A |
 | `geo.DK.region.municipality.population` | real | `85276` | Statistics Denmark's NUTS classification and FOLK1A |
 | `geo.DK.region.municipality.region` | real | `1085` | Statistics Denmark's NUTS classification and FOLK1A |
@@ -980,22 +980,22 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.FI.region.code` | real | `19` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.municipality` | real | `Sodankylä` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.municipality.code` | real | `758` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality` | real | `Sodankylä` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.lat` | real | `67.4843` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.lon` | real | `26.6255` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.municipality` | real | `758` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.name` | real | `Sodankylä` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.population` | real | `5259` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.postal-code` | real | `99600` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.postal-code.code` | real | `99600` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.postal-code.locality` | real | `Sodankylä` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.postal-code.population` | real | `5259` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.street` | real | `Poromiehentie` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.street.addresses` | real | `2` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.street.locality` | real | `Sodankylä` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.street.name` | real | `Poromiehentie` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.street.swedish-name` | real | `Poromiehentie` | Statistics Finland's kunta classification and population |
-| `geo.FI.region.municipality.locality.swedish-name` | real | `Sodankylä` | Statistics Finland's kunta classification and population |
+| `geo.FI.region.municipality.locality` | real | `Sodankylä` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.lat` | real | `67.4843` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.lon` | real | `26.6255` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.municipality` | real | `758` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.name` | real | `Sodankylä` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.population` | real | `5259` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.postal-code` | real | `99600` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.postal-code.code` | real | `99600` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.postal-code.locality` | real | `Sodankylä` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.postal-code.population` | real | `5259` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.street` | real | `Poromiehentie` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.street.addresses` | real | `2` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.street.locality` | real | `Sodankylä` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.street.name` | real | `Poromiehentie` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.street.swedish-name` | real | `Poromiehentie` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.swedish-name` | real | `Sodankylä` | Posti's postcode and basic address files |
 | `geo.FI.region.municipality.name` | real | `Sodankylä` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.municipality.population` | real | `8095` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.municipality.region` | real | `19` | Statistics Finland's kunta classification and population |
@@ -1293,20 +1293,20 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.NO.region.code` | real | `55` | Statistics Norway's fylke and kommune classifications |
 | `geo.NO.region.municipality` | real | `Senja` | Statistics Norway's fylke and kommune classifications |
 | `geo.NO.region.municipality.code` | real | `5530` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality` | real | `Kaldfarnes` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.lat` | real | `69.2859` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.lon` | real | `17.0521` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.municipality` | real | `5530` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.name` | real | `Kaldfarnes` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.population` | real | `450` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.postal-code` | real | `9395` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.postal-code.addresses` | real | `353` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.postal-code.code` | real | `9395` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.postal-code.locality` | real | `Kaldfarnes` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.street` | real | `Sifjordveien` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.street.addresses` | real | `57` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.street.locality` | real | `Kaldfarnes` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.locality.street.name` | real | `Sifjordveien` | Statistics Norway's fylke and kommune classifications |
+| `geo.NO.region.municipality.locality` | real | `Kaldfarnes` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.lat` | real | `69.2859` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.lon` | real | `17.0521` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.municipality` | real | `5530` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.name` | real | `Kaldfarnes` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.population` | real | `450` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.postal-code` | real | `9395` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.postal-code.addresses` | real | `353` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.postal-code.code` | real | `9395` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.postal-code.locality` | real | `Kaldfarnes` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.street` | real | `Sifjordveien` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.street.addresses` | real | `57` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.street.locality` | real | `Kaldfarnes` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.street.name` | real | `Sifjordveien` | Kartverket's address register |
 | `geo.NO.region.municipality.name` | real | `Senja` | Statistics Norway's fylke and kommune classifications |
 | `geo.NO.region.municipality.population` | real | `14946` | Statistics Norway's fylke and kommune classifications |
 | `geo.NO.region.municipality.region` | real | `55` | Statistics Norway's fylke and kommune classifications |
@@ -1356,10 +1356,10 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.SE.municipality.locality.postal-code` | real | `931 31` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.municipality.locality.postal-code.code` | real | `931 31` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.municipality.locality.postal-code.locality` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.municipality.locality.street` | real | `Kalkbruksgatan` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.municipality.locality.street.locality` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.municipality.locality.street.name` | real | `Kalkbruksgatan` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.municipality.locality.street.segments` | real | `6` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.municipality.locality.street` | real | `Kalkbruksgatan` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
+| `geo.SE.municipality.locality.street.locality` | real | `Skellefteå` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
+| `geo.SE.municipality.locality.street.name` | real | `Kalkbruksgatan` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
+| `geo.SE.municipality.locality.street.segments` | real | `6` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
 | `geo.SE.municipality.name` | real | `Skellefteå` | SCB's län and kommun codes and population |
 | `geo.SE.municipality.population` | real | `78150` | SCB's län and kommun codes and population |
 | `geo.SE.municipality.region` | real | `24` | SCB's län and kommun codes and population |
@@ -1370,19 +1370,19 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.SE.region.code` | real | `24` | SCB's län and kommun codes and population |
 | `geo.SE.region.municipality` | real | `Skellefteå` | SCB's län and kommun codes and population |
 | `geo.SE.region.municipality.code` | real | `2482` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality` | real | `Skellefteå` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.lat` | real | `64.7507` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.lon` | real | `20.9528` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.municipality` | real | `2482` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.name` | real | `Skellefteå` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.population` | real | `39146` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.postal-code` | real | `931 95` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.postal-code.code` | real | `931 95` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.postal-code.locality` | real | `Skellefteå` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.street` | real | `Bölevägen` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.street.locality` | real | `Skellefteå` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.street.name` | real | `Bölevägen` | SCB's län and kommun codes and population |
-| `geo.SE.region.municipality.locality.street.segments` | real | `6` | SCB's län and kommun codes and population |
+| `geo.SE.region.municipality.locality` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.lat` | real | `64.7507` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.lon` | real | `20.9528` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.municipality` | real | `2482` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.name` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.population` | real | `39146` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.postal-code` | real | `931 95` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.postal-code.code` | real | `931 95` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.postal-code.locality` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.street` | real | `Bölevägen` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
+| `geo.SE.region.municipality.locality.street.locality` | real | `Skellefteå` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
+| `geo.SE.region.municipality.locality.street.name` | real | `Bölevägen` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
+| `geo.SE.region.municipality.locality.street.segments` | real | `6` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
 | `geo.SE.region.municipality.name` | real | `Skellefteå` | SCB's län and kommun codes and population |
 | `geo.SE.region.municipality.population` | real | `78150` | SCB's län and kommun codes and population |
 | `geo.SE.region.municipality.region` | real | `24` | SCB's län and kommun codes and population |
@@ -1432,14 +1432,14 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.US.municipality.locality.municipality` | real | `53061` | Census Bureau Gazetteer and population estimates |
 | `geo.US.municipality.locality.name` | real | `Marysville` | Census Bureau Gazetteer and population estimates |
 | `geo.US.municipality.locality.population` | real | `77686` | Census Bureau Gazetteer and population estimates |
-| `geo.US.municipality.locality.postal-code` | real | `98270` | Census Bureau Gazetteer and population estimates |
-| `geo.US.municipality.locality.postal-code.addresses` | real | `3942` | Census Bureau Gazetteer and population estimates |
-| `geo.US.municipality.locality.postal-code.code` | real | `98270` | Census Bureau Gazetteer and population estimates |
-| `geo.US.municipality.locality.postal-code.locality` | real | `5343955` | Census Bureau Gazetteer and population estimates |
-| `geo.US.municipality.locality.street` | real | `19th Ave NE` | Census Bureau Gazetteer and population estimates |
-| `geo.US.municipality.locality.street.addresses` | real | `14` | Census Bureau Gazetteer and population estimates |
-| `geo.US.municipality.locality.street.locality` | real | `5343955` | Census Bureau Gazetteer and population estimates |
-| `geo.US.municipality.locality.street.name` | real | `19th Ave NE` | Census Bureau Gazetteer and population estimates |
+| `geo.US.municipality.locality.postal-code` | real | `98270` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.municipality.locality.postal-code.addresses` | real | `3942` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.municipality.locality.postal-code.code` | real | `98270` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.municipality.locality.postal-code.locality` | real | `5343955` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.municipality.locality.street` | real | `19th Ave NE` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.municipality.locality.street.addresses` | real | `14` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.municipality.locality.street.locality` | real | `5343955` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.municipality.locality.street.name` | real | `19th Ave NE` | Census Bureau ZCTA relationships and TIGER/Line |
 | `geo.US.municipality.name` | real | `Snohomish County` | Census Bureau Gazetteer and population estimates |
 | `geo.US.municipality.population` | real | `870656` | Census Bureau Gazetteer and population estimates |
 | `geo.US.municipality.region` | real | `WA` | Census Bureau Gazetteer and population estimates |
@@ -1459,14 +1459,14 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.US.region.municipality.locality.municipality` | real | `53061` | Census Bureau Gazetteer and population estimates |
 | `geo.US.region.municipality.locality.name` | real | `Lake Stevens` | Census Bureau Gazetteer and population estimates |
 | `geo.US.region.municipality.locality.population` | real | `42091` | Census Bureau Gazetteer and population estimates |
-| `geo.US.region.municipality.locality.postal-code` | real | `98258` | Census Bureau Gazetteer and population estimates |
-| `geo.US.region.municipality.locality.postal-code.addresses` | real | `4537` | Census Bureau Gazetteer and population estimates |
-| `geo.US.region.municipality.locality.postal-code.code` | real | `98258` | Census Bureau Gazetteer and population estimates |
-| `geo.US.region.municipality.locality.postal-code.locality` | real | `5337900` | Census Bureau Gazetteer and population estimates |
-| `geo.US.region.municipality.locality.street` | real | `22nd St SE` | Census Bureau Gazetteer and population estimates |
-| `geo.US.region.municipality.locality.street.addresses` | real | `11` | Census Bureau Gazetteer and population estimates |
-| `geo.US.region.municipality.locality.street.locality` | real | `5337900` | Census Bureau Gazetteer and population estimates |
-| `geo.US.region.municipality.locality.street.name` | real | `22nd St SE` | Census Bureau Gazetteer and population estimates |
+| `geo.US.region.municipality.locality.postal-code` | real | `98258` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.region.municipality.locality.postal-code.addresses` | real | `4537` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.region.municipality.locality.postal-code.code` | real | `98258` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.region.municipality.locality.postal-code.locality` | real | `5337900` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.region.municipality.locality.street` | real | `22nd St SE` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.region.municipality.locality.street.addresses` | real | `11` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.region.municipality.locality.street.locality` | real | `5337900` | Census Bureau ZCTA relationships and TIGER/Line |
+| `geo.US.region.municipality.locality.street.name` | real | `22nd St SE` | Census Bureau ZCTA relationships and TIGER/Line |
 | `geo.US.region.municipality.name` | real | `Snohomish County` | Census Bureau Gazetteer and population estimates |
 | `geo.US.region.municipality.population` | real | `870656` | Census Bureau Gazetteer and population estimates |
 | `geo.US.region.municipality.region` | real | `WA` | Census Bureau Gazetteer and population estimates |

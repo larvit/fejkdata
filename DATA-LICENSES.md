@@ -818,7 +818,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 ## `misc/currency.tsv`
 
-- Source: [datasets/currency-codes](https://github.com/datasets/currency-codes); symbols from
+- Source: [datasets/currency-codes](https://github.com/datasets/currency-codes), which titles
+  itself "ISO 4217 Currency Codes"; symbols from
   [Unicode CLDR](https://github.com/unicode-org/cldr) `en.xml` and `root.xml`
 - Licence: PDDL 1.0; [Unicode License v3](https://www.unicode.org/license.txt)
 - Attribution: CLDR: "Copyright © 1991-2025 Unicode, Inc. Unicode and the Unicode Logo are
@@ -882,7 +883,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 ## `misc/territory.tsv`
 
-- Source: [datasets/country-codes](https://github.com/datasets/country-codes)
+- Source: [datasets/country-codes](https://github.com/datasets/country-codes), which holds a row
+  for each ISO 3166-1 entry
 - Licence: [PDDL 1.0](https://opendatacommons.org/licenses/pddl/1-0/)
 - Attribution: none required
 - Rebuild: `data-import/territory.py`
