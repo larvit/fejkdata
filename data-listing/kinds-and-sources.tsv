@@ -1,0 +1,301 @@
+*.color	real, valid	hand-written colour names, or a random hex code in two draws of three
+*.date	invented	hand-written
+*.email	invented	the locale's names and hand-written words, at example domains
+*.month	real	Unicode CLDR's stand-alone month names
+*.paragraph	invented	a fixed pattern filled with the locale's words
+*.price	invented	hand-written
+*.sentence	invented	a fixed pattern filled with the locale's words
+*.time	invented	hand-written
+*.title	real	hand-written
+*.url	invented	hand-written paths on example hosts, with the locale's words
+*.username	invented	the locale's own words, in hand-written patterns
+*.weekday	real	Unicode CLDR's stand-alone weekday names
+da_DK.address	real, invented	real postdistrikt, postnummer and street from DAR; the house number is invented
+da_DK.company	invented	legal-form weights from Statistics Denmark; name shapes from a language model's recall
+da_DK.company-coined	invented	a language model's recall
+da_DK.company-word	invented	a language model's recall
+da_DK.cpr	valid	the CPR office's modulus 11 check; no test series is published
+da_DK.first-name	real, invented	Statistics Denmark's top 20; a language model's recall for every other name
+da_DK.individ	valid	the CPR office's modulus 11 check; no test series is published
+da_DK.last-name	real, invented	Statistics Denmark's top 20; a language model's recall for every other name
+da_DK.person	real, invented	a first and a last name from the locale's name tables, paired at random
+da_DK.phone	valid	the Danish Overall Numbering Plan, Annex 1
+da_DK.phone-fixed	valid	the Danish Overall Numbering Plan, Annex 1
+da_DK.phone-mobile	valid	the Danish Overall Numbering Plan, Annex 1
+da_DK.sex	real	Statistics Denmark's table FOLK1A
+da_DK.word	real	COR1, Dansk Sprognævn's central word register
+da_DK.word-adj	real	COR1, Dansk Sprognævn's central word register
+da_DK.word-adv	real	COR1, Dansk Sprognævn's central word register
+da_DK.word-noun	real	COR1, Dansk Sprognævn's central word register
+da_DK.word-verb	real	COR1, Dansk Sprognævn's central word register
+de_DE.address	real, invented	real place and postal code from GeoNames; the street and house number are invented
+de_DE.company	invented	legal-form weights from Destatis; name shapes from a language model's recall
+de_DE.company-coined	invented	a language model's recall
+de_DE.company-word	invented	a language model's recall
+de_DE.first-name	real	the city of Munich's newborns' names
+de_DE.last-name	invented	a language model's recall of names common in Germany
+de_DE.person	real, invented	a first and a last name from the locale's name tables, paired at random
+de_DE.phone	valid	the Bundesnetzagentur's number blocks and area codes
+de_DE.phone-fixed	valid	the Bundesnetzagentur's number blocks and area codes
+de_DE.phone-mobile	valid	the Bundesnetzagentur's number blocks and area codes
+de_DE.phone-subscriber	valid	the Bundesnetzagentur's number blocks and area codes
+de_DE.sex	real	Eurostat's table demo_pjan
+de_DE.steuer-id	valid	ELSTER's test numbers
+de_DE.word	real	Wikidata's German lexemes
+de_DE.word-adj	real	Wikidata's German lexemes
+de_DE.word-adv	real	Wikidata's German lexemes
+de_DE.word-noun	real	Wikidata's German lexemes
+de_DE.word-verb	real	Wikidata's German lexemes
+en_US.address	real, invented	real place, postal code and street from the Census Bureau; the house number is invented
+en_US.company	invented	hand-written
+en_US.first-name	real	the SSA's baby names
+en_US.itin	valid	hand-written, in the groups the IRS lists for an ITIN
+en_US.last-name	real	the Census Bureau's surnames of 2010
+en_US.person	real, invented	a first and a last name from the locale's name tables, paired at random
+en_US.phone	valid	hand-written area codes; exchanges NANPA may assign
+en_US.phone-exchange	valid	the codes NANPA may assign
+en_US.sex	real	the Census Bureau's population estimates by sex
+en_US.ssn	valid	hand-written, in the ranges the SSA assigns
+en_US.word	real	WordNet 3.0
+en_US.word-adj	real	WordNet 3.0
+en_US.word-adv	real	WordNet 3.0
+en_US.word-noun	real	WordNet 3.0
+en_US.word-verb	real	WordNet 3.0
+et_EE.address	real, invented	real locality, postal code and street from Maa- ja Ruumiamet; the house number is invented
+et_EE.company	invented	legal-form weights and name shapes from the e-Business Register's names
+et_EE.company-coined	invented	words from the e-Business Register's company names
+et_EE.company-word	invented	words from the e-Business Register's company names
+et_EE.first-name	invented	a language model's recall of names common in Estonia
+et_EE.isikukood	valid	the check digit; no test series is published
+et_EE.last-name	invented	a language model's recall of names common in Estonia
+et_EE.person	invented	a first and a last name from the locale's name tables, paired at random
+et_EE.phone	valid	the Estonian numbering plan, regulation no. 25 of 2018
+et_EE.sex	real	Eurostat's table demo_pjan
+et_EE.sex-digit	valid	the check digit; no test series is published
+et_EE.word	real	Wikidata's Estonian lexemes
+et_EE.word-adj	real	Wikidata's Estonian lexemes
+et_EE.word-adv	real	Wikidata's Estonian lexemes
+et_EE.word-noun	real	Wikidata's Estonian lexemes
+et_EE.word-verb	real	Wikidata's Estonian lexemes
+fi_FI.address	real, invented	real locality, postal code and street from Posti; the house number is invented
+fi_FI.company	invented	legal-form weights from Statistics Finland; name shapes from a language model's recall
+fi_FI.company-coined	invented	a language model's recall
+fi_FI.company-word	invented	a language model's recall
+fi_FI.first-name	real	DVV's name statistics
+fi_FI.henkilotunnus	valid	DVV's unissued individual numbers 900 to 999
+fi_FI.henkilotunnus-issued	valid	DVV's issued individual numbers 002 to 899
+fi_FI.individ	valid	DVV's individual numbers
+fi_FI.last-name	real	DVV's name statistics
+fi_FI.person	real, invented	a first and a last name from the locale's name tables, paired at random
+fi_FI.phone	valid	Traficom's Regulation 32 V/2025 M
+fi_FI.phone-fixed	valid	Traficom's Regulation 32 V/2025 M
+fi_FI.phone-mobile	valid	Traficom's Regulation 32 V/2025 M
+fi_FI.phone-subscriber	valid	Traficom's Regulation 32 V/2025 M
+fi_FI.sex	real	Statistics Finland's table 11rb
+fi_FI.word	real	Kotus' Nykysuomen sanalista 2024
+fi_FI.word-adj	real	Kotus' Nykysuomen sanalista 2024
+fi_FI.word-adv	real	Kotus' Nykysuomen sanalista 2024
+fi_FI.word-noun	real	Kotus' Nykysuomen sanalista 2024
+fi_FI.word-verb	real	Kotus' Nykysuomen sanalista 2024
+fr_FR.address	real, invented	real commune and postal code from INSEE and BAN; the street and house number are invented
+fr_FR.company	invented	legal-form weights and name shapes from INSEE's Sirene
+fr_FR.company-coined	invented	words from INSEE's Sirene company names
+fr_FR.company-word	invented	words from INSEE's Sirene company names
+fr_FR.department	real	INSEE's department codes in a NIR
+fr_FR.first-name	real	INSEE's Fichier des prénoms
+fr_FR.last-name	real	INSEE's Fichier des noms
+fr_FR.nir	valid	INSEE's key check; no test series is published
+fr_FR.nonzero-number	invented	hand-written
+fr_FR.person	real, invented	a first and a last name from the locale's name tables, paired at random
+fr_FR.phone	invented	Arcep's numbering plan roots for use in fiction
+fr_FR.phone-fixed	invented	Arcep's numbering plan roots for use in fiction
+fr_FR.phone-mobile	invented	Arcep's numbering plan roots for use in fiction
+fr_FR.sex	real	Eurostat's table demo_pjan
+fr_FR.sex-digit	valid	INSEE's key check; no test series is published
+fr_FR.word	real	the English Wiktionary's French words, through kaikki.org
+fr_FR.word-adj	real	the English Wiktionary's French words, through kaikki.org
+fr_FR.word-adv	real	the English Wiktionary's French words, through kaikki.org
+fr_FR.word-noun	real	the English Wiktionary's French words, through kaikki.org
+fr_FR.word-verb	real	the English Wiktionary's French words, through kaikki.org
+geo.DE.address	real, invented	real place and postal code from GeoNames; the street and house number are invented
+geo.DE.locality	real	GeoNames' Postleitzahlen of Germany
+geo.DE.municipality	real	GeoNames' Postleitzahlen of Germany
+geo.DE.postal-code	real	GeoNames' Postleitzahlen of Germany
+geo.DE.region	real	GeoNames' Postleitzahlen of Germany
+geo.DE.street	invented	a language model's recall of street names common in Germany
+geo.DK.address	real, invented	real postdistrikt, postnummer and street from DAR; the house number is invented
+geo.DK.locality	real	Danmarks Adresseregister
+geo.DK.municipality	real	Statistics Denmark's NUTS classification and FOLK1A
+geo.DK.postal-code	real	Danmarks Adresseregister
+geo.DK.region	real	Statistics Denmark's NUTS classification and FOLK1A
+geo.DK.street	real	Danmarks Adresseregister
+geo.EE.address	real, invented	real locality, postal code and street from Maa- ja Ruumiamet; the house number is invented
+geo.EE.locality	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.municipality	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.postal-code	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.region	real	Maa- ja Ruumiamet's address data and settlement units
+geo.EE.street	real	Maa- ja Ruumiamet's address data and settlement units
+geo.FI.address	real, invented	real locality, postal code and street from Posti; the house number is invented
+geo.FI.locality	real	Posti's postcode and basic address files
+geo.FI.municipality	real	Statistics Finland's kunta classification and population
+geo.FI.postal-code	real	Posti's postcode and basic address files
+geo.FI.region	real	Statistics Finland's kunta classification and population
+geo.FI.street	real	Posti's postcode and basic address files
+geo.FR.address	real, invented	real commune and postal code from INSEE and BAN; the street and house number are invented
+geo.FR.locality	real	INSEE's populations file and the Base Adresse Nationale
+geo.FR.municipality	real	INSEE's populations file and the Base Adresse Nationale
+geo.FR.postal-code	real	INSEE's populations file and the Base Adresse Nationale
+geo.FR.region	real	INSEE's populations file and the Base Adresse Nationale
+geo.FR.street	invented	a language model's recall of street names common in France
+geo.LT.address	real, invented	real locality, postal code and street from the Address Register; house number invented
+geo.LT.locality	real	the Centre of Registers' Address Register
+geo.LT.municipality	real	the Centre of Registers' Address Register
+geo.LT.postal-code	real	the Centre of Registers' Address Register
+geo.LT.region	real	the Centre of Registers' Address Register
+geo.LT.street	real	the Centre of Registers' Address Register
+geo.LV.address	real, invented	real locality, postal code, street from the State Address Register; house number invented
+geo.LV.locality	real	the State Land Service's State Address Register
+geo.LV.municipality	real	the State Land Service's State Address Register
+geo.LV.postal-code	real	the State Land Service's State Address Register
+geo.LV.region	real	the State Land Service's State Address Register
+geo.LV.street	real	the State Land Service's State Address Register
+geo.NO.address	real, invented	real poststed, postnummer and street from Kartverket; the house number is invented
+geo.NO.locality	real	Kartverket's address register
+geo.NO.municipality	real	Statistics Norway's fylke and kommune classifications
+geo.NO.postal-code	real	Kartverket's address register
+geo.NO.region	real	Statistics Norway's fylke and kommune classifications
+geo.NO.street	real	Kartverket's address register
+geo.SE.address	real, invented	real locality, postal code and street from GeoNames and NVDB; house number invented
+geo.SE.locality	real	GeoNames' postal codes for SE and SCB's tätort populations
+geo.SE.municipality	real	SCB's län and kommun codes and population
+geo.SE.postal-code	real	GeoNames' postal codes for SE and SCB's tätort populations
+geo.SE.region	real	SCB's län and kommun codes and population
+geo.SE.street	real	Trafikverket's NVDB street names, placed with SCB's tätort areas
+geo.US.address	real, invented	real place, postal code and street from the Census Bureau; the house number is invented
+geo.US.locality	real	Census Bureau Gazetteer and population estimates
+geo.US.municipality	real	Census Bureau Gazetteer and population estimates
+geo.US.postal-code	real	Census Bureau ZCTA relationships and TIGER/Line
+geo.US.region	real	Census Bureau Gazetteer and population estimates
+geo.US.street	real	Census Bureau ZCTA relationships and TIGER/Line
+lt_LT.address	real, invented	real locality, postal code and street from the Address Register; house number invented
+lt_LT.asmens-kodas	valid	the check digit; no test series is published
+lt_LT.company	invented	legal-form weights and name shapes from the Register of Legal Entities
+lt_LT.company-coined	invented	words from the Register of Legal Entities' names
+lt_LT.company-word	invented	words from the Register of Legal Entities' names
+lt_LT.first-name	real, invented	the Centre of Registers' top 50; a language model's recall for the rest
+lt_LT.last-name	invented	a language model's recall of names common in Lithuania
+lt_LT.person	real, invented	a first and a last name from the locale's name tables, paired at random
+lt_LT.phone	valid	the RRT's numbering plan of 2023
+lt_LT.phone-fixed	valid	the RRT's numbering plan of 2023
+lt_LT.phone-mobile	valid	the RRT's numbering plan of 2023
+lt_LT.sex	real	Eurostat's table demo_pjan
+lt_LT.sex-digit	valid	the check digit; no test series is published
+lt_LT.word	real	the English Wiktionary's Lithuanian words, through kaikki.org
+lt_LT.word-adj	real	the English Wiktionary's Lithuanian words, through kaikki.org
+lt_LT.word-adv	real	the English Wiktionary's Lithuanian words, through kaikki.org
+lt_LT.word-noun	real	the English Wiktionary's Lithuanian words, through kaikki.org
+lt_LT.word-verb	real	the English Wiktionary's Lithuanian words, through kaikki.org
+lv_LV.address	real, invented	real locality, postal code, street from the State Address Register; house number invented
+lv_LV.company	invented	legal-form weights and name shapes from the Register of Enterprises
+lv_LV.company-coined	invented	words from the Register of Enterprises' names
+lv_LV.company-word	invented	words from the Register of Enterprises' names
+lv_LV.first-name	real	the Office of Citizenship and Migration Affairs' register statistics
+lv_LV.last-name	invented	a language model's recall of names common in Latvia
+lv_LV.person	real, invented	a first and a last name from the locale's name tables, paired at random
+lv_LV.personas-kods	valid	the check digit; no test series is published
+lv_LV.phone	valid	Table 1 of the National Numbering Plan
+lv_LV.sex	real	Eurostat's table demo_pjan
+lv_LV.word	real	Tēzaurs.lv's wordforms
+lv_LV.word-adj	real	Tēzaurs.lv's wordforms
+lv_LV.word-adv	real	Tēzaurs.lv's wordforms
+lv_LV.word-noun	real	Tēzaurs.lv's wordforms
+lv_LV.word-verb	real	Tēzaurs.lv's wordforms
+misc.car	real	hand-written
+misc.coordinate	valid	hand-written
+misc.creditcard	valid	hand-written, with a Luhn check
+misc.creditcard-test	valid	Stripe's published test cards
+misc.currency	real	datasets/currency-codes (ISO 4217), with symbols from Unicode CLDR
+misc.datetime	invented	hand-written
+misc.emoji	real	hand-written
+misc.httpmethod	real	IANA's HTTP Method Registry
+misc.httpstatus	real	IANA's HTTP Status Code Registry
+misc.iban-test	valid	Stripe's test IBANs, and Danske Bank's fictive example for DK
+misc.ip	valid	hand-written
+misc.ipv6	valid	hand-written, inside RFC 3849's 2001:db8::/32
+misc.language	real	datasets/language-codes, the Library of Congress' ISO 639-2 register
+misc.loglevel	real	RFC 5424's syslog severities, with POSIX's keywords
+misc.mac	valid	hand-written
+misc.mimetype	real	mime-db, the IANA media type registry with filename extensions
+misc.objectid	valid	hand-written
+misc.port	real	IANA's Service Name and Transport Protocol Port Number Registry
+misc.protocol	real	IANA's Protocol Numbers
+misc.territory	real	datasets/country-codes (ISO 3166-1)
+misc.timezone	real	IANA's tzdb, weighted by GeoNames' populations
+misc.tld	real	IANA's Root Zone Database
+misc.useragent	real	microlinkhq's top-user-agents lists
+misc.uuid	valid	hand-written
+misc.version	invented	hand-written
+nb_NO.address	real, invented	real poststed, postnummer and street from Kartverket; the house number is invented
+nb_NO.birth-day	valid	Skatteetaten's synthetic series
+nb_NO.company	invented	name shapes and legal forms from Enhetsregisteret's names
+nb_NO.company-coined	invented	words from Enhetsregisteret's names, and Norwegian place names
+nb_NO.company-word	invented	words from Enhetsregisteret's names
+nb_NO.first-name	real	Statistics Norway's StatBank table 10501
+nb_NO.fodselsnummer	valid	Skatteetaten's synthetic series
+nb_NO.individ	valid	Skatteetaten's synthetic series
+nb_NO.last-name	real	Statistics Norway's StatBank table 12891
+nb_NO.person	real, invented	a first and a last name from the locale's name tables, paired at random
+nb_NO.phone	valid	Nkom's national numbering plan
+nb_NO.phone-fixed	valid	Nkom's national numbering plan
+nb_NO.phone-mobile	valid	Nkom's national numbering plan
+nb_NO.sex	real	Statistics Norway's StatBank table 07459
+nb_NO.word	real	Norsk ordbank bokmål 2005
+nb_NO.word-adj	real	Norsk ordbank bokmål 2005
+nb_NO.word-adv	real	Norsk ordbank bokmål 2005
+nb_NO.word-noun	real	Norsk ordbank bokmål 2005
+nb_NO.word-verb	real	Norsk ordbank bokmål 2005
+nn_NO.address	real, invented	real poststed, postnummer and street from Kartverket; the house number is invented
+nn_NO.company	invented	name shapes and legal forms from Enhetsregisteret's names
+nn_NO.fodselsnummer	valid	Skatteetaten's synthetic series
+nn_NO.person	real, invented	a first and a last name from the locale's name tables, paired at random
+nn_NO.phone	valid	Nkom's national numbering plan
+nn_NO.word	real	Norsk ordbank nynorsk 2012
+nn_NO.word-adj	real	Norsk ordbank nynorsk 2012
+nn_NO.word-adv	real	Norsk ordbank nynorsk 2012
+nn_NO.word-noun	real	Norsk ordbank nynorsk 2012
+nn_NO.word-verb	real	Norsk ordbank nynorsk 2012
+sv_SE.address	real, invented	real locality, postal code and street from GeoNames and NVDB; house number invented
+sv_SE.bankaccount	valid	Bankinfrastruktur i Sverige's clearing numbers, with the checks of Bankgirot
+sv_SE.bankgiro	valid	hand-written, with a Luhn check digit
+sv_SE.birth-number	valid	Skatteverket's test series
+sv_SE.bloodtype	real	sv.wikipedia's blood type shares for Sweden
+sv_SE.car	real	Mobility Sweden's new registrations of 2025
+sv_SE.company	invented	legal-form weights, name shapes and words from Bolagsverket
+sv_SE.company-coined	invented	hand-written
+sv_SE.company-word	invented	trade words from Bolagsverket's company names
+sv_SE.first-name	real	SCB's names with at least two bearers
+sv_SE.holiday	real	lag (1989:253) om allmänna helgdagar
+sv_SE.last-name	real	SCB's names with at least two bearers
+sv_SE.licenseplate	valid	sv.wikipedia's article on Swedish plates
+sv_SE.licenseplate-letters	valid	sv.wikipedia's article on Swedish plates
+sv_SE.organisationsnummer	valid	format and checksum; group weights from Bolagsverket's statistics
+sv_SE.person	real, valid, invented	SCB's names, a test-series personnummer; the birth date is invented
+sv_SE.personnummer	valid	Skatteverket's test series
+sv_SE.personnummer-12	valid	Skatteverket's test series
+sv_SE.personnummer-date	valid	Skatteverket's test series
+sv_SE.phone	valid	PTS's numbering plan of 2024-01-08
+sv_SE.phone-area	real	PTS's numbering plan of 2024-01-08
+sv_SE.phone-subscriber	valid	PTS's numbering plan of 2024-01-08
+sv_SE.plusgiro	valid	hand-written, with a Luhn check digit
+sv_SE.samordningsnummer	valid	Skatteverket's test series
+sv_SE.samordningsnummer-12	valid	Skatteverket's test series
+sv_SE.sex	real	SCB's table BefolkningR1860N
+sv_SE.sni	real	SCB's SNI 2025
+sv_SE.ssyk	real	SCB's SSYK 2012
+sv_SE.territory	real	Unicode CLDR's territory names
+sv_SE.vat	valid	format and checksum; group weights from Bolagsverket's statistics
+sv_SE.word	real	SALDO, Språkbanken's dictionary
+sv_SE.word-adj	real	SALDO, Språkbanken's dictionary
+sv_SE.word-adv	real	SALDO, Språkbanken's dictionary
+sv_SE.word-noun	real	SALDO, Språkbanken's dictionary
+sv_SE.word-verb	real	SALDO, Språkbanken's dictionary
