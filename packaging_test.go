@@ -51,29 +51,36 @@ func coveredBy(file string, paths []string) bool {
 	return false
 }
 
+var (
+	readmeLead      = regexp.MustCompile(`(?m)^(Fake data for tests\. [^.\n]*\.)`)
+	descriptionLine = regexp.MustCompile(`(?m)^    description: &description (.*)$`)
+)
+
 func TestPackageDescriptionsKeepTheREADMEsLead(t *testing.T) {
-	readme, err := os.ReadFile("README.md")
+	m := readmeLead.FindStringSubmatch(readme(t))
+	if m == nil {
+		t.Fatal("the README has no line opening with two sentences, the first \"Fake data for tests.\"")
+	}
+	lead := strings.ToLower(m[1])
+	goreleaser, err := os.ReadFile("release-tooling/goreleaser.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
-	var lead string
-	for _, line := range strings.Split(string(readme), "\n") {
-		if strings.HasPrefix(line, "Fake data for tests.") {
-			sentences := strings.SplitAfterN(line, ". ", 3)
-			lead = strings.ToLower(strings.TrimSpace(sentences[0] + sentences[1]))
-			break
-		}
+	description := descriptionLine.FindSubmatch(goreleaser)
+	if description == nil {
+		t.Fatal("goreleaser.yaml has no nfpms `description: &description` line")
 	}
-	if lead == "" {
-		t.Fatal("the README has no line opening with \"Fake data for tests.\"")
+	doc, err := os.ReadFile("doc.go")
+	if err != nil {
+		t.Fatal(err)
 	}
-	for _, name := range []string{"release-tooling/goreleaser.yaml", "doc.go"} {
-		src, err := os.ReadFile(name)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if !strings.Contains(strings.ToLower(string(src)), lead) {
-			t.Errorf("%s does not hold the README's lead %q, so brew, apt, dnf and pkg.go.dev describe fejkdata in older words", name, lead)
+	firstLine, _, _ := strings.Cut(string(doc), "\n")
+	for name, text := range map[string]string{
+		"the description in release-tooling/goreleaser.yaml, which brew, scoop, apt, dnf and apk show": string(description[1]),
+		"the first line of doc.go, which pkg.go.dev shows":                                           firstLine,
+	} {
+		if !strings.Contains(strings.ToLower(text), lead) {
+			t.Errorf("%s does not hold the README's lead, so a reader there meets older words; copy %q from README.md", name, m[1])
 		}
 	}
 }
