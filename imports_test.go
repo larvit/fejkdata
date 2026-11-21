@@ -32,7 +32,7 @@ var allowedImports = map[string][]string{
 	"internal/jsonvalue":          nil,
 	"internal/proven":             {"internal/datatype", "internal/grammar", "internal/invariant"},
 	"internal/rows":               {"internal/drawstate", "internal/grammar", "internal/invariant"},
-	"internal/shipped":            {"internal/datafiles", "internal/drawstate", "internal/engine", "internal/engine/load", "internal/engine/tree"},
+	"internal/shipped":            {"internal/datafiles", "internal/drawstate", "internal/engine", "internal/engine/load", "internal/engine/tree", "internal/invariant"},
 	"internal/shipped/generate":   {"data", "internal/shipped"},
 }
 
