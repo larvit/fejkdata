@@ -6,6 +6,8 @@
 package shipped
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/fs"
 	"slices"
 	"strings"
@@ -14,12 +16,21 @@ import (
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // File is a generated file: its slash-separated name from the repository's root, and its body.
 type File struct {
 	Name string
 	Body []byte
+}
+
+// Data is the shipped modules loaded whole: one tree, and the namespace of each module in it.
+// Every category of the tree lies under one of the namespaces, since each module mounts under
+// its own.
+type Data struct {
+	root       tree.Folder
+	namespaces []string
 }
 
 // Whole is a module's files under a manifest naming only its namespace, so it loads whole in
@@ -29,7 +40,13 @@ func Whole(module fs.FS) (fs.FS, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	out := fstest.MapFS{datafiles.ManifestFile: {Data: []byte(`{"namespace": "` + manifest.Namespace + `"}`)}}
+	bare, err := json.Marshal(struct {
+		Namespace string `json:"namespace"`
+	}{manifest.Namespace})
+	if err != nil {
+		return nil, "", err
+	}
+	out := fstest.MapFS{datafiles.ManifestFile: {Data: bare}}
 	err = fs.WalkDir(module, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || p == datafiles.ManifestFile {
 			return err
@@ -41,23 +58,32 @@ func Whole(module fs.FS) (fs.FS, string, error) {
 	return out, manifest.Namespace, err
 }
 
-// Load loads every category of modules whole, and returns the tree with each module's namespace.
-func Load(modules []fs.FS) (tree.Folder, []string, error) {
+// Load loads every category of modules whole. A module whose manifest names no namespace is
+// refused: its categories would lie under no module.
+func Load(modules []fs.FS) (*Data, error) {
+	d := &Data{}
 	var sources []datafiles.Source
-	var namespaces []string
-	for _, m := range modules {
+	for i, m := range modules {
 		whole, namespace, err := Whole(m)
 		if err != nil {
-			return tree.Folder{}, nil, err
+			return nil, err
+		}
+		if namespace == "" {
+			return nil, fmt.Errorf("module %d names no namespace in its %s, so no shipped module holds its categories", i, datafiles.ManifestFile)
 		}
 		sources = append(sources, datafiles.FS(whole))
-		namespaces = append(namespaces, namespace)
+		d.namespaces = append(d.namespaces, namespace)
 	}
 	root, err := engine.Load(sources)
-	return root, namespaces, err
+	d.root = root
+	return d, err
 }
 
-// holder is the index in namespaces of the module holding the category or path, or -1.
-func holder(namespaces []string, path string) int {
-	return slices.IndexFunc(namespaces, func(n string) bool { return strings.HasPrefix(path, n+".") })
+// holder is the index in d.namespaces of the module holding the category or path.
+func (d *Data) holder(path string) int {
+	i := slices.IndexFunc(d.namespaces, func(n string) bool { return strings.HasPrefix(path, n+".") })
+	if i < 0 {
+		panic(invariant.Broken("no shipped module holds %s", path))
+	}
+	return i
 }
