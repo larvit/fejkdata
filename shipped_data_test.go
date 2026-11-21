@@ -122,7 +122,7 @@ func TestUserDataMayReferenceShipped(t *testing.T) {
 }
 
 func TestAGeneratorWithDataSaysNothingOfNoData(t *testing.T) {
-	if _, err := shipped(t).Fake("nope"); err == nil || strings.Contains(err.Error(), "no data is loaded") {
+	if _, err := shippedGenerator(t).Fake("nope"); err == nil || strings.Contains(err.Error(), "no data is loaded") {
 		t.Errorf("Fake(nope) = %v, want no entry without the no-data note", err)
 	}
 }

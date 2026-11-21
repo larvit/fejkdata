@@ -114,7 +114,7 @@ func TestRewordRefusesAtLoad(t *testing.T) {
 
 func TestRewordDrawsTheShippedWords(t *testing.T) {
 	t.Parallel()
-	f := shipped(t)
+	f := shippedGenerator(t)
 	tp, err := f.NewTemplate(`{"format":"{reword(t, /en_US.word)}","t":"Hello, World 2024!"}`)
 	if err != nil {
 		t.Fatal(err)

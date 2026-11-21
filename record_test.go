@@ -665,7 +665,7 @@ func TestRecordTemplateRejectsATopLevelRepeat(t *testing.T) {
 // TestRecordOfAChoiceNamesTheWrapper pins the way out of the first command a fixture
 // author types: a choice has no columns, and the error names the record that gives it one.
 func TestRecordOfAChoiceNamesTheWrapper(t *testing.T) {
-	f := shipped(t, WithSeed(1))
+	f := shippedGenerator(t, WithSeed(1))
 	want := `{"format":"","personnummer-12":"{/sv_SE.personnummer-12}"}`
 	_, err := f.FakeRecord("sv_SE.personnummer-12")
 	if err == nil || !strings.Contains(err.Error(), want) {

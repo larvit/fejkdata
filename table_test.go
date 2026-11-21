@@ -1163,7 +1163,7 @@ func TestHTTPMethodFlagsShipAsBooleans(t *testing.T) {
 		Method     string `fake:"{m.method}"`
 		Safe       bool   `fake:"{m.safe}"`
 	}
-	if err := shipped(t, WithSeed(1)).FakeStruct(&row); err != nil {
+	if err := shippedGenerator(t, WithSeed(1)).FakeStruct(&row); err != nil {
 		t.Fatalf("FakeStruct into a bool = %v, want the register's yes and no shipped as true and false", err)
 	}
 	want, named := map[string][2]bool{

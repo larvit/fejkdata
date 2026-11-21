@@ -176,7 +176,7 @@ func TestMultiPathMergesFolders(t *testing.T) {
 // TestListedPathsAllRender is the contract between List and Fake over the shipped
 // tree: everything List advertises renders, every time.
 func TestListedPathsAllRender(t *testing.T) {
-	f := shipped(t, WithSeed(4))
+	f := shippedGenerator(t, WithSeed(4))
 	for _, p := range f.List() {
 		t.Run(p, func(t *testing.T) {
 			fejktest.EachDraw(20, func() string {
@@ -191,7 +191,7 @@ func TestListedPathsAllRender(t *testing.T) {
 }
 
 func TestListAdvertisesTheSubFieldsTheDocsName(t *testing.T) {
-	paths := shipped(t, WithSeed(4)).List()
+	paths := shippedGenerator(t, WithSeed(4)).List()
 	for _, p := range []string{"misc.car.make", "misc.territory.alpha2", "misc.territory.numeric", "misc.currency.symbol", "misc.httpstatus.code", "misc.mimetype.ext"} {
 		t.Run(p, func(t *testing.T) {
 			if !slices.Contains(paths, p) {

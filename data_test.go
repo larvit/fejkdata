@@ -35,7 +35,7 @@ func TestShippedDataCategories(t *testing.T) {
 		{"price", regexp.MustCompile(`^\$\d{1,3}(,\d{3})?\.\d{2}$`), nil},
 	}
 
-	f := shipped(t, WithSeed(1))
+	f := shippedGenerator(t, WithSeed(1))
 	for _, c := range cases {
 		t.Run(c.path, func(t *testing.T) {
 			t.Run("en_US", func(t *testing.T) {
@@ -260,7 +260,7 @@ func TestShippedMiscReferenceData(t *testing.T) {
 // TestShippedPersonNames pins the name tables: a sex pins its first names, a name
 // both sexes carry appears under both, and the record's sex agrees with its name.
 func TestShippedPersonNames(t *testing.T) {
-	f := shipped(t, WithSeed(9))
+	f := shippedGenerator(t, WithSeed(9))
 	t.Run("a selector reads its row", func(t *testing.T) {
 		for path, want := range map[string]string{
 			"sv_SE.sex[f]":                        "kvinna",
@@ -319,7 +319,7 @@ func femaleFirstNamesDrawnBesidePeopleOfTheirSex(t *testing.T, f *Generator, loc
 // TestShippedPersonIsOneNamedPick pins that a person's first name, sex and title come
 // from one pick, and that two names bound to one person category are two people.
 func TestShippedPersonIsOneNamedPick(t *testing.T) {
-	f := shipped(t, WithSeed(9))
+	f := shippedGenerator(t, WithSeed(9))
 	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK", "de_DE", "et_EE", "lt_LT", "lv_LV", "fr_FR"} {
 		t.Run(locale, func(t *testing.T) {
 			if !twoPeopleOf300RendersDrawApart(t, f, locale) {
@@ -347,7 +347,7 @@ func twoPeopleOf300RendersDrawApart(t *testing.T, f *Generator, locale string) b
 }
 
 func TestShippedPersonHasParts(t *testing.T) {
-	f := shipped(t, WithSeed(7))
+	f := shippedGenerator(t, WithSeed(7))
 	for _, path := range []string{"sv_SE.person", "en_US.person"} {
 		t.Run(path, func(t *testing.T) {
 			fejktest.EachDraw(30, func() string { return fejktest.Fake(t, f, path) }, func(name string) {
@@ -390,7 +390,7 @@ func TestShippedTableCellsAreTrimmed(t *testing.T) {
 // TestShippedNamespacedTree loads every shipped module and reaches each locale through its
 // namespace: data/sv_SE/person.json, mounted under sv_SE, is sv_SE.person.
 func TestShippedNamespacedTree(t *testing.T) {
-	f := shipped(t, WithSeed(1))
+	f := shippedGenerator(t, WithSeed(1))
 	for _, path := range []string{"sv_SE.person", "en_US.person", "sv_SE.address.locality"} {
 		t.Run(path, func(t *testing.T) {
 			if got := fejktest.Fake(t, f, path); got == "" {
@@ -401,7 +401,7 @@ func TestShippedNamespacedTree(t *testing.T) {
 }
 
 func TestShippedCategoryIsNotReachedWithoutItsNamespace(t *testing.T) {
-	f := shipped(t, WithSeed(1))
+	f := shippedGenerator(t, WithSeed(1))
 	if _, err := f.Fake("person"); err == nil {
 		t.Fatal("Fake(person) = nil error; categories should be namespaced under the locale folder")
 	}
@@ -409,7 +409,7 @@ func TestShippedCategoryIsNotReachedWithoutItsNamespace(t *testing.T) {
 
 func TestShippedStreetNumberFormats(t *testing.T) {
 	// Reachable via a hyphenated path; covers all five weighted number variants.
-	f := shipped(t, WithSeed(8))
+	f := shippedGenerator(t, WithSeed(8))
 	re := regexp.MustCompile(`^[1-9]\d{0,2}[A-Z]?$`)
 	fejktest.EachDraw(300, func() string { return fejktest.Fake(t, f, "sv_SE.address.street-number") }, func(n string) {
 		if !re.MatchString(n) {
@@ -422,7 +422,7 @@ func TestShippedStreetNumberFormats(t *testing.T) {
 // Norway's and Denmark's on 1 January 2026, Eurostat's for Germany and Estonia on 1 January 2025 and
 // the Census Bureau's estimate for 1 July 2024.
 func TestShippedSexIsWeightedByPopulation(t *testing.T) {
-	f := shipped(t, WithSeed(3))
+	f := shippedGenerator(t, WithSeed(3))
 	for path, want := range map[string]string{
 		"sv_SE.sex[f].count": "5262925",
 		"sv_SE.sex[m].count": "5324785",

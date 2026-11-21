@@ -76,7 +76,7 @@ func TestAPartWithNoEffectRendersAsWithoutIt(t *testing.T) {
 }
 
 func TestAColumnOfDatatypeStringIsAStringColumn(t *testing.T) {
-	r, err := shipped(t).NewRecordTemplate(`{"format":"","n":{"format":"{x}","x":["1","2"],"datatype":"string"}}`)
+	r, err := shippedGenerator(t).NewRecordTemplate(`{"format":"","n":{"format":"{x}","x":["1","2"],"datatype":"string"}}`)
 	if err != nil || r.Fake().Columns()[0].DataType != DataTypeString {
 		t.Errorf("a column of datatype string = %v, want a string column", err)
 	}
@@ -149,7 +149,7 @@ func TestARepeatedItemCountsAsWritten(t *testing.T) {
 }
 
 func TestInlineFolderSigilsAreRejected(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	for _, input := range []string{"{.sv_SE.person.last}", "{..sv_SE.person.last}"} {
 		t.Run(input, func(t *testing.T) {
 			_, err := f.NewTemplate(input)

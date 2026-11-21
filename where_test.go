@@ -234,7 +234,7 @@ func TestWhereSaysAQuotedValueHoldsNoApostrophe(t *testing.T) {
 
 func TestWhereFiltersTheShippedWords(t *testing.T) {
 	t.Parallel()
-	f := shipped(t)
+	f := shippedGenerator(t)
 	for _, src := range []string{"{/en_US.word where length 5}", "{/en_US.word.verb where length 5}", "{/en_US.word where length 5 as w}{uppercase(w)}"} {
 		t.Run(src, func(t *testing.T) {
 			fejktest.EachDraw(50, func() string { return tmpl(t, f, src) }, func(got string) {
