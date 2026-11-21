@@ -192,7 +192,7 @@ func TestDistinctJoinedIsNoTypedValue(t *testing.T) {
 
 func TestDistinctDrawsTheShippedWords(t *testing.T) {
 	t.Parallel()
-	f := shipped(t)
+	f := shippedGenerator(t)
 	fejktest.EachDraw(50, func() string {
 		return tmpl(t, f, "{/en_US.word where length 5 distinct 3 as w}{w[1]} {w[2]} {w[3]}")
 	}, func(got string) {
@@ -205,7 +205,7 @@ func TestDistinctDrawsTheShippedWords(t *testing.T) {
 
 func TestDistinctDrawsTheShippedWeekdays(t *testing.T) {
 	t.Parallel()
-	f := shipped(t)
+	f := shippedGenerator(t)
 	fejktest.EachDraw(50, func() string {
 		return tmpl(t, f, "{/sv_SE.weekday.code distinct 2 joined ','}")
 	}, func(got string) {
@@ -217,7 +217,7 @@ func TestDistinctDrawsTheShippedWeekdays(t *testing.T) {
 }
 
 func TestDistinctDrawCostsItsCountNotTheTable(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	tp, err := f.NewTemplate(`"{/en_US.word distinct 3 joined ','}"`)
 	if err != nil {
 		t.Fatalf("NewTemplate: %v", err)

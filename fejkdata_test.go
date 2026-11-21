@@ -96,7 +96,7 @@ func firstDifferingDraw(n int, drawA, drawB func() string) (i int, x, y string, 
 }
 
 func TestWithSeedIsDeterministic(t *testing.T) {
-	a, b := shipped(t, WithSeed(42)), shipped(t, WithSeed(42))
+	a, b := shippedGenerator(t, WithSeed(42)), shippedGenerator(t, WithSeed(42))
 	i, x, y, differ := firstDifferingDraw(50, func() string { return fejktest.Fake(t, a, "sv_SE.person") }, func() string { return fejktest.Fake(t, b, "sv_SE.person") })
 	if differ {
 		t.Fatalf("same seed diverged at %d: %q != %q", i, x, y)
@@ -104,7 +104,7 @@ func TestWithSeedIsDeterministic(t *testing.T) {
 }
 
 func TestDifferentSeedsDiffer(t *testing.T) {
-	a, b := shipped(t, WithSeed(1)), shipped(t, WithSeed(2))
+	a, b := shippedGenerator(t, WithSeed(1)), shippedGenerator(t, WithSeed(2))
 	_, _, _, differ := firstDifferingDraw(50, func() string { return fejktest.Fake(t, a, "en_US.person") }, func() string { return fejktest.Fake(t, b, "en_US.person") })
 	if !differ {
 		t.Fatal("seeds 1 and 2 produced identical sequences")

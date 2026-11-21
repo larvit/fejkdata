@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime/debug"
 	"slices"
 	"strings"
 	"testing"
@@ -379,7 +380,7 @@ func TestRunNamesItselfByTheCommandName(t *testing.T) {
 	if code := run("mycli", shipped, []string{"-d", "/nope"}, system{1, testDay}, strings.NewReader("{/sv_SE.person}"), &out, &errb); code != 1 || !strings.HasPrefix(errb.String(), "mycli: ") || strings.Contains(errb.String(), "fejkdata") {
 		t.Errorf("mycli -d /nope = %d, %q, want a load error under mycli", code, errb.String())
 	}
-	if code := run("mycli", shipped, []string{"--help"}, system{1, testDay}, nil, &out, &errb); code != 0 || !strings.HasPrefix(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(strings.ReplaceAll(out.String(), "https://github.com/larvit/fejkdata#", ""), "fejkdata") {
+	if code := run("mycli", shipped, []string{"--help"}, system{1, testDay}, nil, &out, &errb); code != 0 || !strings.Contains(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(strings.ReplaceAll(out.String(), "https://github.com/larvit/fejkdata#", ""), "fejkdata") {
 		t.Errorf("mycli --help = %d, %q, want mycli named throughout, save in links to fejkdata's docs", code, out.String())
 	}
 }
@@ -561,7 +562,7 @@ func TestADataPathCategoryFailingAtFirstReachExits1(t *testing.T) {
 }
 
 func TestHelpLinksTheDocsItIsGiven(t *testing.T) {
-	out := help("mycli", "https://github.com/larvit/fejkdata/blob/v0.4.0/README.md")
+	out := help("mycli", builtAsMycli)
 	if !strings.Contains(out, "https://github.com/larvit/fejkdata/blob/v0.4.0/README.md#names") {
 		t.Errorf("help does not link the v0.4.0 README's Names:\n%s", out)
 	}
@@ -709,14 +710,19 @@ func TestReadmeLoadIntoADatabaseKeepsALineForEachTool(t *testing.T) {
 	}
 }
 
-func helpOpening(t *testing.T, name string) string {
+var (
+	builtAsFejkdata = &debug.BuildInfo{Main: debug.Module{Path: fejkdataModule}}
+	builtAsMycli    = &debug.BuildInfo{Main: debug.Module{Path: "example.com/mycli"}, Deps: []*debug.Module{{Path: fejkdataModule, Version: "v0.4.0"}}}
+)
+
+func helpOpening(t *testing.T, name string, info *debug.BuildInfo) string {
 	t.Helper()
-	out := help(name, "https://github.com/larvit/fejkdata")
-	opening, _, found := strings.Cut(out, "\nUsage:")
+	out := help(name, info)
+	opening, _, found := strings.Cut("\n"+out, "\nUsage:")
 	if !found {
 		t.Fatalf("help has no Usage line:\n%s", out)
 	}
-	return opening
+	return strings.TrimPrefix(opening, "\n")
 }
 
 func TestHelpOpensAReadmeSentence(t *testing.T) {
@@ -724,15 +730,34 @@ func TestHelpOpensAReadmeSentence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	first, _, _ := strings.Cut(helpOpening(t, "fejkdata"), "\n")
+	first, _, _ := strings.Cut(helpOpening(t, "fejkdata", builtAsFejkdata), "\n")
 	first = strings.TrimSuffix(first, ".")
 	if first == "" || !regexp.MustCompile(`(?m)^`+regexp.QuoteMeta(first)+`[:.]`).Match(readme) {
 		t.Errorf("--help opens with %q, which no README.md sentence opens with", first)
 	}
 }
 
+func TestHelpOpensWithTheLeadOnlyWhereFejkdatasOwnMainIsBuilt(t *testing.T) {
+	for _, c := range []struct {
+		name string
+		info *debug.BuildInfo
+		want bool
+	}{
+		{"fejkdata", builtAsFejkdata, true},
+		{"fd", builtAsFejkdata, true},
+		{"mycli", builtAsMycli, false},
+		{"fejkdata", builtAsMycli, false},
+		{"fejkdata", nil, false},
+	} {
+		opening := helpOpening(t, c.name, c.info)
+		if got := strings.Contains(opening, "echo '{/sv_SE.person}' | "+c.name); got != c.want {
+			t.Errorf("help(%q) of a binary whose main module is %v shows the lead = %v, want %v:\n%s", c.name, c.info, got, c.want, opening)
+		}
+	}
+}
+
 func TestHelpOpensWithTheCommandsPeopleRunMost(t *testing.T) {
-	opening := helpOpening(t, "fejkdata")
+	opening := helpOpening(t, "fejkdata", builtAsFejkdata)
 	for _, command := range []string{"echo '{/sv_SE.person}' | fejkdata", "fejkdata --list"} {
 		if !strings.Contains(opening, "\n  "+command) {
 			t.Errorf("--help opens without the command %q:\n%s", command, opening)

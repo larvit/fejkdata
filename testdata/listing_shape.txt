@@ -1,0 +1,7 @@
+key path
+key kind
+key example
+key source
+kind real
+kind valid
+kind invented

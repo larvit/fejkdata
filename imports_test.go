@@ -32,10 +32,12 @@ var allowedImports = map[string][]string{
 	"internal/jsonvalue":          nil,
 	"internal/proven":             {"internal/datatype", "internal/grammar", "internal/invariant"},
 	"internal/rows":               {"internal/drawstate", "internal/grammar", "internal/invariant"},
+	"internal/shipped":            {"internal/datafiles", "internal/drawstate", "internal/engine", "internal/engine/load", "internal/engine/tree"},
+	"internal/shipped/generate":   {"data", "internal/shipped"},
 }
 
 var allowedTestImports = map[string][]string{
-	".":                     {"internal/engine/fence", "internal/engine/load", "internal/engine/render", "internal/fejktest"},
+	".":                     {"internal/engine/fence", "internal/engine/load", "internal/engine/render", "internal/fejktest", "internal/shipped"},
 	"cli":                   {"internal/grammar"},
 	"data":                  {".", "internal/fejktest"},
 	"internal/engine/fence": {"internal/jsonvalue"},

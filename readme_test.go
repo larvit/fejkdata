@@ -19,6 +19,7 @@ import (
 
 	"github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/fejktest"
+	"github.com/larvit/fejkdata/internal/shipped"
 )
 
 var (
@@ -925,5 +926,67 @@ func TestReadmeRuleExamplePrintsACountryBesideItsOwnCurrency(t *testing.T) {
 	}
 	if share := float64(seen["SE"]) / draws; share < 0.45 || share > 0.55 {
 		t.Errorf("the rule example prints SE %.3f of the time, the README says three in six", share)
+	}
+}
+
+var codeSpan = regexp.MustCompile("`([^`]+)`")
+
+const summaryLead = "The main paths of each module:\n\n"
+
+// summaryLines is the README's list of each module's main paths, by module namespace.
+func summaryLines(t *testing.T) map[string]string {
+	t.Helper()
+	_, list, found := strings.Cut(readmeSection(t, readme(t), "### Every shipped path"), summaryLead)
+	if !found {
+		t.Fatalf("the README's Every shipped path lost the line %q", strings.TrimSpace(summaryLead))
+	}
+	lines := map[string]string{}
+	for _, line := range strings.Split(list, "\n") {
+		if !strings.HasPrefix(line, "- ") {
+			break
+		}
+		name, _, _ := strings.Cut(strings.TrimPrefix(line, "- `"), "`:")
+		if _, twice := lines[name]; twice {
+			t.Errorf("the README's list of main paths has two lines for %s", name)
+		}
+		lines[name] = line
+	}
+	return lines
+}
+
+func TestEachModuleHasASummaryLine(t *testing.T) {
+	raw, err := os.ReadFile(shipped.PathsFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var listed []shipped.Path
+	if err := json.Unmarshal(raw, &listed); err != nil {
+		t.Fatal(err)
+	}
+	known := map[string]bool{}
+	for _, l := range listed {
+		known[l.Path] = true
+	}
+	lines := summaryLines(t)
+	for _, m := range shippedModules(t) {
+		t.Run(m.namespace, func(t *testing.T) {
+			line, found := lines[m.namespace]
+			if !found {
+				t.Fatalf("the README's list of main paths has no line starting - `%s`:", m.namespace)
+			}
+			delete(lines, m.namespace)
+			spans := codeSpan.FindAllStringSubmatch(line, -1)[1:]
+			if len(spans) == 0 {
+				t.Error("the line names no path in backticks")
+			}
+			for _, s := range spans {
+				if !known[s[1]] || !strings.HasPrefix(s[1], m.namespace+".") {
+					t.Errorf("the line names %s, which is not a path of %s that --list prints", s[1], m.namespace)
+				}
+			}
+		})
+	}
+	for name := range lines {
+		t.Errorf("the README's list of main paths has a line for %s, which ships no module", name)
 	}
 }

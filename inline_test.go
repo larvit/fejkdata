@@ -17,7 +17,7 @@ func tmpl(t *testing.T, f *Generator, input string) string {
 	return s
 }
 
-func shipped(t *testing.T, opts ...Option) *Generator {
+func shippedGenerator(t *testing.T, opts ...Option) *Generator {
 	t.Helper()
 	f, err := New(append([]Option{withShipped(), WithSeed(1), onTestDay}, opts...)...)
 	if err != nil {
@@ -27,7 +27,7 @@ func shipped(t *testing.T, opts ...Option) *Generator {
 }
 
 func TestFakeTemplateFormatString(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	got := tmpl(t, f, "name: {/sv_SE.person.last}")
 	if !strings.HasPrefix(got, "name: ") || strings.HasSuffix(got, " ") || strings.Contains(got, "{") {
 		t.Fatalf("FakeTemplate = %q, want a rendered last name after the prefix", got)
@@ -35,7 +35,7 @@ func TestFakeTemplateFormatString(t *testing.T) {
 }
 
 func TestFakeTemplateJSONObject(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	seen := fejktest.TallyDraws(50, func() string { return tmpl(t, f, `{"format":"name: {x}","x":["bosse","lina"]}`) })
 	if seen["name: bosse"] == 0 || seen["name: lina"] == 0 || len(seen) != 2 {
 		t.Fatalf("JSON template produced %v, want both names", seen)
@@ -43,7 +43,7 @@ func TestFakeTemplateJSONObject(t *testing.T) {
 }
 
 func TestFakeTemplateJSONArray(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	seen := fejktest.TallyDraws(50, func() string { return tmpl(t, f, `["foo","bar","baz"]`) })
 	if len(seen) != 3 {
 		t.Fatalf("JSON array choice produced %v, want three items", seen)
@@ -63,7 +63,7 @@ func TestFakeTemplateNamedReference(t *testing.T) {
 }
 
 func TestFakeTemplateDeterministic(t *testing.T) {
-	a, b := shipped(t), shipped(t)
+	a, b := shippedGenerator(t), shippedGenerator(t)
 	in := "row: {/misc.uuid} {digits(3)}"
 	fejktest.EachDraw(20, func() string { return tmpl(t, a, in) }, func(x string) {
 		if y := tmpl(t, b, in); x != y {
@@ -73,7 +73,7 @@ func TestFakeTemplateDeterministic(t *testing.T) {
 }
 
 func TestFieldlessTokenHint(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	_, err := f.FakeTemplate(`{sv_SE.person.last}`)
 	if err == nil || !strings.Contains(err.Error(), "write {/sv_SE.person.last}") {
 		t.Fatalf("FakeTemplate(bare token) = %v, want a hint naming {/sv_SE.person.last}", err)
@@ -81,14 +81,14 @@ func TestFieldlessTokenHint(t *testing.T) {
 }
 
 func TestFieldlessObjectHintDoesNotCallItABareString(t *testing.T) {
-	_, err := shipped(t).FakeTemplate(`{"format":"{x}","repeat":2}`)
+	_, err := shippedGenerator(t).FakeTemplate(`{"format":"{x}","repeat":2}`)
 	if err == nil || !strings.Contains(err.Error(), `this template has none — write {/x}`) {
 		t.Errorf("FakeTemplate(fieldless object) = %v, want the hint without calling it a bare string", err)
 	}
 }
 
 func TestFieldlessTokenHintIsOfferedOnlyWhereTheNameIsTheWholeToken(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	// A hint is only a drop-in where the name is the whole token: {/x} inside a
 	// transform or an alternation renders a different value, so none is offered.
 	for _, input := range []string{`{ /sv_SE.person.last }`, "{lowercase(x)}", "{x|y}"} {
@@ -102,7 +102,7 @@ func TestFieldlessTokenHintIsOfferedOnlyWhereTheNameIsTheWholeToken(t *testing.T
 }
 
 func TestFakeTemplateErrors(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	for _, c := range []struct {
 		input string
 		want  string
@@ -123,7 +123,7 @@ func TestFakeTemplateErrors(t *testing.T) {
 }
 
 func TestFakeTemplateJSONString(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	got := tmpl(t, f, `"name: {/sv_SE.person.last}"`)
 	if !strings.HasPrefix(got, "name: ") || strings.Contains(got, "{") {
 		t.Fatalf("FakeTemplate(JSON string) = %q, want a rendered last name after the prefix", got)
@@ -131,7 +131,7 @@ func TestFakeTemplateJSONString(t *testing.T) {
 }
 
 func TestPaddedJSONIsTheJSON(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	in := `{"format":"{x}","x":["a","b"]}`
 	padded, err := f.NewTemplate(" \t" + in + "\n ")
 	if err != nil {
@@ -143,7 +143,7 @@ func TestPaddedJSONIsTheJSON(t *testing.T) {
 }
 
 func TestNewTemplateReusable(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	reusable, err := f.NewTemplate(`{digits(2)}`)
 	if err != nil {
 		t.Fatalf("NewTemplate: %v", err)
@@ -210,7 +210,7 @@ func TestIsTemplateRejectsAMalformedArgument(t *testing.T) {
 }
 
 func TestFakeTemplateRepeatBound(t *testing.T) {
-	f := shipped(t)
+	f := shippedGenerator(t)
 	_, err := f.FakeTemplate(`{"format":"{x}","repeat":200,"x":{"format":"{y}","repeat":200,"y":{"format":"z","repeat":200}}}`)
 	if err == nil || !strings.Contains(err.Error(), "maximum") {
 		t.Errorf("nested repeat over the cap = %v, want it rejected naming the maximum", err)

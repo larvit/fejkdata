@@ -1,16 +1,13 @@
 package fejkdata
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"io/fs"
 	"maps"
 	"os"
 	"path/filepath"
 	"reflect"
 	"slices"
-	"sort"
 	"strings"
 	"sync"
 	"testing"
@@ -43,6 +40,7 @@ import (
 	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/fejktest"
+	"github.com/larvit/fejkdata/internal/shipped"
 )
 
 // withoutManifest is fsys with its manifest hidden, so it loads whole in New.
@@ -70,15 +68,7 @@ func (m shippedModule) holds(path string) bool { return strings.HasPrefix(path, 
 // whole is the module's files with a manifest naming only its namespace, so it loads whole in New.
 func (m shippedModule) whole(t testing.TB) fs.FS {
 	t.Helper()
-	out := fstest.MapFS{datafiles.ManifestFile: {Data: []byte(`{"namespace": "` + m.namespace + `"}`)}}
-	err := fs.WalkDir(m.fsys, ".", func(p string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() || p == datafiles.ManifestFile {
-			return err
-		}
-		b, err := fs.ReadFile(m.fsys, p)
-		out[p] = &fstest.MapFile{Data: b}
-		return err
-	})
+	out, _, err := shipped.Whole(m.fsys)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,89 +145,37 @@ func loadedCategories(f *Generator) []string {
 	return out
 }
 
-// REGENERATE=1 rewrites the manifests.
-func TestShippedManifestsAreCurrent(t *testing.T) {
-	modules := shippedModules(t)
-	manifests, _, err := shippedManifests(newShippedWhole(t), modules)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for i, m := range modules {
-		t.Run(m.namespace, func(t *testing.T) {
-			shippedManifestIsCurrentOrRegenerated(t, filepath.Join("data", filepath.FromSlash(m.dir), datafiles.ManifestFile), manifests[i])
-		})
-	}
-}
+const regenerate = `regenerate it: docker compose run --rm --user "$(id -u):$(id -g)" generate`
 
-func shippedManifestIsCurrentOrRegenerated(t *testing.T, file string, manifest []byte) {
+// generatedFileIsCurrent fails where a file in the repository differs from want, which the code
+// generates; remedy says what to do then.
+func generatedFileIsCurrent(t *testing.T, want shipped.File, remedy string) {
 	t.Helper()
-	if os.Getenv("REGENERATE") == "1" {
-		if err := os.WriteFile(file, manifest, 0o644); err != nil {
-			t.Fatal(err)
-		}
-		return
-	}
-	want, err := os.ReadFile(file)
+	have, err := os.ReadFile(filepath.FromSlash(want.Name))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(manifest) != string(want) {
-		t.Errorf("%s is stale; regenerate it: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", file)
+	if string(have) != string(want.Body) {
+		t.Errorf("%s differs from what the code generates; %s", want.Name, remedy)
 	}
 }
 
-// shippedManifests is each module's manifest, read from whole's tree: its index, one category a
-// line, and its namespace; and the namespace of every other module each reads, directly or
-// through another.
-func shippedManifests(whole *Generator, modules []shippedModule) ([][]byte, [][]string, error) {
-	owner := func(path string) int {
-		return slices.IndexFunc(modules, func(m shippedModule) bool { return m.holds(path) })
-	}
-	index := make([][]string, len(modules))
-	direct := make([][]int, len(modules))
-	for _, s := range engine.Index(&whole.root) {
-		i := owner(s.Path)
-		if i < 0 {
-			return nil, nil, fmt.Errorf("no shipped module holds %s", s.Path)
-		}
-		line, err := json.Marshal(s.Entry)
-		if err != nil {
-			return nil, nil, err
-		}
-		key, _ := json.Marshal(s.Path)
-		index[i] = append(index[i], "\n\t\t"+string(key)+": "+string(line))
-		for _, c := range s.Needs {
-			if j := owner(c); j != i && !slices.Contains(direct[i], j) {
-				direct[i] = append(direct[i], j)
-			}
-		}
-	}
-	out := make([][]byte, len(modules))
-	reads := make([][]string, len(modules))
-	for i := range modules {
-		namespace, _ := json.Marshal(modules[i].namespace)
-		out[i] = []byte("{\n\t\"index\": {" + strings.Join(index[i], ",") + "\n\t},\n\t\"namespace\": " + string(namespace) + "\n}\n")
-		reads[i] = readsOf(i, direct, modules)
-	}
-	return out, reads, nil
-}
-
-// readsOf is the namespace of every module module i reads, directly or through another.
-func readsOf(i int, direct [][]int, modules []shippedModule) []string {
-	seen := map[int]bool{i: true}
-	queue := slices.Clone(direct[i])
+func namespacesOf(modules []shippedModule) []string {
 	var out []string
-	for ; len(queue) > 0; queue = queue[1:] {
-		j := queue[0]
-		if seen[j] {
-			continue
-		}
-		seen[j] = true
-		out = append(out, modules[j].namespace)
-		queue = append(queue, direct[j]...)
+	for _, m := range modules {
+		out = append(out, m.namespace)
 	}
-	sort.Strings(out)
 	return out
+}
+
+func TestShippedManifestsAreCurrent(t *testing.T) {
+	manifests, err := shipped.Manifests(&newShippedWhole(t).root, namespacesOf(shippedModules(t)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, m := range manifests {
+		t.Run(m.Name, func(t *testing.T) { generatedFileIsCurrent(t, m, regenerate) })
+	}
 }
 
 func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
@@ -256,7 +194,7 @@ func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 func TestEachShippedPackagesModulesHoldWhatItReads(t *testing.T) {
 	t.Parallel()
 	modules := shippedModules(t)
-	_, reads, err := shippedManifests(newShippedWhole(t), modules)
+	reads, err := shipped.Reads(&newShippedWhole(t).root, namespacesOf(modules))
 	if err != nil {
 		t.Fatal(err)
 	}
