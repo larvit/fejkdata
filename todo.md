@@ -6,14 +6,14 @@
 
 `Bar = 0`
 
-`Next ID = 545`
+`Next ID = 546`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 543 | 0.7.1 |  |  | **Reword the package description in `release-tooling/goreleaser.yaml` and the package comment in `doc.go` to the README's new lead.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 5 | 3.2 |
-| 544 | 0.7.1 |  |  | **List every shipped path, fields and linked-table paths included, in a generated docs/shipped-paths.md, each with its kind, an example and its source.** | 1 | 1 | 1 | 1 | 3 | 11 by 4 | 1.5 |
+| 545 | 0.7.1 |  |  | **List every shipped path, fields and linked-table paths included, in a generated docs/shipped-paths.md, each with its kind, an example and its source.** | 1 | 1 | 1 | 1 | 3 | 11 by 4 | 1.5 |
 | 541 | 0.7.2 |  |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.9 |
 | 542 | 0.7.2 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.2 |
 | 533 | 0.8.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 13.1 |
@@ -224,7 +224,7 @@ Touches:
 - `release-tooling/goreleaser.yaml`
 - `doc.go`
 
-### 544. List every shipped path, fields and linked-table paths included, in a generated docs/shipped-paths.md, each with its kind, an example and its source.
+### 545. List every shipped path, fields and linked-table paths included, in a generated docs/shipped-paths.md, each with its kind, an example and its source.
 
 Item 408's plan asked for every path with its kind, an example and its source, and shipped `data-listing/paths.json` with one entry per path. Its README tables listed only the categories, 421 of the 2,019 paths.
 
