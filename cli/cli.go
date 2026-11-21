@@ -19,7 +19,7 @@ import (
 	"github.com/larvit/fejkdata"
 )
 
-const lead = `Fake people for your tests. Names, ids, emails and addresses match. CSV, SQL or JSON.
+const lead = `Fake data for tests. Related values match, like a postcode and its city. CSV, SQL or JSON.
 
   echo '{/sv_SE.person}' | COMMAND    # Sara Eriksson
   COMMAND --list    # every path to write after {/
