@@ -2196,4 +2196,3 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `sv_SE.word.verb.present` | real | `sammanväger` | SALDO, Språkbanken's dictionary |
 
 </details>
-
