@@ -261,14 +261,8 @@ geo.DK.locality.lat	real	the mean of GeoNames' points for its postnumre
 geo.DK.locality.lon	real	the mean of GeoNames' points for its postnumre
 geo.DK.locality.population	real	Statistics Denmark's FOLK1A; each kommune's population is shared out over its postdistrikter by their addresses in DAR
 geo.DK.municipality	real	Statistics Denmark's NUTS classification and FOLK1A
-geo.DK.municipality.locality.lat	real	the mean of GeoNames' points for its postnumre
-geo.DK.municipality.locality.lon	real	the mean of GeoNames' points for its postnumre
-geo.DK.municipality.locality.population	real	Statistics Denmark's FOLK1A; each kommune's population is shared out over its postdistrikter by their addresses in DAR
 geo.DK.postal-code	real	Danmarks Adresseregister
 geo.DK.region	real	Statistics Denmark's NUTS classification and FOLK1A
-geo.DK.region.municipality.locality.lat	real	the mean of GeoNames' points for its postnumre
-geo.DK.region.municipality.locality.lon	real	the mean of GeoNames' points for its postnumre
-geo.DK.region.municipality.locality.population	real	Statistics Denmark's FOLK1A; each kommune's population is shared out over its postdistrikter by their addresses in DAR
 geo.DK.street	real	Danmarks Adresseregister
 geo.EE.address	real, invented	real locality, postal code and street from Maa- ja Ruumiamet; the house number is invented
 geo.EE.address.locality	real	Maa- ja Ruumiamet's address data and settlement units
@@ -280,12 +274,9 @@ geo.EE.address.street-number	invented	invented house numbers
 geo.EE.locality	real	Maa- ja Ruumiamet's address data and settlement units
 geo.EE.locality.population	real, invented	Statistics Estonia's census table RL21003; the four localities formed since the census weigh a language model's estimates
 geo.EE.municipality	real	Maa- ja Ruumiamet's address data and settlement units
-geo.EE.municipality.locality.population	real, invented	Statistics Estonia's census table RL21003; the four localities formed since the census weigh a language model's estimates
 geo.EE.municipality.population	real	Statistics Estonia's census table RL21003, summed over its settlements
 geo.EE.postal-code	real	Maa- ja Ruumiamet's address data and settlement units
 geo.EE.region	real	Maa- ja Ruumiamet's address data and settlement units
-geo.EE.region.municipality.locality.population	real, invented	Statistics Estonia's census table RL21003; the four localities formed since the census weigh a language model's estimates
-geo.EE.region.municipality.population	real	Statistics Estonia's census table RL21003, summed over its settlements
 geo.EE.region.population	real	Statistics Estonia's census table RL21003, summed over its settlements
 geo.EE.street	real	Maa- ja Ruumiamet's address data and settlement units
 geo.FI.address	real, invented	real locality, postal code and street from Posti; the house number is invented
@@ -299,19 +290,10 @@ geo.FI.locality	real	Posti's postcode and basic address files
 geo.FI.locality.lat	real	the mean of GeoNames' points for its postinumerot
 geo.FI.locality.lon	real	the mean of GeoNames' points for its postinumerot
 geo.FI.locality.population	real	Statistics Finland's Paavo table 12ey, summed over its postinumerot
-geo.FI.locality.postal-code.population	real	Statistics Finland's Paavo table 12ey
 geo.FI.municipality	real	Statistics Finland's kunta classification and population
-geo.FI.municipality.locality.lat	real	the mean of GeoNames' points for its postinumerot
-geo.FI.municipality.locality.lon	real	the mean of GeoNames' points for its postinumerot
-geo.FI.municipality.locality.population	real	Statistics Finland's Paavo table 12ey, summed over its postinumerot
-geo.FI.municipality.locality.postal-code.population	real	Statistics Finland's Paavo table 12ey
 geo.FI.postal-code	real	Posti's postcode and basic address files
 geo.FI.postal-code.population	real	Statistics Finland's Paavo table 12ey
 geo.FI.region	real	Statistics Finland's kunta classification and population
-geo.FI.region.municipality.locality.lat	real	the mean of GeoNames' points for its postinumerot
-geo.FI.region.municipality.locality.lon	real	the mean of GeoNames' points for its postinumerot
-geo.FI.region.municipality.locality.population	real	Statistics Finland's Paavo table 12ey, summed over its postinumerot
-geo.FI.region.municipality.locality.postal-code.population	real	Statistics Finland's Paavo table 12ey
 geo.FI.street	real	Posti's postcode and basic address files
 geo.FR.address	real, invented	real commune and postal code from INSEE and BAN; the street and house number are invented
 geo.FR.address.locality	real	INSEE's populations file and the Base Adresse Nationale
@@ -325,16 +307,9 @@ geo.FR.locality.lat	real	the mean of its addresses' points in the Base Adresse N
 geo.FR.locality.lon	real	the mean of its addresses' points in the Base Adresse Nationale
 geo.FR.locality.population	real	INSEE's populations file
 geo.FR.municipality	real	INSEE's populations file and the Base Adresse Nationale
-geo.FR.municipality.locality.lat	real	the mean of its addresses' points in the Base Adresse Nationale
-geo.FR.municipality.locality.lon	real	the mean of its addresses' points in the Base Adresse Nationale
-geo.FR.municipality.locality.population	real	INSEE's populations file
 geo.FR.municipality.population	real	INSEE's populations file
 geo.FR.postal-code	real	INSEE's populations file and the Base Adresse Nationale
 geo.FR.region	real	INSEE's populations file and the Base Adresse Nationale
-geo.FR.region.municipality.locality.lat	real	the mean of its addresses' points in the Base Adresse Nationale
-geo.FR.region.municipality.locality.lon	real	the mean of its addresses' points in the Base Adresse Nationale
-geo.FR.region.municipality.locality.population	real	INSEE's populations file
-geo.FR.region.municipality.population	real	INSEE's populations file
 geo.FR.region.population	real	INSEE's populations file
 geo.FR.street	invented	a language model's recall of street names common in France
 geo.LT.address	real, invented	real locality, postal code and street from the Address Register; the house number is invented
@@ -347,12 +322,9 @@ geo.LT.address.street-number	invented	invented house numbers
 geo.LT.locality	real	the Centre of Registers' Address Register
 geo.LT.locality.population	real	the State Data Agency's table M3010202; each savivaldybė's residents are shared out over its localities by their addresses in the Address Register
 geo.LT.municipality	real	the Centre of Registers' Address Register
-geo.LT.municipality.locality.population	real	the State Data Agency's table M3010202; each savivaldybė's residents are shared out over its localities by their addresses in the Address Register
 geo.LT.municipality.population	real	the State Data Agency's table M3010202
 geo.LT.postal-code	real	the Centre of Registers' Address Register
 geo.LT.region	real	the Centre of Registers' Address Register
-geo.LT.region.municipality.locality.population	real	the State Data Agency's table M3010202; each savivaldybė's residents are shared out over its localities by their addresses in the Address Register
-geo.LT.region.municipality.population	real	the State Data Agency's table M3010202
 geo.LT.region.population	real	the State Data Agency's table M3010202, summed over its municipalities
 geo.LT.street	real	the Centre of Registers' Address Register
 geo.LV.address	real, invented	real locality, postal code and street from the State Address Register; the house number is invented
@@ -365,12 +337,9 @@ geo.LV.address.street-number	invented	invented house numbers
 geo.LV.locality	real	the State Land Service's State Address Register
 geo.LV.locality.population	real	the Central Statistical Bureau's table RIG010; a locality it doesn't count shares, by its addresses, the people of its pagasts counted under no ciems
 geo.LV.municipality	real	the State Land Service's State Address Register
-geo.LV.municipality.locality.population	real	the Central Statistical Bureau's table RIG010; a locality it doesn't count shares, by its addresses, the people of its pagasts counted under no ciems
 geo.LV.municipality.population	real	the Central Statistical Bureau's table RIG010
 geo.LV.postal-code	real	the State Land Service's State Address Register
 geo.LV.region	real	the State Land Service's State Address Register
-geo.LV.region.municipality.locality.population	real	the Central Statistical Bureau's table RIG010; a locality it doesn't count shares, by its addresses, the people of its pagasts counted under no ciems
-geo.LV.region.municipality.population	real	the Central Statistical Bureau's table RIG010
 geo.LV.region.population	real	the Central Statistical Bureau's table RIG010, summed over its municipalities
 geo.LV.street	real	the State Land Service's State Address Register
 geo.NO.address	real, invented	real poststed, postnummer and street from Kartverket; the house number is invented
@@ -383,12 +352,9 @@ geo.NO.address.street-number	invented	invented house numbers
 geo.NO.locality	real	Kartverket's address register
 geo.NO.locality.population	real	Statistics Norway's table 07459; each kommune's population is shared out over its poststeder by their addresses in Kartverket's register
 geo.NO.municipality	real	Statistics Norway's fylke and kommune classifications
-geo.NO.municipality.locality.population	real	Statistics Norway's table 07459; each kommune's population is shared out over its poststeder by their addresses in Kartverket's register
 geo.NO.municipality.population	real	Statistics Norway's table 07459
 geo.NO.postal-code	real	Kartverket's address register
 geo.NO.region	real	Statistics Norway's fylke and kommune classifications
-geo.NO.region.municipality.locality.population	real	Statistics Norway's table 07459; each kommune's population is shared out over its poststeder by their addresses in Kartverket's register
-geo.NO.region.municipality.population	real	Statistics Norway's table 07459
 geo.NO.region.population	real	Statistics Norway's table 07459
 geo.NO.street	real	Kartverket's address register
 geo.SE.address	real, invented	real locality, postal code and street from GeoNames and NVDB; the house number is invented
@@ -403,14 +369,8 @@ geo.SE.locality.lat	real	GeoNames' postal codes for SE
 geo.SE.locality.lon	real	GeoNames' postal codes for SE
 geo.SE.locality.population	real, invented	SCB's population of the tätort, kommun or småort; 200 is invented where SCB publishes none
 geo.SE.municipality	real	SCB's län and kommun codes and population
-geo.SE.municipality.locality.lat	real	GeoNames' postal codes for SE
-geo.SE.municipality.locality.lon	real	GeoNames' postal codes for SE
-geo.SE.municipality.locality.population	real, invented	SCB's population of the tätort, kommun or småort; 200 is invented where SCB publishes none
 geo.SE.postal-code	real	GeoNames' postal codes for SE and SCB's tätort populations
 geo.SE.region	real	SCB's län and kommun codes and population
-geo.SE.region.municipality.locality.lat	real	GeoNames' postal codes for SE
-geo.SE.region.municipality.locality.lon	real	GeoNames' postal codes for SE
-geo.SE.region.municipality.locality.population	real, invented	SCB's population of the tätort, kommun or småort; 200 is invented where SCB publishes none
 geo.SE.street	real	Trafikverket's NVDB street names, placed with SCB's tätort areas
 geo.US.address	real, invented	real place, postal code and street from the Census Bureau; the house number is invented
 geo.US.address.locality	real	Census Bureau Gazetteer and population estimates

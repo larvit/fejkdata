@@ -15,6 +15,7 @@ import (
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/engine"
 	"github.com/larvit/fejkdata/internal/engine/tree"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 const (
@@ -107,8 +108,7 @@ func (d *Data) Listing(kinds []byte, state func() *drawstate.State) ([]Path, err
 		used[row] = true
 		template, err := engine.LoadTemplate(&d.root, "{/"+path+"}", "template")
 		if err != nil {
-			mistakes = append(mistakes, path+": "+err.Error())
-			continue
+			panic(invariant.Broken("the listed path %s does not load as a reference: %v", path, err))
 		}
 		out = append(out, Path{Path: path, Kind: rows[row].kinds, Example: template.Draw(state()), Source: rows[row].source})
 	}
@@ -124,8 +124,9 @@ func (d *Data) Listing(kinds []byte, state func() *drawstate.State) ([]Path, err
 	return out, nil
 }
 
-// rowOf is the path of the row in rows that lists path: its own, else that of the category its
-// value is drawn from.
+// rowOf is the path of the row in rows that lists path. It is the path's own row, else the row
+// of the field the path ends in, at the category its value is drawn from, so a field reached
+// through a linked table needs no second row, else that category's row.
 func rowOf(root *tree.Folder, rows map[string]*kindRow, path string) (string, error) {
 	if rows[path] != nil {
 		return path, nil
@@ -133,6 +134,9 @@ func rowOf(root *tree.Folder, rows map[string]*kindRow, path string) (string, er
 	category, err := engine.DrawnFrom(root, path)
 	if err != nil {
 		return "", err
+	}
+	if field := category + path[strings.LastIndex(path, "."):]; rows[field] != nil {
+		return field, nil
 	}
 	if rows[category] == nil {
 		return "", errors.New("no row in " + KindsFile + " for " + path)
