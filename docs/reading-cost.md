@@ -2833,3 +2833,29 @@ Read most (opens and searches):
 - `CHANGELOG.md` 1
 - `cli/cli.go` 1
 - `data/misc/.fejkdata.json` 1
+
+## Reading cost, chunk ca388ec56e98, finished 2026-11-21T02:11:00Z
+
+53560 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data_listing_test.go` 5
+- `README.md` 4
+- `readme_test.go` 3
+- `compose.yaml` 2
+
+## Reading cost, chunk 775fcb5739dc, finished 2026-11-21T02:43:25Z
+
+45239 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 2
+- `packaging_test.go` 2
+- `release-tooling/goreleaser.yaml` 2
+- `.github/workflows/packages.yml` 1
+- `cli/cli.go` 1
+- `compose.yaml` 1
+- `doc.go` 1
+- `doc_test.go` 1
