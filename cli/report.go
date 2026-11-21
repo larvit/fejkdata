@@ -41,7 +41,7 @@ func report(stderr io.Writer, name string, err error) {
 var fejkdataModule = reflect.TypeOf((*fejkdata.Generator)(nil)).Elem().PkgPath()
 
 // isFejkdataItself reports whether the binary's main package is in fejkdata's own module, as
-// cmd/fejkdata is, and not in a module building a CLI of its own on Main.
+// cmd/fejkdata is.
 func isFejkdataItself(info *debug.BuildInfo) bool {
 	return info != nil && info.Main.Path == fejkdataModule
 }

@@ -89,10 +89,10 @@ func inKindOrder(kinds []string) bool {
 	return true
 }
 
-// Listing is every path the tree lists, with the kinds and source kinds gives it, in KindsFile's
-// format: the row of the path itself, else of the category its value is drawn from. Each
-// example is drawn as a user draws it, from a state of its own that state returns, so adding a
-// path moves no other path's example. The error names every path without a row, every row
+// Listing is every path the tree lists, with its kinds and source from the rows of kinds, a file in
+// KindsFile's format: the path's own row, else the row of the category its value is drawn from.
+// Each example is drawn as a user draws it, from a fresh state that each call of state returns, so
+// adding a path moves no other path's example. The error names every path without a row, every row
 // without a path and every mistake in kinds.
 func (d *Data) Listing(kinds []byte, state func() *drawstate.State) ([]Path, error) {
 	rows, mistakes := readKinds(kinds)

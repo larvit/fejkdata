@@ -13,8 +13,8 @@ import (
 const ShapeFile = "testdata/shipped_shape.txt"
 
 // Shape is the pin of the tree's shape: a line for every listed path, with what a caller relies
-// on there. A category's line holds its format, a table's options and the categories it reads,
-// and a column's line its datatype.
+// on there, such as a category's format and the categories it reads, a table's options, and a
+// column's datatype and whether it may be null.
 func (d *Data) Shape() File {
 	root := &d.root
 	facts := shapeFacts{}

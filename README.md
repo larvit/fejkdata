@@ -1722,9 +1722,10 @@ batched into as few majors as possible.
 
 [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) pins every path, each
 template category's format, the categories each category reads, each column's
-datatype and nullability, and each table's key, name, weight and parent columns; a pull request that
-changes it or `data/` adds its `CHANGELOG.md` entry, which CI checks. A removed,
-renamed or retyped line is a major.
+datatype and nullability, and each table's key, name, weight and parent columns.
+[`testdata/listing_shape.txt`](testdata/listing_shape.txt) pins the keys and kind words of
+`data-listing/paths.json`. A pull request that changes either pin or `data/` adds its
+`CHANGELOG.md` entry, which CI checks. A removed, renamed or retyped line is a major.
 
 ## Audience
 
@@ -2058,10 +2059,10 @@ A panel of simulated readers scores how easy the code is to understand, and
 against simulated template writers from the Audience.
 
 A change to the shipped data runs `generate` above first and commits each module's
-`.fejkdata.json` with the change, then re-pins
-[`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) in its own commit. The same command
-re-pins [`testdata/listing_shape.txt`](testdata/listing_shape.txt), the keys and kind words of
-`data-listing/paths.json`:
+`.fejkdata.json` with the change. Then `repin` re-pins
+[`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) and
+[`testdata/listing_shape.txt`](testdata/listing_shape.txt), the keys and kind words of
+`data-listing/paths.json`, in a commit of its own:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" repin
