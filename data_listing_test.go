@@ -262,36 +262,30 @@ func TestDataListingIsCurrent(t *testing.T) {
 
 var codeSpan = regexp.MustCompile("`([^`]+)`")
 
-// summaryNames is what the README's summary holds a line for: each folder of data/, and each country of data/geo.
-func summaryNames(t *testing.T) []string {
+const summaryLead = "The main paths of each module:\n\n"
+
+// summaryLines is the README's list of each module's main paths, by module namespace.
+func summaryLines(t *testing.T) map[string]string {
 	t.Helper()
-	entries, err := os.ReadDir("data")
-	if err != nil {
-		t.Fatal(err)
+	_, list, found := strings.Cut(readmeSection(t, readme(t), "### Every shipped path"), summaryLead)
+	if !found {
+		t.Fatalf("the README's Every shipped path lost the line %q", strings.TrimSpace(summaryLead))
 	}
-	var names []string
-	for _, e := range entries {
-		if !e.IsDir() {
-			continue
+	lines := map[string]string{}
+	for _, line := range strings.Split(list, "\n") {
+		if !strings.HasPrefix(line, "- ") {
+			break
 		}
-		if e.Name() != "geo" {
-			names = append(names, e.Name())
-			continue
+		name, _, _ := strings.Cut(strings.TrimPrefix(line, "- `"), "`:")
+		if _, twice := lines[name]; twice {
+			t.Errorf("the README's list of main paths has two lines for %s", name)
 		}
-		countries, err := os.ReadDir("data/geo")
-		if err != nil {
-			t.Fatal(err)
-		}
-		for _, c := range countries {
-			if c.IsDir() {
-				names = append(names, "geo."+c.Name())
-			}
-		}
+		lines[name] = line
 	}
-	return names
+	return lines
 }
 
-func TestEachDataFolderHasASummaryLine(t *testing.T) {
+func TestEachModuleHasASummaryLine(t *testing.T) {
 	raw, err := os.ReadFile(listingPaths)
 	if err != nil {
 		t.Fatal(err)
@@ -304,22 +298,26 @@ func TestEachDataFolderHasASummaryLine(t *testing.T) {
 	for _, l := range listed {
 		known[l.Path] = true
 	}
-	section := readmeSection(t, readme(t), "### Every shipped path")
-	for _, name := range summaryNames(t) {
-		_, after, found := strings.Cut(section, "\n- `"+name+"`:")
-		if !found {
-			t.Errorf("the README's Every shipped path has no line starting - `%s`:", name)
-			continue
-		}
-		line, _, _ := strings.Cut(after, "\n")
-		spans := codeSpan.FindAllStringSubmatch(line, -1)
-		if len(spans) == 0 {
-			t.Errorf("the line for %s names no path in code", name)
-		}
-		for _, s := range spans {
-			if !known[s[1]] {
-				t.Errorf("the line for %s names %s, which --list does not print", name, s[1])
+	lines := summaryLines(t)
+	for _, m := range shippedModules(t) {
+		t.Run(m.namespace, func(t *testing.T) {
+			line, found := lines[m.namespace]
+			if !found {
+				t.Fatalf("the README's list of main paths has no line starting - `%s`:", m.namespace)
 			}
-		}
+			delete(lines, m.namespace)
+			spans := codeSpan.FindAllStringSubmatch(line, -1)[1:]
+			if len(spans) == 0 {
+				t.Error("the line names no path in backticks")
+			}
+			for _, s := range spans {
+				if !known[s[1]] || !strings.HasPrefix(s[1], m.namespace+".") {
+					t.Errorf("the line names %s, which is not a path of %s that --list prints", s[1], m.namespace)
+				}
+			}
+		})
+	}
+	for name := range lines {
+		t.Errorf("the README's list of main paths has a line for %s, which ships no module", name)
 	}
 }
