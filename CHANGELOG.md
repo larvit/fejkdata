@@ -22,8 +22,8 @@ with its replacement, and each removed path, column or flag.
 - `fejkdata --help` opens with the README's lead and the two commands people run most,
   `echo '{/sv_SE.person}' | fejkdata` and `fejkdata --list`. A CLI built on `cli.Main` under another name
   prints the usage alone.
-- The deb, rpm and apk packages, and the Go package's description on pkg.go.dev, open with the README's lead:
-  "Fake data for tests. Related values match, like a postcode and its city."
+- The package description that brew, scoop, apt, dnf and apk show, and the Go package comment that pkg.go.dev
+  shows, open with "Fake data for tests. Related values match, like a postcode and its city."
 
 ## 0.7.0 - 2026-11-20
 
