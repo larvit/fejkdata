@@ -19,6 +19,7 @@
 | 532 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 6.1 |
 | 34 | 0.8.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.5 |
 | 155 | 0.8.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.6 |
+| 545 | 0.8.0 |  |  | **Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.** | 1 | 1 | 1 | 1 | 2 | 1.1 by 5 | 3.2 |
 | 252 | 0.8.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
 | 256 | 0.8.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 3.0 |
 | 220 | 0.8.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.9 |
@@ -265,6 +266,10 @@ Make the geo imports share what they repeat in `data-import/geo.py`, so a new co
 ### 155. Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.
 
 `{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn.
+
+### 545. Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.
+
+`README.md` item 2 of the lead opens "Valid national ids that no real person has", and the comparison table's first row says "Valid national ids". The body under item 2 says only some countries' ids come from a test series and that a few strict checkers refuse those. Item 538's stability pass found the headline stronger than the body. Reword the two with the "where possible" wording of the AGENTS.md rule on public texts, keeping the claim true; `readme_test.go` and `TestDockerhubPageSaysOnlyWhatReadmeSays` must stay green.
 
 ### 252. Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.
 
@@ -564,6 +569,8 @@ Questions to answer with a measurement, not a guess:
 - Once item 393 builds `--emit`: how does `{/run.<template>}` hold a parent's rows while its children render, and what bounds that? The other questions don't wait for it.
 
 The answer is a decision in `docs/decisions.md`, replacing "The repeat cap bounds renders, not bytes" where it changes, and a plan item for the change. Goal 12 may need new wording, which is the maintainer's.
+
+If the cap changes, change AGENTS.md's rule that calls it "a million rows", and the public texts that say so, in the same chunk.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
