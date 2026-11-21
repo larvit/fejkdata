@@ -94,6 +94,48 @@ func TestListingGivesAFieldReachedThroughALinkedTableTheFieldsOwnRow(t *testing.
 	}
 }
 
+func TestListingGivesALinkedTableItsOwnRowBesideAColumnOfItsName(t *testing.T) {
+	d := loaded(t, module("ns", map[string]string{
+		"r.json": `{"format":"{name}","rows":"r.tsv","key":"code","name":"name"}`,
+		"r.tsv":  "code\tname\n1\ta\n",
+		"m.json": `{"format":"{name}","rows":"m.tsv","key":"code","parent":"r"}`,
+		"m.tsv":  "code\tname\tm\tr\n10\tc\tx\t1\n",
+	}))
+	got, err := d.Listing([]byte("ns.m\treal\tthe m register\nns.m.m\tvalid\tthe m office\nns.m.name\tinvented\tthe name office\nns.r\tinvented\tmade up\n"), ListingState)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sources := map[string]string{}
+	for _, p := range got {
+		sources[p.Path] = p.Source
+	}
+	for path, want := range map[string]string{
+		"ns.m":        "the m register",
+		"ns.m.m":      "the m office",
+		"ns.r.m":      "the m register",
+		"ns.r.m.m":    "the m office",
+		"ns.r.m.name": "the name office",
+		"ns.r.m.code": "the m register",
+	} {
+		if sources[path] != want {
+			t.Errorf("the source of %s is %q, want %q", path, sources[path], want)
+		}
+	}
+}
+
+func TestLoadRefusesAModuleMountedInsideAnother(t *testing.T) {
+	inner, outer := module("ns.sub", map[string]string{"b.json": `"y"`}), module("ns", map[string]string{"a.json": `"x"`})
+	for _, modules := range [][]fs.FS{{outer, inner}, {inner, outer}} {
+		_, err := Load(modules)
+		if err == nil || !strings.Contains(err.Error(), `"ns.sub"`) || !strings.Contains(err.Error(), `"ns"`) {
+			t.Errorf("Load = %v, want an error naming the namespaces \"ns\" and \"ns.sub\"", err)
+		}
+	}
+	if _, err := Load([]fs.FS{module("ns", map[string]string{"a.json": `"x"`}), module("nsb", map[string]string{"b.json": `"y"`})}); err != nil {
+		t.Errorf("Load of ns and nsb = %v, want both loaded: neither lies inside the other", err)
+	}
+}
+
 func TestListingNamesEveryMistakeInTheKinds(t *testing.T) {
 	const file = "data-listing/kinds-and-sources.tsv"
 	whole := "ns.color\treal\tthe palette\nns.size\tinvented\tmade up\n"
