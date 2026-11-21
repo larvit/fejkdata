@@ -132,6 +132,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge
 - CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag
 - A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
+- Goal 1.1's "where they look" means LLMs first: the ones developers ask, and the coding agents that pick a tool
 - A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds
 - `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
 - A pull request that changes a workflow or what a release packages runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
