@@ -14,11 +14,11 @@ func TestDataListingIsCurrent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	listed, err := shipped.Listing(&newShippedWhole(t).root, kinds, shipped.ListingState)
+	listed, err := shippedData(t).Listing(kinds, shipped.ListingState)
 	if err != nil {
 		t.Fatalf("the listing is not whole:\n%v", err)
 	}
-	for _, f := range shipped.ListingFiles(listed, namespacesOf(shippedModules(t))) {
+	for _, f := range shippedData(t).ListingFiles(listed) {
 		if len(f.Body) > githubRenderLimit {
 			t.Errorf("%s is %d bytes, past the %d GitHub renders; split it per module", f.Name, len(f.Body), githubRenderLimit)
 		}

@@ -53,17 +53,12 @@ func (w withoutManifest) Open(name string) (fs.File, error) {
 	return w.FS.Open(name)
 }
 
-// shippedModule is a module data.Modules lists, its folder under data/, and the namespace its
-// manifest mounts it under.
+// shippedModule is a module data.Modules lists, and the namespace its manifest mounts it under.
 type shippedModule struct {
 	fsys      fs.FS
 	modules   func() []fs.FS
-	dir       string
 	namespace string
 }
-
-// holds reports whether the category at path is the module's.
-func (m shippedModule) holds(path string) bool { return strings.HasPrefix(path, m.namespace+".") }
 
 // whole is the module's files with a manifest naming only its namespace, so it loads whole in New.
 func (m shippedModule) whole(t testing.TB) fs.FS {
@@ -75,8 +70,7 @@ func (m shippedModule) whole(t testing.TB) fs.FS {
 	return out
 }
 
-// shippedModules is every module data.Modules lists. Each manifest names its namespace, and its folder
-// under data/ is that namespace, with each dot a slash.
+// shippedModules is every module data.Modules lists. Each manifest names its namespace.
 func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
 	out := []shippedModule{
@@ -109,7 +103,6 @@ func shippedModules(t testing.TB) []shippedModule {
 			t.Fatalf("module %d of shippedModules needs a %s naming its namespace: %v", i, datafiles.ManifestFile, err)
 		}
 		out[i].namespace = manifest.Namespace
-		out[i].dir = strings.ReplaceAll(manifest.Namespace, ".", "/")
 	}
 	var listed []fs.FS
 	for _, m := range out {
@@ -160,16 +153,20 @@ func generatedFileIsCurrent(t *testing.T, want shipped.File, remedy string) {
 	}
 }
 
-func namespacesOf(modules []shippedModule) []string {
-	var out []string
-	for _, m := range modules {
-		out = append(out, m.namespace)
+var loadShipped = sync.OnceValues(func() (*shipped.Data, error) { return shipped.Load(data.Modules()) })
+
+// shippedData is the shipped modules as the generate command loads them.
+func shippedData(t *testing.T) *shipped.Data {
+	t.Helper()
+	d, err := loadShipped()
+	if err != nil {
+		t.Fatal(err)
 	}
-	return out
+	return d
 }
 
 func TestShippedManifestsAreCurrent(t *testing.T) {
-	manifests, err := shipped.Manifests(&newShippedWhole(t).root, namespacesOf(shippedModules(t)))
+	manifests, err := shippedData(t).Manifests()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -194,14 +191,14 @@ func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 func TestEachShippedPackagesModulesHoldWhatItReads(t *testing.T) {
 	t.Parallel()
 	modules := shippedModules(t)
-	reads, err := shipped.Reads(&newShippedWhole(t).root, namespacesOf(modules))
+	reads, err := shippedData(t).Reads()
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i, m := range modules {
+	for _, m := range modules {
 		t.Run(m.namespace, func(t *testing.T) {
 			set := m.modules()
-			for _, read := range reads[i] {
+			for _, read := range reads[m.namespace] {
 				t.Run(read, func(t *testing.T) {
 					j := slices.IndexFunc(modules, func(r shippedModule) bool { return r.namespace == read })
 					if j < 0 || !slices.Contains(set, modules[j].fsys) {
