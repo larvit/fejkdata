@@ -559,9 +559,9 @@ The maintainer, 2026-11-21: the CLI streams a top-level `--repeat`, yet it stops
 Questions to answer with a measurement, not a guess:
 
 - Does a 100-million-row `--repeat` stream in flat memory today if the CLI's own limit is lifted, and does seeded output stay the same?
-- How does `--emit` with `{/run.<template>}` hold a parent's rows while its children render, and what bounds that?
 - Can a repeat inside a template, and nested ones, write to the output as they go, so the library and the CLI need no whole result string?
 - What would the load check in `internal/engine/fence/graph.go` bound instead of a count, given goal 5.4's rule that errors surface at load?
+- Once item 393 builds `--emit`: how does `{/run.<template>}` hold a parent's rows while its children render, and what bounds that? The other questions don't wait for it.
 
 The answer is a decision in `docs/decisions.md`, replacing "The repeat cap bounds renders, not bytes" where it changes, and a plan item for the change. Goal 12 may need new wording, which is the maintainer's.
 
