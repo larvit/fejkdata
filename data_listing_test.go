@@ -21,6 +21,7 @@ const (
 	listingKinds        = "data-listing/kinds-and-sources.tsv"
 	listingDoc          = "docs/shipped-paths.md"
 	listingExampleRunes = 48
+	githubRenderLimit   = 500 * 1024
 )
 
 var listingKindWords = []string{"real", "valid", "invented"}
@@ -181,8 +182,7 @@ func marshalUnescaped(v any) (string, error) {
 	return strings.TrimSuffix(b.String(), "\n"), nil
 }
 
-// listingMarkdown is docs/shipped-paths.md: every listed path, one folded table per module. It sits beside
-// the README, since a README past GitHub's 500 KiB render limit stops rendering.
+// listingMarkdown is docs/shipped-paths.md: every listed path, one folded table per module.
 func listingMarkdown(t *testing.T, listed []listedPath) string {
 	t.Helper()
 	modules := shippedModules(t)
@@ -209,7 +209,7 @@ func listingMarkdown(t *testing.T, listed []listedPath) string {
 		}
 		b.WriteString("\n</details>\n\n")
 	}
-	return strings.TrimSuffix(b.String(), "\n") + "\n"
+	return strings.TrimRight(b.String(), "\n") + "\n"
 }
 
 func tableCell(s string) string { return strings.ReplaceAll(s, "|", `\|`) }
@@ -236,12 +236,17 @@ func TestDataListingIsCurrent(t *testing.T) {
 	if len(errs) > 0 {
 		t.Fatal("the listing is not whole:\n" + strings.Join(errs, "\n"))
 	}
-	generated := map[string]string{
-		listingPaths: string(listingJSON(listed)),
-		listingDoc:   listingMarkdown(t, listed),
+	doc := listingMarkdown(t, listed)
+	if len(doc) > githubRenderLimit {
+		t.Errorf("%s is %d bytes, past the %d GitHub renders; split it per module", listingDoc, len(doc), githubRenderLimit)
+	}
+	generated := []struct{ file, body string }{
+		{listingPaths, string(listingJSON(listed))},
+		{listingDoc, doc},
 	}
 	regenerating := os.Getenv("REGENERATE") == "1"
-	for file, body := range generated {
+	for _, g := range generated {
+		file, body := g.file, g.body
 		if regenerating {
 			if err := os.WriteFile(file, []byte(body), 0o644); err != nil {
 				t.Fatal(err)
