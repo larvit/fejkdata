@@ -43,8 +43,8 @@ jobs:
         env:
           BASE: ${{ steps.changes.outputs.base }}
         run: |
-          if ! git diff --quiet "${BASE:?}"...HEAD -- data ':(exclude,glob)data/**/*_test.go' testdata/shipped_shape.txt && git diff --quiet "$BASE"...HEAD -- CHANGELOG.md; then
-            echo "::error::the shipped data changed without a CHANGELOG.md entry (see the README's Versioning)"
+          if ! git diff --quiet "${BASE:?}"...HEAD -- data ':(exclude,glob)data/**/*_test.go' testdata/shipped_shape.txt testdata/listing_shape.txt && git diff --quiet "$BASE"...HEAD -- CHANGELOG.md; then
+            echo "::error::the shipped data or the listing's shape changed without a CHANGELOG.md entry (see the README's Versioning)"
             exit 1
           fi
       - name: CHANGELOG headings

@@ -150,7 +150,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
 - The README asks for functions with no side effects of their own.
 - The CLI is a library call. One exported list names every shipped package, and `fejkdata`'s own `main` passes it to that call. The list lives in a package of its own, so a library importing the core links no data it did not import. A custom CLI is the same few lines with other modules added. No API and no flag exists only for custom CLIs; `Main` tells one apart only by its build info and file name, so its help and errors carry its name and its `--version` its own module's version beside fejkdata's. The maintainer chose so on 2026-10-11.
-- The help's examples and its hint for an empty stdin read no data, so each renders in any custom CLI, and both point to `--list` for the paths. Only the opening a CLI named `fejkdata` prints, since its own data holds `sv_SE.person`, reads shipped data. "Shipped data", in `--no-shipped-data` and in `-d`'s help, names the modules passed to `Main`, a custom CLI's own included. The audience bench's custom-CLI builder seat ruled so on 2026-10-11, before 0.1.0.
+- The help's examples and its hint for an empty stdin read no data, so each renders in any custom CLI, and both point to `--list` for the paths. Only the opening that `fejkdata`'s own `main` prints, since its data holds `sv_SE.person`, reads shipped data; a CLI another module builds on `Main` prints no opening, whatever its name. "Shipped data", in `--no-shipped-data` and in `-d`'s help, names the modules passed to `Main`, a custom CLI's own included. The audience bench's custom-CLI builder seat ruled so on 2026-10-11, before 0.1.0.
 
 Valid while the shipped data stays under 100 MiB, which `TestShippedDataStaysUnder100MiB` checks: `go get` fetches the whole Go module, and the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`). Past it, `todo.md` item 193 moves the largest packages into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice.
 
@@ -1244,6 +1244,13 @@ the column values the engine draws. Names and paths get no package across the st
 its part of them, as `fence` keeps its name rules in `fence/names`, and `tree` holds the step type every stage walks. The three functions
 walking a path, one to load every branch, one to draw one and one to find the caller's
 folders, stay in their stages.
+
+`internal/shipped` sits beside the root, above the engine: it generates the repository's files
+about the shipped data, the manifests, the listing and the two pins, from a tree
+`internal/engine` loaded, and no package of the library imports it. It imports
+`internal/engine`, `tree` and `load`, whose `ColumnItems` says whether a column may be null. Its
+command, `internal/shipped/generate`, is the one writer of those files, and the root's tests
+compare each file with the bytes the package returns.
 
 The allocation gate holds because the hot path stays inside `render`, where `renderEnv`'s
 rule of passing by value applies unchanged. `render` reads `tree` through concrete pointer

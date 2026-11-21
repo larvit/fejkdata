@@ -20,8 +20,8 @@ with its replacement, and each removed path, column or flag.
 ### Changed
 
 - `fejkdata --help` opens with the README's lead and the two commands people run most,
-  `echo '{/sv_SE.person}' | fejkdata` and `fejkdata --list`. A CLI built on `cli.Main` under another name
-  prints the usage alone.
+  `echo '{/sv_SE.person}' | fejkdata` and `fejkdata --list`. A CLI that another module builds on `cli.Main`
+  prints the usage alone, whatever its name.
 - The package description that brew, scoop, apt, dnf and apk show, and the Go package comment that pkg.go.dev
   shows, open with "Fake data for tests. Related values match, like a postcode and its city."
 
