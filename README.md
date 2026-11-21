@@ -1731,12 +1731,13 @@ datatype and nullability, and each table's key, name, weight and parent columns.
 ## Audience
 
 App developers and their coding agents, writing tests and fixtures, in Go, in JavaScript
-or TypeScript, and at a shell:
+or TypeScript, in Python, and at a shell:
 
 - a **bulk fixture author**, millions of rows into CSV or SQL
 - a **Go test author**, filling a struct with `FakeStruct`
 - a **JavaScript or TypeScript test author**, rendering templates from the npm package
   in Node, Bun, Deno or a browser
+- a **Python test author**, rendering templates from the package `pip` installs
 - a **hand fixture author**, a few values at a shell
 - a **validator-facing author**, who needs a value a real checker accepts
 - a **data author**, who writes categories under `--data-path` and meets every load
@@ -1747,7 +1748,7 @@ or TypeScript, and at a shell:
   and fixes a template from the error that exit 2 prints
 
 and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
-the Development section below, and who ships a register the eight above then draw from.
+the Development section below, and who ships a register the nine above then draw from.
 
 ## Goals
 
@@ -1769,8 +1770,13 @@ against each other in the order listed.
       - Signal: the package's downloads rise.
       - Counter-signal: a library feature reaches JavaScript a release after Go.
       - Why: JavaScript users stay only while the package keeps pace with Go.
-2. **Achieve:** **Enough data ships built in to fill a real test database: the CLI and the
-   JavaScript package carry all of it, a Go program imports what it needs, and nothing is
+   3. **Achieve:** Python code renders the same templates and data as Go, from a package
+      `pip` installs.
+      - Signal: the package's downloads rise.
+      - Counter-signal: a CLI feature reaches Python a release after Go.
+      - Why: Python users stay only while the package keeps pace with Go.
+2. **Achieve:** **Enough data ships built in to fill a real test database: the CLI, the
+   JavaScript package and the Python package carry all of it, a Go program imports what it needs, and nothing is
    fetched at run time.**
    - Signal: the locales covering every common category rise.
    - Counter-signal: categories ship as stubs.
@@ -1859,12 +1865,13 @@ against each other in the order listed.
    6. **Maintain:** A CLI carrying your own modules is a few lines of Go, and works just
       like `fejkdata`.
 9. **Maintain:** **The same seed, date, data and versions always give the same output.**
-   1. **Maintain:** In the library, in Go and JavaScript alike, the caller supplies
+   1. **Maintain:** In the library, in Go, JavaScript and Python alike, the caller supplies
       everything that can change the output: data, seed and date.
-   2. **Maintain:** The JavaScript package renders what the Go library renders, byte for
-      byte.
+   2. **Maintain:** The JavaScript and Python packages render what the Go library renders,
+      byte for byte.
 10. **Maintain:** **Every runtime dependency is one the standard library can't replace,
-    and the JavaScript package doesn't depend on any other npm package.**
+    the JavaScript package doesn't depend on any other npm package, and the Python package
+    doesn't depend on any other PyPI package.**
 11. **Achieve:** **The docs take a reader from their first value to the feature their job needs.**
     - Signal: readers seated as each persona in Audience find, from the README alone, the
       path and the feature a task of theirs needs.
