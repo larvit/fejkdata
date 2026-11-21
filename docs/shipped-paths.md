@@ -772,11 +772,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.DK.address.street` | real | `Tjørnevænget` | Danmarks Adresseregister |
 | `geo.DK.address.street-number` | invented | `71D` | invented house numbers |
 | `geo.DK.locality` | real | `Vissenbjerg` | Danmarks Adresseregister |
-| `geo.DK.locality.lat` | real | `55.3875` | Danmarks Adresseregister |
-| `geo.DK.locality.lon` | real | `10.1370` | Danmarks Adresseregister |
+| `geo.DK.locality.lat` | real | `55.3875` | the mean of GeoNames' points for its postnumre |
+| `geo.DK.locality.lon` | real | `10.1370` | the mean of GeoNames' points for its postnumre |
 | `geo.DK.locality.municipality` | real | `0420` | Danmarks Adresseregister |
 | `geo.DK.locality.name` | real | `Vissenbjerg` | Danmarks Adresseregister |
-| `geo.DK.locality.population` | real | `5623` | Danmarks Adresseregister |
+| `geo.DK.locality.population` | real | `5623` | Statistics Denmark's FOLK1A; each kommune's population is shared out over its postdistrikter by their addresses in DAR |
 | `geo.DK.locality.postal-code` | real | `5492` | Danmarks Adresseregister |
 | `geo.DK.locality.postal-code.addresses` | real | `3155` | Danmarks Adresseregister |
 | `geo.DK.locality.postal-code.code` | real | `5492` | Danmarks Adresseregister |
@@ -788,11 +788,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.DK.municipality` | real | `Aalborg` | Statistics Denmark's NUTS classification and FOLK1A |
 | `geo.DK.municipality.code` | real | `0851` | Statistics Denmark's NUTS classification and FOLK1A |
 | `geo.DK.municipality.locality` | real | `Storvorde` | Danmarks Adresseregister |
-| `geo.DK.municipality.locality.lat` | real | `56.9769` | Danmarks Adresseregister |
-| `geo.DK.municipality.locality.lon` | real | `10.1718` | Danmarks Adresseregister |
+| `geo.DK.municipality.locality.lat` | real | `56.9769` | the mean of GeoNames' points for its postnumre |
+| `geo.DK.municipality.locality.lon` | real | `10.1718` | the mean of GeoNames' points for its postnumre |
 | `geo.DK.municipality.locality.municipality` | real | `0851` | Danmarks Adresseregister |
 | `geo.DK.municipality.locality.name` | real | `Storvorde` | Danmarks Adresseregister |
-| `geo.DK.municipality.locality.population` | real | `13153` | Danmarks Adresseregister |
+| `geo.DK.municipality.locality.population` | real | `13153` | Statistics Denmark's FOLK1A; each kommune's population is shared out over its postdistrikter by their addresses in DAR |
 | `geo.DK.municipality.locality.postal-code` | real | `9280` | Danmarks Adresseregister |
 | `geo.DK.municipality.locality.postal-code.addresses` | real | `5424` | Danmarks Adresseregister |
 | `geo.DK.municipality.locality.postal-code.code` | real | `9280` | Danmarks Adresseregister |
@@ -813,11 +813,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.DK.region.municipality` | real | `Næstved` | Statistics Denmark's NUTS classification and FOLK1A |
 | `geo.DK.region.municipality.code` | real | `0370` | Statistics Denmark's NUTS classification and FOLK1A |
 | `geo.DK.region.municipality.locality` | real | `Næstved` | Danmarks Adresseregister |
-| `geo.DK.region.municipality.locality.lat` | real | `55.2237` | Danmarks Adresseregister |
-| `geo.DK.region.municipality.locality.lon` | real | `11.7629` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.lat` | real | `55.2237` | the mean of GeoNames' points for its postnumre |
+| `geo.DK.region.municipality.locality.lon` | real | `11.7629` | the mean of GeoNames' points for its postnumre |
 | `geo.DK.region.municipality.locality.municipality` | real | `0370` | Danmarks Adresseregister |
 | `geo.DK.region.municipality.locality.name` | real | `Næstved` | Danmarks Adresseregister |
-| `geo.DK.region.municipality.locality.population` | real | `48640` | Danmarks Adresseregister |
+| `geo.DK.region.municipality.locality.population` | real | `48640` | Statistics Denmark's FOLK1A; each kommune's population is shared out over its postdistrikter by their addresses in DAR |
 | `geo.DK.region.municipality.locality.postal-code` | real | `4700` | Danmarks Adresseregister |
 | `geo.DK.region.municipality.locality.postal-code.addresses` | real | `23588` | Danmarks Adresseregister |
 | `geo.DK.region.municipality.locality.postal-code.code` | real | `4700` | Danmarks Adresseregister |
@@ -857,7 +857,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.EE.locality.lon` | real | `27.2810` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.locality.municipality` | real | `0917` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.locality.name` | real | `Vastseliina alevik` | Maa- ja Ruumiamet's address data and settlement units |
-| `geo.EE.locality.population` | real | `663` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.locality.population` | real, invented | `663` | Statistics Estonia's census table RL21003; the four localities formed since the census weigh a language model's estimates |
 | `geo.EE.locality.postal-code` | real | `65201` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.locality.postal-code.addresses` | real | `605` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.locality.postal-code.code` | real | `65201` | Maa- ja Ruumiamet's address data and settlement units |
@@ -874,7 +874,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.EE.municipality.locality.lon` | real | `26.4285` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.municipality.locality.municipality` | real | `0901` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.municipality.locality.name` | real | `Vinni alevik` | Maa- ja Ruumiamet's address data and settlement units |
-| `geo.EE.municipality.locality.population` | real | `882` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.municipality.locality.population` | real, invented | `882` | Statistics Estonia's census table RL21003; the four localities formed since the census weigh a language model's estimates |
 | `geo.EE.municipality.locality.postal-code` | real | `46601` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.municipality.locality.postal-code.addresses` | real | `810` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.municipality.locality.postal-code.code` | real | `46601` | Maa- ja Ruumiamet's address data and settlement units |
@@ -884,7 +884,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.EE.municipality.locality.street.locality` | real | `9375` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.municipality.locality.street.name` | real | `Põllu põik` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.municipality.name` | real | `Vinni vald` | Maa- ja Ruumiamet's address data and settlement units |
-| `geo.EE.municipality.population` | real | `6683` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.municipality.population` | real | `6683` | Statistics Estonia's census table RL21003, summed over its settlements |
 | `geo.EE.municipality.region` | real | `0060` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.postal-code` | real | `90804` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.postal-code.addresses` | real | `145` | Maa- ja Ruumiamet's address data and settlement units |
@@ -900,7 +900,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.EE.region.municipality.locality.lon` | real | `25.5420` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.region.municipality.locality.municipality` | real | `0899` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.region.municipality.locality.name` | real | `Ramsi alevik` | Maa- ja Ruumiamet's address data and settlement units |
-| `geo.EE.region.municipality.locality.population` | real | `570` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.region.municipality.locality.population` | real, invented | `570` | Statistics Estonia's census table RL21003; the four localities formed since the census weigh a language model's estimates |
 | `geo.EE.region.municipality.locality.postal-code` | real | `71101` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.region.municipality.locality.postal-code.addresses` | real | `465` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.region.municipality.locality.postal-code.code` | real | `71101` | Maa- ja Ruumiamet's address data and settlement units |
@@ -910,10 +910,10 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.EE.region.municipality.locality.street.locality` | real | `6789` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.region.municipality.locality.street.name` | real | `Keskuse tee` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.region.municipality.name` | real | `Viljandi vald` | Maa- ja Ruumiamet's address data and settlement units |
-| `geo.EE.region.municipality.population` | real | `13407` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.region.municipality.population` | real | `13407` | Statistics Estonia's census table RL21003, summed over its settlements |
 | `geo.EE.region.municipality.region` | real | `0084` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.region.name` | real | `Viljandi maakond` | Maa- ja Ruumiamet's address data and settlement units |
-| `geo.EE.region.population` | real | `45413` | Maa- ja Ruumiamet's address data and settlement units |
+| `geo.EE.region.population` | real | `45413` | Statistics Estonia's census table RL21003, summed over its settlements |
 | `geo.EE.region.timezone` | real | `Europe/Tallinn` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.street` | real | `Jõesuu tee` | Maa- ja Ruumiamet's address data and settlement units |
 | `geo.EE.street.addresses` | real | `86` | Maa- ja Ruumiamet's address data and settlement units |
@@ -935,15 +935,15 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.FI.address.street` | real | `Metsokuja` | Posti's postcode and basic address files |
 | `geo.FI.address.street-number` | invented | `7d` | invented house numbers |
 | `geo.FI.locality` | real | `Vesilahti` | Posti's postcode and basic address files |
-| `geo.FI.locality.lat` | real | `61.2843` | Posti's postcode and basic address files |
-| `geo.FI.locality.lon` | real | `23.4775` | Posti's postcode and basic address files |
+| `geo.FI.locality.lat` | real | `61.2843` | the mean of GeoNames' points for its postinumerot |
+| `geo.FI.locality.lon` | real | `23.4775` | the mean of GeoNames' points for its postinumerot |
 | `geo.FI.locality.municipality` | real | `922` | Posti's postcode and basic address files |
 | `geo.FI.locality.name` | real | `Vesilahti` | Posti's postcode and basic address files |
-| `geo.FI.locality.population` | real | `4222` | Posti's postcode and basic address files |
+| `geo.FI.locality.population` | real | `4222` | Statistics Finland's Paavo table 12ey, summed over its postinumerot |
 | `geo.FI.locality.postal-code` | real | `37470` | Posti's postcode and basic address files |
 | `geo.FI.locality.postal-code.code` | real | `37470` | Posti's postcode and basic address files |
 | `geo.FI.locality.postal-code.locality` | real | `Vesilahti` | Posti's postcode and basic address files |
-| `geo.FI.locality.postal-code.population` | real | `2133` | Posti's postcode and basic address files |
+| `geo.FI.locality.postal-code.population` | real | `2133` | Statistics Finland's Paavo table 12ey |
 | `geo.FI.locality.street` | real | `Vääpelintie` | Posti's postcode and basic address files |
 | `geo.FI.locality.street.addresses` | real | `2` | Posti's postcode and basic address files |
 | `geo.FI.locality.street.locality` | real | `Vesilahti` | Posti's postcode and basic address files |
@@ -953,15 +953,15 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.FI.municipality` | real | `Varkaus` | Statistics Finland's kunta classification and population |
 | `geo.FI.municipality.code` | real | `915` | Statistics Finland's kunta classification and population |
 | `geo.FI.municipality.locality` | real | `Varkaus` | Posti's postcode and basic address files |
-| `geo.FI.municipality.locality.lat` | real | `62.3142` | Posti's postcode and basic address files |
-| `geo.FI.municipality.locality.lon` | real | `27.9003` | Posti's postcode and basic address files |
+| `geo.FI.municipality.locality.lat` | real | `62.3142` | the mean of GeoNames' points for its postinumerot |
+| `geo.FI.municipality.locality.lon` | real | `27.9003` | the mean of GeoNames' points for its postinumerot |
 | `geo.FI.municipality.locality.municipality` | real | `915` | Posti's postcode and basic address files |
 | `geo.FI.municipality.locality.name` | real | `Varkaus` | Posti's postcode and basic address files |
-| `geo.FI.municipality.locality.population` | real | `18934` | Posti's postcode and basic address files |
+| `geo.FI.municipality.locality.population` | real | `18934` | Statistics Finland's Paavo table 12ey, summed over its postinumerot |
 | `geo.FI.municipality.locality.postal-code` | real | `78400` | Posti's postcode and basic address files |
 | `geo.FI.municipality.locality.postal-code.code` | real | `78400` | Posti's postcode and basic address files |
 | `geo.FI.municipality.locality.postal-code.locality` | real | `Varkaus` | Posti's postcode and basic address files |
-| `geo.FI.municipality.locality.postal-code.population` | real | `1182` | Posti's postcode and basic address files |
+| `geo.FI.municipality.locality.postal-code.population` | real | `1182` | Statistics Finland's Paavo table 12ey |
 | `geo.FI.municipality.locality.street` | real | `Paterontie` | Posti's postcode and basic address files |
 | `geo.FI.municipality.locality.street.addresses` | real | `2` | Posti's postcode and basic address files |
 | `geo.FI.municipality.locality.street.locality` | real | `Varkaus` | Posti's postcode and basic address files |
@@ -975,21 +975,21 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.FI.postal-code` | real | `94700` | Posti's postcode and basic address files |
 | `geo.FI.postal-code.code` | real | `94700` | Posti's postcode and basic address files |
 | `geo.FI.postal-code.locality` | real | `Kemi` | Posti's postcode and basic address files |
-| `geo.FI.postal-code.population` | real | `5145` | Posti's postcode and basic address files |
+| `geo.FI.postal-code.population` | real | `5145` | Statistics Finland's Paavo table 12ey |
 | `geo.FI.region` | real | `Lappi` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.code` | real | `19` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.municipality` | real | `Sodankylä` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.municipality.code` | real | `758` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.municipality.locality` | real | `Sodankylä` | Posti's postcode and basic address files |
-| `geo.FI.region.municipality.locality.lat` | real | `67.4843` | Posti's postcode and basic address files |
-| `geo.FI.region.municipality.locality.lon` | real | `26.6255` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.lat` | real | `67.4843` | the mean of GeoNames' points for its postinumerot |
+| `geo.FI.region.municipality.locality.lon` | real | `26.6255` | the mean of GeoNames' points for its postinumerot |
 | `geo.FI.region.municipality.locality.municipality` | real | `758` | Posti's postcode and basic address files |
 | `geo.FI.region.municipality.locality.name` | real | `Sodankylä` | Posti's postcode and basic address files |
-| `geo.FI.region.municipality.locality.population` | real | `5259` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.population` | real | `5259` | Statistics Finland's Paavo table 12ey, summed over its postinumerot |
 | `geo.FI.region.municipality.locality.postal-code` | real | `99600` | Posti's postcode and basic address files |
 | `geo.FI.region.municipality.locality.postal-code.code` | real | `99600` | Posti's postcode and basic address files |
 | `geo.FI.region.municipality.locality.postal-code.locality` | real | `Sodankylä` | Posti's postcode and basic address files |
-| `geo.FI.region.municipality.locality.postal-code.population` | real | `5259` | Posti's postcode and basic address files |
+| `geo.FI.region.municipality.locality.postal-code.population` | real | `5259` | Statistics Finland's Paavo table 12ey |
 | `geo.FI.region.municipality.locality.street` | real | `Poromiehentie` | Posti's postcode and basic address files |
 | `geo.FI.region.municipality.locality.street.addresses` | real | `2` | Posti's postcode and basic address files |
 | `geo.FI.region.municipality.locality.street.locality` | real | `Sodankylä` | Posti's postcode and basic address files |
@@ -1025,11 +1025,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.FR.address.street-number` | invented | `7 bis` | invented house numbers |
 | `geo.FR.locality` | real | `Les Abymes` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.locality.code` | real | `97101` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.locality.lat` | real | `16.2647` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.locality.lon` | real | `-61.5010` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.locality.lat` | real | `16.2647` | the mean of its addresses' points in the Base Adresse Nationale |
+| `geo.FR.locality.lon` | real | `-61.5010` | the mean of its addresses' points in the Base Adresse Nationale |
 | `geo.FR.locality.municipality` | real | `971` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.locality.name` | real | `Les Abymes` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.locality.population` | real | `51055` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.locality.population` | real | `51055` | INSEE's populations file |
 | `geo.FR.locality.postal-code` | real | `97139` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.locality.postal-code.addresses` | real | `16385` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.locality.postal-code.code` | real | `97139` | INSEE's populations file and the Base Adresse Nationale |
@@ -1038,17 +1038,17 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.FR.municipality.code` | real | `971` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.municipality.locality` | real | `Saint-Claude` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.municipality.locality.code` | real | `97124` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.municipality.locality.lat` | real | `16.0183` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.municipality.locality.lon` | real | `-61.7037` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.municipality.locality.lat` | real | `16.0183` | the mean of its addresses' points in the Base Adresse Nationale |
+| `geo.FR.municipality.locality.lon` | real | `-61.7037` | the mean of its addresses' points in the Base Adresse Nationale |
 | `geo.FR.municipality.locality.municipality` | real | `971` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.municipality.locality.name` | real | `Saint-Claude` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.municipality.locality.population` | real | `10177` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.municipality.locality.population` | real | `10177` | INSEE's populations file |
 | `geo.FR.municipality.locality.postal-code` | real | `97120` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.municipality.locality.postal-code.addresses` | real | `4774` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.municipality.locality.postal-code.code` | real | `97120` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.municipality.locality.postal-code.locality` | real | `97124` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.municipality.name` | real | `Guadeloupe` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.municipality.population` | real | `384160` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.municipality.population` | real | `384160` | INSEE's populations file |
 | `geo.FR.municipality.region` | real | `01` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.postal-code` | real | `95780` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.postal-code.addresses` | real | `165` | INSEE's populations file and the Base Adresse Nationale |
@@ -1060,20 +1060,20 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.FR.region.municipality.code` | real | `83` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.region.municipality.locality` | real | `Roquebrune-sur-Argens` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.region.municipality.locality.code` | real | `83107` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.region.municipality.locality.lat` | real | `43.4169` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.region.municipality.locality.lon` | real | `6.6675` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.region.municipality.locality.lat` | real | `43.4169` | the mean of its addresses' points in the Base Adresse Nationale |
+| `geo.FR.region.municipality.locality.lon` | real | `6.6675` | the mean of its addresses' points in the Base Adresse Nationale |
 | `geo.FR.region.municipality.locality.municipality` | real | `83` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.region.municipality.locality.name` | real | `Roquebrune-sur-Argens` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.region.municipality.locality.population` | real | `15442` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.region.municipality.locality.population` | real | `15442` | INSEE's populations file |
 | `geo.FR.region.municipality.locality.postal-code` | real | `83520` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.region.municipality.locality.postal-code.addresses` | real | `6960` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.region.municipality.locality.postal-code.code` | real | `83520` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.region.municipality.locality.postal-code.locality` | real | `83107` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.region.municipality.name` | real | `Var` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.region.municipality.population` | real | `1119299` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.region.municipality.population` | real | `1119299` | INSEE's populations file |
 | `geo.FR.region.municipality.region` | real | `93` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.region.name` | real | `Provence-Alpes-Côte d'Azur` | INSEE's populations file and the Base Adresse Nationale |
-| `geo.FR.region.population` | real | `5218428` | INSEE's populations file and the Base Adresse Nationale |
+| `geo.FR.region.population` | real | `5218428` | INSEE's populations file |
 | `geo.FR.region.timezone` | real | `Europe/Paris` | INSEE's populations file and the Base Adresse Nationale |
 | `geo.FR.street` | invented | `Allée des Érables` | a language model's recall of street names common in France |
 | `geo.FR.street.name` | invented | `Allée des Érables` | a language model's recall of street names common in France |
@@ -1096,7 +1096,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LT.locality.code` | real | `31003` | the Centre of Registers' Address Register |
 | `geo.LT.locality.municipality` | real | `13` | the Centre of Registers' Address Register |
 | `geo.LT.locality.name` | real | `Vilnius` | the Centre of Registers' Address Register |
-| `geo.LT.locality.population` | real | `610163` | the Centre of Registers' Address Register |
+| `geo.LT.locality.population` | real | `610163` | the State Data Agency's table M3010202; each savivaldybė's residents are shared out over its localities by their addresses in the Address Register |
 | `geo.LT.locality.postal-code` | real | `LT-09322` | the Centre of Registers' Address Register |
 | `geo.LT.locality.postal-code.addresses` | real | `338` | the Centre of Registers' Address Register |
 | `geo.LT.locality.postal-code.code` | real | `LT-09322` | the Centre of Registers' Address Register |
@@ -1111,7 +1111,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LT.municipality.locality.code` | real | `28500` | the Centre of Registers' Address Register |
 | `geo.LT.municipality.locality.municipality` | real | `88` | the Centre of Registers' Address Register |
 | `geo.LT.municipality.locality.name` | real | `Šilutė` | the Centre of Registers' Address Register |
-| `geo.LT.municipality.locality.population` | real | `17629` | the Centre of Registers' Address Register |
+| `geo.LT.municipality.locality.population` | real | `17629` | the State Data Agency's table M3010202; each savivaldybė's residents are shared out over its localities by their addresses in the Address Register |
 | `geo.LT.municipality.locality.postal-code` | real | `LT-99142` | the Centre of Registers' Address Register |
 | `geo.LT.municipality.locality.postal-code.addresses` | real | `337` | the Centre of Registers' Address Register |
 | `geo.LT.municipality.locality.postal-code.code` | real | `LT-99142` | the Centre of Registers' Address Register |
@@ -1121,7 +1121,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LT.municipality.locality.street.locality` | real | `28500` | the Centre of Registers' Address Register |
 | `geo.LT.municipality.locality.street.name` | real | `Taikos g.` | the Centre of Registers' Address Register |
 | `geo.LT.municipality.name` | real | `Šilutės rajono savivaldybė` | the Centre of Registers' Address Register |
-| `geo.LT.municipality.population` | real | `37906` | the Centre of Registers' Address Register |
+| `geo.LT.municipality.population` | real | `37906` | the State Data Agency's table M3010202 |
 | `geo.LT.municipality.region` | real | `3` | the Centre of Registers' Address Register |
 | `geo.LT.postal-code` | real | `LT-97171` | the Centre of Registers' Address Register |
 | `geo.LT.postal-code.addresses` | real | `111` | the Centre of Registers' Address Register |
@@ -1135,7 +1135,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LT.region.municipality.locality.code` | real | `29644` | the Centre of Registers' Address Register |
 | `geo.LT.region.municipality.locality.municipality` | real | `82` | the Centre of Registers' Address Register |
 | `geo.LT.region.municipality.locality.name` | real | `Utena` | the Centre of Registers' Address Register |
-| `geo.LT.region.municipality.locality.population` | real | `20913` | the Centre of Registers' Address Register |
+| `geo.LT.region.municipality.locality.population` | real | `20913` | the State Data Agency's table M3010202; each savivaldybė's residents are shared out over its localities by their addresses in the Address Register |
 | `geo.LT.region.municipality.locality.postal-code` | real | `LT-28188` | the Centre of Registers' Address Register |
 | `geo.LT.region.municipality.locality.postal-code.addresses` | real | `163` | the Centre of Registers' Address Register |
 | `geo.LT.region.municipality.locality.postal-code.code` | real | `LT-28188` | the Centre of Registers' Address Register |
@@ -1145,10 +1145,10 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LT.region.municipality.locality.street.locality` | real | `29644` | the Centre of Registers' Address Register |
 | `geo.LT.region.municipality.locality.street.name` | real | `Aukštakalnio g.` | the Centre of Registers' Address Register |
 | `geo.LT.region.municipality.name` | real | `Utenos rajono savivaldybė` | the Centre of Registers' Address Register |
-| `geo.LT.region.municipality.population` | real | `37099` | the Centre of Registers' Address Register |
+| `geo.LT.region.municipality.population` | real | `37099` | the State Data Agency's table M3010202 |
 | `geo.LT.region.municipality.region` | real | `9` | the Centre of Registers' Address Register |
 | `geo.LT.region.name` | real | `Utenos apskritis` | the Centre of Registers' Address Register |
-| `geo.LT.region.population` | real | `120394` | the Centre of Registers' Address Register |
+| `geo.LT.region.population` | real | `120394` | the State Data Agency's table M3010202, summed over its municipalities |
 | `geo.LT.region.timezone` | real | `Europe/Vilnius` | the Centre of Registers' Address Register |
 | `geo.LT.street` | real | `Lėvens g.` | the Centre of Registers' Address Register |
 | `geo.LT.street.addresses` | real | `44` | the Centre of Registers' Address Register |
@@ -1175,7 +1175,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LV.locality.lon` | real | `22.8091` | the State Land Service's State Address Register |
 | `geo.LV.locality.municipality` | real | `0051530` | the State Land Service's State Address Register |
 | `geo.LV.locality.name` | real | `Roja` | the State Land Service's State Address Register |
-| `geo.LV.locality.population` | real | `1902` | the State Land Service's State Address Register |
+| `geo.LV.locality.population` | real | `1902` | the Central Statistical Bureau's table RIG010; a locality it doesn't count shares, by its addresses, the people of its pagasts counted under no ciems |
 | `geo.LV.locality.postal-code` | real | `LV-3264` | the State Land Service's State Address Register |
 | `geo.LV.locality.postal-code.addresses` | real | `1396` | the State Land Service's State Address Register |
 | `geo.LV.locality.postal-code.code` | real | `LV-3264` | the State Land Service's State Address Register |
@@ -1192,7 +1192,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LV.municipality.locality.lon` | real | `25.8156` | the State Land Service's State Address Register |
 | `geo.LV.municipality.locality.municipality` | real | `0053400` | the State Land Service's State Address Register |
 | `geo.LV.municipality.locality.name` | real | `Ērģeme` | the State Land Service's State Address Register |
-| `geo.LV.municipality.locality.population` | real | `249` | the State Land Service's State Address Register |
+| `geo.LV.municipality.locality.population` | real | `249` | the Central Statistical Bureau's table RIG010; a locality it doesn't count shares, by its addresses, the people of its pagasts counted under no ciems |
 | `geo.LV.municipality.locality.postal-code` | real | `LV-4711` | the State Land Service's State Address Register |
 | `geo.LV.municipality.locality.postal-code.addresses` | real | `171` | the State Land Service's State Address Register |
 | `geo.LV.municipality.locality.postal-code.code` | real | `LV-4711` | the State Land Service's State Address Register |
@@ -1202,7 +1202,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LV.municipality.locality.street.locality` | real | `100190890` | the State Land Service's State Address Register |
 | `geo.LV.municipality.locality.street.name` | real | `Vītolu iela` | the State Land Service's State Address Register |
 | `geo.LV.municipality.name` | real | `Ērģemes pag.` | the State Land Service's State Address Register |
-| `geo.LV.municipality.population` | real | `655` | the State Land Service's State Address Register |
+| `geo.LV.municipality.population` | real | `655` | the Central Statistical Bureau's table RIG010 |
 | `geo.LV.municipality.region` | real | `0053000` | the State Land Service's State Address Register |
 | `geo.LV.postal-code` | real | `LV-5449` | the State Land Service's State Address Register |
 | `geo.LV.postal-code.addresses` | real | `505` | the State Land Service's State Address Register |
@@ -1218,7 +1218,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LV.region.municipality.locality.lon` | real | `25.3388` | the State Land Service's State Address Register |
 | `geo.LV.region.municipality.locality.municipality` | real | `0054490` | the State Land Service's State Address Register |
 | `geo.LV.region.municipality.locality.name` | real | `Kocēni` | the State Land Service's State Address Register |
-| `geo.LV.region.municipality.locality.population` | real | `855` | the State Land Service's State Address Register |
+| `geo.LV.region.municipality.locality.population` | real | `855` | the Central Statistical Bureau's table RIG010; a locality it doesn't count shares, by its addresses, the people of its pagasts counted under no ciems |
 | `geo.LV.region.municipality.locality.postal-code` | real | `LV-4220` | the State Land Service's State Address Register |
 | `geo.LV.region.municipality.locality.postal-code.addresses` | real | `557` | the State Land Service's State Address Register |
 | `geo.LV.region.municipality.locality.postal-code.code` | real | `LV-4220` | the State Land Service's State Address Register |
@@ -1228,10 +1228,10 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.LV.region.municipality.locality.street.locality` | real | `100192716` | the State Land Service's State Address Register |
 | `geo.LV.region.municipality.locality.street.name` | real | `Gravas iela` | the State Land Service's State Address Register |
 | `geo.LV.region.municipality.name` | real | `Kocēnu pag.` | the State Land Service's State Address Register |
-| `geo.LV.region.municipality.population` | real | `2691` | the State Land Service's State Address Register |
+| `geo.LV.region.municipality.population` | real | `2691` | the Central Statistical Bureau's table RIG010 |
 | `geo.LV.region.municipality.region` | real | `0054000` | the State Land Service's State Address Register |
 | `geo.LV.region.name` | real | `Valmieras nov.` | the State Land Service's State Address Register |
-| `geo.LV.region.population` | real | `50000` | the State Land Service's State Address Register |
+| `geo.LV.region.population` | real | `50000` | the Central Statistical Bureau's table RIG010, summed over its municipalities |
 | `geo.LV.region.timezone` | real | `Europe/Riga` | the State Land Service's State Address Register |
 | `geo.LV.street` | real | `Parka iela` | the State Land Service's State Address Register |
 | `geo.LV.street.addresses` | real | `222` | the State Land Service's State Address Register |
@@ -1257,7 +1257,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.NO.locality.lon` | real | `8.4862` | Kartverket's address register |
 | `geo.NO.locality.municipality` | real | `3328` | Kartverket's address register |
 | `geo.NO.locality.name` | real | `Ål` | Kartverket's address register |
-| `geo.NO.locality.population` | real | `4023` | Kartverket's address register |
+| `geo.NO.locality.population` | real | `4023` | Statistics Norway's table 07459; each kommune's population is shared out over its poststeder by their addresses in Kartverket's register |
 | `geo.NO.locality.postal-code` | real | `3570` | Kartverket's address register |
 | `geo.NO.locality.postal-code.addresses` | real | `5709` | Kartverket's address register |
 | `geo.NO.locality.postal-code.code` | real | `3570` | Kartverket's address register |
@@ -1273,7 +1273,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.NO.municipality.locality.lon` | real | `16.5271` | Kartverket's address register |
 | `geo.NO.municipality.locality.municipality` | real | `5503` | Kartverket's address register |
 | `geo.NO.municipality.locality.name` | real | `Harstad` | Kartverket's address register |
-| `geo.NO.municipality.locality.population` | real | `20659` | Kartverket's address register |
+| `geo.NO.municipality.locality.population` | real | `20659` | Statistics Norway's table 07459; each kommune's population is shared out over its poststeder by their addresses in Kartverket's register |
 | `geo.NO.municipality.locality.postal-code` | real | `9407` | Kartverket's address register |
 | `geo.NO.municipality.locality.postal-code.addresses` | real | `826` | Kartverket's address register |
 | `geo.NO.municipality.locality.postal-code.code` | real | `9407` | Kartverket's address register |
@@ -1283,7 +1283,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.NO.municipality.locality.street.locality` | real | `Harstad` | Kartverket's address register |
 | `geo.NO.municipality.locality.street.name` | real | `Markveien` | Kartverket's address register |
 | `geo.NO.municipality.name` | real | `Harstad` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.municipality.population` | real | `25204` | Statistics Norway's fylke and kommune classifications |
+| `geo.NO.municipality.population` | real | `25204` | Statistics Norway's table 07459 |
 | `geo.NO.municipality.region` | real | `55` | Statistics Norway's fylke and kommune classifications |
 | `geo.NO.postal-code` | real | `9372` | Kartverket's address register |
 | `geo.NO.postal-code.addresses` | real | `933` | Kartverket's address register |
@@ -1298,7 +1298,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.NO.region.municipality.locality.lon` | real | `17.0521` | Kartverket's address register |
 | `geo.NO.region.municipality.locality.municipality` | real | `5530` | Kartverket's address register |
 | `geo.NO.region.municipality.locality.name` | real | `Kaldfarnes` | Kartverket's address register |
-| `geo.NO.region.municipality.locality.population` | real | `450` | Kartverket's address register |
+| `geo.NO.region.municipality.locality.population` | real | `450` | Statistics Norway's table 07459; each kommune's population is shared out over its poststeder by their addresses in Kartverket's register |
 | `geo.NO.region.municipality.locality.postal-code` | real | `9395` | Kartverket's address register |
 | `geo.NO.region.municipality.locality.postal-code.addresses` | real | `353` | Kartverket's address register |
 | `geo.NO.region.municipality.locality.postal-code.code` | real | `9395` | Kartverket's address register |
@@ -1308,10 +1308,10 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.NO.region.municipality.locality.street.locality` | real | `Kaldfarnes` | Kartverket's address register |
 | `geo.NO.region.municipality.locality.street.name` | real | `Sifjordveien` | Kartverket's address register |
 | `geo.NO.region.municipality.name` | real | `Senja` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.municipality.population` | real | `14946` | Statistics Norway's fylke and kommune classifications |
+| `geo.NO.region.municipality.population` | real | `14946` | Statistics Norway's table 07459 |
 | `geo.NO.region.municipality.region` | real | `55` | Statistics Norway's fylke and kommune classifications |
 | `geo.NO.region.name` | real | `Troms` | Statistics Norway's fylke and kommune classifications |
-| `geo.NO.region.population` | real | `171218` | Statistics Norway's fylke and kommune classifications |
+| `geo.NO.region.population` | real | `171218` | Statistics Norway's table 07459 |
 | `geo.NO.region.timezone` | real | `Europe/Oslo` | Statistics Norway's fylke and kommune classifications |
 | `geo.NO.street` | real | `Flisnestua` | Kartverket's address register |
 | `geo.NO.street.addresses` | real | `32` | Kartverket's address register |
@@ -1333,11 +1333,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.SE.address.street` | real | `Båtsmansvägen` | Trafikverket's NVDB street names, placed with SCB's tätort areas |
 | `geo.SE.address.street-number` | invented | `71D` | invented house numbers |
 | `geo.SE.locality` | real | `Öckerö` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.locality.lat` | real | `57.6923` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.locality.lon` | real | `11.6506` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.locality.lat` | real | `57.6923` | GeoNames' postal codes for SE |
+| `geo.SE.locality.lon` | real | `11.6506` | GeoNames' postal codes for SE |
 | `geo.SE.locality.municipality` | real | `1407` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.locality.name` | real | `Öckerö` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.locality.population` | real | `12771` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.locality.population` | real, invented | `12771` | SCB's population of the tätort, kommun or småort; 200 is invented where SCB publishes none |
 | `geo.SE.locality.postal-code` | real | `475 31` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.locality.postal-code.code` | real | `475 31` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.locality.postal-code.locality` | real | `Öckerö` | GeoNames' postal codes for SE and SCB's tätort populations |
@@ -1348,11 +1348,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.SE.municipality` | real | `Skellefteå` | SCB's län and kommun codes and population |
 | `geo.SE.municipality.code` | real | `2482` | SCB's län and kommun codes and population |
 | `geo.SE.municipality.locality` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.municipality.locality.lat` | real | `64.7507` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.municipality.locality.lon` | real | `20.9528` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.municipality.locality.lat` | real | `64.7507` | GeoNames' postal codes for SE |
+| `geo.SE.municipality.locality.lon` | real | `20.9528` | GeoNames' postal codes for SE |
 | `geo.SE.municipality.locality.municipality` | real | `2482` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.municipality.locality.name` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.municipality.locality.population` | real | `39146` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.municipality.locality.population` | real, invented | `39146` | SCB's population of the tätort, kommun or småort; 200 is invented where SCB publishes none |
 | `geo.SE.municipality.locality.postal-code` | real | `931 31` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.municipality.locality.postal-code.code` | real | `931 31` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.municipality.locality.postal-code.locality` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
@@ -1371,11 +1371,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.SE.region.municipality` | real | `Skellefteå` | SCB's län and kommun codes and population |
 | `geo.SE.region.municipality.code` | real | `2482` | SCB's län and kommun codes and population |
 | `geo.SE.region.municipality.locality` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.region.municipality.locality.lat` | real | `64.7507` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.region.municipality.locality.lon` | real | `20.9528` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.lat` | real | `64.7507` | GeoNames' postal codes for SE |
+| `geo.SE.region.municipality.locality.lon` | real | `20.9528` | GeoNames' postal codes for SE |
 | `geo.SE.region.municipality.locality.municipality` | real | `2482` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.region.municipality.locality.name` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
-| `geo.SE.region.municipality.locality.population` | real | `39146` | GeoNames' postal codes for SE and SCB's tätort populations |
+| `geo.SE.region.municipality.locality.population` | real, invented | `39146` | SCB's population of the tätort, kommun or småort; 200 is invented where SCB publishes none |
 | `geo.SE.region.municipality.locality.postal-code` | real | `931 95` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.region.municipality.locality.postal-code.code` | real | `931 95` | GeoNames' postal codes for SE and SCB's tätort populations |
 | `geo.SE.region.municipality.locality.postal-code.locality` | real | `Skellefteå` | GeoNames' postal codes for SE and SCB's tätort populations |
