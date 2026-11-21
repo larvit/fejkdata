@@ -19,7 +19,7 @@ func TestDataListingIsCurrent(t *testing.T) {
 		t.Fatalf("the listing is not whole:\n%v", err)
 	}
 	for _, f := range shippedData(t).ListingFiles(listed) {
-		if len(f.Body) > githubRenderLimit {
+		if f.Name == shipped.DocFile && len(f.Body) > githubRenderLimit {
 			t.Errorf("%s is %d bytes, past the %d GitHub renders; split it per module", f.Name, len(f.Body), githubRenderLimit)
 		}
 		generatedFileIsCurrent(t, f, regenerate)

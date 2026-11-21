@@ -1192,7 +1192,7 @@ The scoring runs are in [the comprehension history](comprehension-history.md). T
 
 The nine-seat panel at depth 1 and the four-seat scoring run of 2026-11-11 read commit 3f909f1. `larv-review needs-scoring-run` called no run on that commit, so the history doesn't hold them. The four seats: Navigation 7.13, Locality 5.63, Shape 6.50, Self-sufficiency 6.88, overall 6.38. The nine: Navigation 7.11, Locality 5.78, Shape 6.56, Self-sufficiency 6.72, overall 6.44. Against the nine-seat panel on b9d1af6 every mean fell, Navigation from 7.33, Locality from 6.17, Shape from 6.67, Self-sufficiency from 6.83 and the overall from 6.67, and Locality is lowest again. Nearly every seat found the named picks hardest: `checkNameRead`, `sharedDraw` and `refuseFreshDraw` in `fence/namefence.go`, `readName` and `enter` in `render`, `LandsInPick`, `drawSteps`, and the `LoadFinds` phase around `Finish`. Four also named `render`, `load.RenderEdges` and `fence.walkRoutes` as three lists of one node's children, kept in step by a comment. Items 421 to 430 hold what the seats named, and item 421 starts lifting Locality to the floor. Valid while the comprehension floor's target is 7.0.
 
-## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, with the name rules in its package `names`, drawing in `internal/engine/render`, and the pipeline and lazy loading in `internal/engine`, with the root the public API and its options; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`
+## The node types sit in `internal/engine/tree`, compiling, binding, linking and resolving in `internal/engine/load`, every proof and fence of the finished tree in `internal/engine/fence`, with the name rules in its package `names`, drawing in `internal/engine/render`, and the pipeline and lazy loading in `internal/engine`, with the root the public API and its options; compile builds each node with its syntax, and `LoadFinds.Finish` writes into it what its load found, save a folder's children, which its load puts, and a table's `siblings`, which `load.LinkTable` sets; what reads no engine type, a table's rows included, sits in `internal/`; `internal/shipped` generates the files about the shipped data from a loaded tree
 
 2026-10-05, Lilleman auf Larv; revised 2026-11-11, three times, and 2026-11-14. Serves code health. On 2026-10-09 the
 maintainer chose to regroup the engine into packages, untangled first, over naming the root
@@ -1247,8 +1247,7 @@ folders, stay in their stages.
 
 `internal/shipped` sits beside the root, above the engine: it generates the repository's files
 about the shipped data, the manifests, the listing and the two pins, from a tree
-`internal/engine` loaded, and no package of the library imports it. It imports
-`internal/engine`, `tree` and `load`, whose `ColumnItems` says whether a column may be null. Its
+`internal/engine` loaded, and no package of the library imports it. Its
 command, `internal/shipped/generate`, is the one writer of those files, and the root's tests
 compare each file with the bytes the package returns.
 
@@ -2361,8 +2360,8 @@ Valid while the full table would crowd the README. The test's message says what 
 
 ## A first or last name a language model recalled is listed `real`, as a name in use; only its weight is an estimate
 
-2026-11-21, decided in the release review of 0.7.1 without asking the maintainer, as the choice was open and this was the recommendation. Serves goal 3, and applies the project principle on name tables with no open bulk file of counts.
+2026-11-21, the agent running the release review of 0.7.1. The principles pass left the choice to the maintainer, and the agent took it without asking, since the project principle on name tables already points this way. The maintainer may reverse it. Serves goal 3, and applies the project principle on name tables with no open bulk file of counts.
 
-Goal 3 calls a value real when it is a thing that exists. A recalled name is a first or last name the model knows to be in use in the country. The principle on such tables already treats the names as names and calls only their weights estimates, so `data-listing/kinds-and-sources.tsv` lists these tables as `real` and its source cell says no register checked them. Listing them `invented` would call names such as `Müller` made up, which misleads more than it warns.
+Goal 3 calls a value real when it is a thing that exists. A recalled name is one the model gave as a first or last name in use in the country. The principle on such tables already treats the names as names and calls only their weights estimates, so `data-listing/kinds-and-sources.tsv` lists these tables as `real` and its source cell says no register checked them. Listing them `invented` would call names such as `Müller` made up, which misleads more than it warns.
 
-Valid while the recalled tables hold names in use. A name a user reports as not in use is removed, and a table whose recall fails such checks often is listed `invented` until a register replaces it.
+Valid while the recalled tables hold names in use. A name a user reports as not in use is removed. A table with many such reports is listed `invented` until a register replaces it.

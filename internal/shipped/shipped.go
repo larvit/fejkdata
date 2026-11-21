@@ -33,8 +33,8 @@ type Data struct {
 	namespaces []string
 }
 
-// Whole is a module's files under a manifest naming only its namespace, so it loads whole in
-// engine.Load, and that namespace.
+// Whole returns a module's files under a manifest naming only its namespace, so engine.Load loads
+// it whole, and returns that namespace too.
 func Whole(module fs.FS) (fs.FS, string, error) {
 	manifest, err := datafiles.FS(module).Manifest()
 	if err != nil {

@@ -1,6 +1,6 @@
-// Command generate writes the files package shipped generates from the shipped data: each
-// module's manifest and the listing of every shipped path, or with -repin the pins of the
-// shipped shape and of the listing's shape instead, so a re-pin is its own act.
+// Command generate writes each module's manifest and the listing of every shipped path, which
+// package shipped builds from the shipped data. With -repin it writes the pins of the shipped
+// shape and of the listing's shape instead.
 package main
 
 import (

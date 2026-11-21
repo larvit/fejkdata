@@ -561,7 +561,7 @@ func TestADataPathCategoryFailingAtFirstReachExits1(t *testing.T) {
 	}
 }
 
-func TestHelpLinksTheDocsItIsGiven(t *testing.T) {
+func TestHelpLinksTheDocsOfTheFejkdataVersionItIsBuiltWith(t *testing.T) {
 	out := help("mycli", builtAsMycli)
 	if !strings.Contains(out, "https://github.com/larvit/fejkdata/blob/v0.4.0/README.md#names") {
 		t.Errorf("help does not link the v0.4.0 README's Names:\n%s", out)
@@ -750,8 +750,12 @@ func TestHelpOpensWithTheLeadOnlyWhereFejkdatasOwnMainIsBuilt(t *testing.T) {
 		{"fejkdata", nil, false},
 	} {
 		opening := helpOpening(t, c.name, c.info)
+		main := "unknown"
+		if c.info != nil {
+			main = c.info.Main.Path
+		}
 		if got := strings.Contains(opening, "echo '{/sv_SE.person}' | "+c.name); got != c.want {
-			t.Errorf("help(%q) of a binary whose main module is %v shows the lead = %v, want %v:\n%s", c.name, c.info, got, c.want, opening)
+			t.Errorf("help(%q) of a binary whose main module is %s shows the lead = %v, want %v:\n%s", c.name, main, got, c.want, opening)
 		}
 	}
 }
