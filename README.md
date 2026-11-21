@@ -298,6 +298,28 @@ newline after it allowed. Some shells' `echo` reads a backslash as an escape, so
 template holding one from a quoted heredoc or a file. The rest of stdin's rules are under
 [Decisions](docs/decisions.md#the-cli-renders-exactly-the-template-on-its-stdin-and-adds-nothing).
 
+### For coding agents
+
+A coding agent that writes templates and runs the CLI needs only a shell line each time:
+
+```sh
+fejkdata --list | grep personnummer                       # find a path: --list names every one
+echo '{sv_SE.personnummer}' | fejkdata                    # exit 2, and stderr says: write {/sv_SE.personnummer}
+echo '{/sv_SE.personnummer}' | fejkdata                   # the fix, one line out
+echo '{/sv_SE.personnummer}' | fejkdata --seed 1 --today 2026-11-21   # the same line on every run
+```
+
+A template that doesn't compile exits 2 and says what is wrong. A reference missing its
+leading slash, as above, gets the fix named; a misspelled path says `no entry`, so check it
+against `--list`. `--seed` repeats a run, and `--today` repeats it on another day where
+the template reads a date, as `{/sv_SE.personnummer}` does.
+
+To tell an agent about fejkdata, paste this into the project's `AGENTS.md`:
+
+```markdown
+Fake data: use the `fejkdata` CLI, never made-up values. Find a path with `fejkdata --list | grep personnummer`, then render it with `echo '{/sv_SE.personnummer}' | fejkdata`. A template that fails prints what is wrong: read the error, and where it says `no entry`, check the path against `--list`. Add `--seed 1 --today 2026-11-21` to repeat a run.
+```
+
 ### PowerShell and cmd.exe
 
 In cmd.exe, `echo` sends the space before `|` and any single quotes, so write neither: around `{/sv_SE.person}` they are text, and `--format` stops naming the record.

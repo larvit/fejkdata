@@ -5,6 +5,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), with headings 
 their brackets. A release's `Breaking` section comes first and names each rejected spelling
 with its replacement, and each removed path, column or flag.
 
+## Unreleased
+
+### Added
+
+- The README's [For coding agents](https://github.com/larvit/fejkdata#for-coding-agents) section has a snippet
+  to paste into a project's `AGENTS.md`, and the shell lines an agent runs: find a path with `--list`, render it,
+  fix a reference that lacks its leading slash as the error says, and repeat a run with `--seed` and `--today`.
+
 ## 0.7.0 - 2026-11-20
 
 ### Breaking
