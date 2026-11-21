@@ -823,7 +823,8 @@ such as `sv_SE.person.personnummer`, has its own kind and source where they diff
 otherwise takes the category's. A table linked below a category, such as `sv_SE.sex.personnummer`, takes the
 linked table's. A `kind` is `real`, `valid` or `invented`, or several of them in that order:
 
-- `real`: a thing that exists, such as the territory `SE`.
+- `real`: a thing that exists, such as the territory `SE`. A name a language model recalled is `real` too:
+  it is a name in use, though no register checked it.
 - `valid`: made up, and passing the check the real system applies, such as a personnummer. A valid value
   may still belong to someone.
 - `invented`: made up, and passing no check, such as a town that doesn't exist.

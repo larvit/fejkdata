@@ -167,6 +167,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A table's parent column is read in one pass over its runs of equal cells, and a table larger than one block loads by block from a block index `go generate` writes
 - Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, and a weighted draw stays a binary search over cumulative weights
 - The table of every shipped path is a page in `docs/` that the README links
+- A name a language model recalled is listed `real`, as a name in use; only its weight is an estimate
 
 # Scoring run
 
