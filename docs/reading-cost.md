@@ -2782,3 +2782,25 @@ Read most (opens and searches):
 - `dockerhub/overview.md` 1
 - `docs/locales/geo.md` 1
 - `todo.md` 1
+
+## Reading cost, chunk 7983b1e85e54, finished 2026-11-20T23:57:20Z
+
+62570 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `cli/cli_test.go` 4
+- `readme_test.go` 2
+
+## Reading cost, chunk e09c2d138842, finished 2026-11-21T00:22:26Z
+
+57228 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `cli/cli.go` 5
+- `README.md` 3
+- `cli/cli_test.go` 3
+- `readme_test.go` 2
+- `dockerhub/description.txt` 1
