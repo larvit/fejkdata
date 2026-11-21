@@ -2804,3 +2804,32 @@ Read most (opens and searches):
 - `cli/cli_test.go` 3
 - `readme_test.go` 2
 - `dockerhub/description.txt` 1
+
+## Reading cost, chunk d19ec87a740c, finished 2026-11-21T01:22:57Z
+
+84299 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `docs/decisions.md` 2
+- `readme_test.go` 2
+- `dockerhub/description.txt` 1
+- `dockerhub/overview.md` 1
+
+## Reading cost, chunk 6901236a2ef3, finished 2026-11-21T01:43:06Z
+
+167567 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 11
+- `DATA-LICENSES.md` 4
+- `fejkdata.go` 3
+- `shipped_test.go` 3
+- `compose.yaml` 2
+- `docs/locales/sv_SE.md` 2
+- `render.go` 2
+- `CHANGELOG.md` 1
+- `cli/cli.go` 1
+- `data/misc/.fejkdata.json` 1
