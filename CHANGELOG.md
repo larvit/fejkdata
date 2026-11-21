@@ -13,6 +13,12 @@ with its replacement, and each removed path, column or flag.
   to paste into a project's `AGENTS.md`, and the shell lines an agent runs: find a path with `--list`, render it,
   fix a reference that lacks its leading slash as the error says, and repeat a run with `--seed` and `--today`.
 
+### Changed
+
+- `fejkdata --help` opens with the README's lead and the two commands people run most,
+  `echo '{/sv_SE.person}' | fejkdata` and `fejkdata --list`. A CLI built on `cli.Main` under another name
+  prints the usage alone.
+
 ## 0.7.0 - 2026-11-20
 
 ### Breaking
