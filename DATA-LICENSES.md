@@ -619,7 +619,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 ## `geo/SE/locality.tsv`, `postal-code.tsv`
 
 - Source: [GeoNames](https://www.geonames.org/) postal codes for SE; populations from SCB tätorter
-  and småorter 2023
+  and småorter 2023, or the kommun's population where the postort is named after its kommun; a
+  postort none of them counts weighs 200
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); CC0 1.0
 - Attribution: "Postal codes from GeoNames, www.geonames.org"
 - Rebuild: `data-import/geo-se.py`
