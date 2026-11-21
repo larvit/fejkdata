@@ -87,6 +87,10 @@ func TestAListedSourceNamesWhatItsRowsFilesLicenceEntryNames(t *testing.T) {
 	checked := 0
 	for n, line := range strings.Split(strings.TrimSuffix(string(kinds), "\n"), "\n") {
 		cells := strings.Split(line, "\t")
+		if len(cells) != 3 {
+			t.Errorf("%s:%d: want path, kinds and source, tab-separated", shipped.KindsFile, n+1)
+			continue
+		}
 		entry := entries[rowsFileOf(cells[0])]
 		if entry == "" {
 			continue
