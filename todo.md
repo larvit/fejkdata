@@ -225,11 +225,19 @@ Touches:
 
 ### 544. List every shipped path, fields and linked-table paths included, in a generated docs/shipped-paths.md, each with its kind, an example and its source.
 
-Item 408 shipped `data-listing/paths.json` with one entry per path, but its README tables listed only the categories, 421 of the 2,019 paths. The plan asked for every path, and the goals say so: "A table of the shipped data will follow: every path, an example value, its kind and its source."
+Item 408's plan asked for every path with its kind, an example and its source, and shipped `data-listing/paths.json` with one entry per path. Its README tables listed only the categories, 421 of the 2,019 paths.
 
 `TestDataListingIsCurrent` writes `docs/shipped-paths.md`, folded per module, beside `paths.json`. The README's "Every shipped path" keeps the kind definitions and links the page, and the Documentation bullet says every path.
 
-The tables sit in `docs/`, not the README, because the README is already 179 KB and GitHub stops rendering one past 500 KiB; all 2,019 paths there would reach about 390 KB. A recommendation, not a goal: move them back if the README shrinks enough.
+The tables sit in `docs/`, not the README, for goal 11's counter-signal that the README grows faster than what ships. All 2,019 paths in the README would take it from 179 KB to about 390 KB, against the 500 KiB GitHub renders, and each country adds about 20 KB. The page is about 240 KB, and the test fails if it passes the render limit. Move the tables back if the human prefers the README, since goal 11's signal reads "from the README alone".
+
+Touches:
+
+- `data_listing_test.go`: `listingMarkdown`, `TestDataListingIsCurrent`
+- `README.md`: `### Every shipped path`, `### Documentation` (small), `## Layout` (small), `## Development` (small)
+- `CHANGELOG.md`: `## Unreleased` (small)
+- `.github/workflows/test.yml`: lines 38-38 (small)
+- `docs/shipped-paths.md`
 
 ### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
 
