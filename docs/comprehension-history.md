@@ -2808,3 +2808,29 @@ Inherited architect, would restructure first:
 - Shape: `render.go:13` `Fake`: the root file is named render but holds only Fake, beside the engine's render package
 - Shape: `internal/rows/pins.go:55` `Pins.pin`: a pin set is `rows.Pins` here and `tree.PinSet` in render, and an inline array of eight is sized to the data's depth
 - Self-sufficiency: `internal/engine/render/render.go:30` `render`: a child reached other than through a Rendered method of tree/renderedge.go is missed by the fences, and the rule is kept by memory
+
+## 2026-11-21T12:04:58Z, PR #490 at 5b9c2a14, against 33b7fa80
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | same | better |
+| Inherited architect | better | better | better | same | better |
+
+Mid A, decided by:
+
+- Navigation, Locality, Overall: `internal/shipped/shipped.go:1` package `shipped`: the code that writes the manifests, the listing and the pins sits in a package named for it and returns bytes one command writes, where the base's root tests wrote files under an environment variable
+- Locality: `compose.yaml:31` `repin`: a service says what runs, where the base passed `REPIN` to every Go service
+- Locality: `internal/shipped/listing.go:98` `Data.Listing`: takes the kinds bytes and a state factory and returns one error, where the base overwrote a shared generator's state and flipped flags on shared rows
+- Shape: `internal/engine/index.go:38` `DrawnFrom`: finds a path's category with the engine's own walk, not by string surgery over index lines; it sits in a file named `index.go`, and `lastTable` in `internal/engine/load/path.go:63` holds the last variant's table after a choice
+- Shape: `internal/shipped/shape.go:34` `shapeFacts.walk`: recursive closures are now named units, one file per generated output
+- Navigation, Shape: `cli/build.go:17` `isFejkdataItself`: the version and docs-URL code has a file named for it, and help asks the build's module rather than the executable's name
+
+Inherited architect, decided by:
+
+- Navigation, Locality, Overall: `internal/shipped/shipped.go:1` package `shipped`: a stale manifest or a wrong listing row leads to one package whose functions return bytes, where the base kept the logic in tests that wrote files under `REGENERATE=1`
+- Locality: `data/modules.go:31` `go:generate`: runs one command, where the base ran tests under an env var
+- Locality: `internal/shipped/listing.go:98` `Data.Listing`: takes the kinds bytes and a state factory, where the base read the file itself and mutated a shared generator and row flags
+- Navigation, Shape: `cli/build.go:17` `isFejkdataItself`: build-info code has a file named for it, and help picks its lead by the build's module, not a renamable binary name
+- Shape: `internal/engine/index.go:38` `DrawnFrom`: walks the path the way the engine does, where the base guessed the category from string prefixes; the highest reading cost left is `internal/shipped/listing.go:130` `rowOf`, a three-tier fallback that cuts the path at its last dot
