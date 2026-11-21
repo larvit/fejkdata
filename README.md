@@ -818,33 +818,7 @@ Renders e.g. `Louice Kajsa Grönberg`. About one draw in 220 repeats the first n
 ### Every shipped path
 
 [`docs/shipped-paths.md`](docs/shipped-paths.md) lists every path `--list` prints for the shipped data, in a
-table per module that opens and folds, with its kind, a seeded example and its source. Each folder of `data/`
-holds these paths first:
-
-- `sv_SE`: Swedish persons, addresses, companies and ids: `sv_SE.person`, `sv_SE.address`, `sv_SE.personnummer`, `sv_SE.company`, `sv_SE.phone`.
-- `da_DK`: Danish persons, addresses, companies and ids: `da_DK.person`, `da_DK.address`, `da_DK.cpr`, `da_DK.company`, `da_DK.phone`.
-- `nb_NO`: Norwegian Bokmål persons, addresses, companies and ids: `nb_NO.person`, `nb_NO.address`, `nb_NO.fodselsnummer`, `nb_NO.company`, `nb_NO.phone`.
-- `nn_NO`: Norwegian Nynorsk persons, addresses, companies and ids: `nn_NO.person`, `nn_NO.address`, `nn_NO.fodselsnummer`, `nn_NO.company`, `nn_NO.phone`.
-- `fi_FI`: Finnish persons, addresses, companies and ids: `fi_FI.person`, `fi_FI.address`, `fi_FI.henkilotunnus`, `fi_FI.company`, `fi_FI.phone`.
-- `de_DE`: German persons, addresses, companies and ids: `de_DE.person`, `de_DE.address`, `de_DE.steuer-id`, `de_DE.company`, `de_DE.phone`.
-- `et_EE`: Estonian persons, addresses, companies and ids: `et_EE.person`, `et_EE.address`, `et_EE.isikukood`, `et_EE.company`, `et_EE.phone`.
-- `fr_FR`: French persons, addresses, companies and ids: `fr_FR.person`, `fr_FR.address`, `fr_FR.nir`, `fr_FR.company`, `fr_FR.phone`.
-- `lt_LT`: Lithuanian persons, addresses, companies and ids: `lt_LT.person`, `lt_LT.address`, `lt_LT.asmens-kodas`, `lt_LT.company`, `lt_LT.phone`.
-- `lv_LV`: Latvian persons, addresses, companies and ids: `lv_LV.person`, `lv_LV.address`, `lv_LV.personas-kods`, `lv_LV.company`, `lv_LV.phone`.
-- `en_US`: US persons, addresses, companies and ids: `en_US.person`, `en_US.address`, `en_US.ssn`, `en_US.company`, `en_US.phone`.
-- `misc`: what every locale shares: `misc.territory`, `misc.timezone`, `misc.uuid`, `misc.ip`, `misc.creditcard-test`, `misc.iban-test`.
-- `geo.SE`: Swedish places, from region down to street: `geo.SE.region`, `geo.SE.locality`, `geo.SE.postal-code`, `geo.SE.street`.
-- `geo.DK`: Danish places, from region down to street: `geo.DK.region`, `geo.DK.locality`, `geo.DK.postal-code`, `geo.DK.street`.
-- `geo.NO`: Norwegian places, from region down to street: `geo.NO.region`, `geo.NO.locality`, `geo.NO.postal-code`, `geo.NO.street`.
-- `geo.FI`: Finnish places, from region down to street: `geo.FI.region`, `geo.FI.locality`, `geo.FI.postal-code`, `geo.FI.street`.
-- `geo.DE`: German places, from region down to street: `geo.DE.region`, `geo.DE.locality`, `geo.DE.postal-code`, `geo.DE.street`.
-- `geo.EE`: Estonian places, from region down to street: `geo.EE.region`, `geo.EE.locality`, `geo.EE.postal-code`, `geo.EE.street`.
-- `geo.FR`: French places, from region down to street: `geo.FR.region`, `geo.FR.locality`, `geo.FR.postal-code`, `geo.FR.street`.
-- `geo.LT`: Lithuanian places, from region down to street: `geo.LT.region`, `geo.LT.locality`, `geo.LT.postal-code`, `geo.LT.street`.
-- `geo.LV`: Latvian places, from region down to street: `geo.LV.region`, `geo.LV.locality`, `geo.LV.postal-code`, `geo.LV.street`.
-- `geo.US`: US places, from region down to street: `geo.US.region`, `geo.US.locality`, `geo.US.postal-code`, `geo.US.street`.
-
-A field of a category,
+table per module that opens and folds, with its kind, a seeded example and its source. A field of a category,
 such as `sv_SE.person.personnummer`, has its own kind and source where they differ from the category's, and
 otherwise takes the category's. A table linked below a category, such as `sv_SE.sex.personnummer`, takes the
 linked table's. A `kind` is `real`, `valid` or `invented`, or several of them in that order:
@@ -859,6 +833,34 @@ Where a value mixes kinds, its source says which part is which. An example is a 
 
 [`data-listing/paths.json`](data-listing/paths.json) is the same list for programs, with `path`, `kind` (an
 array), `example` (not cut) and `source` for each path.
+
+A locale's line lists its person, address, national id, company and phone paths. A `geo` line lists the
+places of one country, from region down to street, and `misc` holds what every locale shares.
+
+The main paths of each module:
+
+- `da_DK`: `da_DK.person`, `da_DK.address`, `da_DK.cpr`, `da_DK.company`, `da_DK.phone`.
+- `de_DE`: `de_DE.person`, `de_DE.address`, `de_DE.steuer-id`, `de_DE.company`, `de_DE.phone`.
+- `en_US`: `en_US.person`, `en_US.address`, `en_US.ssn`, `en_US.company`, `en_US.phone`.
+- `et_EE`: `et_EE.person`, `et_EE.address`, `et_EE.isikukood`, `et_EE.company`, `et_EE.phone`.
+- `fi_FI`: `fi_FI.person`, `fi_FI.address`, `fi_FI.henkilotunnus`, `fi_FI.company`, `fi_FI.phone`.
+- `fr_FR`: `fr_FR.person`, `fr_FR.address`, `fr_FR.nir`, `fr_FR.company`, `fr_FR.phone`.
+- `geo.DE`: `geo.DE.region`, `geo.DE.locality`, `geo.DE.postal-code`, `geo.DE.street`.
+- `geo.DK`: `geo.DK.region`, `geo.DK.locality`, `geo.DK.postal-code`, `geo.DK.street`.
+- `geo.EE`: `geo.EE.region`, `geo.EE.locality`, `geo.EE.postal-code`, `geo.EE.street`.
+- `geo.FI`: `geo.FI.region`, `geo.FI.locality`, `geo.FI.postal-code`, `geo.FI.street`.
+- `geo.FR`: `geo.FR.region`, `geo.FR.locality`, `geo.FR.postal-code`, `geo.FR.street`.
+- `geo.LT`: `geo.LT.region`, `geo.LT.locality`, `geo.LT.postal-code`, `geo.LT.street`.
+- `geo.LV`: `geo.LV.region`, `geo.LV.locality`, `geo.LV.postal-code`, `geo.LV.street`.
+- `geo.NO`: `geo.NO.region`, `geo.NO.locality`, `geo.NO.postal-code`, `geo.NO.street`.
+- `geo.SE`: `geo.SE.region`, `geo.SE.locality`, `geo.SE.postal-code`, `geo.SE.street`.
+- `geo.US`: `geo.US.region`, `geo.US.locality`, `geo.US.postal-code`, `geo.US.street`.
+- `lt_LT`: `lt_LT.person`, `lt_LT.address`, `lt_LT.asmens-kodas`, `lt_LT.company`, `lt_LT.phone`.
+- `lv_LV`: `lv_LV.person`, `lv_LV.address`, `lv_LV.personas-kods`, `lv_LV.company`, `lv_LV.phone`.
+- `misc`: `misc.territory`, `misc.timezone`, `misc.uuid`, `misc.ip`, `misc.creditcard-test`, `misc.iban-test`.
+- `nb_NO`: `nb_NO.person`, `nb_NO.address`, `nb_NO.fodselsnummer`, `nb_NO.company`, `nb_NO.phone`.
+- `nn_NO`: `nn_NO.person`, `nn_NO.address`, `nn_NO.fodselsnummer`, `nn_NO.company`, `nn_NO.phone`.
+- `sv_SE`: `sv_SE.person`, `sv_SE.address`, `sv_SE.personnummer`, `sv_SE.company`, `sv_SE.phone`.
 
 ### Locale pages
 
