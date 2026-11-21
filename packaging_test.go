@@ -77,7 +77,7 @@ func TestPackageDescriptionsKeepTheREADMEsLead(t *testing.T) {
 	firstLine, _, _ := strings.Cut(string(doc), "\n")
 	for name, text := range map[string]string{
 		"the description in release-tooling/goreleaser.yaml, which brew, scoop, apt, dnf and apk show": string(description[1]),
-		"the first line of doc.go, which pkg.go.dev shows":                                           firstLine,
+		"the first line of doc.go, which pkg.go.dev shows":                                             firstLine,
 	} {
 		if !strings.Contains(strings.ToLower(text), lead) {
 			t.Errorf("%s does not hold the README's lead, so a reader there meets older words; copy %q from README.md", name, m[1])
