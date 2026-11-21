@@ -142,6 +142,22 @@ func shippedListing(t *testing.T) ([]listedPath, []string, []string) {
 	return out, errs, categories
 }
 
+func TestCategoryOfStaysInTheCategorysFolder(t *testing.T) {
+	lines := engine.Index(&newShippedWhole(t).root)
+	for path, want := range map[string]string{
+		"sv_SE.sex.personnummer":      "sv_SE.personnummer",
+		"sv_SE.sex.first-name":        "sv_SE.first-name",
+		"fi_FI.sex.last-name":         "fi_FI.last-name",
+		"geo.SE.locality.postal-code": "geo.SE.postal-code",
+		"geo.US.locality.street":      "geo.US.street",
+		"sv_SE.person.first":          "sv_SE.person",
+	} {
+		if got := categoryOf(lines, path); got != want {
+			t.Errorf("categoryOf(%s) = %s, want %s", path, got, want)
+		}
+	}
+}
+
 func listingJSON(listed []listedPath) []byte {
 	var b bytes.Buffer
 	b.WriteString("[")
