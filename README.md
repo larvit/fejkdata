@@ -821,7 +821,7 @@ Renders e.g. `Louice Kajsa Grönberg`. About one draw in 220 repeats the first n
 table per module that opens and folds, with its kind, a seeded example and its source. A field of a category,
 such as `sv_SE.person.personnummer`, has its own kind and source where they differ from the category's, and
 otherwise takes the category's. A table linked below a category, such as `sv_SE.sex.personnummer`, takes the
-linked table's. A `kind` is `real`, `valid` or `invented`, or several of them in that order:
+linked table's, and a field of it the kind and source that field has in its own table. A `kind` is `real`, `valid` or `invented`, or several of them in that order:
 
 - `real`: a thing that exists, such as the territory `SE`. A first or last name a language model recalled
   is `real` too: it is a name in use, though no register checked it.
