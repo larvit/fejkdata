@@ -236,12 +236,12 @@ func writeLines(w io.Writer, lines []string) {
 func about(name string, wantsHelp bool) string {
 	info, _ := debug.ReadBuildInfo()
 	if wantsHelp {
-		return help(name, docsURL(info))
+		return help(name, info)
 	}
 	return versionLine(name, info) + "\n"
 }
 
-func help(name, docs string) string {
+func help(name string, info *debug.BuildInfo) string {
 	var lines []string
 	line := " "
 	for _, b := range fejkdata.Builtins() {
@@ -254,8 +254,8 @@ func help(name, docs string) string {
 	lines = append(lines, line)
 	text := usage
 	// A custom CLI's data may not hold the people the lead shows.
-	if name == "fejkdata" {
+	if isFejkdataItself(info) {
 		text = lead + usage
 	}
-	return strings.NewReplacer("COMMAND", name, "DOCS", docs, "BUILTINS", strings.Join(lines, "\n")).Replace(text)
+	return strings.NewReplacer("COMMAND", name, "DOCS", docsURL(info), "BUILTINS", strings.Join(lines, "\n")).Replace(text)
 }

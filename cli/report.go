@@ -40,13 +40,19 @@ func report(stderr io.Writer, name string, err error) {
 // the module's.
 var fejkdataModule = reflect.TypeOf((*fejkdata.Generator)(nil)).Elem().PkgPath()
 
+// isFejkdataItself reports whether the binary's main package is in fejkdata's own module, as
+// cmd/fejkdata is, and not in a module building a CLI of its own on Main.
+func isFejkdataItself(info *debug.BuildInfo) bool {
+	return info != nil && info.Main.Path == fejkdataModule
+}
+
 // versionLine names the fejkdata version the binary is built with. Where another module's
 // main package carries the CLI, the main module's version comes first, under the command name.
 func versionLine(name string, info *debug.BuildInfo) string {
 	if info == nil {
 		return "fejkdata devel"
 	}
-	if info.Main.Path == fejkdataModule {
+	if isFejkdataItself(info) {
 		return "fejkdata " + moduleVersion(info.Main)
 	}
 	for _, m := range info.Deps {
