@@ -2358,3 +2358,11 @@ The README stays short, so the table sits in `docs/shipped-paths.md`. All 2,019 
 The maintainer asked that the README link the page clearly and sum up the locales and their most important paths, so a reader finds a path from the README, as goal 11's signal asks. The README's Every shipped path sums them up.
 
 Valid while the full table would crowd the README. The test's message says what to do at the limit: split the page per module.
+
+## A name a language model recalled is listed `real`, as a name in use; only its weight is an estimate
+
+2026-11-21, in the release review of 0.7.1. Serves goal 3, and applies the project principle on name tables with no open bulk file of counts.
+
+Goal 3 calls a value real when it is a thing that exists. A recalled name is a first or last name the model knows to be in use in the country. The principle on such tables already treats the names as names and calls only their weights estimates, so `data-listing/kinds-and-sources.tsv` lists these tables as `real` and its source cell says no register checked them. Listing them `invented` would call names such as `Müller` made up, which misleads more than it warns.
+
+Valid while the recalled tables hold names in use. A name a user reports as not in use is removed, and a table whose recall fails such checks often is listed `invented` until a register replaces it.
