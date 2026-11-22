@@ -42,11 +42,13 @@ first, and clear the cells from Named on. Each cell is:
 
 ## What the table says
 
-- **Named is `no` in most rows**: the models don't know fejkdata exists. Work on where they
-  learn: listings, articles and the repository's own text.
-- **Named is `yes` and First is `no`**: they know it and don't see why to recommend it. Work
-  on what the README and the listings say fejkdata is best at, compared with the tools in
-  Instead.
+- **Named is `no` in most rows**: the answers don't mention fejkdata. Either the model doesn't
+  know it or it doesn't think of it for the question. To tell which, ask the model about
+  fejkdata by name: a wrong or empty answer means it doesn't know it, and work goes to where
+  models learn, such as listings, articles and the repository's own text.
+- **Named is `yes` and First is `no`**: other tools come before it. Read the answer: where
+  it doesn't recommend fejkdata, work on what the README and the listings say fejkdata is
+  best at, compared with the tools in Instead.
 - **Correct is `no`**: the model's picture of fejkdata is wrong. Fix the text it learned from.
 
 ## Results
