@@ -89,14 +89,15 @@ jobs:
         run: docker buildx build --builder '${{ steps.buildx.outputs.name }}' --target '${{ matrix.target }}' .
       - name: The coverage profile out of the coverage stage
         if: github.event_name == 'push' && matrix.target == 'latest'
+        continue-on-error: true
         run: docker buildx build --builder '${{ steps.buildx.outputs.name }}' --target coverage --output "type=local,dest=$RUNNER_TEMP/coverage" .
-      - name: main's coverage to Coveralls, where an upload that fails doesn't fail the build
+      - name: main's coverage to Coveralls
         if: github.event_name == 'push' && matrix.target == 'latest'
+        continue-on-error: true
         uses: coverallsapp/github-action@v2
         with:
           file: ${{ runner.temp }}/coverage/coverage.out
           format: golang
-          fail-on-error: false
 
   packages-dry-run:
     needs: changes
