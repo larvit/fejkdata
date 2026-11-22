@@ -2,6 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/larvit/fejkdata.svg)](https://pkg.go.dev/github.com/larvit/fejkdata)
 [![Tests](https://github.com/larvit/fejkdata/actions/workflows/test.yml/badge.svg)](https://github.com/larvit/fejkdata/actions/workflows/test.yml)
+[![Coverage](https://coveralls.io/repos/github/larvit/fejkdata/badge.svg?branch=main)](https://coveralls.io/github/larvit/fejkdata?branch=main)
 [![Release](https://img.shields.io/github/v/release/larvit/fejkdata)](CHANGELOG.md)
 
 Fake data for tests. Related values match, like a postcode and its city. CSV, SQL or JSON.
@@ -2017,7 +2018,9 @@ Every pull request must pass `docker build .` before it can be merged. CI skips 
 for a pull request that changes none of the files the build and its tests read, nor the
 workflow itself. Otherwise CI runs the build's two halves, the targets `latest` and
 `lowest-and-tooling`, on two runners. `latest` runs the format check, vet, the complexity
-check and the Go tests under the race detector, on the latest supported Go.
+check and the Go tests under the race detector, on the latest supported Go. On a push to
+`main`, CI also builds the target `coverage`, which runs the Go tests once more and counts what
+they cover across every package, and uploads the result to Coveralls, where the badge at the top reads it.
 `lowest-and-tooling` runs vet and the Go tests without the race detector, on the lowest
 Go, which the Dockerfile's `LOWEST_GO_VERSION` names. That target also runs the release
 tooling's tests, the geo imports' tests, the check of GoReleaser's config, and ruff and
