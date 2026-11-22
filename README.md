@@ -35,11 +35,12 @@ What sets it apart:
    Every column reads those draws. Viktoria is a woman's name and `kvinna` is Swedish for
    woman. The personnummer is Sweden's national id, and this one is a woman's. 831 73 is a
    postal code of Östersund.
-2. **Valid national ids where possible, from the issuer's test series.** The personnummer
-   passes its check digit. It comes from the series the Swedish Tax Agency keeps for tests.
-   Norwegian, Finnish and German ids come from such a series too. A few strict checkers
-   refuse those. Other countries' ids are valid and may be a living person's.
-   [Shipped data](#shipped-data) says which, and which checker refuses what.
+2. **Valid national ids where possible, from a test series where the issuer keeps one.**
+   The personnummer passes its check digit. It comes from the series the Swedish Tax Agency
+   keeps for tests. Norwegian, Finnish and German ids come from such a series too. A few
+   strict checkers refuse those. Other countries' ids are valid and may be a living person's.
+   [Shipped data](#shipped-data) says which countries' ids come from a test series, and
+   which checker refuses which.
 3. **CSV and SQL test data from one template.** The same JSON template prints one value or
    a million rows of seed data. The formats are CSV, SQL `INSERT`s, PostgreSQL `COPY`, JSON
    and NDJSON. One binary carries the data. It has no dependencies and fetches nothing.
