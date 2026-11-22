@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 555`
+`Next ID = 556`
 
 ## Items
 
@@ -15,6 +15,7 @@
 | 553 | 0.8.1 |  | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
 | 541 | 0.8.1 |  |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.8 |
 | 542 | 0.8.1 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
+| 555 | 0.8.1 |  | defect | **Make `main`'s release job pass on a push that leaves the changelog's top release as its tag published it, today it fails on every push until `CHANGELOG.md` gains `## Unreleased`.** | 2 | 1 | 2 | 3 | 3 | 1.1 by 2 | 0.9 |
 | 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
@@ -244,6 +245,17 @@ Touches:
 
 - `internal/grammar/format.go`
 - `cli/input_test.go`
+
+### 555. Make `main`'s release job pass on a push that leaves the changelog's top release as its tag published it, today it fails on every push until `CHANGELOG.md` gains `## Unreleased`.
+
+Since v0.8.0 was cut, every push to `main` fails the job "Release from CHANGELOG.md or as a patch of the last release": runs 45037242995, 45037910941, 45039084830 and 45041838767 all print `v0.8.0 exists at 5afdcd8b…, not <the pushed commit>; the version is burnt, bump the heading`. `publish_release.py`'s `publish` takes a tag at any other commit as a version someone reused. After a release, a push that changes no shipped behaviour adds no `## Unreleased` heading, so the top heading stays the released version and the guard fires. The tests and `gate` still pass, so merges go on, but `main` shows red, and the step that patches the last release when `main` carries a newer Go or module never runs, since it follows the failed step. That breaks the decision "CI releases each update to what a release carries at once".
+
+Keep the guard for what it is for: a heading whose version is tagged at a commit that is not an ancestor of the push, or whose section differs from the tagged commit's. Where the tag's commit is an ancestor and the section is unchanged, print that the version is already published and exit 0. Take the expected exits from this item, and add a `TagGuard` case for each.
+
+Touches:
+
+- `release-tooling/publish_release.py`: `publish`
+- `release-tooling/publish_release_test.py`: `TagGuard`
 
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
