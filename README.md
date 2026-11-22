@@ -2018,9 +2018,7 @@ Every pull request must pass `docker build .` before it can be merged. CI skips 
 for a pull request that changes none of the files the build and its tests read, nor the
 workflow itself. Otherwise CI runs the build's two halves, the targets `latest` and
 `lowest-and-tooling`, on two runners. `latest` runs the format check, vet, the complexity
-check and the Go tests under the race detector, on the latest supported Go. On a push to
-`main`, CI also builds the target `coverage`, which runs the Go tests once more and counts what
-they cover across every package, and uploads the result to Coveralls, where the badge at the top reads it.
+check and the Go tests under the race detector, on the latest supported Go.
 `lowest-and-tooling` runs vet and the Go tests without the race detector, on the lowest
 Go, which the Dockerfile's `LOWEST_GO_VERSION` names. That target also runs the release
 tooling's tests, the geo imports' tests, the check of GoReleaser's config, and ruff and
@@ -2035,6 +2033,11 @@ caches between runs, so a rerun tests only the packages a change reaches:
 docker build .                                   # the whole build, on both Go versions
 GO_VERSION=1.22.12 docker compose run --rm test  # the tests on the lowest Go, without the image build
 ```
+
+A push to `main` that runs the build also builds the target `coverage`. That target runs
+the Go tests once more and counts what they cover across every package. CI uploads the
+count to Coveralls, and the badge at the top shows it. A coverage run or an upload that
+fails doesn't fail the build.
 
 The decision "A known vulnerability in the Go version or a required module blocks a
 release, even in code fejkdata never calls, and blocks no merge", in
