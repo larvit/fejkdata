@@ -15,9 +15,8 @@
 | 547 | 0.8.1 |  |  | **Publish each package's test coverage from `main`'s CI to Coveralls, and show its badge in the README, so an Awesome Go application can link a coverage report.** | 3 | 2 | 1 | 4 | 2 | 1.1 by 3 | 1.8 |
 | 553 | 0.8.1 | 547 | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
 | 545 | 0.8.1 |  |  | **Make the README's headline id claim and its comparison row say what its body says: some ids come from a test series, and a few strict checkers refuse them.** | 1 | 1 | 1 | 1 | 2 | 1.1 by 5 | 3.0 |
-| 548 | 0.8.1 |  |  | **Write the questions fejkdata should come up for, and a results table, in `docs/llm-discovery.md`, which the maintainer fills each month by asking ChatGPT, Claude and Gemini in private browser windows with no account history.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 3 | 2.2 |
-| 541 | 0.8.1 | 545, 547, 548 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.8 |
-| 542 | 0.8.1 | 545, 547, 548 |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
+| 541 | 0.8.1 | 545, 547 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.8 |
+| 542 | 0.8.1 | 545, 547 |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
 | 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
@@ -249,20 +248,6 @@ Item 548's monthly table shows whether each step moved what LLMs answer.
 Touches:
 
 - `README.md`: `# fejkdata` (small), `## Why fejkdata` (small)
-
-### 548. Write the questions fejkdata should come up for, and a results table, in `docs/llm-discovery.md`, which the maintainer fills each month by asking ChatGPT, Claude and Gemini in private browser windows with no account history.
-
-This measures goal 1.1 as the decision "Goal 1.1's "where they look" means LLMs first" reads it. It also tells two problems apart: the model doesn't know fejkdata exists, or it knows fejkdata but doesn't see why to recommend it.
-
-The maintainer asks by hand, never through an API job: a private window with no account history can't tailor its answer to what the model has learned about the maintainer, and it costs nothing. Where an app needs an account, use one with memory and history turned off.
-
-The questions, from a conversation with ChatGPT on 2026-11-21: the best fake-data generator for Go; the best Faker alternatives; generating realistic Swedish customers; generating 500,000 synthetic users; generating realistic European companies; the best database seeding tools; realistic Nordic test data; open-source synthetic data generators; correlated fake customer data; valid Swedish test personnummer.
-
-Each month's table has a row per question and app, with a column each for: fejkdata named, ranked first, GitHub repository linked, features described correctly, and the tools named instead. The change lands on `main` and needs no release.
-
-Touches:
-
-- `docs/llm-discovery.md`
 
 ### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
 
