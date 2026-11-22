@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 554`
+`Next ID = 555`
 
 ## Items
 
@@ -97,6 +97,7 @@
 | 36 | 0.10.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 5 by 7 | 0.9 |
 | 495 | 0.10.0 |  |  | **Weigh `geo.DE`'s places and Länder by population, not by the postal codes they hold.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.2 by 3 | 0.8 |
 | 56 | 0.10.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.7 |
+| 554 | 0.10.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 53 | 0.10.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 4 by 2 | 0.7 |
 | 404 | 0.10.0 |  |  | **Let a template in a `repeat` or a choice item bind a name to a path through an enclosing name, `{l.street as s}`, so each render draws a fresh row inside the enclosing pick.** | 3 | 2 | 2 | 5 | 6 | 1 by 3, 4 by 4 | 0.6 |
 | 55 | 0.10.0 |  |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.6 |
@@ -632,6 +633,10 @@ Today a locality weighs its postal-code count, which favours small places over t
 ### 56. Build on a manual run of `test.yml` on `main`.
 
 A manual run diffs against `origin/main`, so on `main` itself it compares `HEAD` with itself and skips `docker build`.
+
+### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
+
+Item 547's first coverage profile, counted across every package's tests, put the whole module at 97.6% and this package at 12 of 26 statements. It is the one package under 80%. Its tests call `generated` and never `main`: the flag parsing, the write loop and both exits are uncovered, and so are `generated`'s four error returns. Move what `main` does into a function that takes the arguments and returns an error, and test it against a temporary root folder.
 
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 
