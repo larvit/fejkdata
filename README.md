@@ -35,11 +35,11 @@ What sets it apart:
    Every column reads those draws. Viktoria is a woman's name and `kvinna` is Swedish for
    woman. The personnummer is Sweden's national id, and this one is a woman's. 831 73 is a
    postal code of Östersund.
-2. **Valid national ids that no real person has.** The personnummer passes its check digit.
-   It comes from the series the Swedish Tax Agency keeps for tests. Norwegian, Finnish and
-   German ids come from such a series too. A few strict checkers refuse those. Other
-   countries' ids are valid and may be a living person's. [Shipped data](#shipped-data) says
-   which, and which checker refuses what.
+2. **Valid national ids where possible, from the issuer's test series.** The personnummer
+   passes its check digit. It comes from the series the Swedish Tax Agency keeps for tests.
+   Norwegian, Finnish and German ids come from such a series too. A few strict checkers
+   refuse those. Other countries' ids are valid and may be a living person's.
+   [Shipped data](#shipped-data) says which, and which checker refuses what.
 3. **CSV and SQL test data from one template.** The same JSON template prints one value or
    a million rows of seed data. The formats are CSV, SQL `INSERT`s, PostgreSQL `COPY`, JSON
    and NDJSON. One binary carries the data. It has no dependencies and fetches nothing.
@@ -66,7 +66,7 @@ persons, addresses, national ids, phone numbers, companies, emails and dates. Be
 | | fejkdata | [Faker](https://fakerjs.dev) (JavaScript) | [gofakeit](https://github.com/brianvoe/gofakeit) | [Mockaroo](https://www.mockaroo.com) |
 |---|---|---|---|---|
 | Correlated fields | One named draw feeds every field that reads it | "all properties are just randomly generated" until your code passes one result to the next call, as in `firstName(sex)` | A template binds one `Person` and reads its fields; the docs don't say that a struct tag can read another tag's draw | First name, gender, last name, email and username agree, and a formula reads other fields |
-| Valid national ids, and postal codes that match the town | Ids for ten countries, four from the issuer's test series; a postal code of the address's own town | No national id; `zipCode` takes a state, not a city | `SSN` and `EIN`, each "a random" number; the docs don't say that `Zip` matches `City` | Country, city, state and postal code agree; the pages read name no national id |
+| Valid national ids where possible, and postal codes that match the town | Ids for ten countries, four from the issuer's test series; a postal code of the address's own town | No national id; `zipCode` takes a state, not a city | `SSN` and `EIN`, each "a random" number; the docs don't say that `Zip` matches `City` | Country, city, state and postal code agree; the pages read name no national id |
 | CSV and SQL test data | One template and one command: CSV, SQL, `COPY`, JSON, NDJSON, up to 1,048,576 rows a run | No CLI and no file output: "you most likely need to write a factory function" | Go functions `CSV`, `JSON`, `XML` and `SQL`; its CLI runs one function, `-loop` times | CSV, JSON, SQL and Excel; 1,000 rows a file on the free plan, 10 million on the largest hosted one |
 | Errors | Before the first row, naming what is wrong; a mistake in a template exits 2 | Thrown at run time where a locale lacks the data; "we don't have dedicated error messages for wrong parameter types" | `Template`, `CSV` and `SQL` return an `error`; the docs don't say when | The pages read don't say |
 | Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
