@@ -11,8 +11,8 @@ RUN --mount=type=cache,target=/cache \
 	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 7 -ignore _test . && \
 	go test -race ./... && touch /tested
 
-# Coverage counts across packages, since the root package's tests reach most of the engine; under the race
-# detector that run outlasts go test's ten minutes, so it is a run of its own, which only main's CI builds.
+# The coverage run counts across packages, since the root package's tests reach most of the engine. It is a
+# run of its own: under the race detector, package data's tests take longer than go test's timeout of ten minutes.
 FROM latest AS covered
 RUN --mount=type=cache,target=/cache \
 	go test -coverpkg=./... -coverprofile=/coverage.out ./...
