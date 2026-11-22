@@ -12,10 +12,9 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 547 | 0.8.1 |  |  | **Publish each package's test coverage from `main`'s CI to Coveralls, and show its badge in the README, so an Awesome Go application can link a coverage report.** | 3 | 2 | 1 | 4 | 2 | 1.1 by 3 | 1.8 |
-| 553 | 0.8.1 | 547 | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
-| 541 | 0.8.1 | 547 |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.8 |
-| 542 | 0.8.1 | 547 |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
+| 553 | 0.8.1 |  | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
+| 541 | 0.8.1 |  |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.8 |
+| 542 | 0.8.1 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
 | 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
@@ -218,18 +217,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 547. Publish each package's test coverage from `main`'s CI to Coveralls, and show its badge in the README, so an Awesome Go application can link a coverage report.
-
-Awesome Go lists a Go package only with a link to a Codecov or Coveralls report, and wants at least 80% coverage for packages that aren't data and 90% for data packages (its CONTRIBUTING.md, read 2026-11-21). Coveralls takes the workflow's own `GITHUB_TOKEN`, so the repository needs no new secret; the maintainer turns the repository on at coveralls.io once. Where a package falls under the threshold, file an item for it. The change lands on `main` and needs no release.
-
-Keep the badge current without anyone acting: every push to `main` that runs the tests uploads its coverage, and the README's badge and link name `branch=main`, so they show `main`'s latest upload and never a pull request's.
-
-Touches:
-
-- `.github/workflows/test.yml`: lines 53-90
-- `Dockerfile`
-- `README.md`: `# fejkdata` (small)
 
 ### 553. Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
 
