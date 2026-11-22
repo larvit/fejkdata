@@ -2859,3 +2859,11 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `doc.go` 1
 - `doc_test.go` 1
+
+## Reading cost, chunk 8d5979e3c8bd, finished 2026-11-21T13:20:16Z
+
+50319 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `CHANGELOG.md` 1
