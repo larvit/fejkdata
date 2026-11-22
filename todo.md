@@ -224,6 +224,8 @@
 
 Awesome Go lists a Go package only with a link to a Codecov or Coveralls report, and wants at least 80% coverage for packages that aren't data and 90% for data packages (its CONTRIBUTING.md, read 2026-11-21). Coveralls takes the workflow's own `GITHUB_TOKEN`, so the repository needs no new secret; the maintainer turns the repository on at coveralls.io once. Where a package falls under the threshold, file an item for it. The change lands on `main` and needs no release.
 
+Keep the badge current without anyone acting: every push to `main` that runs the tests uploads its coverage, and the README's badge and link name `branch=main`, so they show `main`'s latest upload and never a pull request's.
+
 Touches:
 
 - `.github/workflows/test.yml`: lines 53-90
