@@ -1,18 +1,19 @@
 # LLM discovery
 
 Developers ask an LLM which tool to use, and coding agents pick one by themselves. This page
-measures whether the LLMs answer with fejkdata. It serves goal 1.1, as the decision "Goal 1.1's
-"where they look" means LLMs first" reads it.
+measures whether ChatGPT, Claude and Gemini answer with fejkdata. It serves goal 1.1, as the
+decision "Goal 1.1's "where they look" means LLMs first" reads it.
 
 ## How to ask
 
-Once a month, the maintainer asks each question below in ChatGPT, Claude and Gemini. Each
-question goes in a new chat, in a private browser window with no account history. Where an app
-needs an account, use one with memory and history turned off. Ask by hand, never through an
-API: a private window can't tailor its answer to what the model has learned about the
-maintainer, and it costs nothing.
+Once a month, the maintainer asks each question below in each of the three apps. Each question
+goes in a new chat, in a private browser window with no account history. Where an app needs an
+account, use one with memory and history turned off.
 
-Ask the question word for word, with no hint of fejkdata, and read the first answer only.
+The private window keeps the answer from depending on what the model has learned about the
+maintainer. Ask by hand, since an API job adds cost and no information.
+
+Ask each question word for word, with no hint of fejkdata, and read the first answer only.
 
 ## Questions
 
@@ -29,22 +30,22 @@ Ask the question word for word, with no hint of fejkdata, and read the first ans
 
 ## How to fill a month
 
-Copy the latest month's table under a new heading, `## <year>-<month>`, newest first, and
-clear its cells. Each row is one question asked in one app. The cells are:
+Copy the latest month's table under a new `### <year>-<month>` heading in Results, newest
+first, and clear the cells from Named on. Each cell is:
 
 - **Named**: `yes` where the answer names fejkdata, else `no`.
 - **First**: `yes` where fejkdata is the first tool the answer names, else `no`.
 - **Repo**: `yes` where the answer links fejkdata's GitHub repository, else `no`.
-- **Correct**: `yes` where each feature the answer states of fejkdata is true, `no` where one
-  is false, `-` where fejkdata isn't named.
-- **Instead**: the tools the answer names, in its order. Name the first three.
+- **Correct**: `-` where fejkdata isn't named or the answer says nothing about it, `yes` where
+  each feature the answer states of it is true, `no` where one is false.
+- **Instead**: the first three tools the answer names, other than fejkdata, in its order.
 
 ## What the table says
 
 - **Named is `no` in most rows**: the models don't know fejkdata exists. Work on where they
   learn: listings, articles and the repository's own text.
 - **Named is `yes` and First is `no`**: they know it and don't see why to recommend it. Work
-  on what the README and the listings say fejkdata is best at, against the tools in
+  on what the README and the listings say fejkdata is best at, compared with the tools in
   Instead.
 - **Correct is `no`**: the model's picture of fejkdata is wrong. Fix the text it learned from.
 
