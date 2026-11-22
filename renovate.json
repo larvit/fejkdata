@@ -78,6 +78,7 @@
       "matchPackageNames": [
         "actions/deploy-pages",
         "actions/upload-pages-artifact",
+        "coverallsapp/github-action",
         "peter-evans/dockerhub-description"
       ],
       "automerge": false
