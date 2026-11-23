@@ -2911,3 +2911,15 @@ Read most (opens and searches):
 - `.github/workflows/test.yml` 2
 - `compose.yaml` 2
 - `packaging_test.go` 1
+
+## Reading cost, chunk 1930d3a8844b, finished 2026-11-23T14:22:36Z
+
+47353 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `CHANGELOG.md` 1
+- `README.md` 1
+- `cli/input_test.go` 1
+- `compose.yaml` 1
+- `internal/grammar/format.go` 1
