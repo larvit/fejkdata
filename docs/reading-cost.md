@@ -2899,3 +2899,15 @@ Read most (opens and searches):
 - `internal/shipped/generate/main.go` 1
 - `renovate.json` 1
 - `todo.md` 1
+
+## Reading cost, chunk 0160548ec7b2, finished 2026-11-23T13:49:37Z
+
+64608 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `.github/workflows/packages.yml` 7
+- `README.md` 5
+- `.github/workflows/test.yml` 2
+- `compose.yaml` 2
+- `packaging_test.go` 1
