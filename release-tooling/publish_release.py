@@ -39,11 +39,12 @@ def git(*args: str) -> subprocess.CompletedProcess[str]:
 
 
 def published_before(tagged: str, sha: str, section: str) -> bool:
-	"""Whether the commit `tagged` is an ancestor of `sha` and its changelog holds `section` as the top heading's, unchanged."""
-	if git("merge-base", "--is-ancestor", tagged, sha).returncode != 0:
-		return False
+	"""Whether `tagged` is an ancestor of `sha` and the top section of `tagged`'s CHANGELOG.md is `section`."""
+	ancestry = git("merge-base", "--is-ancestor", tagged, sha)
+	if ancestry.returncode not in (0, 1):
+		raise RuntimeError(f"git merge-base --is-ancestor {tagged} {sha} exited {ancestry.returncode}: {ancestry.stderr.strip()}")
 	then = SECTION.search(git("show", f"{tagged}:CHANGELOG.md").stdout)
-	return then is not None and then[0] == section
+	return ancestry.returncode == 0 and then is not None and then[0] == section
 
 
 def publish(changelog: str, sha: str) -> tuple[int, str | None]:
@@ -60,15 +61,12 @@ def publish(changelog: str, sha: str) -> tuple[int, str | None]:
 		print(f"top heading `{version}` is neither Unreleased nor X.Y.Z", file=sys.stderr)
 		return 1, None
 	tag = f"v{version}"
-	# A tag at another commit means the version is taken, even when its release is published, unless it is where the heading was published and the section is unchanged.
+	# A tag at a commit that is not an ancestor, or whose top changelog section differs, means the version is taken, even when its release is published.
 	try:
 		at = request(f"git/ref/tags/{tag}")["object"]
 		if at["type"] == "tag":
 			at = request(f"git/tags/{at['sha']}")["object"]
-		if at["sha"] != sha and published_before(at["sha"], sha, top[0]):
-			print(f"{tag} already published at {at['sha']}, an ancestor of {sha} with the same changelog section")
-			return 0, None
-		if at["sha"] != sha:
+		if at["sha"] != sha and not published_before(at["sha"], sha, top[0]):
 			print(f"{tag} exists at {at['sha']}, not {sha}; the version is burnt, bump the heading", file=sys.stderr)
 			return 1, None
 	except urllib.error.HTTPError as e:
