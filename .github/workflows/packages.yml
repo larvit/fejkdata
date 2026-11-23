@@ -15,6 +15,8 @@ on:
         required: false
       DOCKERHUB_TOKEN:
         required: false
+      SITE_DEPLOY_TOKEN:
+        required: false
   workflow_dispatch:
     inputs:
       tag:
@@ -214,3 +216,23 @@ jobs:
     steps:
       - id: deploy
         uses: actions/deploy-pages@v5
+
+  site:
+    name: Start fejkdata.dev's deploy of ${{ inputs.tag }}
+    needs: [packages, pages]
+    if: ${{ !cancelled() && needs.packages.result == 'success' && needs.packages.outputs.latest == 'true' }}
+    runs-on: ubuntu-26.04
+    permissions: {}
+    steps:
+      # A failed call only warns: the release is published, and the site's deploy reruns by hand.
+      - name: Dispatch the site's build workflow with the release
+        env:
+          SITE_DEPLOY_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          [ -n "$SITE_DEPLOY_TOKEN" ] || { echo "::warning::SITE_DEPLOY_TOKEN is not set, so fejkdata.dev keeps its last release"; exit 0; }
+          body="$(jq -cn --arg version "$TAG" '{ref: "main", inputs: {version: $version}}')"
+          curl --fail-with-body --silent --show-error --max-time 60 --retry 3 \
+            --header "Authorization: token $SITE_DEPLOY_TOKEN" --header "Content-Type: application/json" \
+            --data "$body" "https://gitea.larvit.se/api/v1/repos/larvit/fejkdata.dev/actions/workflows/build.yml/dispatches" \
+            || echo "::warning::fejkdata.dev's deploy of $TAG did not start"
