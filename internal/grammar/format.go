@@ -68,7 +68,7 @@ func tokenEnd(rs []rune, open int, format string) (int, error) {
 			return 0, fmt.Errorf("'{' inside a token in %q; a literal brace is written {{", format)
 		}
 	}
-	return 0, fmt.Errorf("unterminated '{' in %q", format)
+	return 0, fmt.Errorf("unterminated '{' in %q; close the token with }, or write {{ for a literal brace", format)
 }
 
 // Token is one parsed unit of a format.
