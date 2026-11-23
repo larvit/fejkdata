@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 553 | 0.8.1 |  | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
-| 542 | 0.8.1 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
 | 555 | 0.8.1 |  | defect | **Make `main`'s release job pass on a push that leaves the changelog's top release as its tag published it, today it fails on every push until `CHANGELOG.md` gains `## Unreleased`.** | 2 | 1 | 2 | 3 | 3 | 1.1 by 2 | 0.9 |
 | 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
@@ -227,15 +226,6 @@ The maintainer does this item, not a chunk: each step speaks for the project in 
 - Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
 
 Item 548's monthly table shows whether each step moved what LLMs answer.
-
-### 542. Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.
-
-CodeRabbit found it on PR 476: `{` piped to the CLI exits 2 with `unterminated '{' in "{\n"` and only `try 'fejkdata --help'`, which names no fix, against goal 5. Keep the word "unterminated", which `internal/grammar/format_test.go` and `cli/input_test.go` assert, and add a CLI test on the new text. Once it ships, the README's coding-agent bullet may say the exit 2 error names the fix.
-
-Touches:
-
-- `internal/grammar/format.go`
-- `cli/input_test.go`
 
 ### 555. Make `main`'s release job pass on a push that leaves the changelog's top release as its tag published it, today it fails on every push until `CHANGELOG.md` gains `## Unreleased`.
 
