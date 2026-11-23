@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 553 | 0.8.1 |  | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
-| 541 | 0.8.1 |  |  | **Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.** | 3 | 3 | 2 | 6 | 3 | 1.1 by 4 | 1.8 |
 | 542 | 0.8.1 |  |  | **Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.** | 1 | 1 | 1 | 1 | 1 | 5 by 2 | 1.1 |
 | 555 | 0.8.1 |  | defect | **Make `main`'s release job pass on a push that leaves the changelog's top release as its tag published it, today it fails on every push until `CHANGELOG.md` gains `## Unreleased`.** | 2 | 1 | 2 | 3 | 3 | 1.1 by 2 | 0.9 |
 | 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
@@ -228,14 +227,6 @@ The maintainer does this item, not a chunk: each step speaks for the project in 
 - Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
 
 Item 548's monthly table shows whether each step moved what LLMs answer.
-
-### 541. Start fejkdata.dev's deploy from the Packages workflow once a release has published, naming the release, so the site runs each new fejkdata within the hour.
-
-The maintainer, 2026-11-21: automate fejkdata.dev's deployment from fejkdata's own; fejkdata 0.8.1 holds fejkdata's side, and fejkdata.dev's 0.1.2 the site's side, which rebuilds the WebAssembly and the data grid from item 408's listing at the named release. The site lives on gitea.larvit.se, so the step calls its Actions API with a token the maintainer creates and stores as a GitHub secret. Patches CI cuts for a Go or module update trigger it too. A failed call fails no release: it only reports.
-
-Touches:
-
-- `.github/workflows/packages.yml`
 
 ### 542. Make the unterminated `{` error name both fixes: close the token with `}`, or write `{{` for a literal brace.
 
