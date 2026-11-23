@@ -42,8 +42,7 @@ def published_before(tagged: str, sha: str, section: str) -> bool:
 	"""Whether the commit `tagged` is an ancestor of `sha` and its changelog holds `section` as the top heading's, unchanged."""
 	if git("merge-base", "--is-ancestor", tagged, sha).returncode != 0:
 		return False
-	shown = git("show", f"{tagged}:CHANGELOG.md")
-	then = SECTION.search(shown.stdout) if shown.returncode == 0 else None
+	then = SECTION.search(git("show", f"{tagged}:CHANGELOG.md").stdout)
 	return then is not None and then[0] == section
 
 
