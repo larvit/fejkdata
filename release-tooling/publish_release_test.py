@@ -48,6 +48,46 @@ def history(tagged: dict[str, str]) -> Callable[..., subprocess.CompletedProcess
 	return git
 
 
+class PublishedBefore(unittest.TestCase):
+	def setUp(self) -> None:
+		cwd = os.getcwd()
+		tmp = tempfile.TemporaryDirectory()
+		self.addCleanup(tmp.cleanup)
+		os.chdir(tmp.name)
+		self.addCleanup(os.chdir, cwd)
+		env = mock.patch.dict(os.environ, {
+			"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.com", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.com",
+		})
+		env.start()
+		self.addCleanup(env.stop)
+		publish_release.git("init", "-q")
+
+	def commit(self, changelog: str) -> str:
+		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+			f.write(changelog)
+		publish_release.git("add", "CHANGELOG.md")
+		publish_release.git("commit", "-q", "-m", "c")
+		return publish_release.git("rev-parse", "HEAD").stdout.strip()
+
+	def test_an_ancestor_holding_the_section_unchanged_is_published_before(self) -> None:
+		tagged = self.commit("## 1.2.3\n\n- A change.\n")
+		head = self.commit("## Unreleased\n\n- New.\n\n## 1.2.3\n\n- A change.\n")
+		self.assertTrue(publish_release.published_before(tagged, head, "## 1.2.3\n\n- A change.\n"))
+
+	def test_an_ancestor_holding_another_section_is_not_published_before(self) -> None:
+		tagged = self.commit("## 1.2.3\n\n- A change.\n")
+		head = self.commit("## 1.2.3\n\n- Another change.\n")
+		self.assertFalse(publish_release.published_before(tagged, head, "## 1.2.3\n\n- Another change.\n"))
+
+	def test_a_commit_that_is_not_an_ancestor_is_not_published_before(self) -> None:
+		base = self.commit("## 1.2.3\n\n- A change.\n")
+		publish_release.git("checkout", "-q", "-b", "side")
+		tagged = self.commit("## 1.2.3\n\n- A change.\n\n- More.\n")
+		publish_release.git("checkout", "-q", base)
+		head = self.commit("## Unreleased\n\n- New.\n\n## 1.2.3\n\n- A change.\n\n- More.\n")
+		self.assertFalse(publish_release.published_before(tagged, head, "## 1.2.3\n\n- A change.\n\n- More.\n"))
+
+
 class TagGuard(unittest.TestCase):
 	def setUp(self) -> None:
 		cwd = os.getcwd()
@@ -63,9 +103,10 @@ class TagGuard(unittest.TestCase):
 
 	def publish(self, responses: dict[str, Any], tagged: dict[str, str] | None = None) -> tuple[int, list[dict[str, Any]]]:
 		created: list[dict[str, Any]] = []
+		self.out = io.StringIO()
 		with mock.patch.object(publish_release, "request", forge(responses, created)), \
 			mock.patch.object(publish_release, "git", history(tagged or {})), \
-			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()), \
+			redirect_stdout(self.out), redirect_stderr(io.StringIO()), \
 			open("CHANGELOG.md", encoding="utf-8") as f:
 			code, self.tag = publish_release.publish(f.read(), SHA)
 		return code, created
@@ -195,6 +236,7 @@ class TagGuard(unittest.TestCase):
 	def test_a_tag_at_an_ancestor_with_the_same_section_is_already_published(self) -> None:
 		code, created = self.publish({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, {OTHER: "# Changelog\n\n## 1.2.3\n\n- A change.\n"})
 		self.assertEqual((code, created, self.tag), (0, [], None))
+		self.assertIn(f"v1.2.3 already published at {OTHER}", self.out.getvalue())
 
 	def test_a_tag_at_an_ancestor_with_the_same_section_under_a_newer_heading_is_already_published(self) -> None:
 		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
