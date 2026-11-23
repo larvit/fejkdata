@@ -103,7 +103,8 @@ func TestRunFormatTakesOnlyALoneReferenceAsARecord(t *testing.T) {
 func TestRunTemplateMisuse(t *testing.T) {
 	for stdin, want := range map[string]string{
 		"{bad":                  "unterminated",
-		"{\n":                   "close the token with }, or write {{ for a literal brace",
+		"{\n":                   "write {{ for a literal brace",
+		"{x\n":                  "close the token with }",
 		"name: {/no.such.path}": "no entry",
 		"a } b":                 "}}",
 		"{//sv_SE.person}":      "write {/sv_SE.person}",
