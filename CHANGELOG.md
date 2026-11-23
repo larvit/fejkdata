@@ -5,6 +5,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), with headings 
 their brackets. A release's `Breaking` section comes first and names each rejected spelling
 with its replacement, and each removed path, column or flag.
 
+## Unreleased
+
+- The error for a `{` that is never closed names both fixes: write `{{` for a literal brace, or close the token with `}`.
+
 ## 0.8.0 - 2026-11-21
 
 ### Added
