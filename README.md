@@ -2191,6 +2191,10 @@ Pages. The workflow reads these repository secrets:
 - `PACKAGES_GPG_KEY`, `PACKAGES_RSA_KEY`: the private keys that sign the repositories.
 - `TAP_GITHUB_TOKEN`: a token that can push to `larvit/homebrew-tap` and
   `larvit/scoop-bucket`.
+- `SITE_DEPLOY_TOKEN`: a token of the Gitea account that can run Actions on
+  `larvit/fejkdata.dev`. After a latest release has published, the workflow starts that
+  repository's `build.yml` with the input `version`, the release's tag. A failed call only
+  warns, since the release stands.
 
 The image's Docker Hub repository and GHCR package must be public, and Pages must deploy
 from GitHub Actions. To package a release again, run the workflow by hand with its tag; it

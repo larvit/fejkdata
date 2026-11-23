@@ -2867,3 +2867,35 @@ Read most (opens and searches):
 Read most (opens and searches):
 
 - `CHANGELOG.md` 1
+
+## Reading cost, chunk 883fdb80492f, finished 2026-11-22T15:22:25Z
+
+60837 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `docs/llm-discovery.md` 2
+- `docs/reading-cost.md` 1
+
+## Reading cost, chunk a5f8e7fbae96, finished 2026-11-22T15:35:04Z
+
+66523 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `compose.yaml` 3
+
+## Reading cost, chunk 21457548df1f, finished 2026-11-23T13:20:23Z
+
+121459 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 4
+- `.github/workflows/test.yml` 2
+- `compose.yaml` 2
+- `AGENTS.md` 1
+- `internal/shipped/generate/main.go` 1
+- `renovate.json` 1
+- `todo.md` 1
