@@ -2189,9 +2189,11 @@ Pages. The workflow reads these repository secrets:
 - `DOCKERHUB_TOKEN`: a personal access token of the Docker Hub account `larvit`, with Read &
   Write and no Delete. The repository variable `DOCKERHUB_USERNAME` names the account.
 - `PACKAGES_GPG_KEY`, `PACKAGES_RSA_KEY`: the private keys that sign the repositories.
-- `SITE_DEPLOY_TOKEN`: an access token for `gitea.larvit.se` that can run Actions on
-  `larvit/fejkdata.dev`, and nothing wider. Once the latest release has published, the
-  workflow starts that repository's `build.yml` with the input `version` set to the tag.
+- `SITE_DEPLOY_TOKEN`: an access token for `gitea.larvit.se`, made by a dedicated account.
+  Gitea doesn't limit a token to one repository, so it reaches every repository its account
+  can. Give the account write access to `larvit/fejkdata.dev` only. Once the latest release
+  has published, the workflow starts that repository's `build.yml` with the input `version`
+  set to the tag.
   Without the token, or when the call fails, it only warns, and the site's deploy is started
   by hand.
 - `TAP_GITHUB_TOKEN`: a token that can push to `larvit/homebrew-tap` and
