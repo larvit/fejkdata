@@ -219,12 +219,12 @@ jobs:
 
   site:
     name: Start fejkdata.dev's deploy of ${{ inputs.tag }}
-    needs: [packages, pages]
+    needs: packages
     if: ${{ !cancelled() && needs.packages.result == 'success' && needs.packages.outputs.latest == 'true' }}
     runs-on: ubuntu-26.04
     permissions: {}
     steps:
-      # A failed call only warns: the release is published, and the site's deploy reruns by hand.
+      # A failed call only warns, since the release has published.
       - name: Dispatch the site's build workflow with the release
         env:
           SITE_DEPLOY_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
@@ -235,4 +235,4 @@ jobs:
           curl --fail-with-body --silent --show-error --max-time 60 --retry 3 \
             --header "Authorization: token $SITE_DEPLOY_TOKEN" --header "Content-Type: application/json" \
             --data "$body" "https://gitea.larvit.se/api/v1/repos/larvit/fejkdata.dev/actions/workflows/build.yml/dispatches" \
-            || echo "::warning::fejkdata.dev's deploy of $TAG did not start"
+            || printf '\n::warning::fejkdata.dev'"'"'s deploy of %s did not start\n' "$TAG"
