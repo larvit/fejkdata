@@ -34,6 +34,20 @@ def forge(responses: dict[str, Any], created: list[dict[str, Any]]) -> Callable[
 	return request
 
 
+def history(tagged: dict[str, str]) -> Callable[..., subprocess.CompletedProcess[str]]:
+	"""A git that knows the commits in tagged, each an ancestor of SHA holding the changelog it maps to."""
+
+	def git(*args: str) -> subprocess.CompletedProcess[str]:
+		if args[:2] == ("merge-base", "--is-ancestor"):
+			return subprocess.CompletedProcess(args, 0 if args[2] in tagged and args[3] == SHA else 1, "", "")
+		commit, _, path = args[1].partition(":")
+		if args[0] == "show" and path == "CHANGELOG.md" and commit in tagged:
+			return subprocess.CompletedProcess(args, 0, tagged[commit], "")
+		return subprocess.CompletedProcess(args, 128, "", "fatal")
+
+	return git
+
+
 class TagGuard(unittest.TestCase):
 	def setUp(self) -> None:
 		cwd = os.getcwd()
@@ -47,9 +61,10 @@ class TagGuard(unittest.TestCase):
 		env.start()
 		self.addCleanup(env.stop)
 
-	def publish(self, responses: dict[str, Any]) -> tuple[int, list[dict[str, Any]]]:
+	def publish(self, responses: dict[str, Any], tagged: dict[str, str] | None = None) -> tuple[int, list[dict[str, Any]]]:
 		created: list[dict[str, Any]] = []
 		with mock.patch.object(publish_release, "request", forge(responses, created)), \
+			mock.patch.object(publish_release, "git", history(tagged or {})), \
 			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()), \
 			open("CHANGELOG.md", encoding="utf-8") as f:
 			code, self.tag = publish_release.publish(f.read(), SHA)
@@ -174,6 +189,31 @@ class TagGuard(unittest.TestCase):
 
 	def test_a_published_release_publishes_nothing(self) -> None:
 		code, created = self.publish({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}})
+		self.assertEqual((code, created, self.tag), (0, [], None))
+
+	def test_a_tag_at_an_ancestor_with_the_same_section_is_already_published(self) -> None:
+		code, created = self.publish({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, {OTHER: "# Changelog\n\n## 1.2.3\n\n- A change.\n"})
+		self.assertEqual((code, created, self.tag), (0, [], None))
+
+	def test_a_tag_at_an_ancestor_with_the_same_section_under_a_newer_heading_is_already_published(self) -> None:
+		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+			f.write("# Changelog\n\n## 1.2.3\n\n- A change.\n\n## 1.2.2\n\n- Older.\n")
+		code, created = self.publish({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, {OTHER: "# Changelog\n\n## 1.2.3\n\n- A change.\n\n## 1.2.2\n\n- Older, reworded.\n"})
+		self.assertEqual((code, created, self.tag), (0, [], None))
+
+	def test_a_tag_at_an_ancestor_whose_section_differs_is_burnt(self) -> None:
+		code, created = self.publish({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, {OTHER: "# Changelog\n\n## 1.2.3\n\n- Another change.\n"})
+		self.assertEqual((code, created, self.tag), (1, [], None))
+
+	def test_a_tag_at_an_ancestor_without_the_version_is_burnt(self) -> None:
+		code, created = self.publish({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, {OTHER: "# Changelog\n\n## 1.2.2\n\n- A change.\n"})
+		self.assertEqual((code, created, self.tag), (1, [], None))
+
+	def test_an_annotated_tag_at_an_ancestor_with_the_same_section_is_already_published(self) -> None:
+		code, created = self.publish({
+			"git/ref/tags/v1.2.3": {"object": {"sha": "c" * 40, "type": "tag"}},
+			"git/tags/" + "c" * 40: {"object": {"sha": OTHER, "type": "commit"}},
+		}, {OTHER: "# Changelog\n\n## 1.2.3\n\n- A change.\n"})
 		self.assertEqual((code, created, self.tag), (0, [], None))
 
 
