@@ -311,8 +311,9 @@ echo '{/sv_SE.personnummer}' | fejkdata --seed 1 --today 2026-11-21   # the same
 ```
 
 A template that doesn't compile exits 2 and says what is wrong. A reference missing its
-leading slash, as above, gets the fix named; a misspelled path says `no entry`, so check it
-against `--list`. `--seed` repeats a run, and `--today` repeats it on another day where
+leading slash, as above, gets the fix named, and so does a `{` left open: close it with `}`,
+or write `{{` for a literal brace. A misspelled path says `no entry`, so check it against
+`--list`. `--seed` repeats a run, and `--today` repeats it on another day where
 the template reads a date, as `{/sv_SE.personnummer}` does.
 
 To tell an agent about fejkdata, paste this into the project's `AGENTS.md`:
