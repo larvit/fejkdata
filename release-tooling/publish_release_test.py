@@ -166,6 +166,7 @@ class TagGuard(unittest.TestCase):
 			created: list[dict[str, Any]] = []
 			with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
 				mock.patch.object(publish_release, "request", forge(responses, created)), \
+				mock.patch.object(publish_release, "git", history({})), \
 				redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
 				self.assertEqual(publish_release.main([]), code)
 			with open("output", encoding="utf-8") as f:
