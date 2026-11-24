@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 556`
+`Next ID = 560`
 
 ## Items
 
@@ -20,12 +20,16 @@
 | 252 | 0.9.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
+| 556 | 0.9.0 |  |  | **Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.** | 2 | 1 | 2 | 3 | 3 | 1 by 4 | 1.9 |
+| 557 | 0.9.0 | 556 |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
+| 558 | 0.9.0 |  |  | **Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.** | 2 | 1 | 2 | 3 | 5 | 1 by 3, 2.1 by 4 | 1.2 |
+| 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
-| 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 6 | 0.3 |
+| 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
 | 220 | 0.10.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.7 |
 | 30 | 0.10.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 2.6 |
 | 534 | 0.10.0 |  | owner | **Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.6 |
@@ -264,6 +268,34 @@ A template; the structure rules are facts.
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
 
+### 556. Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.
+
+From a user loading 700,000 rows into MySQL. `LOAD DATA` reads an unquoted empty field as an empty string, so each nullable column needed a `NULLIF`.
+
+Checked on MySQL 8.4.6: an unquoted `NULL` loads as null and a quoted `"NULL"` as text, with or without `ESCAPED BY ''`. `\N` loads as null only under MySQL's default escaping, which also turns the CSV value `b\c` into `bc`. So the README shows `NULL`, not `\N`.
+
+Without the flag the bytes stay as they are, the form PostgreSQL's `COPY … CSV` reads. A bench of the audience picks the flag's name. Settle whether it applies to `tsv` too, and refuse it under any format it doesn't change. A new flag, and the exported name the library needs, each get a `CHANGELOG.md` entry.
+
+Touches:
+
+- `record.go`: `Record.CSVLine`, `csvField`
+- `cli/records.go`: `recordFormat`, `recordFormats`
+- `cli/flags.go`: `checkRecordFlags`
+- `cli/cli.go`: `invocation` (small)
+- `cli/records_test.go`
+- `record_test.go`
+- `README.md`: `## CLI` (small), `### Null` (small)
+
+### 557. Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.
+
+From a user who loaded CSV with MySQL's `LOAD DATA` and missed that a `--format tsv` run's output works as a table, so linked contacts to customers by a random integer. Drawing 700,000 rows from a 700,000-row table took 1.9 s on v0.8.0.
+
+The example sets item 556's flag to `NULL`, and `FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '' LINES TERMINATED BY '\n' IGNORE 1 LINES`. Without `ESCAPED BY ''`, MySQL 8.4.6 loads `b\c` as `bc`. Run the example against MySQL before it ships.
+
+Touches:
+
+- `README.md`: `### Load into a database`
+
 ### 551. Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.
 
 Goal 1.3 asks for a package `pip` installs. A wheel per platform carrying the CLI binary is how ruff and uv ship a native tool to Python. It reuses the binaries goreleaser already builds, so every CLI feature reaches Python in the same release, and goal 9.2's bytes hold because the same binary renders them. Goal 10 allows no PyPI dependency, so the package runs the binary through `subprocess`. A template that doesn't compile exits 2; raise that as an exception carrying the CLI's error text. The name `fejkdata` was free on PyPI on 2026-11-21.
@@ -271,6 +303,54 @@ Goal 1.3 asks for a package `pip` installs. A wheel per platform carrying the CL
 ### 552. Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.
 
 The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token.
+
+### 558. Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.
+
+Today `sv_SE` has no path for either, and `phone-mobile` in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO` prints only a prefix or area code, such as `21 1`. A user filling a customer table wrote Swedish mobile numbers by hand with `digits()`.
+
+The owner wants every shipped locale covered: `da_DK`, `de_DE`, `en_US`, `et_EE`, `fi_FI`, `fr_FR`, `lt_LT`, `lv_LV`, `nb_NO`, `nn_NO` and `sv_SE`. `et_EE` and `lv_LV` draw both kinds from one hidden field, `nn_NO` reads `nb_NO`, and `sv_SE` has the mobile codes inline. A US number doesn't show its kind, since mobile and fixed share area codes, so both of `en_US`'s paths draw one pool and its page says so.
+
+Both paths print the national form, and read `national` and `international`. `phone` keeps its formats and its shares of mobile and fixed numbers. `phone-mobile` already means a prefix table, so a bench of the audience picks the paths. A new column in `phone`'s record is breaking, so either keep the paths out of its columns or list the break in `CHANGELOG.md`. Item 23 adds each path's form that reaches nobody.
+
+Touches:
+
+- `data/da_DK/phone.json`
+- `data/de_DE/phone.json`
+- `data/en_US/phone.json`
+- `data/et_EE/phone.json`
+- `data/fi_FI/phone.json`
+- `data/fr_FR/phone.json`
+- `data/lt_LT/phone.json`
+- `data/lv_LV/phone.json`
+- `data/nb_NO/phone.json`
+- `data/nn_NO/phone.json`
+- `data/sv_SE/phone.json`
+- `data/locale_phone_test.go`
+- `data/locales_test.go`: `phone`, `shippedLocales` (small)
+- `testdata/shipped_shape.txt`
+- `data-listing/paths.json`
+- `docs/shipped-paths.md`
+- `docs/locales/sv_SE.md`: `## Swedish phone numbers`
+- `docs/locales/en_US.md`: `## US phone exchanges`
+
+### 559. Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.
+
+Today columns come in name order, so a user's `LOAD DATA` column list had to follow the alphabet instead of the template. It is the default and no option, since an option leaves the trap for whoever doesn't know of it.
+
+A change to what exists, so it names the break in `CHANGELOG.md`; reading by header or by name is unaffected. Draw the columns in name order still, so a seed draws the same values and only their places change. The decision "A name lives in the category binding it, …" states that columns render in name order; revise it where it no longer holds.
+
+JSON objects decode into Go maps, which lose key order, so `internal/jsonvalue` must keep it. A field without a place in an object, as `FakeStruct`'s and a table's, keeps the order it has today unless the chunk records why not: a table's columns have their header's order to follow.
+
+Touches:
+
+- `internal/jsonvalue/jsonvalue.go`: `Decode`, `Object`, `Value`
+- `internal/engine/load/node.go`: `compileTemplate`, `compileFields`, `compileFieldsInto`
+- `internal/engine/load/record.go`: `recordColumns`
+- `internal/engine/record.go`
+- `record.go`: `Record`, `Record.Columns` (small)
+- `record_test.go`
+- `cli/records_test.go`
+- `README.md`: `### CSV and SQL seed data` (small), `### Records`, `### Load into a database` (small)
 
 ### 549. Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.
 
