@@ -73,13 +73,11 @@ func (r *Record) CSVLineNull(text string) string {
 	}
 	fields := make([]string, len(r.columns))
 	for i, c := range r.columns {
-		switch {
-		case c.Null:
+		fields[i] = literal(c, csvField, "")
+		if c.Null {
 			fields[i] = null
-		case c.Value == text:
+		} else if c.Value == text {
 			fields[i] = csvQuoted(c.Value)
-		default:
-			fields[i] = literal(c, csvField, "")
 		}
 	}
 	return strings.Join(fields, ",")
