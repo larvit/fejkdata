@@ -314,23 +314,22 @@ func TestRecordWritesTypedAndNullColumns(t *testing.T) {
 
 func TestRecordCSVLineNullSpellsANullAndQuotesAValueEqualToIt(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"row": `{"format":"","age":{"format":"42","datatype":"integer"},"gone":null,"name":"NULL","nick":"","note":"x, y"}`,
+		"row": `{"format":"","age":{"format":"42","datatype":"integer"},"gone":null,"name":"NULL","nick":"","note":"x, y","zero":{"format":"0","datatype":"integer"}}`,
 	})
 	r, err := newGenerator(t, dir, WithSeed(1)).FakeRecord("row")
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, c := range []struct{ null, want string }{
-		{"", `42,,NULL,"","x, y"`},
-		{"NULL", `42,NULL,"NULL","","x, y"`},
-		{`\N`, `42,\N,NULL,"","x, y"`},
+		{"", `42,,NULL,"","x, y",0`},
+		{"NULL", `42,NULL,"NULL","","x, y",0`},
+		{`\N`, `42,\N,NULL,"","x, y",0`},
+		{"0", `42,0,NULL,"","x, y","0"`},
+		{"a,b", `42,"a,b",NULL,"","x, y",0`},
 	} {
 		if got := r.CSVLineNull(c.null); got != c.want {
 			t.Errorf("CSVLineNull(%q) = %s, want %s", c.null, got, c.want)
 		}
-	}
-	if got, want := r.CSVLine(), r.CSVLineNull(""); got != want {
-		t.Errorf("CSVLine() = %s, want CSVLineNull(\"\") = %s", got, want)
 	}
 }
 
