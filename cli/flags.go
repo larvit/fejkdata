@@ -182,7 +182,7 @@ func (in invocation) checkFlags() error {
 }
 
 // checkRecordFlags rejects an empty --table under a format that writes to a table, --separator
-// under a record format and --null-text where csv doesn't write it.
+// under a record format and --null-text under a format other than csv.
 func (in invocation) checkRecordFlags() error {
 	f, records := recordFormats[in.format]
 	if in.tableSet && in.table == "" && f.target != "" {
@@ -194,8 +194,8 @@ func (in invocation) checkRecordFlags() error {
 	return in.checkNullText(f, records)
 }
 
-// checkNullText rejects --null-text under a format that writes its own null, and a text csv would quote,
-// which a reader loads as text.
+// checkNullText rejects --null-text under a format other than csv, and a text csv would quote, which a
+// reader loads as a value, not a null.
 func (in invocation) checkNullText(f recordFormat, records bool) error {
 	if !in.nullSet || in.list {
 		return nil
@@ -212,7 +212,7 @@ func (in invocation) checkNullText(f recordFormat, records bool) error {
 	_ = w.Write([]string{in.nullText})
 	w.Flush()
 	if in.nullText != "" && b.String() != in.nullText+"\n" {
-		return fmt.Errorf("--null-text %q would be quoted in csv, and a quoted field loads as text", in.nullText)
+		return fmt.Errorf("--null-text %q would be quoted in csv, and a quoted field loads as text; use one with no comma, quote, line break or leading space", in.nullText)
 	}
 	return nil
 }
