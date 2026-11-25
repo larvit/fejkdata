@@ -11,7 +11,7 @@ import (
 const fewestNames = 200
 
 var (
-	letteredName = regexp.MustCompile(`^[\pL]{2,}([ '-][\pL]{2,})*$`)
+	letteredName = regexp.MustCompile(`^([\pL]')?[\pL]{2,}([ '-]([\pL]')?[\pL]{2,})*$`)
 	otherSex     = map[string]string{"f": "m", "m": "f"}
 )
 
