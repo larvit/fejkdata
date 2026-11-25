@@ -2382,11 +2382,12 @@ Goal 3 calls a value real when it is a thing that exists. A recalled name is one
 
 Valid while the recalled tables hold names in use. A name a user reports as not in use is removed. A table with many such reports is listed `invented` until a register replaces it.
 
-## `--null-text` spells a null in `csv` alone, and csv quotes a string equal to it
+## `--null-text` spells a null in `csv` alone, and `csv` quotes a value equal to it
 
 2026-11-25, the agent shipping item 556. Goal 1: a bulk fixture author loads the CSV into MySQL with no extra step.
 
-MySQL's `LOAD DATA` reads an unquoted `NULL` as null and a quoted `"NULL"` as text, so `csv` quotes a string equal to the spelling. A spelling `encoding/csv` would quote is refused, since a quoted field loads as text. `tsv` is the file a table reads, where a cell has no null, so the flag changes nothing there and is refused, as it is under every format but `csv`. A panel of three readers (a bulk fixture author, a coding agent and a hand fixture author) ranked six names. `--null-text` and `--null-as` tied on points; `--null-text` was never ranked below fourth and never read as a switch.
+MySQL's `LOAD DATA`, with its fields enclosed in quotes, reads an unquoted `NULL` as null and a quoted `"NULL"` as text. So `csv` writes a null as the flag's text and quotes any other value equal to that text, a number's too. A text `encoding/csv` would quote is refused, since a quoted field loads as text.
+
+`tsv` is the file a table reads, and a table cell has no null, so the flag is refused there, as under every format but `csv`. A panel of three readers (a bulk fixture author, a coding agent and a hand fixture author) ranked six names. `--null-text` and `--null-as` tied on points; `--null-text` was never ranked below fourth and never read as a switch.
 
 Valid while `csv` is the one record format with a free choice of null spelling.
-
