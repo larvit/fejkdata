@@ -7,6 +7,16 @@ with its replacement, and each removed path, column or flag.
 
 ## Unreleased
 
+### Breaking
+
+- `fr_FR.first-name` has no row `Jahyan` and `fr_FR.last-name` none `Prades` any more: each fell out of the top 2,000 and 5,000 when a name with a one-letter part before an apostrophe joined.
+
+### Added
+
+- `fr_FR.first-name` has the row `M'Hamed` and `fr_FR.last-name` the row `N'Diaye`. The name imports used to drop a name with a one-letter part before an apostrophe, such as `N'Diaye`, and now keep it, written with the ASCII apostrophe. A lone initial is still dropped.
+
+### Changed
+
 - The error for a `{` that is never closed names both fixes: write `{{` for a literal brace, or close the token with `}`.
 - `misc.territory[KZ].capital` is `Astana`, not `Nur-Sultan`. `misc.territory[PW].capital` is `Ngerulmud`, not `Melekeok`, the state it lies in.
 
