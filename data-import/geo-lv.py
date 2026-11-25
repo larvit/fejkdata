@@ -104,23 +104,19 @@ class Register:
 
 def house_number(name: str) -> tuple[int, bool] | None:
     """An address's house number and whether a letter follows it, or None where the address is a house's name."""
-    m = NUMBER.match(name)
-    return (int(m[1]), bool(m[2])) if m else None
+    return geo.house_number(NUMBER, name)
 
 
-class Tally:
-    """What the addresses count: per locality, its addresses, its postal codes, its streets and the sum of its points;
-    per municipality, the addresses outside every locality; and over them all, the house numbers by geo.number_range."""
+class Tally(geo.Counts):
+    """What geo.Counts counts, and per locality the sum of its points, and per municipality the addresses outside every
+    locality."""
 
     def __init__(self) -> None:
-        self.addresses: collections.Counter[str] = collections.Counter()
+        super().__init__()
         self.outside: collections.Counter[str] = collections.Counter()
-        self.postal_codes: collections.Counter[tuple[str, str]] = collections.Counter()
-        self.streets: collections.Counter[tuple[str, str]] = collections.Counter()
         self.lat: dict[str, float] = collections.defaultdict(float)
         self.lon: dict[str, float] = collections.defaultdict(float)
         self.points: collections.Counter[str] = collections.Counter()
-        self.numbers: collections.Counter[tuple[int, bool]] = collections.Counter()
 
     def add(self, row: Mapping[str, str], register: Register, n: int) -> None:
         """Counts a building in force as n addresses, where the register holds the row it lies in."""
@@ -129,18 +125,15 @@ class Tally:
             self.outside[register.municipality_of[parent]] += n
         elif kind == IELA and parent in register.streets:
             locality, street = register.streets[parent]
-            self.place(row, locality, n)
             number = house_number(row["NOSAUKUMS"])
-            if number:
-                self.streets[(locality, street)] += n
-                self.numbers[geo.number_range(*number)] += 1
+            self.place(row, locality, n, street if number else None, number)
         elif kind in (PILSETA, CIEMS) and parent in register.localities:
-            self.place(row, parent, n)
+            self.place(row, parent, n, None, None)
 
-    def place(self, row: Mapping[str, str], locality: str, n: int) -> None:
-        """Counts a building as n addresses of its locality, and its point where it has one."""
-        self.addresses[locality] += n
-        self.postal_codes[(locality, row["ATRIB"])] += n
+    def place(self, row: Mapping[str, str], locality: str, n: int, street: str | None, number: tuple[int, bool] | None) -> None:
+        """Counts a building as n addresses of its locality, its street where it has one and a house number, and its point
+        where it has one."""
+        self.count(locality, row["ATRIB"], n, street, number)
         if row["DD_N"] and row["DD_E"]:
             self.points[locality] += 1
             self.lat[locality] += float(row["DD_N"])
@@ -195,11 +188,7 @@ def weighed(register: Register, counted: Tally, people: Mapping[str, int]) -> No
     for code, n in geo.populations(counted.addresses, municipality_of, people, people, counted.outside).items():
         register.localities[code]["population"] = n
         register.localities[code]["lat"], register.localities[code]["lon"] = counted.point(code)
-    for row in register.regions.values():
-        row["population"] = 0
-    for code, municipality in register.municipalities.items():
-        municipality["population"] = people[code]
-        register.regions[municipality["region"]]["population"] += people[code]
+    geo.sum_people(register.regions, register.municipalities, people)
 
 
 def table(cache: Path, name: str) -> Iterator[dict[str, str]]:
@@ -215,9 +204,7 @@ def main() -> None:
     counted = tally(table(cache, "aw_eka"), register, apartments(table(cache, "aw_dziv")))
     answer = source.fetch(PEOPLE, cache, f"people-{YEAR}.csv", magic=b"\xef\xbb\xbf", data=json.dumps(QUERY).encode(), headers={"Content-Type": "application/json"})
     weighed(register, counted, people(csv.reader(io.StringIO(answer.decode("utf-8-sig"), newline=""))))
-    streets = geo.top_streets(counted.streets, a.street_share, a.min_streets, "addresses")
-    geo.write_by_code(out, register.regions, register.municipalities, {c: row for c, row in register.localities.items() if "population" in row}, counted.postal_codes, streets)
-    (out / "address.json").write_text(geo.address_json(counted.numbers, layout=LAYOUT), encoding="utf-8")
+    geo.write_counted(out, a, register.regions, register.municipalities, register.localities, counted, layout=LAYOUT)
 
 
 if __name__ == "__main__":

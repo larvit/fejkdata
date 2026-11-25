@@ -52,31 +52,16 @@ class Register:
 
 def house_number(number: str) -> tuple[int, bool] | None:
     """A house number and whether a letter follows it, or None where the text is no house number."""
-    m = NUMBER.match(number)
-    return (int(m[1]), bool(m[2])) if m else None
+    return geo.house_number(NUMBER, number)
 
 
-class Tally:
-    """What the addresses count: per locality, its addresses, its postal codes and its streets; and over them all, the
-    house numbers by geo.number_range."""
-
-    def __init__(self) -> None:
-        self.addresses: collections.Counter[str] = collections.Counter()
-        self.postal_codes: collections.Counter[tuple[str, str]] = collections.Counter()
-        self.streets: collections.Counter[tuple[str, str]] = collections.Counter()
-        self.numbers: collections.Counter[tuple[int, bool]] = collections.Counter()
-
+class Tally(geo.Counts):
     def add(self, row: Mapping[str, str], register: Register, n: int) -> None:
         """Counts an address as n, where it has a postal code and the register holds its locality."""
         locality = row["GYV_KODAS"]
         if not row["PASTO_KODAS"] or locality not in register.localities:
             return
-        self.addresses[locality] += n
-        self.postal_codes[(locality, row["PASTO_KODAS"])] += n
-        number = house_number(row["NR"])
-        if number and row["GAT_KODAS"] in register.streets:
-            self.streets[(locality, register.streets[row["GAT_KODAS"]])] += n
-            self.numbers[geo.number_range(*number)] += 1
+        self.count(locality, row["PASTO_KODAS"], n, register.streets.get(row["GAT_KODAS"]), house_number(row["NR"]))
 
 
 def premises(rows: Iterable[Mapping[str, str]]) -> collections.Counter[str]:
@@ -113,11 +98,7 @@ def weighed(register: Register, counted: Tally, residents: Mapping[str, int]) ->
     municipality_of = {code: row["municipality"] for code, row in register.localities.items()}
     for code, n in geo.populations(counted.addresses, municipality_of, {}, residents).items():
         register.localities[code]["population"] = n
-    for row in register.regions.values():
-        row["population"] = 0
-    for code, municipality in register.municipalities.items():
-        municipality["population"] = residents[code]
-        register.regions[municipality["region"]]["population"] += residents[code]
+    geo.sum_people(register.regions, register.municipalities, residents)
 
 
 def table(cache: Path, name: str, first_column: str) -> Iterator[dict[str, str]]:
@@ -132,9 +113,7 @@ def main() -> None:
     register = Register(table(cache, "adr_apskritys", "ADM_KODAS"), table(cache, "adr_savivaldybes", "SAV_KODAS"), table(cache, "adr_gyvenamosios_vietoves", "GYV_KODAS"), table(cache, "adr_gatves", "GAT_KODAS"))
     counted = tally(table(cache, "adr_stat_lr", "SAV_KODAS"), register, premises(table(cache, "adr_pat_lr", "SAV_KODAS")))
     weighed(register, counted, residents(json.loads(source.fetch(RESIDENTS, cache, f"municipality-residents-{YEAR}.json", magic=b"{"))))
-    streets = geo.top_streets(counted.streets, a.street_share, a.min_streets, "addresses")
-    geo.write_by_code(out, register.regions, register.municipalities, {c: row for c, row in register.localities.items() if "population" in row}, counted.postal_codes, streets)
-    (out / "address.json").write_text(geo.address_json(counted.numbers), encoding="utf-8")
+    geo.write_counted(out, a, register.regions, register.municipalities, register.localities, counted)
 
 
 if __name__ == "__main__":

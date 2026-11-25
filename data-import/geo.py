@@ -111,6 +111,42 @@ def invented_streets(recalled: str) -> list[Row]:
     return [{"name": name} for name in sorted(names)]
 
 
+class Counts:
+    """What a country's addresses count: per locality, its addresses, its postal codes and its streets; and over them
+    all, the house numbers by number_range."""
+
+    def __init__(self) -> None:
+        self.addresses: collections.Counter[str] = collections.Counter()
+        self.postal_codes: collections.Counter[tuple[str, str]] = collections.Counter()
+        self.streets: collections.Counter[tuple[str, str]] = collections.Counter()
+        self.numbers: collections.Counter[tuple[int, bool]] = collections.Counter()
+
+    def count(self, locality: str, postal_code: str, n: int, street: str | None, number: tuple[int, bool] | None) -> None:
+        """Counts an address as n of its locality and postal code, and of its street where it has a street and a house
+        number. The house number counts once, however large n is."""
+        self.addresses[locality] += n
+        self.postal_codes[(locality, postal_code)] += n
+        if street and number:
+            self.streets[(locality, street)] += n
+            self.numbers[number_range(*number)] += 1
+
+
+def house_number(pattern: re.Pattern[str], text: str) -> tuple[int, bool] | None:
+    """The house number pattern's first group holds, and whether its second group holds a letter, or None where the
+    text doesn't match."""
+    m = pattern.match(text)
+    return (int(m[1]), bool(m[2])) if m else None
+
+
+def sum_people(regions: Mapping[str, Row], municipalities: Mapping[str, Row], people: Mapping[str, int]) -> None:
+    """Gives each municipality its code's people and each region the sum of those of its municipalities."""
+    for row in regions.values():
+        row["population"] = 0
+    for code, municipality in municipalities.items():
+        municipality["population"] = people[code]
+        regions[municipality["region"]]["population"] += people[code]
+
+
 def top_streets[K](count: Mapping[tuple[K, str], int], share: float, minimum: int, column: str) -> dict[K, list[Row]]:
     """count maps (locality, street name) to a count. Returns, per locality, rows for its most-counted names, share of
     them rounded up and at least minimum, ties broken by name; each row holds its count under column."""
@@ -268,3 +304,11 @@ def write_by_code[K](out: Path, regions: Mapping[str, Row], municipalities: Mapp
     rows = sorted((row for locality in kept["locality"] for row in of[locality]), key=lambda r: r["locality"])
     point = ["lat", "lon"] if any("lat" in row for row in localities.values()) else []
     write_tables(out, kept, rows, streets, region=["code", "name", "population", "timezone"], municipality=["code", "name", "region", "population"], locality=["code", "name", "municipality", "population", *point])
+
+
+def write_counted(out: Path, args: argparse.Namespace, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[str, Row], counted: Counts, **address: str) -> None:
+    """Writes a country's tables by write_by_code, from the localities that hold a population, and its address.json
+    from the counted house numbers. A keyword goes to address_json."""
+    streets = top_streets(counted.streets, args.street_share, args.min_streets, "addresses")
+    write_by_code(out, regions, municipalities, {c: row for c, row in localities.items() if "population" in row}, counted.postal_codes, streets)
+    (out / "address.json").write_text(address_json(counted.numbers, **address), encoding="utf-8")
