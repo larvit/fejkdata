@@ -8,6 +8,10 @@
 
 `Next ID = 597`
 
+## Renamed
+
+- 0.8.1 renamed to 0.9.0
+
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
