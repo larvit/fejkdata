@@ -19,7 +19,6 @@
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
 | 155 | 0.9.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.3 |
-| 560 | 0.9.0 |  |  | **Keep a name with a one-letter part before an apostrophe, such as `O'Brien` or `N'Diaye`, in every name import.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 4, 2.1 by 2 | 3.3 |
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
@@ -27,11 +26,11 @@
 | 556 | 0.9.0 |  |  | **Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.** | 2 | 1 | 2 | 3 | 3 | 1 by 4 | 1.9 |
 | 557 | 0.9.0 | 556 |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
 | 566 | 0.9.0 |  |  | **Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.** | 2 | 1 | 2 | 3 | 2 | 1 by 2, 5 by 2 | 2.2 |
-| 561 | 0.9.0 | 560 |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
+| 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
 | 564 | 0.9.0 |  |  | **Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 2 | 1.7 |
-| 562 | 0.9.0 | 560, 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
+| 562 | 0.9.0 | 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 558 | 0.9.0 |  |  | **Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.** | 2 | 1 | 2 | 3 | 5 | 1 by 3, 2.1 by 4 | 1.2 |
 | 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
@@ -272,23 +271,6 @@ Make the geo imports share what they repeat in `data-import/geo.py`, so a new co
 ### 155. Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.
 
 `{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn.
-
-### 560. Keep a name with a one-letter part before an apostrophe, such as `O'Brien` or `N'Diaye`, in every name import.
-
-`tsv.NAME` asks for two letters in each part, so it drops `O'BRIEN`, `O’BRIEN`, `D'ANGELO` and `N'DIAYE` where the source holds them. A lone initial must still be dropped. Take both apostrophes, and write one of them in the data. Re-import the tables that read it. A test feeds `tsv.NAME` each spelling. The pages that admit the drop, `docs/locales/fr_FR.md` and `DATA-LICENSES.md`, lose that claim. A last-name that also runs through `cased` or `capitalised` must come out as `O'Brien`.
-
-Touches:
-
-- `data-import/tsv.py`: `NAME`
-- `data-import/names-se.py`: `cased` (small)
-- `data-import/names-fr.py`: `capitalised`, `surname` (small)
-- `data/sv_SE/last-name.tsv`
-- `data/fr_FR/first-name.tsv`
-- `data/fr_FR/last-name.tsv`
-- `data/fi_FI/last-name.tsv`
-- `data/nb_NO/last-name.tsv`
-- `docs/locales/fr_FR.md`
-- `DATA-LICENSES.md`
 
 ### 256. Add `misc.bic`, built by its structure rules.
 
