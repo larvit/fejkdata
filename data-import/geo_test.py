@@ -454,20 +454,32 @@ class SumPeople(unittest.TestCase):
 
 
 class WriteCounted(unittest.TestCase):
-    def test_it_writes_the_tables_of_the_localities_with_a_population_and_the_address_from_the_counted_numbers(self) -> None:
+    def written(self, args: argparse.Namespace, **address: str) -> dict[str, str]:
         regions = {"1": {"code": "1", "name": "Nord", "population": 9, "timezone": "Europe/Riga"}}
         municipalities = {"01": {"code": "01", "name": "By", "region": "1", "population": 9}}
         localities: dict[str, geo.Row] = {"A": {"code": "A", "name": "Alby", "municipality": "01", "population": 9}, "B": {"code": "B", "name": "Borg", "municipality": "01"}}
         counts = geo.Counts()
-        counts.count("A", "1000", 2, "Gade", (12, True))
+        for street, n in (("Gade", 3), ("Vej", 1), ("Allé", 1)):
+            counts.count("A", "1000", n, street, (12, True))
         counts.count("B", "2000", 1, "Vej", (3, False))
-        args = argparse.Namespace(street_share=1.0, min_streets=10)
         with tempfile.TemporaryDirectory() as d:
-            geo.write_counted(Path(d), args, regions, municipalities, localities, counts, letter="{lower(1)}")
-            written = {t: (Path(d) / t).read_text(encoding="utf-8") for t in ("locality.tsv", "street.tsv", "address.json")}
+            geo.write_counted(Path(d), args, regions, municipalities, localities, counts, **address)
+            return {t: (Path(d) / t).read_text(encoding="utf-8") for t in ("locality.tsv", "street.tsv", "address.json")}
+
+    def test_it_writes_the_localities_with_a_population_and_the_streets_street_share_keeps(self) -> None:
+        written = self.written(argparse.Namespace(street_share=0.5, min_streets=1))
         self.assertEqual(written["locality.tsv"], "code\tname\tmunicipality\tpopulation\nA\tAlby\t01\t9\n")
-        self.assertEqual(written["street.tsv"], "name\tlocality\taddresses\nGade\tA\t2\n")
-        self.assertEqual(written["address.json"], geo.address_json(collections.Counter({(1, True): 1, (0, False): 1}), "{lower(1)}"))
+        self.assertEqual(written["street.tsv"], "name\tlocality\taddresses\nGade\tA\t3\nAllé\tA\t1\n")
+
+    def test_it_keeps_at_least_min_streets_streets(self) -> None:
+        written = self.written(argparse.Namespace(street_share=0.1, min_streets=3))
+        self.assertEqual(written["street.tsv"].count("\n"), 4)
+
+    def test_the_address_weighs_its_house_numbers_by_the_counted_ones_and_prints_the_layout_and_letter_given(self) -> None:
+        address = self.written(argparse.Namespace(street_share=1.0, min_streets=1), letter="{lower(1)}", layout="{street}")["address.json"]
+        self.assertIn('"format": "{street}"', address)
+        self.assertIn('{ "format": "{int(10,99)}{lower(1)}", "weight": 3 }', address)
+        self.assertIn('{ "format": "{int(1,9)}", "weight": 1 }', address)
 
 
 if __name__ == "__main__":
