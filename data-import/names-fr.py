@@ -11,7 +11,7 @@
 - The last names are the "Fichier des noms": the births of 1891 to 2000, each name's counts over its decades
   added up. INSEE writes them without accents, so `Lefevre` counts the bearers of `Lefèvre` too. The top N names
   by count stay (5000).
-- Both drop a name that `tsv.NAME` says is not a name in letters. A name such as `N'Diaye` stays, with the ASCII apostrophe.
+- Both drop a name that `tsv.NAME` says is not a name in letters.
 - INSEE writes names in capitals. Each part of a name, split at a hyphen, a space or an apostrophe, is
   capitalised, but in a last name `da`, `de` and `dos` stay in lower case before another part.
 """
