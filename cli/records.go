@@ -17,6 +17,7 @@ type recordFormat struct {
 	write  func(record recordSource, repeat int, table string, out *bufio.Writer) error
 	empty  func(*fejkdata.Record) string // nil where zero records print nothing
 	target string                        // what --table names under this format, "" where it does nothing
+	nulls  string                        // what it writes for a null column, which --null-text would seem to set
 }
 
 // SQL Server refuses a VALUES list above 1000 rows (error 10738).
@@ -31,20 +32,23 @@ var recordFormats = map[string]recordFormat{
 	},
 	"json": {
 		writes: "writes the records as one JSON array",
+		nulls:  "writes null",
 		write:  recordLines{line: (*fejkdata.Record).JSON, open: "[", close: "]", sep: ",\n"}.write,
 		empty:  func(*fejkdata.Record) string { return "[]\n" },
 	},
 	"ndjson": {
 		writes: "writes one record per line",
+		nulls:  "writes null",
 		write:  recordLines{line: (*fejkdata.Record).JSON, sep: "\n"}.write,
 	},
 	"tsv": {
 		writes: "always separates fields with a tab",
+		nulls:  "writes a null as an empty cell",
 		write:  recordLines{header: (*fejkdata.Record).TSVHeader, line: (*fejkdata.Record).TSVLine, sep: "\n"}.write,
 		empty:  func(r *fejkdata.Record) string { return r.TSVHeader() + "\n" },
 	},
-	"pgcopy": {writes: "always separates fields with a tab", write: writePGCopy, target: "COPY"},
-	"sql":    {writes: "writes one INSERT per line", write: writeSQL, target: "INSERT"},
+	"pgcopy": {writes: "always separates fields with a tab", nulls: `writes \N`, write: writePGCopy, target: "COPY"},
+	"sql":    {writes: "writes one INSERT per line", nulls: "writes NULL", write: writeSQL, target: "INSERT"},
 }
 
 // formatNames lists the --format values, text included, for the misuse error.
@@ -81,10 +85,22 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 		return err
 	}
 	format := recordFormats[in.format]
+	if in.nullSet {
+		format.write = csvLines(in.nullText).write
+	}
 	if in.repeat == 0 {
 		return writeNoRecord(record, format, w)
 	}
 	return format.write(record, in.repeat, table, bufio.NewWriter(w))
+}
+
+// csvLines writes csv rows with a null column spelled null.
+func csvLines(null string) recordLines {
+	return recordLines{
+		header: (*fejkdata.Record).CSVHeader,
+		line:   func(r *fejkdata.Record) string { return r.CSVLineNull(null) },
+		sep:    "\n",
+	}
 }
 
 // recordLines writes each record on a line of its own, framed by open and close, with the header

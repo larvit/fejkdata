@@ -79,8 +79,10 @@ or line break in a value as a space.
       --format F         output form: text (default), json, ndjson, csv, tsv, pgcopy or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, each written after {/ in a template, then exit;
-                         --repeat, --separator, --format and --table do nothing here
+                         --repeat, --separator, --format, --table and --null-text do nothing here
       --no-shipped-data  load only the --data-path directories
+      --null-text T      the text --format csv writes for a null column, and quotes in a value equal to it
+                         (default: an empty field); refused under any other format
   -n, --repeat N         render the template N times, 0..1048576 (default 1); 0 prints nothing,
                          [] under --format json, or the header under --format csv or tsv
   -s, --seed N           same seed, date, data and versions: identical output (default: a random seed)
@@ -105,6 +107,8 @@ type invocation struct {
 	help         bool
 	list         bool
 	noShipped    bool
+	nullSet      bool
+	nullText     string
 	repeat       int
 	seed         uint64
 	seeded       bool

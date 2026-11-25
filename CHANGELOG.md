@@ -15,6 +15,7 @@ with its replacement, and each removed path, column or flag.
 ### Added
 
 - `fr_FR.first-name` has the row `M'Hamed` and `fr_FR.last-name` the row `N'Diaye`. The name imports used to drop a name with a one-letter part before an apostrophe, such as `N'Diaye`, and now keep it, written with the ASCII apostrophe. A lone initial is still dropped.
+- `--null-text T` sets the text `--format csv` writes for a null column, such as `NULL`, which MySQL's `LOAD DATA` reads as null. `csv` quotes a string equal to it, so it loads as text. Any other `--format` refuses the flag. In Go, `Record.CSVLineNull(null)` does the same for one record.
 
 ### Changed
 

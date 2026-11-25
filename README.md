@@ -273,8 +273,9 @@ these paths; a template reads one as `{/path}`.
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` or `tsv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv`, `pgcopy` or `sql` — a record's columns, one record per row (json frames them as an array) |
+| `--null-text T` | the text `--format csv` writes for a null column, with a string equal to it quoted (default: an empty field); refused under any other format |
 | `--table T` | the INSERT or COPY target for `--format sql` or `pgcopy`, ignored under any other (default: a lone reference's final name, selectors left out, such as `users` for `{/users}`, else `records`) |
-| `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
+| `--list` | print every path, then exit; `--repeat`, `--separator`, `--format`, `--table` and `--null-text` do nothing here |
 | `--version`, `-h`, `--help` | print, then exit |
 
 `--name value` and `--name=value` both work, a short flag's value attaches or
@@ -1051,6 +1052,11 @@ renders a null as `""`. The other items' weights skew its odds:
 `deleted_at` is null every draw, `middle` a name three draws in four. Anywhere but a
 column, `null` renders `""`. Rejected at load: a column whose items hold different
 datatypes. A read through a name keeps the null too ([Datatype](#datatype)).
+
+To load `csv` into MySQL, which reads an empty field as an empty string and
+an unquoted `NULL` as null, add `--null-text NULL`: `csv` writes `NULL` for a null and quotes a string
+equal to it, as `"NULL"`. Don't use `\N`: MySQL reads it as null only under its default escaping, which also turns
+the value `b\c` into `bc`. Any other `--format` refuses the flag, and in Go `Record.CSVLineNull` takes the text.
 
 ### Hidden
 
