@@ -312,6 +312,28 @@ func TestRecordWritesTypedAndNullColumns(t *testing.T) {
 	}
 }
 
+func TestRecordCSVLineNullSpellsANullAndQuotesAValueEqualToIt(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"row": `{"format":"","age":{"format":"42","datatype":"integer"},"gone":null,"name":"NULL","nick":"","note":"x, y"}`,
+	})
+	r, err := newGenerator(t, dir, WithSeed(1)).FakeRecord("row")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range []struct{ null, want string }{
+		{"", `42,,NULL,"","x, y"`},
+		{"NULL", `42,NULL,"NULL","","x, y"`},
+		{`\N`, `42,\N,NULL,"","x, y"`},
+	} {
+		if got := r.CSVLineNull(c.null); got != c.want {
+			t.Errorf("CSVLineNull(%q) = %s, want %s", c.null, got, c.want)
+		}
+	}
+	if got, want := r.CSVLine(), r.CSVLineNull(""); got != want {
+		t.Errorf("CSVLine() = %s, want CSVLineNull(\"\") = %s", got, want)
+	}
+}
+
 func TestRecordColumnsReadingOneReferenceLoad(t *testing.T) {
 	cat := `{"format":"{a}","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`
 	mid := `"{/cat.a}"`
