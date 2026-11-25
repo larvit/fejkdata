@@ -1529,7 +1529,9 @@ slugs joined by `.` form a valid local part.
 A letter outside the table splits the name at that letter; a name whose letters are all
 outside the table slugs to the empty string. A locale whose names need such letters
 romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own.
-`todo.md` item 345 asks whether the scripts of the planned locales change that.
+On 2026-11-25 the maintainer confirmed this for scripts such as Han, Devanagari, Arabic and
+Bengali: the locale ships a romanized column beside each name, such as pinyin or ISO 15919,
+and its emails read that column.
 
 Valid while every non-ASCII letter of a shipped first or last name has an entry in `ascii`'s
 table, which `TestAsciiFoldsEveryShippedNameLetter` checks, and RFC 5322 keeps letters, digits and
