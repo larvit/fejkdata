@@ -6,13 +6,14 @@
 
 `Bar = 0`
 
-`Next ID = 560`
+`Next ID = 596`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 553 | 0.8.1 |  | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
+| 345 | 0.9.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 3.1 |
 | 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
@@ -20,16 +21,26 @@
 | 252 | 0.9.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
+| 565 | 0.9.0 |  |  | **Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.** | 1 | 1 | 2 | 2 | 2 | 1 by 2, 2.1 by 2 | 2.3 |
+| 560 | 0.9.0 |  |  | **Keep a name with a one-letter part before an apostrophe, such as `O'Brien` or `N'Diaye`, in every name import.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 4, 2.1 by 2 | 2.3 |
 | 556 | 0.9.0 |  |  | **Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.** | 2 | 1 | 2 | 3 | 3 | 1 by 4 | 1.9 |
 | 557 | 0.9.0 | 556 |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
+| 566 | 0.9.0 |  |  | **Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.** | 2 | 1 | 2 | 3 | 2 | 1 by 2, 5 by 2 | 2.2 |
+| 563 | 0.9.0 |  |  | **Make `misc.territory[KZ].capital` render `Astana`.** | 1 | 1 | 1 | 1 | 1 | 3 by 3 | 1.9 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
 | 558 | 0.9.0 |  |  | **Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.** | 2 | 1 | 2 | 3 | 5 | 1 by 3, 2.1 by 4 | 1.2 |
 | 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
+| 561 | 0.9.0 | 560 |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 3 | 1.1 |
+| 562 | 0.9.0 | 560, 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 3.2 by 3 | 0.8 |
+| 564 | 0.9.0 |  |  | **Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 0.8 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
+| 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
+| 569 | 0.10.0 | 567 |  | **Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.** | 1 | 2 | 1 | 2 | 3 | 1 by 4, 2.1 by 3 | 3.1 |
+| 568 | 0.10.0 | 567 |  | **Ship odd Latin-script names: one name, one letter, over 100 characters, particles, apostrophes, two surnames, display orders, and words such as `Null`.** | 1 | 2 | 1 | 2 | 3 | 1 by 4, 2.1 by 2 | 2.7 |
 | 220 | 0.10.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.7 |
 | 30 | 0.10.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 2.6 |
 | 534 | 0.10.0 |  | owner | **Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.6 |
@@ -41,6 +52,7 @@
 | 389 | 0.10.0 |  |  | **Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2 by 1, 3 by 2 | 2.2 |
 | 530 | 0.10.0 |  |  | **Draw `en_US.ssn` from the series the SSA never issues, area `000`, `666` or `900` to `999`, and say in the README which checker refuses it.** | 2 | 2 | 2 | 4 | 3 | 3.3 by 6 | 2.2 |
 | 406 | 0.10.0 |  |  | **Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.** | 2 | 1 | 1 | 2 | 2 | 1 by 2, 4 by 2 | 2.2 |
+| 570 | 0.10.0 | 567 |  | **Ship odd valid emails, and invalid ones under an `invalid` path.** | 1 | 1 | 1 | 1 | 3 | 1 by 3, 3 by 2 | 2.2 |
 | 260 | 0.10.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.1 |
 | 261 | 0.10.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.1 |
 | 164 | 0.10.0 |  |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 4 by 3 | 2.1 |
@@ -78,7 +90,9 @@
 | 51 | 0.10.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.6 |
 | 115 | 0.10.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.6 |
 | 522 | 0.10.0 |  | decision | **Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.** | 2 | 2 | 2 | 4 | 4 | 3.2 by 6 | 1.5 |
+| 572 | 0.10.0 | 567 |  | **Ship the Big List of Naughty Strings by kind, with Unicode edge cases, complex emoji and text that looks like another type.** | 2 | 1 | 1 | 2 | 4 | 1 by 4, 3.2 by 1 | 1.5 |
 | 259 | 0.10.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 1.5 |
+| 571 | 0.10.0 | 567 |  | **Ship odd dates, prices and numbers at their boundaries.** | 1 | 1 | 1 | 1 | 3 | 1 by 3 | 1.4 |
 | 267 | 0.10.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.4 |
 | 32 | 0.10.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.3 |
 | 264 | 0.10.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.3 |
@@ -91,6 +105,7 @@
 | 163 | 0.10.0 |  |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 1 | 2 | 3 | 2 | 1 by 2 | 1.3 |
 | 194 | 0.10.0 |  | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 5 by 4 | 1.2 |
 | 496 | 0.10.0 |  |  | **Name each `geo.DE` Kreis in one style, as Destatis's Gemeindeverzeichnis names it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 2 | 1.2 |
+| 573 | 0.10.0 | 567, 568, 569, 570, 571, 572 |  | **Map each falsehood about names, addresses, emails, dates and text to the path that tests it in `docs/edge-cases.md`, and show in the README how to mix odd values in.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 2 | 1.2 |
 | 269 | 0.10.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.2 |
 | 161 | 0.10.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.1 |
 | 497 | 0.10.0 |  | owner | **Draw every word of each locale's `word` tables from its dictionary, rude words included.** | 3 | 2 | 2 | 5 | 6 | 3.2 by 2, code health by 2 | 1.0 |
@@ -114,16 +129,38 @@
 | 186 | 0.10.0 |  | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 4 | 1 | 3 | 6 | 7 | 1 by 3 | 0.2 |
 | 67 | 0.11.0 |  |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 2 | 2 | code health by 2 | 5.2 |
 | 64 | 0.11.0 |  |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 2 | 1 | 2 | 4 | code health by 2 | 2.6 |
+| 578 | 0.11.0 | 567 |  | **Draw number ranges, fractions, `bis`, `ter` and `quater`, and house names as odd house numbers.** | 2 | 1 | 2 | 3 | 3 | 2.1 by 2, 1 by 3 | 2.2 |
+| 576 | 0.11.0 |  |  | **Offer a gender value that can be nonbinary, undisclosed or unknown, beside the two-valued `sex` that names and ids read.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 2.1 by 1 | 1.8 |
+| 577 | 0.11.0 |  |  | **Draw apartments, floors, staircases, c/o and company lines, PO boxes and poste restante as optional address parts in each country.** | 3 | 2 | 2 | 5 | 6 | 2.1 by 5, 1 by 4 | 0.9 |
+| 580 | 0.11.0 | 577 |  | **Offer addresses of one, three, four and five lines, with and without a country line.** | 2 | 1 | 2 | 3 | 3 | 2.1 by 2, 1 by 2 | 1.8 |
+| 583 | 0.11.0 | 567 |  | **Draw `en_US.phone.international`, and ship odd phone numbers: extensions, vanity letters, `00` prefixes, odd spacing, non-ASCII digits, and invalid ones.** | 2 | 2 | 2 | 4 | 4 | 2.1 by 2, 1 by 3 | 1.5 |
+| 581 | 0.11.0 | 567 |  | **Ship odd addresses from countries outside the shipped ones.** | 1 | 2 | 1 | 2 | 3 | 1 by 3 | 1.4 |
+| 584 | 0.11.0 |  |  | **Draw a datetime in any zone with its true offset that day, and the local times that a clock change skips or repeats.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 3 by 3 | 1.4 |
 | 62 | 0.11.0 |  |  | **Add `{btc()}` and `{eth()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 2 by 2, 3 by 2 | 1.4 |
+| 582 | 0.11.0 | 567 |  | **Draw the longest, the shortest and the non-ASCII places, and the postal codes that many places share, by path.** | 2 | 1 | 1 | 2 | 3 | 1 by 2, 3 by 1 | 1.3 |
+| 574 | 0.11.0 |  |  | **Draw a middle name, an initial, a suffix and a title after the name in each locale's `person` where people there use them.** | 3 | 1 | 2 | 4 | 5 | 2.1 by 4, 1 by 3 | 1.2 |
+| 575 | 0.11.0 |  |  | **Offer a person's previous, preferred and legal name as values that agree with the person.** | 2 | 1 | 2 | 3 | 4 | 2.1 by 2, 1 by 2 | 1.2 |
+| 579 | 0.11.0 |  |  | **Ship localities with no street, with an address that names the locality and a number.** | 3 | 2 | 2 | 5 | 5 | 2.1 by 3, 3.2 by 2 | 0.8 |
 | 59 | 0.11.0 |  |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 0.8 |
 | 63 | 0.11.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 3 by 6 | 0.7 |
 | 65 | 0.11.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.5 |
+| 587 | 0.12.0 | 567 | question | **Decide whether an `--edge 5%` flag mixes odd values into any template, once the odd-value tables have been in use.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
 | 205 | 0.12.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
 | 327 | 0.12.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
+| 589 | 0.12.0 | 566, 572 |  | **Load every odd value into PostgreSQL and MySQL from each format in the merge gate, and compare what comes back.** | 2 | 1 | 1 | 2 | 4 | 3 by 2, code health by 2 | 3.1 |
 | 326 | 0.12.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.2 |
+| 593 | 0.12.0 | 567 |  | **Ship national ids, IBANs and cards with a bad checksum or wrong length under an `invalid` path, and French NIRs of people born abroad.** | 2 | 1 | 1 | 2 | 4 | 1 by 4, 3 by 2 | 1.8 |
 | 328 | 0.12.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
+| 585 | 0.12.0 |  |  | **Add `nfc` and `nfd` transforms.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.3 |
+| 591 | 0.12.0 | 567 |  | **Ship skipped days and ambiguous date spellings.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
+| 592 | 0.12.0 | 567 |  | **Ship odd company names, such as `! LTD`, script-like names, emoji, digits only and very long ones.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
 | 324 | 0.12.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.2 |
 | 325 | 0.12.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.1 |
+| 590 | 0.12.0 | 567 |  | **Ship odd URLs, file names, version numbers and IP spellings.** | 1 | 1 | 1 | 1 | 3 | 1 by 2 | 0.9 |
+| 595 | 0.12.0 |  |  | **Let a CLI flag make CSV cells that start a spreadsheet formula harmless.** | 2 | 1 | 2 | 3 | 3 | 1 by 2 | 0.9 |
+| 588 | 0.12.0 | 567 |  | **Draw each row of a table exactly once, so a test run covers every odd value rather than some by chance.** | 3 | 1 | 2 | 4 | 5 | 1 by 4, 4 by 1 | 0.9 |
+| 594 | 0.12.0 |  |  | **Give `misc.territory` every currency and calling code a territory uses, and add Kosovo and Antarctica.** | 3 | 2 | 2 | 5 | 5 | 3.2 by 3, 1 by 2 | 0.8 |
+| 586 | 0.12.0 |  |  | **Add transforms that make a value messy: stray spaces, doubled spaces, a case flip, a typo and broken encoding.** | 2 | 1 | 2 | 3 | 5 | 1 by 4 | 0.8 |
 | 472 | 0.13.0 |  | question | **Decide how the shipped data is split into files and modules before it reaches the first size wall.** | 1 | 2 | 1 | 2 | 1 | 2 by 3 | 2.0 |
 | 466 | 0.13.0 |  | decision | **Number a pick's memo slots at load and index child rows by parent row, so a render allocates no per-pick map.** | 3 | 1 | 2 | 4 | 5 | 12.3 by 4, 12.1 by 2 | 3.0 |
 | 471 | 0.13.0 |  | decision | **Prove each shipped module in its own test package, so the test cache skips the data that didn't change.** | 2 | 2 | 1 | 3 | 4 | code health by 2, 1 by 1 | 2.9 |
@@ -144,7 +181,6 @@
 | 362 | 1.2.0 | 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 1.8 |
 | 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 5 | 1.2 by 4 | 0.7 |
 | 363 | 1.2.0 | 360, 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
-| 345 | 1.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 3.1 |
 | 86 | 1.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.2 |
 | 154 | 1.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
 | 243 | 1.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
@@ -230,6 +266,18 @@ The maintainer does this item, not a chunk: each step speaks for the project in 
 
 Item 548's monthly table shows whether each step moved what LLMs answer.
 
+### 345. Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.
+
+The decision "A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds" says: "A locale whose names need such letters romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own." This may conflict with goal 3.3, values look real. It may also conflict with items 206 (`zh_CN`), 207 (`hi_IN`), 209 (`ar_EG`) and 211 (`bn_BD`), whose names are in Han, Devanagari, Arabic or Bengali script. Such names slug to the empty string, so `{slugify(first)}.{slugify(last)}@example.com` becomes `.@example.com`.
+
+The options to put to the maintainer:
+
+1. A locale ships a romanized column beside each name for its email, such as pinyin or ISO 15919.
+2. `slugify` gets a transliteration table beyond `ascii`'s.
+3. A locale's email draws from a username-like category that holds no names.
+
+The answer goes into `docs/decisions.md`. Option 1 also changes the locales' data, and option 2 the code of `slugify`.
+
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
 `compose.yaml`'s `mutate` runs Gremlins without `--coverpkg`, so its coverage step credits a line under `internal/` only to its own package's tests. The engine's behaviour is tested mostly from the root package, so on item 462's branch all 31 mutants of `internal/engine/…` printed `NOT COVERED`, with `Mutator coverage: 0.00%`, and a reader could take that for nothing to kill.
@@ -268,6 +316,36 @@ A template; the structure rules are facts.
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
 
+### 565. Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.
+
+Today they give `Nguyn` and `Dng`, and `slugify` gives `nguy-n` and `d-ng`. Vietnamese family names are common in several shipped countries. Find a published folding table, such as Unicode's decompositions, rather than listing letters by hand. Revise the decision "`ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`".
+
+Touches:
+
+- `internal/builtinfunc/transform.go`
+- `internal/builtinfunc/builtinfunc_test.go`
+- `transform_test.go`
+- `README.md`: `### Transforms`
+- `docs/decisions.md`
+- `CHANGELOG.md`
+
+### 560. Keep a name with a one-letter part before an apostrophe, such as `O'Brien` or `N'Diaye`, in every name import.
+
+`tsv.NAME` asks for two letters in each part, so it drops `O'BRIEN`, `O’BRIEN`, `D'ANGELO` and `N'DIAYE` where the source holds them. A lone initial must still be dropped. Take both apostrophes, and write one of them in the data. Re-import the tables that read it. A test feeds `tsv.NAME` each spelling. The pages that admit the drop, `docs/locales/fr_FR.md` and `DATA-LICENSES.md`, lose that claim. A last-name that also runs through `cased` or `capitalised` must come out as `O'Brien`.
+
+Touches:
+
+- `data-import/tsv.py`: `NAME`
+- `data-import/names-se.py`: `cased` (small)
+- `data-import/names-fr.py`: `capitalised`, `surname` (small)
+- `data/sv_SE/last-name.tsv`
+- `data/fr_FR/first-name.tsv`
+- `data/fr_FR/last-name.tsv`
+- `data/fi_FI/last-name.tsv`
+- `data/nb_NO/last-name.tsv`
+- `docs/locales/fr_FR.md`
+- `DATA-LICENSES.md`
+
 ### 556. Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.
 
 From a user loading 700,000 rows into MySQL. `LOAD DATA` reads an unquoted empty field as an empty string, so each nullable column needed a `NULLIF`.
@@ -295,6 +373,28 @@ The example sets item 556's flag to `NULL`, and `FIELDS TERMINATED BY ',' OPTION
 Touches:
 
 - `README.md`: `### Load into a database`
+
+### 566. Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.
+
+A NUL passes raw into csv, tsv, sql and pgcopy, and PostgreSQL's text cannot hold one. The refusal needs the render to report an error, so check what the public API allows before 1.0.0; if it cannot, document it instead. `TSVLine`'s comment already states the folding, the README does not.
+
+Touches:
+
+- `record.go`: `sqlString`, `pgCopyCell`, `Record.TSVLine`
+- `record_test.go`
+- `cli/records.go`
+- `README.md`: `### Records`, `### Load into a database`
+- `CHANGELOG.md`
+
+### 563. Make `misc.territory[KZ].capital` render `Astana`.
+
+It renders `Nur-Sultan`, which the city has not been called since 2022. The source CSV still says so, so add a row to `FIXUPS`, and check the other capitals against a second source in the same change.
+
+Touches:
+
+- `data-import/territory.py`: `FIXUPS` (small)
+- `data/misc/territory.tsv`
+- `CHANGELOG.md`
 
 ### 551. Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.
 
@@ -362,6 +462,56 @@ The shipped data is 59 MB under `data/`, so the WebAssembly carrying all of it i
 
 The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
 
+### 561. Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.
+
+Each import keeps the top 2,000 first names per sex and the top 5,000 last names, or about that. The rare names are often the odd ones: with particles, hyphens, apostrophes or foreign letters. Measure what each lower cutoff adds in bytes and in share of people. `TestShippedDataStaysUnder100MiB` bounds it. Never ship a name with so few bearers that it points at a person: choose that floor and record it.
+
+Touches:
+
+- `data-import/names-se.py`: `main` (small)
+- `data-import/names-fi.py`: `main` (small)
+- `data-import/names-fr.py`: `main` (small)
+- `data-import/names-us.py`: `main` (small)
+- `data/sv_SE/first-name.tsv`
+- `data/sv_SE/last-name.tsv`
+- `data/fi_FI/first-name.tsv`
+- `data/fi_FI/last-name.tsv`
+- `data/fr_FR/first-name.tsv`
+- `data/fr_FR/last-name.tsv`
+- `data/en_US/first-name.tsv`
+- `data/en_US/last-name.tsv`
+- `docs/decisions.md`
+
+### 562. Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.
+
+The US Census file holds letters only, so `Obrien`, `Dangelo`, `Delacruz` and `Stjohn` ship and are listed as real. INSEE's surname file holds no accents, so `Lefevre` and `Francois` ship. Look for an open source of the written forms with counts, such as Wikidata's family names, and use it to restore a spelling only where it is the common one. Where no source settles a name, leave it as it is, and say so on the locale's page.
+
+Touches:
+
+- `data-import/names-us.py`: `surname`, `main` (small)
+- `data-import/names-fr.py`: `surname`
+- `data/en_US/last-name.tsv`
+- `data/fr_FR/last-name.tsv`
+- `docs/locales/en_US.md`
+- `docs/locales/fr_FR.md`
+- `DATA-LICENSES.md`
+
+### 564. Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.
+
+Found by drawing: `Poste restante` as a street in 332 `geo.FI` localities, about 1 in 1,250 addresses. In `geo.SE`: `All‚vägen` (U+201A, presumably `Allévägen`), `Syre´nvägen` (a spacing acute), `Rönnerums bygata Rönnerums bygata` and `Kvartersvägar och parkeringsvägar på Lars Kaggsgatan`. In `geo.US`: `Addison Ln,`, `Village Ridge Road(Private)` and `Island Avenue (Glp)`. Put the shared check in `geo.py` with a test, and repair a name only where the register makes the right spelling certain. Keep real odd names: `S:t`, `M/S Nadias väg`, `10 1/2 St NW`, `Lidosta "Rīga"`.
+
+Touches:
+
+- `data-import/geo.py`
+- `data-import/geo_test.py`
+- `data-import/geo-fi.py`: `street_name`
+- `data-import/geo-se.py`: `street_name`
+- `data-import/geo-us.py`: `streets`
+- `data/geo/FI/street.tsv`
+- `data/geo/SE/street.tsv`
+- `data/geo/US/street.tsv`
+- `CHANGELOG.md`
+
 ### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
 
 Item 547's first coverage profile, counted across every package's tests, put the whole module at 97.6% and this package at 12 of 26 statements. It is the one package under 80%. Its tests call `generated` and never `main`: the flag parsing, the write loop and both exits are uncovered, and so are `generated`'s four error returns. Move what `main` does into a function that takes the arguments and returns an error, and test it against a temporary root folder.
@@ -373,6 +523,20 @@ Builds the decision "One run writes several linked templates through a repeated 
 Three of the bench's readers feared a category named `run` clashing with `{/run.…}`. Either reserve `run` as a root name, or refuse a category named `run` in a run that reads `{/run.…}`; record which in the decision's paragraph that names this item.
 
 `--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. `{seq(name)}` counters stay per template. Ship the first chunk with two templates, then widen. `--emit` is a new flag, so it needs a `CHANGELOG.md` entry under `Unreleased` (`AGENTS.md`) and its own README heading.
+
+### 567. Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.
+
+From a user's feedback, citing `awesome-falsehoods-programmers-believe`: people assume too much about names and addresses. The engine carries any string, but the shipped data holds few odd ones. Default draws keep their real weights; a user mixes odd values in at a weight of their own.
+
+A bench of the audience picks the spelling, and the column that names the broken assumption (working name `breaks`). Weigh a locale's own odd values, `sv_SE.edge`, against `misc`. Goal 3 has a fourth kind, invalid, so `internal/shipped` and `testdata/listing_shape.txt` need that kind word. Ship one small table with it, names, so the shape is proven. An odd value is never a real person's and reaches nothing real.
+
+### 569. Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.
+
+A handful of common real names per script, from an open source such as Wikidata, each with its script as a column. Emails built from them slug to the empty string until item 345 is answered, so say so on the page.
+
+### 568. Ship odd Latin-script names: one name, one letter, over 100 characters, particles, apostrophes, two surnames, display orders, and words such as `Null`.
+
+Cover: a single name, one letter, `O'Brien` with both apostrophes, `St. John`, `de la Cruz`, hyphenated and spaced double surnames, Spanish two-part surnames, `Null`, `True`, `Test`, digits, inner capitals, equal first and last names, a suffix, ALL CAPS, lower case, `Last, First`, and family name first. Draw from W3C's "Personal names around the world" and the names gist, and cite them.
 
 ### 534. Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.
 
@@ -464,6 +628,10 @@ Recommendation: ship the never-issued series as the default path, and keep today
 ### 406. Add a transform that writes a value escaped for a JSON string, so a text template spelling JSON stays valid whatever a drawn value holds.
 
 A record's columns are flat, so a parent with an array of children renders as a text template whose format spells JSON, such as `{{"summary":"{s}"}}`. A drawn value holding `"`, `\` or a newline breaks that JSON, as a company name or a sentence may. The transform writes the value with JSON's string escapes, beside `lowercase`, `uppercase`, `ascii` and `slugify`. A writer panel picks its name.
+
+### 570. Ship odd valid emails, and invalid ones under an `invalid` path.
+
+Valid by RFC 5321 and RFC 6531: `+tag`, capitals, apostrophe, quoted local part, 64-character local part, 254 characters in all, an internationalised domain, an IP literal. Invalid: two `@`, a trailing dot, two dots in a row, a 65-character local part. Every domain is a reserved one, and an IP literal is from a documentation range.
 
 ### 260. Add `misc.element`, `misc.unit` and `misc.planet`.
 
@@ -593,9 +761,17 @@ Ends the decision "`et_EE`'s names are a language model's recall".
 
 Change `data-import/names-ee.py` to read the office's published counts by sex and year, as `names-de.py` reads Munich's, and keep the feminine form of a Russian surname under `f`. Name the licence, its share-alike terms and the attribution in `DATA-LICENSES.md`, and say in the README's License section what share-alike data asks of a user: the table needs its attribution, and a changed copy stays CC BY-SA 4.0. Remove `et_EE.first-name` and `et_EE.last-name` from the name-table principle's list in `AGENTS.md`.
 
+### 572. Ship the Big List of Naughty Strings by kind, with Unicode edge cases, complex emoji and text that looks like another type.
+
+Check the list's licence and add it to `DATA-LICENSES.md`. Unicode: decomposed accents, zero-width, right-to-left, astral, `İ` and `ı`, `ß`, lookalikes, odd spaces. Emoji: skin tones, flags, joined families, keycaps. Lookalikes: `null`, `true`, `=1+1`, `1/2`, `MARCH1`. A tab, line break or NUL needs an escape in a TSV cell, or a JSON category. Rows with brackets or quotes need item 166 where the cell is a key. A test renders every row through every format and reads it back.
+
 ### 259. Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.
 
 Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
+
+### 571. Ship odd dates, prices and numbers at their boundaries.
+
+Dates: leap day, years 1 and 9999, ISO week 53, epoch 0 and -1, 2038, a leap second as text. Prices: 0, negative, huge, 3 and 4 decimals, accounting `(12.00)`, `1'234`, and `1 234` with a no-break space. Numbers: int32 and int64 limits, 2^53+1, `-0`, `1e400`, `NaN` as text, `007`, `1E5`.
 
 ### 267. Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.
 
@@ -640,6 +816,10 @@ Goal 5.3 has an author prove their module, and goal 8.1 has fejkdata's data load
 ### 496. Name each `geo.DE` Kreis in one style, as Destatis's Gemeindeverzeichnis names it.
 
 GeoNames spells a Kreis sometimes bare ("Heidekreis") and sometimes with its kind ("Landkreis Oberspreewald-Lausitz", "Stadt Salzgitter"), and `data-import/geo-de.py` keeps that mix, with one override for Nürnberg. Take the names, with their kind, from the Gemeindeverzeichnis by Kreis code, and drop the override.
+
+### 573. Map each falsehood about names, addresses, emails, dates and text to the path that tests it in `docs/edge-cases.md`, and show in the README how to mix odd values in.
+
+The recipe works today: `"last": ["{/sv_SE.last-name}", {"format": "O'Brien", "weight": 0.05}]`. The page is the one agents and searchers land on, so it names each assumption in words. Each later item that ships an odd value adds its row.
 
 ### 269. Add `misc.direction`, `misc.continent` and `misc.ulid`.
 
@@ -758,9 +938,53 @@ The `gh` rule opens by restating the decision "GitHub is canonical, and the modu
 
 Propose a goal for an entry that serves none.
 
+### 578. Draw number ranges, fractions, `bis`, `ter` and `quater`, and house names as odd house numbers.
+
+`4-6`, `12 1/2`, `0`, and a house name in place of a number. Letters and French `bis` ship. Put the shares that a register supports into the default draw, and the rest in the odd-value tables.
+
+### 576. Offer a gender value that can be nonbinary, undisclosed or unknown, beside the two-valued `sex` that names and ids read.
+
+`sex` stays two-valued, since the national ids need it. Find a published share of each answer where a statistics office gives one; otherwise call the weights estimates. Today only the `en_US` title `Mx` leaves the two.
+
+### 577. Draw apartments, floors, staircases, c/o and company lines, PO boxes and poste restante as optional address parts in each country.
+
+Every address today is two lines with a street and a number. Cover `lgh 1102`, `2. th`, `Apt 4B`, `bt. 12`, `as 5` and each country's own form, after the postal operator's published addressing rules. Choose shares from a register where one counts dwellings per building. A PO box has its own postal code in several countries. Split the item per country when it starts.
+
+### 580. Offer addresses of one, three, four and five lines, with and without a country line.
+
+The lines come from the same draw as the two-line form.
+
+### 583. Draw `en_US.phone.international`, and ship odd phone numbers: extensions, vanity letters, `00` prefixes, odd spacing, non-ASCII digits, and invalid ones.
+
+Follow libphonenumber's falsehoods list and E.123. Emergency and short codes appear only as text to reject, and no number reaches a subscriber. Item 23 gives the ranges that reach nobody.
+
+### 581. Ship odd addresses from countries outside the shipped ones.
+
+No postcode, Irish Eircode, Japanese blocks, `BFPO`, `APO AP`, Queens `37-12`, Mannheim `Q7, 24`. Source each form from its postal operator or the UPU. The numbers are invented.
+
+### 584. Draw a datetime in any zone with its true offset that day, and the local times that a clock change skips or repeats.
+
+`misc.timezone.offset` is standard time only, and `misc.datetime` is always UTC. Compute from the IANA database embedded in the binary. `time/tzdata` adds about 450 kB, so weigh it against goal 2.2. Seeded output must not depend on the host's zone files.
+
 ### 62. Add `{btc()}` and `{eth()}`.
 
 They need sha256 and keccak for Base58Check and EIP-55.
+
+### 582. Draw the longest, the shortest and the non-ASCII places, and the postal codes that many places share, by path.
+
+The data is there: `Ii`, a 45-character French commune, FR 51300 over 46 localities. `where` clauses may already say some of it, so start from what a template can spell today.
+
+### 574. Draw a middle name, an initial, a suffix and a title after the name in each locale's `person` where people there use them.
+
+Suffixes such as `Jr` and `III` in `en_US`, and degrees after the name where the locale writes them. Weigh each share by a published figure where one exists, or call it an estimate. A new column in a record that exists is breaking, so list it or keep it out of the columns by default.
+
+### 575. Offer a person's previous, preferred and legal name as values that agree with the person.
+
+Nothing changes for someone who doesn't ask for them. The previous last name is drawn from the same locale's last names.
+
+### 579. Ship localities with no street, with an address that names the locality and a number.
+
+The project principle "A geo module that takes its localities from an address register leaves out a locality with no street" drops them in `geo.EE`, `geo.LT` and `geo.LV`. Revise it in `AGENTS.md`, and change the address shape so a place without a street is valid.
 
 ### 59. Promise in `Generator`'s godoc that its renders run one at a time.
 
@@ -774,13 +998,37 @@ Sweden needs an application to Lantmäteriet; today a Swedish street goes to the
 
 The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a flag, an exit code, an exported name, a fence, a builtin and the lowest Go. Write the wider check in `release-tooling/`'s tested Python, and move the workflows' other branching bash there with it: which paths count as a code change and the gate's condition in `test.yml`, the latest-tag test and the version checks in `packages.yml`. The 0.6.0 release review found that no test runs any of it, and a wrong pathspec skips the test job without a failure.
 
+### 587. Decide whether an `--edge 5%` flag mixes odd values into any template, once the odd-value tables have been in use.
+
+It has the widest reach for the least effort, but every shipped category would need a type that says which odd table fits it. The other way is a README recipe per category, which already works.
+
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
+### 589. Load every odd value into PostgreSQL and MySQL from each format in the merge gate, and compare what comes back.
+
+The round trip today is through Python's CSV and JSON readers, run once by hand: 516 strings, no mismatch. Pin both images to a full patch version.
+
 ### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
 
 Find the numbering plan and its licence first.
+
+### 593. Ship national ids, IBANs and cards with a bad checksum or wrong length under an `invalid` path, and French NIRs of people born abroad.
+
+Each invalid row says what is wrong with it. A NIR with department `99` is valid and belongs in `fr_FR.nir`, whose docs must say so.
+
+### 585. Add `nfc` and `nfd` transforms.
+
+`José` decomposed is the classic failed lookup. A dependency such as `golang.org/x/text` needs the owner's view on adding a module.
+
+### 591. Ship skipped days and ambiguous date spellings.
+
+Samoa's 2011-12-30, the 1582 Gregorian gap, `03/04/05`, two-digit years, 12 AM.
+
+### 592. Ship odd company names, such as `! LTD`, script-like names, emoji, digits only and very long ones.
+
+Take the forms from a register that really holds them, such as Companies House, and change the name where it would point at a living company.
 
 ### 324. Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.
 
@@ -789,6 +1037,26 @@ Read them from the register the streets item names, Staðfangaskrá, where it ho
 ### 325. Give `geo/IS`'s places their streets.
 
 Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
+
+### 590. Ship odd URLs, file names, version numbers and IP spellings.
+
+URLs: IDN, punycode, port, IPv6 host, long query, double encoding, on reserved domains. File names: `CON`, trailing dot, 255 bytes, leading dash, two extensions. Versions: four parts, date-based, `1.10` against `1.9`. IPs: compressed IPv6, octal and integer IPv4.
+
+### 595. Let a CLI flag make CSV cells that start a spreadsheet formula harmless.
+
+Off by default, since it changes the value. Follow OWASP's CSV injection advice. A bench picks the flag's name.
+
+### 588. Draw each row of a table exactly once, so a test run covers every odd value rather than some by chance.
+
+A distinct draw of N covers part of a table. A bench picks the spelling. The same seed may give the same order.
+
+### 594. Give `misc.territory` every currency and calling code a territory uses, and add Kosovo and Antarctica.
+
+One currency and one calling code ship per row, so PA has only PAB. The 242 rows ask for a capital, a currency and a TLD, which Antarctica lacks in part. Kosovo has no ISO code but the user-assigned `XK`. Check the table before adding a row. A changed column is breaking.
+
+### 586. Add transforms that make a value messy: stray spaces, doubled spaces, a case flip, a typo and broken encoding.
+
+A bench of the audience picks the names. Every random choice comes from the seed, so output stays reproducible. Broken encoding is UTF-8 read as Windows-1252, such as `Ã¶`.
 
 ### 472. Decide how the shipped data is split into files and modules before it reaches the first size wall.
 
@@ -941,18 +1209,6 @@ Goal 9.2 holds only while a test checks it: render a fixed set of seeded templat
 ### 363. Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.
 
 The README's opening says a Go library and a CLI; it names the package once it ships. Goal 11.2 asks every example to run as a test, so the JavaScript section's examples run in the gate, as `readme_test.go` runs the `json` blocks. The Versioning table gains a row for the package: removing or renaming an export, changing a declared type or raising the lowest supported runtime is a major, and an export is a minor.
-
-### 345. Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.
-
-The decision "A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds" says: "A locale whose names need such letters romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own." This may conflict with goal 3.3, values look real. It may also conflict with items 206 (`zh_CN`), 207 (`hi_IN`), 209 (`ar_EG`) and 211 (`bn_BD`), whose names are in Han, Devanagari, Arabic or Bengali script. Such names slug to the empty string, so `{slugify(first)}.{slugify(last)}@example.com` becomes `.@example.com`.
-
-The options to put to the maintainer:
-
-1. A locale ships a romanized column beside each name for its email, such as pinyin or ISO 15919.
-2. `slugify` gets a transliteration table beyond `ascii`'s.
-3. A locale's email draws from a username-like category that holds no names.
-
-The answer goes into `docs/decisions.md`. Option 1 also changes the locales' data, and option 2 the code of `slugify`.
 
 ### 86. Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.
 
