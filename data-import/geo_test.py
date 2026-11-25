@@ -1,5 +1,7 @@
+import argparse
 import collections
 import importlib.util
+import re
 import tempfile
 import types
 import unittest
@@ -413,6 +415,59 @@ class WriteByCode(unittest.TestCase):
             geo.write_by_code(Path(d), regions, municipalities, localities, {("A", "1000"): 9}, {"A": [{"name": "Gade", "locality": "A", "addresses": 6}]})
             got = (Path(d) / "locality.tsv").read_text(encoding="utf-8")
         self.assertEqual(got, "code\tname\tmunicipality\tpopulation\nA\tAlby\t01\t9\n")
+
+
+class Counts(unittest.TestCase):
+    def test_an_address_counts_n_for_its_locality_and_postal_code_and_a_street_with_a_number_counts_n_for_the_street(self) -> None:
+        counts = geo.Counts()
+        counts.count("A", "1000", 3, "Gade", (12, False))
+        self.assertEqual((counts.addresses, counts.postal_codes, counts.streets, counts.numbers), ({"A": 3}, {("A", "1000"): 3}, {("A", "Gade"): 3}, {(1, False): 1}))
+
+    def test_an_address_with_no_street_or_no_number_counts_for_no_street_and_no_house_number(self) -> None:
+        counts = geo.Counts()
+        counts.count("A", "1000", 1, None, (12, False))
+        counts.count("A", "1000", 1, "Gade", None)
+        self.assertEqual((counts.addresses["A"], dict(counts.streets), dict(counts.numbers)), (2, {}, {}))
+
+
+class HouseNumber(unittest.TestCase):
+    PATTERN = re.compile(r"^([1-9]\d{0,3})([A-Z]?)$")
+
+    def test_a_number_and_whether_a_letter_follows_it(self) -> None:
+        self.assertEqual((geo.house_number(self.PATTERN, "40"), geo.house_number(self.PATTERN, "17A")), ((40, False), (17, True)))
+
+    def test_text_the_pattern_does_not_match_is_no_number(self) -> None:
+        self.assertIsNone(geo.house_number(self.PATTERN, "Skolan"))
+
+
+class SumPeople(unittest.TestCase):
+    def test_a_municipality_takes_its_people_and_a_region_sums_its_municipalities(self) -> None:
+        regions = {"1": {"code": "1"}, "2": {"code": "2"}}
+        municipalities = {"01": {"region": "1"}, "02": {"region": "1"}, "03": {"region": "2"}}
+        geo.sum_people(regions, municipalities, {"01": 5, "02": 7, "03": 2})
+        self.assertEqual(([m["population"] for m in municipalities.values()], [r["population"] for r in regions.values()]), ([5, 7, 2], [12, 2]))
+
+    def test_a_region_with_no_municipality_has_no_people(self) -> None:
+        regions = {"1": {"code": "1"}}
+        geo.sum_people(regions, {}, {})
+        self.assertEqual(regions["1"]["population"], 0)
+
+
+class WriteCounted(unittest.TestCase):
+    def test_it_writes_the_tables_of_the_localities_with_a_population_and_the_address_from_the_counted_numbers(self) -> None:
+        regions = {"1": {"code": "1", "name": "Nord", "population": 9, "timezone": "Europe/Riga"}}
+        municipalities = {"01": {"code": "01", "name": "By", "region": "1", "population": 9}}
+        localities = {"A": {"code": "A", "name": "Alby", "municipality": "01", "population": 9}, "B": {"code": "B", "name": "Borg", "municipality": "01"}}
+        counts = geo.Counts()
+        counts.count("A", "1000", 2, "Gade", (12, True))
+        counts.count("B", "2000", 1, "Vej", (3, False))
+        args = argparse.Namespace(street_share=1.0, min_streets=10)
+        with tempfile.TemporaryDirectory() as d:
+            geo.write_counted(Path(d), args, regions, municipalities, localities, counts, letter="{lower(1)}")
+            written = {t: (Path(d) / t).read_text(encoding="utf-8") for t in ("locality.tsv", "street.tsv", "address.json")}
+        self.assertEqual(written["locality.tsv"], "code\tname\tmunicipality\tpopulation\nA\tAlby\t01\t9\n")
+        self.assertEqual(written["street.tsv"], "name\tlocality\taddresses\nGade\tA\t2\n")
+        self.assertEqual(written["address.json"], geo.address_json(collections.Counter({(1, True): 1, (0, False): 1}), "{lower(1)}"))
 
 
 if __name__ == "__main__":
