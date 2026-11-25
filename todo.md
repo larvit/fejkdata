@@ -22,7 +22,6 @@
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
-| 565 | 0.9.0 |  |  | **Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.** | 1 | 1 | 2 | 2 | 2 | 1 by 2, 2.1 by 2 | 2.3 |
 | 556 | 0.9.0 |  |  | **Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.** | 2 | 1 | 2 | 3 | 3 | 1 by 4 | 1.9 |
 | 557 | 0.9.0 | 556 |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
 | 566 | 0.9.0 |  |  | **Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.** | 2 | 1 | 2 | 3 | 2 | 1 by 2, 5 by 2 | 2.2 |
@@ -288,19 +287,6 @@ The maintainer does this item, not a chunk: each step speaks for the project in 
 - Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
 
 Awesome Go is done from our side: the pull request there is approved and waits to be merged. Item 548's monthly table shows whether each step moved what LLMs answer.
-
-### 565. Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.
-
-Today they give `Nguyn` and `Dng`, and `slugify` gives `nguy-n` and `d-ng`. Vietnamese family names are common in several shipped countries. Find a published folding table, such as Unicode's decompositions, rather than listing letters by hand. Revise the decision "`ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`".
-
-Touches:
-
-- `internal/builtinfunc/transform.go`
-- `internal/builtinfunc/builtinfunc_test.go`
-- `transform_test.go`
-- `README.md`: `### Transforms`
-- `docs/decisions.md`
-- `CHANGELOG.md`
 
 ### 556. Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.
 
