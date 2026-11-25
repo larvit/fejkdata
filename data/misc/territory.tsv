@@ -118,7 +118,7 @@ KP	PRK	850	Pyongyang	KPW	🇰🇵	ko-KP	North Korea	408	KP	.kp
 KR	KOR	82	Seoul	KRW	🇰🇷	ko-KR,en	South Korea	410	KR	.kr
 KW	KWT	965	Kuwait City	KWD	🇰🇼	ar-KW,en	Kuwait	414	KW	.kw
 KY	CYM	1-345	George Town	KYD	🇰🇾	en-KY	Cayman Islands	136	GB	.ky
-KZ	KAZ	7	Nur-Sultan	KZT	🇰🇿	kk,ru	Kazakhstan	398	KZ	.kz
+KZ	KAZ	7	Astana	KZT	🇰🇿	kk,ru	Kazakhstan	398	KZ	.kz
 LA	LAO	856	Vientiane	LAK	🇱🇦	lo,fr,en	Laos	418	LA	.la
 LB	LBN	961	Beirut	LBP	🇱🇧	ar-LB,fr-LB,en,hy	Lebanon	422	LB	.lb
 LC	LCA	1-758	Castries	XCD	🇱🇨	en-LC	St. Lucia	662	LC	.lc
@@ -177,7 +177,7 @@ PM	SPM	508	Saint-Pierre	EUR	🇵🇲	fr-PM	St. Pierre & Miquelon	666	FR	.pm
 PN	PCN	870	Adamstown	NZD	🇵🇳	en-PN	Pitcairn	612	GB	.pn
 PR	PRI	1	San Juan	USD	🇵🇷	en-PR,es-PR	Puerto Rico	630	US	.pr
 PT	PRT	351	Lisbon	EUR	🇵🇹	pt-PT,mwl	Portugal	620	PT	.pt
-PW	PLW	680	Melekeok	USD	🇵🇼	pau,sov,en-PW,tox,ja,fil,zh	Palau	585	PW	.pw
+PW	PLW	680	Ngerulmud	USD	🇵🇼	pau,sov,en-PW,tox,ja,fil,zh	Palau	585	PW	.pw
 PY	PRY	595	Asuncion	PYG	🇵🇾	es-PY,gn	Paraguay	600	PY	.py
 QA	QAT	974	Doha	QAR	🇶🇦	ar-QA,es	Qatar	634	QA	.qa
 RE	REU	262	Saint-Denis	EUR	🇷🇪	fr-RE	Réunion	638	FR	.re
