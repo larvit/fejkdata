@@ -10,6 +10,7 @@ with its replacement, and each removed path, column or flag.
 ### Breaking
 
 - `fr_FR.first-name` has no row `Jahyan` and `fr_FR.last-name` none `Prades` any more: each fell out of the top 2,000 and 5,000 when a name with a one-letter part before an apostrophe joined.
+- `{ascii(x)}` and `{slugify(x)}` fold the Vietnamese letters: `Nguyễn` becomes `Nguyen`, not `Nguyn`, and slugs to `nguyen`; `Đặng` becomes `Dang`, not `Dng`.
 
 ### Added
 
