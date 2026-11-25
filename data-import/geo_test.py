@@ -1,7 +1,6 @@
 import argparse
 import collections
 import importlib.util
-import re
 import tempfile
 import types
 import unittest
@@ -428,16 +427,6 @@ class Counts(unittest.TestCase):
         counts.count("A", "1000", 1, None, (12, False))
         counts.count("A", "1000", 1, "Gade", None)
         self.assertEqual((counts.addresses["A"], dict(counts.streets), dict(counts.numbers)), (2, {}, {}))
-
-
-class HouseNumber(unittest.TestCase):
-    PATTERN = re.compile(r"^([1-9]\d{0,3})([A-Z]?)$")
-
-    def test_a_number_and_whether_a_letter_follows_it(self) -> None:
-        self.assertEqual((geo.house_number(self.PATTERN, "40"), geo.house_number(self.PATTERN, "17A")), ((40, False), (17, True)))
-
-    def test_text_the_pattern_does_not_match_is_no_number(self) -> None:
-        self.assertIsNone(geo.house_number(self.PATTERN, "Skolan"))
 
 
 class SumPeople(unittest.TestCase):

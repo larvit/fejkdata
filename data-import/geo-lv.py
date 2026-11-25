@@ -104,12 +104,13 @@ class Register:
 
 def house_number(name: str) -> tuple[int, bool] | None:
     """An address's house number and whether a letter follows it, or None where the address is a house's name."""
-    return geo.house_number(NUMBER, name)
+    m = NUMBER.match(name)
+    return (int(m[1]), bool(m[2])) if m else None
 
 
 class Tally(geo.Counts):
-    """What geo.Counts counts, and per locality the sum of its points, and per municipality the addresses outside every
-    locality."""
+    """What geo.Counts counts, with the sum of each locality's points and the addresses outside every locality, by
+    municipality."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -125,14 +126,12 @@ class Tally(geo.Counts):
             self.outside[register.municipality_of[parent]] += n
         elif kind == IELA and parent in register.streets:
             locality, street = register.streets[parent]
-            number = house_number(row["NOSAUKUMS"])
-            self.place(row, locality, n, street if number else None, number)
+            self.place(row, locality, n, street, house_number(row["NOSAUKUMS"]))
         elif kind in (PILSETA, CIEMS) and parent in register.localities:
             self.place(row, parent, n, None, None)
 
     def place(self, row: Mapping[str, str], locality: str, n: int, street: str | None, number: tuple[int, bool] | None) -> None:
-        """Counts a building as n addresses of its locality, its street where it has one and a house number, and its point
-        where it has one."""
+        """Counts a building as n addresses by Counts.count, and adds its point to its locality's where it has one."""
         self.count(locality, row["ATRIB"], n, street, number)
         if row["DD_N"] and row["DD_E"]:
             self.points[locality] += 1

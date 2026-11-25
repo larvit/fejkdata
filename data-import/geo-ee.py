@@ -141,7 +141,7 @@ def place_of(full: str, near: str) -> Place:
 
 
 class Tally(geo.Counts):
-    """What geo.Counts counts, and per locality the sum of its points."""
+    """What geo.Counts counts, with the sum of each locality's points and the places no locality holds."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -159,9 +159,10 @@ class Tally(geo.Counts):
         self.east[locality] += float(row["VIITEPUNKT_X"])
         self.north[locality] += float(row["VIITEPUNKT_Y"])
         street = street_of(row["LAHIAADRESS"])
-        if street and not 0 < street[1] < 10000:
-            street = None
-        self.count(locality, row["SIHTNUMBER"], 1, street[0] if street else None, (street[1], street[2]) if street else None)
+        if street and 0 < street[1] < 10000:
+            self.count(locality, row["SIHTNUMBER"], 1, street[0], (street[1], street[2]))
+        else:
+            self.count(locality, row["SIHTNUMBER"], 1, None, None)
 
     def point(self, locality: str) -> tuple[str, str]:
         """The mean of a locality's points, as a latitude and a longitude of four decimals."""

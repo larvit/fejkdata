@@ -27,6 +27,8 @@ CACHE = Path(__file__).resolve().parent / "cache"
 GEONAMES = "https://download.geonames.org/export/zip/{}.zip"
 # The address a country prints unless its importer passes another.
 LAYOUT = "{street} {street-number}\\n{postal-code} {locality}"
+# The template that draws a house number's delivery letter unless an importer passes another.
+UPPER = "{upper(1)}"
 NUMBER_RANGES = ((1, 9), (10, 99), (100, 999), (1000, 9999))
 # An invented street's name: a letter first, then letters, digits and the space, full stop, apostrophe and hyphen that join them.
 STREET = re.compile(r"^[^\W\d_][^\W_]*([ .'-]+[^\W_]+)*\.?$")
@@ -131,15 +133,8 @@ class Counts:
             self.numbers[number_range(*number)] += 1
 
 
-def house_number(pattern: re.Pattern[str], text: str) -> tuple[int, bool] | None:
-    """The house number pattern's first group holds, and whether its second group holds a letter, or None where the
-    text doesn't match."""
-    m = pattern.match(text)
-    return (int(m[1]), bool(m[2])) if m else None
-
-
 def sum_people(regions: Mapping[str, Row], municipalities: Mapping[str, Row], people: Mapping[str, int]) -> None:
-    """Gives each municipality its code's people and each region the sum of those of its municipalities."""
+    """Sets each municipality's population to its code's count in people, and each region's to the sum over its municipalities."""
     for row in regions.values():
         row["population"] = 0
     for code, municipality in municipalities.items():
@@ -261,7 +256,7 @@ def number_range(number: int, lettered: bool) -> tuple[int, bool]:
     return next(i for i, (_, top) in enumerate(NUMBER_RANGES) if number <= top), lettered
 
 
-def address_json(numbers: Mapping[tuple[int, bool], int], letter: str = "{upper(1)}", layout: str = LAYOUT) -> str:
+def address_json(numbers: Mapping[tuple[int, bool], int], letter: str = UPPER, layout: str = LAYOUT) -> str:
     """A country's address, its street-number choice weighted by numbers, which counts house numbers by number_range.
     letter is the template that draws a number's delivery letter, and layout the format that prints the address."""
     items = ",\n".join(
@@ -306,9 +301,9 @@ def write_by_code[K](out: Path, regions: Mapping[str, Row], municipalities: Mapp
     write_tables(out, kept, rows, streets, region=["code", "name", "population", "timezone"], municipality=["code", "name", "region", "population"], locality=["code", "name", "municipality", "population", *point])
 
 
-def write_counted(out: Path, args: argparse.Namespace, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[str, Row], counted: Counts, **address: str) -> None:
+def write_counted(out: Path, args: argparse.Namespace, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[str, Row], counted: Counts, letter: str = UPPER, layout: str = LAYOUT) -> None:
     """Writes a country's tables by write_by_code, from the localities that hold a population, and its address.json
-    from the counted house numbers. A keyword goes to address_json."""
+    from the counted house numbers, by address_json."""
     streets = top_streets(counted.streets, args.street_share, args.min_streets, "addresses")
     write_by_code(out, regions, municipalities, {c: row for c, row in localities.items() if "population" in row}, counted.postal_codes, streets)
-    (out / "address.json").write_text(address_json(counted.numbers, **address), encoding="utf-8")
+    (out / "address.json").write_text(address_json(counted.numbers, letter, layout), encoding="utf-8")
