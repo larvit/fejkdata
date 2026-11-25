@@ -2105,9 +2105,10 @@ read a table another one writes. `cldr.py` and `timezone.py` read
 `company-no.py` the nb_NO names and `geo/NO`, `company-fr.py` the fr_FR names,
 `company-ee.py` the et_EE names, `company-lt.py` the lt_LT names and `company-lv.py` the lv_LV names.
 
-A country's geo import is `data-import/geo-<code>.py`, with its tests in `geo_<code>_test.py`. It takes
-what imports share from `data-import/geo.py`: the options, the counts of addresses, the weighing of people
-and the writing of the tables. A new country needs that module and its own script only.
+A country's geo import is a script `data-import/geo-<code>.py`. `data-import/geo.py` holds the steps the
+imports share: their options, the counts of addresses, the sums of people and the writing of the tables.
+`geo-lt.py` and `geo-lv.py` use every step, and `geo-ee.py` all but the sums of people. Read one of them
+and `geo.py` before you write a new country's.
 
 Downloads are cached under `data-import/cache/`, which version control ignores and
 which grows past a gigabyte. Delete that folder to fetch afresh, or pass
@@ -2254,8 +2255,6 @@ environment `dockerhub-description`, which only `main` may use, so the Packages 
 cannot read it and the release holds no Delete scope.
 
 ### Add a locale
-
-A locale built from a register gets its tables from a script under [`data-import/`](data-import), as [Development](#development) says.
 
 A pull request that adds a locale ships, in this order:
 
