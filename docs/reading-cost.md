@@ -2923,3 +2923,17 @@ Read most (opens and searches):
 - `cli/input_test.go` 1
 - `compose.yaml` 1
 - `internal/grammar/format.go` 1
+
+## Reading cost, chunk 47025bf81cdc, finished 2026-11-25T22:22:30Z
+
+59020 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `compose.yaml` 4
+- `README.md` 3
+- `data-import/territory.py` 2
+- `data/misc/territory.tsv` 2
+- `data-import/geo_test.py` 1
+- `data-import/nfc_test.py` 1
+- `data-import/source.py` 1
