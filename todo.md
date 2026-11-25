@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 553 | 0.8.1 |  | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
-| 345 | 0.9.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 3.1 |
 | 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
@@ -184,17 +183,17 @@
 | 86 | 1.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.2 |
 | 154 | 1.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
 | 243 | 1.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
-| 206 | 1.3.0 | 345 |  | **Add `zh_CN` with its given names by sex, last names and titles, and `zh_CN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
+| 206 | 1.3.0 |  |  | **Add `zh_CN` with its given names by sex, last names and titles, and `zh_CN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
 | 277 | 1.3.0 | 206 |  | **Add `zh_CN`'s national personal id, the 18-digit resident identity card number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
 | 208 | 1.3.0 |  |  | **Add `es_MX` with its given names by sex, last names and titles, and `es_MX.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
 | 282 | 1.3.0 | 208 |  | **Add `es_MX`'s national personal id, the CURP, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
 | 212 | 1.3.0 |  |  | **Add `pt_BR` with its given names by sex, last names and titles, and `pt_BR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
 | 287 | 1.3.0 | 212 |  | **Add `pt_BR`'s national personal id, the CPF, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
-| 207 | 1.3.0 | 345 |  | **Add `hi_IN` with its given names by sex, last names and titles, and `hi_IN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
+| 207 | 1.3.0 |  |  | **Add `hi_IN` with its given names by sex, last names and titles, and `hi_IN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
 | 306 | 1.3.0 | 207 |  | **Add `hi_IN`'s national personal id, the Aadhaar number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
-| 209 | 1.3.0 | 345 | decision | **Add `ar_EG` with its given names by sex, last names and titles, and `ar_EG.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
+| 209 | 1.3.0 |  | decision | **Add `ar_EG` with its given names by sex, last names and titles, and `ar_EG.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
 | 310 | 1.3.0 | 209 |  | **Add `ar_EG`'s national personal id, the national ID number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
-| 211 | 1.3.0 | 345 |  | **Add `bn_BD` with its given names by sex, last names and titles, and `bn_BD.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
+| 211 | 1.3.0 |  |  | **Add `bn_BD` with its given names by sex, last names and titles, and `bn_BD.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
 | 314 | 1.3.0 | 211 |  | **Add `bn_BD`'s national personal id, the NID number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
 | 213 | 1.3.0 |  |  | **Add `id_ID` with its given names by sex, last names and titles, and `id_ID.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
 | 318 | 1.3.0 | 213 |  | **Add `id_ID`'s national personal id, the NIK, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
@@ -214,12 +213,12 @@
 | 321 | 1.3.0 | 214 |  | **Add `ur_PK.phone`, drawn from Pakistan's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.2 |
 | 248 | 1.3.0 |  |  | **Add `en_US.car`, a make and model from NHTSA vPIC.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 3.2 by 2 | 2.0 |
 | 246 | 1.3.0 |  |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2 | 1.7 |
-| 278 | 1.3.0 | 206, 345 |  | **Add `zh_CN.company`, `zh_CN.email` and `zh_CN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
+| 278 | 1.3.0 | 206 |  | **Add `zh_CN.company`, `zh_CN.email` and `zh_CN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
 | 283 | 1.3.0 | 208 |  | **Add `es_MX.company`, `es_MX.email` and `es_MX.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
 | 288 | 1.3.0 | 212 |  | **Add `pt_BR.company`, `pt_BR.email` and `pt_BR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
-| 307 | 1.3.0 | 207, 345 |  | **Add `hi_IN.company`, `hi_IN.email` and `hi_IN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
-| 311 | 1.3.0 | 209, 345 |  | **Add `ar_EG.company`, `ar_EG.email` and `ar_EG.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
-| 315 | 1.3.0 | 211, 345 |  | **Add `bn_BD.company`, `bn_BD.email` and `bn_BD.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
+| 307 | 1.3.0 | 207 |  | **Add `hi_IN.company`, `hi_IN.email` and `hi_IN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
+| 311 | 1.3.0 | 209 |  | **Add `ar_EG.company`, `ar_EG.email` and `ar_EG.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
+| 315 | 1.3.0 | 211 |  | **Add `bn_BD.company`, `bn_BD.email` and `bn_BD.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
 | 319 | 1.3.0 | 213 |  | **Add `id_ID.company`, `id_ID.email` and `id_ID.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
 | 323 | 1.3.0 | 214 |  | **Add `ur_PK.company`, `ur_PK.email` and `ur_PK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
 | 247 | 1.3.0 |  |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 1.6 |
@@ -265,18 +264,6 @@ The maintainer does this item, not a chunk: each step speaks for the project in 
 - Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
 
 Item 548's monthly table shows whether each step moved what LLMs answer.
-
-### 345. Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.
-
-The decision "A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds" says: "A locale whose names need such letters romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own." This may conflict with goal 3.3, values look real. It may also conflict with items 206 (`zh_CN`), 207 (`hi_IN`), 209 (`ar_EG`) and 211 (`bn_BD`), whose names are in Han, Devanagari, Arabic or Bengali script. Such names slug to the empty string, so `{slugify(first)}.{slugify(last)}@example.com` becomes `.@example.com`.
-
-The options to put to the maintainer:
-
-1. A locale ships a romanized column beside each name for its email, such as pinyin or ISO 15919.
-2. `slugify` gets a transliteration table beyond `ascii`'s.
-3. A locale's email draws from a username-like category that holds no names.
-
-The answer goes into `docs/decisions.md`. Option 1 also changes the locales' data, and option 2 the code of `slugify`.
 
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
@@ -400,6 +387,8 @@ Goal 1.3 asks for a package `pip` installs. A wheel per platform carrying the CL
 
 The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token.
 
+The maintainer reported the PyPI registration complete on 2026-11-25. A pending publisher does not reserve the name until it publishes. PyPI allows 100 MB per file and 10 GB per project by default; six wheels of about 17 MB make about 105 MB per release, patches included.
+
 ### 558. Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.
 
 Today `sv_SE` has no path for either, and `phone-mobile` in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO` prints only a prefix or area code, such as `21 1`. A user filling a customer table wrote Swedish mobile numbers by hand with `digits()`.
@@ -454,9 +443,13 @@ Goal 1.2 asks for an npm package that runs wherever JavaScript does: Node, Bun, 
 
 The shipped data is 59 MB under `data/`, so the WebAssembly carrying all of it is large. Measure it, and record in the README's Install section what an install downloads. Choosing to split the data into packages a program imports by choice, as goal 2's Go side does, is a decision for the chunk.
 
+The maintainer ruled on 2026-11-25: one package, `@larvit/fejkdata`, carries all the data. The live build on fejkdata.dev is 65 MB and 17 MB gzipped, and Node compiled it in 0.18 s. npm documents no size limit. A slim build is not part of this item.
+
 ### 550. Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.
 
 The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
+
+The package is `@larvit/fejkdata`, under the npm organization the maintainer already has. npm's trusted publishing needs npm 11.5.1, Node 22.14 and a GitHub-hosted runner, and is set in the package's settings, so the first version may have to be published by hand: check before the chunk ends.
 
 ### 561. Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.
 
@@ -528,7 +521,7 @@ A bench of the audience picks the spelling, and the column that names the broken
 
 ### 569. Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.
 
-A handful of common real names per script, from an open source such as Wikidata, each with its script as a column. Emails built from them slug to the empty string until item 345 is answered, so say so on the page.
+A handful of common real names per script, from an open source such as Wikidata, each with its script as a column. Each row carries a romanized column, as the `slugify` decision says, so an email can be built from it.
 
 ### 252. Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.
 
