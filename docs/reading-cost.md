@@ -2937,3 +2937,61 @@ Read most (opens and searches):
 - `data-import/geo_test.py` 1
 - `data-import/nfc_test.py` 1
 - `data-import/source.py` 1
+
+## Reading cost, chunk c6e7a1642907, finished 2026-11-25T22:54:09Z
+
+67311 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 2
+- `compose.yaml` 2
+- `internal/engine/lazy.go` 1
+
+## Reading cost, chunk dc100fab947f, finished 2026-11-25T23:00:11Z
+
+74149 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `DATA-LICENSES.md` 4
+- `README.md` 4
+- `data-import/names-no.py` 4
+- `data-import/names-fi.py` 3
+- `.github/workflows/test.yml` 2
+- `compose.yaml` 2
+- `data-import/names_lv_test.py` 2
+- `data-import/nfc_test.py` 2
+- `data/fr_FR/last-name.tsv` 2
+- `docs/locales/fr_FR.md` 2
+
+## Reading cost, chunk 689ded23a385, finished 2026-11-25T23:11:43Z
+
+58945 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `CHANGELOG.md` 3
+- `README.md` 3
+- `compose.yaml` 3
+- `transform_test.go` 3
+- `internal/builtinfunc/builtinfunc_test.go` 2
+- `internal/builtinfunc/transform.go` 2
+- `go.mod` 1
+
+## Reading cost, chunk e61fbdcbce62, finished 2026-11-25T23:16:45Z
+
+162776 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `cli/records_test.go` 4
+- `record.go` 3
+- `cli/flags.go` 2
+- `cli/records.go` 2
+- `record_test.go` 2
+- `README.md` 1
+- `cli/cli.go` 1
+- `compose.yaml` 1
+
+## Reading cost reset, 2026-11-25T23:23:14Z
