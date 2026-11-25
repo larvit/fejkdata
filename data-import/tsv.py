@@ -5,13 +5,13 @@ from collections.abc import Collection, Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-# A person's name: parts of two or more letters, joined by a space, an apostrophe or a hyphen. A one-letter part
-# stands only before an apostrophe that joins it to its word, as in `O'Brien` or `N'Diaye`.
+# A person's name: parts of two or more letters, joined by a space, a hyphen or an apostrophe, either `'` or `’`.
+# A one-letter part stands only directly before an apostrophe and the part after it, as in `O'Brien` or `N'Diaye`.
 NAME = re.compile(r"^([^\W\d_]['’])?[^\W\d_]{2,}([ '’-]([^\W\d_]['’])?[^\W\d_]{2,})*$")
 
 
 def straight(name: str) -> str:
-    """The name with the ASCII apostrophe, the one spelling the tables hold."""
+    """The name with every `’` written `'`, since the tables hold the ASCII apostrophe only."""
     return name.replace("’", "'")
 
 SELECTOR = '[]{}"|'  # mirrors inSelector in internal/grammar/path.go

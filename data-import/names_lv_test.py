@@ -25,7 +25,7 @@ class Firsts(unittest.TestCase):
         rows = [(str(r["name"]), str(r["sex"]), int(str(r["count"]))) for r in names_lv.firsts(TIED, 2)]
         self.assertEqual(rows, [("Aiga", "f", 2), ("Andris", "m", 1), ("Baiba", "f", 3)])
 
-    def test_a_one_letter_part_before_an_apostrophe_is_a_name_written_with_the_ascii_apostrophe(self) -> None:
+    def test_a_one_letter_part_before_an_apostrophe_is_a_name_written_with_the_ascii_apostrophe_and_a_lone_initial_goes(self) -> None:
         text = 'Vardi,Dzimums,Skaits\n"O’BRIEN","VĪRIETIS",2\n"O","VĪRIETIS",9\n'
         self.assertEqual(self.names(text), [("O'Brien", "m", 2)])
 
