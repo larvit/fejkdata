@@ -16,7 +16,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
 | 155 | 0.9.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.3 |
@@ -257,16 +256,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 533. Make the `mutate` service count a line as covered when any package's tests run it.
-
-`compose.yaml`'s `mutate` runs Gremlins without `--coverpkg`, so its coverage step credits a line under `internal/` only to its own package's tests. The engine's behaviour is tested mostly from the root package, so on item 462's branch all 31 mutants of `internal/engine/…` printed `NOT COVERED`, with `Mutator coverage: 0.00%`, and a reader could take that for nothing to kill.
-
-Pass `--coverpkg ./...` and `--integration`, so each mutant runs the whole suite, and say in the README's paragraph on `mutate` how long a run takes then. Item 462's chunk ran it that way by hand.
-
-Touches:
-- `compose.yaml`: `mutate` (small)
-- `README.md`: `lines 1825-1843` (small)
 
 ### 532. Lower the reading cost of the files a chunk reads most before its first commit.
 
