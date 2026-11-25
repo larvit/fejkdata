@@ -8,7 +8,7 @@ with its replacement, and each removed path, column or flag.
 ## Unreleased
 
 - The error for a `{` that is never closed names both fixes: write `{{` for a literal brace, or close the token with `}`.
-- `misc.territory[KZ].capital` is `Astana`, not `Nur-Sultan`, and `misc.territory[PW].capital` is `Ngerulmud`, not `Melekeok`, the state it lies in.
+- `misc.territory[KZ].capital` is `Astana`, not `Nur-Sultan`. `misc.territory[PW].capital` is `Ngerulmud`, not `Melekeok`, the state it lies in.
 
 ## 0.8.0 - 2026-11-21
 
