@@ -1791,11 +1791,11 @@ against each other in the order listed.
       - Counter-signal: a cell ships with a handful of values.
       - Why: coverage counts only where it fills a database.
    2. **Maintain:** A Go program carries only the data it imports.
-3. **Achieve:** **Every value is one of three kinds, and the docs say which: real, a thing
+3. **Achieve:** **Every value is one of four kinds, and the docs say which: real, a thing
    that exists, such as the territory `SE`; valid, made up but passing the check the real
-   system applies, such as a Swedish personal number; or invented, such as a town that
-   does not exist.** Real and valid values come first, and the best category offers more
-   than one kind, so you choose. A fourth kind, invalid, is wrong on purpose, such as an id
+   system applies, such as a Swedish personal number; invented, such as a town that
+   does not exist; or invalid.** Real and valid values come first, and the best category offers more
+   than one kind, so you choose. The fourth kind, invalid, is wrong on purpose, such as an id
    with a bad checksum: it ships only under a path that says `invalid`, and no other path
    draws it.
    - Signal: the categories offering a real or a valid value rise.

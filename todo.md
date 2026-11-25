@@ -17,23 +17,23 @@
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
 | 155 | 0.9.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.3 |
+| 560 | 0.9.0 |  |  | **Keep a name with a one-letter part before an apostrophe, such as `O'Brien` or `N'Diaye`, in every name import.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 4, 2.1 by 2 | 3.3 |
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
+| 563 | 0.9.0 |  |  | **Make `misc.territory[KZ].capital` render `Astana`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 565 | 0.9.0 |  |  | **Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.** | 1 | 1 | 2 | 2 | 2 | 1 by 2, 2.1 by 2 | 2.3 |
-| 560 | 0.9.0 |  |  | **Keep a name with a one-letter part before an apostrophe, such as `O'Brien` or `N'Diaye`, in every name import.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 4, 2.1 by 2 | 2.3 |
 | 556 | 0.9.0 |  |  | **Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.** | 2 | 1 | 2 | 3 | 3 | 1 by 4 | 1.9 |
 | 557 | 0.9.0 | 556 |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
 | 566 | 0.9.0 |  |  | **Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.** | 2 | 1 | 2 | 3 | 2 | 1 by 2, 5 by 2 | 2.2 |
-| 563 | 0.9.0 |  |  | **Make `misc.territory[KZ].capital` render `Astana`.** | 1 | 1 | 1 | 1 | 1 | 3 by 3 | 1.9 |
+| 561 | 0.9.0 | 560 |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
+| 564 | 0.9.0 |  |  | **Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 2 | 1.7 |
+| 562 | 0.9.0 | 560, 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 558 | 0.9.0 |  |  | **Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.** | 2 | 1 | 2 | 3 | 5 | 1 by 3, 2.1 by 4 | 1.2 |
 | 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
-| 561 | 0.9.0 | 560 |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 3 | 1.1 |
-| 562 | 0.9.0 | 560, 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 3.2 by 3 | 0.8 |
-| 564 | 0.9.0 |  |  | **Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 0.8 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -144,7 +144,7 @@
 | 63 | 0.11.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 3 by 6 | 0.7 |
 | 65 | 0.11.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.5 |
 | 587 | 0.12.0 | 567 | question | **Decide whether an `--edge 5%` flag mixes odd values into any template, once the odd-value tables have been in use.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
-| 589 | 0.12.0 | 566, 572 |  | **Load every odd value into PostgreSQL and MySQL from each format in the merge gate, and compare what comes back.** | 2 | 1 | 1 | 2 | 4 | 3 by 2, code health by 2 | 3.1 |
+| 589 | 0.12.0 | 566, 572 |  | **Load every odd value into PostgreSQL and MySQL from each format that can carry it in the merge gate, and compare what comes back.** | 2 | 1 | 1 | 2 | 4 | 3 by 2, code health by 2 | 3.1 |
 | 593 | 0.12.0 | 567 |  | **Ship national ids, IBANs and cards with a bad checksum or wrong length under an `invalid` path, and French NIRs of people born abroad.** | 2 | 1 | 1 | 2 | 4 | 1 by 4, 3 by 2 | 1.8 |
 | 585 | 0.12.0 |  |  | **Add `nfc` and `nfd` transforms.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.3 |
 | 591 | 0.12.0 | 567 |  | **Ship skipped days and ambiguous date spellings.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
@@ -291,27 +291,6 @@ Make the geo imports share what they repeat in `data-import/geo.py`, so a new co
 
 `{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn.
 
-### 256. Add `misc.bic`, built by its structure rules.
-
-A template; the structure rules are facts.
-
-### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
-
-ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
-
-### 565. Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.
-
-Today they give `Nguyn` and `Dng`, and `slugify` gives `nguy-n` and `d-ng`. Vietnamese family names are common in several shipped countries. Find a published folding table, such as Unicode's decompositions, rather than listing letters by hand. Revise the decision "`ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`".
-
-Touches:
-
-- `internal/builtinfunc/transform.go`
-- `internal/builtinfunc/builtinfunc_test.go`
-- `transform_test.go`
-- `README.md`: `### Transforms`
-- `docs/decisions.md`
-- `CHANGELOG.md`
-
 ### 560. Keep a name with a one-letter part before an apostrophe, such as `O'Brien` or `N'Diaye`, in every name import.
 
 `tsv.NAME` asks for two letters in each part, so it drops `O'BRIEN`, `O’BRIEN`, `D'ANGELO` and `N'DIAYE` where the source holds them. A lone initial must still be dropped. Take both apostrophes, and write one of them in the data. Re-import the tables that read it. A test feeds `tsv.NAME` each spelling. The pages that admit the drop, `docs/locales/fr_FR.md` and `DATA-LICENSES.md`, lose that claim. A last-name that also runs through `cased` or `capitalised` must come out as `O'Brien`.
@@ -328,6 +307,37 @@ Touches:
 - `data/nb_NO/last-name.tsv`
 - `docs/locales/fr_FR.md`
 - `DATA-LICENSES.md`
+
+### 256. Add `misc.bic`, built by its structure rules.
+
+A template; the structure rules are facts.
+
+### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
+
+ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
+
+### 563. Make `misc.territory[KZ].capital` render `Astana`.
+
+It renders `Nur-Sultan`, which the city has not been called since 2022. The source CSV still says so, so add a row to `FIXUPS`, and check the other capitals against a second source in the same change.
+
+Touches:
+
+- `data-import/territory.py`: `FIXUPS` (small)
+- `data/misc/territory.tsv`
+- `CHANGELOG.md`
+
+### 565. Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.
+
+Today they give `Nguyn` and `Dng`, and `slugify` gives `nguy-n` and `d-ng`. Vietnamese family names are common in several shipped countries. Find a published folding table, such as Unicode's decompositions, rather than listing letters by hand. Revise the decision "`ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`".
+
+Touches:
+
+- `internal/builtinfunc/transform.go`
+- `internal/builtinfunc/builtinfunc_test.go`
+- `transform_test.go`
+- `README.md`: `### Transforms`
+- `docs/decisions.md`
+- `CHANGELOG.md`
 
 ### 556. Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.
 
@@ -369,15 +379,25 @@ Touches:
 - `README.md`: `### Records`, `### Load into a database`
 - `CHANGELOG.md`
 
-### 563. Make `misc.territory[KZ].capital` render `Astana`.
+### 561. Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.
 
-It renders `Nur-Sultan`, which the city has not been called since 2022. The source CSV still says so, so add a row to `FIXUPS`, and check the other capitals against a second source in the same change.
+Each import keeps the top 2,000 first names per sex and the top 5,000 last names, or about that. The rare names are often the odd ones: with particles, hyphens, apostrophes or foreign letters. Measure what each lower cutoff adds in bytes and in share of people. `TestShippedDataStaysUnder100MiB` bounds it. Never ship a name with so few bearers that it points at a person: choose that floor and record it.
 
 Touches:
 
-- `data-import/territory.py`: `FIXUPS` (small)
-- `data/misc/territory.tsv`
-- `CHANGELOG.md`
+- `data-import/names-se.py`: `main` (small)
+- `data-import/names-fi.py`: `main` (small)
+- `data-import/names-fr.py`: `main` (small)
+- `data-import/names-us.py`: `main` (small)
+- `data/sv_SE/first-name.tsv`
+- `data/sv_SE/last-name.tsv`
+- `data/fi_FI/first-name.tsv`
+- `data/fi_FI/last-name.tsv`
+- `data/fr_FR/first-name.tsv`
+- `data/fr_FR/last-name.tsv`
+- `data/en_US/first-name.tsv`
+- `data/en_US/last-name.tsv`
+- `docs/decisions.md`
 
 ### 551. Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.
 
@@ -388,6 +408,36 @@ Goal 1.3 asks for a package `pip` installs. A wheel per platform carrying the CL
 The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token.
 
 The maintainer reported the PyPI registration complete on 2026-11-25. A pending publisher does not reserve the name until it publishes. PyPI allows 100 MB per file and 10 GB per project by default; six wheels of about 17 MB make about 105 MB per release, patches included.
+
+### 564. Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.
+
+Found by drawing: `Poste restante` as a street in 332 `geo.FI` localities, about 1 in 1,250 addresses. In `geo.SE`: `All‚vägen` (U+201A, presumably `Allévägen`), `Syre´nvägen` (a spacing acute), `Rönnerums bygata Rönnerums bygata` and `Kvartersvägar och parkeringsvägar på Lars Kaggsgatan`. In `geo.US`: `Addison Ln,`, `Village Ridge Road(Private)` and `Island Avenue (Glp)`. Put the shared check in `geo.py` with a test, and repair a name only where the register makes the right spelling certain. Keep real odd names: `S:t`, `M/S Nadias väg`, `10 1/2 St NW`, `Lidosta "Rīga"`.
+
+Touches:
+
+- `data-import/geo.py`
+- `data-import/geo_test.py`
+- `data-import/geo-fi.py`: `street_name`
+- `data-import/geo-se.py`: `street_name`
+- `data-import/geo-us.py`: `streets`
+- `data/geo/FI/street.tsv`
+- `data/geo/SE/street.tsv`
+- `data/geo/US/street.tsv`
+- `CHANGELOG.md`
+
+### 562. Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.
+
+The US Census file holds letters only, so `Obrien`, `Dangelo`, `Delacruz` and `Stjohn` ship and are listed as real. INSEE's surname file holds no accents, so `Lefevre` and `Francois` ship. Look for an open source of the written forms with counts, such as Wikidata's family names, and use it to restore a spelling only where it is the common one. Where no source settles a name, leave it as it is, and say so on the locale's page.
+
+Touches:
+
+- `data-import/names-us.py`: `surname`, `main` (small)
+- `data-import/names-fr.py`: `surname`
+- `data/en_US/last-name.tsv`
+- `data/fr_FR/last-name.tsv`
+- `docs/locales/en_US.md`
+- `docs/locales/fr_FR.md`
+- `DATA-LICENSES.md`
 
 ### 558. Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.
 
@@ -450,56 +500,6 @@ The maintainer ruled on 2026-11-25: one package, `@larvit/fejkdata`, carries all
 The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
 
 The package is `@larvit/fejkdata`, under the npm organization the maintainer already has. npm's trusted publishing needs npm 11.5.1, Node 22.14 and a GitHub-hosted runner, and is set in the package's settings, so the first version may have to be published by hand: check before the chunk ends.
-
-### 561. Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.
-
-Each import keeps the top 2,000 first names per sex and the top 5,000 last names, or about that. The rare names are often the odd ones: with particles, hyphens, apostrophes or foreign letters. Measure what each lower cutoff adds in bytes and in share of people. `TestShippedDataStaysUnder100MiB` bounds it. Never ship a name with so few bearers that it points at a person: choose that floor and record it.
-
-Touches:
-
-- `data-import/names-se.py`: `main` (small)
-- `data-import/names-fi.py`: `main` (small)
-- `data-import/names-fr.py`: `main` (small)
-- `data-import/names-us.py`: `main` (small)
-- `data/sv_SE/first-name.tsv`
-- `data/sv_SE/last-name.tsv`
-- `data/fi_FI/first-name.tsv`
-- `data/fi_FI/last-name.tsv`
-- `data/fr_FR/first-name.tsv`
-- `data/fr_FR/last-name.tsv`
-- `data/en_US/first-name.tsv`
-- `data/en_US/last-name.tsv`
-- `docs/decisions.md`
-
-### 562. Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.
-
-The US Census file holds letters only, so `Obrien`, `Dangelo`, `Delacruz` and `Stjohn` ship and are listed as real. INSEE's surname file holds no accents, so `Lefevre` and `Francois` ship. Look for an open source of the written forms with counts, such as Wikidata's family names, and use it to restore a spelling only where it is the common one. Where no source settles a name, leave it as it is, and say so on the locale's page.
-
-Touches:
-
-- `data-import/names-us.py`: `surname`, `main` (small)
-- `data-import/names-fr.py`: `surname`
-- `data/en_US/last-name.tsv`
-- `data/fr_FR/last-name.tsv`
-- `docs/locales/en_US.md`
-- `docs/locales/fr_FR.md`
-- `DATA-LICENSES.md`
-
-### 564. Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.
-
-Found by drawing: `Poste restante` as a street in 332 `geo.FI` localities, about 1 in 1,250 addresses. In `geo.SE`: `All‚vägen` (U+201A, presumably `Allévägen`), `Syre´nvägen` (a spacing acute), `Rönnerums bygata Rönnerums bygata` and `Kvartersvägar och parkeringsvägar på Lars Kaggsgatan`. In `geo.US`: `Addison Ln,`, `Village Ridge Road(Private)` and `Island Avenue (Glp)`. Put the shared check in `geo.py` with a test, and repair a name only where the register makes the right spelling certain. Keep real odd names: `S:t`, `M/S Nadias väg`, `10 1/2 St NW`, `Lidosta "Rīga"`.
-
-Touches:
-
-- `data-import/geo.py`
-- `data-import/geo_test.py`
-- `data-import/geo-fi.py`: `street_name`
-- `data-import/geo-se.py`: `street_name`
-- `data-import/geo-us.py`: `streets`
-- `data/geo/FI/street.tsv`
-- `data/geo/SE/street.tsv`
-- `data/geo/US/street.tsv`
-- `CHANGELOG.md`
 
 ### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
 
@@ -756,7 +756,7 @@ Change `data-import/names-ee.py` to read the office's published counts by sex an
 
 ### 572. Ship the Big List of Naughty Strings by kind, with Unicode edge cases, complex emoji and text that looks like another type.
 
-Check the list's licence and add it to `DATA-LICENSES.md`. Unicode: decomposed accents, zero-width, right-to-left, astral, `İ` and `ı`, `ß`, lookalikes, odd spaces. Emoji: skin tones, flags, joined families, keycaps. Lookalikes: `null`, `true`, `=1+1`, `1/2`, `MARCH1`. A tab, line break or NUL needs an escape in a TSV cell, or a JSON category. Rows with brackets or quotes need item 166 where the cell is a key. A test renders every row through every format and reads it back.
+Check the list's licence and add it to `DATA-LICENSES.md`. Unicode: decomposed accents, zero-width, right-to-left, astral, `İ` and `ı`, `ß`, lookalikes, odd spaces. Emoji: skin tones, flags, joined families, keycaps. Lookalikes: `null`, `true`, `=1+1`, `1/2`, `MARCH1`. A tab, line break or NUL needs an escape in a TSV cell, or a JSON category. Rows with brackets or quotes need item 166 where the cell is a key. A test renders every row through each format that can carry it and reads it back, and checks the refusal or the folding in the others.
 
 ### 259. Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.
 
@@ -995,9 +995,11 @@ The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md
 
 It has the widest reach for the least effort, but every shipped category would need a type that says which odd table fits it. The other way is a README recipe per category, which already works.
 
-### 589. Load every odd value into PostgreSQL and MySQL from each format in the merge gate, and compare what comes back.
+### 589. Load every odd value into PostgreSQL and MySQL from each format that can carry it in the merge gate, and compare what comes back.
 
 The round trip today is through Python's CSV and JSON readers, run once by hand: 516 strings, no mismatch. Pin both images to a full patch version.
+
+Compare the value only where the format can carry it. Test the rest on their own: `sql` and `pgcopy` refuse a NUL, or follow whatever item 566 ships, and `tsv` turns tabs and line breaks into spaces.
 
 ### 593. Ship national ids, IBANs and cards with a bad checksum or wrong length under an `invalid` path, and French NIRs of people born abroad.
 
