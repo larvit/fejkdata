@@ -1795,7 +1795,9 @@ against each other in the order listed.
    that exists, such as the territory `SE`; valid, made up but passing the check the real
    system applies, such as a Swedish personal number; or invented, such as a town that
    does not exist.** Real and valid values come first, and the best category offers more
-   than one kind, so you choose.
+   than one kind, so you choose. A fourth kind, invalid, is wrong on purpose, such as an id
+   with a bad checksum: it ships only under a path that says `invalid`, and no other path
+   draws it.
    - Signal: the categories offering a real or a valid value rise.
    - Counter-signal: a value the docs call real or valid fails its real check.
    - Why: a kind promised but not delivered is worse than one plainly invented.
