@@ -9,6 +9,9 @@ PMLP = '﻿Vardi,Dzimums,Skaits\n"",SIEVIETE,1\n"-","VĪRIETIS",4\n"JĀNIS","VĪ
 
 
 class Firsts(unittest.TestCase):
+    def names(self, text: str) -> list[tuple[str, str, int]]:
+        return [(str(r["name"]), str(r["sex"]), int(str(r["count"]))) for r in names_lv.firsts(text, 10)]
+
     def rows(self, top: int) -> list[tuple[str, str, int]]:
         return [(str(r["name"]), str(r["sex"]), int(str(r["count"]))) for r in names_lv.firsts(PMLP, top)]
 
@@ -21,6 +24,10 @@ class Firsts(unittest.TestCase):
     def test_a_tie_at_the_cut_keeps_the_name_that_sorts_first_and_the_rows_sort_by_name_then_sex(self) -> None:
         rows = [(str(r["name"]), str(r["sex"]), int(str(r["count"]))) for r in names_lv.firsts(TIED, 2)]
         self.assertEqual(rows, [("Aiga", "f", 2), ("Andris", "m", 1), ("Baiba", "f", 3)])
+
+    def test_a_one_letter_part_before_an_apostrophe_is_a_name_written_with_the_ascii_apostrophe(self) -> None:
+        text = 'Vardi,Dzimums,Skaits\n"O’BRIEN","VĪRIETIS",2\n"O","VĪRIETIS",9\n'
+        self.assertEqual(self.names(text), [("O'Brien", "m", 2)])
 
 
 class Feminine(unittest.TestCase):
