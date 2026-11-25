@@ -56,7 +56,7 @@ def firsts(text: str, top: int) -> list[dict[str, object]]:
     for row in csv.DictReader(io.StringIO(text.lstrip("﻿"))):
         words = row["Vardi"].split()
         if words and row["Dzimums"] in SEXES and tsv.NAME.match(words[0]):
-            counts[(words[0].title(), SEXES[row["Dzimums"]])] += int(row["Skaits"])
+            counts[(tsv.straight(words[0]).title(), SEXES[row["Dzimums"]])] += int(row["Skaits"])
     kept = [(name, sex, n) for sex in SEXES.values() for (name, n) in sorted(((name, n) for (name, s), n in counts.items() if s == sex), key=lambda r: (-r[1], r[0]))[:top]]
     return [{"name": name, "sex": sex, "count": n} for name, sex, n in sorted(kept, key=lambda r: (r[0], r[1]))]
 

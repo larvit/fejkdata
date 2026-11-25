@@ -22,13 +22,13 @@ PARTICLES = {"af", "av", "da", "de", "del", "den", "der", "di", "dos", "du", "la
 
 def cased(name: str) -> str:
     """SCB's uppercase name as it is written: each part capitalised, a particle before another part lowercased."""
-    parts = name.lower().split(" ")
+    parts = tsv.straight(name).lower().split(" ")
     return " ".join(w if w in PARTICLES and len(parts) > 1 else w.title() for w in parts)
 
 
 def counted(rows: Iterable[list[str]], top: int) -> list[tuple[str, int]]:
     """The top names of a sheet by bearers, initials and single letters dropped."""
-    names = [(cells[0], int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
+    names = [(tsv.straight(cells[0]), int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
     return sorted(names, key=lambda n: (-n[1], n[0]))[:top]
 
 

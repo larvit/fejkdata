@@ -106,6 +106,7 @@ def firsts(cache: str) -> list[dict[str, object]]:
             if not any(c.strip("\x1a ") for c in row):  # the DOS end-of-file row that ends the 2016 to 2019 files
                 continue
             name, count, sex = (c.strip() for c in row)
+            name = tsv.straight(name)
             if sex not in SEX:
                 sys.exit(f"{year}: {name!r} has the sex {sex!r}, not w or m")
             if count.isdigit() and tsv.NAME.match(name):

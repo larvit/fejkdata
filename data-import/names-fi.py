@@ -24,7 +24,7 @@ LAST_SHEET = "Nimet"
 
 def counted(rows: Iterable[list[str]], top: int) -> list[tuple[str, int]]:
     """The top names of a sheet by bearers, whose header row and any label that is no name are dropped."""
-    names = [(cells[0], int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
+    names = [(tsv.straight(cells[0]), int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
     return sorted(names, key=lambda n: (-n[1], n[0]))[:top]
 
 

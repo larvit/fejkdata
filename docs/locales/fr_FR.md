@@ -10,8 +10,7 @@ names, from INSEE's open files. A first name weighs the children who got it as t
 to 2023, the last 80 years, in the "Fichier des prénoms"; a name gone out of use weighs less than in the whole file,
 and the children of a year in which fewer than 3 got the name are left out, so a count runs slightly low. A last name
 weighs the people born in 1891 to 2000 who bear it, in the "Fichier des noms". INSEE writes last names in capitals
-without accents, so `Lefevre` also counts the bearers of `Lefèvre`. Neither table has a name with a one-letter part,
-such as `N'Diaye`. `fr_FR.sex` carries France's population on 1 January 2025
+without accents, so `Lefevre` also counts the bearers of `Lefèvre`. `fr_FR.sex` carries France's population on 1 January 2025
 from Eurostat's table `demo_pjan`; Eurostat marks that figure provisional.
 
 A program showing the name counts credits "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee,
