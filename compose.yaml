@@ -61,7 +61,7 @@ services:
         if git diff --quiet --merge-base origin/main; then
           echo 'Nothing changed since origin/main.'
         else
-          exec go run github.com/go-gremlins/gremlins/cmd/gremlins@v0.6.0 unleash --diff origin/main --output-statuses lctkv --exclude-files '.*_test\.go'
+          exec go run github.com/go-gremlins/gremlins/cmd/gremlins@v0.6.0 unleash --diff origin/main --coverpkg ./... --integration --output-statuses lctkv --exclude-files '.*_test\.go'
         fi
     volumes:
       - .:/app
