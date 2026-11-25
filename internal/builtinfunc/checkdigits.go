@@ -1,0 +1,137 @@
+package builtinfunc
+
+import (
+	"fmt"
+	"slices"
+	"strings"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
+)
+
+// alnumValue is a letter's value in an ISIN or a CUSIP, 10 for A to 35 for Z; a digit is its own.
+func alnumValue(c byte) (int, bool) {
+	switch {
+	case c >= '0' && c <= '9':
+		return int(c - '0'), true
+	case c >= 'A' && c <= 'Z':
+		return int(c-'A') + 10, true
+	}
+	return 0, false
+}
+
+// lastValues returns the values of the last n characters of s that value reads, in order, so
+// that a literal before the payload, such as `ISIN `, stays out of the check.
+func lastValues(s string, n int, value func(byte) (int, bool)) []int {
+	var rev []int
+	for i := len(s) - 1; i >= 0 && len(rev) < n; i-- {
+		if v, ok := value(s[i]); ok {
+			rev = append(rev, v)
+		}
+	}
+	slices.Reverse(rev)
+	return rev
+}
+
+// isinCheck is the Luhn digit over the last 11 characters of s, each letter written as its
+// two-digit value.
+func isinCheck(s string) string {
+	var digits strings.Builder
+	for _, v := range lastValues(s, 11, alnumValue) {
+		fmt.Fprint(&digits, v)
+	}
+	return string(rune('0' + luhnCheck(digits.String())))
+}
+
+// cusipValue is a character's value in a CUSIP: its ISIN value, or 36, 37 and 38 for `*`, `@` and `#`.
+func cusipValue(c byte) (int, bool) {
+	if v, ok := alnumValue(c); ok {
+		return v, true
+	}
+	if i := strings.IndexByte("*@#", c); i >= 0 {
+		return 36 + i, true
+	}
+	return 0, false
+}
+
+// cusipCheck doubles every second value of the last 8 characters of s from the right, then sums
+// the digits of each value, as ANSI X9.6 asks.
+func cusipCheck(s string) string {
+	values := lastValues(s, 8, cusipValue)
+	sum, double := 0, true
+	for i := len(values) - 1; i >= 0; i-- {
+		v := values[i]
+		if double {
+			v *= 2
+		}
+		double = !double
+		sum += v/10 + v%10
+	}
+	return string(rune('0' + (10-sum%10)%10))
+}
+
+// abaCheck weighs the last 8 digits of s 7, 3, 1, 7, 3, 1, 7, 3 from the right, which is the
+// 3, 7, 1 of the routing number's nine digits with the check digit last.
+func abaCheck(s string) string {
+	digits := lastValues(s, 8, func(c byte) (int, bool) { return int(c - '0'), c >= '0' && c <= '9' })
+	sum := 0
+	for i, d := range digits {
+		sum += d * [...]int{7, 3, 1}[(len(digits)-1-i)%3]
+	}
+	return string(rune('0' + (10-sum%10)%10))
+}
+
+const (
+	vinChars = "0123456789ABCDEFGHJKLMNPRSTUVWXYZ"
+	vinYears = "ABCDEFGHJKLMNPRSTVWXY123456789"
+	// vinLetters and vinLetterValues are parallel: each letter's value in the check sum.
+	vinLetters      = "ABCDEFGHJKLMNPRSTUVWXYZ"
+	vinLetterValues = "12345678123457923456789"
+)
+
+var vinWeights = [17]int{8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2}
+
+func vinArg(a []string) error {
+	if len(a[0]) != 3 || strings.Trim(a[0], vinChars) != "" {
+		return fmt.Errorf("vin(%q): a WMI is three digits or capital letters other than I, O and Q", a[0])
+	}
+	return nil
+}
+
+func vinCheck(vin string) byte {
+	sum := 0
+	for i, w := range vinWeights {
+		sum += vinValue(vin[i]) * w
+	}
+	if sum %= 11; sum == 10 {
+		return 'X'
+	}
+	return byte('0' + sum)
+}
+
+func vinValue(c byte) int {
+	if c <= '9' {
+		return int(c - '0')
+	}
+	return int(vinLetterValues[strings.IndexByte(vinLetters, c)] - '0')
+}
+
+// vin draws a VIN of the given WMI: five characters of vehicle description, a model year code,
+// a plant and six digits of serial, with the check character at position 9 over the whole.
+func vin(r rng, wmi string) string {
+	b := []byte(wmi + strings.Repeat("0", 14))
+	for i := 3; i < 8; i++ {
+		b[i] = vinChars[r.IntN(len(vinChars))]
+	}
+	b[9] = vinYears[r.IntN(len(vinYears))]
+	b[10] = vinChars[r.IntN(len(vinChars))]
+	for i := 11; i < 17; i++ {
+		b[i] = byte('0' + r.IntN(10))
+	}
+	b[8] = vinCheck(string(b))
+	return string(b)
+}
+
+func vinPrep(a []string, _ parsed) Call {
+	wmi := a[0]
+	return func(s *drawstate.State, _ string, _ []string) string { return vin(s, wmi) }
+}

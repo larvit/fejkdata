@@ -32,6 +32,9 @@ var builtins = withTransforms(map[string]builtin{
 	"luhn":         {calls: []string{"luhn()", "luhn(n)"}, arity: -1, checkArgs: luhnArg, prep: luhnPrep},
 	"mod11":        {calls: []string{"mod11()"}, arity: 0, prep: derive(mod11Check)},
 	"ean":          {calls: []string{"ean()"}, arity: 0, prep: derive(eanCheck)},
+	"isin":         {calls: []string{"isin()"}, arity: 0, prep: derive(isinCheck)},
+	"cusip":        {calls: []string{"cusip()"}, arity: 0, prep: derive(cusipCheck)},
+	"aba":          {calls: []string{"aba()"}, arity: 0, prep: derive(abaCheck)},
 	"bgmod11":      {calls: []string{"bgmod11(x)"}, arity: 1, checkArgs: plain(bgmod11Arg), prep: bgmod11Prep},
 	"fnr":          {calls: []string{"fnr(x)"}, arity: 1, checkArgs: plain(fnrArg), prep: fnrPrep, operands: func(a []string) []string { return a }},
 	"cpr":          {calls: []string{"cpr(x)"}, arity: 1, checkArgs: plain(cprArg), prep: cprPrep, operands: func(a []string) []string { return a }},
@@ -77,6 +80,7 @@ var builtins = withTransforms(map[string]builtin{
 		cc := a[0]
 		return func(s *drawstate.State, _ string, _ []string) string { return iban(s, cc) }
 	}},
+	"vin":       {calls: []string{"vin(WMI)"}, arity: 1, checkArgs: plain(vinArg), prep: vinPrep},
 	"date":      {calls: []string{"date(from,to,'layout')"}, arity: -1, checkArgs: plain(dateArgs), prep: datePrep},
 	"born":      {calls: []string{"born(min,max,'layout')"}, arity: -1, checkArgs: bornArgs, prep: bornPrep},
 	AddDaysName: {calls: []string{AddDaysName + "(d,n)", AddDaysName + "(d,n,'layout')"}, arity: -1, checkArgs: plain(addDaysArgs), operands: addDaysOperands},
