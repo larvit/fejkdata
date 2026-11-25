@@ -457,7 +457,7 @@ class WriteCounted(unittest.TestCase):
     def test_it_writes_the_tables_of_the_localities_with_a_population_and_the_address_from_the_counted_numbers(self) -> None:
         regions = {"1": {"code": "1", "name": "Nord", "population": 9, "timezone": "Europe/Riga"}}
         municipalities = {"01": {"code": "01", "name": "By", "region": "1", "population": 9}}
-        localities = {"A": {"code": "A", "name": "Alby", "municipality": "01", "population": 9}, "B": {"code": "B", "name": "Borg", "municipality": "01"}}
+        localities: dict[str, geo.Row] = {"A": {"code": "A", "name": "Alby", "municipality": "01", "population": 9}, "B": {"code": "B", "name": "Borg", "municipality": "01"}}
         counts = geo.Counts()
         counts.count("A", "1000", 2, "Gade", (12, True))
         counts.count("B", "2000", 1, "Vej", (3, False))
