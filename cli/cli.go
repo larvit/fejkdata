@@ -79,9 +79,9 @@ or line break in a value as a space.
       --format F         output form: text (default), json, ndjson, csv, tsv, pgcopy or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, each written after {/ in a template, then exit;
-                         --repeat, --separator, --format, --table and --null-text do nothing here
+                         --repeat, --separator, --format, --table and --null-text have no effect here
       --no-shipped-data  load only the --data-path directories
-      --null-text T      the text --format csv writes for a null column, and quotes in a value equal to it
+      --null-text T      the text --format csv writes for a null column, with a value equal to it quoted
                          (default: an empty field); refused under any other format
   -n, --repeat N         render the template N times, 0..1048576 (default 1); 0 prints nothing,
                          [] under --format json, or the header under --format csv or tsv
