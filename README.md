@@ -1987,9 +1987,10 @@ for `<=`. A swap that no test fails on prints as `LIVED`: the tests run the line
 don't check what it does. A swap on a line no test runs prints as `NOT COVERED`.
 
 `mutate` passes `--coverpkg ./...`, so a line counts as run when any package's tests run
-it. It passes `--integration`, so each swap runs the whole suite, and `--workers 2`, so
-two swaps run at once: with more, the suites slow each other and a swap the tests would
-kill prints as `TIMED OUT`. A run starts with one run of the suite, which finds the
+it. It passes `--integration`, so each swap runs the whole suite, and `--workers 1`, so
+one swap runs at a time: Gremlins halves the number of workers in that mode, and with
+several suites at once they slow each other, so a swap the tests would kill prints as
+`TIMED OUT`. A run starts with one run of the suite, which finds the
 covered lines and takes about two minutes. Then each swap on a covered line takes about
 40 seconds. Seven such swaps took seven and a half minutes in all.
 
