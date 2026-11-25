@@ -19,7 +19,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["alpha2", "alpha3", "calling-code", "capital", "currency", "flag", "languages", "name", "numeric", "sovereign", "tld"]
 SOVEREIGN = re.compile(r"^(?:Part of|Territor(?:y|ies) of|Crown dependency of|Commonwealth of|Associated with) ([A-Z]{2})$")
 STANDALONE = {"In contention", "International"}
-# Gaps and stale values in the source, keyed by alpha2.
+# Values the source lacks or gets wrong, keyed by alpha2.
 FIXUPS = {
     "KZ": {"capital": "Astana"},
     "PW": {"capital": "Ngerulmud"},
