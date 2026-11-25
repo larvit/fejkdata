@@ -16,7 +16,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
 | 155 | 0.9.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.3 |
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
@@ -253,14 +252,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 532. Lower the reading cost of the files a chunk reads most before its first commit.
-
-`reading-cost` printed Rising on 2026-11-20: the last 5 chunks' median is 207943 new input tokens before their first commit, against 91363 for the 5 before them. The latest chunk, which added geo.EE, geo.LT and geo.LV, read 395447 before its first commit.
-
-Read most by that chunk: `data-import/geo-lv.py` 8 times, `README.md` 5, `data-import/geo-lt.py` 4, `data-import/geo_lv_test.py` 4, and `data-import/geo-ee.py`, `data-import/geo.py`, `data-import/geo_ee_test.py`, `data-import/geo_lt_test.py` and `data/geo/LT/locality.tsv` 3 each. `docs/reading-cost.md` holds the figures of every chunk.
-
-Make the geo imports share what they repeat in `data-import/geo.py`, so a new country's import reads one shared module and its own file, and point README readers at the section a locale chunk needs. The chunk shipping this item runs `reading-cost --reset`.
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
