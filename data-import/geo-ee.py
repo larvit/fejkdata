@@ -140,17 +140,13 @@ def place_of(full: str, near: str) -> Place:
     return tuple(full.removesuffix(near).split(", ")[:-1])
 
 
-class Tally:
-    """What the addresses count: per locality, its addresses, its postal codes, its streets and the sum of its points;
-    and over them all, the house numbers by geo.number_range."""
+class Tally(geo.Counts):
+    """What geo.Counts counts, and per locality the sum of its points."""
 
     def __init__(self) -> None:
-        self.addresses: collections.Counter[str] = collections.Counter()
-        self.postal_codes: collections.Counter[tuple[str, str]] = collections.Counter()
-        self.streets: collections.Counter[tuple[str, str]] = collections.Counter()
+        super().__init__()
         self.east: dict[str, float] = collections.defaultdict(float)
         self.north: dict[str, float] = collections.defaultdict(float)
-        self.numbers: collections.Counter[tuple[int, bool]] = collections.Counter()
         self.unplaced: collections.Counter[Place] = collections.Counter()
 
     def add(self, row: Mapping[str, str], code_of: Mapping[Place, str]) -> None:
@@ -160,14 +156,12 @@ class Tally:
             self.unplaced[place] += 1
             return
         locality = code_of[place]
-        self.addresses[locality] += 1
-        self.postal_codes[(locality, row["SIHTNUMBER"])] += 1
         self.east[locality] += float(row["VIITEPUNKT_X"])
         self.north[locality] += float(row["VIITEPUNKT_Y"])
         street = street_of(row["LAHIAADRESS"])
-        if street and 0 < street[1] < 10000:
-            self.streets[(locality, street[0])] += 1
-            self.numbers[geo.number_range(street[1], street[2])] += 1
+        if street and not 0 < street[1] < 10000:
+            street = None
+        self.count(locality, row["SIHTNUMBER"], 1, street[0] if street else None, (street[1], street[2]) if street else None)
 
     def point(self, locality: str) -> tuple[str, str]:
         """The mean of a locality's points, as a latitude and a longitude of four decimals."""
@@ -249,9 +243,7 @@ def main() -> None:
     counted = tally(unzipped(ADDRESSES, cache, "sihtnumbrid.csv").decode("utf-8").splitlines(), code_of)
     answer = source.fetch(CENSUS, cache, "rl21003.json", magic=b"{", data=json.dumps(QUERY).encode(), headers={"Content-Type": "application/json"})
     weighed(regions, municipalities, localities, counted, Census(json.loads(answer)))
-    streets = geo.top_streets(counted.streets, a.street_share, a.min_streets, "addresses")
-    geo.write_by_code(out, regions, municipalities, {c: row for c, row in localities.items() if "population" in row}, counted.postal_codes, streets)
-    (out / "address.json").write_text(geo.address_json(counted.numbers, "{lower(1)}"), encoding="utf-8")
+    geo.write_counted(out, a, regions, municipalities, localities, counted, letter="{lower(1)}")
 
 
 if __name__ == "__main__":
