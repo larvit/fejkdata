@@ -18,7 +18,6 @@
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
 | 155 | 0.9.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 3 by 3 | 3.3 |
-| 252 | 0.9.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 565 | 0.9.0 |  |  | **Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.** | 1 | 1 | 2 | 2 | 2 | 1 by 2, 2.1 by 2 | 2.3 |
@@ -40,6 +39,7 @@
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
 | 569 | 0.10.0 | 567 |  | **Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.** | 1 | 2 | 1 | 2 | 3 | 1 by 4, 2.1 by 3 | 3.1 |
+| 252 | 0.10.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
 | 568 | 0.10.0 | 567 |  | **Ship odd Latin-script names: one name, one letter, over 100 characters, particles, apostrophes, two surnames, display orders, and words such as `Null`.** | 1 | 2 | 1 | 2 | 3 | 1 by 4, 2.1 by 2 | 2.7 |
 | 220 | 0.10.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 5 by 5 | 2.7 |
 | 30 | 0.10.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 2.6 |
@@ -304,10 +304,6 @@ Make the geo imports share what they repeat in `data-import/geo.py`, so a new co
 
 `{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn.
 
-### 252. Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.
-
-The AUR closed new account registration on 2026-10-14, so 0.1.0's packaging shipped without it. Once an account exists, restore what that chunk dropped: the `aurs` block in `release-tooling/goreleaser.yaml` (`git show 285ed85:release-tooling/goreleaser.yaml`), `aur` in both `--skip` lists, the `AUR_KEY` secret in both workflows, and the README's Install line and secret bullet.
-
 ### 256. Add `misc.bic`, built by its structure rules.
 
 A template; the structure rules are facts.
@@ -533,6 +529,10 @@ A bench of the audience picks the spelling, and the column that names the broken
 ### 569. Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.
 
 A handful of common real names per script, from an open source such as Wikidata, each with its script as a column. Emails built from them slug to the empty string until item 345 is answered, so say so on the page.
+
+### 252. Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.
+
+The AUR closed new account registration on 2026-10-14, so 0.1.0's packaging shipped without it. Once an account exists, restore what that chunk dropped: the `aurs` block in `release-tooling/goreleaser.yaml` (`git show 285ed85:release-tooling/goreleaser.yaml`), `aur` in both `--skip` lists, the `AUR_KEY` secret in both workflows, and the README's Install line and secret bullet.
 
 ### 568. Ship odd Latin-script names: one name, one letter, over 100 characters, particles, apostrophes, two surnames, display orders, and words such as `Null`.
 
