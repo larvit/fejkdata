@@ -14,7 +14,7 @@ func TestTransforms(t *testing.T) {
 		`{"format":"{ascii(x)}","x":"Ærø ß 日本"}`:                                        "AEro ss ",
 		// The letters beyond Latin-1 in ruby-i18n's default transliteration table, less ŉ.
 		`{"format":"{ascii(x)}","x":"ẞĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿŀŁłŃńŅņŇňŊŋŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžǪǫǬǭ"}`: "SSAaAaAaCcCcCcCcDdDdEeEeEeEeEeGgGgGgGgHhHhIiIiIiIiIiIJijJjKkkLlLlLlLlLlNnNnNnNGngOoOoOoRrRrRrSsSsSsSsTtTtTtUuUuUuUuUuUuWwYyYZzZzZzOoOo",
-		// Vietnamese: the letters Unicode decomposes to a Latin letter and a mark, Ơ, Ư and U+1EA0 to U+1EF9.
+		// Vietnamese: Ơ, Ư and U+1EA0 to U+1EF9, which ruby-i18n's table lacks.
 		`{"format":"{ascii(x)}","x":"Nguyễn Đặng"}`: "Nguyen Dang",
 		`{"format":"{ascii(x)}","x":"ƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ"}`: "OoUuAaAaAaAaAaAaAaAaAaAaAaAaEeEeEeEeEeEeEeEeIiIiOoOoOoOoOoOoOoOoOoOoOoOoUuUuUuUuUuUuUuYyYyYyYy",
 	} {

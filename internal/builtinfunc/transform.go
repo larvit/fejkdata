@@ -81,7 +81,7 @@ func transformPrep(outer func(string) string) func([]string, parsed) Call {
 }
 
 // asciiFolds maps the Latin letters with diacritics or ligatures to ASCII. The rows after ẞ hold Ơ, Ư
-// and U+1EA0 to U+1EF9, each folded to the first letter of its canonical decomposition in Unicode 17.0.
+// and U+1EA0 to U+1EF9, each folded to the first letter of its full canonical decomposition in Unicode 17.0.
 var asciiFolds = map[rune]string{
 	'À': "A", 'Á': "A", 'Â': "A", 'Ã': "A", 'Ä': "A", 'Å': "A", 'Æ': "AE", 'Ç': "C",
 	'È': "E", 'É': "E", 'Ê': "E", 'Ë': "E", 'Ì': "I", 'Í': "I", 'Î': "I", 'Ï': "I",

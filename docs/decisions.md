@@ -1557,11 +1557,11 @@ The change alters what `ascii` returns for those letters, so it changes what exi
 says. It ships in `0.2.0` and is named in the changelog
 ([Versioning](https://github.com/larvit/fejkdata/blob/main/README.md#versioning)).
 
-Revised 2026-11-25: ruby-i18n's table holds no letter of Vietnamese's tone-marked vowels, so
-`Nguyễn` became `Nguyn`, `Đặng` `Dng`, and `slugify` gave `nguy-n`. The table now also holds `Ơ`,
-`Ư` and U+1EA0 to U+1EF9, each mapped to the first letter of its canonical decomposition in
-Unicode 17.0's `UnicodeData.txt`. A decomposed `ễ`, the letter then its marks, already folds,
-as the marks drop.
+Revised 2026-11-25: ruby-i18n's table lacks `Ơ`, `Ư` and the vowels U+1EA0 to U+1EF9, so
+`Nguyễn` became `Nguyn`, `Đặng` became `Dng`, and `slugify` gave `nguy-n`. The table now holds
+them, each mapped to the first letter of its full canonical decomposition in Unicode 17.0's
+`UnicodeData.txt`, so `Ấ` gives `A`. `ascii` already folds a decomposed `ễ`, the letter then its
+marks, as it drops the marks; `slugify` turns each mark into `-`.
 
 Valid while every entry of `ascii`'s table maps a letter to letters and comes from ruby-i18n's
 default table or from Unicode's decomposition of a Vietnamese letter.
