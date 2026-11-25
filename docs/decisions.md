@@ -1537,7 +1537,7 @@ Valid while every non-ASCII letter of a shipped first or last name has an entry 
 table, which `TestAsciiFoldsEveryShippedNameLetter` checks, and RFC 5322 keeps letters, digits and
 `-` in atext.
 
-## `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
+## `ascii` folds the Latin letters of ruby-i18n's default table and the Vietnamese ones, except `ŉ`, so names such as `Wałęsa` and `Nguyễn` keep their letters
 
 2026-10-21, Lilleman auf Larv. Serves goal 3.3.
 
@@ -1557,8 +1557,14 @@ The change alters what `ascii` returns for those letters, so it changes what exi
 says. It ships in `0.2.0` and is named in the changelog
 ([Versioning](https://github.com/larvit/fejkdata/blob/main/README.md#versioning)).
 
+Revised 2026-11-25: ruby-i18n's table holds no letter of Vietnamese's tone-marked vowels, so
+`Nguyễn` became `Nguyn`, `Đặng` `Dng`, and `slugify` gave `nguy-n`. The table now also holds `Ơ`,
+`Ư` and U+1EA0 to U+1EF9, each mapped to the first letter of its canonical decomposition in
+Unicode 17.0's `UnicodeData.txt`. A decomposed `ễ`, the letter then its marks, already folds,
+as the marks drop.
+
 Valid while every entry of `ascii`'s table maps a letter to letters and comes from ruby-i18n's
-default table.
+default table or from Unicode's decomposition of a Vietnamese letter.
 
 ## A pull request that changes a workflow or what a release packages runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
 
