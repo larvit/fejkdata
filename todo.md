@@ -22,8 +22,7 @@
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
-| 556 | 0.9.0 |  |  | **Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.** | 2 | 1 | 2 | 3 | 3 | 1 by 4 | 1.9 |
-| 557 | 0.9.0 | 556 |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
+| 557 | 0.9.0 |  |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
 | 566 | 0.9.0 |  |  | **Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.** | 2 | 1 | 2 | 3 | 2 | 1 by 2, 5 by 2 | 2.2 |
 | 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
@@ -287,24 +286,6 @@ The maintainer does this item, not a chunk: each step speaks for the project in 
 - Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
 
 Awesome Go is done from our side: the pull request there is approved and waits to be merged. Item 548's monthly table shows whether each step moved what LLMs answer.
-
-### 556. Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.
-
-From a user loading 700,000 rows into MySQL. `LOAD DATA` reads an unquoted empty field as an empty string, so each nullable column needed a `NULLIF`.
-
-Checked on MySQL 8.4.6: an unquoted `NULL` loads as null and a quoted `"NULL"` as text, with or without `ESCAPED BY ''`. `\N` loads as null only under MySQL's default escaping, which also turns the CSV value `b\c` into `bc`. So the README shows `NULL`, not `\N`.
-
-Without the flag the bytes stay as they are, the form PostgreSQL's `COPY … CSV` reads. A bench of the audience picks the flag's name. Settle whether it applies to `tsv` too, and refuse it under any format it doesn't change. A new flag, and the exported name the library needs, each get a `CHANGELOG.md` entry.
-
-Touches:
-
-- `record.go`: `Record.CSVLine`, `csvField`
-- `cli/records.go`: `recordFormat`, `recordFormats`
-- `cli/flags.go`: `checkRecordFlags`
-- `cli/cli.go`: `invocation` (small)
-- `cli/records_test.go`
-- `record_test.go`
-- `README.md`: `## CLI` (small), `### Null` (small)
 
 ### 557. Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.
 
