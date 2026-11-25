@@ -1381,8 +1381,8 @@ that is sometimes zero `Inf`: both print rather than fail, except in a
 
 `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` and `{slugify(x)}` rewrite the value of `x` — a
 field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds the Latin letters of the default table of
-ruby-i18n, Rails' translation library: Latin-1's and most of Latin Extended-A's (`Åsa Öberg` → `Asa Oberg`, `Wałęsa` → `Walesa`), and
-drops any other non-ASCII rune, such as the `ễ` of `Nguyễn`. `slugify` folds as `ascii` does, except that it changes a non-ASCII rune `ascii` would drop
+ruby-i18n, Rails' translation library: Latin-1's and most of Latin Extended-A's (`Åsa Öberg` → `Asa Oberg`, `Wałęsa` → `Walesa`). It
+also folds the Vietnamese letters, which that table lacks (`Nguyễn` → `Nguyen`, `Đặng` → `Dang`), and drops any other non-ASCII rune, such as the `日` of `日本`. `slugify` folds as `ascii` does, except that it changes a non-ASCII rune `ascii` would drop
 to `-`. It then lowercases, changes each run of characters outside `a` to `z` and `0` to `9`
 to one `-`, and trims `-` from both ends: `Anna Lena` → `anna-lena`, `Åsa Öberg` →
 `asa-oberg`, `O'Brien` → `o-brien`, `日本` → the empty string. Two non-empty slugs joined by
