@@ -7,7 +7,7 @@ import tsv
 
 def split(what: str, text: str, fixed: Collection[str] = ()) -> tuple[list[str], list[str]]:
     """The commoner names of a list, ranked, and the rarer ones below its `=` line; exits on a name listed twice, among these and `fixed`, or not in letters."""
-    ordered, _, rarer = (part.split() for part in text.partition("\n=\n"))
+    ordered, _, rarer = (tsv.straight(part).split() for part in text.partition("\n=\n"))
     names = [*fixed, *ordered, *rarer]
     dupes = sorted({n for n in names if names.count(n) > 1})
     if dupes:

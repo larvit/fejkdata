@@ -327,7 +327,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   doesn't publish under `_PRENOMS_RARES`, and the script drops that group and the rows without a
   year. Last names: the ["Fichier des noms"](https://www.insee.fr/fr/statistiques/3536630)
   (`noms2008nat`), the births of 1891 to 2000 summed over their decades, for the 5,000 commonest; INSEE
-  writes them in capitals without accents. Both tables drop a name with a one-letter part
+  writes them in capitals without accents.
 - Licence: [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/),
   as INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) state
 - Attribution: "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee, Fichier des noms

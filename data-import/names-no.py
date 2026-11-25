@@ -44,7 +44,7 @@ def counted(cube: Mapping[str, Any], dimension: str) -> list[tuple[str, str, int
     codes = categories["index"] if isinstance(categories["index"], list) else sorted(categories["index"], key=categories["index"].get)
     if len(codes) != len(cube["value"]):
         sys.exit(f"{dimension}: {len(codes)} names but {len(cube['value'])} counts")
-    return [(code, categories["label"][code], persons) for code, persons in zip(codes, cube["value"]) if persons is not None and tsv.NAME.match(categories["label"][code])]
+    return [(code, tsv.straight(categories["label"][code]), persons) for code, persons in zip(codes, cube["value"]) if persons is not None and tsv.NAME.match(categories["label"][code])]
 
 
 def main() -> None:
