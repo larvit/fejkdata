@@ -284,6 +284,64 @@ func TestRunRecordMisuse(t *testing.T) {
 	}
 }
 
+func nullDir(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	content := `{"format":"","first":"Ada","gone":null,"word":"NULL"}`
+	if err := os.WriteFile(filepath.Join(dir, "users.json"), []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return dir
+}
+
+func TestRunRecordCSVNullTextSpellsANullAndQuotesAValueEqualToIt(t *testing.T) {
+	for _, c := range []struct {
+		args []string
+		want string
+	}{
+		{nil, "first,gone,word\nAda,,NULL\n"},
+		{[]string{"--null-text", "NULL"}, "first,gone,word\nAda,NULL,\"NULL\"\n"},
+		{[]string{"--null-text=\\N"}, "first,gone,word\nAda,\\N,NULL\n"},
+		{[]string{"--null-text", "NULL", "-n", "0"}, "first,gone,word\n"},
+	} {
+		t.Run(argsName(c.args), func(t *testing.T) {
+			code, out, errb := runOut("{/users}", append([]string{"--format", "csv", "-d", nullDir(t)}, c.args...)...)
+			if code != 0 || out != c.want {
+				t.Errorf("run(%v) = %d, %q, %q, want %q", c.args, code, out, errb, c.want)
+			}
+		})
+	}
+}
+
+func TestRunNullTextIsRefusedWhereItChangesNothing(t *testing.T) {
+	for _, c := range []struct {
+		args []string
+		want string
+	}{
+		{[]string{"--null-text", "NULL"}, "--null-text spells a null in --format csv; --format text writes no record"},
+		{[]string{"--null-text", "NULL", "--format", "json"}, "--null-text spells a null in --format csv; --format json writes null"},
+		{[]string{"--null-text", "NULL", "--format", "ndjson"}, "--null-text spells a null in --format csv; --format ndjson writes null"},
+		{[]string{"--null-text", "NULL", "--format", "tsv"}, "--null-text spells a null in --format csv; --format tsv writes a null as an empty cell"},
+		{[]string{"--null-text", "NULL", "--format", "pgcopy"}, `--null-text spells a null in --format csv; --format pgcopy writes \N`},
+		{[]string{"--null-text", "NULL", "--format", "sql"}, "--null-text spells a null in --format csv; --format sql writes NULL"},
+		{[]string{"--format", "csv", "--null-text", "a,b"}, `--null-text "a,b" would be quoted in csv, and a quoted field loads as text`},
+		{[]string{"--format", "csv", "--null-text", " x"}, `--null-text " x" would be quoted in csv`},
+	} {
+		t.Run(argsName(c.args), func(t *testing.T) {
+			code, out, errb := runOut("{/users}", append(c.args, "-d", nullDir(t))...)
+			if code != 2 || out != "" || !strings.Contains(errb, c.want) {
+				t.Errorf("run(%v) = %d, %q, %q; want misuse naming %q", c.args, code, out, errb, c.want)
+			}
+		})
+	}
+}
+
+func TestRunListIgnoresNullText(t *testing.T) {
+	if code, _, errb := runOut("", "--list", "--null-text", "NULL", "-d", nullDir(t)); code != 0 {
+		t.Errorf("run(--list --null-text NULL) = %d, %q, want it ignored, as --format is", code, errb)
+	}
+}
+
 func TestRunRecordOnABareValueIsRuntimeError(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "word.json"), []byte(`["a","b"]`), 0o644); err != nil {
