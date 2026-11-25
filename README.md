@@ -1984,10 +1984,14 @@ docker compose run --rm dev     # interactive shell
 checks a pull request must pass. Gremlins takes each Go line the branch changed since
 `origin/main`, test files excluded, and swaps one operator in it at a time, such as `<`
 for `<=`. A swap that no test fails on prints as `LIVED`: the tests run the line and
-don't check what it does. A swap on a line no test runs prints as `NOT COVERED`. A line
-counts as run when any package's tests run it, since `mutate` passes `--coverpkg ./...`,
-and each swap runs the whole suite (`--integration`). That makes a run slow: one changed
-line took three minutes, two of them the suite's first run, which finds the covered lines.
+don't check what it does. A swap on a line no test runs prints as `NOT COVERED`.
+
+`mutate` passes `--coverpkg ./...`, so a line counts as run when any package's tests run
+it. It passes `--integration`, so each swap runs the whole suite, and `--workers 2`, so
+two swaps run at once: with more, the suites slow each other and a swap the tests would
+kill prints as `TIMED OUT`. A run starts with one run of the suite, which finds the
+covered lines and takes about two minutes. Then each swap on a covered line takes about
+40 seconds. Seven such swaps took seven and a half minutes in all.
 
 ```sh
 docker compose run --rm mutate
