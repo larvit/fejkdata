@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/csv"
 	"fmt"
 	"strconv"
 	"strings"
@@ -22,6 +23,7 @@ var flagDefs = []flagDef{
 	{"help", "h", false, func(in *invocation, _ string) error { in.help = true; return nil }},
 	{"list", "", false, func(in *invocation, _ string) error { in.list = true; return nil }},
 	{"no-shipped-data", "", false, func(in *invocation, _ string) error { in.noShipped = true; return nil }},
+	{"null-text", "", true, func(in *invocation, v string) error { in.nullText, in.nullSet = v, true; return nil }},
 	{"repeat", "n", true, func(in *invocation, v string) error {
 		n, err := strconv.Atoi(v)
 		if err != nil || n < 0 || n > fejkdata.MaxRepeat {
@@ -179,8 +181,8 @@ func (in invocation) checkFlags() error {
 	return in.checkRecordFlags()
 }
 
-// checkRecordFlags rejects an empty --table under a format that writes to a table, and --separator
-// under a record format.
+// checkRecordFlags rejects an empty --table under a format that writes to a table, --separator
+// under a record format and --null-text where csv doesn't write it.
 func (in invocation) checkRecordFlags() error {
 	f, records := recordFormats[in.format]
 	if in.tableSet && in.table == "" && f.target != "" {
@@ -188,6 +190,29 @@ func (in invocation) checkRecordFlags() error {
 	}
 	if records && in.separatorSet && !in.list {
 		return fmt.Errorf("--separator joins text renders; --format %s %s", in.format, f.writes)
+	}
+	return in.checkNullText(f, records)
+}
+
+// checkNullText rejects --null-text under a format that writes its own null, and a text csv would quote,
+// which a reader loads as text.
+func (in invocation) checkNullText(f recordFormat, records bool) error {
+	if !in.nullSet || in.list {
+		return nil
+	}
+	if in.format != "csv" {
+		writes := "writes no record"
+		if records {
+			writes = f.nulls
+		}
+		return fmt.Errorf("--null-text spells a null in --format csv; --format %s %s", in.format, writes)
+	}
+	var b strings.Builder
+	w := csv.NewWriter(&b)
+	_ = w.Write([]string{in.nullText})
+	w.Flush()
+	if in.nullText != "" && b.String() != in.nullText+"\n" {
+		return fmt.Errorf("--null-text %q would be quoted in csv, and a quoted field loads as text", in.nullText)
 	}
 	return nil
 }

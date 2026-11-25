@@ -61,10 +61,21 @@ func (r *Record) CSVHeader() string {
 // CSVLine renders the column values as one CSV row: a null column an empty field and an
 // empty string "", the convention PostgreSQL's COPY reads a null by. A record of one null
 // column is a blank line, which COPY reads as null and most CSV readers skip.
-func (r *Record) CSVLine() string {
+func (r *Record) CSVLine() string { return r.CSVLineNull("") }
+
+// CSVLineNull renders CSVLine with a null column written as null, as given and unquoted, and a
+// string equal to null quoted, so a reader keeps it as text. MySQL's LOAD DATA reads an
+// unquoted NULL as null. A null that encoding/csv would quote is the caller's to refuse.
+func (r *Record) CSVLineNull(null string) string {
+	quote := func(s string) string {
+		if s == null {
+			return csvQuoted(s)
+		}
+		return csvField(s)
+	}
 	fields := make([]string, len(r.columns))
 	for i, c := range r.columns {
-		fields[i] = literal(c, csvField, "")
+		fields[i] = literal(c, quote, null)
 	}
 	return strings.Join(fields, ",")
 }
@@ -72,14 +83,13 @@ func (r *Record) CSVLine() string {
 // csvField quotes a field where encoding/csv would, and an empty one too.
 func csvField(s string) string {
 	first, _ := utf8.DecodeRuneInString(s)
-	switch {
-	case s == "":
-		return `""`
-	case s == `\.` || strings.ContainsAny(s, "\",\r\n") || unicode.IsSpace(first):
-		return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
+	if s == "" || s == `\.` || strings.ContainsAny(s, "\",\r\n") || unicode.IsSpace(first) {
+		return csvQuoted(s)
 	}
 	return s
 }
+
+func csvQuoted(s string) string { return `"` + strings.ReplaceAll(s, `"`, `""`) + `"` }
 
 // TSVHeader renders the column names as one tab-separated line, the header of a table.
 func (r *Record) TSVHeader() string {
