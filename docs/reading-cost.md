@@ -2995,3 +2995,18 @@ Read most (opens and searches):
 - `compose.yaml` 1
 
 ## Reading cost reset, 2026-11-25T23:23:14Z
+
+## Reading cost, chunk 529b571c5097, finished 2026-11-25T23:49:28Z
+
+73846 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/geo.py` 5
+- `data-import/geo_test.py` 4
+- `README.md` 2
+- `compose.yaml` 2
+- `data-import/geo-ee.py` 2
+- `data-import/geo-lv.py` 2
+- `data-import/geo_lt_test.py` 2
+- `data-import/geo-lt.py` 1
