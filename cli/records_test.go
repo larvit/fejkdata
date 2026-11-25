@@ -313,7 +313,7 @@ func TestRunRecordCSVNullTextSpellsANullAndQuotesAValueEqualToIt(t *testing.T) {
 	}
 }
 
-func TestRunNullTextIsRefusedWhereItChangesNothing(t *testing.T) {
+func TestRunNullTextIsRefusedOutsideCSVAndWhereCSVWouldQuoteIt(t *testing.T) {
 	for _, c := range []struct {
 		args []string
 		want string
@@ -324,7 +324,7 @@ func TestRunNullTextIsRefusedWhereItChangesNothing(t *testing.T) {
 		{[]string{"--null-text", "NULL", "--format", "tsv"}, "--null-text spells a null in --format csv; --format tsv writes a null as an empty cell"},
 		{[]string{"--null-text", "NULL", "--format", "pgcopy"}, `--null-text spells a null in --format csv; --format pgcopy writes \N`},
 		{[]string{"--null-text", "NULL", "--format", "sql"}, "--null-text spells a null in --format csv; --format sql writes NULL"},
-		{[]string{"--format", "csv", "--null-text", "a,b"}, `--null-text "a,b" would be quoted in csv, and a quoted field loads as text`},
+		{[]string{"--format", "csv", "--null-text", "a,b"}, `--null-text "a,b" would be quoted in csv, and a quoted field loads as text; use one with no comma, quote, line break or leading space`},
 		{[]string{"--format", "csv", "--null-text", " x"}, `--null-text " x" would be quoted in csv`},
 	} {
 		t.Run(argsName(c.args), func(t *testing.T) {
