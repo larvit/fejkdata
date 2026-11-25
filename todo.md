@@ -6,13 +6,12 @@
 
 `Bar = 0`
 
-`Next ID = 596`
+`Next ID = 597`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 553 | 0.8.1 |  | owner | **Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 6 | 3.7 |
 | 533 | 0.9.0 |  |  | **Make the `mutate` service count a line as covered when any package's tests run it.** | 1 | 2 | 1 | 2 | 1 | code health by 4 | 12.4 |
 | 532 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 2 | 4 | 3 | code health by 3 | 5.8 |
 | 34 | 0.9.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 1.4 |
@@ -21,6 +20,7 @@
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 563 | 0.9.0 |  |  | **Make `misc.territory[KZ].capital` render `Astana`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
+| 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
 | 565 | 0.9.0 |  |  | **Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.** | 1 | 1 | 2 | 2 | 2 | 1 by 2, 2.1 by 2 | 2.3 |
 | 556 | 0.9.0 |  |  | **Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.** | 2 | 1 | 2 | 3 | 3 | 1 by 4 | 1.9 |
 | 557 | 0.9.0 | 556 |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
@@ -255,16 +255,6 @@
 
 ## Details
 
-### 553. Get fejkdata listed in Awesome Go, publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
-
-The maintainer does this item, not a chunk: each step speaks for the project in public. The loop skips it.
-
-- Awesome Go: open the pull request their CONTRIBUTING.md asks for, with the pkg.go.dev link and the coverage report item 547 publishes. The repository has had 5 months of history since 2026-11-05.
-- The article: the checks behind the Swedish personnummer, the Norwegian fødselsnummer and the Finnish henkilötunnus, the test series their issuers keep, and why a postal code must match its town.
-- Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
-
-Item 548's monthly table shows whether each step moved what LLMs answer.
-
 ### 533. Make the `mutate` service count a line as covered when any package's tests run it.
 
 `compose.yaml`'s `mutate` runs Gremlins without `--coverpkg`, so its coverage step credits a line under `internal/` only to its own package's tests. The engine's behaviour is tested mostly from the root package, so on item 462's branch all 31 mutants of `internal/engine/…` printed `NOT COVERED`, with `Mutator coverage: 0.00%`, and a reader could take that for nothing to kill.
@@ -325,6 +315,15 @@ Touches:
 - `data-import/territory.py`: `FIXUPS` (small)
 - `data/misc/territory.tsv`
 - `CHANGELOG.md`
+
+### 596. Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
+
+The maintainer does this item, not a chunk: each step speaks for the project in public. The loop skips it.
+
+- The article: the checks behind the Swedish personnummer, the Norwegian fødselsnummer and the Finnish henkilötunnus, the test series their issuers keep, and why a postal code must match its town.
+- Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
+
+Awesome Go is done from our side: the pull request there is approved and waits to be merged. Item 548's monthly table shows whether each step moved what LLMs answer.
 
 ### 565. Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.
 
@@ -408,6 +407,19 @@ Goal 1.3 asks for a package `pip` installs. A wheel per platform carrying the CL
 The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token.
 
 The maintainer reported the PyPI registration complete on 2026-11-25. A pending publisher does not reserve the name until it publishes. PyPI allows 100 MB per file and 10 GB per project by default; six wheels of about 17 MB make about 105 MB per release, patches included.
+
+Settle each thing PyPI shows or stores before the first publish, read it on PyPI's and the Python Packaging Authority's own documentation, and have the maintainer approve the public texts. `AGENTS.md`'s rule for public texts holds:
+
+- `pyproject.toml`'s `name`, `description` (the summary line), `keywords`, `authors` and `requires-python`.
+- The trove classifiers: development status, audience, operating systems, Python versions, topics such as testing, and typing.
+- The license as an SPDX expression and its files, with the notices `DATA-LICENSES.md` says must ship with the data. It must be true of the code and the data.
+- The project links: homepage, documentation, source, changelog and issues.
+- The long description: its own README, with Python first, or the repository's, as Markdown. Relative links and images must work on pypi.org.
+- The platform tags: which Linux, macOS and Windows versions each wheel claims, musl included, checked by installing on each, and whether a source distribution ships, which cannot hold a binary per platform.
+- Type hints with `py.typed`, and the console command `fejkdata` that `pip install` puts on the path.
+- The trusted publisher's workflow and environment names, attestations, two-factor login, and who may publish.
+- How a bad version is withdrawn: yank it, since a file name can't be uploaded twice.
+- A check in the dry run: `twine check --strict` and a listing of each wheel's files and size. After the publish, look at the live page.
 
 ### 564. Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.
 
@@ -500,6 +512,17 @@ The maintainer ruled on 2026-11-25: one package, `@larvit/fejkdata`, carries all
 The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
 
 The package is `@larvit/fejkdata`, under the npm organization the maintainer already has. npm's trusted publishing needs npm 11.5.1, Node 22.14 and a GitHub-hosted runner, and is set in the package's settings, so the first version may have to be published by hand: check before the chunk ends.
+
+Settle each thing npm shows or stores before the first publish, read it on npm's own documentation, and have the maintainer approve the public texts. `AGENTS.md`'s rule for public texts holds:
+
+- `package.json`'s `description`, `keywords`, `homepage`, `bugs`, `repository`, `license`, `author` and `funding`.
+- The README npmjs.com shows: its own, with JavaScript first, or the repository's. Relative links and images must work there.
+- What the tarball holds: `files`, the `LICENSE`, and the notices `DATA-LICENSES.md` says must ship with the data. `license` must be true of the code and the data.
+- `exports`, `types`, `engines`, `sideEffects` and module format, so Node, Bun, Deno and a bundler resolve it.
+- `publishConfig.access` as public, since a scoped package is private by default, provenance, the `latest` dist-tag, and which tag a prerelease takes.
+- The organization's page, the package's two-factor setting, and who may publish.
+- How a bad version is withdrawn: `npm deprecate` before `npm unpublish`.
+- A check in the dry run: `npm publish --dry-run` and a listing of the packed files and their size. After the publish, look at the live page.
 
 ### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
 
