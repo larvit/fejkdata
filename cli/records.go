@@ -85,6 +85,7 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 		return err
 	}
 	format := recordFormats[in.format]
+	// csvLines is csv's one row writer; --null-text only gives it the text, and checkNullText refused any other format.
 	if in.nullSet && in.format == "csv" {
 		format.write = csvLines(in.nullText).write
 	}
