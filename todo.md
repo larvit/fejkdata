@@ -145,17 +145,11 @@
 | 63 | 0.11.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 3 by 6 | 0.7 |
 | 65 | 0.11.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.5 |
 | 587 | 0.12.0 | 567 | question | **Decide whether an `--edge 5%` flag mixes odd values into any template, once the odd-value tables have been in use.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
-| 205 | 0.12.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
-| 327 | 0.12.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
 | 589 | 0.12.0 | 566, 572 |  | **Load every odd value into PostgreSQL and MySQL from each format in the merge gate, and compare what comes back.** | 2 | 1 | 1 | 2 | 4 | 3 by 2, code health by 2 | 3.1 |
-| 326 | 0.12.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.2 |
 | 593 | 0.12.0 | 567 |  | **Ship national ids, IBANs and cards with a bad checksum or wrong length under an `invalid` path, and French NIRs of people born abroad.** | 2 | 1 | 1 | 2 | 4 | 1 by 4, 3 by 2 | 1.8 |
-| 328 | 0.12.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
 | 585 | 0.12.0 |  |  | **Add `nfc` and `nfd` transforms.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.3 |
 | 591 | 0.12.0 | 567 |  | **Ship skipped days and ambiguous date spellings.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
 | 592 | 0.12.0 | 567 |  | **Ship odd company names, such as `! LTD`, script-like names, emoji, digits only and very long ones.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
-| 324 | 0.12.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.2 |
-| 325 | 0.12.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.1 |
 | 590 | 0.12.0 | 567 |  | **Ship odd URLs, file names, version numbers and IP spellings.** | 1 | 1 | 1 | 1 | 3 | 1 by 2 | 0.9 |
 | 595 | 0.12.0 |  |  | **Let a CLI flag make CSV cells that start a spreadsheet formula harmless.** | 2 | 1 | 2 | 3 | 3 | 1 by 2 | 0.9 |
 | 588 | 0.12.0 | 567 |  | **Draw each row of a table exactly once, so a test run covers every odd value rather than some by chance.** | 3 | 1 | 2 | 4 | 5 | 1 by 4, 4 by 1 | 0.9 |
@@ -170,6 +164,12 @@
 | 468 | 0.13.0 |  | decision | **Set the CLI's GC target to 400 unless `GOGC` is set.** | 1 | 2 | 2 | 3 | 1 | 12.3 by 3 | 1.5 |
 | 465 | 0.13.0 |  | decision | **Load a table's rows under one parent on that parent's first reach, from an index `go generate` writes beside the manifest, for every large table.** | 4 | 2 | 3 | 7 | 8 | 12.2 by 8 | 0.2 |
 | 470 | 0.13.0 | 465 | decision | **Hold a parsed block of a table as its text and its row offsets, not one string per cell.** | 3 | 1 | 3 | 5 | 6 | 1 by 2 | 0.2 |
+| 205 | 0.14.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.6 |
+| 327 | 0.14.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 3.3 |
+| 326 | 0.14.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.2 |
+| 328 | 0.14.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.7 |
+| 324 | 0.14.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.2 |
+| 325 | 0.14.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.1 |
 | 348 | 1.0.0 |  | question | **Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 3 | 2.2 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 3.8 |
 | 396 | 1.1.0 |  | question | **Decide whether `fejkdata` writes Go struct types, and TypeScript types for the npm package, from a record's columns.** | 1 | 1 | 1 | 1 | 1 | 1 by 2 | 1.5 |
@@ -1002,17 +1002,9 @@ The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md
 
 It has the widest reach for the least effort, but every shipped category would need a type that says which odd table fits it. The other way is a README recipe per category, which already works.
 
-### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
-
 ### 589. Load every odd value into PostgreSQL and MySQL from each format in the merge gate, and compare what comes back.
 
 The round trip today is through Python's CSV and JSON readers, run once by hand: 516 strings, no mismatch. Pin both images to a full patch version.
-
-### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
-
-Find the numbering plan and its licence first.
 
 ### 593. Ship national ids, IBANs and cards with a bad checksum or wrong length under an `invalid` path, and French NIRs of people born abroad.
 
@@ -1029,14 +1021,6 @@ Samoa's 2011-12-30, the 1582 Gregorian gap, `03/04/05`, two-digit years, 12 AM.
 ### 592. Ship odd company names, such as `! LTD`, script-like names, emoji, digits only and very long ones.
 
 Take the forms from a register that really holds them, such as Companies House, and change the name where it would point at a living company.
-
-### 324. Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.
-
-Read them from the register the streets item names, Staðfangaskrá, where it holds them; else find an open source first.
-
-### 325. Give `geo/IS`'s places their streets.
-
-Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
 
 ### 590. Ship odd URLs, file names, version numbers and IP spellings.
 
@@ -1131,6 +1115,22 @@ The options, for the maintainer to choose:
 
 - Today a street row keeps about 110 bytes: a `[]string` of 16-byte cells, plus lookups. Text and row offsets would keep about 27 bytes, an estimate no spike measured.
 - After item 465, a run that reaches every parent still keeps 40 MB at today's US streets, and 275 to 407 MB at 10 times them.
+
+### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
+
+Find the issuer's rules, and a test series if it publishes one, first.
+
+### 326. Add `is_IS.phone`, drawn from Iceland's numbering plan.
+
+Find the numbering plan and its licence first.
+
+### 324. Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.
+
+Read them from the register the streets item names, Staðfangaskrá, where it holds them; else find an open source first.
+
+### 325. Give `geo/IS`'s places their streets.
+
+Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
 
 ### 348. Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".
 
