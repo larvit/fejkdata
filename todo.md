@@ -23,7 +23,6 @@
 | 560 | 0.9.0 |  |  | **Keep a name with a one-letter part before an apostrophe, such as `O'Brien` or `N'Diaye`, in every name import.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 4, 2.1 by 2 | 3.3 |
 | 256 | 0.9.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 3 by 2 | 2.8 |
 | 24 | 0.9.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
-| 563 | 0.9.0 |  |  | **Make `misc.territory[KZ].capital` render `Astana`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 3 by 3 | 2.6 |
 | 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
 | 565 | 0.9.0 |  |  | **Fold Vietnamese letters in `ascii` and `slugify`, so `Nguyễn` gives `Nguyen` and `Đặng` gives `Dang`.** | 1 | 1 | 2 | 2 | 2 | 1 by 2, 2.1 by 2 | 2.3 |
 | 556 | 0.9.0 |  |  | **Let a CLI flag set the text `csv` writes for a null column, and quote a value that equals that text.** | 2 | 1 | 2 | 3 | 3 | 1 by 4 | 1.9 |
@@ -309,16 +308,6 @@ A template; the structure rules are facts.
 ### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
-
-### 563. Make `misc.territory[KZ].capital` render `Astana`.
-
-It renders `Nur-Sultan`, which the city has not been called since 2022. The source CSV still says so, so add a row to `FIXUPS`, and check the other capitals against a second source in the same change.
-
-Touches:
-
-- `data-import/territory.py`: `FIXUPS` (small)
-- `data/misc/territory.tsv`
-- `CHANGELOG.md`
 
 ### 596. Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
 
