@@ -17,7 +17,7 @@ type recordFormat struct {
 	write  func(record recordSource, repeat int, table string, out *bufio.Writer) error
 	empty  func(*fejkdata.Record) string // nil where zero records print nothing
 	target string                        // what --table names under this format, "" where it does nothing
-	nulls  string                        // what it writes for a null column, which --null-text would seem to set
+	nulls  string                        // what it writes for a null column
 }
 
 // SQL Server refuses a VALUES list above 1000 rows (error 10738).
@@ -85,7 +85,7 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 		return err
 	}
 	format := recordFormats[in.format]
-	if in.nullSet {
+	if in.nullSet && in.format == "csv" {
 		format.write = csvLines(in.nullText).write
 	}
 	if in.repeat == 0 {
@@ -94,11 +94,11 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 	return format.write(record, in.repeat, table, bufio.NewWriter(w))
 }
 
-// csvLines writes csv rows with a null column spelled null.
-func csvLines(null string) recordLines {
+// csvLines writes csv rows with a null column written as text.
+func csvLines(text string) recordLines {
 	return recordLines{
 		header: (*fejkdata.Record).CSVHeader,
-		line:   func(r *fejkdata.Record) string { return r.CSVLineNull(null) },
+		line:   func(r *fejkdata.Record) string { return r.CSVLineNull(text) },
 		sep:    "\n",
 	}
 }

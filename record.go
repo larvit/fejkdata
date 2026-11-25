@@ -63,19 +63,24 @@ func (r *Record) CSVHeader() string {
 // column is a blank line, which COPY reads as null and most CSV readers skip.
 func (r *Record) CSVLine() string { return r.CSVLineNull("") }
 
-// CSVLineNull renders CSVLine with a null column written as null, as given and unquoted, and a
-// string equal to null quoted, so a reader keeps it as text. MySQL's LOAD DATA reads an
-// unquoted NULL as null. A null that encoding/csv would quote is the caller's to refuse.
-func (r *Record) CSVLineNull(null string) string {
-	quote := func(s string) string {
-		if s == null {
-			return csvQuoted(s)
-		}
-		return csvField(s)
+// CSVLineNull is CSVLine with a null column written as text, and any other value equal to text
+// quoted, so a reader keeps it as a value. MySQL's LOAD DATA reads an unquoted NULL as null. A text
+// that encoding/csv would quote is written quoted too, so a reader reads it as a value, not a null.
+func (r *Record) CSVLineNull(text string) string {
+	null := text
+	if text != "" {
+		null = csvField(text)
 	}
 	fields := make([]string, len(r.columns))
 	for i, c := range r.columns {
-		fields[i] = literal(c, quote, null)
+		switch {
+		case c.Null:
+			fields[i] = null
+		case c.Value == text:
+			fields[i] = csvQuoted(c.Value)
+		default:
+			fields[i] = literal(c, csvField, "")
+		}
 	}
 	return strings.Join(fields, ",")
 }
