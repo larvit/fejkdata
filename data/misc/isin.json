@@ -1,0 +1,13 @@
+{
+  "format": "{.territory.alpha2}{c}{isin()}",
+  "hidden": {
+    "c": {
+      "format": "{x}",
+      "repeat": 9,
+      "x": [
+        { "format": "{digits(1)}", "weight": 10 },
+        { "format": "{upper(1)}", "weight": 26 }
+      ]
+    }
+  }
+}

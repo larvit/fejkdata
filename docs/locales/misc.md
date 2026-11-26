@@ -1,8 +1,8 @@
 # `misc`
 
 `misc` carries `car`, `coordinate`, `creditcard`
-(Luhn-valid), `creditcard-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
-`httpstatus`, `iban-test`, `ip` (IPv4, or IPv6 one time in nine), `ipv6` (in `2001:db8::/32`), `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
+(Luhn-valid), `creditcard-test`, `cusip`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
+`httpstatus`, `iban-test`, `ip` (IPv4, or IPv6 one time in nine), `ipv6` (in `2001:db8::/32`), `isin`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
 severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
 3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent`, `uuid` (v4) and `version` (such as `1.24.3` or `v2.0.1-rc.1`). Many
 carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
@@ -41,6 +41,15 @@ a DE or DK account, can still refuse a draw. `misc.creditcard-test` and
 each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK. Each key holds one
 number, so there are seven cards and seven IBANs, and `{/misc.creditcard-test[visa]}` always prints
 `4242424242424242` and `{/misc.iban-test[SE]}` `SE3550000000054910000003`.
+
+## Securities identifiers
+
+`misc.isin` and `misc.cusip` are valid, not real: each passes the check its standard sets, and a
+real security may hold the identifier. `misc.isin` is ISO 6166's twelve characters: an ISO 3166-1
+alpha-2 code from `misc.territory`, nine random digits or capital letters, and the check digit
+`{isin()}` draws. `misc.cusip` is ANSI X9.6's nine characters: eight random digits or capital
+letters and the check digit `{cusip()}` draws. A register that looks the identifier up, or a
+checker that requires a CUSIP's issuer to be registered, can still refuse a draw.
 
 ## Registry tables
 

@@ -1708,7 +1708,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 </details>
 
 <details>
-<summary><code>misc</code>, 91 paths</summary>
+<summary><code>misc</code>, 93 paths</summary>
 
 | Path | Kind | Example | Source |
 |---|---|---|---|
@@ -1729,6 +1729,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `misc.currency.name` | real | `Argentine Peso` | datasets/currency-codes (ISO 4217), with symbols from Unicode CLDR |
 | `misc.currency.numeric` | real | `032` | datasets/currency-codes (ISO 4217), with symbols from Unicode CLDR |
 | `misc.currency.symbol` | real | `$` | datasets/currency-codes (ISO 4217), with symbols from Unicode CLDR |
+| `misc.cusip` | valid | `XRO1B7604` | hand-written, with ANSI X9.6's check digit |
 | `misc.datetime` | invented | `2000-12-02T22:30:33Z` | hand-written |
 | `misc.emoji` | real | `😂` | hand-written |
 | `misc.httpmethod` | real | `CONNECT` | IANA's HTTP Method Registry |
@@ -1748,6 +1749,7 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `misc.ip.wide4` | valid | `119.169.5.168` | hand-written |
 | `misc.ip.wide6` | valid | `42e0:6a46:2aa0:c13b:95dd:4c7a:152f:73b6` | hand-written |
 | `misc.ipv6` | valid | `2001:db8:3a4:9:e5:da15:76d9:742` | hand-written, inside RFC 3849's 2001:db8::/32 |
+| `misc.isin` | valid | `NUQNRWNVZNJ7` | hand-written, with ISO 6166's check digit and an ISO 3166-1 country code |
 | `misc.language` | real | `Amharic` | datasets/language-codes, the Library of Congress' ISO 639-2 register |
 | `misc.language.code` | real | `am` | datasets/language-codes, the Library of Congress' ISO 639-2 register |
 | `misc.language.code3` | real | `amh` | datasets/language-codes, the Library of Congress' ISO 639-2 register |

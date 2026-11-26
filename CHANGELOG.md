@@ -16,6 +16,7 @@ with its replacement, and each removed path, column or flag.
 
 - `{isin()}`, `{cusip()}` and `{aba()}` compute the check digit of an ISIN, a CUSIP and a US routing number from the characters rendered before them.
 - `{vin(WMI)}` renders a whole VIN of a manufacturer code, with a valid check character.
+- `misc.isin` and `misc.cusip` draw an ISIN and a CUSIP with a valid check digit.
 - `fr_FR.first-name` has the row `M'Hamed` and `fr_FR.last-name` the row `N'Diaye`. The name imports used to drop a name with a one-letter part before an apostrophe, such as `N'Diaye`, and now keep it, written with the ASCII apostrophe. A lone initial is still dropped.
 - `--null-text T` sets the text `--format csv` writes for a null column, such as `NULL`, which MySQL's `LOAD DATA` reads as null. `csv` quotes any value equal to T, so it loads as text. The flag is refused under any other `--format`, and for a T that `csv` would quote. In Go, `Record.CSVLineNull(text)` writes one record the same way.
 

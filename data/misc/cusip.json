@@ -1,0 +1,13 @@
+{
+  "format": "{c}{cusip()}",
+  "hidden": {
+    "c": {
+      "format": "{x}",
+      "repeat": 8,
+      "x": [
+        { "format": "{digits(1)}", "weight": 10 },
+        { "format": "{upper(1)}", "weight": 26 }
+      ]
+    }
+  }
+}
