@@ -79,7 +79,8 @@
         "actions/deploy-pages",
         "actions/upload-pages-artifact",
         "coverallsapp/github-action",
-        "peter-evans/dockerhub-description"
+        "peter-evans/dockerhub-description",
+        "pypa/gh-action-pypi-publish"
       ],
       "automerge": false
     },

@@ -52,14 +52,28 @@ COPY data-import/ /data-import/
 COPY data/ /data/
 RUN python3 -m unittest discover -s /data-import -p '*_test.py' && touch /tested
 
+FROM golang:${GO_VERSION} AS cli
+ENV GOCACHE=/cache/build GOMODCACHE=/cache/mod
+WORKDIR /app
+COPY . .
+RUN --mount=type=cache,target=/cache \
+	CGO_ENABLED=0 go build -o /fejkdata ./cmd/fejkdata
+
+FROM python:3.15.2-slim AS python-package
+COPY README.md /README.md
+COPY python-package/ /python-package/
+COPY --from=cli /fejkdata /python-package/fejkdata/bin/fejkdata
+RUN cd /python-package && python3 -m unittest discover -p '*_test.py' && touch /tested
+
 FROM python:3.15.2-slim AS python-lint
 COPY --from=ghcr.io/astral-sh/ruff:0.17.6-alpine /usr/local/bin/ruff /usr/local/bin/ruff
 RUN pip install --no-cache-dir mypy==2.4.1
 COPY data-import/ /python/data-import/
 COPY release-tooling/ /python/release-tooling/
+COPY python-package/ /python/python-package/
 RUN ruff check --no-cache /python
 # mypy runs inside each folder, since a script imports its siblings by bare name, as `import geo`.
-RUN for folder in data-import release-tooling; do (cd /python/$folder && mypy --strict --cache-dir /dev/null .) || exit 1; done && touch /tested
+RUN for folder in data-import release-tooling python-package; do (cd /python/$folder && mypy --strict --cache-dir /dev/null .) || exit 1; done && touch /tested
 
 FROM goreleaser/goreleaser:v2.20.3 AS packaging
 WORKDIR /check
@@ -73,6 +87,7 @@ COPY --from=release-tooling /tested /tmp/release-tooling-tested
 COPY --from=data-import /tested /tmp/data-import-tested
 COPY --from=packaging /tested /tmp/packaging-tested
 COPY --from=python-lint /tested /tmp/python-lint-tested
+COPY --from=python-package /tested /tmp/python-package-tested
 
 # A pull request's CI builds only latest and lowest-and-tooling, so a check goes in one of them.
 FROM lowest-and-tooling
