@@ -1,6 +1,6 @@
 # `de_DE`
 
-`de_DE`, German, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `steuer-id`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `Frau` and `Mann`, `title` is
+`de_DE`, German, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `steuer-id`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `Frau` and `Mann`, `title` is
 `Dr.`, `Prof.` and `Prof. Dr.`, drawn whatever the sex. `{/de_DE.person}` renders e.g. `Emilia Hesse`.
 
 No open register publishes Germany's name counts. The first names are the city of Munich's open data
@@ -79,6 +79,9 @@ A program showing the codes or blocks credits "Datenquelle: Bundesnetzagentur", 
 the [mobile blocks](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/MobileDienste/RNB_csv.csv)
 and the [Vorwahlverzeichnis](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/ONRufnr/_DL/Vorwahlverzeichnis_ONB.zip.zip),
 and says the data was changed: each block and code is a row.
+
+`de_DE.mobile` and `de_DE.landline` draw the two kinds of `de_DE.phone` apart, each in its national
+form. A bound one reads `national` and `international`.
 
 ## German words
 

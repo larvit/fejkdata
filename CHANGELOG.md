@@ -15,6 +15,7 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
+- Every locale has `mobile` and `landline`, such as `sv_SE.mobile` and `sv_SE.landline`: a full mobile number and a full fixed one in the national form, each with `national` and `international`. Where a locale's `phone-mobile` and `phone-fixed` hold prefixes, these hold whole numbers. `en_US.landline` reads `en_US.mobile`, since a US number doesn't show its kind. `phone` is unchanged.
 - `{isin()}`, `{cusip()}` and `{aba()}` compute the check digit of an ISIN, a CUSIP and a US routing number from the characters rendered before them.
 - `{vin(WMI)}` renders a whole VIN of a manufacturer code, with a valid check character.
 - `misc.isin` and `misc.cusip` draw an ISIN and a CUSIP with a valid check digit.

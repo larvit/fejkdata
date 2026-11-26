@@ -2405,3 +2405,14 @@ Valid while `csv` is the one record format with a free choice of null spelling.
 PostgreSQL's text can't hold a NUL. `pgcopy` writes one as `\000`, which COPY decodes and refuses with an error naming the line; a raw NUL made `psql` cut the row short and load the next line glued to it. `sql` has no escape for a NUL, and a refusal there needs an error from a serializer that returns a string. The CLI could check each record, but that copies its columns and fails a run partway, which goal 5.4 rules out. A load can't refuse a NUL either: `json` carries one as `\u0000`, and one draw is written in every format. So `csv`, `sql` and `tsv` write a NUL as it is, and the README says what `psql` does with one.
 
 Valid while a serializer returns a string and no shipped path draws a NUL.
+
+## A locale's full numbers are `mobile` and `landline`, and `phone-mobile` and `phone-fixed` stay its prefix tables
+
+2026-11-26, the agent shipping item 558. Goal 1: a user fills a customer table with numbers of one kind by path, in any locale.
+
+`phone-mobile` already names a table of prefixes in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`, so a path that draws a full number could not take it without renaming the table, a break. A panel of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) ranked five pairs. `mobile` and `landline` and `mobile-number` and `fixed-number` tied on points; three seats typed the first pair first, one the second, and one `phone-mobile-number`. Every seat found `phone-mobile-number` and `mobile-phone` too close to the prefix tables to tell apart. The five seats also proposed renaming those tables to `phone-mobile-prefix` and `phone-fixed-prefix`, which a later major may do.
+
+`en_US` cannot tell the kinds apart, since mobile and fixed numbers share area codes, so `en_US.landline` reads `en_US.mobile` and its page says so. Each locale's `phone` keeps its columns and its shares, and its paths carry no column of `phone`.
+
+Valid while `phone-mobile` and `phone-fixed` name prefix tables.
+

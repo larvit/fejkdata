@@ -1,7 +1,7 @@
 # `nb_NO`
 
 `nb_NO`, Norwegian in the Bokmål standard, carries `address`, `birth-day`, `color`, `company`, `company-coined`,
-`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `month`, `paragraph`, `person`,
+`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`,
 `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`.
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
@@ -81,6 +81,9 @@ A number's `block` is one of those prefixes and its `subscriber` the last four d
 `34 56`. A number is valid, not real: it lies in a block Nkom has assigned, and a real subscriber
 may hold it. A bound number reads `national`, `46 12 34 56`, and `international`,
 `+47 46 12 34 56`. The page names no country-code form, so fejkdata puts `+47` before the same pairs.
+
+`nb_NO.mobile` and `nb_NO.landline` draw the two kinds of `nb_NO.phone` apart, each in its national
+form. A bound one reads `national` and `international`.
 
 ## Norwegian words
 
