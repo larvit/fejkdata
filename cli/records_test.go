@@ -131,7 +131,7 @@ func TestRunRecordTSVFeedsALaterRun(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("tsv run = %d, stderr=%q", code, errb)
 	}
-	if !strings.HasPrefix(tsv, "customer\tid\n") || strings.Count(tsv, "\n") != 31 {
+	if !strings.HasPrefix(tsv, "id\tcustomer\n") || strings.Count(tsv, "\n") != 31 {
 		t.Fatalf("tsv output = %q, want a header and 30 rows", tsv)
 	}
 	_, truth, _ := runOut("{/series}", "--seed", "1", "--format", "ndjson", "-n", "30", "-d", first)

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"testing/fstest"
+
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 type handed struct {
@@ -41,7 +43,7 @@ func TestWalkHandsEachCategoryInOrder(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []handed{
-		{nil, "a", map[string]any{"x": "1"}},
+		{nil, "a", jsonvalue.Object{Keys: []string{"x"}, Fields: map[string]any{"x": "1"}}},
 		{[]string{"sub"}, "b", "y"},
 		{[]string{"sub", "deep"}, "e", "z"},
 	}
@@ -227,7 +229,7 @@ func TestAMountedTreeHandsItsCategoriesUnderItsNamespace(t *testing.T) {
 	got, err := walk(t, src)
 	want := []handed{
 		{[]string{"my", "data"}, "a", "x"},
-		{[]string{"my", "data", "sub"}, "b", map[string]any{"rows": "b.tsv"}},
+		{[]string{"my", "data", "sub"}, "b", jsonvalue.Object{Keys: []string{"rows"}, Fields: map[string]any{"rows": "b.tsv"}}},
 	}
 	if err != nil || !reflect.DeepEqual(got, want) {
 		t.Errorf("Walk = %+v, %v, want %+v", got, err, want)

@@ -104,7 +104,7 @@ func TestRecordProjectsFieldsAsColumns(t *testing.T) {
 	}
 	got := r.Columns()
 	if len(got) != 2 || got[0].Name != "first" || got[1].Name != "last" {
-		t.Fatalf("Record.Columns() = %v, want columns first, last in name order", got)
+		t.Fatalf("Record.Columns() = %v, want columns first, last as the template lists them", got)
 	}
 	if (got[0].Value != "Ada" && got[0].Value != "Bo") || (got[1].Value != "Lovelace" && got[1].Value != "Ek") {
 		t.Fatalf("columns = %v, want the field values", got)
@@ -936,7 +936,7 @@ func TestRecordColumnReadingTwoFieldsDeepKeepsItsDatatypeAndNull(t *testing.T) {
 	f := newGenerator(t, dir, WithSeed(1))
 	seen := map[bool]bool{}
 	eachRecordOf(t, f, "deep", 100, func(r *Record) {
-		c := r.Columns()[0]
+		c := columnsByName(r)["e"]
 		if c.DataType != DataTypeInteger || c.Null != (c.Value == "") {
 			t.Fatalf("column = %+v, want an integer column, null or a digit", c)
 		}

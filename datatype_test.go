@@ -271,7 +271,7 @@ func TestAReadOfAPathIntoAColumnIsNotThatColumn(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if c := r.Columns()[0]; c.Name != "c" || c.DataType != DataTypeString || c.Value != "abc" {
+			if c := columnsByName(r)["c"]; c.Name != "c" || c.DataType != DataTypeString || c.Value != "abc" {
 				t.Errorf("%s: columns = %+v, want c the string abc", src, r.Columns())
 			}
 		})

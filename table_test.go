@@ -280,7 +280,7 @@ func TestTableRecordDescendsToALinkedTable(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if line := r.CSVLine(); line != "1480,Göteborg,590000,14" {
+	if line := r.CSVLine(); line != "1480,Göteborg,14,590000" {
 		t.Fatalf("record inside region 14 = %q", line)
 	}
 }
