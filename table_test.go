@@ -1201,8 +1201,10 @@ func TestEveryTerritoryTldIsDelegatedSaveEH(t *testing.T) {
 	tldHeader, tldRows := shippedRows(t, "tld.tsv", "tld")
 	delegated := map[string]bool{}
 	eachShippedMiscRow(tldRows, func(_ int, r []string) { delegated[r[tldHeader["tld"]]] = true })
+	sawEH := false
 	eachShippedMiscRow(rows, func(line int, r []string) {
 		alpha2, tld := r[header["alpha2"]], r[header["tld"]]
+		sawEH = sawEH || alpha2 == "EH"
 		if (tld == "") != (alpha2 == "EH") {
 			t.Errorf("territory.tsv line %d: %s has the tld %q, and only EH has none", line, alpha2, tld)
 		}
@@ -1210,6 +1212,9 @@ func TestEveryTerritoryTldIsDelegatedSaveEH(t *testing.T) {
 			t.Errorf("territory.tsv line %d: %s names the tld %q, which tld.tsv does not hold", line, alpha2, tld)
 		}
 	})
+	if !sawEH {
+		t.Error("territory.tsv has no row EH")
+	}
 }
 
 // TestEveryUserAgentColumnAgreesWithItsString pins what the column regexes cannot:
