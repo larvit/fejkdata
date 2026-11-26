@@ -259,7 +259,7 @@ class HouseNumbers(unittest.TestCase):
 
 class CleanlyWritten(unittest.TestCase):
 	def test_mojibake_trailing_punctuation_a_remark_in_parentheses_and_a_name_said_twice_are_refused(self) -> None:
-		for name in ["All\u201avägen", "Syre\u00b4nvägen", "Ã¤ngsvägen", "Bad\ufffdName", "Addison Ln,", "Addison Ln;", "Village Ridge Road(Private)", "Island Avenue (Glp)", "Rönnerums bygata Rönnerums bygata", "Vägen Vägen", "", " Main St", "Main  St"]:
+		for name in ["All\u201avägen", "Syre\u00b4nvägen", "Ã¤ngsvägen", "Bad\ufffdName", "Addison Ln,", "Addison Ln;", "Village Ridge Road(Private)", "Island Avenue (Glp)", "Rönnerums bygata Rönnerums bygata", "Vägen Vägen", "", " Main St", "Main St ", "Main  St", "Main\tSt", "Main\x00St"]:
 			with self.subTest(name=name):
 				self.assertFalse(geo.cleanly_written(name))
 
