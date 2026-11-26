@@ -85,6 +85,10 @@ class ReadmeExamples(unittest.TestCase):
 		readme = pathlib.Path(__file__).with_name("README.md").read_text(encoding="utf-8")
 		self.assertEqual(self.run_blocks(readme), 2)
 
+	def test_the_repository_s_readme(self) -> None:
+		readme = pathlib.Path(__file__).parent.with_name("README.md").read_text(encoding="utf-8")
+		self.assertEqual(self.run_blocks(readme), 1)
+
 	def test_a_python_block_with_no_text_block_after_it_fails(self) -> None:
 		with self.assertRaises(AssertionError):
 			self.run_blocks("```python\nprint(1)\n```\n\nIt prints 1.\n")

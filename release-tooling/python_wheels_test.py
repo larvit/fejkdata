@@ -87,8 +87,40 @@ class Build(unittest.TestCase):
 
 	def test_the_metadata_names_each_licence_file_and_the_oldest_python(self) -> None:
 		metadata = self.wheel("win_amd64").read("fejkdata-0.9.0.dist-info/METADATA").decode()
-		self.assertIn("\nLicense-Expression: MIT\nLicense-File: LICENSE\nLicense-File: DATA-LICENSES.md\nLicense-File: WORDNET-LICENSE.txt\n", metadata)
+		self.assertIn(
+			"\nLicense-Expression: MIT AND LicenseRef-fejkdata-data-licenses\n"
+			"License-File: LICENSE\nLicense-File: DATA-LICENSES.md\nLicense-File: WORDNET-LICENSE.txt\n",
+			metadata,
+		)
 		self.assertIn("\nRequires-Python: >=3.11\n", metadata)
+
+	def test_the_metadata_names_what_pypi_shows_beside_the_readme(self) -> None:
+		metadata = self.wheel("win_amd64").read("fejkdata-0.9.0.dist-info/METADATA").decode()
+		for line in (
+			"Keywords: fake data,test data,mock data,fixtures,seed data,synthetic data,testing,csv,sql,national id",
+			"Project-URL: Homepage, https://fejkdata.dev",
+			"Project-URL: Documentation, https://github.com/larvit/fejkdata#readme",
+			"Project-URL: Source, https://github.com/larvit/fejkdata",
+			"Project-URL: Changelog, https://github.com/larvit/fejkdata/blob/main/CHANGELOG.md",
+			"Project-URL: Issues, https://github.com/larvit/fejkdata/issues",
+			"Classifier: Development Status :: 4 - Beta",
+			"Classifier: Intended Audience :: Developers",
+			"Classifier: Operating System :: MacOS",
+			"Classifier: Operating System :: Microsoft :: Windows",
+			"Classifier: Operating System :: POSIX :: Linux",
+			"Classifier: Programming Language :: Python :: 3 :: Only",
+			"Classifier: Programming Language :: Python :: 3.11",
+			"Classifier: Programming Language :: Python :: 3.12",
+			"Classifier: Programming Language :: Python :: 3.13",
+			"Classifier: Programming Language :: Python :: 3.14",
+			"Classifier: Programming Language :: Python :: 3.15",
+			"Classifier: Topic :: Software Development :: Testing",
+			"Classifier: Topic :: Software Development :: Testing :: Mocking",
+			"Classifier: Typing :: Typed",
+		):
+			with self.subTest(line):
+				self.assertIn(f"\n{line}\n", metadata)
+		self.assertNotIn("Classifier: License ::", metadata)
 
 	def test_the_metadata_names_the_version_and_no_dependency(self) -> None:
 		metadata = self.wheel("win_amd64").read("fejkdata-0.9.0.dist-info/METADATA").decode()
