@@ -60,6 +60,7 @@ RUN --mount=type=cache,target=/cache \
 	CGO_ENABLED=0 go build -o /fejkdata ./cmd/fejkdata
 
 FROM python:3.15.2-slim AS python-package
+COPY README.md /README.md
 COPY python-package/ /python-package/
 COPY --from=cli /fejkdata /python-package/fejkdata/bin/fejkdata
 RUN cd /python-package && python3 -m unittest discover -p '*_test.py' && touch /tested
