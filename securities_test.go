@@ -89,3 +89,55 @@ func TestShippedMiscCusip(t *testing.T) {
 		t.Fatalf("500 CUSIPs held letters %v, digits %v", letters, digits)
 	}
 }
+
+func TestValidBic(t *testing.T) {
+	for s, want := range map[string]bool{
+		"DEUTDEFF":     true,
+		"DEUTDEFF500":  true,
+		"NDEAFIHH":     true,
+		"CHASUS33XXX":  true,
+		"DEUTDEF0":     false,
+		"DEUTDEF1":     false,
+		"DEUTDEF2":     false,
+		"DEUTDEFF50":   false,
+		"deutdeff":     false,
+		"DEU1DEFF":     false,
+		"DEUTD1FF":     false,
+		"DEUTDEFF5000": false,
+	} {
+		t.Run(s, func(t *testing.T) {
+			if got := fejktest.ValidBic(s); got != want {
+				t.Errorf("ValidBic(%q) = %v, want %v", s, got, want)
+			}
+		})
+	}
+}
+
+func TestShippedMiscBic(t *testing.T) {
+	f := newBareModule(t, "misc", WithSeed(1))
+	territories := map[string]bool{}
+	for _, row := range fejktest.TSVRows(t, "data/misc/territory.tsv") {
+		territories[row["alpha2"]] = true
+	}
+	countries, lengths := map[string]bool{}, map[int]bool{}
+	digitLocation, primaryOffice, otherBranch := false, false, false
+	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, "bic") }, func(v string) {
+		if !fejktest.ValidBic(v) {
+			t.Fatalf("misc bic %q is not a valid BIC", v)
+		}
+		if !territories[v[4:6]] {
+			t.Fatalf("misc bic %q holds %q, which misc.territory has no row for", v, v[4:6])
+		}
+		countries[v[4:6]] = true
+		lengths[len(v)] = true
+		digitLocation = digitLocation || strings.ContainsAny(v[6:8], "0123456789")
+		if len(v) == 11 {
+			primaryOffice = primaryOffice || v[8:] == "XXX"
+			otherBranch = otherBranch || v[8:] != "XXX"
+		}
+	})
+	if len(countries) < 20 || !lengths[8] || !lengths[11] || !digitLocation || !primaryOffice || !otherBranch {
+		t.Fatalf("500 BICs held %d country codes, lengths %v, a digit in the location %v, XXX %v, another branch %v",
+			len(countries), lengths, digitLocation, primaryOffice, otherBranch)
+	}
+}

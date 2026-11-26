@@ -130,6 +130,16 @@ func ValidIsin(s string) bool {
 
 var isinShape = regexp.MustCompile(`^[A-Z]{2}[0-9A-Z]{9}[0-9]$`)
 
+// ValidBic is the structure of a BIC in ISO 9362: four capital letters, a country code of two
+// capital letters, two capital letters or digits of location and, optionally, three of branch.
+// A location whose second character is `0`, `1` or `2` is a test, a passive or a reverse
+// billing BIC, so it does not pass.
+func ValidBic(s string) bool {
+	return bicShape.MatchString(s)
+}
+
+var bicShape = regexp.MustCompile(`^[A-Z]{4}[A-Z]{2}[0-9A-Z][3-9A-Z]([0-9A-Z]{3})?$`)
+
 // ValidCusip is the check on a CUSIP in ANSI X9.6: eight digits, capital letters, `*`, `@` or
 // `#`, and a check digit. Each of the eight has a value, `0` to `9`, `A` 10 to `Z` 35, `*` 36, `@` 37
 // and `#` 38, and every second one, from the second, is doubled. The check digit brings the sum
