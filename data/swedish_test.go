@@ -420,27 +420,68 @@ func TestShippedSwedishPhoneMobile(t *testing.T) {
 	}
 }
 
+func checkSwedishFixedPhone(t *testing.T, n string) {
+	t.Helper()
+	m := regexp.MustCompile(`^0(\d{1,3})-(\d[\d ]+)$`).FindStringSubmatch(n)
+	if m == nil {
+		t.Fatalf("phone %q is neither a mobile nor a fixed number", n)
+	}
+	ndc, subscriber := m[1], m[2]
+	digits := len(strings.ReplaceAll(subscriber, " ", ""))
+	if re := swedishPhoneGrouped[digits]; re == nil || !re.MatchString(subscriber) {
+		t.Fatalf("phone %q: subscriber %q is not grouped as Språkrådet writes it, or starts with the trunk 0", n, subscriber)
+	}
+	if total := len(ndc) + digits; total < swedishPhoneShortest(ndc) || total > 9 {
+		t.Fatalf("phone %q has %d digits after the 0, PTS gives area code %s %d to 9", n, total, ndc, swedishPhoneShortest(ndc))
+	}
+}
+
 func TestShippedSwedishPhoneFixedIsGroupedAndLongEnough(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(11))
 	mobile := regexp.MustCompile(`^0(70|72|73|76|79)-`)
-	fixed := regexp.MustCompile(`^0(\d{1,3})-(\d[\d ]+)$`)
 	fejktest.EachDraw(6000, func() string { return fejktest.Fake(t, f, "sv_SE.phone") }, func(n string) {
-		if mobile.MatchString(n) {
-			return
-		}
-		m := fixed.FindStringSubmatch(n)
-		if m == nil {
-			t.Fatalf("phone %q is neither a mobile nor a fixed number", n)
-		}
-		ndc, subscriber := m[1], m[2]
-		digits := len(strings.ReplaceAll(subscriber, " ", ""))
-		if re := swedishPhoneGrouped[digits]; re == nil || !re.MatchString(subscriber) {
-			t.Fatalf("phone %q: subscriber %q is not grouped as Språkrådet writes it, or starts with the trunk 0", n, subscriber)
-		}
-		if total := len(ndc) + digits; total < swedishPhoneShortest(ndc) || total > 9 {
-			t.Fatalf("phone %q has %d digits after the 0, PTS gives area code %s %d to 9", n, total, ndc, swedishPhoneShortest(ndc))
+		if !mobile.MatchString(n) {
+			checkSwedishFixedPhone(t, n)
 		}
 	})
+}
+
+func TestShippedSwedishMobileDrawsEachMobileCodeAndLandlineOnlyFixedNumbers(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(11))
+	mobile := regexp.MustCompile(`^0(70|72|73|76|79)-\d{3} \d{2} \d{2}$`)
+	seen := map[string]bool{}
+	fejktest.EachDraw(1000, func() string { return fejktest.Fake(t, f, "sv_SE.mobile") }, func(n string) {
+		m := mobile.FindStringSubmatch(n)
+		if m == nil {
+			t.Fatalf("sv_SE.mobile drew %q, want a mobile code and 7 digits", n)
+		}
+		seen[m[1]] = true
+	})
+	if len(seen) != 5 {
+		t.Fatalf("1000 mobile numbers drew the codes %v, want 70, 72, 73, 76 and 79", seen)
+	}
+	fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, f, "sv_SE.landline") }, func(n string) {
+		if mobile.MatchString(n) {
+			t.Fatalf("sv_SE.landline drew the mobile number %q", n)
+		}
+		checkSwedishFixedPhone(t, n)
+	})
+}
+
+func TestShippedSwedishMobileAndLandlineGiveTheirInternationalForm(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(5))
+	for _, path := range []string{"mobile", "landline"} {
+		fejktest.EachDraw(300, func() string {
+			return fejktest.FakeTemplate(t, f, "{/sv_SE."+path+" as p}{p}|{p.national}|{p.international}")
+		}, func(got string) {
+			national, rest, _ := strings.Cut(got, "|")
+			again, international, _ := strings.Cut(rest, "|")
+			code, subscriber, _ := strings.Cut(strings.TrimPrefix(national, "0"), "-")
+			if again != national || international != "+46 "+code+" "+subscriber {
+				t.Fatalf("sv_SE.%s drew %q, want its national form twice and +46 behind it", path, got)
+			}
+		})
+	}
 }
 
 func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {

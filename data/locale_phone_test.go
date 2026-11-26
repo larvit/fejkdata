@@ -49,17 +49,50 @@ func TestLocalePhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
 
 func TestLocalePhoneInternationalIsItsCallingCodeAndItsNationalForm(t *testing.T) {
 	eachLocale(t, hasPhone, func(t *testing.T, l shippedLocale) {
-		f := shipped(t, fejkdata.WithSeed(5))
-		fejktest.EachDraw(300, func() string {
-			return fejktest.FakeTemplate(t, f, "{/"+l.name+".phone as p}{p}|{p.national}|{p.international}")
+		for _, path := range []string{"phone", "mobile", "landline"} {
+			t.Run(path, func(t *testing.T) {
+				f := shipped(t, fejkdata.WithSeed(5))
+				fejktest.EachDraw(300, func() string {
+					return fejktest.FakeTemplate(t, f, "{/"+l.name+"."+path+" as p}{p}|{p.national}|{p.international}")
+				}, func(got string) {
+					parts := strings.Split(got, "|")
+					if len(parts) != 3 || parts[0] != parts[1] {
+						t.Fatalf("%q: want the national form twice, then the international one", got)
+					}
+					if parts[2] != l.phone.callingCode+" "+strings.TrimPrefix(parts[0], l.phone.trunkPrefix) {
+						t.Fatalf("%q: want %s and the national form behind it, without its trunk prefix %q", got, l.phone.callingCode, l.phone.trunkPrefix)
+					}
+				})
+			})
+		}
+	})
+}
+
+func TestLocaleMobileDrawsOnlyMobileNumbersAndLandlineOnlyFixedOnes(t *testing.T) {
+	eachLocale(t, hasPhone, func(t *testing.T, l shippedLocale) {
+		isFixed := l.phone.fixed(t)
+		f := shipped(t, fejkdata.WithSeed(11))
+		for path, wantFixed := range map[string]bool{"mobile": false, "landline": true} {
+			fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, f, l.name+"."+path) }, func(n string) {
+				if isFixed(n) != wantFixed {
+					t.Fatalf("%s.%s drew %q, which is fixed: %v, want %v", l.name, path, n, isFixed(n), wantFixed)
+				}
+			})
+		}
+	})
+}
+
+func TestNynorskMobileAndLandlineAreBokmalsOwn(t *testing.T) {
+	isFixed := norwegianFixedPhone(t)
+	f := shipped(t, fejkdata.WithSeed(11))
+	for path, wantFixed := range map[string]bool{"mobile": false, "landline": true} {
+		fejktest.EachDraw(500, func() string {
+			return fejktest.FakeTemplate(t, f, "{/nn_NO."+path+" as p}{p}|{p.international}")
 		}, func(got string) {
-			parts := strings.Split(got, "|")
-			if len(parts) != 3 || parts[0] != parts[1] {
-				t.Fatalf("%q: want the national form twice, then the international one", got)
-			}
-			if parts[2] != l.phone.callingCode+" "+strings.TrimPrefix(parts[0], l.phone.trunkPrefix) {
-				t.Fatalf("%q: want %s and the national form behind it, without its trunk prefix %q", got, l.phone.callingCode, l.phone.trunkPrefix)
+			national, international, _ := strings.Cut(got, "|")
+			if isFixed(national) != wantFixed || international != "+47 "+national {
+				t.Fatalf("nn_NO.%s drew %q, want a Norwegian number that is fixed: %v and its +47 form", path, got, wantFixed)
 			}
 		})
-	})
+	}
 }
