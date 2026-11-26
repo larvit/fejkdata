@@ -21,6 +21,7 @@ SOVEREIGN = re.compile(r"^(?:Part of|Territor(?:y|ies) of|Crown dependency of|Co
 STANDALONE = {"In contention", "International"}
 # Values the source lacks or gets wrong, keyed by alpha2.
 FIXUPS = {
+    "EH": {"tld": ""},
     "KZ": {"capital": "Astana"},
     "PW": {"capital": "Ngerulmud"},
     "TR": {"currency": "TRY"},
@@ -67,7 +68,7 @@ def rows(text: str) -> Iterator[dict[str, str]]:
             "tld": r["TLD"],
         }
         row.update(FIXUPS.get(alpha2, {}))
-        if all(row[c] for c in ("alpha2", "alpha3", "calling-code", "capital", "currency", "name", "tld")):
+        if r["TLD"] and all(row[c] for c in ("alpha2", "alpha3", "calling-code", "capital", "currency", "name")):
             yield row
 
 

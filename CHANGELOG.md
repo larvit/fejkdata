@@ -25,6 +25,7 @@ with its replacement, and each removed path, column or flag.
 
 - The error for a `{` that is never closed names both fixes: write `{{` for a literal brace, or close the token with `}`.
 - `misc.territory[KZ].capital` is `Astana`, not `Nur-Sultan`. `misc.territory[PW].capital` is `Ngerulmud`, not `Melekeok`, the state it lies in.
+- `misc.territory[EH].tld` is empty, not `.eh`: the root zone has never delegated `.eh`, so `misc.tld` doesn't hold it and no resolver answers for it.
 
 ## 0.8.0 - 2026-11-21
 
