@@ -26,8 +26,8 @@ fejkdata --format sql --table people --repeat 1000000 < person.json > people.sql
 ```
 
 ```text
-email,first,last,locality,personnummer,postal-code,sex,street
-vira.larsson@example.com,Vira,Larsson,Östersund,501120-2388,831 73,kvinna,Kärrvägen 1
+sex,first,last,personnummer,email,street,postal-code,locality
+kvinna,Vira,Larsson,501120-2388,vira.larsson@example.com,Kärrvägen 1,831 73,Östersund
 ```
 
 What sets it apart:
@@ -151,8 +151,8 @@ fejkdata --format sql --table people --repeat 1000000 < person.json > people.sql
 The first command prints:
 
 ```text
-email,first,last,locality,personnummer,postal-code,sex,street
-vira.larsson@example.com,Vira,Larsson,Östersund,501120-2388,831 73,kvinna,Kärrvägen 1
+sex,first,last,personnummer,email,street,postal-code,locality
+kvinna,Vira,Larsson,501120-2388,vira.larsson@example.com,Kärrvägen 1,831 73,Östersund
 ```
 
 A fixture this size repeats personnummer and email values. [Personnummer](docs/locales/sv_SE.md#personnummer-and-samordningsnummer) explains why a personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
@@ -400,7 +400,8 @@ the template itself, which composes the format into one string rather than
 projecting columns — ask for more records with `--repeat`. A `repeat` on a column
 is fine.
 
-Columns are written in name order, whatever order the fields appear in. A category
+Columns are written in the order the template lists its fields, and a table's in the order of
+its header. A category
 whose fields are the parts of one value — `misc.uuid` — projects those parts rather than
 the value, so for one column holding what `Fake` renders, write
 `{"format":"","uuid":"{/misc.uuid}"}` as a fieldless category asks for. A category whose
@@ -459,10 +460,10 @@ echo '{/series}' | fejkdata --seed 1 -d ./gen --format tsv -n 3 > mydata/series.
 ```
 
 ```tsv
-customer	id
-Bo	1
-Ada	2
-Cy	3
+id	customer
+1	Bo
+2	Ada
+3	Cy
 ```
 
 Beside it, `mydata/series.json` makes the file a table. A second run then draws orders, each
@@ -478,11 +479,11 @@ echo '{"format":"","series_id":"{/series as s}{s.id}","customer":"{s.customer}"}
 ```
 
 ```text
-customer,series_id
-Bo,1
-Cy,3
-Ada,2
-Ada,2
+series_id,customer
+1,Bo
+3,Cy
+2,Ada
+2,Ada
 ```
 
 Each order draws a row afresh, so several orders may name one series, and the table's
@@ -520,7 +521,8 @@ database or an HTTP endpoint ([Decisions](docs/decisions.md#no-database-or-http-
 
 Each line sends a thousand records to `users`: a table for `psql`, `sqlite3` and `mysql`,
 which must already have the columns `id` and `name`, a collection for `mongoimport` and an
-endpoint for `curl`. `csv` writes the columns in name order, so the `\copy` lists them:
+endpoint for `curl`. `csv` writes the columns in the order the template lists its fields, so the `\copy` lists them
+the same way:
 
 ```sh
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --repeat 1000 | psql mydb
@@ -1056,9 +1058,9 @@ of every item `p` can bring must hold one datatype, or the load fails; one may b
 `fejkdata --seed 1 --format ndjson --repeat 3 < sched.json` prints:
 
 ```text
-{"len":1,"pattern":"weekly"}
-{"len":null,"pattern":"daily"}
-{"len":null,"pattern":"daily"}
+{"pattern":"weekly","len":1}
+{"pattern":"daily","len":null}
+{"pattern":"daily","len":null}
 ```
 
 `len` is an integer column, null for `daily`.
