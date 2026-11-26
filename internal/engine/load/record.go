@@ -1,6 +1,9 @@
 package load
 
 import (
+	"slices"
+	"strings"
+
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/engine/tree"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -11,7 +14,8 @@ import (
 func SettleRecords(nodes func(fn func(label string, n tree.Node) error) error, l *tree.LoadFinds) {
 	_ = nodes(func(_ string, n tree.Node) error {
 		if t, isTemplate := n.(*tree.Template); isTemplate {
-			l.SetColumns(t, recordColumns(t, l))
+			columns := recordColumns(t, l)
+			l.SetColumns(t, columns, drawOrder(columns))
 		}
 		return nil
 	})
@@ -29,6 +33,17 @@ func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 		columns = append(columns, tree.NewRecordColumn(name, ColumnDatatype(field, l.ReadsColumn), field, whole[field]))
 	}
 	return columns
+}
+
+// drawOrder is the indexes of columns in name order, the order a record draws them in: a seed
+// then draws the same values wherever a template lists a field.
+func drawOrder(columns []tree.RecordColumn) []int {
+	order := make([]int, len(columns))
+	for i := range order {
+		order[i] = i
+	}
+	slices.SortFunc(order, func(a, b int) int { return strings.Compare(columns[a].Name(), columns[b].Name()) })
+	return order
 }
 
 // wholeFieldNames maps each field of t that a name of t binds whole to the first such name.

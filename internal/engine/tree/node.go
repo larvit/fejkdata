@@ -136,7 +136,18 @@ type TemplateSyntax struct {
 	Unbound    []UnboundRead      // the heads its tokens read that no field holds
 }
 
-func NewTemplate(s TemplateSyntax) *Template { return &Template{syntax: s} }
+// NewTemplate is the template s spells. Where s lists no Written, its fields outside "hidden" are
+// written in name order, so no field is left without a place.
+func NewTemplate(s TemplateSyntax) *Template {
+	if s.Written == nil {
+		for _, name := range SortedNames(s.Fields) {
+			if !s.Hiddens[name] {
+				s.Written = append(s.Written, name)
+			}
+		}
+	}
+	return &Template{syntax: s}
+}
 
 // Finished says whether LoadFinds.Finish has written what t's load found.
 func (t *Template) Finished() bool { return t.finds != nil }

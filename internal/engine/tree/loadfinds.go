@@ -1,9 +1,6 @@
 package tree
 
 import (
-	"slices"
-	"strings"
-
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
@@ -29,7 +26,7 @@ type TemplateFinds struct {
 	compiled    FormatOps
 	readsColumn *ColumnRead    // the column its format only reads, nil where it reads more
 	columns     []RecordColumn // a record's, where it has fields, in the order written
-	drawOrder   []int          // the indexes of columns in name order, the order they are drawn in
+	drawOrder   []int          // the indexes of columns in the order they are drawn in
 }
 
 func (t *TemplateFinds) Compiled() FormatOps { return t.compiled }
@@ -103,16 +100,11 @@ func (l *LoadFinds) SetOp(t *Template, i int, o Op) { l.template(t).compiled.ops
 // SetReadsColumn records the column t's format only reads; nil where it reads more.
 func (l *LoadFinds) SetReadsColumn(t *Template, c *ColumnRead) { l.template(t).readsColumn = c }
 
-// SetColumns records a record's columns, in the order written, and with them the order they are
-// drawn in: name order, so a seed draws the same values wherever a template lists a field.
-func (l *LoadFinds) SetColumns(t *Template, columns []RecordColumn) {
-	order := make([]int, len(columns))
-	for i := range order {
-		order[i] = i
-	}
-	slices.SortFunc(order, func(a, b int) int { return strings.Compare(columns[a].name, columns[b].name) })
+// SetColumns records a record's columns, in the order written, and the indexes of those columns
+// in the order they are drawn in.
+func (l *LoadFinds) SetColumns(t *Template, columns []RecordColumn, drawOrder []int) {
 	f := l.template(t)
-	f.columns, f.drawOrder = columns, order
+	f.columns, f.drawOrder = columns, drawOrder
 }
 
 // SetTarget records what b resolves to, the first find of a binding.
