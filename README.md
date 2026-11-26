@@ -552,7 +552,7 @@ id,note,path
 ```
 
 The table `files (id bigint primary key, note text, path text)` must exist, and the server must allow
-`LOCAL` loads (`SET GLOBAL local_infile = 1`). This sends a thousand rows through `mysql` on MySQL 8.4, and the
+`LOCAL` loads: on a test server, run `SET GLOBAL local_infile = 1` before and `= 0` after. This sends a thousand rows through `mysql` on MySQL 8.4, and the
 `note` of row 2 loads as null and the `path` as `C:\temp`:
 
 ```sh
