@@ -14,7 +14,13 @@ da_DK.date	invented	hand-written
 da_DK.email	invented	the locale's names and hand-written words, at example domains
 da_DK.first-name	real	Statistics Denmark's top 20; for every other name a language model's recall, not checked against a register
 da_DK.individ	valid	the CPR office's modulus 11 check; no test series is published
+da_DK.landline	valid	the Danish Overall Numbering Plan, Annex 1
+da_DK.landline.international	valid	the Danish Overall Numbering Plan, Annex 1
+da_DK.landline.national	valid	the Danish Overall Numbering Plan, Annex 1
 da_DK.last-name	real	Statistics Denmark's top 20; for every other name a language model's recall, not checked against a register
+da_DK.mobile	valid	the Danish Overall Numbering Plan, Annex 1
+da_DK.mobile.international	valid	the Danish Overall Numbering Plan, Annex 1
+da_DK.mobile.national	valid	the Danish Overall Numbering Plan, Annex 1
 da_DK.month	real	Unicode CLDR's stand-alone month names
 da_DK.paragraph	invented	a fixed pattern filled with the locale's words
 da_DK.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
@@ -52,7 +58,13 @@ de_DE.company-word	invented	a language model's recall
 de_DE.date	invented	hand-written
 de_DE.email	invented	the locale's names and hand-written words, at example domains
 de_DE.first-name	real	the city of Munich's newborns' names
+de_DE.landline	valid	the Bundesnetzagentur's number blocks and area codes
+de_DE.landline.international	valid	the Bundesnetzagentur's number blocks and area codes
+de_DE.landline.national	valid	the Bundesnetzagentur's number blocks and area codes
 de_DE.last-name	real	a language model's recall of names common in Germany, not checked against a register
+de_DE.mobile	valid	the Bundesnetzagentur's number blocks and area codes
+de_DE.mobile.international	valid	the Bundesnetzagentur's number blocks and area codes
+de_DE.mobile.national	valid	the Bundesnetzagentur's number blocks and area codes
 de_DE.month	real	Unicode CLDR's stand-alone month names
 de_DE.paragraph	invented	a fixed pattern filled with the locale's words
 de_DE.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
@@ -91,7 +103,13 @@ en_US.date	invented	hand-written
 en_US.email	invented	the locale's names and hand-written words, at example domains
 en_US.first-name	real	the SSA's baby names
 en_US.itin	valid	hand-written, in the groups the IRS lists for an ITIN
+en_US.landline	valid	hand-written area codes; exchanges NANPA may assign
+en_US.landline.international	valid	hand-written area codes; exchanges NANPA may assign
+en_US.landline.national	valid	hand-written area codes; exchanges NANPA may assign
 en_US.last-name	real	the Census Bureau's surnames of 2010
+en_US.mobile	valid	hand-written area codes; exchanges NANPA may assign
+en_US.mobile.international	valid	hand-written area codes; exchanges NANPA may assign
+en_US.mobile.national	valid	hand-written area codes; exchanges NANPA may assign
 en_US.month	real	Unicode CLDR's stand-alone month names
 en_US.paragraph	invented	a fixed pattern filled with the locale's words
 en_US.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
@@ -130,7 +148,13 @@ et_EE.date	invented	hand-written
 et_EE.email	invented	the locale's names and hand-written words, at example domains
 et_EE.first-name	real	a language model's recall of names common in Estonia, not checked against a register
 et_EE.isikukood	valid	the check digit; no test series is published
+et_EE.landline	valid	the Estonian numbering plan, regulation no. 25 of 2018
+et_EE.landline.international	valid	the Estonian numbering plan, regulation no. 25 of 2018
+et_EE.landline.national	valid	the Estonian numbering plan, regulation no. 25 of 2018
 et_EE.last-name	real	a language model's recall of names common in Estonia, not checked against a register
+et_EE.mobile	valid	the Estonian numbering plan, regulation no. 25 of 2018
+et_EE.mobile.international	valid	the Estonian numbering plan, regulation no. 25 of 2018
+et_EE.mobile.national	valid	the Estonian numbering plan, regulation no. 25 of 2018
 et_EE.month	real	Unicode CLDR's stand-alone month names
 et_EE.paragraph	invented	a fixed pattern filled with the locale's words
 et_EE.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
@@ -170,7 +194,13 @@ fi_FI.first-name	real	DVV's name statistics
 fi_FI.henkilotunnus	valid	DVV's unissued individual numbers 900 to 999
 fi_FI.henkilotunnus-issued	valid	DVV's issued individual numbers 002 to 899
 fi_FI.individ	valid	DVV's individual numbers
+fi_FI.landline	valid	Traficom's Regulation 32 V/2025 M
+fi_FI.landline.international	valid	Traficom's Regulation 32 V/2025 M
+fi_FI.landline.national	valid	Traficom's Regulation 32 V/2025 M
 fi_FI.last-name	real	DVV's name statistics
+fi_FI.mobile	valid	Traficom's Regulation 32 V/2025 M
+fi_FI.mobile.international	valid	Traficom's Regulation 32 V/2025 M
+fi_FI.mobile.national	valid	Traficom's Regulation 32 V/2025 M
 fi_FI.month	real	Unicode CLDR's stand-alone month names
 fi_FI.paragraph	invented	a fixed pattern filled with the locale's words
 fi_FI.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
@@ -210,7 +240,13 @@ fr_FR.date	invented	hand-written
 fr_FR.department	real	INSEE's department codes in a NIR
 fr_FR.email	invented	the locale's names and hand-written words, at example domains
 fr_FR.first-name	real	INSEE's Fichier des prénoms
+fr_FR.landline	valid	Arcep's numbering plan: ranges it doesn't allot, for use in fiction
+fr_FR.landline.international	valid	Arcep's numbering plan: ranges it doesn't allot, for use in fiction
+fr_FR.landline.national	valid	Arcep's numbering plan: ranges it doesn't allot, for use in fiction
 fr_FR.last-name	real	INSEE's Fichier des noms
+fr_FR.mobile	valid	Arcep's numbering plan: ranges it doesn't allot, for use in fiction
+fr_FR.mobile.international	valid	Arcep's numbering plan: ranges it doesn't allot, for use in fiction
+fr_FR.mobile.national	valid	Arcep's numbering plan: ranges it doesn't allot, for use in fiction
 fr_FR.month	real	Unicode CLDR's stand-alone month names
 fr_FR.nir	valid	INSEE's key check; no test series is published
 fr_FR.nonzero-number	invented	hand-written
@@ -399,7 +435,13 @@ lt_LT.company-word	invented	words from the Register of Legal Entities' names
 lt_LT.date	invented	hand-written
 lt_LT.email	invented	the locale's names and hand-written words, at example domains
 lt_LT.first-name	real	the Centre of Registers' top 50; for the rest a language model's recall, not checked against a register
+lt_LT.landline	valid	the RRT's numbering plan of 2023
+lt_LT.landline.international	valid	the RRT's numbering plan of 2023
+lt_LT.landline.national	valid	the RRT's numbering plan of 2023
 lt_LT.last-name	real	a language model's recall of names common in Lithuania, not checked against a register
+lt_LT.mobile	valid	the RRT's numbering plan of 2023
+lt_LT.mobile.international	valid	the RRT's numbering plan of 2023
+lt_LT.mobile.national	valid	the RRT's numbering plan of 2023
 lt_LT.month	real	Unicode CLDR's stand-alone month names
 lt_LT.paragraph	invented	a fixed pattern filled with the locale's words
 lt_LT.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
@@ -438,7 +480,13 @@ lv_LV.company-word	invented	words from the Register of Enterprises' names
 lv_LV.date	invented	hand-written
 lv_LV.email	invented	the locale's names and hand-written words, at example domains
 lv_LV.first-name	real	the Office of Citizenship and Migration Affairs' register statistics
+lv_LV.landline	valid	Table 1 of the National Numbering Plan
+lv_LV.landline.international	valid	Table 1 of the National Numbering Plan
+lv_LV.landline.national	valid	Table 1 of the National Numbering Plan
 lv_LV.last-name	real	a language model's recall of names common in Latvia, not checked against a register
+lv_LV.mobile	valid	Table 1 of the National Numbering Plan
+lv_LV.mobile.international	valid	Table 1 of the National Numbering Plan
+lv_LV.mobile.national	valid	Table 1 of the National Numbering Plan
 lv_LV.month	real	Unicode CLDR's stand-alone month names
 lv_LV.paragraph	invented	a fixed pattern filled with the locale's words
 lv_LV.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
@@ -506,7 +554,13 @@ nb_NO.email	invented	the locale's names and hand-written words, at example domai
 nb_NO.first-name	real	Statistics Norway's StatBank table 10501
 nb_NO.fodselsnummer	valid	Skatteetaten's synthetic series
 nb_NO.individ	valid	Skatteetaten's synthetic series
+nb_NO.landline	valid	Nkom's national numbering plan
+nb_NO.landline.international	valid	Nkom's national numbering plan
+nb_NO.landline.national	valid	Nkom's national numbering plan
 nb_NO.last-name	real	Statistics Norway's StatBank table 12891
+nb_NO.mobile	valid	Nkom's national numbering plan
+nb_NO.mobile.international	valid	Nkom's national numbering plan
+nb_NO.mobile.national	valid	Nkom's national numbering plan
 nb_NO.month	real	Unicode CLDR's stand-alone month names
 nb_NO.paragraph	invented	a fixed pattern filled with the locale's words
 nb_NO.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
@@ -542,6 +596,12 @@ nn_NO.company	invented	name shapes and legal forms from Enhetsregisteret's names
 nn_NO.date	invented	hand-written
 nn_NO.email	invented	the locale's names and hand-written words, at example domains
 nn_NO.fodselsnummer	valid	Skatteetaten's synthetic series
+nn_NO.landline	valid	Nkom's national numbering plan
+nn_NO.landline.international	valid	Nkom's national numbering plan
+nn_NO.landline.national	valid	Nkom's national numbering plan
+nn_NO.mobile	valid	Nkom's national numbering plan
+nn_NO.mobile.international	valid	Nkom's national numbering plan
+nn_NO.mobile.national	valid	Nkom's national numbering plan
 nn_NO.month	real	Unicode CLDR's stand-alone month names
 nn_NO.paragraph	invented	a fixed pattern filled with the locale's words
 nn_NO.person	real, invented	real first and last names from nb_NO's name tables; the pairing is invented
@@ -582,9 +642,15 @@ sv_SE.date	invented	hand-written
 sv_SE.email	invented	the locale's names and hand-written words, at example domains
 sv_SE.first-name	real	SCB's names with at least two bearers
 sv_SE.holiday	real	lag (1989:253) om allmänna helgdagar
+sv_SE.landline	valid	PTS's numbering plan of 2024-01-08
+sv_SE.landline.international	valid	PTS's numbering plan of 2024-01-08
+sv_SE.landline.national	valid	PTS's numbering plan of 2024-01-08
 sv_SE.last-name	real	SCB's names with at least two bearers
 sv_SE.licenseplate	valid	sv.wikipedia's article on Swedish plates
 sv_SE.licenseplate-letters	valid	sv.wikipedia's article on Swedish plates
+sv_SE.mobile	valid	PTS's numbering plan of 2024-01-08
+sv_SE.mobile.international	valid	PTS's numbering plan of 2024-01-08
+sv_SE.mobile.national	valid	PTS's numbering plan of 2024-01-08
 sv_SE.month	real	Unicode CLDR's stand-alone month names
 sv_SE.organisationsnummer	valid	format and checksum; group weights from Bolagsverket's statistics
 sv_SE.paragraph	invented	a fixed pattern filled with the locale's words

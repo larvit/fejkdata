@@ -1,13 +1,13 @@
 [
   {
-    "format": "{.phone-mobile as a}{national}",
+    "format": "{.mobile as p}{p}",
     "weight": 10,
-    "national": "0 {a.ndc}{a.subscriber}",
-    "international": "+370 {a.ndc}{a.subscriber}"
+  "national": "{p.national}",
+  "international": "{p.international}"
   },
   {
-    "format": "{.phone-fixed as a}{national}",
-    "national": "0 {a.ndc} {a.subscriber}",
-    "international": "+370 {a.ndc} {a.subscriber}"
+    "format": "{.landline as p}{p}",
+  "national": "{p.national}",
+  "international": "{p.international}"
   }
 ]

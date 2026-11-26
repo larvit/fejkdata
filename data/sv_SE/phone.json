@@ -1,15 +1,13 @@
 [
   {
-    "format": "{ndc as d}{subscriber as s}{national}",
+    "format": "{.mobile as p}{p}",
     "weight": 10,
-    "ndc": ["70", "72", "73", "76", "79"],
-    "subscriber": "{digits(3)} {digits(2)} {digits(2)}",
-    "national": "0{d}-{s}",
-    "international": "+46 {d} {s}"
+  "national": "{p.national}",
+  "international": "{p.international}"
   },
   {
-    "format": "{.phone-area as a}{national}",
-    "national": "{a.area}-{a.subscriber}",
-    "international": "+46 {a.ndc} {a.subscriber}"
+    "format": "{.landline as p}{p}",
+  "national": "{p.national}",
+  "international": "{p.international}"
   }
 ]

@@ -6,6 +6,8 @@
 		"nn_NO.date": {"paths":[""]},
 		"nn_NO.email": {"paths":["","domain","local","reserved"]},
 		"nn_NO.fodselsnummer": {"paths":[""]},
+		"nn_NO.landline": {"paths":["","international","national"]},
+		"nn_NO.mobile": {"paths":["","international","national"]},
 		"nn_NO.month": {"paths":["","code","name"]},
 		"nn_NO.paragraph": {"paths":[""]},
 		"nn_NO.person": {"paths":["","first","last","prefix","sex"]},

@@ -1,0 +1,21 @@
+{
+  "format": "{number as n}{national}",
+  "hidden": {
+    "number": {
+      "format": "{range}{digits(1)} {digits(4)}",
+      "range": [
+        "32",
+        "33",
+        "35",
+        "38",
+        "39",
+        { "format": "4{int(3,8)}", "weight": 6 },
+        { "format": "6{int(0,8)}", "weight": 9 },
+        { "format": "7{int(1,9)}", "weight": 9 },
+        "88"
+      ]
+    }
+  },
+  "national": "{n}",
+  "international": "+372 {n}"
+}
