@@ -115,15 +115,15 @@ func LuhnValid(s string) bool {
 }
 
 // ValidIsin is the check on an ISIN in ISO 6166: two capital letters, nine digits or capital
-// letters and a digit that makes the identifier, each letter written as its value 10 to 35,
-// pass the Luhn check.
+// letters and a check digit. It writes each letter as its value, `A` 10 to `Z` 35, and then
+// requires the whole string of digits to pass the Luhn check.
 func ValidIsin(s string) bool {
-	if len(s) != 12 || !isinShape.MatchString(s) {
+	if !isinShape.MatchString(s) {
 		return false
 	}
 	var digits strings.Builder
 	for i := 0; i < len(s); i++ {
-		digits.WriteString(strconv.Itoa(cusipValue(s[i])))
+		digits.WriteString(strconv.Itoa(charValue(s[i])))
 	}
 	return LuhnValid(digits.String())
 }
@@ -131,15 +131,16 @@ func ValidIsin(s string) bool {
 var isinShape = regexp.MustCompile(`^[A-Z]{2}[0-9A-Z]{9}[0-9]$`)
 
 // ValidCusip is the check on a CUSIP in ANSI X9.6: eight digits, capital letters, `*`, `@` or
-// `#`, and a digit that is the tens complement of the sum of the digits of each value, the
-// value of every second character, counted from the second, doubled.
+// `#`, and a check digit. Each of the eight has a value, `0` to `9`, `A` 10 to `Z` 35, `*` 36, `@` 37
+// and `#` 38, and every second one, from the second, is doubled. The check digit brings the sum
+// of the digits of those values up to a multiple of 10.
 func ValidCusip(s string) bool {
-	if len(s) != 9 || !cusipShape.MatchString(s) {
+	if !cusipShape.MatchString(s) {
 		return false
 	}
 	sum := 0
 	for i := 0; i < 8; i++ {
-		v := cusipValue(s[i])
+		v := charValue(s[i])
 		if i%2 == 1 {
 			v *= 2
 		}
@@ -150,7 +151,8 @@ func ValidCusip(s string) bool {
 
 var cusipShape = regexp.MustCompile(`^[0-9A-Z*@#]{8}[0-9]$`)
 
-func cusipValue(c byte) int {
+// charValue is the value of a character the two shape expressions admit.
+func charValue(c byte) int {
 	if c >= '0' && c <= '9' {
 		return int(c - '0')
 	}
