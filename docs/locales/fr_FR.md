@@ -5,8 +5,8 @@
 `department` prints the code INSEE gives a department in a NIR, such as `75`, `2A` or `974`, and `nonzero-number` a number
 from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from `001` to `999`. Both exist for `nir`.
 
-`fr_FR.first-name` holds the 2,000 commonest first names of each sex and `fr_FR.last-name` the 5,000 commonest last
-names, from INSEE's open files. A first name weighs the children who got it as their first one in the births of 1944
+`fr_FR.first-name` holds each first name given to at least 5 children of a sex in those births and `fr_FR.last-name` each last
+name borne by at least 5 people, from INSEE's open files. A first name weighs the children who got it as their first one in the births of 1944
 to 2023, the last 80 years, in the "Fichier des prénoms"; a name gone out of use weighs less than in the whole file,
 and the children of a year in which fewer than 3 got the name are left out, so a count runs slightly low. A last name
 weighs the people born in 1891 to 2000 who bear it, in the "Fichier des noms". INSEE writes last names in capitals

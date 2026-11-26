@@ -172,6 +172,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `--null-text` spells a null in `csv` alone, and `csv` quotes a value equal to it
 - `pgcopy` escapes a NUL, and `csv`, `sql` and `tsv` write it as it is
 - A locale's full numbers are `mobile` and `landline`, and `phone-mobile` and `phone-fixed` stay its prefix tables
+- The Swedish, Finnish, French and US name tables keep every name with at least five bearers
 
 # Scoring run
 

@@ -143,7 +143,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 ## `en_US/first-name.tsv`
 
 - Source: [SSA](https://www.ssa.gov/oact/babynames/) baby names, births 1930 to 2020, through
-  [hackerb9/ssa-baby-names](https://github.com/hackerb9/ssa-baby-names)
+  [hackerb9/ssa-baby-names](https://github.com/hackerb9/ssa-baby-names); a name stays under each sex at
+  least 5 children got it in those years
 - Licence: public domain
 - Attribution: none required
 - Rebuild: `data-import/names-us.py`
@@ -254,8 +255,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Source: the Digital and Population Data Services Agency ([DVV](https://dvv.fi/en))'s [name
   statistics](https://avoindata.suomi.fi/data/en_GB/dataset/57282ad6-3ab1-48fb-983a-8aba5ff8d29a) of
   4 August 2026: the sheets `Miehet ens` and `Naiset ens` of the Etunimitilasto and `Nimet` of the
-  Sukunimitilasto, the Finnish citizens bearing each first given name and last name, for the 2,000
-  commonest first names of each sex and the 5,000 commonest last names
+  Sukunimitilasto, the Finnish citizens bearing each first given name and last name, for each
+  first name and last name borne by at least 5 citizens
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 - Attribution: "Lähde: Digi- ja väestötietovirasto"
 - Rebuild: `data-import/names-fi.py`
@@ -323,10 +324,10 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 - Source: INSEE's open files. First names: the ["Fichier des
   prénoms"](https://www.insee.fr/fr/statistiques/8205621) (`prenoms-2023-nat`), the births of 1944 to
-  2023 summed per first name and sex, for the 2,000 commonest of each sex; INSEE groups the names it
+  2023 summed per first name and sex, for each name borne by at least 5 people; INSEE groups the names it
   doesn't publish under `_PRENOMS_RARES`, and the script drops that group and the rows without a
   year. Last names: the ["Fichier des noms"](https://www.insee.fr/fr/statistiques/3536630)
-  (`noms2008nat`), the births of 1891 to 2000 summed over their decades, for the 5,000 commonest; INSEE
+  (`noms2008nat`), the births of 1891 to 2000 summed over their decades, for each name borne by at least 5 people; INSEE
   writes them in capitals without accents.
 - Licence: [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/),
   as INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) state
@@ -1048,7 +1049,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 ## `sv_SE/first-name.tsv`, `last-name.tsv`
 
-- Source: [SCB](https://www.scb.se/) names with at least two bearers, 31 December 2022
+- Source: [SCB](https://www.scb.se/) names with at least two bearers, 31 December 2022; the script keeps each
+  name borne by at least 5 people
 - Licence: CC0 1.0
 - Attribution: "Källa: SCB"
 - Rebuild: `data-import/names-se.py`
