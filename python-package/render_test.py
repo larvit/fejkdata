@@ -28,7 +28,7 @@ class Render(unittest.TestCase):
 		self.assertEqual(fejkdata.render("{date(today,today,'2006-01-02')}", seed=1, today=datetime.date(2025, 3, 9)), "2025-03-09")
 
 	def test_today_takes_the_day_of_a_datetime(self) -> None:
-		moment = datetime.datetime(2025, 3, 9, 10, 30)  # noqa: DTZ001 the day is the caller's own
+		moment = datetime.datetime(2025, 3, 9, 10, 30)
 		self.assertEqual(fejkdata.render("{date(today,today,'2006-01-02')}", seed=1, today=moment), "2025-03-09")
 
 	def test_repeat_renders_the_template_that_many_times(self) -> None:
