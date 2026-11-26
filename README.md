@@ -533,6 +533,36 @@ Loading a million rows from a file into a table of `id bigint primary key, name 
 17 through `psql` took 1.4 s from `pgcopy` and 6.9 s from `sql`. Generating either file takes about 1.3 s.
 `-v ON_ERROR_STOP=1` makes `psql` stop at a missing table or column, rather than read every row as SQL.
 
+#### CSV into MySQL
+
+`LOAD DATA` reads a null and a backslash its own way, so the run needs `--null-text NULL`
+([Null](#null)) and the load needs `ESCAPED BY ''`. Save `mydata/files.json`:
+
+```json
+{ "format": "", "id": { "format": "{seq()}", "datatype": "integer" }, "note": [null, "ok"], "path": ["C:\\temp", "D:\\data"] }
+```
+
+Three rows, a null `note` written as `NULL` and a path with its backslash:
+
+```csv
+id,note,path
+1,ok,C:\temp
+2,NULL,C:\temp
+3,NULL,C:\temp
+```
+
+The table `files (id bigint primary key, note text, path text)` must exist, and the server must allow
+`LOCAL` loads (`SET GLOBAL local_infile = 1`). This sends a thousand rows through `mysql` on MySQL 8.4, and the
+`note` of row 2 loads as null and the `path` as `C:\temp`:
+
+```sh
+echo '{/files}' | fejkdata --seed 1 -d ./mydata --format csv --null-text NULL --repeat 1000 |
+  mysql --local-infile=1 mydb -e "LOAD DATA LOCAL INFILE '/dev/stdin' INTO TABLE files FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '' LINES TERMINATED BY '\n' IGNORE 1 LINES (id, note, path)"
+```
+
+To draw later rows from the ones you loaded, such as contacts that name a customer that exists, write the first
+run as `--format tsv` and read it as a table: [Records](#records) shows how.
+
 ## Library
 
 ```sh
