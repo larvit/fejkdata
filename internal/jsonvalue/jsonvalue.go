@@ -28,40 +28,106 @@ func Decode(b []byte) (Value, error) {
 		var v any
 		return Value{}, located(b, json.Unmarshal(b, &v))
 	}
-	dec := json.NewDecoder(bytes.NewReader(b))
-	dec.UseNumber()
-	return Value{decodeNext(dec)}, nil
+	p := parser{b: b}
+	return Value{p.value()}, nil
 }
 
-// decodeNext reads the next value of JSON that json.Valid passed, so no token fails.
-func decodeNext(dec *json.Decoder) any {
-	switch tok, _ := dec.Token(); tok {
-	case json.Delim('{'):
-		return decodeObject(dec)
-	case json.Delim('['):
-		list := []any{}
-		for dec.More() {
-			list = append(list, decodeNext(dec))
-		}
-		_, _ = dec.Token()
-		return list
-	default:
-		return tok
+// parser reads JSON that json.Valid passed, so it checks no syntax. It allocates less than
+// json.Decoder's tokens do, which New's allocation gate holds it to.
+type parser struct {
+	b []byte
+	i int
+}
+
+func (p *parser) space() {
+	for p.i < len(p.b) && bytes.IndexByte([]byte(" \t\r\n"), p.b[p.i]) >= 0 {
+		p.i++
 	}
 }
 
-func decodeObject(dec *json.Decoder) Object {
+// value reads the next value, after any whitespace.
+func (p *parser) value() any {
+	p.space()
+	switch p.b[p.i] {
+	case '{':
+		return p.object()
+	case '[':
+		return p.list()
+	case '"':
+		return p.str()
+	case 't':
+		p.i += len("true")
+		return true
+	case 'f':
+		p.i += len("false")
+		return false
+	case 'n':
+		p.i += len("null")
+		return nil
+	}
+	return p.number()
+}
+
+func (p *parser) object() Object {
 	o := Object{Fields: map[string]any{}}
-	for dec.More() {
-		tok, _ := dec.Token()
-		key := tok.(string)
+	for p.i++; !p.closes('}'); {
+		key := p.str()
+		p.space()
+		p.i++
 		if _, twice := o.Fields[key]; !twice {
 			o.Keys = append(o.Keys, key)
 		}
-		o.Fields[key] = decodeNext(dec)
+		o.Fields[key] = p.value()
 	}
-	_, _ = dec.Token()
 	return o
+}
+
+func (p *parser) list() []any {
+	list := []any{}
+	for p.i++; !p.closes(']'); {
+		list = append(list, p.value())
+	}
+	return list
+}
+
+// closes steps past whitespace and a comma to the next member, or past end where the object or
+// list ends there.
+func (p *parser) closes(end byte) bool {
+	p.space()
+	if p.b[p.i] == ',' {
+		p.i++
+		p.space()
+	}
+	if p.b[p.i] != end {
+		return false
+	}
+	p.i++
+	return true
+}
+
+func (p *parser) str() string {
+	start, escaped := p.i, false
+	for p.i++; p.b[p.i] != '"'; p.i++ {
+		if p.b[p.i] == '\\' {
+			escaped = true
+			p.i++
+		}
+	}
+	p.i++
+	if raw := p.b[start+1 : p.i-1]; !escaped && utf8.Valid(raw) {
+		return string(raw)
+	}
+	var s string
+	_ = json.Unmarshal(p.b[start:p.i], &s)
+	return s
+}
+
+func (p *parser) number() json.Number {
+	start := p.i
+	for p.i < len(p.b) && bytes.IndexByte([]byte("+-.eE0123456789"), p.b[p.i]) >= 0 {
+		p.i++
+	}
+	return json.Number(p.b[start:p.i])
 }
 
 // located prefixes a syntax error with the line and column where decoding stopped.
