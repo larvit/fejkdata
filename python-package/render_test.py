@@ -56,7 +56,7 @@ class ReadmeExamples(unittest.TestCase):
 		blocks = re.findall(r"```python\n(.*?)```\n(?:\n```text\n(.*?)```\n)?", markdown, re.DOTALL)
 		for code, printed in blocks:
 			with self.subTest(code), contextlib.redirect_stdout(io.StringIO()) as out:
-				exec(code, names)
+				exec(code, names)  # noqa: S102 the code is the repository's own README
 			if printed:
 				self.assertEqual(out.getvalue(), printed, code)
 		return len(blocks)
