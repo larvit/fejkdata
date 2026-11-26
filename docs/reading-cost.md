@@ -3215,3 +3215,22 @@ Read most (opens and searches):
 - `.gitignore` 1
 - `cli/cli.go` 1
 - `cli/flags.go` 1
+
+## Reading cost, chunk 315970419261, finished 2026-11-26T23:42:18Z
+
+247127 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 10
+- `.github/workflows/packages.yml` 4
+- `compose.yaml` 4
+- `release-tooling/python_wheels.py` 4
+- `DATA-LICENSES.md` 3
+- `python-package/README.md` 3
+- `python-package/render_test.py` 3
+- `.github/workflows/test.yml` 2
+- `release-tooling/python_wheels_test.py` 2
+- `renovate.json` 2
+
+## Reading cost reset, 2026-11-26T23:43:48Z
