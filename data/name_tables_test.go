@@ -65,3 +65,19 @@ func TestNameTablesOfCountedBearersHoldNoNameUnderFiveBearers(t *testing.T) {
 		}
 	}
 }
+
+func TestNameTablesOfCountedBearersHoldUnder60000RowsEach(t *testing.T) {
+	for _, locale := range []string{"en_US", "fi_FI", "fr_FR", "sv_SE"} {
+		for _, file := range []string{"first-name", "last-name"} {
+			t.Run(locale+"/"+file, func(t *testing.T) {
+				var rows int
+				for _, names := range nameCounts(t, locale, file) {
+					rows += len(names)
+				}
+				if rows > 60000 {
+					t.Errorf("%s/%s holds %d rows, want 60,000 or fewer so a person's two tables load in under 100 ms", locale, file, rows)
+				}
+			})
+		}
+	}
+}
