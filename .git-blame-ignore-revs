@@ -1,4 +1,5 @@
-# git blame skips these commits: `git config blame.ignoreRevsFile .git-blame-ignore-revs`. GitHub reads the file unasked.
+# Commits git blame skips, once you run `git config blame.ignoreRevsFile .git-blame-ignore-revs`. GitHub reads the file unasked.
 
-# Hard tabs in the Python under data-import. A function docstring's later lines took tabs too, since only a module docstring is read at run time.
+# Hard tabs in the Python under data-import. A module docstring kept its spaces, since argparse prints it.
+# The later lines of a function docstring took tabs: nothing reads one at run time.
 f07077ad27c84bee167387a5fc9d527fe21db9bb
