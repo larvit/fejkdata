@@ -43,7 +43,7 @@ WHEEL = "Wheel-Version: 1.0\nGenerator: fejkdata release-tooling\nRoot-Is-Pureli
 
 def binary(dist: pathlib.Path, platform: str) -> pathlib.Path:
 	"""GoReleaser suffixes a build's folder with its CPU variant, as in fejkdata_linux_amd64_v1."""
-	found = [path for path in dist.glob(f"fejkdata_{platform}_*/fejkdata*") if path.stem == "fejkdata"]
+	found = list(dist.glob(f"fejkdata_{platform}_*/fejkdata*"))
 	if len(found) != 1:
 		raise ValueError(f"{dist} holds {len(found)} binaries for {platform}, want one")
 	return found[0]
@@ -84,7 +84,7 @@ def build(src: pathlib.Path, dist: pathlib.Path, version: str, out: pathlib.Path
 	if not re.fullmatch(r"\d+\.\d+\.\d+", version):
 		raise ValueError(f"version {version!r} is not a release's, such as 0.9.0")
 	binaries = {platform: binary(dist, platform) for platform in PLATFORMS}
-	out.mkdir(parents=True, exist_ok=True)
+	out.mkdir(exist_ok=True)
 	wheels = []
 	for platform, tag in PLATFORMS.items():
 		held = files(src, version, tag)
