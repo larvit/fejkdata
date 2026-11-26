@@ -19,6 +19,7 @@ with its replacement, and each removed path, column or flag.
 
 ### Added
 
+- A Python package on PyPI: `pip install fejkdata`, then `fejkdata.render(template, seed=…, today=…)` returns what the CLI prints for the same template, seed and day. Each wheel carries the CLI and all the shipped data for its platform, on Linux, macOS and Windows, amd64 and arm64, and needs Python 3.11 or later. It doesn't put a `fejkdata` command on the path.
 - Every locale draws a full mobile number from `phone-mobile` and a full fixed one from `phone-fixed`, such as `sv_SE.phone-mobile` and `sv_SE.phone-fixed`, in the national form, each with `national` and `international`. `en_US.phone-fixed` reads `en_US.phone-mobile`, since a US number doesn't show its kind.
 - `{isin()}`, `{cusip()}` and `{aba()}` compute the check digit of an ISIN, a CUSIP and a US routing number from the characters rendered before them.
 - `{vin(WMI)}` renders a whole VIN of a manufacturer code, with a valid check character.

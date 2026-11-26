@@ -17,20 +17,35 @@ PLATFORMS = {
 	"windows_amd64": "win_amd64",
 	"windows_arm64": "win_arm64",
 }
+# The code is MIT, and LicenseRef-fejkdata-data-licenses names the data's licences, which DATA-LICENSES.md lists.
 LICENCES = ("LICENSE", "DATA-LICENSES.md", "data/en_US/WORDNET-LICENSE.txt")
 METADATA = """\
 Metadata-Version: 2.4
 Name: fejkdata
 Version: {version}
 Summary: Fake data for tests. Related values match, like a postcode and its city.
+Keywords: fake data,test data,mock data,fixtures,seed data,synthetic data,testing,csv,sql,national id
 Project-URL: Homepage, https://fejkdata.dev
+Project-URL: Documentation, https://github.com/larvit/fejkdata#readme
 Project-URL: Source, https://github.com/larvit/fejkdata
 Project-URL: Changelog, https://github.com/larvit/fejkdata/blob/main/CHANGELOG.md
+Project-URL: Issues, https://github.com/larvit/fejkdata/issues
 Author: Lilleman auf Larv
-License-Expression: MIT
+License-Expression: MIT AND LicenseRef-fejkdata-data-licenses
 {licence_files}
-Classifier: Programming Language :: Python :: 3
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: 3.15
 Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Software Development :: Testing :: Mocking
 Classifier: Typing :: Typed
 Requires-Python: >=3.11
 Description-Content-Type: text/markdown
