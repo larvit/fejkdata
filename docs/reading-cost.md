@@ -3076,3 +3076,15 @@ Read most (opens and searches):
 - `data/misc/territory.json` 1
 - `data/misc/tld.tsv` 1
 - `shipped_test.go` 1
+
+## Reading cost, chunk b93941af78ea, finished 2026-11-26T07:47:10Z
+
+75797 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 16
+- `readme_test.go` 5
+- `compose.yaml` 3
+- `record.go` 1
+- `todo.md` 1
