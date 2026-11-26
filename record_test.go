@@ -952,3 +952,27 @@ func TestColumnIsTheEngineColumn(t *testing.T) {
 		t.Errorf("fejkdata.Column is %T, want the engine's %T, as DataType is", Column{}, engine.Column{})
 	}
 }
+
+func TestRecordWritesANULRawInEveryFormatButJSON(t *testing.T) {
+	t.Parallel()
+	dir := writeData(t, map[string]string{"row": `{"format":"","v":"a\u0000b"}`})
+	f, err := New(WithDataPath(dir), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := f.FakeRecord("row")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, c := range map[string]struct{ got, want string }{
+		"JSON":     {r.JSON(), `{"v":"a\u0000b"}`},
+		"CSVLine":  {r.CSVLine(), "a\x00b"},
+		"TSVLine":  {r.TSVLine(), "a\x00b"},
+		"PGCopy":   {r.PGCopyLine(), "a\x00b"},
+		"SQLValue": {r.SQLValues(), "('a\x00b')"},
+	} {
+		if c.got != c.want {
+			t.Errorf("%s = %q, want %q: a render reports no error, so a NUL is the caller's to refuse", name, c.got, c.want)
+		}
+	}
+}
