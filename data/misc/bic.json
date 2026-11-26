@@ -1,0 +1,26 @@
+{
+  "format": "{upper(4)}{.territory.alpha2}{l1}{l2}{branch}",
+  "hidden": {
+    "l1": [
+      { "format": "{digits(1)}", "weight": 10 },
+      { "format": "{upper(1)}", "weight": 26 }
+    ],
+    "l2": [
+      { "format": "{digits(1) where not '0' and not '1' and not '2'}", "weight": 7 },
+      { "format": "{upper(1)}", "weight": 26 }
+    ],
+    "branch": [
+      { "format": "", "weight": 5 },
+      { "format": "XXX", "weight": 3 },
+      {
+        "format": "{x}",
+        "repeat": 3,
+        "x": [
+          { "format": "{digits(1)}", "weight": 10 },
+          { "format": "{upper(1)}", "weight": 26 }
+        ],
+        "weight": 2
+      }
+    ]
+  }
+}

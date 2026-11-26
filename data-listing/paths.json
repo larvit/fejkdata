@@ -1560,6 +1560,7 @@
 	{"path":"lv_LV.word.noun","kind":["real"],"example":"pūkcepurene","source":"Tēzaurs.lv's wordforms"},
 	{"path":"lv_LV.word.noun.plural","kind":["real"],"example":"pūkcepurenes","source":"Tēzaurs.lv's wordforms"},
 	{"path":"lv_LV.word.verb","kind":["real"],"example":"pietašķīties","source":"Tēzaurs.lv's wordforms"},
+	{"path":"misc.bic","kind":["valid"],"example":"ARDXNCNRXXX","source":"hand-written, with ISO 9362's structure and an ISO 3166-1 country code"},
 	{"path":"misc.car","kind":["real"],"example":"Ford Explorer","source":"hand-written"},
 	{"path":"misc.car.make","kind":["real"],"example":"Ford","source":"hand-written"},
 	{"path":"misc.car.model","kind":["real"],"example":"Explorer","source":"hand-written"},

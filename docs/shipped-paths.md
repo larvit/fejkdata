@@ -1708,10 +1708,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 </details>
 
 <details>
-<summary><code>misc</code>, 93 paths</summary>
+<summary><code>misc</code>, 94 paths</summary>
 
 | Path | Kind | Example | Source |
 |---|---|---|---|
+| `misc.bic` | valid | `ARDXNCNRXXX` | hand-written, with ISO 9362's structure and an ISO 3166-1 country code |
 | `misc.car` | real | `Ford Explorer` | hand-written |
 | `misc.car.make` | real | `Ford` | hand-written |
 | `misc.car.model` | real | `Explorer` | hand-written |

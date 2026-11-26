@@ -28,7 +28,7 @@ your own network:
 `documentation` and `private` never end in `.0` or `.255`. `misc.ip` and `misc.mac` draw addresses a real host may
 hold; `misc.ip` takes them from `misc.ip.wide4`, an IPv4 address, or `misc.ip.wide6`, an IPv6 address.
 
-## Credit cards and IBANs
+## Credit cards, IBANs and BICs
 
 A drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real: it passes the Luhn check or
 the IBAN's mod-97 check, and a real card or account may hold it. `{iban(CC)}` also carries the
@@ -41,6 +41,12 @@ a DE or DK account, can still refuse a draw. `misc.creditcard-test` and
 each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK. Each key holds one
 number, so there are seven cards and seven IBANs, and `{/misc.creditcard-test[visa]}` always prints
 `4242424242424242` and `{/misc.iban-test[SE]}` `SE3550000000054910000003`.
+
+`misc.bic` is valid, not real: ISO 9362's eight or eleven characters. It holds four capital
+letters, a country code from `misc.territory`, a location of capital letters or digits whose
+second character is never `0`, `1` or `2`, which mark a test, passive or reverse billing BIC, and
+a branch that is absent, `XXX` for the primary office or three random capital letters or digits. A
+register of SWIFT members that looks the code up can refuse a draw.
 
 ## Securities identifiers
 
