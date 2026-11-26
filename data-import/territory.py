@@ -68,7 +68,8 @@ def rows(text: str) -> Iterator[dict[str, str]]:
             "tld": r["TLD"],
         }
         row.update(FIXUPS.get(alpha2, {}))
-        if r["TLD"] and all(row[c] for c in ("alpha2", "alpha3", "calling-code", "capital", "currency", "name")):
+        has_tld = row["tld"] or "tld" in FIXUPS.get(alpha2, {})
+        if has_tld and all(row[c] for c in ("alpha2", "alpha3", "calling-code", "capital", "currency", "name")):
             yield row
 
 
