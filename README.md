@@ -535,9 +535,8 @@ Loading a million rows from a file into a table of `id bigint primary key, name 
 
 #### CSV into MySQL
 
-`LOAD DATA` reads a backslash as an escape, so `C:\temp` loads with a tab in it, and it reads null
-only from an unquoted `NULL`. Run `csv` with `--null-text NULL` ([Null](#null)) and load with
-`ESCAPED BY ''`. Save `mydata/files.json`:
+`LOAD DATA` reads a backslash as an escape, so `C:\temp` loads with a tab in it. Load with
+`ESCAPED BY ''`, and run `csv` with `--null-text NULL`, the null MySQL then reads ([Null](#null)). Save `mydata/files.json`:
 
 ```json
 { "format": "", "id": { "format": "{seq()}", "datatype": "integer" }, "note": [null, "ok"], "path": ["C:\\temp", "D:\\data"] }
