@@ -78,6 +78,18 @@ class Build(unittest.TestCase):
 			],
 		)
 
+	def test_no_other_file_is_executable_and_each_is_compressed(self) -> None:
+		for info in self.wheel("linux_amd64").infolist():
+			with self.subTest(info.filename):
+				self.assertEqual(info.compress_type, zipfile.ZIP_DEFLATED)
+				if not info.filename.startswith("fejkdata/bin/"):
+					self.assertEqual(stat.S_IMODE(info.external_attr >> 16), 0o644)
+
+	def test_the_metadata_names_each_licence_file_and_the_oldest_python(self) -> None:
+		metadata = self.wheel("win_amd64").read("fejkdata-0.9.0.dist-info/METADATA").decode()
+		self.assertIn("\nLicense-Expression: MIT\nLicense-File: LICENSE\nLicense-File: DATA-LICENSES.md\nLicense-File: WORDNET-LICENSE.txt\n", metadata)
+		self.assertIn("\nRequires-Python: >=3.11\n", metadata)
+
 	def test_the_metadata_names_the_version_and_no_dependency(self) -> None:
 		metadata = self.wheel("win_amd64").read("fejkdata-0.9.0.dist-info/METADATA").decode()
 		self.assertIn("\nName: fejkdata\nVersion: 0.9.0\n", metadata)

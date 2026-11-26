@@ -3,7 +3,9 @@ import datetime
 import io
 import pathlib
 import re
+import tempfile
 import unittest
+import unittest.mock
 
 import fejkdata
 
@@ -23,7 +25,7 @@ class Render(unittest.TestCase):
 		self.assertEqual(fejkdata.render("{date(today,today,'2006-01-02')}", seed=1, today=DAY), DAY)
 
 	def test_today_takes_a_date(self) -> None:
-		self.assertEqual(fejkdata.render("{date(today,today,'2006-01-02')}", seed=1, today=datetime.date(2026, 1, 15)), DAY)
+		self.assertEqual(fejkdata.render("{date(today,today,'2006-01-02')}", seed=1, today=datetime.date(2025, 3, 9)), "2025-03-09")
 
 	def test_repeat_renders_the_template_that_many_times(self) -> None:
 		self.assertEqual(fejkdata.render("{/misc.territory[SE].alpha2} ", seed=1, today=DAY, repeat=3), "SE SE SE ")
@@ -46,6 +48,16 @@ class Render(unittest.TestCase):
 			fejkdata.render("x", seed=-1, today=DAY)
 		self.assertEqual(raised.exception.returncode, 2)
 		self.assertIn("--seed needs an unsigned integer", str(raised.exception))
+
+	def test_a_runtime_error_raises_its_exit_code_and_its_text_without_the_newline(self) -> None:
+		with tempfile.TemporaryDirectory() as folder:
+			failing = pathlib.Path(folder) / "fejkdata"
+			failing.write_text("#!/bin/sh\necho 'fejkdata: the disk is full' >&2\nexit 1\n", encoding="utf-8")
+			failing.chmod(0o755)
+			with unittest.mock.patch.object(fejkdata, "_BINARY", failing), self.assertRaises(fejkdata.FejkdataError) as raised:
+				fejkdata.render("x", seed=1, today=DAY)
+		self.assertEqual(raised.exception.returncode, 1)
+		self.assertEqual(str(raised.exception), "fejkdata: the disk is full")
 
 
 class ReadmeExamples(unittest.TestCase):
