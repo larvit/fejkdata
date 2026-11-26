@@ -25,19 +25,19 @@ import tsv
 
 BASE = "https://opendata.muenchen.de/dataset/99ad40ec-9d7b-4a2e-87eb-9bac783fb57a/resource/"
 FILES = {
-    2013: "17c4915d-6b8b-470f-a6b6-31f61b10a285/download/vornamen_2013.csv",
-    2014: "5d581ba3-4c7e-4057-8be1-04d56bb0d8d6/download/vornamen_2014.csv",
-    2015: "c11e8fef-94c8-4e16-a769-70dc6b98b69b/download/vornamen_2015.csv",
-    2016: "6655ec3c-251a-4a5e-9a57-d60c4ad59ca3/download/vornamen2016.csv",
-    2017: "2c70d289-8b1a-4071-9739-866c5e532b77/download/vornamen2017.csv",
-    2018: "23fdd53e-485a-46bd-abb6-d7a51b2ebb18/download/vornamen_2018.csv",
-    2019: "523d5860-25eb-4bea-96e3-193d1dacfb8f/download/vornamen2019.csv",
-    2020: "48a4c5fd-f5f2-4c0c-bcb3-222fd9ebda67/download/vornamen_2020.csv",
-    2021: "dc6170db-f7f4-4bdc-b790-13df55f0cf64/download/vornamen_2021.csv",
-    2022: "5f11d3a0-4779-4f64-b113-b59326e6d839/download/open_data_portal_2022.csv",
-    2023: "02ab322e-d33e-4447-a9ab-23df63dfa7e1/download/vornamen-muenchen-2023.csv",
-    2024: "9f393a00-aa64-4733-8c8c-80eabc18f95a/download/vornamen_muenchen2024.csv",
-    2025: "6388c83a-266d-437c-824a-7bbcb7ceec63/download/vornamen_muenchen2025.csv",
+	2013: "17c4915d-6b8b-470f-a6b6-31f61b10a285/download/vornamen_2013.csv",
+	2014: "5d581ba3-4c7e-4057-8be1-04d56bb0d8d6/download/vornamen_2014.csv",
+	2015: "c11e8fef-94c8-4e16-a769-70dc6b98b69b/download/vornamen_2015.csv",
+	2016: "6655ec3c-251a-4a5e-9a57-d60c4ad59ca3/download/vornamen2016.csv",
+	2017: "2c70d289-8b1a-4071-9739-866c5e532b77/download/vornamen2017.csv",
+	2018: "23fdd53e-485a-46bd-abb6-d7a51b2ebb18/download/vornamen_2018.csv",
+	2019: "523d5860-25eb-4bea-96e3-193d1dacfb8f/download/vornamen2019.csv",
+	2020: "48a4c5fd-f5f2-4c0c-bcb3-222fd9ebda67/download/vornamen_2020.csv",
+	2021: "dc6170db-f7f4-4bdc-b790-13df55f0cf64/download/vornamen_2021.csv",
+	2022: "5f11d3a0-4779-4f64-b113-b59326e6d839/download/open_data_portal_2022.csv",
+	2023: "02ab322e-d33e-4447-a9ab-23df63dfa7e1/download/vornamen-muenchen-2023.csv",
+	2024: "9f393a00-aa64-4733-8c8c-80eabc18f95a/download/vornamen_muenchen2024.csv",
+	2025: "6388c83a-266d-437c-824a-7bbcb7ceec63/download/vornamen_muenchen2025.csv",
 }
 OUT = Path(__file__).resolve().parent.parent / "data" / "de_DE"
 CACHE = Path(__file__).resolve().parent / "cache"
@@ -95,40 +95,40 @@ Wichmann Wiese Winkelmann Wittmann Wolfram Wurm Zeller Zimmer Zink Zorn
 
 
 def firsts(cache: str) -> list[dict[str, object]]:
-    """The rows (name, sex, count): each name and sex with the sum of the numbers that Munich publishes for it."""
-    counts: dict[tuple[str, str], int] = {}
-    for year, path in FILES.items():
-        text = source.fetch(BASE + path, cache, f"munich-vornamen-{year}.csv").decode("utf-8-sig")
-        rows = list(csv.reader(io.StringIO(text)))
-        if [c.strip() for c in rows[0]] != ["vorname", "anzahl", "geschlecht"]:
-            sys.exit(f"{year}: the columns are {rows[0]}, not vorname, anzahl and geschlecht")
-        for row in rows[1:]:
-            if not any(c.strip("\x1a ") for c in row):  # the DOS end-of-file row that ends the 2016 to 2019 files
-                continue
-            name, count, sex = (c.strip() for c in row)
-            name = tsv.straight(name)
-            if sex not in SEX:
-                sys.exit(f"{year}: {name!r} has the sex {sex!r}, not w or m")
-            if count.isdigit() and tsv.NAME.match(name):
-                counts[(name, SEX[sex])] = counts.get((name, SEX[sex]), 0) + int(count)
-    return [{"name": name, "sex": sex, "count": n} for (name, sex), n in sorted(counts.items())]
+	"""The rows (name, sex, count): each name and sex with the sum of the numbers that Munich publishes for it."""
+	counts: dict[tuple[str, str], int] = {}
+	for year, path in FILES.items():
+		text = source.fetch(BASE + path, cache, f"munich-vornamen-{year}.csv").decode("utf-8-sig")
+		rows = list(csv.reader(io.StringIO(text)))
+		if [c.strip() for c in rows[0]] != ["vorname", "anzahl", "geschlecht"]:
+			sys.exit(f"{year}: the columns are {rows[0]}, not vorname, anzahl and geschlecht")
+		for row in rows[1:]:
+			if not any(c.strip("\x1a ") for c in row):  # the DOS end-of-file row that ends the 2016 to 2019 files
+				continue
+			name, count, sex = (c.strip() for c in row)
+			name = tsv.straight(name)
+			if sex not in SEX:
+				sys.exit(f"{year}: {name!r} has the sex {sex!r}, not w or m")
+			if count.isdigit() and tsv.NAME.match(name):
+				counts[(name, SEX[sex])] = counts.get((name, SEX[sex]), 0) + int(count)
+	return [{"name": name, "sex": sex, "count": n} for (name, sex), n in sorted(counts.items())]
 
 
 def lasts() -> list[dict[str, object]]:
-    """The rows (name, count) of the recalled last names."""
-    return [{"name": name, "count": n} for name, n in sorted(recalled_names.weighted("last names", LAST_RECALLED, 700000))]
+	"""The rows (name, count) of the recalled last names."""
+	return [{"name": name, "count": n} for name, n in sorted(recalled_names.weighted("last names", LAST_RECALLED, 700000))]
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(a.cache))
-    tsv.write(out / "last-name.tsv", ["name", "count"], lasts())
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	out = Path(a.out)
+	out.mkdir(parents=True, exist_ok=True)
+	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(a.cache))
+	tsv.write(out / "last-name.tsv", ["name", "count"], lasts())
 
 
 if __name__ == "__main__":
-    main()
+	main()

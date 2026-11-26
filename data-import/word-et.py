@@ -19,5 +19,5 @@ FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
 candidates = partial(wikidata_lexemes.candidates, language="Q9072", code="et", forms=FORMS)
 
 if __name__ == "__main__":
-    source = wordtables.Source(flag="lexemes", url=wikidata_lexemes.DUMP, name="wikidata-lexemes.json.gz", magic=b"\x1f\x8b", candidates=candidates)
-    wordtables.main(__doc__, "", OUT, FORMS, [source], wordtables.lower_letters)
+	source = wordtables.Source(flag="lexemes", url=wikidata_lexemes.DUMP, name="wikidata-lexemes.json.gz", magic=b"\x1f\x8b", candidates=candidates)
+	wordtables.main(__doc__, "", OUT, FORMS, [source], wordtables.lower_letters)

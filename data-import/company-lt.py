@@ -41,16 +41,16 @@ from pathlib import Path
 import source
 import tsv
 from company_names import (
-    Vocabulary,
-    Words,
-    bare,
-    coined,
-    column,
-    company_json,
-    count_names,
-    kind,
-    trade_words,
-    word_usage,
+	Vocabulary,
+	Words,
+	bare,
+	coined,
+	column,
+	company_json,
+	count_names,
+	kind,
+	trade_words,
+	word_usage,
 )
 
 REGISTER = "https://www.registrucentras.lt/aduomenys/?byla=JAR_IREGISTRUOTI.csv"
@@ -61,49 +61,49 @@ CACHE = Path(__file__).resolve().parent / "cache"
 FORM_CODES = {"310": "UAB", "960": "MB", "320": "AB", "410": "ŽŪB"}
 # Each form's path under company and the words that spell it: its abbreviation and its words, in lower case.
 NAMED_FORMS = {
-    "UAB": ("uab", ("uab", "uždaroji akcinė bendrovė")),
-    "MB": ("mb", ("mb", "mažoji bendrija")),
-    "AB": ("ab", ("ab", "akcinė bendrovė")),
-    "ŽŪB": ("zub", ("žūb", "žemės ūkio bendrovė")),
+	"UAB": ("uab", ("uab", "uždaroji akcinė bendrovė")),
+	"MB": ("mb", ("mb", "mažoji bendrija")),
+	"AB": ("ab", ("ab", "akcinė bendrovė")),
+	"ŽŪB": ("zub", ("žūb", "žemės ūkio bendrovė")),
 }
 CONNECTING_WORDS = ("ir", "&")
 FUNCTION_WORDS = {*CONNECTING_WORDS, "the", "and", "of", "for"}
 LEGAL_WORDS = {words[0] for _, words in NAMED_FORMS.values()}
 VOCABULARY = Vocabulary(re.compile(r"^[a-ząčęėįšųūž]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, CONNECTING_WORDS, form_spread=1)
 def register(data: bytes) -> tuple[Counter[str], list[tuple[str, str]]]:
-    """The legal entities of a form drawn, counted by form, and the form and name of each."""
-    counts: Counter[str] = Counter()
-    names: list[tuple[str, str]] = []
-    for row in csv.DictReader(io.TextIOWrapper(io.BytesIO(data), encoding="utf-8-sig", newline=""), delimiter="|"):
-        form = FORM_CODES.get(row["form_kodas"])
-        if form:
-            counts[form] += 1
-            names.append((form, row["ja_pavadinimas"]))
-    return counts, names
+	"""The legal entities of a form drawn, counted by form, and the form and name of each."""
+	counts: Counter[str] = Counter()
+	names: list[tuple[str, str]] = []
+	for row in csv.DictReader(io.TextIOWrapper(io.BytesIO(data), encoding="utf-8-sig", newline=""), delimiter="|"):
+		form = FORM_CODES.get(row["form_kodas"])
+		if form:
+			counts[form] += 1
+			names.append((form, row["ja_pavadinimas"]))
+	return counts, names
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--register", default=REGISTER)
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    registered, names = register(source.fetch(a.register, a.cache, "juridiniu-asmenu-registras-iregistruoti.csv", b"ja_kodas|"))
-    words = Words(column(ROOT / "lt_LT/last-name.tsv"), column(ROOT / "lt_LT/first-name.tsv"))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--register", default=REGISTER)
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	registered, names = register(source.fetch(a.register, a.cache, "juridiniu-asmenu-registras-iregistruoti.csv", b"ja_kodas|"))
+	words = Words(column(ROOT / "lt_LT/last-name.tsv"), column(ROOT / "lt_LT/first-name.tsv"))
 
-    def named(w: str) -> bool:
-        return kind(w, words, True) is not None
+	def named(w: str) -> bool:
+		return kind(w, words, True) is not None
 
-    usage = word_usage(bare(NAMED_FORMS, names), named, VOCABULARY)
-    trade = trade_words(usage, VOCABULARY)
-    shapes, places = count_names(NAMED_FORMS, names, words, trade, VOCABULARY)
-    out = Path(a.out)
-    tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
-    tsv.write(out / "company-coined.tsv", ["word", "count"], [{"word": w, "count": c} for w, c in coined(usage, trade).items()])
-    for table in ("company-word", "company-coined"):
-        (out / f"{table}.json").write_text('{ "format": "{word}", "rows": "' + table + '.tsv", "weight": "count" }\n', encoding="utf-8")
-    (out / "company.json").write_text(company_json(NAMED_FORMS, registered, shapes, places, VOCABULARY), encoding="utf-8")
+	usage = word_usage(bare(NAMED_FORMS, names), named, VOCABULARY)
+	trade = trade_words(usage, VOCABULARY)
+	shapes, places = count_names(NAMED_FORMS, names, words, trade, VOCABULARY)
+	out = Path(a.out)
+	tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
+	tsv.write(out / "company-coined.tsv", ["word", "count"], [{"word": w, "count": c} for w, c in coined(usage, trade).items()])
+	for table in ("company-word", "company-coined"):
+		(out / f"{table}.json").write_text('{ "format": "{word}", "rows": "' + table + '.tsv", "weight": "count" }\n', encoding="utf-8")
+	(out / "company.json").write_text(company_json(NAMED_FORMS, registered, shapes, places, VOCABULARY), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+	main()

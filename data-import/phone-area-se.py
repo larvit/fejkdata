@@ -29,54 +29,54 @@ ROW = re.compile(r"(\d+) \(NDC\) (\d+) (\d+) Geographic number(?: -)? Area code 
 
 
 def unescaped(string: bytes) -> str:
-    string = re.sub(rb"\\(\d{3})", lambda m: bytes([int(m[1], 8)]), string)
-    return re.sub(rb"\\(.)", rb"\1", string, flags=re.DOTALL).decode("cp1252", "replace")
+	string = re.sub(rb"\\(\d{3})", lambda m: bytes([int(m[1], 8)]), string)
+	return re.sub(rb"\\(.)", rb"\1", string, flags=re.DOTALL).decode("cp1252", "replace")
 
 
 def page_lines(content: bytes) -> list[str]:
-    """A page's text, top line first, each line's runs left to right."""
-    lines = collections.defaultdict(list)
-    for placed in PLACED_TEXT.finditer(content):
-        text = "".join(unescaped(s) for array in ARRAY.findall(placed[3]) for s in STRING.findall(array))
-        lines[round(float(placed[2]))].append((float(placed[1]), text))
-    return ["".join(text for _, text in sorted(lines[y])) for y in sorted(lines, reverse=True)]
+	"""A page's text, top line first, each line's runs left to right."""
+	lines = collections.defaultdict(list)
+	for placed in PLACED_TEXT.finditer(content):
+		text = "".join(unescaped(s) for array in ARRAY.findall(placed[3]) for s in STRING.findall(array))
+		lines[round(float(placed[2]))].append((float(placed[1]), text))
+	return ["".join(text for _, text in sorted(lines[y])) for y in sorted(lines, reverse=True)]
 
 
 def plan_text(pdf: bytes) -> str:
-    lines = []
-    for stream in STREAM.findall(pdf):
-        try:
-            content = zlib.decompress(stream)
-        except zlib.error:
-            continue
-        if b" Tm" in content:
-            lines += page_lines(content)
-    return re.sub(r"\s+", " ", " ".join(lines))
+	lines = []
+	for stream in STREAM.findall(pdf):
+		try:
+			content = zlib.decompress(stream)
+		except zlib.error:
+			continue
+		if b" Tm" in content:
+			lines += page_lines(content)
+	return re.sub(r"\s+", " ", " ".join(lines))
 
 
 def area_rows(text: str) -> list[dict[str, str]]:
-    rows = []
-    for ndc, longest, shortest, name in ROW.findall(text):
-        rows.append({
-            "area": "0" + ndc,
-            "ndc": ndc,
-            "name": name.replace("- ", "-"),
-            "subscriber": f"{{.phone-subscriber.digits-{int(shortest) - len(ndc)}-{int(longest) - len(ndc)}}}",
-        })
-    if len(rows) != AREA_CODES:
-        sys.exit(f"the plan yields {len(rows)} geographic area codes, and states {AREA_CODES}")
-    return sorted(rows, key=lambda r: r["area"])
+	rows = []
+	for ndc, longest, shortest, name in ROW.findall(text):
+		rows.append({
+			"area": "0" + ndc,
+			"ndc": ndc,
+			"name": name.replace("- ", "-"),
+			"subscriber": f"{{.phone-subscriber.digits-{int(shortest) - len(ndc)}-{int(longest) - len(ndc)}}}",
+		})
+	if len(rows) != AREA_CODES:
+		sys.exit(f"the plan yields {len(rows)} geographic area codes, and states {AREA_CODES}")
+	return sorted(rows, key=lambda r: r["area"])
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--cache", default=str(CACHE))
-    parser.add_argument("--source", default=SOURCE)
-    parser.add_argument("--out", default=str(OUT))
-    args = parser.parse_args()
-    pdf = source.fetch(args.source, args.cache, "pts-numbering-plan.pdf", magic=b"%PDF-")
-    tsv.write(args.out, ["area", "ndc", "name", "subscriber"], area_rows(plan_text(pdf)), templates=("subscriber",))
+	parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	parser.add_argument("--cache", default=str(CACHE))
+	parser.add_argument("--source", default=SOURCE)
+	parser.add_argument("--out", default=str(OUT))
+	args = parser.parse_args()
+	pdf = source.fetch(args.source, args.cache, "pts-numbering-plan.pdf", magic=b"%PDF-")
+	tsv.write(args.out, ["area", "ndc", "name", "subscriber"], area_rows(plan_text(pdf)), templates=("subscriber",))
 
 
 if __name__ == "__main__":
-    main()
+	main()

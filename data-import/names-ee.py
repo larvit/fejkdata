@@ -105,24 +105,24 @@ Zujev Õispuu Õunapuu
 
 
 def feminine(name: str) -> str:
-    return name + "a" if name.endswith(("ov", "ev")) else name
+	return name + "a" if name.endswith(("ov", "ev")) else name
 
 
 def lasts() -> list[dict[str, object]]:
-    """The rows (name, sex, count) of the last names: each recalled name under m, and its feminine form under f."""
-    rows = recalled_names.weighted("last names", LAST_RECALLED, TOP)
-    return [{"name": form(name), "sex": sex, "count": n} for name, n in rows for sex, form in (("f", feminine), ("m", str))]
+	"""The rows (name, sex, count) of the last names: each recalled name under m, and its feminine form under f."""
+	rows = recalled_names.weighted("last names", LAST_RECALLED, TOP)
+	return [{"name": form(name), "sex": sex, "count": n} for name, n in rows for sex, form in (("f", feminine), ("m", str))]
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--out", default=str(OUT))
-    out = Path(p.parse_args().out)
-    out.mkdir(parents=True, exist_ok=True)
-    firsts = [{"name": name, "sex": sex, "count": n} for sex, text in (("f", GIRLS_RECALLED), ("m", BOYS_RECALLED)) for name, n in recalled_names.weighted("girls" if sex == "f" else "boys", text, TOP)]
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(firsts, key=lambda r: (str(r["name"]), str(r["sex"]))))
-    tsv.write(out / "last-name.tsv", ["name", "sex", "count"], sorted(lasts(), key=lambda r: (str(r["name"]), str(r["sex"]))))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--out", default=str(OUT))
+	out = Path(p.parse_args().out)
+	out.mkdir(parents=True, exist_ok=True)
+	firsts = [{"name": name, "sex": sex, "count": n} for sex, text in (("f", GIRLS_RECALLED), ("m", BOYS_RECALLED)) for name, n in recalled_names.weighted("girls" if sex == "f" else "boys", text, TOP)]
+	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(firsts, key=lambda r: (str(r["name"]), str(r["sex"]))))
+	tsv.write(out / "last-name.tsv", ["name", "sex", "count"], sorted(lasts(), key=lambda r: (str(r["name"]), str(r["sex"]))))
 
 
 if __name__ == "__main__":
-    main()
+	main()

@@ -19,37 +19,37 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE"
 FORMS = {"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
 # SALDO's partOfSpeech: the path, and SALDO's msd (its morphological tag) for the part's form and for the lemma.
 PARTS = {
-    "nn": ("noun", "sg def nom", "sg indef nom"),
-    "vb": ("verb", "pres ind aktiv", "inf aktiv"),
-    "av": ("adj", "pos def pl nom", "pos indef sg u nom"),
-    "ab": ("adv", "", ""),
+	"nn": ("noun", "sg def nom", "sg indef nom"),
+	"vb": ("verb", "pres ind aktiv", "inf aktiv"),
+	"av": ("adj", "pos def pl nom", "pos indef sg u nom"),
+	"ab": ("adv", "", ""),
 }
 
 
 def feats(element: ElementTree.Element) -> dict[str, str]:
-    return {f.attrib["att"]: f.attrib["val"] for f in element.findall("feat")}
+	return {f.attrib["att"]: f.attrib["val"] for f in element.findall("feat")}
 
 
 def entries(saldo: bytes) -> Iterator[tuple[str, str, dict[str, str]]]:
-    """Each entry as its lemma, part of speech and first written form per msd."""
-    for _, entry in ElementTree.iterparse(io.BytesIO(saldo)):
-        if entry.tag != "LexicalEntry":
-            continue
-        lemma = feats(entry.findall("Lemma/FormRepresentation")[0])
-        forms: dict[str, str] = {}
-        for form in entry.findall("WordForm"):
-            written = feats(form)
-            forms.setdefault(written["msd"], written["writtenForm"])
-        yield lemma["writtenForm"], lemma["partOfSpeech"], forms
-        entry.clear()
+	"""Each entry as its lemma, part of speech and first written form per msd."""
+	for _, entry in ElementTree.iterparse(io.BytesIO(saldo)):
+		if entry.tag != "LexicalEntry":
+			continue
+		lemma = feats(entry.findall("Lemma/FormRepresentation")[0])
+		forms: dict[str, str] = {}
+		for form in entry.findall("WordForm"):
+			written = feats(form)
+			forms.setdefault(written["msd"], written["writtenForm"])
+		yield lemma["writtenForm"], lemma["partOfSpeech"], forms
+		entry.clear()
 
 
 def candidates(saldo: bytes) -> Iterator[wordtables.Candidate]:
-    for word, pos, forms in entries(saldo):
-        if pos in PARTS:
-            part, msd, own = PARTS[pos]
-            yield part, word, forms.get(msd, "") if forms.get(own) == word else ""
+	for word, pos, forms in entries(saldo):
+		if pos in PARTS:
+			part, msd, own = PARTS[pos]
+			yield part, word, forms.get(msd, "") if forms.get(own) == word else ""
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "sv", OUT, FORMS, [wordtables.Source(flag="saldo", url=SALDO, name="saldom.xml", magic=b"<LexicalResource", candidates=candidates)])
+	wordtables.main(__doc__, "sv", OUT, FORMS, [wordtables.Source(flag="saldo", url=SALDO, name="saldom.xml", magic=b"<LexicalResource", candidates=candidates)])

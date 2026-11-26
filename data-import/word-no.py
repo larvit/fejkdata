@@ -24,74 +24,74 @@ FORMS = {"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
 
 
 class Tags(NamedTuple):
-    """The tags every form of a part of speech carries, then those of its word and of its form."""
+	"""The tags every form of a part of speech carries, then those of its word and of its form."""
 
-    every: set[str]
-    word: set[str]
-    form: set[str]
+	every: set[str]
+	word: set[str]
+	form: set[str]
 
 
 def parts(singular: str, definite: str) -> dict[str, Tags]:
-    """Bokmål tags a singular `ent` and a definite `be`, nynorsk `eint` and `bu`."""
-    return {
-        "noun": Tags({"subst", "appell"}, {singular, "ub"}, {singular, definite}),
-        "verb": Tags({"verb"}, {"inf"}, {"pres"}),
-        "adj": Tags({"adj", "pos"}, {"m/f", "ub", singular}, {definite, singular}),
-        "adv": Tags({"adv"}, set(), set()),
-    }
+	"""Bokmål tags a singular `ent` and a definite `be`, nynorsk `eint` and `bu`."""
+	return {
+		"noun": Tags({"subst", "appell"}, {singular, "ub"}, {singular, definite}),
+		"verb": Tags({"verb"}, {"inf"}, {"pres"}),
+		"adj": Tags({"adj", "pos"}, {"m/f", "ub", singular}, {definite, singular}),
+		"adv": Tags({"adv"}, set(), set()),
+	}
 
 
 VARIETIES = {"nb_NO": ("lemma.txt", "fullformsliste.txt", parts("ent", "be")), "nn_NO": ("lemma_2012.txt", "fullformer_2012.txt", parts("eint", "bu"))}
 
 
 def lines(tarball: bytes, name: str) -> Iterator[list[str]]:
-    """The cells of each line below the header of one file in the tarball, which is Latin-1 with CRLF line ends."""
-    with tarfile.open(fileobj=io.BytesIO(tarball)) as tar:
-        member = tar.extractfile(name)
-        if member is None:
-            raise ValueError(f"the tarball holds no file {name}")
-        text = member.read().decode("latin-1").replace("\r", "")
-    for line in text.split("\n")[1:]:
-        if line:
-            yield line.split("\t")
+	"""The cells of each line below the header of one file in the tarball, which is Latin-1 with CRLF line ends."""
+	with tarfile.open(fileobj=io.BytesIO(tarball)) as tar:
+		member = tar.extractfile(name)
+		if member is None:
+			raise ValueError(f"the tarball holds no file {name}")
+		text = member.read().decode("latin-1").replace("\r", "")
+	for line in text.split("\n")[1:]:
+		if line:
+			yield line.split("\t")
 
 
 def paradigms(tarball: bytes, name: str, wanted: Mapping[str, Tags]) -> dict[tuple[str, str, str], tuple[set[str], list[str]]]:
-    """Per lemma, part of speech and paradigm, in the order the list first names them, the spellings of the word and those of its form.
+	"""Per lemma, part of speech and paradigm, in the order the list first names them, the spellings of the word and those of its form.
 
-    A form counts while the norm holds it: its end date is 4000 and it is normert. A verb's passive never counts."""
-    found: dict[tuple[str, str, str], tuple[set[str], list[str]]] = {}
-    for _, lemma, form, tag, paradigm, _, _, until, norm in lines(tarball, name):
-        tags = set(tag.split())
-        if until != "4000" or norm != "normert" or "pass" in tags:
-            continue
-        for part, of_part in wanted.items():
-            if of_part.every <= tags:
-                words, forms = found.setdefault((lemma, part, paradigm), (set(), []))
-                if of_part.word <= tags:
-                    words.add(form)
-                if of_part.form and of_part.form <= tags:
-                    forms.append(form)
-    return found
+	A form counts while the norm holds it: its end date is 4000 and it is normert. A verb's passive never counts."""
+	found: dict[tuple[str, str, str], tuple[set[str], list[str]]] = {}
+	for _, lemma, form, tag, paradigm, _, _, until, norm in lines(tarball, name):
+		tags = set(tag.split())
+		if until != "4000" or norm != "normert" or "pass" in tags:
+			continue
+		for part, of_part in wanted.items():
+			if of_part.every <= tags:
+				words, forms = found.setdefault((lemma, part, paradigm), (set(), []))
+				if of_part.word <= tags:
+					words.add(form)
+				if of_part.form and of_part.form <= tags:
+					forms.append(form)
+	return found
 
 
 def candidates(tarball: bytes, variety: str) -> Iterator[wordtables.Candidate]:
-    lemmas_file, forms_file, wanted = VARIETIES[variety]
-    lemmas = {lemma: word for _, lemma, word, *_ in lines(tarball, lemmas_file)}
-    for (lemma, part, _), (words, forms) in paradigms(tarball, forms_file, wanted).items():
-        word = lemmas.get(lemma, "")
-        if word in words:
-            yield part, word, forms[0] if forms else ""
+	lemmas_file, forms_file, wanted = VARIETIES[variety]
+	lemmas = {lemma: word for _, lemma, word, *_ in lines(tarball, lemmas_file)}
+	for (lemma, part, _), (words, forms) in paradigms(tarball, forms_file, wanted).items():
+		word = lemmas.get(lemma, "")
+		if word in words:
+			yield part, word, forms[0] if forms else ""
 
 
 if __name__ == "__main__":
-    wordtables.main(
-        __doc__,
-        "no",
-        OUT,
-        FORMS,
-        [
-            wordtables.Source(flag="bokmal", url=BOKMAL, magic=b"\x1f\x8b", folder="nb_NO", candidates=partial(candidates, variety="nb_NO")),
-            wordtables.Source(flag="nynorsk", url=NYNORSK, magic=b"\x1f\x8b", folder="nn_NO", candidates=partial(candidates, variety="nn_NO")),
-        ],
-    )
+	wordtables.main(
+		__doc__,
+		"no",
+		OUT,
+		FORMS,
+		[
+			wordtables.Source(flag="bokmal", url=BOKMAL, magic=b"\x1f\x8b", folder="nb_NO", candidates=partial(candidates, variety="nb_NO")),
+			wordtables.Source(flag="nynorsk", url=NYNORSK, magic=b"\x1f\x8b", folder="nn_NO", candidates=partial(candidates, variety="nn_NO")),
+		],
+	)

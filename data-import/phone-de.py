@@ -29,49 +29,49 @@ SUBSCRIBER = "{.phone-subscriber.digits-%s}"
 
 
 def mobile_rows(listing: bytes) -> list[dict[str, str]]:
-    """A row for each block of the list, with the digits the plan gives its subscriber number."""
-    rows = []
-    for line in listing.decode("iso-8859-1").splitlines()[1:]:
-        match = BLOCK.match(line)
-        if not match:
-            sys.exit(f"{line!r} is not a block of the list")
-        ndc = match[1]
-        digits = {3: "7-8", 4: "7", 5: "6"}.get(len(ndc))
-        if digits is None:
-            sys.exit(f"block {ndc} is not 3 to 5 digits long")
-        rows.append({"area": "0" + ndc, "ndc": ndc, "subscriber": SUBSCRIBER % digits})
-    return sorted(rows, key=lambda r: r["area"])
+	"""A row for each block of the list, with the digits the plan gives its subscriber number."""
+	rows = []
+	for line in listing.decode("iso-8859-1").splitlines()[1:]:
+		match = BLOCK.match(line)
+		if not match:
+			sys.exit(f"{line!r} is not a block of the list")
+		ndc = match[1]
+		digits = {3: "7-8", 4: "7", 5: "6"}.get(len(ndc))
+		if digits is None:
+			sys.exit(f"block {ndc} is not 3 to 5 digits long")
+		rows.append({"area": "0" + ndc, "ndc": ndc, "subscriber": SUBSCRIBER % digits})
+	return sorted(rows, key=lambda r: r["area"])
 
 
 def fixed_rows(archive: bytes) -> list[dict[str, str]]:
-    """A row for each active Ortsnetzkennzahl, with the Ortsnetz it names."""
-    with zipfile.ZipFile(io.BytesIO(archive)) as z:
-        (name,) = z.namelist()
-        text = z.read(name).decode("utf-8-sig")
-    rows = []
-    for row in csv.DictReader(io.StringIO(text), delimiter=";"):
-        if row["KennzeichenAktiv"] != "1":
-            continue
-        ndc = row["Ortsnetzkennzahl"]
-        if not re.fullmatch(r"[1-9]\d{1,4}", ndc):
-            sys.exit(f"{ndc!r} is not a code of 2 to 5 digits")
-        rows.append({"area": "0" + ndc, "ndc": ndc, "name": row["Ortsnetzname"], "subscriber": SUBSCRIBER % ((10 if len(ndc) == 2 else 11) - len(ndc))})
-    return sorted(rows, key=lambda r: r["area"])
+	"""A row for each active Ortsnetzkennzahl, with the Ortsnetz it names."""
+	with zipfile.ZipFile(io.BytesIO(archive)) as z:
+		(name,) = z.namelist()
+		text = z.read(name).decode("utf-8-sig")
+	rows = []
+	for row in csv.DictReader(io.StringIO(text), delimiter=";"):
+		if row["KennzeichenAktiv"] != "1":
+			continue
+		ndc = row["Ortsnetzkennzahl"]
+		if not re.fullmatch(r"[1-9]\d{1,4}", ndc):
+			sys.exit(f"{ndc!r} is not a code of 2 to 5 digits")
+		rows.append({"area": "0" + ndc, "ndc": ndc, "name": row["Ortsnetzname"], "subscriber": SUBSCRIBER % ((10 if len(ndc) == 2 else 11) - len(ndc))})
+	return sorted(rows, key=lambda r: r["area"])
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--cache", default=str(CACHE))
-    parser.add_argument("--source-mobile", default=MOBILE)
-    parser.add_argument("--source-fixed", default=FIXED)
-    parser.add_argument("--out-mobile", default=str(DATA / "phone-mobile.tsv"))
-    parser.add_argument("--out-fixed", default=str(DATA / "phone-fixed.tsv"))
-    args = parser.parse_args()
-    listing = source.fetch(args.source_mobile, args.cache, "RNB_csv.csv", magic=b"RNB;")
-    archive = source.fetch(args.source_fixed, args.cache, "Vorwahlverzeichnis_ONB.zip", magic=b"PK")
-    tsv.write(args.out_mobile, ["area", "ndc", "subscriber"], mobile_rows(listing), templates=["subscriber"])
-    tsv.write(args.out_fixed, ["area", "ndc", "name", "subscriber"], fixed_rows(archive), templates=["subscriber"])
+	parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	parser.add_argument("--cache", default=str(CACHE))
+	parser.add_argument("--source-mobile", default=MOBILE)
+	parser.add_argument("--source-fixed", default=FIXED)
+	parser.add_argument("--out-mobile", default=str(DATA / "phone-mobile.tsv"))
+	parser.add_argument("--out-fixed", default=str(DATA / "phone-fixed.tsv"))
+	args = parser.parse_args()
+	listing = source.fetch(args.source_mobile, args.cache, "RNB_csv.csv", magic=b"RNB;")
+	archive = source.fetch(args.source_fixed, args.cache, "Vorwahlverzeichnis_ONB.zip", magic=b"PK")
+	tsv.write(args.out_mobile, ["area", "ndc", "subscriber"], mobile_rows(listing), templates=["subscriber"])
+	tsv.write(args.out_fixed, ["area", "ndc", "name", "subscriber"], fixed_rows(archive), templates=["subscriber"])
 
 
 if __name__ == "__main__":
-    main()
+	main()

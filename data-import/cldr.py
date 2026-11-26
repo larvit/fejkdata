@@ -24,49 +24,49 @@ ROOT = Path(__file__).resolve().parent.parent / "data"
 CACHE = Path(__file__).resolve().parent / "cache"
 WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 LOCALES = {
-    "da": "da_DK", "de": "de_DE", "en": "en_US", "et": "et_EE", "fi": "fi_FI", "fr": "fr_FR", "lt": "lt_LT", "lv": "lv_LV", "nb": "nb_NO",
-    "nn": "nn_NO", "sv": "sv_SE",
+	"da": "da_DK", "de": "de_DE", "en": "en_US", "et": "et_EE", "fi": "fi_FI", "fr": "fr_FR", "lt": "lt_LT", "lv": "lv_LV", "nb": "nb_NO",
+	"nn": "nn_NO", "sv": "sv_SE",
 }
 
 
 def load(cldr: str, cache: str, package: str, lang: str, file: str) -> Any:
-    url = f"{cldr}/{package}/main/{lang}/{file}.json"
-    return json.loads(source.fetch(url, cache, f"cldr-{lang}-{file}.json").decode("utf-8"))["main"][lang]
+	url = f"{cldr}/{package}/main/{lang}/{file}.json"
+	return json.loads(source.fetch(url, cache, f"cldr-{lang}-{file}.json").decode("utf-8"))["main"][lang]
 
 
 def calendar(lang: str, cldr: str, cache: str, out: Path) -> None:
-    gregorian = load(cldr, cache, "cldr-dates-full", lang, "ca-gregorian")["dates"]["calendars"]["gregorian"]
-    months = gregorian["months"]["stand-alone"]["wide"]
-    if sorted(months, key=int) != [str(i) for i in range(1, 13)]:
-        sys.exit(f"CLDR numbers the months {sorted(months, key=int)}, not 1 to 12")
-    tsv.write(out / "month.tsv", ["code", "name"], [{"code": m, "name": months[m]} for m in sorted(months, key=int)])
-    days = gregorian["days"]["stand-alone"]["wide"]
-    if sorted(days) != sorted(WEEKDAYS):
-        sys.exit(f"CLDR names the weekdays {sorted(days)}, not {sorted(WEEKDAYS)}")
-    tsv.write(out / "weekday.tsv", ["code", "name"], [{"code": i + 1, "name": days[d]} for i, d in enumerate(WEEKDAYS)])
+	gregorian = load(cldr, cache, "cldr-dates-full", lang, "ca-gregorian")["dates"]["calendars"]["gregorian"]
+	months = gregorian["months"]["stand-alone"]["wide"]
+	if sorted(months, key=int) != [str(i) for i in range(1, 13)]:
+		sys.exit(f"CLDR numbers the months {sorted(months, key=int)}, not 1 to 12")
+	tsv.write(out / "month.tsv", ["code", "name"], [{"code": m, "name": months[m]} for m in sorted(months, key=int)])
+	days = gregorian["days"]["stand-alone"]["wide"]
+	if sorted(days) != sorted(WEEKDAYS):
+		sys.exit(f"CLDR names the weekdays {sorted(days)}, not {sorted(WEEKDAYS)}")
+	tsv.write(out / "weekday.tsv", ["code", "name"], [{"code": i + 1, "name": days[d]} for i, d in enumerate(WEEKDAYS)])
 
 
 def territories(cldr: str, cache: str, misc: Path, out: Path) -> None:
-    names = load(cldr, cache, "cldr-localenames-full", "sv", "territories")["localeDisplayNames"]["territories"]
-    with open(misc, encoding="utf-8", newline="") as f:
-        codes = [row["alpha2"] for row in csv.DictReader(f, delimiter="\t")]
-    missing = [c for c in codes if c not in names]
-    if missing:
-        sys.exit(f"CLDR has no Swedish name for {missing}")
-    tsv.write(out / "territory.tsv", ["alpha2", "name"], [{"alpha2": c, "name": names[c]} for c in codes])
+	names = load(cldr, cache, "cldr-localenames-full", "sv", "territories")["localeDisplayNames"]["territories"]
+	with open(misc, encoding="utf-8", newline="") as f:
+		codes = [row["alpha2"] for row in csv.DictReader(f, delimiter="\t")]
+	missing = [c for c in codes if c not in names]
+	if missing:
+		sys.exit(f"CLDR has no Swedish name for {missing}")
+	tsv.write(out / "territory.tsv", ["alpha2", "name"], [{"alpha2": c, "name": names[c]} for c in codes])
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--cldr", default=CLDR)
-    p.add_argument("--data-dir", default=str(ROOT))
-    a = p.parse_args()
-    data = Path(a.data_dir)
-    for lang, locale in LOCALES.items():
-        calendar(lang, a.cldr, a.cache, data / locale)
-    territories(a.cldr, a.cache, data / "misc" / "territory.tsv", data / "sv_SE")
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--cldr", default=CLDR)
+	p.add_argument("--data-dir", default=str(ROOT))
+	a = p.parse_args()
+	data = Path(a.data_dir)
+	for lang, locale in LOCALES.items():
+		calendar(lang, a.cldr, a.cache, data / locale)
+	territories(a.cldr, a.cache, data / "misc" / "territory.tsv", data / "sv_SE")
 
 
 if __name__ == "__main__":
-    main()
+	main()

@@ -21,20 +21,20 @@ FIXUPS = {"application/mp4": "mp4s", "audio/mpeg": "mp3", "audio/ogg": "ogg", "v
 
 
 def rows(db: Mapping[str, Any]) -> Iterator[dict[str, str]]:
-    for mimetype, entry in db.items():
-        if entry.get("source") == "iana" and entry.get("extensions"):
-            yield {"ext": "." + FIXUPS.get(mimetype, entry["extensions"][0]), "type": mimetype}
+	for mimetype, entry in db.items():
+		if entry.get("source") == "iana" and entry.get("extensions"):
+			yield {"ext": "." + FIXUPS.get(mimetype, entry["extensions"][0]), "type": mimetype}
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    table = rows(json.loads(source.fetch(a.source, a.cache, "mime-db.json").decode("utf-8")))
-    tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: r["type"]))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	table = rows(json.loads(source.fetch(a.source, a.cache, "mime-db.json").decode("utf-8")))
+	tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: r["type"]))
 
 
 if __name__ == "__main__":
-    main()
+	main()

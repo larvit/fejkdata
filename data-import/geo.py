@@ -33,277 +33,277 @@ NUMBER_RANGES = ((1, 9), (10, 99), (100, 999), (1000, 9999))
 # An invented street's name: a letter first, then letters, digits and the space, full stop, apostrophe and hyphen that join them.
 STREET = re.compile(r"^[^\W\d_][^\W_]*([ .'-]+[^\W_]+)*\.?$")
 COLUMNS = {
-    "region": ["code", "name", "population", "timezone"],
-    "municipality": ["code", "name", "region", "population"],
-    "locality": ["name", "municipality", "population", "lat", "lon"],
-    "postal_code": ["code", "locality", "addresses"],
-    "street": ["name", "locality", "addresses"],
+	"region": ["code", "name", "population", "timezone"],
+	"municipality": ["code", "name", "region", "population"],
+	"locality": ["name", "municipality", "population", "lat", "lon"],
+	"postal_code": ["code", "locality", "addresses"],
+	"street": ["name", "locality", "addresses"],
 }
 
 
 def parser(doc: str, country: str, street_share: float, **own: dict[str, Any]) -> argparse.ArgumentParser:
-    """A parser for the options every country's import takes, plus the script's own: each keyword names one option, with
-    "_" standing for "-"."""
-    options: dict[str, dict[str, Any]] = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "min_streets": {"type": int, "default": 10}, "street_share": {"type": float, "default": street_share}, **own}
-    p = argparse.ArgumentParser(description=doc.splitlines()[0])
-    for name in sorted(options):
-        p.add_argument("--" + name.replace("_", "-"), **options[name])
-    return p
+	"""A parser for the options every country's import takes, plus the script's own: each keyword names one option, with
+	"_" standing for "-"."""
+	options: dict[str, dict[str, Any]] = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "min_streets": {"type": int, "default": 10}, "street_share": {"type": float, "default": street_share}, **own}
+	p = argparse.ArgumentParser(description=doc.splitlines()[0])
+	for name in sorted(options):
+		p.add_argument("--" + name.replace("_", "-"), **options[name])
+	return p
 
 
 def directories(args: argparse.Namespace) -> tuple[Path, Path]:
-    """The cache and out directories of the parsed options, both created."""
-    cache, out = Path(args.cache), Path(args.out)
-    cache.mkdir(parents=True, exist_ok=True)
-    out.mkdir(parents=True, exist_ok=True)
-    return cache, out
+	"""The cache and out directories of the parsed options, both created."""
+	cache, out = Path(args.cache), Path(args.out)
+	cache.mkdir(parents=True, exist_ok=True)
+	out.mkdir(parents=True, exist_ok=True)
+	return cache, out
 
 
 def centroid(rows: Iterable[Row]) -> tuple[float, float] | None:
-    """The mean lat and lon of the rows with a point, or None where no row has one."""
-    points = [r for r in rows if r["lat"] is not None]
-    if not points:
-        return None
-    return sum(r["lat"] for r in points) / len(points), sum(r["lon"] for r in points) / len(points)
+	"""The mean lat and lon of the rows with a point, or None where no row has one."""
+	points = [r for r in rows if r["lat"] is not None]
+	if not points:
+		return None
+	return sum(r["lat"] for r in points) / len(points), sum(r["lon"] for r in points) / len(points)
 
 
 class Nearest[T]:
-    """Nearest point by an equirectangular distance, over a degree grid."""
+	"""Nearest point by an equirectangular distance, over a degree grid."""
 
-    def __init__(self, points: Iterable[tuple[float, float, T]], cell: float = 0.05) -> None:
-        self.cell = cell
-        self.grid: dict[tuple[int, int], list[tuple[float, float, T]]] = collections.defaultdict(list)
-        for lat, lon, value in points:
-            self.grid[(int(lat // cell), int(lon // cell))].append((lat, lon, value))
+	def __init__(self, points: Iterable[tuple[float, float, T]], cell: float = 0.05) -> None:
+		self.cell = cell
+		self.grid: dict[tuple[int, int], list[tuple[float, float, T]]] = collections.defaultdict(list)
+		for lat, lon, value in points:
+			self.grid[(int(lat // cell), int(lon // cell))].append((lat, lon, value))
 
-    def find(self, lat: float, lon: float) -> T | None:
-        ci, cj = int(lat // self.cell), int(lon // self.cell)
-        best: T | None = None
-        best_d = math.inf
-        ring = 0
-        while ring < 400:
-            for i in range(ci - ring, ci + ring + 1):
-                for j in range(cj - ring, cj + ring + 1):
-                    if max(abs(i - ci), abs(j - cj)) != ring:
-                        continue
-                    for plat, plon, value in self.grid.get((i, j), ()):
-                        d = (plat - lat) ** 2 + ((plon - lon) * math.cos(math.radians(lat))) ** 2
-                        if d < best_d:
-                            best, best_d = value, d
-            if best is not None and math.sqrt(best_d) < ring * self.cell * math.cos(math.radians(lat)):
-                return best
-            ring += 1
-        return best
+	def find(self, lat: float, lon: float) -> T | None:
+		ci, cj = int(lat // self.cell), int(lon // self.cell)
+		best: T | None = None
+		best_d = math.inf
+		ring = 0
+		while ring < 400:
+			for i in range(ci - ring, ci + ring + 1):
+				for j in range(cj - ring, cj + ring + 1):
+					if max(abs(i - ci), abs(j - cj)) != ring:
+						continue
+					for plat, plon, value in self.grid.get((i, j), ()):
+						d = (plat - lat) ** 2 + ((plon - lon) * math.cos(math.radians(lat))) ** 2
+						if d < best_d:
+							best, best_d = value, d
+			if best is not None and math.sqrt(best_d) < ring * self.cell * math.cos(math.radians(lat)):
+				return best
+			ring += 1
+		return best
 
 
 def invented_streets(recalled: str) -> list[Row]:
-    """The rows of a country's invented streets, for a country with no open address register covering it whole. recalled
-    holds one street name a line, as a language model recalls streets common in the country; a blank line is skipped.
-    Each name weighs the same, so a row holds the name alone. Exits on a name listed twice, on one that is no street name,
-    and on an empty list."""
-    names = [line.strip() for line in recalled.splitlines() if line.strip()]
-    if not names:
-        sys.exit("street names: none listed")
-    for name in names:
-        if not STREET.match(name):
-            sys.exit(f"street names: {name!r} is not a street name")
-    dupes = sorted({n for n in names if names.count(n) > 1})
-    if dupes:
-        sys.exit(f"street names: listed twice: {', '.join(dupes)}")
-    return [{"name": name} for name in sorted(names)]
+	"""The rows of a country's invented streets, for a country with no open address register covering it whole. recalled
+	holds one street name a line, as a language model recalls streets common in the country; a blank line is skipped.
+	Each name weighs the same, so a row holds the name alone. Exits on a name listed twice, on one that is no street name,
+	and on an empty list."""
+	names = [line.strip() for line in recalled.splitlines() if line.strip()]
+	if not names:
+		sys.exit("street names: none listed")
+	for name in names:
+		if not STREET.match(name):
+			sys.exit(f"street names: {name!r} is not a street name")
+	dupes = sorted({n for n in names if names.count(n) > 1})
+	if dupes:
+		sys.exit(f"street names: listed twice: {', '.join(dupes)}")
+	return [{"name": name} for name in sorted(names)]
 
 
 class Counts:
-    """What a country's addresses count: per locality, its addresses, its postal codes and its streets; and over them
-    all, the house numbers by number_range."""
+	"""What a country's addresses count: per locality, its addresses, its postal codes and its streets; and over them
+	all, the house numbers by number_range."""
 
-    def __init__(self) -> None:
-        self.addresses: collections.Counter[str] = collections.Counter()
-        self.postal_codes: collections.Counter[tuple[str, str]] = collections.Counter()
-        self.streets: collections.Counter[tuple[str, str]] = collections.Counter()
-        self.numbers: collections.Counter[tuple[int, bool]] = collections.Counter()
+	def __init__(self) -> None:
+		self.addresses: collections.Counter[str] = collections.Counter()
+		self.postal_codes: collections.Counter[tuple[str, str]] = collections.Counter()
+		self.streets: collections.Counter[tuple[str, str]] = collections.Counter()
+		self.numbers: collections.Counter[tuple[int, bool]] = collections.Counter()
 
-    def count(self, locality: str, postal_code: str, n: int, street: str | None, number: tuple[int, bool] | None) -> None:
-        """Counts an address as n of its locality and postal code, and of its street where it has a street and a house
-        number. The house number counts once, however large n is."""
-        self.addresses[locality] += n
-        self.postal_codes[(locality, postal_code)] += n
-        if street and number:
-            self.streets[(locality, street)] += n
-            self.numbers[number_range(*number)] += 1
+	def count(self, locality: str, postal_code: str, n: int, street: str | None, number: tuple[int, bool] | None) -> None:
+		"""Counts an address as n of its locality and postal code, and of its street where it has a street and a house
+		number. The house number counts once, however large n is."""
+		self.addresses[locality] += n
+		self.postal_codes[(locality, postal_code)] += n
+		if street and number:
+			self.streets[(locality, street)] += n
+			self.numbers[number_range(*number)] += 1
 
 
 def sum_people(regions: Mapping[str, Row], municipalities: Mapping[str, Row], people: Mapping[str, int]) -> None:
-    """Sets each municipality's population to its code's count in people, and each region's to the sum over its municipalities."""
-    for row in regions.values():
-        row["population"] = 0
-    for code, municipality in municipalities.items():
-        municipality["population"] = people[code]
-        regions[municipality["region"]]["population"] += people[code]
+	"""Sets each municipality's population to its code's count in people, and each region's to the sum over its municipalities."""
+	for row in regions.values():
+		row["population"] = 0
+	for code, municipality in municipalities.items():
+		municipality["population"] = people[code]
+		regions[municipality["region"]]["population"] += people[code]
 
 
 def top_streets[K](count: Mapping[tuple[K, str], int], share: float, minimum: int, column: str) -> dict[K, list[Row]]:
-    """count maps (locality, street name) to a count. Returns, per locality, rows for its most-counted names, share of
-    them rounded up and at least minimum, ties broken by name; each row holds its count under column."""
-    of = collections.defaultdict(list)
-    for (locality, name), n in count.items():
-        of[locality].append((n, name))
-    return {locality: [{"name": name, "locality": locality, column: n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:max(minimum, math.ceil(len(named) * share))]] for locality, named in of.items()}
+	"""count maps (locality, street name) to a count. Returns, per locality, rows for its most-counted names, share of
+	them rounded up and at least minimum, ties broken by name; each row holds its count under column."""
+	of = collections.defaultdict(list)
+	for (locality, name), n in count.items():
+		of[locality].append((n, name))
+	return {locality: [{"name": name, "locality": locality, column: n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:max(minimum, math.ceil(len(named) * share))]] for locality, named in of.items()}
 
 
 def fence[K](regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[K, Row], streets: Mapping[K, object], postal_codes: Mapping[K, object]) -> tuple[Tables, Tables]:
-    """Meet the loader's fence that every parent row has a child row. Keeps each locality with entries in both streets
-    and postal_codes, then each municipality and region left with a child.
+	"""Meet the loader's fence that every parent row has a child row. Keeps each locality with entries in both streets
+	and postal_codes, then each municipality and region left with a child.
 
-    regions and municipalities map a code to a row; a municipality row names its region under "region". localities,
-    streets and postal_codes map a locality's key to its row, its streets and its postal codes. A locality row holds
-    name, municipality, population, lat and lon, plus its country's own keys.
+	regions and municipalities map a code to a row; a municipality row names its region under "region". localities,
+	streets and postal_codes map a locality's key to its row, its streets and its postal codes. A locality row holds
+	name, municipality, population, lat and lon, plus its country's own keys.
 
-    Returns kept, then dropped: each maps "locality", "municipality" and "region" to that table's rows."""
-    kept: Tables = {"locality": {k: loc for k, loc in localities.items() if streets.get(k) and postal_codes.get(k)}}
-    municipality_codes = {loc["municipality"] for loc in kept["locality"].values()}
-    kept["municipality"] = {c: m for c, m in municipalities.items() if c in municipality_codes}
-    region_codes = {m["region"] for m in kept["municipality"].values()}
-    kept["region"] = {c: r for c, r in regions.items() if c in region_codes}
-    every: dict[str, Mapping[Any, Row]] = {"locality": localities, "municipality": municipalities, "region": regions}
-    dropped = {table: {k: row for k, row in rows.items() if k not in kept[table]} for table, rows in every.items()}
-    return kept, dropped
+	Returns kept, then dropped: each maps "locality", "municipality" and "region" to that table's rows."""
+	kept: Tables = {"locality": {k: loc for k, loc in localities.items() if streets.get(k) and postal_codes.get(k)}}
+	municipality_codes = {loc["municipality"] for loc in kept["locality"].values()}
+	kept["municipality"] = {c: m for c, m in municipalities.items() if c in municipality_codes}
+	region_codes = {m["region"] for m in kept["municipality"].values()}
+	kept["region"] = {c: r for c, r in regions.items() if c in region_codes}
+	every: dict[str, Mapping[Any, Row]] = {"locality": localities, "municipality": municipalities, "region": regions}
+	dropped = {table: {k: row for k, row in rows.items() if k not in kept[table]} for table, rows in every.items()}
+	return kept, dropped
 
 
 def exit_on_dropped_parents(dropped: Tables) -> None:
-    """Exits where fence dropped a municipality or a region, naming each; a country whose every one must ship calls it."""
-    if dropped["municipality"] or dropped["region"]:
-        sys.exit(f"municipalities without a locality: {sorted(dropped['municipality'])}; regions without a municipality: {sorted(dropped['region'])}")
+	"""Exits where fence dropped a municipality or a region, naming each; a country whose every one must ship calls it."""
+	if dropped["municipality"] or dropped["region"]:
+		sys.exit(f"municipalities without a locality: {sorted(dropped['municipality'])}; regions without a municipality: {sorted(dropped['region'])}")
 
 
 def in_capitals(name: str) -> bool:
-    """Whether a word of name is five capitals or more, as in a street name a source writes in capitals. A shorter
-    word in capitals is an acronym or a Roman numeral: IOGT-vägen, Karl XII gatan."""
-    return any(len(w) >= 5 and w.isupper() for w in name.split())
+	"""Whether a word of name is five capitals or more, as in a street name a source writes in capitals. A shorter
+	word in capitals is an acronym or a Roman numeral: IOGT-vägen, Karl XII gatan."""
+	return any(len(w) >= 5 and w.isupper() for w in name.split())
 
 
 def log_dropped_localities(rows: Mapping[Any, Row]) -> None:
-    """Logs each locality row as dropped, by its key, plus its name where that differs."""
-    for key, row in rows.items():
-        label = key if key == row["name"] else f"{key} {row['name']}"
-        print(f"{label}: no street or no postal code, dropped", file=sys.stderr)
+	"""Logs each locality row as dropped, by its key, plus its name where that differs."""
+	for key, row in rows.items():
+		label = key if key == row["name"] else f"{key} {row['name']}"
+		print(f"{label}: no street or no postal code, dropped", file=sys.stderr)
 
 
 def geonames(cache: Path, country: str) -> list[Row]:
-    """GeoNames' postal codes of a country (CC BY 4.0), each with its place name, municipality code and point."""
-    z = zipfile.ZipFile(io.BytesIO(source.fetch(GEONAMES.format(country), cache, f"{country}.zip", magic=b"PK")))
-    rows = []
-    for line in z.read(f"{country}.txt").decode("utf-8").splitlines():
-        f = line.split("\t")
-        lat, lon = (float(f[9]), float(f[10])) if f[9] and f[10] else (None, None)
-        rows.append({"code": f[1], "locality": f[2], "municipality": f[6], "lat": lat, "lon": lon})
-    return rows
+	"""GeoNames' postal codes of a country (CC BY 4.0), each with its place name, municipality code and point."""
+	z = zipfile.ZipFile(io.BytesIO(source.fetch(GEONAMES.format(country), cache, f"{country}.zip", magic=b"PK")))
+	rows = []
+	for line in z.read(f"{country}.txt").decode("utf-8").splitlines():
+		f = line.split("\t")
+		lat, lon = (float(f[9]), float(f[10])) if f[9] and f[10] else (None, None)
+		rows.append({"code": f[1], "locality": f[2], "municipality": f[6], "lat": lat, "lon": lon})
+	return rows
 
 
 def most_addresses_first[K](in_municipality: Mapping[tuple[K, str], int]) -> list[tuple[tuple[K, str], int]]:
-    """in_municipality's items, the most addresses first, the lower municipality code first in a tie."""
-    return sorted(in_municipality.items(), key=lambda kv: (-kv[1], kv[0][1]))
+	"""in_municipality's items, the most addresses first, the lower municipality code first in a tie."""
+	return sorted(in_municipality.items(), key=lambda kv: (-kv[1], kv[0][1]))
 
 
 def home_municipalities[K](in_municipality: Mapping[tuple[K, str], int]) -> dict[K, str]:
-    """Each locality's municipality: the one holding most of its addresses, the lower code winning a tie.
-    in_municipality maps (locality, municipality) to the addresses they share."""
-    home: dict[K, str] = {}
-    for (place, municipality), _ in most_addresses_first(in_municipality):
-        home.setdefault(place, municipality)
-    return home
+	"""Each locality's municipality: the one holding most of its addresses, the lower code winning a tie.
+	in_municipality maps (locality, municipality) to the addresses they share."""
+	home: dict[K, str] = {}
+	for (place, municipality), _ in most_addresses_first(in_municipality):
+		home.setdefault(place, municipality)
+	return home
 
 
 def homes[K](in_municipality: Mapping[tuple[K, str], int], people: Mapping[str, int]) -> dict[K, tuple[str, int]]:
-    """Each locality's municipality and population. in_municipality maps (locality, municipality) to the addresses they
-    share, and people maps a municipality to its population. A locality's municipality is home_municipalities'. Its
-    population is each municipality's, shared out over that municipality's localities by their addresses there."""
-    of_municipality: collections.Counter[str] = collections.Counter()
-    share: dict[K, float] = collections.defaultdict(float)
-    for (_, municipality), n in in_municipality.items():
-        of_municipality[municipality] += n
-    for (place, municipality), n in most_addresses_first(in_municipality):
-        share[place] += people.get(municipality, 0) * n / of_municipality[municipality]
-    return {place: (municipality, max(1, round(share[place]))) for place, municipality in home_municipalities(in_municipality).items()}
+	"""Each locality's municipality and population. in_municipality maps (locality, municipality) to the addresses they
+	share, and people maps a municipality to its population. A locality's municipality is home_municipalities'. Its
+	population is each municipality's, shared out over that municipality's localities by their addresses there."""
+	of_municipality: collections.Counter[str] = collections.Counter()
+	share: dict[K, float] = collections.defaultdict(float)
+	for (_, municipality), n in in_municipality.items():
+		of_municipality[municipality] += n
+	for (place, municipality), n in most_addresses_first(in_municipality):
+		share[place] += people.get(municipality, 0) * n / of_municipality[municipality]
+	return {place: (municipality, max(1, round(share[place]))) for place, municipality in home_municipalities(in_municipality).items()}
 
 
 def every_counted(municipalities: Iterable[str], counts: Mapping[str, int]) -> None:
-    """Raises ValueError naming each municipality counts holds no count for."""
-    missing = sorted(set(municipalities) - counts.keys())
-    if missing:
-        raise ValueError(f"the source gives no count for municipality {', '.join(missing)}")
+	"""Raises ValueError naming each municipality counts holds no count for."""
+	missing = sorted(set(municipalities) - counts.keys())
+	if missing:
+		raise ValueError(f"the source gives no count for municipality {', '.join(missing)}")
 
 
 def populations[K](addresses: Mapping[K, int], municipality_of: Mapping[K, str], counted: Mapping[K, int], people: Mapping[str, int], outside: Mapping[str, int] | None = None) -> dict[K, int]:
-    """The population of each locality in addresses, which maps it to its addresses: its count in counted, or else its
-    share of the rest. The rest is what a municipality's people leave once its counted localities are taken away, shared
-    out by addresses over its other localities and its addresses outside every locality. A locality holds at least one
-    person."""
-    rest = collections.Counter(people)
-    for place, n in counted.items():
-        if place in municipality_of:
-            rest[municipality_of[place]] -= n
-    uncounted = collections.Counter(outside or {})
-    for place, n in addresses.items():
-        if place not in counted:
-            uncounted[municipality_of[place]] += n
-    shares = {place: rest[municipality_of[place]] * n / uncounted[municipality_of[place]] for place, n in addresses.items() if place not in counted}
-    return {place: max(1, counted[place] if place in counted else round(shares[place])) for place in addresses}
+	"""The population of each locality in addresses, which maps it to its addresses: its count in counted, or else its
+	share of the rest. The rest is what a municipality's people leave once its counted localities are taken away, shared
+	out by addresses over its other localities and its addresses outside every locality. A locality holds at least one
+	person."""
+	rest = collections.Counter(people)
+	for place, n in counted.items():
+		if place in municipality_of:
+			rest[municipality_of[place]] -= n
+	uncounted = collections.Counter(outside or {})
+	for place, n in addresses.items():
+		if place not in counted:
+			uncounted[municipality_of[place]] += n
+	shares = {place: rest[municipality_of[place]] * n / uncounted[municipality_of[place]] for place, n in addresses.items() if place not in counted}
+	return {place: max(1, counted[place] if place in counted else round(shares[place])) for place in addresses}
 
 
 def number_range(number: int, lettered: bool) -> tuple[int, bool]:
-    """The key address_json counts a house number under: its range's index in NUMBER_RANGES, and whether a letter follows."""
-    return next(i for i, (_, top) in enumerate(NUMBER_RANGES) if number <= top), lettered
+	"""The key address_json counts a house number under: its range's index in NUMBER_RANGES, and whether a letter follows."""
+	return next(i for i, (_, top) in enumerate(NUMBER_RANGES) if number <= top), lettered
 
 
 def address_json(numbers: Mapping[tuple[int, bool], int], letter: str = UPPER, layout: str = LAYOUT) -> str:
-    """A country's address, its street-number choice weighted by numbers, which counts house numbers by number_range.
-    letter is the template that draws a number's delivery letter, and layout the format that prints the address."""
-    items = ",\n".join(
-        f'    {{ "format": "{{int({low},{top})}}{letter if lettered else ""}", "weight": {numbers[(i, lettered)]} }}'
-        for lettered in (False, True) for i, (low, top) in enumerate(NUMBER_RANGES) if numbers[(i, lettered)]
-    )
-    return (
-        f'{{\n  "format": "{layout}",\n'
-        '  "street": "{.locality as l}{l.street.name}",\n'
-        f'  "street-number": [\n{items}\n  ],\n'
-        '  "postal-code": "{l.postal-code.code}",\n  "locality": "{l.name}",\n'
-        '  "municipality": "{l..municipality.name}",\n  "region": "{l..municipality..region.name}"\n}\n'
-    )
+	"""A country's address, its street-number choice weighted by numbers, which counts house numbers by number_range.
+	letter is the template that draws a number's delivery letter, and layout the format that prints the address."""
+	items = ",\n".join(
+		f'    {{ "format": "{{int({low},{top})}}{letter if lettered else ""}", "weight": {numbers[(i, lettered)]} }}'
+		for lettered in (False, True) for i, (low, top) in enumerate(NUMBER_RANGES) if numbers[(i, lettered)]
+	)
+	return (
+		f'{{\n  "format": "{layout}",\n'
+		'  "street": "{.locality as l}{l.street.name}",\n'
+		f'  "street-number": [\n{items}\n  ],\n'
+		'  "postal-code": "{l.postal-code.code}",\n  "locality": "{l.name}",\n'
+		'  "municipality": "{l..municipality.name}",\n  "region": "{l..municipality..region.name}"\n}\n'
+	)
 
 
 def write_tables(out: Path, kept: Tables, postal_codes: Iterable[Row], streets: Mapping[Any, Iterable[Row]], **columns: list[str]) -> None:
-    """Writes out's region, municipality, locality, postal-code and street TSVs: the rows fence kept, sorted by key,
-    postal_codes' rows sorted by code, and streets' rows for each kept locality. Each table takes COLUMNS' columns,
-    unless a keyword names the table, with "_" standing for "-"."""
-    columns = {**COLUMNS, **columns}
-    for table in ("region", "municipality", "locality"):
-        tsv.write(out / f"{table}.tsv", columns[table], [row for _, row in sorted(kept[table].items())])
-    tsv.write(out / "postal-code.tsv", columns["postal_code"], sorted(postal_codes, key=lambda r: r["code"]))
-    tsv.write(out / "street.tsv", columns["street"], [s for locality in sorted(kept["locality"]) for s in streets[locality]])
+	"""Writes out's region, municipality, locality, postal-code and street TSVs: the rows fence kept, sorted by key,
+	postal_codes' rows sorted by code, and streets' rows for each kept locality. Each table takes COLUMNS' columns,
+	unless a keyword names the table, with "_" standing for "-"."""
+	columns = {**COLUMNS, **columns}
+	for table in ("region", "municipality", "locality"):
+		tsv.write(out / f"{table}.tsv", columns[table], [row for _, row in sorted(kept[table].items())])
+	tsv.write(out / "postal-code.tsv", columns["postal_code"], sorted(postal_codes, key=lambda r: r["code"]))
+	tsv.write(out / "street.tsv", columns["street"], [s for locality in sorted(kept["locality"]) for s in streets[locality]])
 
 
 def write_by_code[K](out: Path, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[K, Row], postal_codes: Mapping[tuple[K, str], int], streets: Mapping[K, list[Row]]) -> None:
-    """Writes the tables of a country that selects a row by its code. It weighs a region, a municipality and a locality
-    by the population each row holds, and a postal code and a street by its addresses. localities holds each locality
-    with an address, and postal_codes maps (locality, postal code) to the addresses they share.
-    A locality with no street is dropped and logged, and so is a municipality or a region left with no row under it. The
-    locality table has a lat and a lon column where a locality has a point."""
-    of: dict[K, list[Row]] = collections.defaultdict(list)
-    for (locality, code), n in postal_codes.items():
-        of[locality].append({"code": code, "locality": locality, "addresses": n})
-    kept, dropped = fence(regions, municipalities, localities, streets, of)
-    log_dropped_localities(dropped["locality"])
-    for row in (*dropped["municipality"].values(), *dropped["region"].values()):
-        print(f"{row['code']} {row['name']}: no locality with a street, dropped", file=sys.stderr)
-    rows = sorted((row for locality in kept["locality"] for row in of[locality]), key=lambda r: r["locality"])
-    point = ["lat", "lon"] if any("lat" in row for row in localities.values()) else []
-    write_tables(out, kept, rows, streets, region=["code", "name", "population", "timezone"], municipality=["code", "name", "region", "population"], locality=["code", "name", "municipality", "population", *point])
+	"""Writes the tables of a country that selects a row by its code. It weighs a region, a municipality and a locality
+	by the population each row holds, and a postal code and a street by its addresses. localities holds each locality
+	with an address, and postal_codes maps (locality, postal code) to the addresses they share.
+	A locality with no street is dropped and logged, and so is a municipality or a region left with no row under it. The
+	locality table has a lat and a lon column where a locality has a point."""
+	of: dict[K, list[Row]] = collections.defaultdict(list)
+	for (locality, code), n in postal_codes.items():
+		of[locality].append({"code": code, "locality": locality, "addresses": n})
+	kept, dropped = fence(regions, municipalities, localities, streets, of)
+	log_dropped_localities(dropped["locality"])
+	for row in (*dropped["municipality"].values(), *dropped["region"].values()):
+		print(f"{row['code']} {row['name']}: no locality with a street, dropped", file=sys.stderr)
+	rows = sorted((row for locality in kept["locality"] for row in of[locality]), key=lambda r: r["locality"])
+	point = ["lat", "lon"] if any("lat" in row for row in localities.values()) else []
+	write_tables(out, kept, rows, streets, region=["code", "name", "population", "timezone"], municipality=["code", "name", "region", "population"], locality=["code", "name", "municipality", "population", *point])
 
 
 def write_counted(out: Path, args: argparse.Namespace, regions: Mapping[str, Row], municipalities: Mapping[str, Row], localities: Mapping[str, Row], counted: Counts, letter: str = UPPER, layout: str = LAYOUT) -> None:
-    """Writes a country's tables by write_by_code, from the localities that hold a population, and its address.json
-    from the counted house numbers, by address_json."""
-    streets = top_streets(counted.streets, args.street_share, args.min_streets, "addresses")
-    write_by_code(out, regions, municipalities, {c: row for c, row in localities.items() if "population" in row}, counted.postal_codes, streets)
-    (out / "address.json").write_text(address_json(counted.numbers, letter, layout), encoding="utf-8")
+	"""Writes a country's tables by write_by_code, from the localities that hold a population, and its address.json
+	from the counted house numbers, by address_json."""
+	streets = top_streets(counted.streets, args.street_share, args.min_streets, "addresses")
+	write_by_code(out, regions, municipalities, {c: row for c, row in localities.items() if "population" in row}, counted.postal_codes, streets)
+	(out / "address.json").write_text(address_json(counted.numbers, letter, layout), encoding="utf-8")

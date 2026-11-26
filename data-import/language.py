@@ -21,25 +21,25 @@ COLUMNS = ["code", "code3", "name"]
 
 
 def name(english: str) -> str:
-    """The register lists every synonym; the first, without its qualifier, is the one a selector spells."""
-    return re.sub(r"\s*\([^)]*\)", "", english.split(";")[0]).strip()
+	"""The register lists every synonym; the first, without its qualifier, is the one a selector spells."""
+	return re.sub(r"\s*\([^)]*\)", "", english.split(";")[0]).strip()
 
 
 def rows(text: str) -> Iterator[dict[str, str]]:
-    for r in csv.DictReader(io.StringIO(text)):
-        if r["alpha2"]:
-            yield {"code": r["alpha2"], "code3": r["alpha3-t"] or r["alpha3-b"], "name": name(r["English"])}
+	for r in csv.DictReader(io.StringIO(text)):
+		if r["alpha2"]:
+			yield {"code": r["alpha2"], "code3": r["alpha3-t"] or r["alpha3-b"], "name": name(r["English"])}
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    table = rows(source.fetch(a.source, a.cache, "language-codes-full.csv").decode("utf-8"))
-    tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: r["code"]))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	table = rows(source.fetch(a.source, a.cache, "language-codes-full.csv").decode("utf-8"))
+	tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: r["code"]))
 
 
 if __name__ == "__main__":
-    main()
+	main()

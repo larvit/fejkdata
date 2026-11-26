@@ -27,32 +27,32 @@ EXPECTED = 9
 
 
 def rows(text: str) -> Iterator[dict[str, str]]:
-    for r in csv.DictReader(io.StringIO(text)):
-        method = (r["Method Name"] or "").strip()
-        if not CORE.search(r["Reference"] or ""):
-            continue
-        if set(method) & set(tsv.SELECTOR):
-            sys.exit(f"{method}: a method holding one of {tsv.SELECTOR} is one a selector cannot spell")
-        answers = {}
-        for column in ("Safe", "Idempotent"):
-            answer = (r[column] or "").strip()
-            if answer not in BOOLEAN:
-                sys.exit(f"{method}: {column} {answer!r} is neither yes nor no")
-            answers[column] = BOOLEAN[answer]
-        yield {"idempotent": answers["Idempotent"], "method": method, "safe": answers["Safe"]}
+	for r in csv.DictReader(io.StringIO(text)):
+		method = (r["Method Name"] or "").strip()
+		if not CORE.search(r["Reference"] or ""):
+			continue
+		if set(method) & set(tsv.SELECTOR):
+			sys.exit(f"{method}: a method holding one of {tsv.SELECTOR} is one a selector cannot spell")
+		answers = {}
+		for column in ("Safe", "Idempotent"):
+			answer = (r[column] or "").strip()
+			if answer not in BOOLEAN:
+				sys.exit(f"{method}: {column} {answer!r} is neither yes nor no")
+			answers[column] = BOOLEAN[answer]
+		yield {"idempotent": answers["Idempotent"], "method": method, "safe": answers["Safe"]}
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    table = sorted(rows(source.fetch(a.source, a.cache, "http-methods.csv").decode("utf-8")), key=lambda r: r["method"])
-    if len(table) != EXPECTED:
-        sys.exit(f"{len(table)} methods cite RFC 9110 section 9.3 or RFC 5789, not {EXPECTED}; the register's Reference column has moved")
-    tsv.write(a.out, COLUMNS, table)
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	table = sorted(rows(source.fetch(a.source, a.cache, "http-methods.csv").decode("utf-8")), key=lambda r: r["method"])
+	if len(table) != EXPECTED:
+		sys.exit(f"{len(table)} methods cite RFC 9110 section 9.3 or RFC 5789, not {EXPECTED}; the register's Reference column has moved")
+	tsv.write(a.out, COLUMNS, table)
 
 
 if __name__ == "__main__":
-    main()
+	main()

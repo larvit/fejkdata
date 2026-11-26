@@ -26,39 +26,39 @@ SEX = {"1": "f", "2": "m"}
 
 
 def query(dimension: str, year: str) -> dict[str, Any]:
-    """A StatBank query for every category of a dimension in one year."""
-    return {"query": [{"code": "Tid", "selection": {"filter": "item", "values": [year]}}, {"code": dimension, "selection": {"filter": "all", "values": ["*"]}}], "response": {"format": "json-stat2"}}
+	"""A StatBank query for every category of a dimension in one year."""
+	return {"query": [{"code": "Tid", "selection": {"filter": "item", "values": [year]}}, {"code": dimension, "selection": {"filter": "all", "values": ["*"]}}], "response": {"format": "json-stat2"}}
 
 
 def fetched(table: str, year: str, dimension: str, cache: str) -> Any:
-    """A StatBank table's cube for the year, downloaded once."""
-    body = source.fetch(API + table, cache, f"ssb-{table}-{year}.json", magic=b"{", data=json.dumps(query(dimension, year)).encode(), headers={"Content-Type": "application/json"})
-    return json.loads(body)
+	"""A StatBank table's cube for the year, downloaded once."""
+	body = source.fetch(API + table, cache, f"ssb-{table}-{year}.json", magic=b"{", data=json.dumps(query(dimension, year)).encode(), headers={"Content-Type": "application/json"})
+	return json.loads(body)
 
 
 def counted(cube: Mapping[str, Any], dimension: str) -> list[tuple[str, str, int]]:
-    """The (code, label, persons) of each name that a cube counts, a cube of one count per name for one year."""
-    if cube["id"] != [dimension, "ContentsCode", "Tid"] or cube["size"][1:] != [1, 1]:
-        sys.exit(f"{dimension}: the table is not one count per name, its dimensions are {cube['id']} of sizes {cube['size']}")
-    categories = cube["dimension"][dimension]["category"]
-    codes = categories["index"] if isinstance(categories["index"], list) else sorted(categories["index"], key=categories["index"].get)
-    if len(codes) != len(cube["value"]):
-        sys.exit(f"{dimension}: {len(codes)} names but {len(cube['value'])} counts")
-    return [(code, tsv.straight(categories["label"][code]), persons) for code, persons in zip(codes, cube["value"]) if persons is not None and tsv.NAME.match(categories["label"][code])]
+	"""The (code, label, persons) of each name that a cube counts, a cube of one count per name for one year."""
+	if cube["id"] != [dimension, "ContentsCode", "Tid"] or cube["size"][1:] != [1, 1]:
+		sys.exit(f"{dimension}: the table is not one count per name, its dimensions are {cube['id']} of sizes {cube['size']}")
+	categories = cube["dimension"][dimension]["category"]
+	codes = categories["index"] if isinstance(categories["index"], list) else sorted(categories["index"], key=categories["index"].get)
+	if len(codes) != len(cube["value"]):
+		sys.exit(f"{dimension}: {len(codes)} names but {len(cube['value'])} counts")
+	return [(code, tsv.straight(categories["label"][code]), persons) for code, persons in zip(codes, cube["value"]) if persons is not None and tsv.NAME.match(categories["label"][code])]
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--out", default=str(OUT))
-    p.add_argument("--year", default="2025")
-    a = p.parse_args()
-    first = [{"name": name, "sex": SEX[code[0]], "count": persons} for code, name, persons in counted(fetched(FIRST, a.year, "Fornavn", a.cache), "Fornavn")]
-    last = [{"name": name, "count": persons} for _, name, persons in counted(fetched(LAST, a.year, "Etternavn", a.cache), "Etternavn")]
-    out = Path(a.out)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
-    tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--out", default=str(OUT))
+	p.add_argument("--year", default="2025")
+	a = p.parse_args()
+	first = [{"name": name, "sex": SEX[code[0]], "count": persons} for code, name, persons in counted(fetched(FIRST, a.year, "Fornavn", a.cache), "Fornavn")]
+	last = [{"name": name, "count": persons} for _, name, persons in counted(fetched(LAST, a.year, "Etternavn", a.cache), "Etternavn")]
+	out = Path(a.out)
+	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
+	tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
 
 
 if __name__ == "__main__":
-    main()
+	main()

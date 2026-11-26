@@ -30,12 +30,12 @@ KLASS = "https://data.ssb.no/api/klass/v1/classifications/{}/codesAt?date={}"
 MUNICIPALITIES, REGIONS = 131, 104
 POPULATION = "https://data.ssb.no/api/v0/no/table/07459"
 POPULATION_QUERY = {
-    "query": [
-        {"code": "Region", "selection": {"filter": "all", "values": ["*"]}},
-        {"code": "ContentsCode", "selection": {"filter": "item", "values": ["Personer1"]}},
-        {"code": "Tid", "selection": {"filter": "top", "values": ["1"]}},
-    ],
-    "response": {"format": "json-stat2"},
+	"query": [
+		{"code": "Region", "selection": {"filter": "all", "values": ["*"]}},
+		{"code": "ContentsCode", "selection": {"filter": "item", "values": ["Personer1"]}},
+		{"code": "Tid", "selection": {"filter": "top", "values": ["1"]}},
+	],
+	"response": {"format": "json-stat2"},
 }
 TIMEZONE = "Europe/Oslo"
 # The words a Norwegian place name writes in lower case: Mo i Rana, Sande på Sunnmøre.
@@ -50,100 +50,100 @@ type Address = tuple[str, str, str, str, str, int, str, float, float]
 
 @dataclass
 class Tally:
-    """What the register's street addresses add up to."""
+	"""What the register's street addresses add up to."""
 
-    in_municipality: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
-    codes: collections.defaultdict[str, collections.Counter[str]] = field(default_factory=lambda: collections.defaultdict(collections.Counter))
-    streets: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
-    points: collections.defaultdict[str, list[geo.Row]] = field(default_factory=lambda: collections.defaultdict(list))
-    numbers: collections.Counter[tuple[int, bool]] = field(default_factory=collections.Counter)
-    written: dict[str, str] = field(default_factory=dict)
+	in_municipality: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
+	codes: collections.defaultdict[str, collections.Counter[str]] = field(default_factory=lambda: collections.defaultdict(collections.Counter))
+	streets: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
+	points: collections.defaultdict[str, list[geo.Row]] = field(default_factory=lambda: collections.defaultdict(list))
+	numbers: collections.Counter[tuple[int, bool]] = field(default_factory=collections.Counter)
+	written: dict[str, str] = field(default_factory=dict)
 
 
 def recased(name: str) -> str:
-    """A poststed written as a place name: OSLO to Oslo, MO I RANA to Mo i Rana, NORD-TORPA to Nord-Torpa."""
-    words = re.split(r"([ -])", name.lower())
-    return "".join(w if w in LOWER or w in " -" else w[:1].upper() + w[1:] for w in words)
+	"""A poststed written as a place name: OSLO to Oslo, MO I RANA to Mo i Rana, NORD-TORPA to Nord-Torpa."""
+	words = re.split(r"([ -])", name.lower())
+	return "".join(w if w in LOWER or w in " -" else w[:1].upper() + w[1:] for w in words)
 
 
 def street_name(name: str) -> bool:
-    return not NOT_A_STREET.search(name) and not geo.in_capitals(name)
+	return not NOT_A_STREET.search(name) and not geo.in_capitals(name)
 
 
 def norwegian_name(official: str, written: str | None = None) -> str:
-    """The name Kartverket writes, among SSB's names in each official language: SSB names a kommune Trondheim -
-    Tråante, and Kartverket writes TRONDHEIM. With no written name, the first, as every fylke with more than one
-    name puts the Norwegian one first."""
-    names = official.split(" - ")
-    return next((n for n in names if written and n.upper() == written), names[0])
+	"""The name Kartverket writes, among SSB's names in each official language: SSB names a kommune Trondheim -
+	Tråante, and Kartverket writes TRONDHEIM. With no written name, the first, as every fylke with more than one
+	name puts the Norwegian one first."""
+	names = official.split(" - ")
+	return next((n for n in names if written and n.upper() == written), names[0])
 
 
 def tally(addresses: Iterable[Address]) -> Tally:
-    """The Tally of addresses, each (postnummer, poststed, kommune, kommune as written, street, number, letter, lat, lon)."""
-    t = Tally()
-    for code, place, municipality, written, street, number, letter, lat, lon in addresses:
-        t.in_municipality[(place, municipality)] += 1
-        t.codes[place][code] += 1
-        t.points[place].append({"lat": lat, "lon": lon})
-        t.numbers[geo.number_range(number, bool(letter))] += 1
-        t.written.setdefault(municipality, written)
-        if street_name(street):
-            t.streets[(place, street)] += 1
-    return t
+	"""The Tally of addresses, each (postnummer, poststed, kommune, kommune as written, street, number, letter, lat, lon)."""
+	t = Tally()
+	for code, place, municipality, written, street, number, letter, lat, lon in addresses:
+		t.in_municipality[(place, municipality)] += 1
+		t.codes[place][code] += 1
+		t.points[place].append({"lat": lat, "lon": lon})
+		t.numbers[geo.number_range(number, bool(letter))] += 1
+		t.written.setdefault(municipality, written)
+		if street_name(street):
+			t.streets[(place, street)] += 1
+	return t
 
 
 def localities(t: Tally, people: Mapping[str, int], municipalities: Collection[str]) -> dict[str, geo.Row]:
-    """Each poststed whose kommune SSB classifies, with its kommune and population by geo.homes, and its centre point."""
-    out: dict[str, geo.Row] = {}
-    for place, (municipality, population) in geo.homes(t.in_municipality, people).items():
-        if municipality not in municipalities:
-            print(f"{place}: kommune {municipality} is not in SSB's classification, dropped", file=sys.stderr)
-            continue
-        centre = geo.centroid(t.points[place])
-        assert centre, f"{place}: tallied without an address"
-        lat, lon = centre
-        out[place] = {"name": place, "municipality": municipality, "population": population, "lat": f"{lat:.4f}", "lon": f"{lon:.4f}"}
-    return out
+	"""Each poststed whose kommune SSB classifies, with its kommune and population by geo.homes, and its centre point."""
+	out: dict[str, geo.Row] = {}
+	for place, (municipality, population) in geo.homes(t.in_municipality, people).items():
+		if municipality not in municipalities:
+			print(f"{place}: kommune {municipality} is not in SSB's classification, dropped", file=sys.stderr)
+			continue
+		centre = geo.centroid(t.points[place])
+		assert centre, f"{place}: tallied without an address"
+		lat, lon = centre
+		out[place] = {"name": place, "municipality": municipality, "population": population, "lat": f"{lat:.4f}", "lon": f"{lon:.4f}"}
+	return out
 
 
 def klass(cache: Path, classification: int, date: str) -> dict[str, str]:
-    data = source.fetch(KLASS.format(classification, date), cache, f"klass-{classification}-{date}.json", headers={"Accept": "application/json"})
-    return {c["code"]: c["name"] for c in json.loads(data)["codes"]}
+	data = source.fetch(KLASS.format(classification, date), cache, f"klass-{classification}-{date}.json", headers={"Accept": "application/json"})
+	return {c["code"]: c["name"] for c in json.loads(data)["codes"]}
 
 
 def population(cache: Path) -> dict[str, int]:
-    body = json.dumps(POPULATION_QUERY).encode()
-    data = json.loads(source.fetch(POPULATION, cache, "ssb-07459.json", data=body, headers={"Content-Type": "application/json"}))
-    index = data["dimension"]["Region"]["category"]["index"]
-    return {code: data["value"][i] for code, i in index.items() if data["value"][i]}
+	body = json.dumps(POPULATION_QUERY).encode()
+	data = json.loads(source.fetch(POPULATION, cache, "ssb-07459.json", data=body, headers={"Content-Type": "application/json"}))
+	index = data["dimension"]["Region"]["category"]["index"]
+	return {code: data["value"][i] for code, i in index.items() if data["value"][i]}
 
 
 def addresses(cache: Path, url: str) -> Iterator[Address]:
-    z = zipfile.ZipFile(io.BytesIO(source.fetch(url, cache, "matrikkelen-adresse.zip", magic=b"PK")))
-    name = next(n for n in z.namelist() if n.endswith(".csv"))
-    with z.open(name) as f:
-        for r in csv.DictReader(io.TextIOWrapper(f, encoding="utf-8-sig", newline=""), delimiter=";"):
-            if r["adressetype"] == "vegadresse":
-                yield (r["postnummer"], recased(r["poststed"]), r["kommunenummer"], r["kommunenavn"], " ".join(r["adressenavn"].split()),
-                       int(r["nummer"]), r["bokstav"], float(r["Nord"]), float(r["Øst"]))
+	z = zipfile.ZipFile(io.BytesIO(source.fetch(url, cache, "matrikkelen-adresse.zip", magic=b"PK")))
+	name = next(n for n in z.namelist() if n.endswith(".csv"))
+	with z.open(name) as f:
+		for r in csv.DictReader(io.TextIOWrapper(f, encoding="utf-8-sig", newline=""), delimiter=";"):
+			if r["adressetype"] == "vegadresse":
+				yield (r["postnummer"], recased(r["poststed"]), r["kommunenummer"], r["kommunenavn"], " ".join(r["adressenavn"].split()),
+					int(r["nummer"]), r["bokstav"], float(r["Nord"]), float(r["Øst"]))
 
 
 def main() -> None:
-    a = geo.parser(__doc__, "NO", 1.0, addresses={"default": ADDRESSES}, date={"default": datetime.date.today().isoformat(), "help": "the day SSB's classifications are read at"}).parse_args()
-    cache, out = geo.directories(a)
-    people = population(cache)
-    t = tally(addresses(cache, a.addresses))
-    municipality_names = {c: norwegian_name(n, t.written.get(c)) for c, n in klass(cache, MUNICIPALITIES, a.date).items()}
-    places = localities(t, people, municipality_names)
-    named = geo.top_streets(t.streets, a.street_share, a.min_streets, "addresses")
-    regions = {c: {"code": c, "name": norwegian_name(n), "population": people[c], "timezone": TIMEZONE} for c, n in klass(cache, REGIONS, a.date).items() if c in people}
-    municipalities = {c: {"code": c, "name": n, "region": c[:2], "population": people[c]} for c, n in municipality_names.items() if c in people}
-    kept, dropped = geo.fence(regions, municipalities, places, named, t.codes)
-    geo.log_dropped_localities(dropped["locality"])
-    geo.exit_on_dropped_parents(dropped)
-    geo.write_tables(out, kept, [{"code": c, "locality": loc, "addresses": n} for loc in kept["locality"] for c, n in t.codes[loc].items()], named)
-    (out / "address.json").write_text(geo.address_json(t.numbers), encoding="utf-8")
+	a = geo.parser(__doc__, "NO", 1.0, addresses={"default": ADDRESSES}, date={"default": datetime.date.today().isoformat(), "help": "the day SSB's classifications are read at"}).parse_args()
+	cache, out = geo.directories(a)
+	people = population(cache)
+	t = tally(addresses(cache, a.addresses))
+	municipality_names = {c: norwegian_name(n, t.written.get(c)) for c, n in klass(cache, MUNICIPALITIES, a.date).items()}
+	places = localities(t, people, municipality_names)
+	named = geo.top_streets(t.streets, a.street_share, a.min_streets, "addresses")
+	regions = {c: {"code": c, "name": norwegian_name(n), "population": people[c], "timezone": TIMEZONE} for c, n in klass(cache, REGIONS, a.date).items() if c in people}
+	municipalities = {c: {"code": c, "name": n, "region": c[:2], "population": people[c]} for c, n in municipality_names.items() if c in people}
+	kept, dropped = geo.fence(regions, municipalities, places, named, t.codes)
+	geo.log_dropped_localities(dropped["locality"])
+	geo.exit_on_dropped_parents(dropped)
+	geo.write_tables(out, kept, [{"code": c, "locality": loc, "addresses": n} for loc in kept["locality"] for c, n in t.codes[loc].items()], named)
+	(out / "address.json").write_text(geo.address_json(t.numbers), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+	main()
