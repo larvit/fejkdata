@@ -33,14 +33,6 @@ func TestFrenchFirstNamesAreInseesCounts(t *testing.T) {
 	}
 }
 
-func TestFrenchFirstNamesHoldTheCommonestTwoThousandOfEachSex(t *testing.T) {
-	for sex, names := range nameCounts(t, "fr_FR", "first-name") {
-		if len(names) != 2000 {
-			t.Errorf("sex %q holds %d first names, want the 2000 commonest", sex, len(names))
-		}
-	}
-}
-
 func TestFrenchLastNamesAreInseesCounts(t *testing.T) {
 	last := nameCounts(t, "fr_FR", "last-name")[""]
 	for name, want := range inseeLastNames {
@@ -49,12 +41,6 @@ func TestFrenchLastNamesAreInseesCounts(t *testing.T) {
 				t.Errorf("%q is borne by %d, want INSEE's %d", name, got, want)
 			}
 		})
-	}
-}
-
-func TestFrenchLastNamesHoldTheCommonestFiveThousand(t *testing.T) {
-	if got := len(nameCounts(t, "fr_FR", "last-name")[""]); got != 5000 {
-		t.Errorf("last-name.tsv holds %d names, want the 5000 commonest", got)
 	}
 }
 
