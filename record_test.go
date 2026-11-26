@@ -953,7 +953,7 @@ func TestColumnIsTheEngineColumn(t *testing.T) {
 	}
 }
 
-func TestRecordWritesANULRawInEveryFormatButJSON(t *testing.T) {
+func TestRecordNULIsEscapedByJSONAndPGCopyAndRawInCSVTSVAndSQL(t *testing.T) {
 	t.Parallel()
 	dir := writeData(t, map[string]string{"row": `{"format":"","v":"a\u0000b"}`})
 	f, err := New(WithDataPath(dir), WithSeed(1), onTestDay)
@@ -965,14 +965,14 @@ func TestRecordWritesANULRawInEveryFormatButJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 	for name, c := range map[string]struct{ got, want string }{
-		"JSON":     {r.JSON(), `{"v":"a\u0000b"}`},
-		"CSVLine":  {r.CSVLine(), "a\x00b"},
-		"TSVLine":  {r.TSVLine(), "a\x00b"},
-		"PGCopy":   {r.PGCopyLine(), "a\x00b"},
-		"SQLValue": {r.SQLValues(), "('a\x00b')"},
+		"JSON":       {r.JSON(), `{"v":"a\u0000b"}`},
+		"PGCopyLine": {r.PGCopyLine(), `a\000b`},
+		"CSVLine":    {r.CSVLine(), "a\x00b"},
+		"TSVLine":    {r.TSVLine(), "a\x00b"},
+		"SQLValues":  {r.SQLValues(), "('a\x00b')"},
 	} {
 		if c.got != c.want {
-			t.Errorf("%s = %q, want %q: a render reports no error, so a NUL is the caller's to refuse", name, c.got, c.want)
+			t.Errorf("%s = %q, want %q: COPY reads \\000 as a NUL and refuses it, where psql cuts a raw one off", name, c.got, c.want)
 		}
 	}
 }
