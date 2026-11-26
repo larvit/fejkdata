@@ -44,11 +44,11 @@ func TestShippedFrenchPhoneTablesHoldExactlyTheFictionRoots(t *testing.T) {
 	for kind, want := range map[string][]string{"fixed": frenchFictionFixedRoots, "mobile": frenchFictionMobileRoots} {
 		t.Run(kind, func(t *testing.T) {
 			var got []string
-			for _, row := range fejktest.TSVRows(t, "fr_FR/phone-"+kind+".tsv") {
+			for _, row := range fejktest.TSVRows(t, "fr_FR/phone-"+kind+"-prefix.tsv") {
 				got = append(got, row["area"])
 			}
 			if strings.Join(got, ",") != strings.Join(want, ",") {
-				t.Errorf("phone-%s holds %q, want the plan's %q", kind, got, want)
+				t.Errorf("phone-%s-prefix holds %q, want the plan's %q", kind, got, want)
 			}
 		})
 	}

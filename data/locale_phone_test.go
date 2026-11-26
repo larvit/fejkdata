@@ -49,7 +49,7 @@ func TestLocalePhoneAreaNdcIsItsCodeWithoutTheTrunkZero(t *testing.T) {
 
 func TestLocalePhoneInternationalIsItsCallingCodeAndItsNationalForm(t *testing.T) {
 	eachLocale(t, hasPhone, func(t *testing.T, l shippedLocale) {
-		for _, path := range []string{"phone", "mobile", "landline"} {
+		for _, path := range []string{"phone", "phone-mobile", "phone-fixed"} {
 			t.Run(path, func(t *testing.T) {
 				f := shipped(t, fejkdata.WithSeed(5))
 				fejktest.EachDraw(300, func() string {
@@ -75,7 +75,7 @@ func TestLocaleMobileDrawsOnlyMobileNumbersAndLandlineOnlyFixedOnes(t *testing.T
 		fp := shipped(t, fejkdata.WithSeed(12))
 		fejktest.EachDraw(150000, func() string { return fejktest.Fake(t, fp, l.name+".phone") }, func(n string) { shapes[digitShape(n)] = true })
 		f := shipped(t, fejkdata.WithSeed(11))
-		for path, wantFixed := range map[string]bool{"mobile": false, "landline": true} {
+		for path, wantFixed := range map[string]bool{"phone-mobile": false, "phone-fixed": true} {
 			fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, f, l.name+"."+path) }, func(n string) {
 				if isFixed(n) != wantFixed {
 					t.Fatalf("%s.%s drew %q, which is fixed: %v, want %v", l.name, path, n, isFixed(n), wantFixed)
@@ -100,7 +100,7 @@ func digitShape(number string) string {
 func TestNynorskMobileAndLandlineAreBokmalsOwn(t *testing.T) {
 	isFixed := norwegianFixedPhone(t)
 	f := shipped(t, fejkdata.WithSeed(11))
-	for path, wantFixed := range map[string]bool{"mobile": false, "landline": true} {
+	for path, wantFixed := range map[string]bool{"phone-mobile": false, "phone-fixed": true} {
 		fejktest.EachDraw(500, func() string {
 			return fejktest.FakeTemplate(t, f, "{/nn_NO."+path+" as p}{p}|{p.international}")
 		}, func(got string) {

@@ -97,7 +97,7 @@ var (
 	asciiWord       = regexp.MustCompile(`^[a-z]+$`)
 	definiteForms   = map[string]wordTable{"noun": {"definite", lowerWord}, "verb": {"present", lowerWord}, "adj": {"definite", lowerWord}, "adv": {"", lowerWord}}
 	latinFolds      = strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
-	trunkAreaTables = []string{"phone-fixed", "phone-mobile"}
+	trunkAreaTables = []string{"phone-fixed-prefix", "phone-mobile-prefix"}
 )
 
 var shippedLocales = []shippedLocale{

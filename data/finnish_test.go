@@ -196,9 +196,9 @@ func finnishAreaSet(codes ...string) map[string]bool {
 func finnishPhoneAreas(t *testing.T, kind string) map[string]bool {
 	t.Helper()
 	got := map[string]bool{}
-	for _, row := range fejktest.TSVRows(t, "fi_FI/phone-"+kind+".tsv") {
+	for _, row := range fejktest.TSVRows(t, "fi_FI/phone-"+kind+"-prefix.tsv") {
 		if got[row["area"]] {
-			t.Errorf("phone-%s repeats %q", kind, row["area"])
+			t.Errorf("phone-%s-prefix repeats %q", kind, row["area"])
 		}
 		got[row["area"]] = true
 	}
@@ -211,12 +211,12 @@ func TestShippedFinnishPhoneTablesHoldExactlyTheCodesAnnex1Lists(t *testing.T) {
 		t.Run(kind, func(t *testing.T) {
 			got, wantSet := finnishPhoneAreas(t, kind), finnishAreaSet(want...)
 			if len(got) != len(wantSet) {
-				t.Errorf("phone-%s holds %d area codes, Annex 1 lists %d", kind, len(got), len(wantSet))
+				t.Errorf("phone-%s-prefix holds %d area codes, Annex 1 lists %d", kind, len(got), len(wantSet))
 			}
 			for code := range wantSet {
 				t.Run(code, func(t *testing.T) {
 					if !got[code] {
-						t.Errorf("phone-%s lacks %q", kind, code)
+						t.Errorf("phone-%s-prefix lacks %q", kind, code)
 					}
 				})
 			}
@@ -225,7 +225,7 @@ func TestShippedFinnishPhoneTablesHoldExactlyTheCodesAnnex1Lists(t *testing.T) {
 }
 
 func TestShippedFinnishPhoneFixedAreaNamesItsTelecommunicationsArea(t *testing.T) {
-	for _, row := range fejktest.TSVRows(t, "fi_FI/phone-fixed.tsv") {
+	for _, row := range fejktest.TSVRows(t, "fi_FI/phone-fixed-prefix.tsv") {
 		t.Run(row["area"], func(t *testing.T) {
 			if want := finnishFixedAreas[row["area"]]; row["name"] != want {
 				t.Errorf("area %q is named %q, the plan names it %q", row["area"], row["name"], want)
@@ -332,8 +332,8 @@ func TestShippedFinnishPhoneDrawsEveryLengthTheRegulationGivesForEachAreaCodeLen
 func TestShippedFinnishPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(1))
 	for path, want := range map[string]string{
-		"fi_FI.phone-fixed[09].name": "Uusimaa I", "fi_FI.phone-fixed[013].name": "North Karelia",
-		"fi_FI.phone-mobile[040].ndc": "40", "fi_FI.phone-mobile[0451].ndc": "451",
+		"fi_FI.phone-fixed-prefix[09].name": "Uusimaa I", "fi_FI.phone-fixed-prefix[013].name": "North Karelia",
+		"fi_FI.phone-mobile-prefix[040].ndc": "40", "fi_FI.phone-mobile-prefix[0451].ndc": "451",
 	} {
 		t.Run(path, func(t *testing.T) {
 			if got := fejktest.Fake(t, f, path); got != want {

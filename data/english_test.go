@@ -56,7 +56,7 @@ func TestShippedUSMobileAndLandlineDrawOneNationalPool(t *testing.T) {
 	national := regexp.MustCompile(`^\((\d{3})\) ([2-9]\d{2})-(\d{4})$`)
 	phoneAreas := map[string]bool{}
 	fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, f, "en_US.phone.area") }, func(area string) { phoneAreas[area] = true })
-	for _, path := range []string{"mobile", "landline"} {
+	for _, path := range []string{"phone-mobile", "phone-fixed"} {
 		fejktest.EachDraw(500, func() string {
 			return fejktest.FakeTemplate(t, f, "{/en_US."+path+" as p}{p}|{p.national}|{p.international}")
 		}, func(got string) {

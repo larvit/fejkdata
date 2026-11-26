@@ -363,7 +363,7 @@ func danishSeries(t *testing.T, mobile bool) map[string]bool {
 func phoneSeriesOf(t *testing.T, kind string) (got map[string]bool, repeated []string) {
 	t.Helper()
 	got = map[string]bool{}
-	for _, row := range fejktest.TSVRows(t, "da_DK/phone-"+kind+".tsv") {
+	for _, row := range fejktest.TSVRows(t, "da_DK/phone-"+kind+"-prefix.tsv") {
 		if got[row["prefix"]] {
 			repeated = append(repeated, row["prefix"])
 		}
@@ -389,7 +389,7 @@ func TestShippedDanishPhoneTablesRepeatNoSeries(t *testing.T) {
 	for kind := range danishPhoneKinds {
 		t.Run(kind, func(t *testing.T) {
 			if _, repeated := phoneSeriesOf(t, kind); len(repeated) > 0 {
-				t.Errorf("phone-%s repeats %q", kind, repeated)
+				t.Errorf("phone-%s-prefix repeats %q", kind, repeated)
 			}
 		})
 	}
@@ -400,7 +400,7 @@ func TestShippedDanishPhoneTablesHoldEverySeriesTheNumberingPlanAllocates(t *tes
 		t.Run(kind, func(t *testing.T) {
 			got, _ := phoneSeriesOf(t, kind)
 			if lacking := absentFrom(danishSeries(t, mobile), got); len(lacking) > 0 {
-				t.Errorf("phone-%s lacks %q, series the plan allocates to %s", kind, lacking, kind)
+				t.Errorf("phone-%s-prefix lacks %q, series the plan allocates to %s", kind, lacking, kind)
 			}
 		})
 	}
@@ -411,7 +411,7 @@ func TestShippedDanishPhoneTablesHoldNoSeriesTheNumberingPlanDoesNotAllocate(t *
 		t.Run(kind, func(t *testing.T) {
 			got, _ := phoneSeriesOf(t, kind)
 			if extra := absentFrom(got, danishSeries(t, mobile)); len(extra) > 0 {
-				t.Errorf("phone-%s holds %q, which the plan does not allocate to %s", kind, extra, kind)
+				t.Errorf("phone-%s-prefix holds %q, which the plan does not allocate to %s", kind, extra, kind)
 			}
 		})
 	}
@@ -419,7 +419,7 @@ func TestShippedDanishPhoneTablesHoldNoSeriesTheNumberingPlanDoesNotAllocate(t *
 
 func TestShippedDanishPhoneSeriesIsARowOfItsKind(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(2))
-	for path, want := range map[string]string{"da_DK.phone-mobile[34 2]": "34 2", "da_DK.phone-mobile[21 1]": "21 1", "da_DK.phone-fixed[34 3]": "34 3", "da_DK.phone-fixed[75 1]": "75 1"} {
+	for path, want := range map[string]string{"da_DK.phone-mobile-prefix[34 2]": "34 2", "da_DK.phone-mobile-prefix[21 1]": "21 1", "da_DK.phone-fixed-prefix[34 3]": "34 3", "da_DK.phone-fixed-prefix[75 1]": "75 1"} {
 		t.Run(path, func(t *testing.T) {
 			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("%s = %q, want %q", path, got, want)
@@ -430,7 +430,7 @@ func TestShippedDanishPhoneSeriesIsARowOfItsKind(t *testing.T) {
 
 func TestShippedDanishPhoneSeriesIsNoRowOfAnotherKind(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(2))
-	for _, path := range []string{"da_DK.phone-fixed[34 2]", "da_DK.phone-mobile[34 3]", "da_DK.phone-mobile[20 0]", "da_DK.phone-fixed[37 1]", "da_DK.phone-fixed[67 1]", "da_DK.phone-mobile[90 1]", "da_DK.phone-fixed[80 1]", "da_DK.phone-fixed[30 0]"} {
+	for _, path := range []string{"da_DK.phone-fixed-prefix[34 2]", "da_DK.phone-mobile-prefix[34 3]", "da_DK.phone-mobile-prefix[20 0]", "da_DK.phone-fixed-prefix[37 1]", "da_DK.phone-fixed-prefix[67 1]", "da_DK.phone-mobile-prefix[90 1]", "da_DK.phone-fixed-prefix[80 1]", "da_DK.phone-fixed-prefix[30 0]"} {
 		t.Run(path, func(t *testing.T) {
 			if got, err := f.Fake(path); err == nil {
 				t.Errorf("%s = %q, but the plan allocates no such series to that kind", path, got)
