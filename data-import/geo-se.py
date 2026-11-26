@@ -43,7 +43,7 @@ ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 UNMATCHED_POPULATION = 200
 # Not a street: a road number, a ferry route, a cycle path's or road association's label, a placeholder, or two names
 # or a description in one.
-NOT_A_STREET = re.compile(r"^(Europaväg|Länsväg|Riksväg) \d|^Färjeled |\b(GC|SMF|VSF)\b|^NN$|,")
+NOT_A_STREET = re.compile(r"^(Europaväg|Länsväg|Riksväg) \d|^Färjeled |\b(GC|SMF|VSF)\b|^NN$|,|^Kvartersvägar ")
 PARTICLES = {"af", "de", "von"}
 
 # A lon and lat, in that order.
@@ -238,6 +238,8 @@ def localities(codes: Iterable[geo.Row], tatorter: Tatorter, municipalities: Map
 
 
 def street_name(name: str) -> bool:
+	if not geo.cleanly_written(name):
+		return False
 	opening = name[0].isupper() or name.split()[0] in PARTICLES
 	return opening and not NOT_A_STREET.search(name) and not geo.in_capitals(name)
 

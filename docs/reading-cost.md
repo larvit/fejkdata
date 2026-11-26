@@ -3088,3 +3088,17 @@ Read most (opens and searches):
 - `compose.yaml` 3
 - `record.go` 1
 - `todo.md` 1
+
+## Reading cost, chunk a3a199c87354, finished 2026-11-26T08:16:39Z
+
+63738 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `compose.yaml` 3
+- `record_test.go` 3
+- `record.go` 2
+- `CHANGELOG.md` 1
+- `cli/records.go` 1
+- `docs/decisions.md` 1
