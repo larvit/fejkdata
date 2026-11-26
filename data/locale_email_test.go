@@ -1,6 +1,8 @@
 package data_test
 
 import (
+	"encoding/json"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -44,6 +46,36 @@ func nameSlugs(t *testing.T, l shippedLocale, file string) map[string]bool {
 	return out
 }
 
+// stripListedWords drops from names every word the locale's email.json spells out itself, since a form built of such words,
+// "malin" and "renard" in a playful address, does not draw a name from the table.
+func stripListedWords(t *testing.T, l shippedLocale, fold *strings.Replacer, names map[string]bool) {
+	t.Helper()
+	body, err := os.ReadFile(l.name + "/email.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc any
+	if err := json.Unmarshal(body, &doc); err != nil {
+		t.Fatal(err)
+	}
+	var walk func(v any)
+	walk = func(v any) {
+		switch v := v.(type) {
+		case string:
+			delete(names, fold.Replace(strings.ToLower(v)))
+		case []any:
+			for _, e := range v {
+				walk(e)
+			}
+		case map[string]any:
+			for _, e := range v {
+				walk(e)
+			}
+		}
+	}
+	walk(doc)
+}
+
 // lastNameInEmail returns the last name an address's local part spells after a first name, or "".
 func lastNameInEmail(local string, firsts, lasts map[string]bool) string {
 	for cut := 1; cut < len(local); cut++ {
@@ -59,6 +91,8 @@ func TestLocaleEmailHoldsAFirstAndALastNameInHalfItsAddresses(t *testing.T) {
 	trailingDigits := regexp.MustCompile(`\d+$`)
 	eachLocale(t, hasEmail, func(t *testing.T, l shippedLocale) {
 		firsts, lasts := nameSlugs(t, l, "first-name"), nameSlugs(t, l, "last-name")
+		stripListedWords(t, l, l.emailFold, firsts)
+		stripListedWords(t, l, l.emailFold, lasts)
 		f := shipped(t, fejkdata.WithSeed(9))
 		seen := fejktest.TallyDraws(5000, func() string {
 			local, _, _ := strings.Cut(fejktest.Fake(t, f, l.name+".email"), "@")

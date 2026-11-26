@@ -140,7 +140,7 @@ var shippedLocales = []shippedLocale{
 	},
 	{
 		name:       "en_US",
-		names:      &names{map[string]string{"Emily": "f", "Olivia": "f", "Liam": "m", "Noah": "m"}, []string{"Taylor"}},
+		names:      &names{map[string]string{"Delilah": "f", "Brielle": "f", "Jakob": "m", "Tobias": "m"}, []string{"Taylor"}},
 		words:      map[string]wordTable{"noun": {"", asciiWord}, "verb": {"present", asciiWord}, "adj": {"", asciiWord}, "adv": {"", asciiWord}},
 		months:     []string{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
 		weekdays:   []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"},
@@ -187,7 +187,7 @@ var shippedLocales = []shippedLocale{
 		months:   []string{"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"},
 		weekdays: []string{"lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"},
 		everyday: &everyday{`^\d{1,3}( \d{3})?,\d{2} €$`, `^([01]\d|2[0-3]):[0-5]\d$`, `^https://([a-z]+\.)?example\.(com|org|net|fr)` + urlPath + `$`, `^[a-z0-9._]{3,}$`, []string{"Bleu", "Vert", "Rouge"}},
-		names:    &names{map[string]string{"Nathalie": "f", "Isabelle": "f", "Jean": "m", "Michel": "m"}, []string{"Camille", "Dominique"}},
+		names:    &names{map[string]string{"Isabelle": "f", "Christine": "f", "Patrick": "m", "Thierry": "m"}, []string{"Camille", "Dominique"}},
 		person:   &person{map[string]string{"f": "femme", "m": "homme"}, []string{"Dr", "Pr"}},
 		// INSEE's Sirene StockUniteLegale of 1 November 2026, the active units by catégorie juridique: 1000, 5499,
 		// 5710, 5202, and 5599 with 5699.
@@ -267,7 +267,7 @@ var shippedLocales = []shippedLocale{
 	},
 	{
 		name:       "sv_SE",
-		names:      &names{map[string]string{"Anna": "f", "Karin": "f", "Erik": "m", "Lars": "m"}, []string{"Kim"}},
+		names:      &names{map[string]string{"Eva": "f", "Lena": "f", "Lars": "m", "Anders": "m"}, []string{"Kim"}},
 		words:      definiteForms,
 		months:     []string{"januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"},
 		weekdays:   []string{"måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag", "söndag"},

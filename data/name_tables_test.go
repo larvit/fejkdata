@@ -49,3 +49,19 @@ func lastNameCounts(t *testing.T, locale string) map[string]int {
 	}
 	return out
 }
+
+func TestNameTablesOfCountedBearersHoldNoNameUnderFiveBearers(t *testing.T) {
+	for _, locale := range []string{"en_US", "fi_FI", "fr_FR", "sv_SE"} {
+		for _, file := range []string{"first-name", "last-name"} {
+			t.Run(locale+"/"+file, func(t *testing.T) {
+				for sex, names := range nameCounts(t, locale, file) {
+					for name, n := range names {
+						if n < 5 {
+							t.Errorf("%s %q of sex %q is borne by %d, want at least 5", file, name, sex, n)
+						}
+					}
+				}
+			})
+		}
+	}
+}
