@@ -42,15 +42,14 @@ A checker older than the SSA's 2011 randomization, which refused areas the SSA h
 assigned, or one accepting fewer ITIN groups than the IRS lists, refuses some of these numbers:
 pin a number for such a checker.
 
-## US phone exchanges
+## US phone numbers
 
 `en_US.phone` draws its exchange from `en_US.phone-exchange`,
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
 `976`.
 
-`en_US.mobile` and `en_US.landline` draw one pool. A US number doesn't show its kind, since mobile
-and fixed numbers share area codes and exchanges, so `en_US.landline` reads `en_US.mobile`, and
-neither promises a kind. Both print `(202) 555-0123`, which `national` prints too, and
-`international` prints `+1 202 555 0123`. Their area codes are `en_US.phone`'s, and their
-exchanges `en_US.phone-exchange`'s.
+`en_US.mobile` and `en_US.landline` draw the same numbers, since a US number doesn't show its kind:
+mobile and fixed numbers share area codes and exchanges, so `en_US.landline` reads `en_US.mobile`.
+Both print a number such as `(305) 973-5616`, which `national` prints too. `international` prints
+`+1 305 973 5616`. The area codes are `en_US.phone`'s and the exchanges `en_US.phone-exchange`'s.
