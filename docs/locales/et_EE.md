@@ -83,8 +83,7 @@ number for another service, such as 900 for premium rates.
 A number is valid, not real: it lies in a range the Annex allocates, and a real subscriber may hold it. The
 Annex doesn't reserve any range for fiction or tests, so don't call or text a drawn number.
 
-`et_EE.mobile` and `et_EE.landline` draw the two kinds of `et_EE.phone` apart, each in its national
-form. A bound one reads `national` and `international`.
+`et_EE.mobile` draws a mobile number and `et_EE.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Estonian words
 

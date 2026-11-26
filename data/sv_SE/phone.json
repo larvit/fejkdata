@@ -2,12 +2,12 @@
   {
     "format": "{.mobile as p}{p}",
     "weight": 10,
-  "national": "{p.national}",
-  "international": "{p.international}"
+    "national": "{p.national}",
+    "international": "{p.international}"
   },
   {
     "format": "{.landline as p}{p}",
-  "national": "{p.national}",
-  "international": "{p.international}"
+    "national": "{p.national}",
+    "international": "{p.international}"
   }
 ]

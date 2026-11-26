@@ -148,9 +148,8 @@ and `031-668 01 50`. No subscriber number starts with the trunk `0`. A number is
 follows the plan, and a real subscriber may hold it. A bound number reads `national`,
 `070-123 45 67`, and `international`, `+46 70 123 45 67`.
 
-`sv_SE.mobile` and `sv_SE.landline` draw the two kinds of `sv_SE.phone` apart, each in its national
-form. A bound one reads `national` and `international`. The mobile numbers use the codes 70, 72, 73,
-76 and 79, and the landline numbers the area codes of `sv_SE.phone-area`.
+`sv_SE.mobile` draws a mobile number and `sv_SE.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
+The mobile numbers use the codes 70, 72, 73, 76 and 79.
 
 ## Swedish words
 

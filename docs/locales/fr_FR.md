@@ -95,8 +95,7 @@ The tables hold 60,000 numbers, and the 10,000 mobile ones are ten draws in elev
 hundred rows repeats a number and a `UNIQUE` column needs a category of your own. No
 checker is promised to accept a number: the roots are no operator's.
 
-`fr_FR.mobile` and `fr_FR.landline` draw the two kinds of `fr_FR.phone` apart, each in its national
-form. A bound one reads `national` and `international`.
+`fr_FR.mobile` draws a mobile number and `fr_FR.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## French words
 

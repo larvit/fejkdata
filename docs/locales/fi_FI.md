@@ -43,8 +43,7 @@ subscriber number begins with 2 to 8, the ranges section 11 reserves for it. A n
 real: a real subscriber may hold it. The tables leave out the mobile codes the plan assigns as five
 digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
 
-`fi_FI.mobile` and `fi_FI.landline` draw the two kinds of `fi_FI.phone` apart, each in its national
-form. A bound one reads `national` and `international`.
+`fi_FI.mobile` draws a mobile number and `fi_FI.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Finnish words
 
