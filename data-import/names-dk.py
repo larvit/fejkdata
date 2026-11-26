@@ -21,22 +21,22 @@ import tsv
 OUT = Path(__file__).resolve().parent.parent / "data" / "da_DK"
 
 GIRLS = {
-    "Anne": 43021, "Mette": 37932, "Kirsten": 34588, "Hanne": 34482, "Anna": 33441,
-    "Helle": 32720, "Maria": 30400, "Susanne": 29668, "Lene": 29290, "Marianne": 25598,
-    "Camilla": 24494, "Lone": 23918, "Louise": 23824, "Charlotte": 23455, "Pia": 23359,
-    "Tina": 22855, "Emma": 22590, "Ida": 22571, "Gitte": 22382, "Julie": 21912,
+	"Anne": 43021, "Mette": 37932, "Kirsten": 34588, "Hanne": 34482, "Anna": 33441,
+	"Helle": 32720, "Maria": 30400, "Susanne": 29668, "Lene": 29290, "Marianne": 25598,
+	"Camilla": 24494, "Lone": 23918, "Louise": 23824, "Charlotte": 23455, "Pia": 23359,
+	"Tina": 22855, "Emma": 22590, "Ida": 22571, "Gitte": 22382, "Julie": 21912,
 }
 BOYS = {
-    "Peter": 45777, "Michael": 43976, "Lars": 42596, "Thomas": 41800, "Jens": 40558,
-    "Henrik": 40416, "Søren": 38087, "Christian": 37349, "Martin": 36799, "Jan": 35210,
-    "Morten": 33384, "Jesper": 33139, "Anders": 32980, "Mads": 32239, "Niels": 30836,
-    "Rasmus": 30222, "Mikkel": 29280, "Kim": 27770, "Per": 27640, "Ole": 26195,
+	"Peter": 45777, "Michael": 43976, "Lars": 42596, "Thomas": 41800, "Jens": 40558,
+	"Henrik": 40416, "Søren": 38087, "Christian": 37349, "Martin": 36799, "Jan": 35210,
+	"Morten": 33384, "Jesper": 33139, "Anders": 32980, "Mads": 32239, "Niels": 30836,
+	"Rasmus": 30222, "Mikkel": 29280, "Kim": 27770, "Per": 27640, "Ole": 26195,
 }
 LAST = {
-    "Nielsen": 222355, "Jensen": 218886, "Hansen": 186105, "Andersen": 143880, "Pedersen": 140838,
-    "Christensen": 106860, "Larsen": 102287, "Sørensen": 97587, "Rasmussen": 84147, "Jørgensen": 78057,
-    "Petersen": 68658, "Madsen": 58255, "Kristensen": 55775, "Olsen": 42709, "Thomsen": 37486,
-    "Christiansen": 33781, "Poulsen": 29488, "Johansen": 28983, "Møller": 28916, "Mortensen": 27141,
+	"Nielsen": 222355, "Jensen": 218886, "Hansen": 186105, "Andersen": 143880, "Pedersen": 140838,
+	"Christensen": 106860, "Larsen": 102287, "Sørensen": 97587, "Rasmussen": 84147, "Jørgensen": 78057,
+	"Petersen": 68658, "Madsen": 58255, "Kristensen": 55775, "Olsen": 42709, "Thomsen": 37486,
+	"Christiansen": 33781, "Poulsen": 29488, "Johansen": 28983, "Møller": 28916, "Mortensen": 27141,
 }
 
 GIRLS_RECALLED = """
@@ -150,29 +150,29 @@ Vang Weber Wilhelmsen Wittrup Østergaard
 
 
 def ranked(top: Mapping[str, int], recalled: str, what: str) -> list[tuple[str, int]]:
-    """The rows (name, count) of a list: the top 20 as published, the recalled names in order, then the rarer ones, which share a count."""
-    ordered, rarer = recalled_names.split(what, recalled, top)
-    names = [*top, *ordered, *rarer]
-    twentieth = min(top.values())
-    rows = list(top.items())
-    for rank, name in enumerate(ordered, start=len(top) + 1):
-        rows.append((name, twentieth * len(top) // rank))
-    rows += [(name, twentieth * len(top) // len(names)) for name in rarer]
-    return rows
+	"""The rows (name, count) of a list: the top 20 as published, the recalled names in order, then the rarer ones, which share a count."""
+	ordered, rarer = recalled_names.split(what, recalled, top)
+	names = [*top, *ordered, *rarer]
+	twentieth = min(top.values())
+	rows = list(top.items())
+	for rank, name in enumerate(ordered, start=len(top) + 1):
+		rows.append((name, twentieth * len(top) // rank))
+	rows += [(name, twentieth * len(top) // len(names)) for name in rarer]
+	return rows
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    first = [{"name": n, "sex": "f", "count": c} for n, c in ranked(GIRLS, GIRLS_RECALLED, "girls")]
-    first += [{"name": n, "sex": "m", "count": c} for n, c in ranked(BOYS, BOYS_RECALLED, "boys")]
-    last = [{"name": n, "count": c} for n, c in ranked(LAST, LAST_RECALLED, "last names")]
-    out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
-    tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	first = [{"name": n, "sex": "f", "count": c} for n, c in ranked(GIRLS, GIRLS_RECALLED, "girls")]
+	first += [{"name": n, "sex": "m", "count": c} for n, c in ranked(BOYS, BOYS_RECALLED, "boys")]
+	last = [{"name": n, "count": c} for n, c in ranked(LAST, LAST_RECALLED, "last names")]
+	out = Path(a.out)
+	out.mkdir(parents=True, exist_ok=True)
+	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
+	tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
 
 
 if __name__ == "__main__":
-    main()
+	main()

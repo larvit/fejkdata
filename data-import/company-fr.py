@@ -43,17 +43,17 @@ from pathlib import Path
 import source
 import tsv
 from company_names import (
-    FORM_MIN,
-    Usage,
-    Vocabulary,
-    column,
-    common,
-    legal_item,
-    quoted,
-    split,
-    trade_words,
-    weighted,
-    word_usage,
+	FORM_MIN,
+	Usage,
+	Vocabulary,
+	column,
+	common,
+	legal_item,
+	quoted,
+	split,
+	trade_words,
+	weighted,
+	word_usage,
 )
 
 REGISTER = "https://static.data.gouv.fr/resources/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/20261103-091933/stock-stockunitelegale-csv.zip"
@@ -71,24 +71,24 @@ CONNECTING_WORDS = ("et", "de", "du", "des", "la", "le", "les", "au", "aux", "en
 FUNCTION_WORDS = {*CONNECTING_WORDS, "the", "and", "of", "for"}
 # The abbreviations and words of the legal forms in INSEE's catégories juridiques, which are no part of a name.
 LEGAL_WORDS = {
-    "anonyme", "associe", "actions", "cuma", "earl", "eurl", "gaec", "geie", "gie", "limitee", "responsabilite", "sarl", "sarlu", "sas", "sasp", "sasu",
-    "sca", "scea", "scic", "sci", "sccv", "scop", "scp", "scs", "selafa", "selarl", "selas", "selca", "sem", "semop", "sica", "simplifiee", "snc",
-    "societe", "spfpl", "unique",
+	"anonyme", "associe", "actions", "cuma", "earl", "eurl", "gaec", "geie", "gie", "limitee", "responsabilite", "sarl", "sarlu", "sas", "sasp", "sasu",
+	"sca", "scea", "scic", "sci", "sccv", "scop", "scp", "scs", "selafa", "selarl", "selas", "selca", "sem", "semop", "sica", "simplifiee", "snc",
+	"societe", "spfpl", "unique",
 }
 LEGAL_SUFFIX = re.compile(r"[\s,]+(?:S\.?A\.?R\.?L\.?|E\.?U\.?R\.?L\.?|S\.?A\.?S\.?U?\.?|S\.?N\.?C\.?|S\.?A\.?)\s*$")
 VOCABULARY = Vocabulary(re.compile(r"^[a-z]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset(NAMED_FORMS), 0, CONNECTING_WORDS)
 # The accented spelling of a trade word or a root, which Sirene writes without accents.
 SPELLINGS = {
-    "amenagement": "Aménagement", "associes": "Associés", "batiment": "Bâtiment", "beaute": "Beauté", "cafe": "Café", "creation": "Création",
-    "deco": "Déco", "decoration": "Décoration", "developpement": "Développement", "editions": "Éditions", "electricite": "Électricité",
-    "energie": "Énergie", "energies": "Énergies", "freres": "Frères", "ingenierie": "Ingénierie", "maconnerie": "Maçonnerie", "media": "Média",
-    "negoce": "Négoce", "privee": "Privée", "renovation": "Rénovation", "sante": "Santé", "securite": "Sécurité",
-    "acces": "Accès", "aero": "Aéro", "ariege": "Ariège", "boite": "Boîte", "cafes": "Cafés", "cine": "Ciné", "creche": "Crèche",
-    "credit": "Crédit", "cles": "Clés", "declic": "Déclic", "defi": "Défi", "depot": "Dépôt", "eclat": "Éclat", "ecole": "École",
-    "ecrin": "Écrin", "elysee": "Élysée", "eole": "Éole", "equip": "Équip", "etude": "Étude", "etudes": "Études", "eveil": "Éveil",
-    "fleche": "Flèche", "genie": "Génie", "gite": "Gîte", "gites": "Gîtes", "hotel": "Hôtel", "idee": "Idée", "idees": "Idées", "meca": "Méca",
-    "medi": "Médi", "medic": "Médic", "nego": "Négo", "pieces": "Pièces", "pole": "Pôle", "pret": "Prêt", "regie": "Régie", "reseau": "Réseau",
-    "rhone": "Rhône", "tele": "Télé", "tete": "Tête", "unite": "Unité",
+	"amenagement": "Aménagement", "associes": "Associés", "batiment": "Bâtiment", "beaute": "Beauté", "cafe": "Café", "creation": "Création",
+	"deco": "Déco", "decoration": "Décoration", "developpement": "Développement", "editions": "Éditions", "electricite": "Électricité",
+	"energie": "Énergie", "energies": "Énergies", "freres": "Frères", "ingenierie": "Ingénierie", "maconnerie": "Maçonnerie", "media": "Média",
+	"negoce": "Négoce", "privee": "Privée", "renovation": "Rénovation", "sante": "Santé", "securite": "Sécurité",
+	"acces": "Accès", "aero": "Aéro", "ariege": "Ariège", "boite": "Boîte", "cafes": "Cafés", "cine": "Ciné", "creche": "Crèche",
+	"credit": "Crédit", "cles": "Clés", "declic": "Déclic", "defi": "Défi", "depot": "Dépôt", "eclat": "Éclat", "ecole": "École",
+	"ecrin": "Écrin", "elysee": "Élysée", "eole": "Éole", "equip": "Équip", "etude": "Étude", "etudes": "Études", "eveil": "Éveil",
+	"fleche": "Flèche", "genie": "Génie", "gite": "Gîte", "gites": "Gîtes", "hotel": "Hôtel", "idee": "Idée", "idees": "Idées", "meca": "Méca",
+	"medi": "Médi", "medic": "Médic", "nego": "Négo", "pieces": "Pièces", "pole": "Pôle", "pret": "Prêt", "regie": "Régie", "reseau": "Réseau",
+	"rhone": "Rhône", "tele": "Télé", "tete": "Tête", "unite": "Unité",
 }
 # A name's kinds of word in order, each a key of SLOTS.
 type Shape = tuple[str, ...]
@@ -97,116 +97,116 @@ SLOTS = {"X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", 
 
 
 def fold(word: str) -> str:
-    """The word in lower case without accents."""
-    return unicodedata.normalize("NFD", word.lower()).encode("ascii", "ignore").decode("ascii")
+	"""The word in lower case without accents."""
+	return unicodedata.normalize("NFD", word.lower()).encode("ascii", "ignore").decode("ascii")
 
 
 def register(data: bytes) -> tuple[Counter[str], list[tuple[str, str]]]:
-    """(units per form, (form, name) of every active unit of NAMED_FORMS)."""
-    counts: Counter[str] = Counter()
-    names: list[tuple[str, str]] = []
-    with zipfile.ZipFile(io.BytesIO(data)) as z, z.open(z.namelist()[0]) as f:
-        for row in csv.DictReader(io.TextIOWrapper(f, encoding="utf-8", newline="")):
-            form = CATEGORY_FORM.get(row["categorieJuridiqueUniteLegale"])
-            if form and row["etatAdministratifUniteLegale"] == "A":
-                counts[form] += 1
-                if form in NAMED_FORMS and row["denominationUniteLegale"]:
-                    names.append((form, LEGAL_SUFFIX.sub("", row["denominationUniteLegale"])))
-    return counts, names
+	"""(units per form, (form, name) of every active unit of NAMED_FORMS)."""
+	counts: Counter[str] = Counter()
+	names: list[tuple[str, str]] = []
+	with zipfile.ZipFile(io.BytesIO(data)) as z, z.open(z.namelist()[0]) as f:
+		for row in csv.DictReader(io.TextIOWrapper(f, encoding="utf-8", newline="")):
+			form = CATEGORY_FORM.get(row["categorieJuridiqueUniteLegale"])
+			if form and row["etatAdministratifUniteLegale"] == "A":
+				counts[form] += 1
+				if form in NAMED_FORMS and row["denominationUniteLegale"]:
+					names.append((form, LEGAL_SUFFIX.sub("", row["denominationUniteLegale"])))
+	return counts, names
 
 
 def kind(word: str, surnames: Collection[str], firsts: Collection[str]) -> str | None:
-    """S or F for a last name or a first name; else None. A word that is both is a last name."""
-    w = fold(word)
-    if w in surnames:
-        return "S"
-    return "F" if w in firsts else None
+	"""S or F for a last name or a first name; else None. A word that is both is a last name."""
+	w = fold(word)
+	if w in surnames:
+		return "S"
+	return "F" if w in firsts else None
 
 
 def roots(usage: Mapping[str, Usage], trade: Collection[str]) -> dict[str, int]:
-    """The roots of company-coined.tsv, each capitalised with its count, by the rule in the module docstring."""
-    return {
-        SPELLINGS.get(w, w.capitalize()): u.names
-        for w, u in sorted(usage.items())
-        if w not in trade and len(w) in ROOT_LETTERS and u.begins >= ROOT_MIN and ROOT_ENDS_MIN * u.names <= u.ends and 3 * u.ends < u.names
-        and sum(u.forms[f] >= FORM_MIN for f in VOCABULARY.word_forms) >= 2
-    }
+	"""The roots of company-coined.tsv, each capitalised with its count, by the rule in the module docstring."""
+	return {
+		SPELLINGS.get(w, w.capitalize()): u.names
+		for w, u in sorted(usage.items())
+		if w not in trade and len(w) in ROOT_LETTERS and u.begins >= ROOT_MIN and ROOT_ENDS_MIN * u.names <= u.ends and 3 * u.ends < u.names
+		and sum(u.forms[f] >= FORM_MIN for f in VOCABULARY.word_forms) >= 2
+	}
 
 
 def shape_of(words: list[str], surnames: Collection[str], firsts: Collection[str], trade: Collection[str]) -> Shape:
-    """The kinds of the words, as SLOTS keys."""
-    shape: list[str] = []
-    for word in words:
-        low = fold(word)
-        if low.isdigit():
-            shape.append("N")
-        elif low in CONNECTING_WORDS:
-            shape.append(low)
-        else:
-            shape.append(kind(word, surnames, firsts) or ("T" if low in trade else "X"))
-    return tuple(shape)
+	"""The kinds of the words, as SLOTS keys."""
+	shape: list[str] = []
+	for word in words:
+		low = fold(word)
+		if low.isdigit():
+			shape.append("N")
+		elif low in CONNECTING_WORDS:
+			shape.append(low)
+		else:
+			shape.append(kind(word, surnames, firsts) or ("T" if low in trade else "X"))
+	return tuple(shape)
 
 
 def count_shapes(names: Iterable[tuple[str, str]], surnames: Collection[str], firsts: Collection[str], trade: Collection[str]) -> dict[str, Counter[Shape]]:
-    """Per form: the shapes counted over its names."""
-    shapes: dict[str, Counter[Shape]] = {f: Counter() for f in NAMED_FORMS}
-    for form, name in names:
-        words = [w for w in split(name) if fold(w).replace(".", "") not in LEGAL_WORDS]
-        if words:
-            shapes[form][shape_of(words, surnames, firsts, trade)] += 1
-    return shapes
+	"""Per form: the shapes counted over its names."""
+	shapes: dict[str, Counter[Shape]] = {f: Counter() for f in NAMED_FORMS}
+	for form, name in names:
+		words = [w for w in split(name) if fold(w).replace(".", "") not in LEGAL_WORDS]
+		if words:
+			shapes[form][shape_of(words, surnames, firsts, trade)] += 1
+	return shapes
 
 
 def commonest(trade: Mapping[str, tuple[str, int]], limit: int) -> dict[str, tuple[str, int]]:
-    """The limit commonest trade words, each with its spelling from SPELLINGS."""
-    top = sorted(trade.items(), key=lambda wsc: (-wsc[1][1], wsc[0]))[:limit]
-    return {w: (SPELLINGS.get(w, s), c) for w, (s, c) in top}
+	"""The limit commonest trade words, each with its spelling from SPELLINGS."""
+	top = sorted(trade.items(), key=lambda wsc: (-wsc[1][1], wsc[0]))[:limit]
+	return {w: (SPELLINGS.get(w, s), c) for w, (s, c) in top}
 
 
 def slots(shape: Shape) -> str:
-    """The format of a shape: its words' slots, the first one capitalised."""
-    text = " ".join(SLOTS[k] for k in shape)
-    return text[0].upper() + text[1:]
+	"""The format of a shape: its words' slots, the first one capitalised."""
+	text = " ".join(SLOTS[k] for k in shape)
+	return text[0].upper() + text[1:]
 
 
 def form_block(form: str, shapes: Mapping[Shape, int]) -> str:
-    """One form's object: its name by shape, and the abbreviation after it."""
-    items = ",\n".join("      " + weighted(slots(shape), c) for shape, c in common(shapes))
-    return f'  "{form.lower()}": {{\n    "format": {quoted("{name} " + form)},\n    "name": [\n{items}\n    ]\n  }}'
+	"""One form's object: its name by shape, and the abbreviation after it."""
+	items = ",\n".join("      " + weighted(slots(shape), c) for shape, c in common(shapes))
+	return f'  "{form.lower()}": {{\n    "format": {quoted("{name} " + form)},\n    "name": [\n{items}\n    ]\n  }}'
 
 
 def ei_block() -> str:
-    return '  "ei": {\n    "format": "{name}",\n    "name": "{.first-name} {.last-name}"\n  }'
+	return '  "ei": {\n    "format": "{name}",\n    "name": "{.first-name} {.last-name}"\n  }'
 
 
 def company_json(registered: Mapping[str, int], shapes: Mapping[str, Mapping[Shape, int]]) -> str:
-    forms = [legal_item("{.company." + f.lower() + "}", "" if f == "EI" else f, registered[f]) for f in sorted(FORMS, key=lambda f: (-registered[f], f))]
-    blocks = [ei_block()] + [form_block(f, shapes[f]) for f in NAMED_FORMS]
-    return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
+	forms = [legal_item("{.company." + f.lower() + "}", "" if f == "EI" else f, registered[f]) for f in sorted(FORMS, key=lambda f: (-registered[f], f))]
+	blocks = [ei_block()] + [form_block(f, shapes[f]) for f in NAMED_FORMS]
+	return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--register", default=REGISTER)
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    registered, names = register(source.fetch(a.register, a.cache, "sirene-stockunitelegale.zip", magic=b"PK"))
-    surnames = {fold(w) for w in column(ROOT / "fr_FR/last-name.tsv")}
-    firsts = {fold(w) for w in column(ROOT / "fr_FR/first-name.tsv")}
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--register", default=REGISTER)
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	registered, names = register(source.fetch(a.register, a.cache, "sirene-stockunitelegale.zip", magic=b"PK"))
+	surnames = {fold(w) for w in column(ROOT / "fr_FR/last-name.tsv")}
+	firsts = {fold(w) for w in column(ROOT / "fr_FR/first-name.tsv")}
 
-    def named(w: str) -> bool:
-        return kind(w, surnames, firsts) is not None
+	def named(w: str) -> bool:
+		return kind(w, surnames, firsts) is not None
 
-    usage = word_usage(names, named, VOCABULARY)
-    trade = commonest(trade_words(usage, VOCABULARY), TRADE_MAX)
-    out = Path(a.out)
-    tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
-    tsv.write(out / "company-coined.tsv", ["word", "count"], [{"word": w, "count": c} for w, c in roots(usage, trade).items()])
-    for table in ("company-word", "company-coined"):
-        (out / f"{table}.json").write_text('{ "format": "{word}", "rows": "' + table + '.tsv", "weight": "count" }\n', encoding="utf-8")
-    (out / "company.json").write_text(company_json(registered, count_shapes(names, surnames, firsts, trade)), encoding="utf-8")
+	usage = word_usage(names, named, VOCABULARY)
+	trade = commonest(trade_words(usage, VOCABULARY), TRADE_MAX)
+	out = Path(a.out)
+	tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
+	tsv.write(out / "company-coined.tsv", ["word", "count"], [{"word": w, "count": c} for w, c in roots(usage, trade).items()])
+	for table in ("company-word", "company-coined"):
+		(out / f"{table}.json").write_text('{ "format": "{word}", "rows": "' + table + '.tsv", "weight": "count" }\n', encoding="utf-8")
+	(out / "company.json").write_text(company_json(registered, count_shapes(names, surnames, firsts, trade)), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+	main()

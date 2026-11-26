@@ -20,28 +20,28 @@ WIKTIONARY = "https://kaikki.org/dictionary/Lithuanian/kaikki.org-dictionary-Lit
 OUT = Path(__file__).resolve().parent.parent / "data" / "lt_LT"
 FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
 HEADS = {
-    "noun": {"lt-noun", "noun"},
-    "verb": {"lt-verb", "verb"},
-    "adj": {"lt-adj", "adjective"},
-    "adv": {"lt-adv", "adverb", "adverbs"},
+	"noun": {"lt-noun", "noun"},
+	"verb": {"lt-verb", "verb"},
+	"adj": {"lt-adj", "adjective"},
+	"adv": {"lt-adv", "adverb", "adverbs"},
 }
 
 
 def plural(entry: Mapping[str, Any]) -> str:
-    """The page a plural of the entry links to, which is the form without its stress marks and its section anchor: the one its declension table gives for the nominative and its head template gives, else whichever of them links, and none where they differ."""
-    typed = linked(entry, lambda tags: tags == ["plural"])
-    nominative = linked(entry, lambda tags: {"nominative", "plural"} <= set(tags))
-    return "" if typed and nominative and typed != nominative else nominative or typed
+	"""The page a plural of the entry links to, which is the form without its stress marks and its section anchor: the one its declension table gives for the nominative and its head template gives, else whichever of them links, and none where they differ."""
+	typed = linked(entry, lambda tags: tags == ["plural"])
+	nominative = linked(entry, lambda tags: {"nominative", "plural"} <= set(tags))
+	return "" if typed and nominative and typed != nominative else nominative or typed
 
 
 def linked(entry: Mapping[str, Any], wanted: Callable[[list[str]], bool]) -> str:
-    for form in entry.get("forms", []):
-        if wanted(form.get("tags", [])) and form.get("links"):
-            return str(form["links"][0][1]).split("#")[0]
-    return ""
+	for form in entry.get("forms", []):
+		if wanted(form.get("tags", [])) and form.get("links"):
+			return str(form["links"][0][1]).split("#")[0]
+	return ""
 
 
 candidates = partial(wiktionary_entries.candidates, parts=HEADS, forms=FORMS, plural=plural)
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "", OUT, FORMS, [wordtables.Source(flag="wiktionary", url=WIKTIONARY, name="kaikki-lithuanian.jsonl", magic=b"{", candidates=candidates)], wordtables.lower_letters)
+	wordtables.main(__doc__, "", OUT, FORMS, [wordtables.Source(flag="wiktionary", url=WIKTIONARY, name="kaikki-lithuanian.jsonl", magic=b"{", candidates=candidates)], wordtables.lower_letters)

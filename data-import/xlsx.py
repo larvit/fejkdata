@@ -8,15 +8,15 @@ NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main", "r": "ht
 
 
 def rows(data: bytes, sheet: str | None = None) -> Iterator[list[str]]:
-    """The rows of an xlsx sheet named sheet, the first sheet by default, each a list of cell texts."""
-    z = zipfile.ZipFile(io.BytesIO(data))
-    strings = ["".join(t.text or "" for t in si.iter("{" + NS["m"] + "}t")) for si in ET.fromstring(z.read("xl/sharedStrings.xml")).findall("m:si", NS)]
-    rels = {r.attrib["Id"]: r.attrib["Target"] for r in ET.fromstring(z.read("xl/_rels/workbook.xml.rels"))}
-    sheets = {s.get("name"): rels[s.attrib["{" + NS["r"] + "}id"]] for s in ET.fromstring(z.read("xl/workbook.xml")).iter("{" + NS["m"] + "}sheet")}
-    target = sheets[sheet] if sheet else next(iter(sheets.values()))
-    for row in ET.fromstring(z.read("xl/" + target)).findall(".//m:row", NS):
-        cells = []
-        for c in row.findall("m:c", NS):
-            v = c.find("m:v", NS)
-            cells.append("" if v is None or v.text is None else strings[int(v.text)] if c.get("t") == "s" else v.text)
-        yield cells
+	"""The rows of an xlsx sheet named sheet, the first sheet by default, each a list of cell texts."""
+	z = zipfile.ZipFile(io.BytesIO(data))
+	strings = ["".join(t.text or "" for t in si.iter("{" + NS["m"] + "}t")) for si in ET.fromstring(z.read("xl/sharedStrings.xml")).findall("m:si", NS)]
+	rels = {r.attrib["Id"]: r.attrib["Target"] for r in ET.fromstring(z.read("xl/_rels/workbook.xml.rels"))}
+	sheets = {s.get("name"): rels[s.attrib["{" + NS["r"] + "}id"]] for s in ET.fromstring(z.read("xl/workbook.xml")).iter("{" + NS["m"] + "}sheet")}
+	target = sheets[sheet] if sheet else next(iter(sheets.values()))
+	for row in ET.fromstring(z.read("xl/" + target)).findall(".//m:row", NS):
+		cells = []
+		for c in row.findall("m:c", NS):
+			v = c.find("m:v", NS)
+			cells.append("" if v is None or v.text is None else strings[int(v.text)] if c.get("t") == "s" else v.text)
+		yield cells

@@ -21,71 +21,71 @@ SOVEREIGN = re.compile(r"^(?:Part of|Territor(?:y|ies) of|Crown dependency of|Co
 STANDALONE = {"In contention", "International"}
 # Values the source lacks or gets wrong, keyed by alpha2.
 FIXUPS = {
-    "EH": {"tld": ""},
-    "KZ": {"capital": "Astana"},
-    "PW": {"capital": "Ngerulmud"},
-    "TR": {"currency": "TRY"},
+	"EH": {"tld": ""},
+	"KZ": {"capital": "Astana"},
+	"PW": {"capital": "Ngerulmud"},
+	"TR": {"currency": "TRY"},
 }
 
 
 def flag(alpha2: str) -> str:
-    return "".join(chr(0x1F1E6 + ord(c) - ord("A")) for c in alpha2)
+	return "".join(chr(0x1F1E6 + ord(c) - ord("A")) for c in alpha2)
 
 
 def calling_code(dial: str) -> str:
-    first = re.sub(r"[^0-9-]", "", dial.split(",")[0])
-    return first if re.match(r"^\d+-\d{3}$", first) else first.split("-")[0]
+	first = re.sub(r"[^0-9-]", "", dial.split(",")[0])
+	return first if re.match(r"^\d+-\d{3}$", first) else first.split("-")[0]
 
 
 def languages(field: str) -> str:
-    return ",".join(p for p in field.split(",") if p)
+	return ",".join(p for p in field.split(",") if p)
 
 
 def sovereign(alpha2: str, independent: str) -> str:
-    """The alpha-2 of the state `is_independent` names, or the territory's own where it names none."""
-    m = SOVEREIGN.match(independent)
-    if m:
-        return m.group(1)
-    if independent == "Yes" or independent in STANDALONE:
-        return alpha2
-    sys.exit(f"{alpha2}: is_independent {independent!r} names no sovereign this script can read")
+	"""The alpha-2 of the state `is_independent` names, or the territory's own where it names none."""
+	m = SOVEREIGN.match(independent)
+	if m:
+		return m.group(1)
+	if independent == "Yes" or independent in STANDALONE:
+		return alpha2
+	sys.exit(f"{alpha2}: is_independent {independent!r} names no sovereign this script can read")
 
 
 def rows(text: str) -> Iterator[dict[str, str]]:
-    for r in csv.DictReader(io.StringIO(text)):
-        alpha2 = r["ISO3166-1-Alpha-2"]
-        row = {
-            "alpha2": alpha2,
-            "alpha3": r["ISO3166-1-Alpha-3"],
-            "calling-code": calling_code(r["Dial"]),
-            "capital": r["Capital"],
-            "currency": r["ISO4217-currency_alphabetic_code"].split(",")[0],
-            "flag": flag(alpha2),
-            "languages": languages(r["Languages"]),
-            "name": r["CLDR display name"] or r["official_name_en"],
-            "numeric": r["ISO3166-1-numeric"].zfill(3),
-            "sovereign": sovereign(alpha2, r["is_independent"]),
-            "tld": r["TLD"],
-        }
-        row.update(FIXUPS.get(alpha2, {}))
-        has_tld = row["tld"] or "tld" in FIXUPS.get(alpha2, {})
-        if has_tld and all(row[c] for c in ("alpha2", "alpha3", "calling-code", "capital", "currency", "name")):
-            yield row
+	for r in csv.DictReader(io.StringIO(text)):
+		alpha2 = r["ISO3166-1-Alpha-2"]
+		row = {
+			"alpha2": alpha2,
+			"alpha3": r["ISO3166-1-Alpha-3"],
+			"calling-code": calling_code(r["Dial"]),
+			"capital": r["Capital"],
+			"currency": r["ISO4217-currency_alphabetic_code"].split(",")[0],
+			"flag": flag(alpha2),
+			"languages": languages(r["Languages"]),
+			"name": r["CLDR display name"] or r["official_name_en"],
+			"numeric": r["ISO3166-1-numeric"].zfill(3),
+			"sovereign": sovereign(alpha2, r["is_independent"]),
+			"tld": r["TLD"],
+		}
+		row.update(FIXUPS.get(alpha2, {}))
+		has_tld = row["tld"] or "tld" in FIXUPS.get(alpha2, {})
+		if has_tld and all(row[c] for c in ("alpha2", "alpha3", "calling-code", "capital", "currency", "name")):
+			yield row
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    table = sorted(rows(source.fetch(a.source, a.cache, "country-codes.csv").decode("utf-8")), key=lambda r: r["alpha2"])
-    shipped = {r["alpha2"] for r in table}
-    for r in table:
-        if r["sovereign"] not in shipped:
-            sys.exit(f"{r['alpha2']}: sovereign {r['sovereign']} is no row of the table, so its territories could not select it")
-    tsv.write(a.out, COLUMNS, table)
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	table = sorted(rows(source.fetch(a.source, a.cache, "country-codes.csv").decode("utf-8")), key=lambda r: r["alpha2"])
+	shipped = {r["alpha2"] for r in table}
+	for r in table:
+		if r["sovereign"] not in shipped:
+			sys.exit(f"{r['alpha2']}: sovereign {r['sovereign']} is no row of the table, so its territories could not select it")
+	tsv.write(a.out, COLUMNS, table)
 
 
 if __name__ == "__main__":
-    main()
+	main()

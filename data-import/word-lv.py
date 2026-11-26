@@ -25,57 +25,57 @@ OUT_OF_USE = {"Apvidvārds", "Dialektisms", "Novecojis", "Vēsturisks", "Neaktu�
 
 
 def text(line: bytes) -> str:
-    """What an element written on one line holds, such as `mājas` of `<orth>mājas</orth>`."""
-    return line[line.index(b">") + 1 : line.rindex(b"<")].decode("utf-8")
+	"""What an element written on one line holds, such as `mājas` of `<orth>mājas</orth>`."""
+	return line[line.index(b">") + 1 : line.rindex(b"<")].decode("utf-8")
 
 
 def kind(line: bytes) -> str:
-    """The `type` of a `<gram type="…">` line."""
-    return line[12 : line.index(b'"', 12)].decode("utf-8")
+	"""The `type` of a `<gram type="…">` line."""
+	return line[12 : line.index(b'"', 12)].decode("utf-8")
 
 
 def candidates(dump: bytes) -> Iterator[wordtables.Candidate]:
-    """A part of speech, lemma and nominative plural per noun, verb, adjective or adverb of the wordforms zip that no label marks as regional or out of date, and per verb only an infinitive; the plural is empty for any other part and for a noun with none.
+	"""A part of speech, lemma and nominative plural per noun, verb, adjective or adverb of the wordforms zip that no label marks as regional or out of date, and per verb only an infinitive; the plural is empty for any other part and for a noun with none.
 
-    Each tag stands on a line of its own. An entry's lemma and properties come first, then an `inflection` form per case and number and a `derivative` form per participle or adverb it makes. Each form has its own `<orth>` and part of speech, so only the first of each is the lemma's."""
-    lemma = part = plural = case = number = form = ""
-    labels: set[str] = set()
-    inflected = False
-    with zipfile.ZipFile(io.BytesIO(dump)) as z, z.open(z.infolist()[0]) as lines:
-        for raw in lines:
-            line = raw.strip()
-            if line.startswith(b"<entry "):
-                lemma = part = plural = ""
-                labels = set()
-                inflected = False
-            elif line == b'<form type="inflection">':
-                inflected = True
-                form = case = number = ""
-            elif line == b"</form>" and inflected:
-                inflected = False
-                if case == "Nominatīvs" and number == "Daudzskaitlis" and not plural:
-                    plural = form
-            elif line.startswith(b"<orth"):
-                if inflected:
-                    form = text(line)
-                elif not lemma:
-                    lemma = text(line)
-            elif line.startswith(b"<gram "):
-                gram, value = kind(line), text(line)
-                if inflected and gram == "Locījums":
-                    case = value
-                elif inflected and gram == "Skaitlis":
-                    number = value
-                elif gram == "Vārdšķira" and not part:
-                    part = value
-                elif gram == "Lietojums" and not inflected:
-                    labels.add(value)
-            elif line == b"</entry>" and part in PARTS and not labels & OUT_OF_USE:
-                kept = PARTS[part]
-                if kept != "verb" or lemma.endswith(INFINITIVE):
-                    yield kept, lemma, plural if FORMS[kept] else ""
+	Each tag stands on a line of its own. An entry's lemma and properties come first, then an `inflection` form per case and number and a `derivative` form per participle or adverb it makes. Each form has its own `<orth>` and part of speech, so only the first of each is the lemma's."""
+	lemma = part = plural = case = number = form = ""
+	labels: set[str] = set()
+	inflected = False
+	with zipfile.ZipFile(io.BytesIO(dump)) as z, z.open(z.infolist()[0]) as lines:
+		for raw in lines:
+			line = raw.strip()
+			if line.startswith(b"<entry "):
+				lemma = part = plural = ""
+				labels = set()
+				inflected = False
+			elif line == b'<form type="inflection">':
+				inflected = True
+				form = case = number = ""
+			elif line == b"</form>" and inflected:
+				inflected = False
+				if case == "Nominatīvs" and number == "Daudzskaitlis" and not plural:
+					plural = form
+			elif line.startswith(b"<orth"):
+				if inflected:
+					form = text(line)
+				elif not lemma:
+					lemma = text(line)
+			elif line.startswith(b"<gram "):
+				gram, value = kind(line), text(line)
+				if inflected and gram == "Locījums":
+					case = value
+				elif inflected and gram == "Skaitlis":
+					number = value
+				elif gram == "Vārdšķira" and not part:
+					part = value
+				elif gram == "Lietojums" and not inflected:
+					labels.add(value)
+			elif line == b"</entry>" and part in PARTS and not labels & OUT_OF_USE:
+				kept = PARTS[part]
+				if kept != "verb" or lemma.endswith(INFINITIVE):
+					yield kept, lemma, plural if FORMS[kept] else ""
 
 
 if __name__ == "__main__":
-    source = wordtables.Source(flag="wordforms", url=URL, name="tezaurs-wordforms.xml.zip", magic=b"PK", candidates=candidates)
-    wordtables.main(__doc__, "", OUT, FORMS, [source], wordtables.lower_letters)
+	source = wordtables.Source(flag="wordforms", url=URL, name="tezaurs-wordforms.xml.zip", magic=b"PK", candidates=candidates)
+	wordtables.main(__doc__, "", OUT, FORMS, [source], wordtables.lower_letters)

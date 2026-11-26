@@ -23,32 +23,32 @@ FLOOR = 4000
 
 
 def rows(text: str) -> list[dict[str, str]]:
-    best, described = {}, set()
-    for r in csv.DictReader(io.StringIO(text)):
-        service, number = (r["Service Name"] or "").strip(), (r["Port Number"] or "").strip()
-        transport, description = (r["Transport Protocol"] or "").strip(), (r["Description"] or "").strip()
-        if transport != "tcp" or not service or not number.isdigit():
-            continue
-        if not 1 <= int(number) <= 65535:
-            sys.exit(f"{service}: port {number} is outside 1-65535")
-        if number not in best or (description and number not in described):
-            best[number] = {"number": number, "service": service}
-        if description:
-            described.add(number)
-    return sorted(best.values(), key=lambda r: int(r["number"]))
+	best, described = {}, set()
+	for r in csv.DictReader(io.StringIO(text)):
+		service, number = (r["Service Name"] or "").strip(), (r["Port Number"] or "").strip()
+		transport, description = (r["Transport Protocol"] or "").strip(), (r["Description"] or "").strip()
+		if transport != "tcp" or not service or not number.isdigit():
+			continue
+		if not 1 <= int(number) <= 65535:
+			sys.exit(f"{service}: port {number} is outside 1-65535")
+		if number not in best or (description and number not in described):
+			best[number] = {"number": number, "service": service}
+		if description:
+			described.add(number)
+	return sorted(best.values(), key=lambda r: int(r["number"]))
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    table = rows(source.fetch(a.source, a.cache, "service-names-port-numbers.csv").decode("utf-8"))
-    if len(table) < FLOOR:
-        sys.exit(f"only {len(table)} ports named a TCP service; the registry's columns have moved")
-    tsv.write(a.out, COLUMNS, table)
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	table = rows(source.fetch(a.source, a.cache, "service-names-port-numbers.csv").decode("utf-8"))
+	if len(table) < FLOOR:
+		sys.exit(f"only {len(table)} ports named a TCP service; the registry's columns have moved")
+	tsv.write(a.out, COLUMNS, table)
 
 
 if __name__ == "__main__":
-    main()
+	main()

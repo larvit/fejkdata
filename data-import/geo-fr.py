@@ -39,9 +39,9 @@ OVERSEAS_TIMEZONES = {"01": "America/Guadeloupe", "02": "America/Martinique", "0
 CITY_NAMES = {"75056": "Paris", "69123": "Lyon", "13055": "Marseille"}
 # Each arrondissement's INSEE code, mapped to its city's: Paris's 20, Lyon's 9 and Marseille's 16.
 CITY_OF = {
-    **{f"751{n:02}": "75056" for n in range(1, 21)},
-    **{f"6938{n}": "69123" for n in range(1, 10)},
-    **{f"132{n:02}": "13055" for n in range(1, 17)},
+	**{f"751{n:02}": "75056" for n in range(1, 21)},
+	**{f"6938{n}": "69123" for n in range(1, 10)},
+	**{f"132{n:02}": "13055" for n in range(1, 17)},
 }
 STREETS_RECALLED = """
 Allée des Acacias
@@ -369,129 +369,129 @@ Ruelle du Moulin
 
 @dataclass
 class Tally:
-    """What BAN's addresses add up to."""
+	"""What BAN's addresses add up to."""
 
-    # Each commune's addresses under each of its codes postaux.
-    codes: collections.defaultdict[str, collections.Counter[str]] = field(default_factory=lambda: collections.defaultdict(collections.Counter))
-    numbers: collections.Counter[tuple[int, bool]] = field(default_factory=collections.Counter)
-    # Each commune's latitudes summed, its longitudes summed, and how many points that is.
-    points: collections.defaultdict[str, list[float]] = field(default_factory=lambda: collections.defaultdict(lambda: [0.0, 0.0, 0]))
+	# Each commune's addresses under each of its codes postaux.
+	codes: collections.defaultdict[str, collections.Counter[str]] = field(default_factory=lambda: collections.defaultdict(collections.Counter))
+	numbers: collections.Counter[tuple[int, bool]] = field(default_factory=collections.Counter)
+	# Each commune's latitudes summed, its longitudes summed, and how many points that is.
+	points: collections.defaultdict[str, list[float]] = field(default_factory=lambda: collections.defaultdict(lambda: [0.0, 0.0, 0]))
 
-    def centre(self, commune: str) -> tuple[str, str] | None:
-        """The mean of a commune's points as lat and lon, or None where no address of it has one."""
-        lat, lon, n = self.points.get(commune, (0.0, 0.0, 0))
-        return (f"{lat / n:.4f}", f"{lon / n:.4f}") if n else None
+	def centre(self, commune: str) -> tuple[str, str] | None:
+		"""The mean of a commune's points as lat and lon, or None where no address of it has one."""
+		lat, lon, n = self.points.get(commune, (0.0, 0.0, 0))
+		return (f"{lat / n:.4f}", f"{lon / n:.4f}") if n else None
 
 
 def city(commune: str) -> str:
-    """A commune's INSEE code, or its city's where the code is an arrondissement's."""
-    return CITY_OF.get(commune, commune)
+	"""A commune's INSEE code, or its city's where the code is an arrondissement's."""
+	return CITY_OF.get(commune, commune)
 
 
 def number_key(number: str, suffix: str) -> tuple[int, bool] | None:
-    """The key geo.number_range counts a house number under, a number with bis counting as one with a letter; None for a
-    number outside 1 to 9999 or with another suffix."""
-    if not number.isdigit() or not 1 <= int(number) <= geo.NUMBER_RANGES[-1][1] or suffix.lower() not in ("", "bis"):
-        return None
-    return geo.number_range(int(number), bool(suffix))
+	"""The key geo.number_range counts a house number under, a number with bis counting as one with a letter; None for a
+	number outside 1 to 9999 or with another suffix."""
+	if not number.isdigit() or not 1 <= int(number) <= geo.NUMBER_RANGES[-1][1] or suffix.lower() not in ("", "bis"):
+		return None
+	return geo.number_range(int(number), bool(suffix))
 
 
 def tally(addresses: Iterable[Mapping[str, str]]) -> Tally:
-    """addresses are the rows of BAN's file, each column under its name. One without a code postal is left out."""
-    t = Tally()
-    for a in addresses:
-        if not a["code_postal"]:
-            continue
-        commune = city(a["code_insee"])
-        t.codes[commune][a["code_postal"]] += 1
-        if a["lat"] and a["lon"]:
-            point = t.points[commune]
-            point[0], point[1], point[2] = point[0] + float(a["lat"]), point[1] + float(a["lon"]), point[2] + 1
-        key = number_key(a["numero"], a["rep"])
-        if key:
-            t.numbers[key] += 1
-    return t
+	"""addresses are the rows of BAN's file, each column under its name. One without a code postal is left out."""
+	t = Tally()
+	for a in addresses:
+		if not a["code_postal"]:
+			continue
+		commune = city(a["code_insee"])
+		t.codes[commune][a["code_postal"]] += 1
+		if a["lat"] and a["lon"]:
+			point = t.points[commune]
+			point[0], point[1], point[2] = point[0] + float(a["lat"]), point[1] + float(a["lon"]), point[2] + 1
+		key = number_key(a["numero"], a["rep"])
+		if key:
+			t.numbers[key] += 1
+	return t
 
 
 def communes(rows: Iterable[Mapping[str, str]]) -> dict[str, geo.Row]:
-    """Each commune by its code, with its name, département, région and municipal population. rows are those of INSEE's
-    donnees_communes.csv, which lists a city's arrondissements and not the city: their people count for the city."""
-    out: dict[str, geo.Row] = {}
-    for r in rows:
-        code = city(r["COM"])
-        commune = out.setdefault(code, {"code": code, "name": CITY_NAMES.get(code, r["Commune"]), "municipality": r["DEP"], "region": r["REG"], "population": 0})
-        commune["population"] += int(r["PMUN"])
-    return out
+	"""Each commune by its code, with its name, département, région and municipal population. rows are those of INSEE's
+	donnees_communes.csv, which lists a city's arrondissements and not the city: their people count for the city."""
+	out: dict[str, geo.Row] = {}
+	for r in rows:
+		code = city(r["COM"])
+		commune = out.setdefault(code, {"code": code, "name": CITY_NAMES.get(code, r["Commune"]), "municipality": r["DEP"], "region": r["REG"], "population": 0})
+		commune["population"] += int(r["PMUN"])
+	return out
 
 
 def places(t: Tally, communes: Mapping[str, geo.Row], departments: Mapping[str, str], regions: Mapping[str, str]) -> tuple[list[geo.Row], list[geo.Row], list[geo.Row], list[geo.Row]]:
-    """The region, municipality, locality and postal-code rows, each sorted by key. communes is what the function of
-    that name returns; departments and regions map a code to its name."""
-    localities, region_of = [], {}
-    in_department: collections.Counter[str] = collections.Counter()
-    in_region: collections.Counter[str] = collections.Counter()
-    for code, c in sorted(communes.items()):
-        centre = t.centre(code)
-        if not c["population"] or not centre:
-            continue
-        localities.append({"code": code, "name": c["name"], "municipality": c["municipality"], "population": c["population"], "lat": centre[0], "lon": centre[1]})
-        region_of[c["municipality"]] = c["region"]
-        in_department[c["municipality"]] += c["population"]
-        in_region[c["region"]] += c["population"]
-    postal_codes = sorted(({"code": code, "locality": row["code"], "addresses": n} for row in localities for code, n in t.codes[row["code"]].items()), key=lambda r: (r["code"], r["locality"]))
-    municipalities = [{"code": d, "name": departments[d], "region": region_of[d], "population": in_department[d]} for d in sorted(in_department)]
-    region_rows = [{"code": r, "name": regions[r], "population": in_region[r], "timezone": OVERSEAS_TIMEZONES.get(r, TIMEZONE)} for r in sorted(in_region)]
-    return region_rows, municipalities, localities, postal_codes
+	"""The region, municipality, locality and postal-code rows, each sorted by key. communes is what the function of
+	that name returns; departments and regions map a code to its name."""
+	localities, region_of = [], {}
+	in_department: collections.Counter[str] = collections.Counter()
+	in_region: collections.Counter[str] = collections.Counter()
+	for code, c in sorted(communes.items()):
+		centre = t.centre(code)
+		if not c["population"] or not centre:
+			continue
+		localities.append({"code": code, "name": c["name"], "municipality": c["municipality"], "population": c["population"], "lat": centre[0], "lon": centre[1]})
+		region_of[c["municipality"]] = c["region"]
+		in_department[c["municipality"]] += c["population"]
+		in_region[c["region"]] += c["population"]
+	postal_codes = sorted(({"code": code, "locality": row["code"], "addresses": n} for row in localities for code, n in t.codes[row["code"]].items()), key=lambda r: (r["code"], r["locality"]))
+	municipalities = [{"code": d, "name": departments[d], "region": region_of[d], "population": in_department[d]} for d in sorted(in_department)]
+	region_rows = [{"code": r, "name": regions[r], "population": in_region[r], "timezone": OVERSEAS_TIMEZONES.get(r, TIMEZONE)} for r in sorted(in_region)]
+	return region_rows, municipalities, localities, postal_codes
 
 
 def address_json(numbers: Mapping[tuple[int, bool], int]) -> str:
-    """France's address, its street-number choice weighted by numbers, which counts house numbers by number_key."""
-    items = ",\n".join(
-        f'    {{ "format": "{{int({low},{top})}}{" bis" if bis else ""}", "weight": {numbers[(i, bis)]} }}'
-        for bis in (False, True) for i, (low, top) in enumerate(geo.NUMBER_RANGES) if numbers[(i, bis)]
-    )
-    return (
-        '{\n  "format": "{street-number} {street}\\n{postal-code} {locality}",\n  "street": "{/geo.FR.street}",\n'
-        f'  "street-number": [\n{items}\n  ],\n'
-        '  "postal-code": "{.locality as l}{l.postal-code.code}",\n  "locality": "{l.name}",\n'
-        '  "municipality": "{l..municipality.name}",\n  "region": "{l..municipality..region.name}"\n}\n'
-    )
+	"""France's address, its street-number choice weighted by numbers, which counts house numbers by number_key."""
+	items = ",\n".join(
+		f'    {{ "format": "{{int({low},{top})}}{" bis" if bis else ""}", "weight": {numbers[(i, bis)]} }}'
+		for bis in (False, True) for i, (low, top) in enumerate(geo.NUMBER_RANGES) if numbers[(i, bis)]
+	)
+	return (
+		'{\n  "format": "{street-number} {street}\\n{postal-code} {locality}",\n  "street": "{/geo.FR.street}",\n'
+		f'  "street-number": [\n{items}\n  ],\n'
+		'  "postal-code": "{.locality as l}{l.postal-code.code}",\n  "locality": "{l.name}",\n'
+		'  "municipality": "{l..municipality.name}",\n  "region": "{l..municipality..region.name}"\n}\n'
+	)
 
 
 def ban(cache: Path) -> Iterator[dict[str, str]]:
-    """Each row of BAN's address file. The file holds a few bytes that are not UTF-8, in columns the import does
-    not read, so those are replaced."""
-    body = source.fetch(BAN, cache, "ban-adresses-france.csv.gz", magic=b"\x1f\x8b")
-    with gzip.open(io.BytesIO(body), "rt", encoding="utf-8", errors="replace", newline="") as text:
-        yield from csv.DictReader(text, delimiter=";")
+	"""Each row of BAN's address file. The file holds a few bytes that are not UTF-8, in columns the import does
+	not read, so those are replaced."""
+	body = source.fetch(BAN, cache, "ban-adresses-france.csv.gz", magic=b"\x1f\x8b")
+	with gzip.open(io.BytesIO(body), "rt", encoding="utf-8", errors="replace", newline="") as text:
+		yield from csv.DictReader(text, delimiter=";")
 
 
 def insee(cache: Path, table: str) -> list[dict[str, str]]:
-    """The rows of one table of INSEE's file of legal populations."""
-    z = zipfile.ZipFile(io.BytesIO(source.fetch(POPULATION, cache, "insee-populations-2023.zip", magic=b"PK")))
-    return list(csv.DictReader(io.StringIO(z.read(f"donnees_{table}.csv").decode("utf-8-sig")), delimiter=";"))
+	"""The rows of one table of INSEE's file of legal populations."""
+	z = zipfile.ZipFile(io.BytesIO(source.fetch(POPULATION, cache, "insee-populations-2023.zip", magic=b"PK")))
+	return list(csv.DictReader(io.StringIO(z.read(f"donnees_{table}.csv").decode("utf-8-sig")), delimiter=";"))
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=" ".join(__doc__.split("\n\n")[0].split()))
-    p.add_argument("--cache", default=str(geo.CACHE))
-    p.add_argument("--out", default=str(geo.DATA / "FR"))
-    cache, out = geo.directories(p.parse_args())
-    t = tally(ban(cache))
-    populated = communes(insee(cache, "communes"))
-    unplaced = sorted(set(t.codes) - set(populated))
-    print(f"{len(unplaced)} communes of BAN are missing from INSEE's file, dropped: {', '.join(unplaced)}", file=sys.stderr)
-    departments = {r["DEP"]: r["Département"] for r in insee(cache, "departements")}
-    region_names = {r["REG"]: r["Région"] for r in insee(cache, "regions")}
-    regions, municipalities, localities, postal_codes = places(t, populated, departments, region_names)
-    print(f"{len(populated) - len(localities)} communes of INSEE's file have no people or no address in BAN, dropped", file=sys.stderr)
-    tsv.write(out / "region.tsv", geo.COLUMNS["region"], regions)
-    tsv.write(out / "municipality.tsv", geo.COLUMNS["municipality"], municipalities)
-    tsv.write(out / "locality.tsv", ["code", *geo.COLUMNS["locality"]], localities)
-    tsv.write(out / "postal-code.tsv", geo.COLUMNS["postal_code"], postal_codes)
-    tsv.write(out / "street.tsv", ["name"], geo.invented_streets(STREETS_RECALLED))
-    (out / "address.json").write_text(address_json(t.numbers), encoding="utf-8")
+	p = argparse.ArgumentParser(description=" ".join(__doc__.split("\n\n")[0].split()))
+	p.add_argument("--cache", default=str(geo.CACHE))
+	p.add_argument("--out", default=str(geo.DATA / "FR"))
+	cache, out = geo.directories(p.parse_args())
+	t = tally(ban(cache))
+	populated = communes(insee(cache, "communes"))
+	unplaced = sorted(set(t.codes) - set(populated))
+	print(f"{len(unplaced)} communes of BAN are missing from INSEE's file, dropped: {', '.join(unplaced)}", file=sys.stderr)
+	departments = {r["DEP"]: r["Département"] for r in insee(cache, "departements")}
+	region_names = {r["REG"]: r["Région"] for r in insee(cache, "regions")}
+	regions, municipalities, localities, postal_codes = places(t, populated, departments, region_names)
+	print(f"{len(populated) - len(localities)} communes of INSEE's file have no people or no address in BAN, dropped", file=sys.stderr)
+	tsv.write(out / "region.tsv", geo.COLUMNS["region"], regions)
+	tsv.write(out / "municipality.tsv", geo.COLUMNS["municipality"], municipalities)
+	tsv.write(out / "locality.tsv", ["code", *geo.COLUMNS["locality"]], localities)
+	tsv.write(out / "postal-code.tsv", geo.COLUMNS["postal_code"], postal_codes)
+	tsv.write(out / "street.tsv", ["name"], geo.invented_streets(STREETS_RECALLED))
+	(out / "address.json").write_text(address_json(t.numbers), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+	main()

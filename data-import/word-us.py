@@ -28,49 +28,49 @@ IRREGULAR.update({v: v + "s" for v in ["bravo", "bunco", "crescendo", "decrescen
 
 
 def present(verb: str) -> str:
-    if verb in IRREGULAR:
-        return IRREGULAR[verb]
-    if re.search(r"[^aeiou]y$", verb):
-        return verb[:-1] + "ies"
-    if re.search(r"([^aeiou]o|s|x|z|ch|sh)$", verb):
-        return verb + "es"
-    return verb + "s"
+	if verb in IRREGULAR:
+		return IRREGULAR[verb]
+	if re.search(r"[^aeiou]y$", verb):
+		return verb[:-1] + "ies"
+	if re.search(r"([^aeiou]o|s|x|z|ch|sh)$", verb):
+		return verb + "es"
+	return verb + "s"
 
 
 def synsets(tarball: bytes, part: str) -> Iterator[tuple[str, list[str], set[str]]]:
-    """Each synset of dict/data.<part> as its offset, its words and the offsets it points to as `;u`, a usage domain."""
-    with tarfile.open(fileobj=io.BytesIO(tarball)) as archive:
-        data = archive.extractfile(f"dict/data.{part}")
-        if data is None:
-            sys.exit(f"dict/data.{part}: the tarball no longer holds it as a file")
-        text = data.read().decode("utf-8")
-    for line in text.split("\n"):
-        if not line or line.startswith("  "):
-            continue
-        field = line.split("|")[0].split(" ")
-        words = [re.sub(r"\(\w+\)$", "", field[4 + 2 * i]) for i in range(int(field[3], 16))]
-        pointers = field[4 + 2 * len(words) :]
-        domains = {pointers[k + 1] for k in range(1, 4 * int(pointers[0]), 4) if pointers[k] == ";u"}
-        yield field[0], words, domains
+	"""Each synset of dict/data.<part> as its offset, its words and the offsets it points to as `;u`, a usage domain."""
+	with tarfile.open(fileobj=io.BytesIO(tarball)) as archive:
+		data = archive.extractfile(f"dict/data.{part}")
+		if data is None:
+			sys.exit(f"dict/data.{part}: the tarball no longer holds it as a file")
+		text = data.read().decode("utf-8")
+	for line in text.split("\n"):
+		if not line or line.startswith("  "):
+			continue
+		field = line.split("|")[0].split(" ")
+		words = [re.sub(r"\(\w+\)$", "", field[4 + 2 * i]) for i in range(int(field[3], 16))]
+		pointers = field[4 + 2 * len(words) :]
+		domains = {pointers[k + 1] for k in range(1, 4 * int(pointers[0]), 4) if pointers[k] == ";u"}
+		yield field[0], words, domains
 
 
 def rude_domains(tarball: bytes) -> set[str]:
-    """The offsets of the usage domains RUDE_DOMAINS names, which are nouns."""
-    return {offset for offset, words, _ in synsets(tarball, "noun") if RUDE_DOMAINS & set(words)}
+	"""The offsets of the usage domains RUDE_DOMAINS names, which are nouns."""
+	return {offset for offset, words, _ in synsets(tarball, "noun") if RUDE_DOMAINS & set(words)}
 
 
 def spelled(word: str, part: str) -> bool:
-    """Lower-case ASCII letters alone."""
-    return word.isascii() and wordtables.lower(word, part)
+	"""Lower-case ASCII letters alone."""
+	return word.isascii() and wordtables.lower(word, part)
 
 
 def candidates(tarball: bytes) -> Iterator[wordtables.Candidate]:
-    domains = rude_domains(tarball)
-    for part, column in FORMS.items():
-        senses = [(w, d) for _, words, d in synsets(tarball, part) for w in words]
-        for word in sorted({w for w, d in senses if not d & domains}):
-            yield part, word, present(word) if column else ""
+	domains = rude_domains(tarball)
+	for part, column in FORMS.items():
+		senses = [(w, d) for _, words, d in synsets(tarball, part) for w in words]
+		for word in sorted({w for w, d in senses if not d & domains}):
+			yield part, word, present(word) if column else ""
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "en", OUT, FORMS, [wordtables.Source(flag="wordnet", url=WORDNET, name="WNdb-3.0.tar.gz", magic=b"\x1f\x8b", candidates=candidates)], spelled)
+	wordtables.main(__doc__, "en", OUT, FORMS, [wordtables.Source(flag="wordnet", url=WORDNET, name="WNdb-3.0.tar.gz", magic=b"\x1f\x8b", candidates=candidates)], spelled)

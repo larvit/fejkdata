@@ -44,17 +44,17 @@ from typing import NamedTuple
 import source
 import tsv
 from company_names import (
-    FORM_MIN,
-    Usage,
-    Vocabulary,
-    column,
-    common,
-    legal_item,
-    quoted,
-    split,
-    trade_words,
-    weighted,
-    word_usage,
+	FORM_MIN,
+	Usage,
+	Vocabulary,
+	column,
+	common,
+	legal_item,
+	quoted,
+	split,
+	trade_words,
+	weighted,
+	word_usage,
 )
 
 REGISTER = "https://data.brreg.no/enhetsregisteret/api/enheter/lastned/csv"
@@ -76,145 +76,145 @@ type Shape = tuple[str, ...]
 
 
 class Words(NamedTuple):
-    surnames: set[str]
-    firsts: set[str]
-    places: set[str]
+	surnames: set[str]
+	firsts: set[str]
+	places: set[str]
 
 
 SLOTS = {"X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "F": "{.first-name}", "P": "{/geo.NO.locality}", "N": "{int(1,30)}", "og": "og", "&": "&"}
 
 
 def register(data: bytes) -> tuple[Counter[str], list[tuple[str, str]]]:
-    """(units per form, (form, name) of every active unit of FORMS)."""
-    counts: Counter[str] = Counter()
-    names: list[tuple[str, str]] = []
-    for row in csv.DictReader(io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(data)), encoding="utf-8", newline="")):
-        form = row["organisasjonsform.kode"]
-        if form in FORMS and all(row[c] == "false" for c in ("konkurs", "underAvvikling", "underTvangsavviklingEllerTvangsopplosning")):
-            counts[form] += 1
-            names.append((form, row["navn"]))
-    return counts, names
+	"""(units per form, (form, name) of every active unit of FORMS)."""
+	counts: Counter[str] = Counter()
+	names: list[tuple[str, str]] = []
+	for row in csv.DictReader(io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(data)), encoding="utf-8", newline="")):
+		form = row["organisasjonsform.kode"]
+		if form in FORMS and all(row[c] == "false" for c in ("konkurs", "underAvvikling", "underTvangsavviklingEllerTvangsopplosning")):
+			counts[form] += 1
+			names.append((form, row["navn"]))
+	return counts, names
 
 
 def without_wording(form: str, words: list[str]) -> list[str] | None:
-    """The words left when a name carries its form's abbreviation as its last word, else None."""
-    if form in NO_WORDING:
-        return words
-    if words and words[-1].rstrip(".").upper() == form:
-        return words[:-1]
-    return None
+	"""The words left when a name carries its form's abbreviation as its last word, else None."""
+	if form in NO_WORDING:
+		return words
+	if words and words[-1].rstrip(".").upper() == form:
+		return words[:-1]
+	return None
 
 
 def kind(word: str, sets: Words, last: bool) -> str | None:
-    """S, F or P for a last name, a first name or a place; else None. A word that is both names is a last name at the end of a name."""
-    w = word.lower().replace("é", "e").replace("ü", "u")
-    if w in sets.surnames and (last or w not in sets.firsts):
-        return "S"
-    if w in sets.firsts:
-        return "F"
-    return "P" if w in sets.places else None
+	"""S, F or P for a last name, a first name or a place; else None. A word that is both names is a last name at the end of a name."""
+	w = word.lower().replace("é", "e").replace("ü", "u")
+	if w in sets.surnames and (last or w not in sets.firsts):
+		return "S"
+	if w in sets.firsts:
+		return "F"
+	return "P" if w in sets.places else None
 
 
 def roots(usage: Mapping[str, Usage], trade: Collection[str]) -> list[str]:
-    """The roots of company-coined.json, capitalised, by the rule in the module docstring."""
-    return sorted(
-        w.capitalize()
-        for w, u in usage.items()
-        if w not in trade and len(w) in ROOT_LETTERS and u.begins >= ROOT_MIN and 3 * u.ends < u.names
-        and sum(u.forms[f] >= FORM_MIN for f in VOCABULARY.word_forms) >= 2
-    )
+	"""The roots of company-coined.json, capitalised, by the rule in the module docstring."""
+	return sorted(
+		w.capitalize()
+		for w, u in usage.items()
+		if w not in trade and len(w) in ROOT_LETTERS and u.begins >= ROOT_MIN and 3 * u.ends < u.names
+		and sum(u.forms[f] >= FORM_MIN for f in VOCABULARY.word_forms) >= 2
+	)
 
 
 def place_names() -> set[str]:
-    """The lower-case names of geo/NO's poststeder and kommuner."""
-    return {r["name"].lower() for path in ("locality.tsv", "municipality.tsv") for r in csv.DictReader(io.StringIO((ROOT / "geo/NO" / path).read_text(encoding="utf-8")), delimiter="\t")}
+	"""The lower-case names of geo/NO's poststeder and kommuner."""
+	return {r["name"].lower() for path in ("locality.tsv", "municipality.tsv") for r in csv.DictReader(io.StringIO((ROOT / "geo/NO" / path).read_text(encoding="utf-8")), delimiter="\t")}
 
 
 def place_span(words: list[str], sets: Words) -> int:
-    """The number of words, two or more, from the start of words that spell a place, Mo i Rana; else 0."""
-    return next((n for n in range(len(words), 1, -1) if " ".join(words[:n]).lower() in sets.places), 0)
+	"""The number of words, two or more, from the start of words that spell a place, Mo i Rana; else 0."""
+	return next((n for n in range(len(words), 1, -1) if " ".join(words[:n]).lower() in sets.places), 0)
 
 
 def endings(places: Iterable[str]) -> list[str]:
-    """The endings of company-coined.json, by the rule in the module docstring."""
-    count = Counter(p[-n:] for p in places if re.fullmatch(r"[a-zæøå]+", p) for n in ENDING_LETTERS if len(p) > n + 2)
-    kept = {e for e, c in count.items() if c >= ENDING_MIN and e[0] not in VOWELS}
-    return sorted(e for e in kept if not any(longer != e and longer.endswith(e) and 5 * count[longer] >= 4 * count[e] for longer in kept))
+	"""The endings of company-coined.json, by the rule in the module docstring."""
+	count = Counter(p[-n:] for p in places if re.fullmatch(r"[a-zæøå]+", p) for n in ENDING_LETTERS if len(p) > n + 2)
+	kept = {e for e, c in count.items() if c >= ENDING_MIN and e[0] not in VOWELS}
+	return sorted(e for e in kept if not any(longer != e and longer.endswith(e) and 5 * count[longer] >= 4 * count[e] for longer in kept))
 
 
 def shape_of(form: str, words: list[str], sets: Words, trade: Collection[str]) -> Shape:
-    """The kinds of the words, as SLOTS keys; an ENK name gets its last name by the module docstring's rule."""
-    shape: list[str] = []
-    i = 0
-    while i < len(words):
-        low, span = words[i].lower(), place_span(words[i:], sets)
-        if span:
-            shape.append("P")
-            i += span
-            continue
-        if low.isdigit():
-            shape.append("N")
-        elif low in ("og", "&"):
-            shape.append(low)
-        else:
-            shape.append(kind(low, sets, i == len(words) - 1) or ("T" if low in trade else "X"))
-        i += 1
-    if form in NO_WORDING and "S" not in shape and "X" in shape:
-        after_first = [i for i in range(1, len(shape)) if shape[i] == "X" and shape[i - 1] == "F"]
-        shape[after_first[0] if after_first else shape.index("X")] = "S"
-    return tuple(shape)
+	"""The kinds of the words, as SLOTS keys; an ENK name gets its last name by the module docstring's rule."""
+	shape: list[str] = []
+	i = 0
+	while i < len(words):
+		low, span = words[i].lower(), place_span(words[i:], sets)
+		if span:
+			shape.append("P")
+			i += span
+			continue
+		if low.isdigit():
+			shape.append("N")
+		elif low in ("og", "&"):
+			shape.append(low)
+		else:
+			shape.append(kind(low, sets, i == len(words) - 1) or ("T" if low in trade else "X"))
+		i += 1
+	if form in NO_WORDING and "S" not in shape and "X" in shape:
+		after_first = [i for i in range(1, len(shape)) if shape[i] == "X" and shape[i - 1] == "F"]
+		shape[after_first[0] if after_first else shape.index("X")] = "S"
+	return tuple(shape)
 
 
 def count_shapes(names: Iterable[tuple[str, str]], sets: Words, trade: Collection[str]) -> dict[str, Counter[Shape]]:
-    """Per form: the shapes counted over the names that carry the form's abbreviation."""
-    shapes: dict[str, Counter[Shape]] = {f: Counter() for f in FORMS}
-    for form, name in names:
-        left = without_wording(form, split(name))
-        if left:
-            shapes[form][shape_of(form, left, sets, trade)] += 1
-    return shapes
+	"""Per form: the shapes counted over the names that carry the form's abbreviation."""
+	shapes: dict[str, Counter[Shape]] = {f: Counter() for f in FORMS}
+	for form, name in names:
+		left = without_wording(form, split(name))
+		if left:
+			shapes[form][shape_of(form, left, sets, trade)] += 1
+	return shapes
 
 
 def form_block(form: str, shapes: Mapping[Shape, int]) -> str:
-    """One form's object: its name by shape, and the abbreviation after it."""
-    items = ",\n".join("      " + weighted(" ".join(SLOTS[k] for k in shape), c) for shape, c in common(shapes))
-    fmt = "{name}" if form in NO_WORDING else "{name} " + form
-    return f'  "{form.lower()}": {{\n    "format": {quoted(fmt)},\n    "name": [\n{items}\n    ]\n  }}'
+	"""One form's object: its name by shape, and the abbreviation after it."""
+	items = ",\n".join("      " + weighted(" ".join(SLOTS[k] for k in shape), c) for shape, c in common(shapes))
+	fmt = "{name}" if form in NO_WORDING else "{name} " + form
+	return f'  "{form.lower()}": {{\n    "format": {quoted(fmt)},\n    "name": [\n{items}\n    ]\n  }}'
 
 
 def company_json(registered: Mapping[str, int], shapes: Mapping[str, Mapping[Shape, int]]) -> str:
-    forms = [legal_item("{.company." + f.lower() + "}", "" if f in NO_WORDING else f, registered[f]) for f in sorted(FORMS, key=lambda f: (-registered[f], f))]
-    blocks = [form_block(f, shapes[f]) for f in FORMS]
-    return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
+	forms = [legal_item("{.company." + f.lower() + "}", "" if f in NO_WORDING else f, registered[f]) for f in sorted(FORMS, key=lambda f: (-registered[f], f))]
+	blocks = [form_block(f, shapes[f]) for f in FORMS]
+	return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
 
 
 def coined_json(a: list[str], b: list[str]) -> str:
-    return '{\n  "format": "{a}{b}",\n  "a": ' + json.dumps(a, ensure_ascii=False) + ',\n  "b": ' + json.dumps(b, ensure_ascii=False) + "\n}\n"
+	return '{\n  "format": "{a}{b}",\n  "a": ' + json.dumps(a, ensure_ascii=False) + ',\n  "b": ' + json.dumps(b, ensure_ascii=False) + "\n}\n"
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--register", default=REGISTER)
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    data = source.fetch(a.register, a.cache, "enhetsregisteret-enheter.csv.gz", magic=b"\x1f\x8b")
-    registered, names = register(data)
-    places = place_names()
-    place_words = {w for p in places for w in split(p)}
-    sets = Words(column(ROOT / "nb_NO/last-name.tsv"), column(ROOT / "nb_NO/first-name.tsv"), places)
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--register", default=REGISTER)
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	data = source.fetch(a.register, a.cache, "enhetsregisteret-enheter.csv.gz", magic=b"\x1f\x8b")
+	registered, names = register(data)
+	places = place_names()
+	place_words = {w for p in places for w in split(p)}
+	sets = Words(column(ROOT / "nb_NO/last-name.tsv"), column(ROOT / "nb_NO/first-name.tsv"), places)
 
-    def named(w: str) -> bool:
-        return kind(w, sets, True) is not None or w in place_words or kind(w.removesuffix("s"), sets, True) == "S"
+	def named(w: str) -> bool:
+		return kind(w, sets, True) is not None or w in place_words or kind(w.removesuffix("s"), sets, True) == "S"
 
-    usage = word_usage(names, named, VOCABULARY)
-    trade = trade_words(usage, VOCABULARY)
-    out = Path(a.out)
-    tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
-    (out / "company-word.json").write_text('{ "format": "{word}", "rows": "company-word.tsv", "weight": "count" }\n', encoding="utf-8")
-    (out / "company-coined.json").write_text(coined_json(roots(usage, trade), endings(place_words)), encoding="utf-8")
-    (out / "company.json").write_text(company_json(registered, count_shapes(names, sets, trade)), encoding="utf-8")
+	usage = word_usage(names, named, VOCABULARY)
+	trade = trade_words(usage, VOCABULARY)
+	out = Path(a.out)
+	tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
+	(out / "company-word.json").write_text('{ "format": "{word}", "rows": "company-word.tsv", "weight": "count" }\n', encoding="utf-8")
+	(out / "company-coined.json").write_text(coined_json(roots(usage, trade), endings(place_words)), encoding="utf-8")
+	(out / "company.json").write_text(company_json(registered, count_shapes(names, sets, trade)), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+	main()

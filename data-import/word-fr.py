@@ -20,22 +20,22 @@ WIKTIONARY = "https://kaikki.org/dictionary/French/kaikki.org-dictionary-French.
 OUT = Path(__file__).resolve().parent.parent / "data" / "fr_FR"
 FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
 HEADS = {
-    "noun": {"fr-noun", "noun", "nouns"},
-    "verb": {"fr-verb", "verb"},
-    "adj": {"fr-adj", "fr-adjective", "adj", "adjective"},
-    "adv": {"fr-adv", "fr-adverb", "adverb"},
+	"noun": {"fr-noun", "noun", "nouns"},
+	"verb": {"fr-verb", "verb"},
+	"adj": {"fr-adj", "fr-adjective", "adj", "adjective"},
+	"adv": {"fr-adv", "fr-adverb", "adverb"},
 }
 
 def plural(entry: Mapping[str, Any]) -> str:
-    for form in entry.get("forms", []):
-        if "plural" in form.get("tags", []):
-            return str(form["form"])
-    if any("invariable" in sense.get("tags", []) for sense in entry.get("senses", [])):
-        return str(entry["word"])
-    return ""
+	for form in entry.get("forms", []):
+		if "plural" in form.get("tags", []):
+			return str(form["form"])
+	if any("invariable" in sense.get("tags", []) for sense in entry.get("senses", [])):
+		return str(entry["word"])
+	return ""
 
 
 candidates = partial(wiktionary_entries.candidates, parts=HEADS, forms=FORMS, plural=plural)
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "", OUT, FORMS, [wordtables.Source(flag="wiktionary", url=WIKTIONARY, name="kaikki-french.jsonl", magic=b"{", candidates=candidates)], wordtables.lower_letters)
+	wordtables.main(__doc__, "", OUT, FORMS, [wordtables.Source(flag="wiktionary", url=WIKTIONARY, name="kaikki-french.jsonl", magic=b"{", candidates=candidates)], wordtables.lower_letters)

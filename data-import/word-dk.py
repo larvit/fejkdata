@@ -18,39 +18,39 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "da_DK"
 FORMS = {"noun": "definite", "verb": "present", "adj": "definite", "adv": ""}
 # COR's tag of a word and of its form, per part of speech; a noun's tag also names its gender, fk or itk.
 TAGS = {
-    "noun": ({"sb", "sg", "ubest"}, {"sb", "sg", "best"}),
-    "verb": ({"vb", "inf", "akt"}, {"vb", "præs", "akt"}),
-    "adj": ({"adj", "sg", "ubest", "fk"}, {"adj", "sg", "best"}),
-    "adv": ({"adv"}, set()),
+	"noun": ({"sb", "sg", "ubest"}, {"sb", "sg", "best"}),
+	"verb": ({"vb", "inf", "akt"}, {"vb", "præs", "akt"}),
+	"adj": ({"adj", "sg", "ubest", "fk"}, {"adj", "sg", "best"}),
+	"adv": ({"adv"}, set()),
 }
 
 
 def tagged(tag: str, wanted: set[str]) -> bool:
-    tags = set(tag.split("."))
-    return bool(wanted) and wanted <= tags and len(tags - wanted) <= (1 if "sb" in wanted else 0)
+	tags = set(tag.split("."))
+	return bool(wanted) and wanted <= tags and len(tags - wanted) <= (1 if "sb" in wanted else 0)
 
 
 def lexemes(cor: str) -> dict[tuple[str, str], tuple[str, str]]:
-    """Per lexeme and part of speech, in COR's order, its word and the first of its forms, where the norm holds them."""
-    found: dict[tuple[str, str], tuple[str, str]] = {}
-    for line in cor.split("\n"):
-        cells = line.split("\t")
-        if len(cells) != 6 or cells[5] != "N":
-            continue
-        lexeme, lemma, tag, form = cells[0].split(".")[1], cells[1], cells[3], cells[4]
-        for part, (own, inflected) in TAGS.items():
-            word, first_form = found.get((lexeme, part), ("", ""))
-            if tagged(tag, own) and form == lemma:
-                found[(lexeme, part)] = (form, first_form)
-            elif tagged(tag, inflected) and not first_form:
-                found[(lexeme, part)] = (word, form)
-    return found
+	"""Per lexeme and part of speech, in COR's order, its word and the first of its forms, where the norm holds them."""
+	found: dict[tuple[str, str], tuple[str, str]] = {}
+	for line in cor.split("\n"):
+		cells = line.split("\t")
+		if len(cells) != 6 or cells[5] != "N":
+			continue
+		lexeme, lemma, tag, form = cells[0].split(".")[1], cells[1], cells[3], cells[4]
+		for part, (own, inflected) in TAGS.items():
+			word, first_form = found.get((lexeme, part), ("", ""))
+			if tagged(tag, own) and form == lemma:
+				found[(lexeme, part)] = (form, first_form)
+			elif tagged(tag, inflected) and not first_form:
+				found[(lexeme, part)] = (word, form)
+	return found
 
 
 def candidates(cor: bytes) -> Iterator[wordtables.Candidate]:
-    for (_, part), (word, form) in lexemes(cor.decode("utf-8")).items():
-        yield part, word, form
+	for (_, part), (word, form) in lexemes(cor.decode("utf-8")).items():
+		yield part, word, form
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "da", OUT, FORMS, [wordtables.Source(flag="cor", url=COR, magic=b"COR.", candidates=candidates)])
+	wordtables.main(__doc__, "da", OUT, FORMS, [wordtables.Source(flag="cor", url=COR, magic=b"COR.", candidates=candidates)])

@@ -20,21 +20,21 @@ COLUMNS = ["code", "reason"]
 
 
 def rows(text: str) -> Iterator[dict[str, str]]:
-    for r in csv.DictReader(io.StringIO(text)):
-        code, reason = r["Value"].strip(), r["Description"].strip()
-        if code.isdigit() and reason and "(" not in reason and reason != "Unassigned":
-            yield {"code": code, "reason": reason}
+	for r in csv.DictReader(io.StringIO(text)):
+		code, reason = r["Value"].strip(), r["Description"].strip()
+		if code.isdigit() and reason and "(" not in reason and reason != "Unassigned":
+			yield {"code": code, "reason": reason}
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    table = rows(source.fetch(a.source, a.cache, "http-status-codes-1.csv").decode("utf-8"))
-    tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: int(r["code"])))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	table = rows(source.fetch(a.source, a.cache, "http-status-codes-1.csv").decode("utf-8"))
+	tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: int(r["code"])))
 
 
 if __name__ == "__main__":
-    main()
+	main()

@@ -19,14 +19,14 @@ CLASSES = {"substantiivi": "noun", "verbi": "verb", "adjektiivi": "adj", "adverb
 
 
 def candidates(kotus: bytes) -> Iterator[wordtables.Candidate]:
-    for line in kotus.decode("utf-8").split("\n")[1:]:
-        cells = line.split("\t")
-        if len(cells) < 3:
-            continue
-        for named in cells[2].split(","):
-            if named.strip() in CLASSES:
-                yield CLASSES[named.strip()], cells[0], ""
+	for line in kotus.decode("utf-8").split("\n")[1:]:
+		cells = line.split("\t")
+		if len(cells) < 3:
+			continue
+		for named in cells[2].split(","):
+			if named.strip() in CLASSES:
+				yield CLASSES[named.strip()], cells[0], ""
 
 
 if __name__ == "__main__":
-    wordtables.main(__doc__, "fi", OUT, FORMS, [wordtables.Source(flag="kotus", url=KOTUS, magic=b"Hakusana", candidates=candidates)])
+	wordtables.main(__doc__, "fi", OUT, FORMS, [wordtables.Source(flag="kotus", url=KOTUS, magic=b"Hakusana", candidates=candidates)])

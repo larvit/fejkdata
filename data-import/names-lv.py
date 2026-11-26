@@ -51,50 +51,50 @@ Zvirbulis
 
 
 def firsts(text: str, top: int) -> list[dict[str, object]]:
-    """The rows (name, sex, count) of the register's first names, the `top` of each sex by bearers."""
-    counts: Counter[tuple[str, str]] = Counter()
-    for row in csv.DictReader(io.StringIO(text.lstrip("﻿"))):
-        words = row["Vardi"].split()
-        if words and row["Dzimums"] in SEXES and tsv.NAME.match(words[0]):
-            counts[(tsv.straight(words[0]).title(), SEXES[row["Dzimums"]])] += int(row["Skaits"])
-    kept = [(name, sex, n) for sex in SEXES.values() for (name, n) in sorted(((name, n) for (name, s), n in counts.items() if s == sex), key=lambda r: (-r[1], r[0]))[:top]]
-    return [{"name": name, "sex": sex, "count": n} for name, sex, n in sorted(kept, key=lambda r: (r[0], r[1]))]
+	"""The rows (name, sex, count) of the register's first names, the `top` of each sex by bearers."""
+	counts: Counter[tuple[str, str]] = Counter()
+	for row in csv.DictReader(io.StringIO(text.lstrip("﻿"))):
+		words = row["Vardi"].split()
+		if words and row["Dzimums"] in SEXES and tsv.NAME.match(words[0]):
+			counts[(tsv.straight(words[0]).title(), SEXES[row["Dzimums"]])] += int(row["Skaits"])
+	kept = [(name, sex, n) for sex in SEXES.values() for (name, n) in sorted(((name, n) for (name, s), n in counts.items() if s == sex), key=lambda r: (-r[1], r[0]))[:top]]
+	return [{"name": name, "sex": sex, "count": n} for name, sex, n in sorted(kept, key=lambda r: (r[0], r[1]))]
 
 
 def feminine(name: str) -> str:
-    """The feminine form of a masculine last name; one that does not end as a masculine form does is the same under both."""
-    if name.endswith("skis"):
-        return name[:-2] + "a"
-    if name.endswith("nieks"):
-        return name[:-2] + "ce"
-    if name.endswith(("ars", "ems", "ers", "ons")):
-        return name[:-1] + "e"
-    if name.endswith("is"):
-        return name[:-2] + "e"
-    if name.endswith(("š", "s")):
-        return name[:-1] + "a"
-    return name
+	"""The feminine form of a masculine last name; one that does not end as a masculine form does is the same under both."""
+	if name.endswith("skis"):
+		return name[:-2] + "a"
+	if name.endswith("nieks"):
+		return name[:-2] + "ce"
+	if name.endswith(("ars", "ems", "ers", "ons")):
+		return name[:-1] + "e"
+	if name.endswith("is"):
+		return name[:-2] + "e"
+	if name.endswith(("š", "s")):
+		return name[:-1] + "a"
+	return name
 
 
 def lasts() -> list[dict[str, object]]:
-    """The rows (name, sex, count) of the last names: each recalled name under m, and its feminine form under f."""
-    rows = recalled_names.weighted("last names", LAST_RECALLED, TOP)
-    return [{"name": form(name), "sex": sex, "count": n} for name, n in rows for sex, form in (("f", feminine), ("m", str))]
+	"""The rows (name, sex, count) of the last names: each recalled name under m, and its feminine form under f."""
+	rows = recalled_names.weighted("last names", LAST_RECALLED, TOP)
+	return [{"name": form(name), "sex": sex, "count": n} for name, n in rows for sex, form in (("f", feminine), ("m", str))]
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--vardi", default=VARDI)
-    p.add_argument("--first", type=int, default=2000, help="names per sex")
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    text = source.fetch(a.vardi, a.cache, "pmlp-vardi-dz-20260701.csv", magic=b"\xef\xbb\xbfVardi").decode("utf-8")
-    out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(text, a.first))
-    tsv.write(out / "last-name.tsv", ["name", "sex", "count"], sorted(lasts(), key=lambda r: (str(r["name"]), str(r["sex"]))))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--vardi", default=VARDI)
+	p.add_argument("--first", type=int, default=2000, help="names per sex")
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	text = source.fetch(a.vardi, a.cache, "pmlp-vardi-dz-20260701.csv", magic=b"\xef\xbb\xbfVardi").decode("utf-8")
+	out = Path(a.out)
+	out.mkdir(parents=True, exist_ok=True)
+	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(text, a.first))
+	tsv.write(out / "last-name.tsv", ["name", "sex", "count"], sorted(lasts(), key=lambda r: (str(r["name"]), str(r["sex"]))))
 
 
 if __name__ == "__main__":
-    main()
+	main()
