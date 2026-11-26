@@ -21,6 +21,8 @@ def script(name: str) -> types.ModuleType:
 
 geo_dk = script("geo-dk")
 geo_fi = script("geo-fi")
+geo_se = script("geo-se")
+geo_us = script("geo-us")
 geo_de = script("geo-de")
 
 
@@ -255,9 +257,48 @@ class HouseNumbers(unittest.TestCase):
 		self.assertEqual(geo_fi.house_numbers(self.baf("", "", "", "")), [])
 
 
+class CleanlyWritten(unittest.TestCase):
+	def test_mojibake_trailing_punctuation_a_remark_in_parentheses_and_a_name_said_twice_are_refused(self) -> None:
+		for name in ["All\u201avägen", "Syre\u00b4nvägen", "Ã¤ngsvägen", "Bad\ufffdName", "Addison Ln,", "Addison Ln;", "Village Ridge Road(Private)", "Island Avenue (Glp)", "Rönnerums bygata Rönnerums bygata", "Vägen Vägen", "", " Main St", "Main  St"]:
+			with self.subTest(name=name):
+				self.assertFalse(geo.cleanly_written(name))
+
+	def test_an_odd_name_a_register_really_holds_is_kept(self) -> None:
+		for name in ["S:t Olofsgatan", "M/S Nadias väg", "10 1/2 St NW", 'Lidosta "Rīga"', "Allévägen", "O'Brien St", "St. Mary's Rd", "Rue Saint-Honoré", "Åkerbärsvägen", "Rue de l'Église", "Bo Bo gatan"]:
+			with self.subTest(name=name):
+				self.assertTrue(geo.cleanly_written(name))
+
+
+class SwedishStreetName(unittest.TestCase):
+	def test_a_description_of_streets_is_no_street(self) -> None:
+		self.assertFalse(geo_se.street_name("Kvartersvägar och parkeringsvägar på Lars Kaggsgatan"))
+
+	def test_a_name_geo_refuses_is_refused(self) -> None:
+		for name in ["All\u201avägen", "Syre\u00b4nvägen", "Rönnerums bygata Rönnerums bygata"]:
+			with self.subTest(name=name):
+				self.assertFalse(geo_se.street_name(name))
+
+	def test_an_odd_name_is_kept(self) -> None:
+		for name in ["S:t Eriks gata", "M/S Nadias väg", "Natt och Dags väg", "af Klints väg"]:
+			with self.subTest(name=name):
+				self.assertTrue(geo_se.street_name(name))
+
+
+class UsStreetName(unittest.TestCase):
+	def test_a_highway_and_a_name_geo_refuses_are_no_street(self) -> None:
+		for name in ["I- 95", "Route 9", "Addison Ln,", "Village Ridge Road(Private)", "Island Avenue (Glp)"]:
+			with self.subTest(name=name):
+				self.assertFalse(geo_us.street_name(name))
+
+	def test_a_fraction_and_an_apostrophe_are_kept(self) -> None:
+		for name in ["10 1/2 St NW", "O'Brien St", "Main Street"]:
+			with self.subTest(name=name):
+				self.assertTrue(geo_us.street_name(name))
+
+
 class StreetName(unittest.TestCase):
 	def test_a_highway_a_postinumero_and_an_island_are_no_street(self) -> None:
-		for name in ["Valtatie 23", "41520", "Mustalampi, Lammassaari", "Haapasaari (Vuosaari)", "Makkarasaari/Lapinsaari", ""]:
+		for name in ["Valtatie 23", "41520", "Mustalampi, Lammassaari", "Haapasaari (Vuosaari)", "Makkarasaari/Lapinsaari", "Poste restante", "Busö Busö", ""]:
 			with self.subTest(name=name):
 				self.assertFalse(geo_fi.street_name(name))
 
