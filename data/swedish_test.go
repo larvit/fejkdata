@@ -450,19 +450,19 @@ func TestShippedSwedishMobileDrawsEachMobileCodeAndLandlineOnlyFixedNumbers(t *t
 	f := shipped(t, fejkdata.WithSeed(11))
 	mobile := regexp.MustCompile(`^0(70|72|73|76|79)-\d{3} \d{2} \d{2}$`)
 	seen := map[string]bool{}
-	fejktest.EachDraw(1000, func() string { return fejktest.Fake(t, f, "sv_SE.mobile") }, func(n string) {
+	fejktest.EachDraw(1000, func() string { return fejktest.Fake(t, f, "sv_SE.phone-mobile") }, func(n string) {
 		m := mobile.FindStringSubmatch(n)
 		if m == nil {
-			t.Fatalf("sv_SE.mobile drew %q, want a mobile code and 7 digits", n)
+			t.Fatalf("sv_SE.phone-mobile drew %q, want a mobile code and 7 digits", n)
 		}
 		seen[m[1]] = true
 	})
 	if len(seen) != 5 {
 		t.Fatalf("1000 mobile numbers drew the codes %v, want 70, 72, 73, 76 and 79", seen)
 	}
-	fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, f, "sv_SE.landline") }, func(n string) {
+	fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, f, "sv_SE.phone-fixed") }, func(n string) {
 		if mobile.MatchString(n) {
-			t.Fatalf("sv_SE.landline drew the mobile number %q", n)
+			t.Fatalf("sv_SE.phone-fixed drew the mobile number %q", n)
 		}
 		checkSwedishFixedPhone(t, n)
 	})
@@ -470,7 +470,7 @@ func TestShippedSwedishMobileDrawsEachMobileCodeAndLandlineOnlyFixedNumbers(t *t
 
 func TestShippedSwedishMobileAndLandlineGiveTheirInternationalForm(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(5))
-	for _, path := range []string{"mobile", "landline"} {
+	for _, path := range []string{"phone-mobile", "phone-fixed"} {
 		fejktest.EachDraw(300, func() string {
 			return fejktest.FakeTemplate(t, f, "{/sv_SE."+path+" as p}{p}|{p.national}|{p.international}")
 		}, func(got string) {

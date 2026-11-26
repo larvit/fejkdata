@@ -24,24 +24,24 @@ var germanAreaCodesByLength = map[int]int{2: 4, 3: 85, 4: 3882, 5: 1229}
 
 func germanPhoneRows(t *testing.T, kind string) []map[string]string {
 	t.Helper()
-	return fejktest.TSVRows(t, "de_DE/phone-"+kind+".tsv")
+	return fejktest.TSVRows(t, "de_DE/phone-"+kind+"-prefix.tsv")
 }
 
 func TestShippedGermanPhoneMobileHoldsExactlyTheBlocksTheBundesnetzagenturListsAssigned(t *testing.T) {
 	got := map[string]bool{}
 	for _, row := range germanPhoneRows(t, "mobile") {
 		if got[row["area"]] {
-			t.Errorf("phone-mobile repeats %q", row["area"])
+			t.Errorf("phone-mobile-prefix repeats %q", row["area"])
 		}
 		got[row["area"]] = true
 	}
 	for _, block := range germanMobileBlocks {
 		if !got["0"+block] {
-			t.Errorf("phone-mobile lacks 0%s", block)
+			t.Errorf("phone-mobile-prefix lacks 0%s", block)
 		}
 	}
 	if len(got) != len(germanMobileBlocks) {
-		t.Errorf("phone-mobile holds %d blocks, the list assigns %d", len(got), len(germanMobileBlocks))
+		t.Errorf("phone-mobile-prefix holds %d blocks, the list assigns %d", len(got), len(germanMobileBlocks))
 	}
 }
 
@@ -49,19 +49,19 @@ func TestShippedGermanPhoneFixedHoldsEveryActiveOrtsnetzkennzahl(t *testing.T) {
 	byLength, seen := map[int]int{}, map[string]bool{}
 	for _, row := range germanPhoneRows(t, "fixed") {
 		if seen[row["area"]] {
-			t.Errorf("phone-fixed repeats %q", row["area"])
+			t.Errorf("phone-fixed-prefix repeats %q", row["area"])
 		}
 		seen[row["area"]] = true
 		byLength[len(row["area"])-1]++
 	}
 	for length, want := range germanAreaCodesByLength {
 		if byLength[length] != want {
-			t.Errorf("phone-fixed holds %d codes of %d digits, the directory lists %d active", byLength[length], length, want)
+			t.Errorf("phone-fixed-prefix holds %d codes of %d digits, the directory lists %d active", byLength[length], length, want)
 		}
 	}
 	for _, inactive := range []string{"033052", "033927"} {
 		if seen[inactive] {
-			t.Errorf("phone-fixed holds %s, which the directory marks inactive", inactive)
+			t.Errorf("phone-fixed-prefix holds %s, which the directory marks inactive", inactive)
 		}
 	}
 }
@@ -69,9 +69,9 @@ func TestShippedGermanPhoneFixedHoldsEveryActiveOrtsnetzkennzahl(t *testing.T) {
 func TestShippedGermanPhoneAreaSelectsOneRowByItsCode(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(1))
 	for path, want := range map[string]string{
-		"de_DE.phone-fixed[030].name": "Berlin", "de_DE.phone-fixed[069].name": "Frankfurt am Main",
-		"de_DE.phone-fixed[0201].name": "Essen", "de_DE.phone-fixed[033051].name": "Nassenheide",
-		"de_DE.phone-mobile[01511].ndc": "1511", "de_DE.phone-mobile[015550].ndc": "15550",
+		"de_DE.phone-fixed-prefix[030].name": "Berlin", "de_DE.phone-fixed-prefix[069].name": "Frankfurt am Main",
+		"de_DE.phone-fixed-prefix[0201].name": "Essen", "de_DE.phone-fixed-prefix[033051].name": "Nassenheide",
+		"de_DE.phone-mobile-prefix[01511].ndc": "1511", "de_DE.phone-mobile-prefix[015550].ndc": "15550",
 	} {
 		t.Run(path, func(t *testing.T) {
 			if got := fejktest.Fake(t, f, path); got != want {

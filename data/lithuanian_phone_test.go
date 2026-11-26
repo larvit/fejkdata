@@ -75,25 +75,25 @@ func TestShippedLithuanianFixedTableHoldsExactlyTheAllocatedAreas(t *testing.T) 
 	}
 	leads := map[string]string{"05": "2{int(0,7)}", "045": "{int(4,5)}", "046": "{int(2,4)}"}
 	got := map[string]string{}
-	for _, row := range fejktest.TSVRows(t, "lt_LT/phone-fixed.tsv") {
+	for _, row := range fejktest.TSVRows(t, "lt_LT/phone-fixed-prefix.tsv") {
 		got[row["area"]] = row["name"]
 		if lead := leads[row["area"]]; !strings.HasPrefix(row["subscriber"], lead+"{digits(") {
-			t.Errorf("phone-fixed[%s] subscriber is %q, want it to open with %q", row["area"], row["subscriber"], lead)
+			t.Errorf("phone-fixed-prefix[%s] subscriber is %q, want it to open with %q", row["area"], row["subscriber"], lead)
 		}
 	}
 	if len(got) != len(want) {
-		t.Errorf("phone-fixed holds %d areas, want the plan's %d", len(got), len(want))
+		t.Errorf("phone-fixed-prefix holds %d areas, want the plan's %d", len(got), len(want))
 	}
 	for area, name := range want {
 		if got[area] != name {
-			t.Errorf("phone-fixed[%s] is %q, want %q", area, got[area], name)
+			t.Errorf("phone-fixed-prefix[%s] is %q, want %q", area, got[area], name)
 		}
 	}
 }
 
 func TestShippedLithuanianMobileTableHoldsTheOneMobileRange(t *testing.T) {
-	rows := fejktest.TSVRows(t, "lt_LT/phone-mobile.tsv")
+	rows := fejktest.TSVRows(t, "lt_LT/phone-mobile-prefix.tsv")
 	if len(rows) != 1 || rows[0]["area"] != "06" {
-		t.Errorf("phone-mobile holds %v, want the one row 06", rows)
+		t.Errorf("phone-mobile-prefix holds %v, want the one row 06", rows)
 	}
 }

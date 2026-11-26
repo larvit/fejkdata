@@ -228,10 +228,10 @@ func TestShippedNorwegianPhoneTablesHoldFourDigitPrefixesOfSeriesNkomHasAssigned
 	} {
 		t.Run(kind, func(t *testing.T) {
 			seen := map[string]bool{}
-			eachNorwegianRow(t, "phone-"+kind, func(row map[string]string) {
+			eachNorwegianRow(t, "phone-"+kind+"-prefix", func(row map[string]string) {
 				p := row["prefix"]
 				if !series.MatchString(p) || !slices.Contains(nkomAssigned[kind], p[:2]) || seen[p] {
-					t.Errorf("phone-%s row %q is not four digits in a series Nkom has assigned to providers, or repeats one", kind, p)
+					t.Errorf("phone-%s-prefix row %q is not four digits in a series Nkom has assigned to providers, or repeats one", kind, p)
 				}
 				seen[p] = true
 			})
@@ -243,7 +243,7 @@ func TestShippedNorwegianPhoneTablesHoldFourDigitPrefixesOfSeriesNkomHasAssigned
 // gives 99 90 to global title addresses, and assigns only some thousands of 56 97 and 56 98.
 func TestShippedNorwegianPhonePrefixIsARowWhereNkomHasAssignedItWhole(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(2))
-	for path, want := range map[string]string{"nb_NO.phone-fixed[56 12]": "56 12", "nb_NO.phone-mobile[40 00]": "40 00", "nb_NO.phone-mobile[90 00]": "90 00"} {
+	for path, want := range map[string]string{"nb_NO.phone-fixed-prefix[56 12]": "56 12", "nb_NO.phone-mobile-prefix[40 00]": "40 00", "nb_NO.phone-mobile-prefix[90 00]": "90 00"} {
 		t.Run(path, func(t *testing.T) {
 			if got := fejktest.Fake(t, f, path); got != want {
 				t.Errorf("%s = %q, want %q", path, got, want)
@@ -254,7 +254,7 @@ func TestShippedNorwegianPhonePrefixIsARowWhereNkomHasAssignedItWhole(t *testing
 
 func TestShippedNorwegianPhonePrefixIsNoRowWhereNkomHasNotAssignedItWhole(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(2))
-	for _, path := range []string{"nb_NO.phone-fixed[56 20]", "nb_NO.phone-fixed[56 97]", "nb_NO.phone-fixed[56 98]", "nb_NO.phone-mobile[45 36]", "nb_NO.phone-mobile[47 55]", "nb_NO.phone-mobile[99 90]"} {
+	for _, path := range []string{"nb_NO.phone-fixed-prefix[56 20]", "nb_NO.phone-fixed-prefix[56 97]", "nb_NO.phone-fixed-prefix[56 98]", "nb_NO.phone-mobile-prefix[45 36]", "nb_NO.phone-mobile-prefix[47 55]", "nb_NO.phone-mobile-prefix[99 90]"} {
 		t.Run(path, func(t *testing.T) {
 			if got, err := f.Fake(path); err == nil {
 				t.Errorf("%s = %q, but Nkom has not assigned all of it", path, got)
