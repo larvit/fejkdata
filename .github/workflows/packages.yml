@@ -17,6 +17,10 @@ on:
         required: false
       SITE_DEPLOY_TOKEN:
         required: false
+    outputs:
+      wheels:
+        description: "'true' where the release built Python wheels, which a tag cut before the Python package existed doesn't"
+        value: ${{ jobs.packages.outputs.wheels }}
   workflow_dispatch:
     inputs:
       tag:
@@ -41,6 +45,7 @@ jobs:
       packages: write
     outputs:
       latest: ${{ steps.latest.outputs.latest }}
+      wheels: ${{ steps.wheels.outputs.built }}
     steps: &packages
       - uses: actions/checkout@v7
         with:
@@ -114,7 +119,8 @@ jobs:
           fi
           test "$(docker run --rm "$image" --version)" = "$printed"
       # A tag cut before the Python package existed holds no python-package/, and builds no wheel.
-      - name: A Python wheel per platform, which PyPI's checks pass, and the Linux ones render once installed
+      - name: A Python wheel per platform passes twine's check, and the Linux amd64 one renders once installed, on glibc and on musl
+        id: wheels
         if: hashFiles('src/python-package/**') != ''
         env:
           TAG: ${{ inputs.tag }}
@@ -125,7 +131,7 @@ jobs:
           venv/bin/pip install --no-index wheels/*manylinux*x86_64*.whl
           rendered="$(venv/bin/python -c 'import fejkdata; print(fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today="2026-01-15"))')"
           test "$rendered" = SE
-          # The oldest Python the wheels claim, on musl.
+          # Alpine has musl, and 3.11 is the oldest Python the wheels claim.
           docker run --rm --memory 1g --memory-swap 1g -v "$PWD/wheels:/wheels:ro" python:3.11.15-alpine sh -c \
             'pip install --no-index --find-links /wheels fejkdata && python -c "import fejkdata; assert fejkdata.render(\"{/misc.territory[SE].alpha2}\", seed=1, today=\"2026-01-15\") == \"SE\""'
           python3 -m venv twine
@@ -135,8 +141,9 @@ jobs:
             ls -l "$wheel"
             python3 -m zipfile -l "$wheel"
           done
+          echo built=true >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
-        if: hashFiles('wheels/*.whl') != ''
+        if: steps.wheels.outputs.built == 'true'
         with:
           name: python-wheels
           path: wheels/*.whl
@@ -164,7 +171,7 @@ jobs:
     name: The Python wheel installs and renders on ${{ matrix.runner }}
     needs: [packages, packages-dry-run]
     # One of packages and packages-dry-run always skips: see repos.
-    if: ${{ !cancelled() && !failure() }}
+    if: ${{ !cancelled() && !failure() && (needs.packages.outputs.wheels == 'true' || !inputs.tag) }}
     strategy:
       fail-fast: false
       matrix:
@@ -173,21 +180,23 @@ jobs:
     permissions:
       contents: read
     steps:
-      # A tag cut before the Python package existed uploads no wheel.
       - uses: actions/download-artifact@v8
         with:
-          pattern: python-wheels
+          name: python-wheels
           path: wheels
-          merge-multiple: true
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
       - name: pip picks this platform's wheel, and it renders
-        if: hashFiles('wheels/*.whl') != ''
         shell: bash
         run: |
           python -m pip install --no-index --find-links wheels fejkdata
           python -c 'import fejkdata; assert fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today="2026-01-15") == "SE"'
+      - name: The same on musl
+        if: matrix.runner == 'ubuntu-26.04-arm'
+        run: |
+          docker run --rm --memory 1g --memory-swap 1g -v "$PWD/wheels:/wheels:ro" python:3.11.15-alpine sh -c \
+            'pip install --no-index --find-links /wheels fejkdata && python -c "import fejkdata; assert fejkdata.render(\"{/misc.territory[SE].alpha2}\", seed=1, today=\"2026-01-15\") == \"SE\""'
 
   dockerhub:
     name: Docker Hub image for ${{ inputs.tag }}

@@ -24,7 +24,7 @@ Metadata-Version: 2.4
 Name: fejkdata
 Version: {version}
 Summary: Fake data for tests. Related values match, like a postcode and its city.
-Keywords: fake data,test data,mock data,fixtures,seed data,synthetic data,testing,csv,sql,national id
+Keywords: csv,fake data,fixtures,mock data,national id,seed data,sql,synthetic data,test data,testing
 Project-URL: Homepage, https://fejkdata.dev
 Project-URL: Documentation, https://github.com/larvit/fejkdata#readme
 Project-URL: Source, https://github.com/larvit/fejkdata
