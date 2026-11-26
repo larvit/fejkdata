@@ -3027,3 +3027,20 @@ Read most (opens and searches):
 - `internal/builtinfunc/bgmod11_test.go` 1
 - `internal/builtinfunc/builtinfunc_test.go` 1
 - `internal/builtinfunc/calc.go` 1
+
+## Reading cost, chunk 164cd376f7a6, finished 2026-11-26T02:55:58Z
+
+67380 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 7
+- `compose.yaml` 2
+- `data_test.go` 2
+- `internal/builtinfunc/checkdigits_test.go` 2
+- `internal/fejktest/ids.go` 2
+- `AGENTS.md` 1
+- `CHANGELOG.md` 1
+- `data-listing/kinds-and-sources.tsv` 1
+- `data/misc/creditcard.json` 1
+- `data/misc/iban-test.json` 1
