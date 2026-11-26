@@ -71,7 +71,7 @@ persons, addresses, national ids, phone numbers, companies, emails and dates. Be
 | Valid national ids where possible, and postal codes that match the town | Ids for ten countries, four from the issuer's test series; a postal code of the address's own town | No national id; `zipCode` takes a state, not a city | `SSN` and `EIN`, each "a random" number; the docs don't say that `Zip` matches `City` | Country, city, state and postal code agree; the pages read name no national id |
 | CSV and SQL test data | One template and one command: CSV, SQL, `COPY`, JSON, NDJSON, up to 1,048,576 rows a run | No CLI and no file output: "you most likely need to write a factory function" | Go functions `CSV`, `JSON`, `XML` and `SQL`; its CLI runs one function, `-loop` times | CSV, JSON, SQL and Excel; 1,000 rows a file on the free plan, 10 million on the largest hosted one |
 | Errors | Before the first row, naming what is wrong; a mistake in a template exits 2 | Thrown at run time where a locale lacks the data; "we don't have dedicated error messages for wrong parameter types" | `Template`, `CSV` and `SQL` return an `error`; the docs don't say when | The pages read don't say |
-| Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install`, `pip install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
+| Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
 | Runtime | One binary, or a Go library; no network | Node.js 20 or above, or a browser | A Go program, or its CLI | Its web service, or its API with a key |
 
 Each cell states what the tool's own docs said on 2026-11-21. Where a cell says the docs don't
@@ -121,9 +121,6 @@ The binaries are unsigned. macOS refuses to run one a browser downloaded until y
 
 No npm package ships yet. From JavaScript or TypeScript, run the CLI as a child process,
 with `--seed` and `--today` to repeat a run.
-
-From Python, `pip install fejkdata` installs a package that carries the CLI's binary:
-see [Python](#python).
 
 ## Quick start
 
@@ -719,58 +716,6 @@ reaches it. The CLI takes `fejkdata`'s flags and exit codes, and names itself by
 it runs from in its help and errors. Its `--help` lists the [functions](#functions) a
 template calls. `--no-shipped-data` leaves out the modules passed to
 `Main`, and `--version` prints your module's version beside the fejkdata version it is built with.
-
-### Python
-
-```sh
-pip install fejkdata   # Python 3.11+ on Linux, macOS and Windows, amd64 and arm64
-```
-
-```python
-import fejkdata
-
-print(fejkdata.render("{/sv_SE.address}", seed=1, today="2026-01-15"))
-```
-
-```text
-Sträveliden 91
-439 34 Onsala
-```
-
-The package carries the CLI's binary with all the shipped data, and doesn't depend on any
-other package. `render` runs that binary with the template on its stdin and returns what it
-prints, so the same seed and day give the same bytes as the [CLI](#cli). `seed` and `today`
-are required. `today` is a `datetime.date` or its `YYYY-MM-DD`. `repeat` and `format` are
-the CLI's `--repeat` and `--format`. Each call starts the binary once, so ask for many rows
-with `repeat`, not with many calls. A wheel is about 20 MB:
-
-```python
-person = '{"format": "{/sv_SE.person as p}", "first": "{p.first}", "last": "{p.last}"}'
-print(fejkdata.render(person, seed=1, today="2026-01-15", repeat=3, format="csv"), end="")
-```
-
-```text
-first,last
-Vinston,Larsson
-Felix,Lind
-Klara,Lassfolk
-```
-
-A render the CLI refuses raises `fejkdata.FejkdataError`. Its message is what the CLI
-prints on stderr, and its `returncode` is the CLI's exit code, `2` for a template that
-doesn't compile:
-
-```python
-try:
-    fejkdata.render("{/sv_SE.adress}", seed=1, today="2026-01-15")
-except fejkdata.FejkdataError as refused:
-    print(refused.returncode, refused)
-```
-
-```text
-2 fejkdata: template: reference {/sv_SE.adress}: no entry "adress"
-try 'fejkdata --help'
-```
 
 ## Data
 
@@ -2064,7 +2009,7 @@ internal/shipped/generate/ the command `go generate` runs, which writes those fi
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; Modules, which lists them; and the tests of the shipped data
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the shared modules they import
 data-listing/   the generated list of every shipped path with its kind, example and source (`paths.json`), and the hand-written kind and source of each category, and of each field that differs from its category (`kinds-and-sources.tsv`)
-python-package/ the Python package: `render`, which runs the CLI binary a wheel carries, its tests, and the README its PyPI page shows
+python-package/ the Python package: `render`, which runs the CLI binary a wheel carries, its tests, and its README
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the generated table of every shipped path (`shipped-paths.md`), the locale pages (`docs/locales`, one per folder of `data/`), the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ what CI releases with: the release from the changelog heading; the patch of the last release for main's newer Go, modules or GoReleaser; a release's binaries, packages, image, package repositories and Python wheels; and the filer of known vulnerabilities as `todo.md` items
@@ -2170,7 +2115,7 @@ docker compose run --rm vulncheck
 A pull request that changes a workflow or what a release packages also runs the Packages
 workflow as a dry run. The `packaging` line of the `changes` step in
 `.github/workflows/test.yml` lists those files. The dry run runs every Action a release
-runs save `actions/deploy-pages` and `pypa/gh-action-pypi-publish`, with a token that can only read. It builds the binaries
+runs save `actions/deploy-pages`, with a token that can only read. It builds the binaries
 for every platform, the packages and the images, then the apt, dnf and apk repositories,
 signed with throwaway keys, and installs fejkdata from each repository. It builds the
 Python wheels too, installs the Linux one with pip and renders from it. It doesn't publish
@@ -2303,15 +2248,12 @@ and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publish
 the GitHub release with the section as its body. A top heading of `Unreleased`
 publishes nothing. CI then runs the Packages workflow on the new tag, which attaches the
 binaries and packages, pushes the image to GHCR and copies it to Docker Hub, updates the
-Homebrew tap and the Scoop bucket, deploys the apt, dnf and apk repositories to GitHub
-Pages, and uploads a Python wheel per platform to PyPI. The workflow reads these repository secrets:
+Homebrew tap and the Scoop bucket, and deploys the apt, dnf and apk repositories to GitHub
+Pages. The workflow reads these repository secrets:
 
 - `DOCKERHUB_TOKEN`: a personal access token of the Docker Hub account `larvit`, with Read &
   Write and no Delete. The repository variable `DOCKERHUB_USERNAME` names the account.
 - `PACKAGES_GPG_KEY`, `PACKAGES_RSA_KEY`: the private keys that sign the repositories.
-- `PYPI_TOKEN`: a PyPI API token that can upload to the project `fejkdata`. The first
-  upload creates the project, so the first token is scoped to the whole account; replace it
-  with one scoped to the project after that release.
 - `SITE_DEPLOY_TOKEN`: an access token for `gitea.larvit.se`, made by a dedicated account.
   Gitea doesn't limit a token to one repository, so it reaches every repository its account
   can. Give the account write access to `larvit/fejkdata.dev` only. Once the latest release
@@ -2326,13 +2268,12 @@ The image's Docker Hub repository and GHCR package must be public, and Pages mus
 from GitHub Actions. To package a release again, run the workflow by hand with its tag; it
 replaces what it uploaded before. For a tag older than the latest release it leaves the
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
-version. PyPI keeps every version and replaces no file, so a tag publishes its wheels
-whatever its age, and a rerun skips the wheels PyPI already holds.
+version.
 
 Renovate merges an update itself once `gate` passes. These wait for a human:
 
-- an update to `actions/deploy-pages`, `peter-evans/dockerhub-description` or
-  `pypa/gh-action-pypi-publish`, since each publishes, so no pull request runs them;
+- an update to `actions/deploy-pages` or `peter-evans/dockerhub-description`, since both
+  publish, so no pull request runs them;
 - one to `actions/upload-pages-artifact`, since only `actions/deploy-pages` reads its
   artifact;
 - one to `actions/cache`, `reproducible-containers/buildkit-cache-dance` or the `busybox`

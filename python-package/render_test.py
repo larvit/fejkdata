@@ -65,10 +65,6 @@ class ReadmeExamples(unittest.TestCase):
 		readme = pathlib.Path(__file__).with_name("README.md").read_text(encoding="utf-8")
 		self.assertEqual(self.run_blocks(readme), 2)
 
-	def test_the_project_readme_s_python_section(self) -> None:
-		readme = pathlib.Path(__file__).parent.with_name("README.md").read_text(encoding="utf-8")
-		self.assertEqual(self.run_blocks(readme.split("\n### Python\n")[1].split("\n## ")[0]), 3)
-
 
 if __name__ == "__main__":
 	unittest.main()

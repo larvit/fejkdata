@@ -195,5 +195,4 @@ jobs:
       PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
       PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
       SITE_DEPLOY_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}

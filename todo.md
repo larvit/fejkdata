@@ -267,6 +267,8 @@ Settle each thing PyPI shows or stores before the first publish, read it on PyPI
 - How a bad version is withdrawn: yank it, since a file name can't be uploaded twice.
 - A check in the dry run: `twine check --strict` and a listing of each wheel's files and size. After the publish, look at the live page.
 
+Item 551 shipped the package, `release-tooling/python_wheels.py` and the dry run's wheel build, and its decision records the tags, `Requires-Python`, the licence files and the missing console command; settle each again here before the publish. It left to this item the upload, the root README's install text and `### Python` section, and the `CHANGELOG.md` entry for the package; commit c6fc5360 on the pull request of item 551 holds a draft of each, uploading with an API token. PyPI's troubleshooting page (https://docs.pypi.org/trusted-publishers/troubleshooting/) says trusted publishing doesn't take a reusable workflow, and `packages.yml` is one: publish from a job in a workflow that is not reusable, or ask the maintainer for a token.
+
 ### 562. Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.
 
 The US Census file holds letters only, so `Obrien`, `Dangelo`, `Delacruz` and `Stjohn` ship and are listed as real. INSEE's surname file holds no accents, so `Lefevre` and `Francois` ship. Look for an open source of the written forms with counts, such as Wikidata's family names, and use it to restore a spelling only where it is the common one. Where no source settles a name, leave it as it is, and say so on the locale's page.
