@@ -465,6 +465,7 @@ misc.car	real	hand-written
 misc.coordinate	valid	hand-written
 misc.creditcard	valid	hand-written, with a Luhn check
 misc.creditcard-test	valid	Stripe's published test cards
+misc.cusip	valid	hand-written, with ANSI X9.6's check digit
 misc.currency	real	datasets/currency-codes (ISO 4217), with symbols from Unicode CLDR
 misc.datetime	invented	hand-written
 misc.emoji	real	hand-written
@@ -473,6 +474,7 @@ misc.httpstatus	real	IANA's HTTP Status Code Registry
 misc.iban-test	valid	Stripe's test IBANs, and Danske Bank's fictive example for DK
 misc.ip	valid	hand-written
 misc.ipv6	valid	hand-written, inside RFC 3849's 2001:db8::/32
+misc.isin	valid	hand-written, with ISO 6166's check digit and an ISO 3166-1 country code
 misc.language	real	datasets/language-codes, the Library of Congress' ISO 639-2 register
 misc.loglevel	real	RFC 5424's syslog severities, with POSIX's keywords
 misc.mac	valid	hand-written
