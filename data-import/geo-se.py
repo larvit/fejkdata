@@ -41,9 +41,9 @@ ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 # A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Lantmäteriet → Ortnamn. The weight of
 # a postort that is no tätort, is not named as its kommun and lies in no småort; docs/decisions.md says why it stays.
 UNMATCHED_POPULATION = 200
-# Not a street: a road number, a ferry route, a cycle path's or road association's label, a placeholder, or a
-# description of streets in place of a name.
-NOT_A_STREET = re.compile(r"^(Europaväg|Länsväg|Riksväg) \d|^Färjeled |\b(GC|SMF|VSF)\b|^NN$|^Kvartersvägar ")
+# Not a street: a road number, a ferry route, a cycle path's or road association's label, a placeholder, or two names
+# or a description of streets in one.
+NOT_A_STREET = re.compile(r"^(Europaväg|Länsväg|Riksväg) \d|^Färjeled |\b(GC|SMF|VSF)\b|^NN$|,|^Kvartersvägar ")
 PARTICLES = {"af", "de", "von"}
 
 # A lon and lat, in that order.

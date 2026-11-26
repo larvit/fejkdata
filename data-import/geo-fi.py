@@ -42,7 +42,7 @@ ALAND = "21"
 # Posti's abbreviations of asema and kirkonkylä, as in ALAVUS AS and HEINOLA KK, and their Swedish ST and KBY.
 LOWER = {"as", "kk", "st", "kby"}
 VOWELS = "aeiouyäö"
-NOT_A_STREET = re.compile(r"[\d/]|^Poste restante$")
+NOT_A_STREET = re.compile(r"[\d,()/]|^Poste restante$")
 
 type Tally = tuple[collections.Counter[tuple[str, str]], dict[tuple[str, str], collections.Counter[str]], collections.Counter[tuple[str, str]], dict[str, set[str]], collections.Counter[tuple[int, bool]]]
 

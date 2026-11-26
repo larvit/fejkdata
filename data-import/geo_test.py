@@ -259,12 +259,12 @@ class HouseNumbers(unittest.TestCase):
 
 class CleanlyWritten(unittest.TestCase):
 	def test_a_badly_written_name_is_refused(self) -> None:
-		for name in ["All\u201avägen", "Syre\u00b4nvägen", "Ã¤ngsvägen", "Bad\ufffdName", "All\u201evägen", "Â\u00a0Road", "Ã\u00bfRoad", "ô\u00bfRoad", "Addison Ln,", "Addison Ln;", "Mill Rd, East", "Village Ridge Road(Private)", "Island Avenue (Glp)", "Main St)", "(Main St", "Rönnerums bygata Rönnerums bygata", "Vägen Vägen", "", " Main St", "Main St ", "Main  St", "Main\tSt", "Main\x00St"]:
+		for name in ["All\u201avägen", "Syre\u00b4nvägen", "Ã¤ngsvägen", "Bad\ufffdName", "All\u201evägen", "Â\u00a0Road", "Ã\u00bfRoad", "ô\u00bfRoad", "Addison Ln,", "Addison Ln;", "Village Ridge Road(Private)", "Island Avenue (Glp)", "Main St)", "(Main St", "Rönnerums bygata Rönnerums bygata", "Vägen Vägen", "", " Main St", "Main St ", "Main  St", "Main\tSt", "Main\x00St"]:
 			with self.subTest(name=name):
 				self.assertFalse(geo.cleanly_written(name))
 
 	def test_an_odd_name_a_register_really_holds_is_kept(self) -> None:
-		for name in ["S:t Olofsgatan", "M/S Nadias väg", "10 1/2 St NW", 'Lidosta "Rīga"', "Allévägen", "O'Brien St", "St. Mary's Rd", "Rue Saint-Honoré", "Åkerbärsvägen", "Rue de l'Église", "Bo Bo gatan", "Gamla Bo Bo"]:
+		for name in ["S:t Olofsgatan", "M/S Nadias väg", "10 1/2 St NW", 'Lidosta "Rīga"', "Allévägen", "O'Brien St", "St. Mary's Rd", "Rue Saint-Honoré", "Åkerbärsvägen", "Rue de l'Église", "Bo Bo gatan", "Gamla Bo Bo", "Risvær, Årsteinøyan", "Main St, East"]:
 			with self.subTest(name=name):
 				self.assertTrue(geo.cleanly_written(name))
 
