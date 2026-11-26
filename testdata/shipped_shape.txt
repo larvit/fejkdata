@@ -1576,6 +1576,7 @@ misc.currency.decimals	string
 misc.currency.name	string
 misc.currency.numeric	string
 misc.currency.symbol	string
+misc.cusip	format "{c}{cusip()}"
 misc.datetime	format "{date(2000-01-01,2029-12-31,'2006-01-02T15:04:05Z')}"
 misc.emoji
 misc.httpmethod	format "{method}"	key method
@@ -1595,6 +1596,7 @@ misc.ip.private	string
 misc.ip.wide4	string
 misc.ip.wide6	string
 misc.ipv6	format "2001:db8:{g}:{g}:{g}:{g}:{g}:{g}"
+misc.isin	format "{.territory.alpha2}{c}{isin()}"	reads misc.territory
 misc.language	format "{name}"	key code	name name
 misc.language.code	string
 misc.language.code3	string
