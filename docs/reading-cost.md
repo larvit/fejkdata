@@ -3010,3 +3010,20 @@ Read most (opens and searches):
 - `data-import/geo-lv.py` 2
 - `data-import/geo_lt_test.py` 2
 - `data-import/geo-lt.py` 1
+
+## Reading cost, chunk b4a3060830a2, finished 2026-11-26T01:49:59Z
+
+67659 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/builtinfunc/builtins.go` 6
+- `internal/builtinfunc/checksum.go` 5
+- `internal/builtinfunc/builtinfunc.go` 4
+- `README.md` 2
+- `CHANGELOG.md` 1
+- `compose.yaml` 1
+- `iban_test.go` 1
+- `internal/builtinfunc/bgmod11_test.go` 1
+- `internal/builtinfunc/builtinfunc_test.go` 1
+- `internal/builtinfunc/calc.go` 1
