@@ -1,6 +1,6 @@
 {
   "format": "{block as b}{subscriber as s}{national}",
-  "block": [{ "format": "{.phone-mobile}", "weight": 10 }, "{.phone-fixed}"],
+  "block": [{ "format": "{.phone-mobile-prefix}", "weight": 10 }, "{.phone-fixed-prefix}"],
   "subscriber": "{digits(1)} {digits(2)} {digits(2)}",
   "national": "{b}{s}",
   "international": "+45 {b}{s}"

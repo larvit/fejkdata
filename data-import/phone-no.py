@@ -1,4 +1,4 @@
-"""Rebuild data/nb_NO/phone-mobile.tsv and phone-fixed.tsv from Nkom's E.164 register.
+"""Rebuild data/nb_NO/phone-mobile-prefix.tsv and phone-fixed-prefix.tsv from Nkom's E.164 register.
 
     data-import/phone-no.py [--source URL_OR_FILE] [--cache DIR] [--out-mobile FILE] [--out-fixed FILE]
 
@@ -21,7 +21,7 @@ SOURCE = "https://stenonicprdnoea01.blob.core.windows.net/enonicpubliccontainer/
 DATA = Path(__file__).resolve().parent.parent / "data" / "nb_NO"
 CACHE = Path(__file__).resolve().parent / "cache"
 MOBILE, FIXED = "Mobilnummer", "Fastnettnummer"
-KINDS = {MOBILE: "phone-mobile.tsv", FIXED: "phone-fixed.tsv"}
+KINDS = {MOBILE: "phone-mobile-prefix.tsv", FIXED: "phone-fixed-prefix.tsv"}
 
 
 def assigned(register: bytes) -> dict[str, list[int]]:

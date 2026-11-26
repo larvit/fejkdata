@@ -49,7 +49,7 @@ which draws evenly from the codes the North American Numbering Plan Administrati
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
 `976`.
 
-`en_US.mobile` and `en_US.landline` draw the same numbers, since a US number doesn't show its kind:
-mobile and fixed numbers share area codes and exchanges, so `en_US.landline` reads `en_US.mobile`.
+`en_US.phone-mobile` and `en_US.phone-fixed` draw the same numbers, since a US number doesn't show its kind:
+mobile and fixed numbers share area codes and exchanges, so `en_US.phone-fixed` reads `en_US.phone-mobile`.
 Both print a number such as `(305) 973-5616`, which `national` prints too. `international` prints
 `+1 305 973 5616`. The area codes are `en_US.phone`'s and the exchanges `en_US.phone-exchange`'s.

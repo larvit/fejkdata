@@ -1,6 +1,6 @@
 # `et_EE`
 
-`et_EE`, Estonian, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `isikukood`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `naine` and `mees`, `title` is
+`et_EE`, Estonian, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `isikukood`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `naine` and `mees`, `title` is
 `dr` and `prof`, drawn whatever the sex. `{/et_EE.person}` renders e.g. `Liis Tamm`.
 
 Both name tables are a language model's recall of names common in Estonia: the commoner ones of each list are
@@ -83,7 +83,7 @@ number for another service, such as 900 for premium rates.
 A number is valid, not real: it lies in a range the Annex allocates, and a real subscriber may hold it. The
 Annex doesn't reserve any range for fiction or tests, so don't call or text a drawn number.
 
-`et_EE.mobile` draws a mobile number and `et_EE.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
+`et_EE.phone-mobile` draws a mobile number and `et_EE.phone-fixed` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Estonian words
 

@@ -1,6 +1,6 @@
 # `lt_LT`
 
-`lt_LT`, Lithuanian, carries `address`, `asmens-kodas`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `moteris` and `vyras`, `title` is
+`lt_LT`, Lithuanian, carries `address`, `asmens-kodas`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-fixed-prefix`, `phone-mobile`, `phone-mobile-prefix`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `moteris` and `vyras`, `title` is
 `dr.` and `prof.`, drawn whatever the sex. `{/lt_LT.person}` renders e.g. `Ona Kazlauskienė`.
 
 `first-name` holds, with the counts the State Enterprise Centre of Registers published for the people born since 1900 in the
@@ -83,11 +83,11 @@ numbering plan keeps no range for fiction.
 
 The plan is the one the Communications Regulatory Authority (RRT) adopted on 1 September 2023, which the
 ITU published on 6 March 2025. A number has 8 digits after the 0, and a mobile number opens with 6.
-`lt_LT.phone-fixed` holds the 47 area codes that the plan's table of fixed numbers allots to a city or
-district and doesn't mark "Reserved", and `lt_LT.phone-mobile` the one mobile code, 6. Each row's `area` is
+`lt_LT.phone-fixed-prefix` holds the 47 area codes that the plan's table of fixed numbers allots to a city or
+district and doesn't mark "Reserved", and `lt_LT.phone-mobile-prefix` the one mobile code, 6. Each row's `area` is
 its code with the trunk 0, such as `037` for Kaunas, and its `ndc` is the code without the 0. Its
 `subscriber` is the digits after the code, and a fixed row also has a `name`, the city or district. A row is selected by its `area`,
-`phone-fixed[037]`, and each is drawn evenly, since the plan publishes no frequency. Where the plan fixes
+`phone-fixed-prefix[037]`, and each is drawn evenly, since the plan publishes no frequency. Where the plan fixes
 the first digits of the subscriber numbers, `subscriber` draws only those: Vilnius's `5` is followed by
 20 to 27, Panevėžys's `45` by 4 or 5, and Klaipėda's `46` by 2 to 4.
 
@@ -97,7 +97,7 @@ district. The plan fixes only the digits, and RRT's recommendation, as the Klaip
 page "Telefonų numerių rašymas" gives it, lets them be grouped as the writer likes, so the groups are this
 project's choice.
 
-`lt_LT.mobile` draws a mobile number and `lt_LT.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
+`lt_LT.phone-mobile` draws a mobile number and `lt_LT.phone-fixed` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Lithuanian words
 

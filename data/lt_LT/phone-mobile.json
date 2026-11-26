@@ -1,1 +1,5 @@
-{ "format": "{area}", "rows": "phone-mobile.tsv", "key": "area" }
+{
+  "format": "{.phone-mobile-prefix as a}{national}",
+  "national": "0 {a.ndc}{a.subscriber}",
+  "international": "+370 {a.ndc}{a.subscriber}"
+}

@@ -2406,15 +2406,17 @@ PostgreSQL's text can't hold a NUL. `pgcopy` writes one as `\000`, which COPY de
 
 Valid while a serializer returns a string and no shipped path draws a NUL.
 
-## A locale's full numbers are `mobile` and `landline`, and `phone-mobile` and `phone-fixed` stay its prefix tables
+## A locale's full numbers are `phone-mobile` and `phone-fixed`, and its prefix tables `phone-mobile-prefix` and `phone-fixed-prefix`
 
 2026-11-26. Goal 1: a user fills a customer table with numbers of one kind by path, in any locale.
 
-`phone-mobile` already names a table of prefixes in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`, so a path that draws a full number can't take that name without renaming the table, which is a break. A panel of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) ranked five pairs of names. Two pairs tied on points: `mobile` with `landline`, and `mobile-number` with `fixed-number`. Three seats typed `mobile` first, one typed `mobile-number`, and one `phone-mobile-number`. Every seat found `phone-mobile-number` and `mobile-phone` too close to the prefix tables to tell them apart. The seats also proposed renaming those tables to `phone-mobile-prefix` and `phone-fixed-prefix`, which item 598 plans.
+`phone-mobile` and `phone-fixed` named prefix tables in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`, so item 558 named the full numbers `mobile` and `landline`. Its panel of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) then each proposed renaming the tables, since the name they typed first, `phone-mobile`, printed `21 1`.
 
-`en_US` can't tell the kinds apart, since mobile and fixed numbers share area codes, so `en_US.landline` reads `en_US.mobile`. Each locale's `phone` keeps its columns and its shares, and gains no column for the new paths.
+A second panel of the same five seats chose between three outcomes: the full numbers keep `mobile` and `landline` and `phone-mobile` names nothing; both spellings draw them; or only `phone-mobile` and `phone-fixed` do. A first run told the seats that a missing path's error names nearby paths. It names none: it reads `no entry "phone-mobile"`. The run was redone with the real text, and four seats chose only `phone-mobile` and `phone-fixed`: the name a reader guesses should draw what it says, and `mobile` and `landline` had not shipped, so removing them broke nobody. One seat chose both. The tables are `phone-mobile-prefix` and `phone-fixed-prefix`, which is the one break this decision costs, and `CHANGELOG.md` names it.
 
-Valid while `phone-mobile` and `phone-fixed` name prefix tables.
+`en_US` can't tell the kinds apart, since mobile and fixed numbers share area codes, so `en_US.phone-fixed` reads `en_US.phone-mobile`. Each locale's `phone` keeps its columns and its shares, and gains no column for the new paths.
+
+Valid while a path that names nothing gets an error that names no nearby path: with one, a guessed `phone-mobile` could fail usefully instead of drawing a number.
 
 ## The Swedish, Finnish, French and US name tables keep every name above a floor of bearers, set so a table holds at most 60,000 rows
 

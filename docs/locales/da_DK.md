@@ -1,6 +1,6 @@
 # `da_DK`
 
-`da_DK`, Danish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md):
+`da_DK`, Danish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-fixed-prefix`, `phone-mobile`, `phone-mobile-prefix`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md):
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
@@ -70,14 +70,14 @@ That follows the Danish Language Council (Dansk Sprognævn), whose page "telefon
 reader-friendly to write a number as it is said, "som regel i grupper af tocifrede tal", and that
 the plus and the country code are written together.
 
-`da_DK.phone-mobile` and `da_DK.phone-fixed` hold the three-digit prefixes, such as `34 2`, that
+`da_DK.phone-mobile-prefix` and `da_DK.phone-fixed-prefix` hold the three-digit prefixes, such as `34 2`, that
 Annex 1 of Executive Order No. 1883 of 7 December 2020 on the Overall Danish Numbering Plan
 allocates to mainly mobile or mainly fixed numbers. A prefix is mobile where its first two digits
 are in a range the plan calls mainly mobile, or where the plan's note lists it as mobile inside a
 fixed range. A prefix with third digit 0 is left out, as the plan keeps it for expansion. So are the
 ranges the plan reserves, 67, 68, 83 to 85, 94 and 95, and those it gives to other services: 80 to
 freephone, 90 to premium rate services and 37 to 12-digit M2M numbers. A row is selected by its
-prefix, `phone-mobile[34 2]`.
+prefix, `phone-mobile-prefix[34 2]`.
 
 A number's `block` is one of those prefixes and its `subscriber` the last five digits, such as
 `5 12 34`. A number is valid, not real: a real subscriber may hold it. It lies in a range the plan
@@ -85,7 +85,7 @@ allocates, and the plan says "mainly" because numbers move between fixed and mob
 Neither the order nor the authority's guide to it lists the numbers assigned to providers. A bound
 number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
-`da_DK.mobile` draws a mobile number and `da_DK.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
+`da_DK.phone-mobile` draws a mobile number and `da_DK.phone-fixed` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Danish words
 

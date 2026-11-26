@@ -1,6 +1,6 @@
 # `fr_FR`
 
-`fr_FR`, French, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `landline`, `last-name`, `mobile`, `month`, `nir`, `nonzero-number`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is
+`fr_FR`, French, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `department`, `email`, `first-name`, `last-name`, `month`, `nir`, `nonzero-number`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-fixed-prefix`, `phone-mobile`, `phone-mobile-prefix`, `price`, `sentence`, `sex`, `sex-digit`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is
 `femme` and `homme`, and `title` is `Dr` and `Pr`, drawn whatever the sex. `{/fr_FR.person}` renders e.g. `Danielle Faucher`.
 `department` prints the code INSEE gives a department in a NIR, such as `75`, `2A` or `974`, and `nonzero-number` a number
 from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from `001` to `999`. Both exist for `nir`.
@@ -87,15 +87,15 @@ the national form.
 Every number is invented and reaches no one. The Arcep's plan national de numérotation, in the version of
 1 January 2026, lists six roots, the first six digits of a number, under "Numéros pour œuvres
 audiovisuelles": it doesn't allot them to anyone, and says they may be used as telephone numbers in fiction.
-`fr_FR.phone-fixed` holds the five fixed roots, `01 99 00`, `02 61 91`, `03 53 01`, `04 65 71` and
-`05 36 49`, and `fr_FR.phone-mobile` the mobile one, `06 39 98`. Each is a row's `area`, with its `ndc`, the
+`fr_FR.phone-fixed-prefix` holds the five fixed roots, `01 99 00`, `02 61 91`, `03 53 01`, `04 65 71` and
+`05 36 49`, and `fr_FR.phone-mobile-prefix` the mobile one, `06 39 98`. Each is a row's `area`, with its `ndc`, the
 root without the 0, and its `subscriber`, the last four digits. A row is selected by its `area`,
-`phone-fixed[01 99 00]`, and `{fr_FR.phone-fixed.area}` prints one.
+`phone-fixed-prefix[01 99 00]`, and `{fr_FR.phone-fixed-prefix.area}` prints one.
 The tables hold 60,000 numbers, and the 10,000 mobile ones are ten draws in eleven, so a fixture of a few
 hundred rows repeats a number and a `UNIQUE` column needs a category of your own. No
 checker is promised to accept a number: the roots are no operator's.
 
-`fr_FR.mobile` draws a mobile number and `fr_FR.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
+`fr_FR.phone-mobile` draws a mobile number and `fr_FR.phone-fixed` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## French words
 

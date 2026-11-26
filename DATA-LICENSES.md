@@ -51,7 +51,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Copyright © 2015-2024 Unicode, Inc."
 - Rebuild: `data-import/cldr.py`
 
-## `da_DK/phone-mobile.tsv`, `phone-fixed.tsv`
+## `da_DK/phone-mobile-prefix.tsv`, `phone-fixed-prefix.tsv`
 
 - Source: Annex 1 of the Danish [Executive Order No. 1883 of 7 December 2020 on the Overall Danish
   Numbering
@@ -111,7 +111,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   are summed per name and sex; the last names: none required
 - Rebuild: `data-import/names-de.py`
 
-## `de_DE/phone-mobile.tsv`, `phone-fixed.tsv`
+## `de_DE/phone-mobile-prefix.tsv`, `phone-fixed-prefix.tsv`
 
 - Source: the Bundesnetzagentur's [Zugeteilte Rufnummernblöcke (Mobile
   Dienste)](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/MobileDienste/RNB_csv.csv),
@@ -272,7 +272,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Source: Statistics Finland"
 - Rebuild: —
 
-## `fi_FI/phone-fixed.tsv`, `phone-mobile.tsv`, `phone-subscriber.json`
+## `fi_FI/phone-fixed-prefix.tsv`, `phone-mobile-prefix.tsv`, `phone-subscriber.json`
 
 - Source: Annex 1 and Table 1 of the Finnish Transport and Communications Agency
   ([Traficom](https://www.traficom.fi/en))'s [Regulation 32 V/2025 M on public telephone network
@@ -347,7 +347,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Source : Insee, Bilan démographique 2025"
 - Rebuild: —
 
-## `fr_FR/phone-fixed.tsv`, `phone-mobile.tsv`
+## `fr_FR/phone-fixed-prefix.tsv`, `phone-mobile-prefix.tsv`
 
 - Source: the Arcep's [plan national de numérotation, version of 1 January
   2026](https://www.arcep.fr/uploads/tx_gsavis/25-2215.pdf), Annex 1 to decision No. 2018-0881 as decision
@@ -700,19 +700,20 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   rest
 - Rebuild: `data-import/names-lt.py`
 
-## `lt_LT/phone-fixed.tsv`, `phone-mobile.tsv`
+## `lt_LT/phone-fixed-prefix.tsv`, `phone-mobile-prefix.tsv`
 
 - Source: the Communications Regulatory Authority's (RRT) Lithuanian numbering plan, adopted on
   1 September 2023, as the ITU [published it on 6 March
   2025](https://www.itu.int/dms_pub/itu-t/oth/02/02/T020200007C0002PDFE.pdf): its table of numbers
   of the public fixed telephone service, 3000 0000 to 5999 9999, gives each city or district an area
-  code, and `phone-fixed.tsv` holds a row for each code the table doesn't mark "Reserved".
-  `phone-mobile.tsv` holds the one mobile code, 6, which the plan's mobile table gives
+  code, and `phone-fixed-prefix.tsv` holds a row for each code the table doesn't mark "Reserved".
+  `phone-mobile-prefix.tsv` holds the one mobile code, 6, which the plan's mobile table gives
 - Licence: none stated, facts only; a numbering plan is an official document, which Article 5 of the
   Lithuanian Law on Copyright and Related Rights (No. VIII-1185) excludes from copyright, by our
   reading
 - Attribution: none required
-- Rebuild: `data-import/phone-lt.py` writes `phone-fixed.tsv`; `phone-mobile.tsv` is written by hand
+- Rebuild: `data-import/phone-lt.py` writes `phone-fixed-prefix.tsv`; `phone-mobile-prefix.tsv` is
+  written by hand
 
 ## `lv_LV/company.json`, `company-coined.json`, `company-coined.tsv`, `company-word.json`, `company-word.tsv`
 
@@ -953,7 +954,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Kilde: Statistisk sentralbyrå"
 - Rebuild: `data-import/names-no.py`
 
-## `nb_NO/phone-mobile.tsv`, `phone-fixed.tsv`
+## `nb_NO/phone-mobile-prefix.tsv`, `phone-fixed-prefix.tsv`
 
 - Source: [Nkom](https://www.nkom.no/)'s [Samla norsk nummerplan for telefoni mm.
   (E.164)](https://data.norge.no/en/datasets/ecbfe08c-24dc-3eb6-80b5-4a41de967e4b), downloaded

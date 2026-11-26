@@ -1,4 +1,4 @@
-"""Rebuild data/de_DE/phone-mobile.tsv and phone-fixed.tsv from the Bundesnetzagentur's numbering lists.
+"""Rebuild data/de_DE/phone-mobile-prefix.tsv and phone-fixed-prefix.tsv from the Bundesnetzagentur's numbering lists.
 
     data-import/phone-de.py [--source-mobile URL_OR_FILE] [--source-fixed URL_OR_FILE] [--cache DIR]
                             [--out-mobile FILE] [--out-fixed FILE]
@@ -64,8 +64,8 @@ def main() -> None:
 	parser.add_argument("--cache", default=str(CACHE))
 	parser.add_argument("--source-mobile", default=MOBILE)
 	parser.add_argument("--source-fixed", default=FIXED)
-	parser.add_argument("--out-mobile", default=str(DATA / "phone-mobile.tsv"))
-	parser.add_argument("--out-fixed", default=str(DATA / "phone-fixed.tsv"))
+	parser.add_argument("--out-mobile", default=str(DATA / "phone-mobile-prefix.tsv"))
+	parser.add_argument("--out-fixed", default=str(DATA / "phone-fixed-prefix.tsv"))
 	args = parser.parse_args()
 	listing = source.fetch(args.source_mobile, args.cache, "RNB_csv.csv", magic=b"RNB;")
 	archive = source.fetch(args.source_fixed, args.cache, "Vorwahlverzeichnis_ONB.zip", magic=b"PK")

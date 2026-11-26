@@ -1,5 +1,5 @@
 {
-  "format": "{/nb_NO.landline as p}{p}",
+  "format": "{/nb_NO.phone-mobile as p}{p}",
   "national": "{p.national}",
   "international": "{p.international}"
 }

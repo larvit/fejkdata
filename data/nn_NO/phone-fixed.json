@@ -1,5 +1,5 @@
 {
-  "format": "{/en_US.mobile as p}{p}",
+  "format": "{/nb_NO.phone-fixed as p}{p}",
   "national": "{p.national}",
   "international": "{p.international}"
 }

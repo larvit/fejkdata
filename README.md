@@ -794,7 +794,7 @@ as `example.com` into the template; `todo.md` plans the paths. [`url` and `email
 ### Locale categories
 
 `sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
-`landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
+`last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
 `weekday` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `personnummer-date`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
@@ -875,7 +875,7 @@ Where a value mixes kinds, its source says which part is which. An example is a 
 [`data-listing/paths.json`](data-listing/paths.json) is the same list for programs, with `path`, `kind` (an
 array), `example` (not cut) and `source` for each path.
 
-A locale's line lists its person, address, national id, company and phone paths; each locale also has `mobile` and `landline`, which draw the phone's two kinds. A `geo` line lists the
+A locale's line lists its person, address, national id, company and phone paths; each locale also has `phone-mobile` and `phone-fixed`, which draw the phone's two kinds. A `geo` line lists the
 places of one country, from region down to street, and `misc` holds what every locale shares.
 
 The main paths of each module:

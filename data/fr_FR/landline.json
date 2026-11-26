@@ -1,5 +1,0 @@
-{
-  "format": "{.phone-fixed as a}{national}",
-  "national": "{a.area} {a.subscriber}",
-  "international": "+33 {a.ndc} {a.subscriber}"
-}

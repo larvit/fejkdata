@@ -1,6 +1,6 @@
 # `lv_LV`
 
-`lv_LV`, Latvian, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `personas-kods`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `sieviete` and `vīrietis`, `title` is
+`lv_LV`, Latvian, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `paragraph`, `person`, `personas-kods`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `sieviete` and `vīrietis`, `title` is
 `Dr.` and `prof.`, drawn whatever the sex. `{/lv_LV.person}` renders e.g. `Anna Bērziņa`.
 
 `first-name` holds the 2,000 commonest first given names of each sex, each weighted by the persons bearing it in the
@@ -91,7 +91,7 @@ reserve any range for fiction or tests, so don't call or text a drawn number. Th
 further, but Google's libphonenumber refuses some blocks of the mobile range 23: it rejects about one mobile number
 in a hundred that fejkdata draws.
 
-`lv_LV.mobile` draws a mobile number and `lv_LV.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
+`lv_LV.phone-mobile` draws a mobile number and `lv_LV.phone-fixed` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Latvian words
 

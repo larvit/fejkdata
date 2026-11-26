@@ -1,1 +1,9 @@
-{ "format": "{prefix}", "rows": "phone-fixed.tsv", "key": "prefix" }
+{
+  "format": "{block as b}{subscriber as s}{national}",
+  "hidden": {
+    "block": "{.phone-fixed-prefix}",
+    "subscriber": "{.phone.subscriber}"
+  },
+  "national": "{b}{s}",
+  "international": "+45 {b}{s}"
+}
