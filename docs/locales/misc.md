@@ -1,6 +1,6 @@
 # `misc`
 
-`misc` carries `car`, `coordinate`, `creditcard`
+`misc` carries `bic` (ISO 9362), `car`, `coordinate`, `creditcard`
 (Luhn-valid), `creditcard-test`, `currency` (ISO 4217), `cusip` (ANSI X9.6), `datetime` (RFC 3339), `emoji`, `httpmethod`,
 `httpstatus`, `iban-test`, `ip` (IPv4, or IPv6 one time in nine), `ipv6` (in `2001:db8::/32`), `isin` (ISO 6166), `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
 severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
@@ -42,11 +42,16 @@ each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK. Ea
 number, so there are seven cards and seven IBANs, and `{/misc.creditcard-test[visa]}` always prints
 `4242424242424242` and `{/misc.iban-test[SE]}` `SE3550000000054910000003`.
 
-`misc.bic` is valid, not real: ISO 9362's eight or eleven characters. It holds four capital
-letters, a country code from `misc.territory`, a location of capital letters or digits whose
-second character is never `0`, `1` or `2`, which mark a test, passive or reverse billing BIC, and
-a branch that is absent, `XXX` for the primary office or three random capital letters or digits. A
-register of SWIFT members that looks the code up can refuse a draw.
+`misc.bic` is a bank identifier code, the code SWIFT assigns a bank. It is valid, not real: it has
+the structure ISO 9362 sets, and a real bank may hold the code. A BIC is eight or eleven characters:
+
+- four capital letters of the institution;
+- the country code, taken from `misc.territory`;
+- two capital letters or digits of location, whose second character is never `0`, `1` or `2`,
+  since those mark a test, a passive or a reverse billing BIC;
+- a branch of three capital letters or digits, or `XXX` for the primary office, or none.
+
+A checker that looks the code up in SWIFT's register can refuse a draw.
 
 ## Securities identifiers
 
