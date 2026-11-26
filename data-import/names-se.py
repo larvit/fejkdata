@@ -1,8 +1,9 @@
 """Rebuild data/sv_SE/first-name.tsv and last-name.tsv from SCB's whole-population name counts (CC0, "Källa: SCB").
 
-    data-import/names-se.py [--source URL_OR_FILE] [--first N] [--last N] [--cache DIR] [--out DIR]
+    data-import/names-se.py [--source URL_OR_FILE] [--min-count N] [--cache DIR] [--out DIR]
 
 A tilltalsnamn goes under each sex that carries it, so a name both sexes carry has two rows.
+A name borne by fewer than --min-count people goes.
 """
 import argparse
 from collections.abc import Iterable
@@ -21,32 +22,31 @@ PARTICLES = {"af", "av", "da", "de", "del", "den", "der", "di", "dos", "du", "la
 
 
 def cased(name: str) -> str:
-	"""SCB's uppercase name as it is written: each part capitalised, a particle before another part lowercased."""
-	parts = tsv.straight(name).lower().split(" ")
-	return " ".join(w if w in PARTICLES and len(parts) > 1 else w.title() for w in parts)
+    """SCB's uppercase name as it is written: each part capitalised, a particle before another part lowercased."""
+    parts = tsv.straight(name).lower().split(" ")
+    return " ".join(w if w in PARTICLES and len(parts) > 1 else w.title() for w in parts)
 
 
-def counted(rows: Iterable[list[str]], top: int) -> list[tuple[str, int]]:
-	"""The top names of a sheet by bearers, initials and single letters dropped."""
-	names = [(tsv.straight(cells[0]), int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
-	return sorted(names, key=lambda n: (-n[1], n[0]))[:top]
+def counted(rows: Iterable[list[str]], floor: int) -> list[tuple[str, int]]:
+    """The names of a sheet borne by at least floor people, the commonest first, initials and single letters dropped."""
+    names = [(tsv.straight(cells[0]), int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
+    return tsv.common(names, floor)
 
 
 def main() -> None:
-	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-	p.add_argument("--cache", default=str(CACHE))
-	p.add_argument("--first", type=int, default=2000, help="names per sex")
-	p.add_argument("--last", type=int, default=5000)
-	p.add_argument("--out", default=str(OUT))
-	p.add_argument("--source", default=SOURCE)
-	a = p.parse_args()
-	data = source.fetch(a.source, a.cache, "scb-namn-2022.xlsx", magic=b"PK")
-	first = [{"name": cased(n), "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(data, sheet), a.first)]
-	last = [{"name": cased(n), "count": c} for n, c in counted(xlsx.rows(data, SURNAMES), a.last)]
-	out = Path(a.out)
-	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
-	tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("--cache", default=str(CACHE))
+    p.add_argument("--min-count", type=int, default=tsv.MIN_BEARERS, help="bearers a name needs")
+    p.add_argument("--out", default=str(OUT))
+    p.add_argument("--source", default=SOURCE)
+    a = p.parse_args()
+    data = source.fetch(a.source, a.cache, "scb-namn-2022.xlsx", magic=b"PK")
+    first = [{"name": cased(n), "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(data, sheet), a.min_count)]
+    last = [{"name": cased(n), "count": c} for n, c in counted(xlsx.rows(data, SURNAMES), a.min_count)]
+    out = Path(a.out)
+    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
+    tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
 
 
 if __name__ == "__main__":
-	main()
+    main()
