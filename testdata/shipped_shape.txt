@@ -37,15 +37,9 @@ da_DK.first-name.sex	string
 da_DK.individ	format "{digit}"	parent sex
 da_DK.individ.digit	string
 da_DK.individ.sex	string
-da_DK.landline	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-fixed
-da_DK.landline.international	string
-da_DK.landline.national	string
 da_DK.last-name	format "{name}"	key name	weight count
 da_DK.last-name.count	string
 da_DK.last-name.name	string
-da_DK.mobile	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-mobile
-da_DK.mobile.international	string
-da_DK.mobile.national	string
 da_DK.month	format "{name}"	key code	name name
 da_DK.month.code	string
 da_DK.month.name	string
@@ -55,11 +49,17 @@ da_DK.person.first	string
 da_DK.person.last	string
 da_DK.person.prefix	string null
 da_DK.person.sex	string
-da_DK.phone	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone-fixed da_DK.phone-mobile
-da_DK.phone-fixed	format "{prefix}"	key prefix
-da_DK.phone-fixed.prefix	string
-da_DK.phone-mobile	format "{prefix}"	key prefix
-da_DK.phone-mobile.prefix	string
+da_DK.phone	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone-fixed-prefix da_DK.phone-mobile-prefix
+da_DK.phone-fixed	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-fixed-prefix
+da_DK.phone-fixed-prefix	format "{prefix}"	key prefix
+da_DK.phone-fixed-prefix.prefix	string
+da_DK.phone-fixed.international	string
+da_DK.phone-fixed.national	string
+da_DK.phone-mobile	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-mobile-prefix
+da_DK.phone-mobile-prefix	format "{prefix}"	key prefix
+da_DK.phone-mobile-prefix.prefix	string
+da_DK.phone-mobile.international	string
+da_DK.phone-mobile.national	string
 da_DK.phone.block	string
 da_DK.phone.international	string
 da_DK.phone.national	string
@@ -151,15 +151,9 @@ de_DE.first-name	format "{name}"	name name	weight count	parent sex
 de_DE.first-name.count	string
 de_DE.first-name.name	string
 de_DE.first-name.sex	string
-de_DE.landline	format "{.phone-fixed as a}{national}"	reads de_DE.phone-fixed
-de_DE.landline.international	string
-de_DE.landline.national	string
 de_DE.last-name	format "{name}"	key name	weight count
 de_DE.last-name.count	string
 de_DE.last-name.name	string
-de_DE.mobile	format "{.phone-mobile as a}{national}"	reads de_DE.phone-mobile
-de_DE.mobile.international	string
-de_DE.mobile.national	string
 de_DE.month	format "{name}"	key code	name name
 de_DE.month.code	string
 de_DE.month.name	string
@@ -169,16 +163,22 @@ de_DE.person.first	string
 de_DE.person.last	string
 de_DE.person.prefix	string null
 de_DE.person.sex	string
-de_DE.phone	reads de_DE.landline de_DE.mobile
-de_DE.phone-fixed	format "{area}"	key area	reads de_DE.phone-subscriber
-de_DE.phone-fixed.area	string
-de_DE.phone-fixed.name	string
-de_DE.phone-fixed.ndc	string
-de_DE.phone-fixed.subscriber	string
-de_DE.phone-mobile	format "{area}"	key area	reads de_DE.phone-subscriber
-de_DE.phone-mobile.area	string
-de_DE.phone-mobile.ndc	string
-de_DE.phone-mobile.subscriber	string
+de_DE.phone	reads de_DE.phone-fixed de_DE.phone-mobile
+de_DE.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads de_DE.phone-fixed-prefix
+de_DE.phone-fixed-prefix	format "{area}"	key area	reads de_DE.phone-subscriber
+de_DE.phone-fixed-prefix.area	string
+de_DE.phone-fixed-prefix.name	string
+de_DE.phone-fixed-prefix.ndc	string
+de_DE.phone-fixed-prefix.subscriber	string
+de_DE.phone-fixed.international	string
+de_DE.phone-fixed.national	string
+de_DE.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads de_DE.phone-mobile-prefix
+de_DE.phone-mobile-prefix	format "{area}"	key area	reads de_DE.phone-subscriber
+de_DE.phone-mobile-prefix.area	string
+de_DE.phone-mobile-prefix.ndc	string
+de_DE.phone-mobile-prefix.subscriber	string
+de_DE.phone-mobile.international	string
+de_DE.phone-mobile.national	string
 de_DE.phone-subscriber	format "{digits-8}"
 de_DE.phone-subscriber.digits-6	string
 de_DE.phone-subscriber.digits-7	string
@@ -252,15 +252,9 @@ en_US.itin	format "{area}-{group}-{serial}"
 en_US.itin.area	string
 en_US.itin.group	string
 en_US.itin.serial	string
-en_US.landline	format "{/en_US.mobile as p}{p}"	reads en_US.mobile
-en_US.landline.international	string
-en_US.landline.national	string
 en_US.last-name	format "{name}"	key name	weight count
 en_US.last-name.count	string
 en_US.last-name.name	string
-en_US.mobile	format "{area as a}{exchange as e}{line as l}{national}"	reads en_US.phone en_US.phone-exchange
-en_US.mobile.international	string
-en_US.mobile.national	string
 en_US.month	format "{name}"	key code	name name
 en_US.month.code	string
 en_US.month.name	string
@@ -272,6 +266,12 @@ en_US.person.prefix	string null
 en_US.person.sex	string
 en_US.phone	reads en_US.phone-exchange
 en_US.phone-exchange
+en_US.phone-fixed	format "{/en_US.phone-mobile as p}{p}"	reads en_US.phone-mobile
+en_US.phone-fixed.international	string
+en_US.phone-fixed.national	string
+en_US.phone-mobile	format "{area as a}{exchange as e}{line as l}{national}"	reads en_US.phone en_US.phone-exchange
+en_US.phone-mobile.international	string
+en_US.phone-mobile.national	string
 en_US.phone.area
 en_US.phone.exchange
 en_US.phone.line
@@ -367,16 +367,10 @@ et_EE.first-name.name	string
 et_EE.first-name.sex	string
 et_EE.isikukood	format "{/et_EE.sex as s}{isikukood(s.sex-digit.digit,birth)}"	reads et_EE.sex
 et_EE.isikukood.birth	string
-et_EE.landline	format "{number as n}{national}"
-et_EE.landline.international	string
-et_EE.landline.national	string
 et_EE.last-name	format "{name}"	name name	weight count	parent sex
 et_EE.last-name.count	string
 et_EE.last-name.name	string
 et_EE.last-name.sex	string
-et_EE.mobile	format "{number as n}{national}"
-et_EE.mobile.international	string
-et_EE.mobile.national	string
 et_EE.month	format "{name}"	key code	name name
 et_EE.month.code	string
 et_EE.month.name	string
@@ -386,7 +380,13 @@ et_EE.person.first	string
 et_EE.person.last	string
 et_EE.person.prefix	string null
 et_EE.person.sex	string
-et_EE.phone	format "{number as n}{national}"	reads et_EE.landline et_EE.mobile
+et_EE.phone	format "{number as n}{national}"	reads et_EE.phone-fixed et_EE.phone-mobile
+et_EE.phone-fixed	format "{number as n}{national}"
+et_EE.phone-fixed.international	string
+et_EE.phone-fixed.national	string
+et_EE.phone-mobile	format "{number as n}{national}"
+et_EE.phone-mobile.international	string
+et_EE.phone-mobile.national	string
 et_EE.phone.international	string
 et_EE.phone.national	string
 et_EE.price	format "{amt},{cents} €"
@@ -479,15 +479,9 @@ fi_FI.henkilotunnus.birth	string
 fi_FI.individ	format "{digit}"	parent sex
 fi_FI.individ.digit	string
 fi_FI.individ.sex	string
-fi_FI.landline	format "{.phone-fixed as a}{national}"	reads fi_FI.phone-fixed
-fi_FI.landline.international	string
-fi_FI.landline.national	string
 fi_FI.last-name	format "{name}"	key name	weight count
 fi_FI.last-name.count	string
 fi_FI.last-name.name	string
-fi_FI.mobile	format "{.phone-mobile as a}{national}"	reads fi_FI.phone-mobile
-fi_FI.mobile.international	string
-fi_FI.mobile.national	string
 fi_FI.month	format "{name}"	key code	name name
 fi_FI.month.code	string
 fi_FI.month.name	string
@@ -497,16 +491,22 @@ fi_FI.person.first	string
 fi_FI.person.last	string
 fi_FI.person.prefix	string null
 fi_FI.person.sex	string
-fi_FI.phone	reads fi_FI.landline fi_FI.mobile
-fi_FI.phone-fixed	format "{area}"	key area	reads fi_FI.phone-subscriber
-fi_FI.phone-fixed.area	string
-fi_FI.phone-fixed.name	string
-fi_FI.phone-fixed.ndc	string
-fi_FI.phone-fixed.subscriber	string
-fi_FI.phone-mobile	format "{area}"	key area	reads fi_FI.phone-subscriber
-fi_FI.phone-mobile.area	string
-fi_FI.phone-mobile.ndc	string
-fi_FI.phone-mobile.subscriber	string
+fi_FI.phone	reads fi_FI.phone-fixed fi_FI.phone-mobile
+fi_FI.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads fi_FI.phone-fixed-prefix
+fi_FI.phone-fixed-prefix	format "{area}"	key area	reads fi_FI.phone-subscriber
+fi_FI.phone-fixed-prefix.area	string
+fi_FI.phone-fixed-prefix.name	string
+fi_FI.phone-fixed-prefix.ndc	string
+fi_FI.phone-fixed-prefix.subscriber	string
+fi_FI.phone-fixed.international	string
+fi_FI.phone-fixed.national	string
+fi_FI.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads fi_FI.phone-mobile-prefix
+fi_FI.phone-mobile-prefix	format "{area}"	key area	reads fi_FI.phone-subscriber
+fi_FI.phone-mobile-prefix.area	string
+fi_FI.phone-mobile-prefix.ndc	string
+fi_FI.phone-mobile-prefix.subscriber	string
+fi_FI.phone-mobile.international	string
+fi_FI.phone-mobile.national	string
 fi_FI.phone-subscriber	format "{mobile-6-8}"
 fi_FI.phone-subscriber.fixed-5-7	string
 fi_FI.phone-subscriber.fixed-6-8	string
@@ -597,15 +597,9 @@ fr_FR.first-name	format "{name}"	name name	weight count	parent sex
 fr_FR.first-name.count	string
 fr_FR.first-name.name	string
 fr_FR.first-name.sex	string
-fr_FR.landline	format "{.phone-fixed as a}{national}"	reads fr_FR.phone-fixed
-fr_FR.landline.international	string
-fr_FR.landline.national	string
 fr_FR.last-name	format "{name}"	key name	weight count
 fr_FR.last-name.count	string
 fr_FR.last-name.name	string
-fr_FR.mobile	format "{.phone-mobile as a}{national}"	reads fr_FR.phone-mobile
-fr_FR.mobile.international	string
-fr_FR.mobile.national	string
 fr_FR.month	format "{name}"	key code	name name
 fr_FR.month.code	string
 fr_FR.month.name	string
@@ -622,15 +616,21 @@ fr_FR.person.first	string
 fr_FR.person.last	string
 fr_FR.person.prefix	string null
 fr_FR.person.sex	string
-fr_FR.phone	reads fr_FR.landline fr_FR.mobile
-fr_FR.phone-fixed	format "{area}"	key area
-fr_FR.phone-fixed.area	string
-fr_FR.phone-fixed.ndc	string
-fr_FR.phone-fixed.subscriber	string
-fr_FR.phone-mobile	format "{area}"	key area
-fr_FR.phone-mobile.area	string
-fr_FR.phone-mobile.ndc	string
-fr_FR.phone-mobile.subscriber	string
+fr_FR.phone	reads fr_FR.phone-fixed fr_FR.phone-mobile
+fr_FR.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads fr_FR.phone-fixed-prefix
+fr_FR.phone-fixed-prefix	format "{area}"	key area
+fr_FR.phone-fixed-prefix.area	string
+fr_FR.phone-fixed-prefix.ndc	string
+fr_FR.phone-fixed-prefix.subscriber	string
+fr_FR.phone-fixed.international	string
+fr_FR.phone-fixed.national	string
+fr_FR.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads fr_FR.phone-mobile-prefix
+fr_FR.phone-mobile-prefix	format "{area}"	key area
+fr_FR.phone-mobile-prefix.area	string
+fr_FR.phone-mobile-prefix.ndc	string
+fr_FR.phone-mobile-prefix.subscriber	string
+fr_FR.phone-mobile.international	string
+fr_FR.phone-mobile.national	string
 fr_FR.phone.international
 fr_FR.phone.national
 fr_FR.price	format "{amt},{cents} €"
@@ -1422,16 +1422,10 @@ lt_LT.first-name	format "{name}"	name name	weight count	parent sex
 lt_LT.first-name.count	string
 lt_LT.first-name.name	string
 lt_LT.first-name.sex	string
-lt_LT.landline	format "{.phone-fixed as a}{national}"	reads lt_LT.phone-fixed
-lt_LT.landline.international	string
-lt_LT.landline.national	string
 lt_LT.last-name	format "{name}"	name name	weight count	parent sex
 lt_LT.last-name.count	string
 lt_LT.last-name.name	string
 lt_LT.last-name.sex	string
-lt_LT.mobile	format "{.phone-mobile as a}{national}"	reads lt_LT.phone-mobile
-lt_LT.mobile.international	string
-lt_LT.mobile.national	string
 lt_LT.month	format "{name}"	key code	name name
 lt_LT.month.code	string
 lt_LT.month.name	string
@@ -1441,16 +1435,22 @@ lt_LT.person.first	string
 lt_LT.person.last	string
 lt_LT.person.prefix	string null
 lt_LT.person.sex	string
-lt_LT.phone	reads lt_LT.landline lt_LT.mobile
-lt_LT.phone-fixed	format "{area}"	key area
-lt_LT.phone-fixed.area	string
-lt_LT.phone-fixed.name	string
-lt_LT.phone-fixed.ndc	string
-lt_LT.phone-fixed.subscriber	string
-lt_LT.phone-mobile	format "{area}"	key area
-lt_LT.phone-mobile.area	string
-lt_LT.phone-mobile.ndc	string
-lt_LT.phone-mobile.subscriber	string
+lt_LT.phone	reads lt_LT.phone-fixed lt_LT.phone-mobile
+lt_LT.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads lt_LT.phone-fixed-prefix
+lt_LT.phone-fixed-prefix	format "{area}"	key area
+lt_LT.phone-fixed-prefix.area	string
+lt_LT.phone-fixed-prefix.name	string
+lt_LT.phone-fixed-prefix.ndc	string
+lt_LT.phone-fixed-prefix.subscriber	string
+lt_LT.phone-fixed.international	string
+lt_LT.phone-fixed.national	string
+lt_LT.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads lt_LT.phone-mobile-prefix
+lt_LT.phone-mobile-prefix	format "{area}"	key area
+lt_LT.phone-mobile-prefix.area	string
+lt_LT.phone-mobile-prefix.ndc	string
+lt_LT.phone-mobile-prefix.subscriber	string
+lt_LT.phone-mobile.international	string
+lt_LT.phone-mobile.national	string
 lt_LT.phone.international
 lt_LT.phone.national
 lt_LT.price	format "{amt},{cents} €"
@@ -1540,16 +1540,10 @@ lv_LV.first-name	format "{name}"	name name	weight count	parent sex
 lv_LV.first-name.count	string
 lv_LV.first-name.name	string
 lv_LV.first-name.sex	string
-lv_LV.landline	format "{number as n}{national}"
-lv_LV.landline.international	string
-lv_LV.landline.national	string
 lv_LV.last-name	format "{name}"	name name	weight count	parent sex
 lv_LV.last-name.count	string
 lv_LV.last-name.name	string
 lv_LV.last-name.sex	string
-lv_LV.mobile	format "{number as n}{national}"
-lv_LV.mobile.international	string
-lv_LV.mobile.national	string
 lv_LV.month	format "{name}"	key code	name name
 lv_LV.month.code	string
 lv_LV.month.name	string
@@ -1561,7 +1555,13 @@ lv_LV.person.prefix	string null
 lv_LV.person.sex	string
 lv_LV.personas-kods	format "{personaskods(birth)}"
 lv_LV.personas-kods.birth	string
-lv_LV.phone	format "{number as n}{national}"	reads lv_LV.landline lv_LV.mobile
+lv_LV.phone	format "{number as n}{national}"	reads lv_LV.phone-fixed lv_LV.phone-mobile
+lv_LV.phone-fixed	format "{number as n}{national}"
+lv_LV.phone-fixed.international	string
+lv_LV.phone-fixed.national	string
+lv_LV.phone-mobile	format "{number as n}{national}"
+lv_LV.phone-mobile.international	string
+lv_LV.phone-mobile.national	string
 lv_LV.phone.international	string
 lv_LV.phone.national	string
 lv_LV.price	format "{amt},{cents} €"
@@ -1748,15 +1748,9 @@ nb_NO.fodselsnummer.birth	string
 nb_NO.individ	format "{digit}"	parent sex
 nb_NO.individ.digit	string
 nb_NO.individ.sex	string
-nb_NO.landline	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-fixed
-nb_NO.landline.international	string
-nb_NO.landline.national	string
 nb_NO.last-name	format "{name}"	key name	weight count
 nb_NO.last-name.count	string
 nb_NO.last-name.name	string
-nb_NO.mobile	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-mobile
-nb_NO.mobile.international	string
-nb_NO.mobile.national	string
 nb_NO.month	format "{name}"	key code	name name
 nb_NO.month.code	string
 nb_NO.month.name	string
@@ -1766,11 +1760,17 @@ nb_NO.person.first	string
 nb_NO.person.last	string
 nb_NO.person.prefix	string null
 nb_NO.person.sex	string
-nb_NO.phone	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone-fixed nb_NO.phone-mobile
-nb_NO.phone-fixed	format "{prefix}"	key prefix
-nb_NO.phone-fixed.prefix	string
-nb_NO.phone-mobile	format "{prefix}"	key prefix
-nb_NO.phone-mobile.prefix	string
+nb_NO.phone	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone-fixed-prefix nb_NO.phone-mobile-prefix
+nb_NO.phone-fixed	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-fixed-prefix
+nb_NO.phone-fixed-prefix	format "{prefix}"	key prefix
+nb_NO.phone-fixed-prefix.prefix	string
+nb_NO.phone-fixed.international	string
+nb_NO.phone-fixed.national	string
+nb_NO.phone-mobile	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-mobile-prefix
+nb_NO.phone-mobile-prefix	format "{prefix}"	key prefix
+nb_NO.phone-mobile-prefix.prefix	string
+nb_NO.phone-mobile.international	string
+nb_NO.phone-mobile.national	string
 nb_NO.phone.block	string
 nb_NO.phone.international	string
 nb_NO.phone.national	string
@@ -1842,12 +1842,6 @@ nn_NO.email.domain	string
 nn_NO.email.local	string
 nn_NO.email.reserved	string
 nn_NO.fodselsnummer	format "{/nb_NO.fodselsnummer as f}{f}"	reads nb_NO.fodselsnummer
-nn_NO.landline	format "{/nb_NO.landline as p}{p}"	reads nb_NO.landline
-nn_NO.landline.international	string
-nn_NO.landline.national	string
-nn_NO.mobile	format "{/nb_NO.mobile as p}{p}"	reads nb_NO.mobile
-nn_NO.mobile.international	string
-nn_NO.mobile.national	string
 nn_NO.month	format "{name}"	key code	name name
 nn_NO.month.code	string
 nn_NO.month.name	string
@@ -1858,6 +1852,12 @@ nn_NO.person.last	string
 nn_NO.person.prefix	string null
 nn_NO.person.sex	string
 nn_NO.phone	format "{/nb_NO.phone as p}{p}"	reads nb_NO.phone
+nn_NO.phone-fixed	format "{/nb_NO.phone-fixed as p}{p}"	reads nb_NO.phone-fixed
+nn_NO.phone-fixed.international	string
+nn_NO.phone-fixed.national	string
+nn_NO.phone-mobile	format "{/nb_NO.phone-mobile as p}{p}"	reads nb_NO.phone-mobile
+nn_NO.phone-mobile.international	string
+nn_NO.phone-mobile.national	string
 nn_NO.phone.international	string
 nn_NO.phone.national	string
 nn_NO.price	format "{/nb_NO.price}"	reads nb_NO.price
@@ -1961,9 +1961,6 @@ sv_SE.first-name.sex	string
 sv_SE.holiday	format "{name}"	key code	name name
 sv_SE.holiday.code	string
 sv_SE.holiday.name	string
-sv_SE.landline	format "{.phone-area as a}{national}"	reads sv_SE.phone-area
-sv_SE.landline.international	string
-sv_SE.landline.national	string
 sv_SE.last-name	format "{name}"	key name	weight count
 sv_SE.last-name.count	string
 sv_SE.last-name.name	string
@@ -1975,9 +1972,6 @@ sv_SE.licenseplate.current-number	string
 sv_SE.licenseplate.last	string
 sv_SE.licenseplate.old	string
 sv_SE.licenseplate.old-number	string
-sv_SE.mobile	format "{ndc as d}{subscriber as s}{national}"
-sv_SE.mobile.international	string
-sv_SE.mobile.national	string
 sv_SE.month	format "{name}"	key code	name name
 sv_SE.month.code	string
 sv_SE.month.name	string
@@ -2002,12 +1996,18 @@ sv_SE.personnummer.child	string
 sv_SE.personnummer.number	string
 sv_SE.personnummer.senior	string
 sv_SE.personnummer.sex	string
-sv_SE.phone	reads sv_SE.landline sv_SE.mobile
+sv_SE.phone	reads sv_SE.phone-fixed sv_SE.phone-mobile
 sv_SE.phone-area	format "{area}"	key area	reads sv_SE.phone-subscriber
 sv_SE.phone-area.area	string
 sv_SE.phone-area.name	string
 sv_SE.phone-area.ndc	string
 sv_SE.phone-area.subscriber	string
+sv_SE.phone-fixed	format "{.phone-area as a}{national}"	reads sv_SE.phone-area
+sv_SE.phone-fixed.international	string
+sv_SE.phone-fixed.national	string
+sv_SE.phone-mobile	format "{ndc as d}{subscriber as s}{national}"
+sv_SE.phone-mobile.international	string
+sv_SE.phone-mobile.national	string
 sv_SE.phone-subscriber	format "{digits-5-6}"
 sv_SE.phone-subscriber.digits-5-6	string
 sv_SE.phone-subscriber.digits-5-7	string
