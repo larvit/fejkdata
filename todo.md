@@ -19,7 +19,6 @@
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
 | 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
-| 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 599 | 0.9.0 |  |  | **Have the DK, LT, NO, EE and LV geo imports refuse a street name that `geo.cleanly_written` refuses, and drop the DK and LT rows that fail it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 1 | 0.9 |
@@ -281,25 +280,6 @@ Touches:
 - `docs/locales/en_US.md`
 - `docs/locales/fr_FR.md`
 - `DATA-LICENSES.md`
-
-### 559. Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.
-
-Today columns come in name order, so a user's `LOAD DATA` column list had to follow the alphabet instead of the template. It is the default and no option, since an option leaves the trap for whoever doesn't know of it.
-
-A change to what exists, so it names the break in `CHANGELOG.md`; reading by header or by name is unaffected. Draw the columns in name order still, so a seed draws the same values and only their places change. The decision "A name lives in the category binding it, …" states that columns render in name order; revise it where it no longer holds.
-
-JSON objects decode into Go maps, which lose key order, so `internal/jsonvalue` must keep it. A field without a place in an object, as `FakeStruct`'s and a table's, keeps the order it has today unless the chunk records why not: a table's columns have their header's order to follow.
-
-Touches:
-
-- `internal/jsonvalue/jsonvalue.go`: `Decode`, `Object`, `Value`
-- `internal/engine/load/node.go`: `compileTemplate`, `compileFields`, `compileFieldsInto`
-- `internal/engine/load/record.go`: `recordColumns`
-- `internal/engine/record.go`
-- `record.go`: `Record`, `Record.Columns` (small)
-- `record_test.go`
-- `cli/records_test.go`
-- `README.md`: `### CSV and SQL seed data` (small), `### Records`, `### Load into a database` (small)
 
 ### 549. Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.
 
