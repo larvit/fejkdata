@@ -11,6 +11,7 @@ with its replacement, and each removed path, column or flag.
 
 - `fr_FR.first-name` has no row `Jahyan` and `fr_FR.last-name` none `Prades` any more: each fell out of the top 2,000 and 5,000 when a name with a one-letter part before an apostrophe joined.
 - `{ascii(x)}` and `{slugify(x)}` fold the Vietnamese letters: `Nguyễn` becomes `Nguyen`, not `Nguyn`, and slugs to `nguyen`; `Đặng` becomes `Dang`, not `Dng`.
+- `misc.territory[EH].tld` is empty, not `.eh`, so a draw of `misc.territory.tld` is empty once in 241: the root zone has never delegated `.eh`, and `misc.tld` doesn't hold it.
 
 ### Added
 
@@ -25,7 +26,6 @@ with its replacement, and each removed path, column or flag.
 
 - The error for a `{` that is never closed names both fixes: write `{{` for a literal brace, or close the token with `}`.
 - `misc.territory[KZ].capital` is `Astana`, not `Nur-Sultan`. `misc.territory[PW].capital` is `Ngerulmud`, not `Melekeok`, the state it lies in.
-- `misc.territory[EH].tld` is empty, not `.eh`: the root zone has never delegated `.eh`, so `misc.tld` doesn't hold it and no resolver answers for it.
 
 ## 0.8.0 - 2026-11-21
 
