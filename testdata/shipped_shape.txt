@@ -1,4 +1,4 @@
-da_DK.address	format "{/geo.DK.address as a}{a}"	reads geo.DK.address
+da_DK.address	format "{/geo.DK.address as a}{a}"	reads geo.DK.address	columns street street-number postal-code locality municipality region
 da_DK.address.locality	string
 da_DK.address.municipality	string
 da_DK.address.postal-code	string
@@ -6,7 +6,7 @@ da_DK.address.region	string
 da_DK.address.street	string
 da_DK.address.street-number	string
 da_DK.color
-da_DK.company	format "{registered as r}{r}"	reads da_DK.company da_DK.company-coined da_DK.company-word da_DK.first-name da_DK.last-name geo.DK.locality
+da_DK.company	format "{registered as r}{r}"	reads da_DK.company da_DK.company-coined da_DK.company-word da_DK.first-name da_DK.last-name geo.DK.locality	columns legal registered enk aps as is ks
 da_DK.company-coined	format "{a}{b}"
 da_DK.company-word
 da_DK.company.aps	string
@@ -22,10 +22,10 @@ da_DK.company.ks.name
 da_DK.company.legal	string
 da_DK.company.registered	string
 da_DK.company.registered.legal
-da_DK.cpr	format "{/da_DK.sex as s}{birth}-{cpr(s.individ.digit)}"	reads da_DK.sex
+da_DK.cpr	format "{/da_DK.sex as s}{birth}-{cpr(s.individ.digit)}"	reads da_DK.sex	columns birth
 da_DK.cpr.birth	string
 da_DK.date	format "{date(1970-01-01,2029-12-31,'2.1.2006')}"
-da_DK.email	format "{local}@{domain}"	reads da_DK.email da_DK.first-name da_DK.last-name
+da_DK.email	format "{local}@{domain}"	reads da_DK.email da_DK.first-name da_DK.last-name	columns local domain reserved
 da_DK.email.domain	string
 da_DK.email.local	string
 da_DK.email.local.n
@@ -44,18 +44,18 @@ da_DK.month	format "{name}"	key code	name name
 da_DK.month.code	string
 da_DK.month.name	string
 da_DK.paragraph	reads da_DK.sentence
-da_DK.person	format "{prefix}{first} {last}"	reads da_DK.first-name da_DK.last-name da_DK.title
+da_DK.person	format "{prefix}{first} {last}"	reads da_DK.first-name da_DK.last-name da_DK.title	columns first last prefix sex
 da_DK.person.first	string
 da_DK.person.last	string
 da_DK.person.prefix	string null
 da_DK.person.sex	string
-da_DK.phone	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone-fixed-prefix da_DK.phone-mobile-prefix
-da_DK.phone-fixed	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-fixed-prefix
+da_DK.phone	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone-fixed-prefix da_DK.phone-mobile-prefix	columns block subscriber national international
+da_DK.phone-fixed	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-fixed-prefix	columns national international
 da_DK.phone-fixed-prefix	format "{prefix}"	key prefix
 da_DK.phone-fixed-prefix.prefix	string
 da_DK.phone-fixed.international	string
 da_DK.phone-fixed.national	string
-da_DK.phone-mobile	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-mobile-prefix
+da_DK.phone-mobile	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-mobile-prefix	columns national international
 da_DK.phone-mobile-prefix	format "{prefix}"	key prefix
 da_DK.phone-mobile-prefix.prefix	string
 da_DK.phone-mobile.international	string
@@ -86,7 +86,7 @@ da_DK.time	format "{time('15.04')}"
 da_DK.title	format "{name}"	key name	weight share
 da_DK.title.name	string
 da_DK.title.share	string
-da_DK.url	format "https://{host}{path}"	reads da_DK.url
+da_DK.url	format "https://{host}{path}"	reads da_DK.url	columns reserved host path
 da_DK.url.host	string
 da_DK.url.path	string
 da_DK.url.reserved	string
@@ -95,7 +95,7 @@ da_DK.username.n
 da_DK.weekday	format "{name}"	key code	name name
 da_DK.weekday.code	string
 da_DK.weekday.name	string
-da_DK.word	format "{any}"	reads da_DK.word-adj da_DK.word-adv da_DK.word-noun da_DK.word-verb
+da_DK.word	format "{any}"	reads da_DK.word-adj da_DK.word-adv da_DK.word-noun da_DK.word-verb	columns any noun verb adj adv
 da_DK.word-adj	format "{word}"
 da_DK.word-adj.definite	string
 da_DK.word-adj.word	string
@@ -115,7 +115,7 @@ da_DK.word.noun	string
 da_DK.word.noun.definite
 da_DK.word.verb	string
 da_DK.word.verb.present
-de_DE.address	format "{/geo.DE.address as a}{a}"	reads geo.DE.address
+de_DE.address	format "{/geo.DE.address as a}{a}"	reads geo.DE.address	columns street street-number postal-code locality municipality region
 de_DE.address.locality	string
 de_DE.address.municipality	string
 de_DE.address.postal-code	string
@@ -123,7 +123,7 @@ de_DE.address.region	string
 de_DE.address.street	string
 de_DE.address.street-number	string
 de_DE.color
-de_DE.company	format "{registered as r}{r}"	reads de_DE.company de_DE.company-coined de_DE.company-word de_DE.first-name de_DE.last-name geo.DE.locality
+de_DE.company	format "{registered as r}{r}"	reads de_DE.company de_DE.company-coined de_DE.company-word de_DE.first-name de_DE.last-name geo.DE.locality	columns legal registered einzel kg ohg gmbh ug ag
 de_DE.company-coined	format "{a}{b}"
 de_DE.company-word
 de_DE.company.ag	string
@@ -142,7 +142,7 @@ de_DE.company.registered.legal
 de_DE.company.ug	string
 de_DE.company.ug.name
 de_DE.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-de_DE.email	format "{local}@{domain}"	reads de_DE.email de_DE.first-name de_DE.last-name
+de_DE.email	format "{local}@{domain}"	reads de_DE.email de_DE.first-name de_DE.last-name	columns local domain reserved
 de_DE.email.domain	string
 de_DE.email.local	string
 de_DE.email.local.n
@@ -158,13 +158,13 @@ de_DE.month	format "{name}"	key code	name name
 de_DE.month.code	string
 de_DE.month.name	string
 de_DE.paragraph	reads de_DE.sentence
-de_DE.person	format "{prefix}{first} {last}"	reads de_DE.first-name de_DE.last-name de_DE.title
+de_DE.person	format "{prefix}{first} {last}"	reads de_DE.first-name de_DE.last-name de_DE.title	columns first last prefix sex
 de_DE.person.first	string
 de_DE.person.last	string
 de_DE.person.prefix	string null
 de_DE.person.sex	string
 de_DE.phone	reads de_DE.phone-fixed de_DE.phone-mobile
-de_DE.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads de_DE.phone-fixed-prefix
+de_DE.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads de_DE.phone-fixed-prefix	columns national international
 de_DE.phone-fixed-prefix	format "{area}"	key area	reads de_DE.phone-subscriber
 de_DE.phone-fixed-prefix.area	string
 de_DE.phone-fixed-prefix.name	string
@@ -172,14 +172,14 @@ de_DE.phone-fixed-prefix.ndc	string
 de_DE.phone-fixed-prefix.subscriber	string
 de_DE.phone-fixed.international	string
 de_DE.phone-fixed.national	string
-de_DE.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads de_DE.phone-mobile-prefix
+de_DE.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads de_DE.phone-mobile-prefix	columns national international
 de_DE.phone-mobile-prefix	format "{area}"	key area	reads de_DE.phone-subscriber
 de_DE.phone-mobile-prefix.area	string
 de_DE.phone-mobile-prefix.ndc	string
 de_DE.phone-mobile-prefix.subscriber	string
 de_DE.phone-mobile.international	string
 de_DE.phone-mobile.national	string
-de_DE.phone-subscriber	format "{digits-8}"
+de_DE.phone-subscriber	format "{digits-8}"	columns digits-6 digits-7 digits-7-8 digits-8
 de_DE.phone-subscriber.digits-6	string
 de_DE.phone-subscriber.digits-7	string
 de_DE.phone-subscriber.digits-7-8	string
@@ -202,7 +202,7 @@ de_DE.time	format "{time('15:04')}"
 de_DE.title	format "{name}"	key name	weight share
 de_DE.title.name	string
 de_DE.title.share	string
-de_DE.url	format "https://{host}{path}"	reads de_DE.url
+de_DE.url	format "https://{host}{path}"	reads de_DE.url	columns reserved host path
 de_DE.url.host	string
 de_DE.url.path	string
 de_DE.url.reserved	string
@@ -211,7 +211,7 @@ de_DE.username.n
 de_DE.weekday	format "{name}"	key code	name name
 de_DE.weekday.code	string
 de_DE.weekday.name	string
-de_DE.word	format "{any}"	reads de_DE.word-adj de_DE.word-adv de_DE.word-noun de_DE.word-verb
+de_DE.word	format "{any}"	reads de_DE.word-adj de_DE.word-adv de_DE.word-noun de_DE.word-verb	columns any noun verb adj adv
 de_DE.word-adj	format "{word}"
 de_DE.word-adj.word	string
 de_DE.word-adv	format "{word}"
@@ -227,7 +227,7 @@ de_DE.word.any	string
 de_DE.word.noun	string
 de_DE.word.noun.plural
 de_DE.word.verb	string
-en_US.address	format "{/geo.US.address as a}{a}"	reads geo.US.address
+en_US.address	format "{/geo.US.address as a}{a}"	reads geo.US.address	columns street street-number locality municipality region postal-code
 en_US.address.locality	string
 en_US.address.municipality	string
 en_US.address.postal-code	string
@@ -235,11 +235,11 @@ en_US.address.region	string
 en_US.address.street	string
 en_US.address.street-number	string
 en_US.color
-en_US.company	format "{base} {suffix}"
+en_US.company	format "{base} {suffix}"	columns base suffix
 en_US.company.base	string
 en_US.company.suffix	string
 en_US.date	format "{date(1970-01-01,2029-12-31,'01/02/2006')}"
-en_US.email	format "{local}@{domain}"	reads en_US.email
+en_US.email	format "{local}@{domain}"	reads en_US.email	columns local domain reserved
 en_US.email.domain	string
 en_US.email.local	string
 en_US.email.local.n
@@ -248,7 +248,7 @@ en_US.first-name	format "{name}"	name name	weight count	parent sex
 en_US.first-name.count	string
 en_US.first-name.name	string
 en_US.first-name.sex	string
-en_US.itin	format "{area}-{group}-{serial}"
+en_US.itin	format "{area}-{group}-{serial}"	columns area group serial
 en_US.itin.area	string
 en_US.itin.group	string
 en_US.itin.serial	string
@@ -259,17 +259,17 @@ en_US.month	format "{name}"	key code	name name
 en_US.month.code	string
 en_US.month.name	string
 en_US.paragraph	reads en_US.sentence
-en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name
+en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name	columns first last prefix sex
 en_US.person.first	string
 en_US.person.last	string
 en_US.person.prefix	string null
 en_US.person.sex	string
 en_US.phone	reads en_US.phone-exchange
 en_US.phone-exchange
-en_US.phone-fixed	format "{/en_US.phone-mobile as p}{p}"	reads en_US.phone-mobile
+en_US.phone-fixed	format "{/en_US.phone-mobile as p}{p}"	reads en_US.phone-mobile	columns national international
 en_US.phone-fixed.international	string
 en_US.phone-fixed.national	string
-en_US.phone-mobile	format "{area as a}{exchange as e}{line as l}{national}"	reads en_US.phone en_US.phone-exchange
+en_US.phone-mobile	format "{area as a}{exchange as e}{line as l}{national}"	reads en_US.phone en_US.phone-exchange	columns national international
 en_US.phone-mobile.international	string
 en_US.phone-mobile.national	string
 en_US.phone.area
@@ -293,7 +293,7 @@ en_US.sex.title
 en_US.sex.title.name
 en_US.sex.title.sex
 en_US.sex.title.share
-en_US.ssn	format "{area}-{group}-{serial}"
+en_US.ssn	format "{area}-{group}-{serial}"	columns area group serial
 en_US.ssn.area	string
 en_US.ssn.group	string
 en_US.ssn.serial	string
@@ -302,7 +302,7 @@ en_US.title	format "{name}"	name name	weight share	parent sex
 en_US.title.name	string
 en_US.title.sex	string
 en_US.title.share	string
-en_US.url	format "https://{host}{path}"	reads en_US.url
+en_US.url	format "https://{host}{path}"	reads en_US.url	columns reserved host path
 en_US.url.host	string
 en_US.url.path	string
 en_US.url.reserved	string
@@ -311,7 +311,7 @@ en_US.username.n
 en_US.weekday	format "{name}"	key code	name name
 en_US.weekday.code	string
 en_US.weekday.name	string
-en_US.word	format "{any}"	reads en_US.word-adj en_US.word-adv en_US.word-noun en_US.word-verb
+en_US.word	format "{any}"	reads en_US.word-adj en_US.word-adv en_US.word-noun en_US.word-verb	columns any noun verb adj adv
 en_US.word-adj	format "{word}"
 en_US.word-adj.word	string
 en_US.word-adv	format "{word}"
@@ -327,7 +327,7 @@ en_US.word.any	string
 en_US.word.noun	string
 en_US.word.verb	string
 en_US.word.verb.present
-et_EE.address	format "{/geo.EE.address as a}{a}"	reads geo.EE.address
+et_EE.address	format "{/geo.EE.address as a}{a}"	reads geo.EE.address	columns street street-number postal-code locality municipality region
 et_EE.address.locality	string
 et_EE.address.municipality	string
 et_EE.address.postal-code	string
@@ -335,7 +335,7 @@ et_EE.address.region	string
 et_EE.address.street	string
 et_EE.address.street-number	string
 et_EE.color
-et_EE.company	format "{registered as r}{r}"	reads et_EE.company et_EE.company-coined et_EE.company-word et_EE.person
+et_EE.company	format "{registered as r}{r}"	reads et_EE.company et_EE.company-coined et_EE.company-word et_EE.person	columns legal registered fie ou as uu tu
 et_EE.company-coined	format "{word}"	weight count
 et_EE.company-coined.count	string
 et_EE.company-coined.word	string
@@ -356,7 +356,7 @@ et_EE.company.tu.name
 et_EE.company.uu	string
 et_EE.company.uu.name
 et_EE.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-et_EE.email	format "{local}@{domain}"	reads et_EE.email et_EE.person
+et_EE.email	format "{local}@{domain}"	reads et_EE.email et_EE.person	columns local domain reserved
 et_EE.email.domain	string
 et_EE.email.local	string
 et_EE.email.local.n
@@ -365,7 +365,7 @@ et_EE.first-name	format "{name}"	name name	weight count	parent sex
 et_EE.first-name.count	string
 et_EE.first-name.name	string
 et_EE.first-name.sex	string
-et_EE.isikukood	format "{/et_EE.sex as s}{isikukood(s.sex-digit.digit,birth)}"	reads et_EE.sex
+et_EE.isikukood	format "{/et_EE.sex as s}{isikukood(s.sex-digit.digit,birth)}"	reads et_EE.sex	columns birth
 et_EE.isikukood.birth	string
 et_EE.last-name	format "{name}"	name name	weight count	parent sex
 et_EE.last-name.count	string
@@ -375,16 +375,16 @@ et_EE.month	format "{name}"	key code	name name
 et_EE.month.code	string
 et_EE.month.name	string
 et_EE.paragraph	reads et_EE.sentence
-et_EE.person	format "{prefix}{first} {last}"	reads et_EE.first-name et_EE.title
+et_EE.person	format "{prefix}{first} {last}"	reads et_EE.first-name et_EE.title	columns first last prefix sex
 et_EE.person.first	string
 et_EE.person.last	string
 et_EE.person.prefix	string null
 et_EE.person.sex	string
-et_EE.phone	format "{number as n}{national}"	reads et_EE.phone-fixed et_EE.phone-mobile
-et_EE.phone-fixed	format "{number as n}{national}"
+et_EE.phone	format "{number as n}{national}"	reads et_EE.phone-fixed et_EE.phone-mobile	columns national international
+et_EE.phone-fixed	format "{number as n}{national}"	columns national international
 et_EE.phone-fixed.international	string
 et_EE.phone-fixed.national	string
-et_EE.phone-mobile	format "{number as n}{national}"
+et_EE.phone-mobile	format "{number as n}{national}"	columns national international
 et_EE.phone-mobile.international	string
 et_EE.phone-mobile.national	string
 et_EE.phone.international	string
@@ -413,7 +413,7 @@ et_EE.time	format "{time('15:04')}"
 et_EE.title	format "{name}"	key name	weight share
 et_EE.title.name	string
 et_EE.title.share	string
-et_EE.url	format "https://{host}{path}"	reads et_EE.url
+et_EE.url	format "https://{host}{path}"	reads et_EE.url	columns reserved host path
 et_EE.url.host	string
 et_EE.url.path	string
 et_EE.url.reserved	string
@@ -422,7 +422,7 @@ et_EE.username.n
 et_EE.weekday	format "{name}"	key code	name name
 et_EE.weekday.code	string
 et_EE.weekday.name	string
-et_EE.word	format "{any}"	reads et_EE.word-adj et_EE.word-adv et_EE.word-noun et_EE.word-verb
+et_EE.word	format "{any}"	reads et_EE.word-adj et_EE.word-adv et_EE.word-noun et_EE.word-verb	columns any noun verb adj adv
 et_EE.word-adj	format "{word}"
 et_EE.word-adj.word	string
 et_EE.word-adv	format "{word}"
@@ -438,7 +438,7 @@ et_EE.word.any	string
 et_EE.word.noun	string
 et_EE.word.noun.plural
 et_EE.word.verb	string
-fi_FI.address	format "{/geo.FI.address as a}{a}"	reads geo.FI.address
+fi_FI.address	format "{/geo.FI.address as a}{a}"	reads geo.FI.address	columns street street-number postal-code locality municipality region
 fi_FI.address.locality	string
 fi_FI.address.municipality	string
 fi_FI.address.postal-code	string
@@ -446,7 +446,7 @@ fi_FI.address.region	string
 fi_FI.address.street	string
 fi_FI.address.street-number	string
 fi_FI.color
-fi_FI.company	format "{registered as r}{r}"	reads fi_FI.company fi_FI.company-coined fi_FI.company-word fi_FI.first-name fi_FI.last-name
+fi_FI.company	format "{registered as r}{r}"	reads fi_FI.company fi_FI.company-coined fi_FI.company-word fi_FI.first-name fi_FI.last-name	columns legal registered tmi oy ky ay osk
 fi_FI.company-coined	format "{a}{b}"
 fi_FI.company-word
 fi_FI.company.ay	string
@@ -463,7 +463,7 @@ fi_FI.company.registered.legal
 fi_FI.company.tmi	string
 fi_FI.company.tmi.name
 fi_FI.date	format "{date(1970-01-01,2029-12-31,'2.1.2006')}"
-fi_FI.email	format "{local}@{domain}"	reads fi_FI.email fi_FI.first-name fi_FI.last-name
+fi_FI.email	format "{local}@{domain}"	reads fi_FI.email fi_FI.first-name fi_FI.last-name	columns local domain reserved
 fi_FI.email.domain	string
 fi_FI.email.local	string
 fi_FI.email.local.n
@@ -472,8 +472,8 @@ fi_FI.first-name	format "{name}"	name name	weight count	parent sex
 fi_FI.first-name.count	string
 fi_FI.first-name.name	string
 fi_FI.first-name.sex	string
-fi_FI.henkilotunnus	format "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit)}"	reads fi_FI.sex
-fi_FI.henkilotunnus-issued	format "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit,'issued')}"	reads fi_FI.henkilotunnus fi_FI.sex
+fi_FI.henkilotunnus	format "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit)}"	reads fi_FI.sex	columns birth
+fi_FI.henkilotunnus-issued	format "{/fi_FI.sex as s}{birth}{hetu(s.individ.digit,'issued')}"	reads fi_FI.henkilotunnus fi_FI.sex	columns birth
 fi_FI.henkilotunnus-issued.birth	string
 fi_FI.henkilotunnus.birth	string
 fi_FI.individ	format "{digit}"	parent sex
@@ -486,13 +486,13 @@ fi_FI.month	format "{name}"	key code	name name
 fi_FI.month.code	string
 fi_FI.month.name	string
 fi_FI.paragraph	reads fi_FI.sentence
-fi_FI.person	format "{prefix}{first} {last}"	reads fi_FI.first-name fi_FI.last-name fi_FI.title
+fi_FI.person	format "{prefix}{first} {last}"	reads fi_FI.first-name fi_FI.last-name fi_FI.title	columns first last prefix sex
 fi_FI.person.first	string
 fi_FI.person.last	string
 fi_FI.person.prefix	string null
 fi_FI.person.sex	string
 fi_FI.phone	reads fi_FI.phone-fixed fi_FI.phone-mobile
-fi_FI.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads fi_FI.phone-fixed-prefix
+fi_FI.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads fi_FI.phone-fixed-prefix	columns national international
 fi_FI.phone-fixed-prefix	format "{area}"	key area	reads fi_FI.phone-subscriber
 fi_FI.phone-fixed-prefix.area	string
 fi_FI.phone-fixed-prefix.name	string
@@ -500,14 +500,14 @@ fi_FI.phone-fixed-prefix.ndc	string
 fi_FI.phone-fixed-prefix.subscriber	string
 fi_FI.phone-fixed.international	string
 fi_FI.phone-fixed.national	string
-fi_FI.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads fi_FI.phone-mobile-prefix
+fi_FI.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads fi_FI.phone-mobile-prefix	columns national international
 fi_FI.phone-mobile-prefix	format "{area}"	key area	reads fi_FI.phone-subscriber
 fi_FI.phone-mobile-prefix.area	string
 fi_FI.phone-mobile-prefix.ndc	string
 fi_FI.phone-mobile-prefix.subscriber	string
 fi_FI.phone-mobile.international	string
 fi_FI.phone-mobile.national	string
-fi_FI.phone-subscriber	format "{mobile-6-8}"
+fi_FI.phone-subscriber	format "{mobile-6-8}"	columns fixed-5-7 fixed-6-8 mobile-5-7 mobile-6-8
 fi_FI.phone-subscriber.fixed-5-7	string
 fi_FI.phone-subscriber.fixed-6-8	string
 fi_FI.phone-subscriber.mobile-5-7	string
@@ -533,7 +533,7 @@ fi_FI.time	format "{time('15.04')}"
 fi_FI.title	format "{name}"	key name	weight share
 fi_FI.title.name	string
 fi_FI.title.share	string
-fi_FI.url	format "https://{host}{path}"	reads fi_FI.url
+fi_FI.url	format "https://{host}{path}"	reads fi_FI.url	columns reserved host path
 fi_FI.url.host	string
 fi_FI.url.path	string
 fi_FI.url.reserved	string
@@ -542,7 +542,7 @@ fi_FI.username.n
 fi_FI.weekday	format "{name}"	key code	name name
 fi_FI.weekday.code	string
 fi_FI.weekday.name	string
-fi_FI.word	format "{any}"	reads fi_FI.word-adj fi_FI.word-adv fi_FI.word-noun fi_FI.word-verb
+fi_FI.word	format "{any}"	reads fi_FI.word-adj fi_FI.word-adv fi_FI.word-noun fi_FI.word-verb	columns any noun verb adj adv
 fi_FI.word-adj	format "{word}"
 fi_FI.word-adj.word	string
 fi_FI.word-adv	format "{word}"
@@ -556,7 +556,7 @@ fi_FI.word.adv	string
 fi_FI.word.any	string
 fi_FI.word.noun	string
 fi_FI.word.verb	string
-fr_FR.address	format "{/geo.FR.address as a}{a}"	reads geo.FR.address
+fr_FR.address	format "{/geo.FR.address as a}{a}"	reads geo.FR.address	columns street street-number postal-code locality municipality region
 fr_FR.address.locality	string
 fr_FR.address.municipality	string
 fr_FR.address.postal-code	string
@@ -564,7 +564,7 @@ fr_FR.address.region	string
 fr_FR.address.street	string
 fr_FR.address.street-number	string
 fr_FR.color
-fr_FR.company	format "{registered as r}{r}"	reads fr_FR.company fr_FR.company-coined fr_FR.company-word fr_FR.first-name fr_FR.last-name
+fr_FR.company	format "{registered as r}{r}"	reads fr_FR.company fr_FR.company-coined fr_FR.company-word fr_FR.first-name fr_FR.last-name	columns legal registered ei sarl sas snc sa
 fr_FR.company-coined	format "{word}"	weight count
 fr_FR.company-coined.count	string
 fr_FR.company-coined.word	string
@@ -588,7 +588,7 @@ fr_FR.date	format "{date(1970-01-01,2029-12-31,'02/01/2006')}"
 fr_FR.department	format "{code}"	key code	reads fr_FR.nonzero-number
 fr_FR.department.code	string
 fr_FR.department.commune	string
-fr_FR.email	format "{local}@{domain}"	reads fr_FR.email fr_FR.first-name fr_FR.last-name
+fr_FR.email	format "{local}@{domain}"	reads fr_FR.email fr_FR.first-name fr_FR.last-name	columns local domain reserved
 fr_FR.email.domain	string
 fr_FR.email.local	string
 fr_FR.email.local.n
@@ -603,28 +603,28 @@ fr_FR.last-name.name	string
 fr_FR.month	format "{name}"	key code	name name
 fr_FR.month.code	string
 fr_FR.month.name	string
-fr_FR.nir	format "{/fr_FR.sex as s}{s.sex-digit.digit}{body}{nir()}"	reads fr_FR.department fr_FR.nonzero-number fr_FR.sex
+fr_FR.nir	format "{/fr_FR.sex as s}{s.sex-digit.digit}{body}{nir()}"	reads fr_FR.department fr_FR.nonzero-number fr_FR.sex	columns body
 fr_FR.nir.body	string
 fr_FR.nir.body.birth
 fr_FR.nir.body.place
-fr_FR.nonzero-number	format "{three}"
+fr_FR.nonzero-number	format "{three}"	columns two three
 fr_FR.nonzero-number.three	string
 fr_FR.nonzero-number.two	string
 fr_FR.paragraph	reads fr_FR.sentence
-fr_FR.person	format "{prefix}{first} {last}"	reads fr_FR.first-name fr_FR.last-name fr_FR.title
+fr_FR.person	format "{prefix}{first} {last}"	reads fr_FR.first-name fr_FR.last-name fr_FR.title	columns first last prefix sex
 fr_FR.person.first	string
 fr_FR.person.last	string
 fr_FR.person.prefix	string null
 fr_FR.person.sex	string
 fr_FR.phone	reads fr_FR.phone-fixed fr_FR.phone-mobile
-fr_FR.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads fr_FR.phone-fixed-prefix
+fr_FR.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads fr_FR.phone-fixed-prefix	columns national international
 fr_FR.phone-fixed-prefix	format "{area}"	key area
 fr_FR.phone-fixed-prefix.area	string
 fr_FR.phone-fixed-prefix.ndc	string
 fr_FR.phone-fixed-prefix.subscriber	string
 fr_FR.phone-fixed.international	string
 fr_FR.phone-fixed.national	string
-fr_FR.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads fr_FR.phone-mobile-prefix
+fr_FR.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads fr_FR.phone-mobile-prefix	columns national international
 fr_FR.phone-mobile-prefix	format "{area}"	key area
 fr_FR.phone-mobile-prefix.area	string
 fr_FR.phone-mobile-prefix.ndc	string
@@ -653,7 +653,7 @@ fr_FR.time	format "{time('15:04')}"
 fr_FR.title	format "{name}"	key name	weight share
 fr_FR.title.name	string
 fr_FR.title.share	string
-fr_FR.url	format "https://{host}{path}"	reads fr_FR.url
+fr_FR.url	format "https://{host}{path}"	reads fr_FR.url	columns reserved host path
 fr_FR.url.host	string
 fr_FR.url.path	string
 fr_FR.url.reserved	string
@@ -662,7 +662,7 @@ fr_FR.username.n
 fr_FR.weekday	format "{name}"	key code	name name
 fr_FR.weekday.code	string
 fr_FR.weekday.name	string
-fr_FR.word	format "{any}"	reads fr_FR.word-adj fr_FR.word-adv fr_FR.word-noun fr_FR.word-verb
+fr_FR.word	format "{any}"	reads fr_FR.word-adj fr_FR.word-adv fr_FR.word-noun fr_FR.word-verb	columns any noun verb adj adv
 fr_FR.word-adj	format "{word}"
 fr_FR.word-adj.word	string
 fr_FR.word-adv	format "{word}"
@@ -678,7 +678,7 @@ fr_FR.word.any	string
 fr_FR.word.noun	string
 fr_FR.word.noun.plural
 fr_FR.word.verb	string
-geo.DE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DE.locality geo.DE.street
+geo.DE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DE.locality geo.DE.street	columns street street-number postal-code locality municipality region
 geo.DE.address.locality	string
 geo.DE.address.municipality	string
 geo.DE.address.postal-code	string
@@ -735,7 +735,7 @@ geo.DE.region.postal-codes	string
 geo.DE.region.timezone	string
 geo.DE.street	format "{name}"
 geo.DE.street.name	string
-geo.DK.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DK.locality
+geo.DK.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DK.locality	columns street street-number postal-code locality municipality region
 geo.DK.address.locality	string
 geo.DK.address.municipality	string
 geo.DK.address.postal-code	string
@@ -807,7 +807,7 @@ geo.DK.street	format "{name}"	weight addresses	parent locality
 geo.DK.street.addresses	string
 geo.DK.street.locality	string
 geo.DK.street.name	string
-geo.EE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.EE.locality
+geo.EE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.EE.locality	columns street street-number postal-code locality municipality region
 geo.EE.address.locality	string
 geo.EE.address.municipality	string
 geo.EE.address.postal-code	string
@@ -882,7 +882,7 @@ geo.EE.street	format "{name}"	weight addresses	parent locality
 geo.EE.street.addresses	string
 geo.EE.street.locality	string
 geo.EE.street.name	string
-geo.FI.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.FI.locality
+geo.FI.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.FI.locality	columns street street-number postal-code locality municipality region
 geo.FI.address.locality	string
 geo.FI.address.municipality	string
 geo.FI.address.postal-code	string
@@ -963,7 +963,7 @@ geo.FI.street.addresses	string
 geo.FI.street.locality	string
 geo.FI.street.name	string
 geo.FI.street.swedish-name	string
-geo.FR.address	format "{street-number} {street}\n{postal-code} {locality}"	reads geo.FR.locality geo.FR.street
+geo.FR.address	format "{street-number} {street}\n{postal-code} {locality}"	reads geo.FR.locality geo.FR.street	columns street street-number postal-code locality municipality region
 geo.FR.address.locality	string
 geo.FR.address.municipality	string
 geo.FR.address.postal-code	string
@@ -1024,7 +1024,7 @@ geo.FR.region.population	string
 geo.FR.region.timezone	string
 geo.FR.street	format "{name}"
 geo.FR.street.name	string
-geo.LT.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.LT.locality
+geo.LT.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.LT.locality	columns street street-number postal-code locality municipality region
 geo.LT.address.locality	string
 geo.LT.address.municipality	string
 geo.LT.address.postal-code	string
@@ -1093,7 +1093,7 @@ geo.LT.street	format "{name}"	weight addresses	parent locality
 geo.LT.street.addresses	string
 geo.LT.street.locality	string
 geo.LT.street.name	string
-geo.LV.address	format "{street} {street-number}\n{locality}, {postal-code}"	reads geo.LV.locality
+geo.LV.address	format "{street} {street-number}\n{locality}, {postal-code}"	reads geo.LV.locality	columns street street-number postal-code locality municipality region
 geo.LV.address.locality	string
 geo.LV.address.municipality	string
 geo.LV.address.postal-code	string
@@ -1168,7 +1168,7 @@ geo.LV.street	format "{name}"	weight addresses	parent locality
 geo.LV.street.addresses	string
 geo.LV.street.locality	string
 geo.LV.street.name	string
-geo.NO.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.NO.locality
+geo.NO.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.NO.locality	columns street street-number postal-code locality municipality region
 geo.NO.address.locality	string
 geo.NO.address.municipality	string
 geo.NO.address.postal-code	string
@@ -1240,7 +1240,7 @@ geo.NO.street	format "{name}"	weight addresses	parent locality
 geo.NO.street.addresses	string
 geo.NO.street.locality	string
 geo.NO.street.name	string
-geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.locality
+geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.locality	columns street street-number postal-code locality municipality region
 geo.SE.address.locality	string
 geo.SE.address.municipality	string
 geo.SE.address.postal-code	string
@@ -1308,7 +1308,7 @@ geo.SE.street	format "{name}"	weight segments	parent locality
 geo.SE.street.locality	string
 geo.SE.street.name	string
 geo.SE.street.segments	string
-geo.US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.locality
+geo.US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.locality	columns street street-number locality municipality region postal-code
 geo.US.address.locality	string
 geo.US.address.municipality	string
 geo.US.address.postal-code	string
@@ -1384,17 +1384,17 @@ geo.US.street	format "{name}"	weight addresses	parent locality
 geo.US.street.addresses	string
 geo.US.street.locality	string
 geo.US.street.name	string
-lt_LT.address	format "{/geo.LT.address as a}{a}"	reads geo.LT.address
+lt_LT.address	format "{/geo.LT.address as a}{a}"	reads geo.LT.address	columns street street-number postal-code locality municipality region
 lt_LT.address.locality	string
 lt_LT.address.municipality	string
 lt_LT.address.postal-code	string
 lt_LT.address.region	string
 lt_LT.address.street	string
 lt_LT.address.street-number	string
-lt_LT.asmens-kodas	format "{/lt_LT.sex as s}{asmenskodas(s.sex-digit.digit,birth)}"	reads lt_LT.sex
+lt_LT.asmens-kodas	format "{/lt_LT.sex as s}{asmenskodas(s.sex-digit.digit,birth)}"	reads lt_LT.sex	columns birth
 lt_LT.asmens-kodas.birth	string
 lt_LT.color
-lt_LT.company	format "{registered as r}{r}"	reads lt_LT.company lt_LT.company-coined lt_LT.company-word lt_LT.first-name
+lt_LT.company	format "{registered as r}{r}"	reads lt_LT.company lt_LT.company-coined lt_LT.company-word lt_LT.first-name	columns legal registered uab mb ab zub
 lt_LT.company-coined	format "{word}"	weight count
 lt_LT.company-coined.count	string
 lt_LT.company-coined.word	string
@@ -1413,7 +1413,7 @@ lt_LT.company.uab.name
 lt_LT.company.zub	string
 lt_LT.company.zub.name
 lt_LT.date	format "{date(1970-01-01,2029-12-31,'2006-01-02')}"
-lt_LT.email	format "{local}@{domain}"	reads lt_LT.email lt_LT.person
+lt_LT.email	format "{local}@{domain}"	reads lt_LT.email lt_LT.person	columns local domain reserved
 lt_LT.email.domain	string
 lt_LT.email.local	string
 lt_LT.email.local.n
@@ -1430,13 +1430,13 @@ lt_LT.month	format "{name}"	key code	name name
 lt_LT.month.code	string
 lt_LT.month.name	string
 lt_LT.paragraph	reads lt_LT.sentence
-lt_LT.person	format "{prefix}{first} {last}"	reads lt_LT.first-name lt_LT.title
+lt_LT.person	format "{prefix}{first} {last}"	reads lt_LT.first-name lt_LT.title	columns first last prefix sex
 lt_LT.person.first	string
 lt_LT.person.last	string
 lt_LT.person.prefix	string null
 lt_LT.person.sex	string
 lt_LT.phone	reads lt_LT.phone-fixed lt_LT.phone-mobile
-lt_LT.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads lt_LT.phone-fixed-prefix
+lt_LT.phone-fixed	format "{.phone-fixed-prefix as a}{national}"	reads lt_LT.phone-fixed-prefix	columns national international
 lt_LT.phone-fixed-prefix	format "{area}"	key area
 lt_LT.phone-fixed-prefix.area	string
 lt_LT.phone-fixed-prefix.name	string
@@ -1444,7 +1444,7 @@ lt_LT.phone-fixed-prefix.ndc	string
 lt_LT.phone-fixed-prefix.subscriber	string
 lt_LT.phone-fixed.international	string
 lt_LT.phone-fixed.national	string
-lt_LT.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads lt_LT.phone-mobile-prefix
+lt_LT.phone-mobile	format "{.phone-mobile-prefix as a}{national}"	reads lt_LT.phone-mobile-prefix	columns national international
 lt_LT.phone-mobile-prefix	format "{area}"	key area
 lt_LT.phone-mobile-prefix.area	string
 lt_LT.phone-mobile-prefix.ndc	string
@@ -1477,7 +1477,7 @@ lt_LT.time	format "{time('15:04')}"
 lt_LT.title	format "{name}"	key name	weight share
 lt_LT.title.name	string
 lt_LT.title.share	string
-lt_LT.url	format "https://{host}{path}"	reads lt_LT.url
+lt_LT.url	format "https://{host}{path}"	reads lt_LT.url	columns reserved host path
 lt_LT.url.host	string
 lt_LT.url.path	string
 lt_LT.url.reserved	string
@@ -1486,7 +1486,7 @@ lt_LT.username.n
 lt_LT.weekday	format "{name}"	key code	name name
 lt_LT.weekday.code	string
 lt_LT.weekday.name	string
-lt_LT.word	format "{any}"	reads lt_LT.word-adj lt_LT.word-adv lt_LT.word-noun lt_LT.word-verb
+lt_LT.word	format "{any}"	reads lt_LT.word-adj lt_LT.word-adv lt_LT.word-noun lt_LT.word-verb	columns any noun verb adj adv
 lt_LT.word-adj	format "{word}"
 lt_LT.word-adj.word	string
 lt_LT.word-adv	format "{word}"
@@ -1502,7 +1502,7 @@ lt_LT.word.any	string
 lt_LT.word.noun	string
 lt_LT.word.noun.plural
 lt_LT.word.verb	string
-lv_LV.address	format "{/geo.LV.address as a}{a}"	reads geo.LV.address
+lv_LV.address	format "{/geo.LV.address as a}{a}"	reads geo.LV.address	columns street street-number postal-code locality municipality region
 lv_LV.address.locality	string
 lv_LV.address.municipality	string
 lv_LV.address.postal-code	string
@@ -1510,7 +1510,7 @@ lv_LV.address.region	string
 lv_LV.address.street	string
 lv_LV.address.street-number	string
 lv_LV.color
-lv_LV.company	format "{registered as r}{r}"	reads lv_LV.company lv_LV.company-coined lv_LV.company-word lv_LV.first-name lv_LV.person
+lv_LV.company	format "{registered as r}{r}"	reads lv_LV.company lv_LV.company-coined lv_LV.company-word lv_LV.first-name lv_LV.person	columns legal registered sia ik as ps ks
 lv_LV.company-coined	format "{word}"	weight count
 lv_LV.company-coined.count	string
 lv_LV.company-coined.word	string
@@ -1531,7 +1531,7 @@ lv_LV.company.registered.legal
 lv_LV.company.sia	string
 lv_LV.company.sia.name
 lv_LV.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-lv_LV.email	format "{local}@{domain}"	reads lv_LV.email lv_LV.person
+lv_LV.email	format "{local}@{domain}"	reads lv_LV.email lv_LV.person	columns local domain reserved
 lv_LV.email.domain	string
 lv_LV.email.local	string
 lv_LV.email.local.n
@@ -1548,18 +1548,18 @@ lv_LV.month	format "{name}"	key code	name name
 lv_LV.month.code	string
 lv_LV.month.name	string
 lv_LV.paragraph	reads lv_LV.sentence
-lv_LV.person	format "{prefix}{first} {last}"	reads lv_LV.first-name lv_LV.title
+lv_LV.person	format "{prefix}{first} {last}"	reads lv_LV.first-name lv_LV.title	columns first last prefix sex
 lv_LV.person.first	string
 lv_LV.person.last	string
 lv_LV.person.prefix	string null
 lv_LV.person.sex	string
-lv_LV.personas-kods	format "{personaskods(birth)}"
+lv_LV.personas-kods	format "{personaskods(birth)}"	columns birth
 lv_LV.personas-kods.birth	string
-lv_LV.phone	format "{number as n}{national}"	reads lv_LV.phone-fixed lv_LV.phone-mobile
-lv_LV.phone-fixed	format "{number as n}{national}"
+lv_LV.phone	format "{number as n}{national}"	reads lv_LV.phone-fixed lv_LV.phone-mobile	columns national international
+lv_LV.phone-fixed	format "{number as n}{national}"	columns national international
 lv_LV.phone-fixed.international	string
 lv_LV.phone-fixed.national	string
-lv_LV.phone-mobile	format "{number as n}{national}"
+lv_LV.phone-mobile	format "{number as n}{national}"	columns national international
 lv_LV.phone-mobile.international	string
 lv_LV.phone-mobile.national	string
 lv_LV.phone.international	string
@@ -1582,7 +1582,7 @@ lv_LV.time	format "{time('15:04')}"
 lv_LV.title	format "{name}"	key name	weight share
 lv_LV.title.name	string
 lv_LV.title.share	string
-lv_LV.url	format "https://{host}{path}"	reads lv_LV.url
+lv_LV.url	format "https://{host}{path}"	reads lv_LV.url	columns reserved host path
 lv_LV.url.host	string
 lv_LV.url.path	string
 lv_LV.url.reserved	string
@@ -1591,7 +1591,7 @@ lv_LV.username.n
 lv_LV.weekday	format "{name}"	key code	name name
 lv_LV.weekday.code	string
 lv_LV.weekday.name	string
-lv_LV.word	format "{any}"	reads lv_LV.word-adj lv_LV.word-adv lv_LV.word-noun lv_LV.word-verb
+lv_LV.word	format "{any}"	reads lv_LV.word-adj lv_LV.word-adv lv_LV.word-noun lv_LV.word-verb	columns any noun verb adj adv
 lv_LV.word-adj	format "{word}"
 lv_LV.word-adj.word	string
 lv_LV.word-adv	format "{word}"
@@ -1611,7 +1611,7 @@ misc.bic	format "{upper(4)}{.territory.alpha2}{l1}{l2}{branch}"	reads misc.terri
 misc.car	format "{make} {model}"
 misc.car.make	string
 misc.car.model	string
-misc.coordinate	format "{lat}, {lon}"
+misc.coordinate	format "{lat}, {lon}"	columns lat lon
 misc.coordinate.lat	string
 misc.coordinate.lon	string
 misc.creditcard
@@ -1638,7 +1638,7 @@ misc.httpstatus.reason	string
 misc.iban-test	format "{iban}"	key country
 misc.iban-test.country	string
 misc.iban-test.iban	string
-misc.ip	format "{wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide6}"
+misc.ip	format "{wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide4|wide6}"	columns wide4 wide6 documentation private cidr
 misc.ip.cidr	string
 misc.ip.documentation	string
 misc.ip.private	string
@@ -1654,7 +1654,7 @@ misc.loglevel	format "{keyword}"	key code	name keyword
 misc.loglevel.code	string
 misc.loglevel.keyword	string
 misc.loglevel.severity	string
-misc.mac	format "{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}"
+misc.mac	format "{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}"	columns local
 misc.mac.local	string
 misc.mimetype	format "{type}"	key type	name ext
 misc.mimetype.ext	string
@@ -1698,10 +1698,10 @@ misc.useragent.browser	string
 misc.useragent.device	string
 misc.useragent.os	string
 misc.useragent.ua	string
-misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
+misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"	columns variant
 misc.uuid.variant	string
 misc.version	format "{pre}{n}.{n}.{n}{suffix}"
-nb_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
+nb_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address	columns street street-number postal-code locality municipality region
 nb_NO.address.locality	string
 nb_NO.address.municipality	string
 nb_NO.address.postal-code	string
@@ -1711,7 +1711,7 @@ nb_NO.address.street-number	string
 nb_NO.birth-day	format "{ddmm}"
 nb_NO.birth-day.ddmm	string
 nb_NO.color
-nb_NO.company	format "{registered as r}{r}"	reads geo.NO.locality nb_NO.company nb_NO.company-coined nb_NO.company-word nb_NO.first-name nb_NO.last-name
+nb_NO.company	format "{registered as r}{r}"	reads geo.NO.locality nb_NO.company nb_NO.company-coined nb_NO.company-word nb_NO.first-name nb_NO.last-name	columns legal registered ans as asa da enk ks sa
 nb_NO.company-coined	format "{a}{b}"
 nb_NO.company-word	format "{word}"	weight count
 nb_NO.company-word.count	string
@@ -1734,7 +1734,7 @@ nb_NO.company.registered.legal
 nb_NO.company.sa	string
 nb_NO.company.sa.name
 nb_NO.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-nb_NO.email	format "{local}@{domain}"	reads nb_NO.email nb_NO.first-name nb_NO.last-name
+nb_NO.email	format "{local}@{domain}"	reads nb_NO.email nb_NO.first-name nb_NO.last-name	columns local domain reserved
 nb_NO.email.domain	string
 nb_NO.email.local	string
 nb_NO.email.local.n
@@ -1743,7 +1743,7 @@ nb_NO.first-name	format "{name}"	name name	weight count	parent sex
 nb_NO.first-name.count	string
 nb_NO.first-name.name	string
 nb_NO.first-name.sex	string
-nb_NO.fodselsnummer	format "{/nb_NO.sex as s}{birth}{fnr(s.individ.digit)}"	reads nb_NO.birth-day nb_NO.sex
+nb_NO.fodselsnummer	format "{/nb_NO.sex as s}{birth}{fnr(s.individ.digit)}"	reads nb_NO.birth-day nb_NO.sex	columns birth
 nb_NO.fodselsnummer.birth	string
 nb_NO.individ	format "{digit}"	parent sex
 nb_NO.individ.digit	string
@@ -1755,18 +1755,18 @@ nb_NO.month	format "{name}"	key code	name name
 nb_NO.month.code	string
 nb_NO.month.name	string
 nb_NO.paragraph	reads nb_NO.sentence
-nb_NO.person	format "{prefix}{first} {last}"	reads nb_NO.first-name nb_NO.last-name nb_NO.title
+nb_NO.person	format "{prefix}{first} {last}"	reads nb_NO.first-name nb_NO.last-name nb_NO.title	columns first last prefix sex
 nb_NO.person.first	string
 nb_NO.person.last	string
 nb_NO.person.prefix	string null
 nb_NO.person.sex	string
-nb_NO.phone	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone-fixed-prefix nb_NO.phone-mobile-prefix
-nb_NO.phone-fixed	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-fixed-prefix
+nb_NO.phone	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone-fixed-prefix nb_NO.phone-mobile-prefix	columns block subscriber national international
+nb_NO.phone-fixed	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-fixed-prefix	columns national international
 nb_NO.phone-fixed-prefix	format "{prefix}"	key prefix
 nb_NO.phone-fixed-prefix.prefix	string
 nb_NO.phone-fixed.international	string
 nb_NO.phone-fixed.national	string
-nb_NO.phone-mobile	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-mobile-prefix
+nb_NO.phone-mobile	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-mobile-prefix	columns national international
 nb_NO.phone-mobile-prefix	format "{prefix}"	key prefix
 nb_NO.phone-mobile-prefix.prefix	string
 nb_NO.phone-mobile.international	string
@@ -1797,7 +1797,7 @@ nb_NO.time	format "{time('15:04')}"
 nb_NO.title	format "{name}"	key name	weight share
 nb_NO.title.name	string
 nb_NO.title.share	string
-nb_NO.url	format "https://{host}{path}"	reads nb_NO.url
+nb_NO.url	format "https://{host}{path}"	reads nb_NO.url	columns reserved host path
 nb_NO.url.host	string
 nb_NO.url.path	string
 nb_NO.url.reserved	string
@@ -1806,7 +1806,7 @@ nb_NO.username.n
 nb_NO.weekday	format "{name}"	key code	name name
 nb_NO.weekday.code	string
 nb_NO.weekday.name	string
-nb_NO.word	format "{any}"	reads nb_NO.word-adj nb_NO.word-adv nb_NO.word-noun nb_NO.word-verb
+nb_NO.word	format "{any}"	reads nb_NO.word-adj nb_NO.word-adv nb_NO.word-noun nb_NO.word-verb	columns any noun verb adj adv
 nb_NO.word-adj	format "{word}"
 nb_NO.word-adj.definite	string
 nb_NO.word-adj.word	string
@@ -1826,7 +1826,7 @@ nb_NO.word.noun	string
 nb_NO.word.noun.definite
 nb_NO.word.verb	string
 nb_NO.word.verb.present
-nn_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
+nn_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address	columns street street-number postal-code locality municipality region
 nn_NO.address.locality	string
 nn_NO.address.municipality	string
 nn_NO.address.postal-code	string
@@ -1834,10 +1834,10 @@ nn_NO.address.region	string
 nn_NO.address.street	string
 nn_NO.address.street-number	string
 nn_NO.color
-nn_NO.company	format "{/nb_NO.company as c}{c}"	reads nb_NO.company
+nn_NO.company	format "{/nb_NO.company as c}{c}"	reads nb_NO.company	columns legal
 nn_NO.company.legal	string
 nn_NO.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
-nn_NO.email	format "{/nb_NO.email as e}{e}"	reads nb_NO.email
+nn_NO.email	format "{/nb_NO.email as e}{e}"	reads nb_NO.email	columns local domain reserved
 nn_NO.email.domain	string
 nn_NO.email.local	string
 nn_NO.email.reserved	string
@@ -1846,16 +1846,16 @@ nn_NO.month	format "{name}"	key code	name name
 nn_NO.month.code	string
 nn_NO.month.name	string
 nn_NO.paragraph	reads nn_NO.sentence
-nn_NO.person	format "{prefix}{first} {last}"	reads nb_NO.first-name nb_NO.last-name nn_NO.title
+nn_NO.person	format "{prefix}{first} {last}"	reads nb_NO.first-name nb_NO.last-name nn_NO.title	columns first last prefix sex
 nn_NO.person.first	string
 nn_NO.person.last	string
 nn_NO.person.prefix	string null
 nn_NO.person.sex	string
-nn_NO.phone	format "{/nb_NO.phone as p}{p}"	reads nb_NO.phone
-nn_NO.phone-fixed	format "{/nb_NO.phone-fixed as p}{p}"	reads nb_NO.phone-fixed
+nn_NO.phone	format "{/nb_NO.phone as p}{p}"	reads nb_NO.phone	columns national international
+nn_NO.phone-fixed	format "{/nb_NO.phone-fixed as p}{p}"	reads nb_NO.phone-fixed	columns national international
 nn_NO.phone-fixed.international	string
 nn_NO.phone-fixed.national	string
-nn_NO.phone-mobile	format "{/nb_NO.phone-mobile as p}{p}"	reads nb_NO.phone-mobile
+nn_NO.phone-mobile	format "{/nb_NO.phone-mobile as p}{p}"	reads nb_NO.phone-mobile	columns national international
 nn_NO.phone-mobile.international	string
 nn_NO.phone-mobile.national	string
 nn_NO.phone.international	string
@@ -1871,7 +1871,7 @@ nn_NO.time	format "{/nb_NO.time}"	reads nb_NO.time
 nn_NO.title	format "{name}"	key name	weight share
 nn_NO.title.name	string
 nn_NO.title.share	string
-nn_NO.url	format "https://{host}{path}"	reads nn_NO.url
+nn_NO.url	format "https://{host}{path}"	reads nn_NO.url	columns reserved host path
 nn_NO.url.host	string
 nn_NO.url.path	string
 nn_NO.url.reserved	string
@@ -1880,7 +1880,7 @@ nn_NO.username.n
 nn_NO.weekday	format "{name}"	key code	name name
 nn_NO.weekday.code	string
 nn_NO.weekday.name	string
-nn_NO.word	format "{any}"	reads nn_NO.word-adj nn_NO.word-adv nn_NO.word-noun nn_NO.word-verb
+nn_NO.word	format "{any}"	reads nn_NO.word-adj nn_NO.word-adv nn_NO.word-noun nn_NO.word-verb	columns any noun verb adj adv
 nn_NO.word-adj	format "{word}"
 nn_NO.word-adj.definite	string
 nn_NO.word-adj.word	string
@@ -1900,7 +1900,7 @@ nn_NO.word.noun	string
 nn_NO.word.noun.definite
 nn_NO.word.verb	string
 nn_NO.word.verb.present
-sv_SE.address	format "{/geo.SE.address as a}{a}"	reads geo.SE.address
+sv_SE.address	format "{/geo.SE.address as a}{a}"	reads geo.SE.address	columns street street-number postal-code locality municipality region
 sv_SE.address.locality	string
 sv_SE.address.municipality	string
 sv_SE.address.postal-code	string
@@ -1923,7 +1923,7 @@ sv_SE.car.make	string
 sv_SE.car.model	string
 sv_SE.car.registrations	string
 sv_SE.color
-sv_SE.company	format "{registered as r}{r}"	reads geo.SE.locality sv_SE.company sv_SE.company-coined sv_SE.company-word sv_SE.first-name sv_SE.last-name
+sv_SE.company	format "{registered as r}{r}"	reads geo.SE.locality sv_SE.company sv_SE.company-coined sv_SE.company-word sv_SE.first-name sv_SE.last-name	columns legal registered ab e hb brf ek kb
 sv_SE.company-coined	format "{a}{b}"
 sv_SE.company-word	format "{word}"	weight count
 sv_SE.company-word.count	string
@@ -1949,7 +1949,7 @@ sv_SE.company.legal	string
 sv_SE.company.registered	string
 sv_SE.company.registered.legal
 sv_SE.date	format "{date(1970-01-01,2029-12-31,'2006-01-02')}"
-sv_SE.email	format "{local}@{domain}"	reads sv_SE.email
+sv_SE.email	format "{local}@{domain}"	reads sv_SE.email	columns local domain reserved
 sv_SE.email.domain	string
 sv_SE.email.local	string
 sv_SE.email.local.n
@@ -1964,7 +1964,7 @@ sv_SE.holiday.name	string
 sv_SE.last-name	format "{name}"	key name	weight count
 sv_SE.last-name.count	string
 sv_SE.last-name.name	string
-sv_SE.licenseplate	format "{old|current}"	reads sv_SE.licenseplate sv_SE.licenseplate-letters
+sv_SE.licenseplate	format "{old|current}"	reads sv_SE.licenseplate sv_SE.licenseplate-letters	columns old current old-number current-number last
 sv_SE.licenseplate-letters	format "{letters}"
 sv_SE.licenseplate-letters.letters	string
 sv_SE.licenseplate.current	string
@@ -1975,10 +1975,10 @@ sv_SE.licenseplate.old-number	string
 sv_SE.month	format "{name}"	key code	name name
 sv_SE.month.code	string
 sv_SE.month.name	string
-sv_SE.organisationsnummer	format "{.organisationsnummer.head as h}{.organisationsnummer.tail as t}{h}-{t}{luhn()}"	reads sv_SE.organisationsnummer
+sv_SE.organisationsnummer	format "{.organisationsnummer.head as h}{.organisationsnummer.tail as t}{h}-{t}{luhn()}"	reads sv_SE.organisationsnummer	columns vat
 sv_SE.organisationsnummer.vat	string
 sv_SE.paragraph	reads sv_SE.sentence
-sv_SE.person	format "{birth as b}{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title
+sv_SE.person	format "{birth as b}{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title	columns birthdate first last personnummer prefix samordningsnummer sex
 sv_SE.person.birthdate	string
 sv_SE.person.first	string
 sv_SE.person.last	string
@@ -2002,13 +2002,13 @@ sv_SE.phone-area.area	string
 sv_SE.phone-area.name	string
 sv_SE.phone-area.ndc	string
 sv_SE.phone-area.subscriber	string
-sv_SE.phone-fixed	format "{.phone-area as a}{national}"	reads sv_SE.phone-area
+sv_SE.phone-fixed	format "{.phone-area as a}{national}"	reads sv_SE.phone-area	columns national international
 sv_SE.phone-fixed.international	string
 sv_SE.phone-fixed.national	string
-sv_SE.phone-mobile	format "{ndc as d}{subscriber as s}{national}"
+sv_SE.phone-mobile	format "{ndc as d}{subscriber as s}{national}"	columns national international
 sv_SE.phone-mobile.international	string
 sv_SE.phone-mobile.national	string
-sv_SE.phone-subscriber	format "{digits-5-6}"
+sv_SE.phone-subscriber	format "{digits-5-6}"	columns digits-5-6 digits-5-7 digits-6-7 digits-6-8
 sv_SE.phone-subscriber.digits-5-6	string
 sv_SE.phone-subscriber.digits-5-7	string
 sv_SE.phone-subscriber.digits-6-7	string
@@ -2056,7 +2056,7 @@ sv_SE.time	format "{time('15:04')}"
 sv_SE.title	format "{name}"	key name	weight share
 sv_SE.title.name	string
 sv_SE.title.share	string
-sv_SE.url	format "https://{host}{path}"	reads sv_SE.url
+sv_SE.url	format "https://{host}{path}"	reads sv_SE.url	columns reserved host path
 sv_SE.url.host	string
 sv_SE.url.path	string
 sv_SE.url.reserved	string
@@ -2066,7 +2066,7 @@ sv_SE.vat	format "{.organisationsnummer.vat}"	reads sv_SE.organisationsnummer
 sv_SE.weekday	format "{name}"	key code	name name
 sv_SE.weekday.code	string
 sv_SE.weekday.name	string
-sv_SE.word	format "{any}"	reads sv_SE.word-adj sv_SE.word-adv sv_SE.word-noun sv_SE.word-verb
+sv_SE.word	format "{any}"	reads sv_SE.word-adj sv_SE.word-adv sv_SE.word-noun sv_SE.word-verb	columns any noun verb adj adv
 sv_SE.word-adj	format "{word}"
 sv_SE.word-adj.definite	string
 sv_SE.word-adj.word	string
