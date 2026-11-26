@@ -397,3 +397,18 @@ func TestRunRecordOfAPathWithNoColumns(t *testing.T) {
 		})
 	}
 }
+
+func TestRunRecordWritesColumnsInTheOrderTheTemplateListsItsFields(t *testing.T) {
+	const template = `{"format":"","zip":"1","city":"2","age":"3"}`
+	for format, want := range map[string]string{
+		"csv":    "zip,city,age\n1,2,3\n",
+		"tsv":    "zip\tcity\tage\n1\t2\t3\n",
+		"ndjson": `{"zip":"1","city":"2","age":"3"}` + "\n",
+		"sql":    `INSERT INTO "t" ("zip", "city", "age") VALUES ('1', '2', '3');` + "\n",
+	} {
+		code, out, errb := runOut(template, "--seed", "1", "--format", format, "--table", "t")
+		if code != 0 || out != want {
+			t.Errorf("--format %s = %d, %q, want %q (stderr %q)", format, code, out, want, errb)
+		}
+	}
+}
