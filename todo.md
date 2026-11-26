@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 598`
+`Next ID = 599`
 
 ## Renamed
 
@@ -26,6 +26,7 @@
 | 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
+| 598 | 0.9.0 |  |  | **Rename the `phone-mobile` and `phone-fixed` prefix tables to `phone-mobile-prefix` and `phone-fixed-prefix`, so `phone-mobile` and `phone-fixed` can draw the full numbers.** | 2 | 1 | 2 | 3 | 4 | 4 by 4 | 1.0 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -401,6 +402,82 @@ Settle each thing npm shows or stores before the first publish, read it on npm's
 - The organization's page, the package's two-factor setting, and who may publish.
 - How a bad version is withdrawn: `npm deprecate` before `npm unpublish`.
 - A check in the dry run: `npm publish --dry-run` and a listing of the packed files and their size. After the publish, look at the live page.
+
+### 598. Rename the `phone-mobile` and `phone-fixed` prefix tables to `phone-mobile-prefix` and `phone-fixed-prefix`, so `phone-mobile` and `phone-fixed` can draw the full numbers.
+
+Item 558 shipped `mobile` and `landline` as the paths that draw a full number, because `phone-mobile` and `phone-fixed` name prefix tables in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`. Its bench of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) each proposed the rename on their own: the name an agent or a developer guesses first, `phone-mobile`, prints `21 1` today. The rename is a change to what exists, so it names each old path under `### Breaking` in `CHANGELOG.md`, and it revises the decision "A locale's full numbers are `mobile` and `landline`, and `phone-mobile` and `phone-fixed` stay its prefix tables". Whether `phone-mobile` and `phone-fixed` then also draw the full numbers, as aliases of `mobile` and `landline`, is for the chunk to decide with a bench of the audience.
+
+Each table file is renamed, so the list names it by its path today. The import scripts under `data-import` write the tables, and each locale's manifest names them.
+
+Touches:
+
+- `data/da_DK/phone-mobile.json`
+- `data/da_DK/phone-mobile.tsv`
+- `data/da_DK/phone-fixed.json`
+- `data/da_DK/phone-fixed.tsv`
+- `data/da_DK/.fejkdata.json`
+- `data/da_DK/mobile.json`
+- `data/da_DK/landline.json`
+- `data/de_DE/phone-mobile.json`
+- `data/de_DE/phone-mobile.tsv`
+- `data/de_DE/phone-fixed.json`
+- `data/de_DE/phone-fixed.tsv`
+- `data/de_DE/.fejkdata.json`
+- `data/de_DE/mobile.json`
+- `data/de_DE/landline.json`
+- `data/fi_FI/phone-mobile.json`
+- `data/fi_FI/phone-mobile.tsv`
+- `data/fi_FI/phone-fixed.json`
+- `data/fi_FI/phone-fixed.tsv`
+- `data/fi_FI/.fejkdata.json`
+- `data/fi_FI/mobile.json`
+- `data/fi_FI/landline.json`
+- `data/fr_FR/phone-mobile.json`
+- `data/fr_FR/phone-mobile.tsv`
+- `data/fr_FR/phone-fixed.json`
+- `data/fr_FR/phone-fixed.tsv`
+- `data/fr_FR/.fejkdata.json`
+- `data/fr_FR/mobile.json`
+- `data/fr_FR/landline.json`
+- `data/lt_LT/phone-mobile.json`
+- `data/lt_LT/phone-mobile.tsv`
+- `data/lt_LT/phone-fixed.json`
+- `data/lt_LT/phone-fixed.tsv`
+- `data/lt_LT/.fejkdata.json`
+- `data/lt_LT/mobile.json`
+- `data/lt_LT/landline.json`
+- `data/nb_NO/phone-mobile.json`
+- `data/nb_NO/phone-mobile.tsv`
+- `data/nb_NO/phone-fixed.json`
+- `data/nb_NO/phone-fixed.tsv`
+- `data/nb_NO/.fejkdata.json`
+- `data/nb_NO/mobile.json`
+- `data/nb_NO/landline.json`
+- `data/da_DK/phone.json`
+- `data/nb_NO/phone.json`
+- `data/locale_phone_test.go`
+- `data/german_phone_test.go`
+- `data/lithuanian_phone_test.go`
+- `data/danish_test.go`
+- `data/finnish_test.go`
+- `data/norwegian_test.go`
+- `data/locales_test.go`
+- `data-import/phone-de.py`
+- `data-import/phone-dk.py`
+- `data-import/phone-lt.py`
+- `data-import/phone-no.py`
+- `testdata/shipped_shape.txt`
+- `data-listing/kinds-and-sources.tsv`
+- `data-listing/paths.json`
+- `docs/shipped-paths.md`
+- `docs/locales/da_DK.md`
+- `docs/locales/de_DE.md`
+- `docs/locales/fi_FI.md`
+- `docs/locales/fr_FR.md`
+- `docs/locales/lt_LT.md`
+- `docs/locales/nb_NO.md`
+- `DATA-LICENSES.md`
+- `AGENTS.md`
 
 ### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
 
