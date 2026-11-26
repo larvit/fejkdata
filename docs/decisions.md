@@ -2408,7 +2408,7 @@ Valid while a serializer returns a string and no shipped path draws a NUL.
 
 ## A locale's full numbers are `mobile` and `landline`, and `phone-mobile` and `phone-fixed` stay its prefix tables
 
-2026-11-26, the agent shipping item 558. Goal 1: a user fills a customer table with numbers of one kind by path, in any locale.
+2026-11-26. Goal 1: a user fills a customer table with numbers of one kind by path, in any locale.
 
 `phone-mobile` already names a table of prefixes in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`, so a path that draws a full number can't take that name without renaming the table, which is a break. A panel of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) ranked five pairs of names. Two pairs tied on points: `mobile` with `landline`, and `mobile-number` with `fixed-number`. Three seats typed `mobile` first, one typed `mobile-number`, and one `phone-mobile-number`. Every seat found `phone-mobile-number` and `mobile-phone` too close to the prefix tables to tell them apart. The seats also proposed renaming those tables to `phone-mobile-prefix` and `phone-fixed-prefix`, which item 598 plans.
 
