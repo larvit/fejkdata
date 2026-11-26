@@ -419,8 +419,8 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `et_EE.person.last` | real | `Paal` | a language model's recall of names common in Estonia, not checked against a register |
 | `et_EE.person.prefix` | real | `dr ` | hand-written |
 | `et_EE.person.sex` | real | `naine` | Eurostat's table demo_pjan |
-| `et_EE.phone` | valid | `466 9555` | the Estonian numbering plan, regulation no. 25 of 2018 |
-| `et_EE.phone.international` | valid | `+372 616 6955` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.phone` | valid | `5191 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.phone.international` | valid | `+372 5191 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
 | `et_EE.phone.national` | valid | `681 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
 | `et_EE.price` | invented | `236,66 €` | hand-written |
 | `et_EE.sentence` | invented | `Kas see unevajadus on vabandatav?` | a fixed pattern filled with the locale's words |
@@ -1706,8 +1706,8 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `lv_LV.person.sex` | real | `vīrietis` | Eurostat's table demo_pjan |
 | `lv_LV.personas-kods` | valid | `03125011517` | the check digit; no test series is published |
 | `lv_LV.personas-kods.birth` | valid | `19501203` | the check digit; no test series is published |
-| `lv_LV.phone` | valid | `69 166 955` | Table 1 of the National Numbering Plan |
-| `lv_LV.phone.international` | valid | `+371 61 916 695` | Table 1 of the National Numbering Plan |
+| `lv_LV.phone` | valid | `21 916 695` | Table 1 of the National Numbering Plan |
+| `lv_LV.phone.international` | valid | `+371 21 916 695` | Table 1 of the National Numbering Plan |
 | `lv_LV.phone.national` | valid | `66 191 669` | Table 1 of the National Numbering Plan |
 | `lv_LV.price` | invented | `236,66 €` | hand-written |
 | `lv_LV.sentence` | invented | `Vai veloturiādes var rekonstruktīvi pančkāties?` | a fixed pattern filled with the locale's words |
