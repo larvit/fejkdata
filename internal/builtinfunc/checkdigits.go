@@ -119,14 +119,10 @@ func vinValue(c byte) int {
 // a plant and six digits of serial, with the check character at position 9 over the whole.
 func vin(r rng, wmi string) string {
 	b := []byte(wmi + strings.Repeat("0", 14))
-	for i := 3; i < 8; i++ {
-		b[i] = vinChars[r.IntN(len(vinChars))]
-	}
+	drawFrom(r, vinChars, b[3:8])
 	b[9] = vinYears[r.IntN(len(vinYears))]
 	b[10] = vinChars[r.IntN(len(vinChars))]
-	for i := 11; i < 17; i++ {
-		b[i] = byte('0' + r.IntN(10))
-	}
+	drawFrom(r, "0123456789", b[11:17])
 	b[8] = vinCheck(string(b))
 	return string(b)
 }
@@ -134,4 +130,10 @@ func vin(r rng, wmi string) string {
 func vinPrep(a []string, _ parsed) Call {
 	wmi := a[0]
 	return func(s *drawstate.State, _ string, _ []string) string { return vin(s, wmi) }
+}
+
+func drawFrom(r rng, alphabet string, dst []byte) {
+	for i := range dst {
+		dst[i] = alphabet[r.IntN(len(alphabet))]
+	}
 }
