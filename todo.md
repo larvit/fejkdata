@@ -17,7 +17,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 601 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 4 | 7.8 |
-| 552 | 0.9.0 |  |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
 | 600 | 0.9.0 |  |  | **Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.** | 2 | 1 | 2 | 3 | 3 | 1.3 by 4 | 1.7 |
 | 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 3 | 2 | 6 | 5 | 1.2 by 6 | 1.1 |
@@ -248,27 +247,6 @@
 ### 601. Lower the reading cost of the files a chunk reads most before its first commit.
 
 On 2026-11-26 `reading-cost` reported a rise: the last 5 chunks read a median of 95,965 new input tokens before their first commit, the 5 before them 63,738. Read most over the last 5, by opens and searches: `README.md` 19, `compose.yaml` 11, `data-import/geo-us.py` 6, `data-import/geo.py` 6, `.github/workflows/packages.yml` 5, `data-import/geo-se.py` 5, `data-import/geo_test.py` 5, `data/finnish_test.go` 5. `docs/reading-cost.md` holds the figures. The chunk that ships this runs `reading-cost --reset`.
-
-### 552. Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.
-
-The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token. PyPI's troubleshooting page (https://docs.pypi.org/trusted-publishers/troubleshooting/) says trusted publishing doesn't take a reusable workflow, and `packages.yml` is one. So publish from a job in a workflow that is not reusable, or ask the maintainer for a token.
-
-The maintainer reported the PyPI registration complete on 2026-11-25. A pending publisher does not reserve the name until it publishes. PyPI allows 100 MB per file and 10 GB per project by default; six wheels of about 17 MB make about 105 MB per release, patches included.
-
-Settle each thing PyPI shows or stores before the first publish, read it on PyPI's and the Python Packaging Authority's own documentation, and have the maintainer approve the public texts. `AGENTS.md`'s rule for public texts holds:
-
-- The `METADATA` template's `Name`, `Summary`, `Author` and `Requires-Python`, in `release-tooling/python_wheels.py`, and whether it gains `Keywords`.
-- The trove classifiers: development status, audience, operating systems, Python versions, topics such as testing, and typing.
-- The license as an SPDX expression and its files, with the notices `DATA-LICENSES.md` says must ship with the data. It must be true of the code and the data.
-- The project links: homepage, documentation, source, changelog and issues.
-- The long description: its own README, with Python first, or the repository's, as Markdown. Relative links and images must work on pypi.org.
-- The platform tags: which Linux, macOS and Windows versions each wheel claims, musl included, checked by installing on each, and whether a source distribution ships, which cannot hold a binary per platform.
-- Type hints with `py.typed`, and the console command `fejkdata` that `pip install` puts on the path.
-- The trusted publisher's workflow and environment names, attestations, two-factor login, and who may publish.
-- How a bad version is withdrawn: yank it, since a file name can't be uploaded twice.
-- A check in the dry run: `twine check --strict` and a listing of each wheel's files and size. After the publish, look at the live page.
-
-Item 551 shipped the package, `release-tooling/python_wheels.py` and the dry run's wheel build. Its decision records the platform tags, `Requires-Python` and the missing console command; settle each again here before the publish. It left to this item the upload, the root README's install text and `### Python` section, and the `CHANGELOG.md` entry. Commit c6fc5360 of pull request #525 holds a draft of each; its upload uses an API token.
 
 ### 600. Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.
 
