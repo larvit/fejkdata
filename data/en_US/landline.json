@@ -1,0 +1,5 @@
+{
+  "format": "{/en_US.mobile as p}{p}",
+  "national": "{p.national}",
+  "international": "{p.international}"
+}

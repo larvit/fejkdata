@@ -1,11 +1,13 @@
-{
-  "format": "{number as n}{national}",
-  "hidden": {
-    "number": [
-      { "format": "2{digits(1)} {digits(3)} {digits(3)}", "weight": 10 },
-      "6{digits(1)} {digits(3)} {digits(3)}"
-    ]
+[
+  {
+    "format": "{.mobile as p}{p}",
+    "weight": 10,
+  "national": "{p.national}",
+  "international": "{p.international}"
   },
-  "national": "{n}",
-  "international": "+371 {n}"
-}
+  {
+    "format": "{.landline as p}{p}",
+  "national": "{p.national}",
+  "international": "{p.international}"
+  }
+]

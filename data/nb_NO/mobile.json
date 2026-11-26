@@ -1,0 +1,9 @@
+{
+  "format": "{block as b}{subscriber as s}{national}",
+  "hidden": {
+    "block": "{.phone-mobile}",
+    "subscriber": "{digits(2)} {digits(2)}"
+  },
+  "national": "{b} {s}",
+  "international": "+47 {b} {s}"
+}

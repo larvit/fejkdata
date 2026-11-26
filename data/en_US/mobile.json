@@ -1,0 +1,10 @@
+{
+  "format": "{area as a}{exchange as e}{line as l}{national}",
+  "hidden": {
+    "area": "{.phone.area}",
+    "exchange": "{.phone-exchange}",
+    "line": "{digits(4)}"
+  },
+  "national": "({a}) {e}-{l}",
+  "international": "+1 {a} {e} {l}"
+}

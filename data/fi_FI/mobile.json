@@ -1,0 +1,5 @@
+{
+  "format": "{.phone-mobile as a}{national}",
+  "national": "{a.area} {a.subscriber}",
+  "international": "+358 {a.ndc} {a.subscriber}"
+}

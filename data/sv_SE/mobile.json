@@ -1,0 +1,9 @@
+{
+  "format": "{ndc as d}{subscriber as s}{national}",
+  "hidden": {
+    "ndc": ["70", "72", "73", "76", "79"],
+    "subscriber": "{digits(3)} {digits(2)} {digits(2)}"
+  },
+  "national": "0{d}-{s}",
+  "international": "+46 {d} {s}"
+}
