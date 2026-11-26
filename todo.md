@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 600`
+`Next ID = 601`
 
 ## Renamed
 
@@ -18,6 +18,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 3 | 2 | 6 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
+| 600 | 0.9.0 |  |  | **Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.** | 2 | 1 | 2 | 3 | 3 | 1.3 by 4 | 1.7 |
 | 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 3 | 2 | 6 | 5 | 1.2 by 6 | 1.1 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
@@ -250,13 +251,13 @@ Goal 1.3 asks for a package `pip` installs. A wheel per platform carrying the CL
 
 ### 552. Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.
 
-The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token.
+The wheels join the channels the Packages workflow publishes, and their dry run runs on a pull request as the other channels' do. The maintainer sets up the trusted publisher on pypi.org, so the workflow holds no token. PyPI's troubleshooting page (https://docs.pypi.org/trusted-publishers/troubleshooting/) says trusted publishing doesn't take a reusable workflow, and `packages.yml` is one. So publish from a job in a workflow that is not reusable, or ask the maintainer for a token.
 
 The maintainer reported the PyPI registration complete on 2026-11-25. A pending publisher does not reserve the name until it publishes. PyPI allows 100 MB per file and 10 GB per project by default; six wheels of about 17 MB make about 105 MB per release, patches included.
 
 Settle each thing PyPI shows or stores before the first publish, read it on PyPI's and the Python Packaging Authority's own documentation, and have the maintainer approve the public texts. `AGENTS.md`'s rule for public texts holds:
 
-- `pyproject.toml`'s `name`, `description` (the summary line), `keywords`, `authors` and `requires-python`.
+- The `METADATA` template's `Name`, `Summary`, `Author` and `Requires-Python`, in `release-tooling/python_wheels.py`, and whether it gains `Keywords`.
 - The trove classifiers: development status, audience, operating systems, Python versions, topics such as testing, and typing.
 - The license as an SPDX expression and its files, with the notices `DATA-LICENSES.md` says must ship with the data. It must be true of the code and the data.
 - The project links: homepage, documentation, source, changelog and issues.
@@ -267,7 +268,23 @@ Settle each thing PyPI shows or stores before the first publish, read it on PyPI
 - How a bad version is withdrawn: yank it, since a file name can't be uploaded twice.
 - A check in the dry run: `twine check --strict` and a listing of each wheel's files and size. After the publish, look at the live page.
 
-Item 551 shipped the package, `release-tooling/python_wheels.py` and the dry run's wheel build, and its decision records the tags, `Requires-Python`, the licence files and the missing console command; settle each again here before the publish. It left to this item the upload, the root README's install text and `### Python` section, and the `CHANGELOG.md` entry for the package; commit c6fc5360 on the pull request of item 551 holds a draft of each, uploading with an API token. PyPI's troubleshooting page (https://docs.pypi.org/trusted-publishers/troubleshooting/) says trusted publishing doesn't take a reusable workflow, and `packages.yml` is one: publish from a job in a workflow that is not reusable, or ask the maintainer for a token.
+Item 551 shipped the package, `release-tooling/python_wheels.py` and the dry run's wheel build. Its decision records the platform tags, `Requires-Python` and the missing console command; settle each again here before the publish. It left to this item the upload, the root README's install text and `### Python` section, and the `CHANGELOG.md` entry. Commit c6fc5360 of pull request #525 holds a draft of each; its upload uses an API token.
+
+### 600. Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.
+
+A finding of the product-owner review of pull request #525, at `python-package/fejkdata/__init__.py:21`. `render` offers `format="sql"` and `format="pgcopy"` but cannot pass the CLI's `--table`, so a record always writes to the table `records`. Nor can it pass `--data-path`, which names the caller's own data folders and repeats, `--no-shipped-data`, `--separator` or `--null-text`. Goal 1.3's counter-signal is a CLI feature reaching Python a release after Go. `cli/cli.go`'s `usage` constant lists the CLI's flags.
+
+The keyword spellings are new syntax. Before they ship, a panel of fresh-context readers, seated from the README's `## Audience`, picks them: the names, and how `data_path` takes several folders.
+
+Three things change with the keywords: the argument list in the package's README; the decision "The Python package is a wheel per platform…" in `docs/decisions.md`, whose sentence says `render` passes four flags; and the tests in `python-package/render_test.py`, written first.
+
+Ship it no later than item 552 publishes the package. After that it is a later addition, a release behind the CLI. It only adds keywords with defaults, so no caller of `render` changes.
+
+Touches:
+
+- `python-package/fejkdata/__init__.py`: `render`
+- `python-package/render_test.py`: `Render`
+- `python-package/README.md`: `## Arguments`
 
 ### 562. Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.
 
