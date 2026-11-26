@@ -14,8 +14,6 @@ def straight(name: str) -> str:
     """The name with every `’` written `'`, since the tables hold the ASCII apostrophe only."""
     return name.replace("’", "'")
 
-MIN_BEARERS = 5
-
 
 def common(rows: Iterable[tuple[str, int]], floor: int) -> list[tuple[str, int]]:
     """The names borne by at least floor people, the commonest first."""

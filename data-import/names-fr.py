@@ -1,6 +1,6 @@
 """Rebuild data/fr_FR/first-name.tsv and last-name.tsv from INSEE's name files (Licence Ouverte 2.0, "Source : Insee").
 
-    data-import/names-fr.py [--min-count N] [--cache DIR] [--out DIR]
+    data-import/names-fr.py [--first-min N] [--last-min N] [--cache DIR] [--out DIR]
 
 - The first names are the "Fichier des prénoms": for each year, the children of each sex who got the name as
   their first one. A name's count is the sum over the births of 1944 to 2023, the last 80 years, so a name gone
@@ -10,12 +10,11 @@
   slightly low.
 - The last names are the "Fichier des noms": the births of 1891 to 2000, each name's counts over its decades
   added up. INSEE writes them without accents, so `Lefevre` counts the bearers of `Lefèvre` too.
-- Both drop a name that `tsv.NAME` says is not a name in letters, and one borne by fewer than --min-count people.
+- Both drop a name that `tsv.NAME` says is not a name in letters, and a first name borne by fewer than --first-min people or a last name borne by fewer than --last-min.
 - INSEE writes names in capitals. Each part of a name, split at a hyphen, a space or an apostrophe, is
   capitalised, but in a last name `da`, `de` and `dos` stay in lower case before another part.
 """
 import argparse
-import collections
 import csv
 import io
 import re
@@ -56,7 +55,7 @@ def surname(name: str) -> str:
 
 
 def firsts(cache: str, floor: int) -> list[dict[str, object]]:
-    """The rows (name, sex, count) of the top names of each sex."""
+    """The rows (name, sex, count) of the first names borne by at least floor people under that sex."""
     text = unzipped(FIRST, cache, "insee-prenoms-2023-nat.zip").decode("utf-8")
     rows = list(csv.reader(io.StringIO(text), delimiter=";"))
     if rows[0] != ["sexe", "preusuel", "annais", "nombre"]:
@@ -84,23 +83,24 @@ def lasts(cache: str, floor: int) -> list[dict[str, object]]:
         if name != OTHERS and tsv.NAME.match(name):
             counts[name] = sum(int(d) for d in decades)
     spelled = [(surname(n), c) for n, c in tsv.common(counts.items(), floor)]
-    seen = collections.Counter(n for n, _ in spelled)
-    dupes = sorted(n for n, k in seen.items() if k > 1)
-    if dupes:
-        sys.exit(f"last names: spelled alike: {', '.join(dupes)}")
     return [{"name": n, "count": c} for n, c in sorted(spelled)]
+
+
+FIRST_MIN = 5
+LAST_MIN = 200
 
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--min-count", type=int, default=tsv.MIN_BEARERS, help="bearers a name needs")
+    p.add_argument("--first-min", type=int, default=FIRST_MIN, help="bearers a first name needs")
+    p.add_argument("--last-min", type=int, default=LAST_MIN, help="bearers a last name needs")
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(a.cache, a.min_count))
-    tsv.write(out / "last-name.tsv", ["name", "count"], lasts(a.cache, a.min_count))
+    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(a.cache, a.first_min))
+    tsv.write(out / "last-name.tsv", ["name", "count"], lasts(a.cache, a.last_min))
 
 
 if __name__ == "__main__":

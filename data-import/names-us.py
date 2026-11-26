@@ -1,11 +1,11 @@
 """Rebuild data/en_US/first-name.tsv and last-name.tsv from SSA baby names and the Census 2010 surnames (public domain).
 
-    data-import/names-us.py [--names URL_OR_FILE] [--surnames URL_OR_FILE] [--from-year YEAR] [--min-count N] [--cache DIR] [--out DIR]
+    data-import/names-us.py [--names URL_OR_FILE] [--surnames URL_OR_FILE] [--from-year YEAR] [--first-min N] [--last-min N] [--cache DIR] [--out DIR]
 
 A given name is counted over the births of --from-year and later, under each sex it was given to, so a
 name both sexes carry has two rows. --names takes SSA's names.zip or a merged name,sex,count,year file;
 --surnames takes the Census names.zip or its Names_2010Census.csv.
-A name borne by fewer than --min-count people goes.
+A first name borne by fewer than --first-min people goes, and a last name borne by fewer than --last-min.
 """
 import argparse
 import collections
@@ -66,10 +66,15 @@ def lasts(rows: Iterable[list[str]], floor: int) -> list[dict[str, Any]]:
     return [{"name": n, "count": c} for n, c in sorted(tsv.common(named, floor))]
 
 
+FIRST_MIN = 50
+LAST_MIN = 500
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--min-count", type=int, default=tsv.MIN_BEARERS, help="bearers a name needs")
+    p.add_argument("--first-min", type=int, default=FIRST_MIN, help="bearers a first name needs")
+    p.add_argument("--last-min", type=int, default=LAST_MIN, help="bearers a last name needs")
     p.add_argument("--from-year", type=int, default=1930)
     p.add_argument("--names", default=NAMES)
     p.add_argument("--out", default=str(OUT))
@@ -78,8 +83,8 @@ def main() -> None:
     counts = given(source.fetch(a.names, a.cache, "ssa-names.txt"), a.from_year)
     rows = csv_or_zip_rows(source.fetch(a.surnames, a.cache, "census-surnames-2010.zip"), r"Names_2010Census\.csv")
     out = Path(a.out)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(counts, a.min_count))
-    tsv.write(out / "last-name.tsv", ["name", "count"], lasts(rows, a.min_count))
+    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(counts, a.first_min))
+    tsv.write(out / "last-name.tsv", ["name", "count"], lasts(rows, a.last_min))
 
 
 if __name__ == "__main__":
