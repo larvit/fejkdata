@@ -1,9 +1,9 @@
 """Rebuild data/sv_SE/first-name.tsv and last-name.tsv from SCB's whole-population name counts (CC0, "Källa: SCB").
 
-    data-import/names-se.py [--source URL_OR_FILE] [--min-count N] [--cache DIR] [--out DIR]
+    data-import/names-se.py [--source URL_OR_FILE] [--first-min N] [--last-min N] [--cache DIR] [--out DIR]
 
 A tilltalsnamn goes under each sex that carries it, so a name both sexes carry has two rows.
-A name borne by fewer than --min-count people goes.
+A first name borne by fewer than --first-min people goes, and a last name borne by fewer than --last-min.
 """
 import argparse
 from collections.abc import Iterable
@@ -33,16 +33,21 @@ def counted(rows: Iterable[list[str]], floor: int) -> list[tuple[str, int]]:
     return tsv.common(names, floor)
 
 
+FIRST_MIN = 5
+LAST_MIN = 20
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--min-count", type=int, default=tsv.MIN_BEARERS, help="bearers a name needs")
+    p.add_argument("--first-min", type=int, default=FIRST_MIN, help="bearers a first name needs")
+    p.add_argument("--last-min", type=int, default=LAST_MIN, help="bearers a last name needs")
     p.add_argument("--out", default=str(OUT))
     p.add_argument("--source", default=SOURCE)
     a = p.parse_args()
     data = source.fetch(a.source, a.cache, "scb-namn-2022.xlsx", magic=b"PK")
-    first = [{"name": cased(n), "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(data, sheet), a.min_count)]
-    last = [{"name": cased(n), "count": c} for n, c in counted(xlsx.rows(data, SURNAMES), a.min_count)]
+    first = [{"name": cased(n), "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(data, sheet), a.first_min)]
+    last = [{"name": cased(n), "count": c} for n, c in counted(xlsx.rows(data, SURNAMES), a.last_min)]
     out = Path(a.out)
     tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
     tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))

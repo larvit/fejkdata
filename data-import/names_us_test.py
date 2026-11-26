@@ -14,5 +14,5 @@ class Firsts(unittest.TestCase):
 
 class Lasts(unittest.TestCase):
     def test_a_surname_under_the_floor_or_with_a_suppressed_count_goes(self) -> None:
-        rows = [["OBRIEN", "1", "150"], ["MCDONALD", "2", "99"], ["SMITH", "3", "2376206"], ["ALL OTHER NAMES", "4", "5"], ["ZED", "5", "(S)"]]
+        rows = [["OBRIEN", "1", "150"], ["MCDONALD", "2", "99"], ["SMITH", "3", "2376206"], ["ALL OTHER NAMES", "4", "5000"], ["ZED", "5", "(S)"]]
         self.assertEqual(names_us.lasts(rows, 100), [{"name": "Obrien", "count": 150}, {"name": "Smith", "count": 2376206}])

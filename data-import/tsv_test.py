@@ -20,9 +20,6 @@ class Common(unittest.TestCase):
         rows = [("Anna", 7), ("Berit", 5), ("Cilla", 4), ("Dora", 7)]
         self.assertEqual(tsv.common(rows, 5), [("Anna", 7), ("Dora", 7), ("Berit", 5)])
 
-    def test_the_default_floor_is_five_bearers(self) -> None:
-        self.assertEqual(tsv.MIN_BEARERS, 5)
-
 
 class Straight(unittest.TestCase):
     def test_a_typographic_apostrophe_becomes_the_ascii_one(self) -> None:
