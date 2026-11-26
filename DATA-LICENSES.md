@@ -143,15 +143,16 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 ## `en_US/first-name.tsv`
 
 - Source: [SSA](https://www.ssa.gov/oact/babynames/) baby names, births 1930 to 2020, through
-  [hackerb9/ssa-baby-names](https://github.com/hackerb9/ssa-baby-names); a name stays under each sex at
-  least 5 children got it in those years
+  [hackerb9/ssa-baby-names](https://github.com/hackerb9/ssa-baby-names); a name stays under each sex
+  if at least 50 children got it in those years
 - Licence: public domain
 - Attribution: none required
 - Rebuild: `data-import/names-us.py`
 
 ## `en_US/last-name.tsv`
 
-- Source: Census Bureau surnames occurring 100 or more times, 2010
+- Source: Census Bureau surnames occurring 100 or more times, 2010; the script keeps those borne by
+  at least 500 people
 - Licence: public domain
 - Attribution: none required
 - Rebuild: `data-import/names-us.py`
@@ -256,7 +257,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   statistics](https://avoindata.suomi.fi/data/en_GB/dataset/57282ad6-3ab1-48fb-983a-8aba5ff8d29a) of
   4 August 2026: the sheets `Miehet ens` and `Naiset ens` of the Etunimitilasto and `Nimet` of the
   Sukunimitilasto, the Finnish citizens bearing each first given name and last name, for each
-  first name and last name borne by at least 5 citizens
+  first name borne by at least 5 citizens and each last name the sheet lists
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 - Attribution: "Lähde: Digi- ja väestötietovirasto"
 - Rebuild: `data-import/names-fi.py`
@@ -324,11 +325,11 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 - Source: INSEE's open files. First names: the ["Fichier des
   prénoms"](https://www.insee.fr/fr/statistiques/8205621) (`prenoms-2023-nat`), the births of 1944 to
-  2023 summed per first name and sex, for each name borne by at least 5 people; INSEE groups the names
+  2023 summed per first name and sex, for each name that at least 5 children got; INSEE groups the names
   it doesn't publish under `_PRENOMS_RARES`, and the script drops that group and the rows without a
   year. Last names: the ["Fichier des noms"](https://www.insee.fr/fr/statistiques/3536630)
   (`noms2008nat`), the births of 1891 to 2000 summed over their decades, for each name borne by at
-  least 5 people; INSEE writes them in capitals without accents.
+  least 200 people; INSEE writes them in capitals without accents.
 - Licence: [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/),
   as INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) state
 - Attribution: "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee, Fichier des noms
@@ -1050,7 +1051,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 ## `sv_SE/first-name.tsv`, `last-name.tsv`
 
 - Source: [SCB](https://www.scb.se/) names with at least two bearers, 31 December 2022; the script keeps
-  each name borne by at least 5 people
+  each first name borne by at least 5 people and each last name borne by at least 50
 - Licence: CC0 1.0
 - Attribution: "Källa: SCB"
 - Rebuild: `data-import/names-se.py`

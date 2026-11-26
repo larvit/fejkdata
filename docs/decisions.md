@@ -1927,7 +1927,7 @@ The Office of Citizenship and Migration Affairs (PMLP) publishes the names in th
 data.gov.lv under CC0 1.0, with the sex of their bearers and the count of persons, in a file with each
 name or combination of names. The import counts each person once, under the first of their given names, so a
 name weighs the persons whose first given name it is, as `fi_FI`'s does. The 2,000 commonest of each sex are
-kept, as for `fi_FI`. The register holds the names of foreigners in Latin transliteration too, and they weigh
+kept. The register holds the names of foreigners in Latin transliteration too, and they weigh
 as published; the table is the register's, not a list of Latvian names. A person of no stated sex is dropped.
 
 The office's open data holds first names only, and no other open register of Latvian last names was found, so they are a
@@ -2416,12 +2416,29 @@ Valid while a serializer returns a string and no shipped path draws a NUL.
 
 Valid while `phone-mobile` and `phone-fixed` name prefix tables.
 
-## The Swedish, Finnish, French and US name tables keep every name with at least five bearers
+## The Swedish, Finnish, French and US name tables keep every name above a floor of bearers, set so a table holds at most 60,000 rows
 
-2026-11-26, the agent shipping item 561. Goals 2 and 3.2: a draw should reach every name the source counts, and a name should never point at a person.
+2026-11-26, the agent shipping item 561. Goal 2 asks that enough data ships, goal 12.2 that the CLI prints the first value of any category in under 100 ms however much ships, and goal 3.3 that no value points at a person.
 
-`sv_SE`, `fi_FI`, `fr_FR` and `en_US` kept the 2,000 or 5,000 commonest names of each list, so a name below that rank, though counted, could never be drawn. Each import now keeps every name borne by at least five people (`--min-count`, `MIN_BEARERS` in `tsv.py`), commonest first. Five is the floor because a name borne by fewer than five can point at one household; the sources' own floors are SCB 2, DVV 5 (first names) and 20 (last names), INSEE 20 (last names), the SSA 5 and the Census 100, so only SCB's published counts go below it.
+`sv_SE`, `fi_FI`, `fr_FR` and `en_US` kept the commonest 2,000 first names of each sex and 5,000 last names, so a counted name below that rank could never be drawn. Each import now keeps every name borne by at least a floor of people (`--first-min` and `--last-min`).
 
-The tables went from 4,000 first and 5,000 last names a locale to 47,889 and 190,014 for `sv_SE`, 17,128 and 23,264 for `fi_FI`, 33,372 and 218,571 for `fr_FR`, and 107,659 and 151,671 for `en_US`. The eight files hold 9.5 MB. A name table has no block index, so it loads whole on first reach; the largest, `fr_FR.last-name` and `sv_SE.last-name`, cold-start the CLI in 50 to 100 ms on a machine under load, inside goal 12.2's 100 ms. `TestShippedDataStaysUnder100MiB` holds.
+A name table has no block index, so its whole file loads on first reach, at about 0.5 µs a row (CPU time, on a machine with a load average of 16 to 25 on 16 CPUs, so a quiet one is faster). A `person` or `company` loads a first-name and a last-name table. With a floor of 5 on every table, `sv_SE.last-name` held 190,014 rows and `fr_FR.last-name` 218,571, and the first value of `sv_SE.person` took 88 to 143 ms, from about 10, as the stability review measured.
 
-Valid while no table above 250,000 rows loads whole. A source that publishes counts below five does not lower the floor.
+So each table takes the lowest floor of 5, 10, 20, 50, 100, 200 or 500 that leaves it at most 60,000 rows, which `TestNameTablesOfCountedBearersHoldUnder60000RowsEach` holds. `sv_SE.last-name` takes 50 instead of 20: `sv_SE.company` is the slowest first value of any locale, 65 ms before and 110 with 20, and 70 to 80 with 50.
+
+| Table | Floor | Rows |
+|---|---|---|
+| `sv_SE.first-name` | 5 | 47,889 |
+| `sv_SE.last-name` | 50 | 16,929 |
+| `fi_FI.first-name` | 5 | 17,128 |
+| `fi_FI.last-name` | 5 | 23,264 |
+| `fr_FR.first-name` | 5 | 33,372 |
+| `fr_FR.last-name` | 200 | 54,262 |
+| `en_US.first-name` | 50 | 52,170 |
+| `en_US.last-name` | 500 | 41,202 |
+
+On the same machine the first value of `sv_SE.person`, `fr_FR.person` and `en_US.person` takes 50 to 60 ms, from 10 to 20. No floor is below 5, since a name with fewer bearers can point at a household; SCB lists names from 2 bearers, and its 2 to 4 stay out.
+
+A name borne under both sexes has a row for each, so a selector without a sex fails for the names that had one row before; the changelog lists this under Breaking. A row under the minority sex weighs its real count, so a man named Anna is as rare as the register says, and no share of a name's bearers is a floor of its own.
+
+Valid while a name table loads whole. Item 465 gives a flat table fixed-size blocks, and then the floors are chosen again.
