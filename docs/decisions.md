@@ -2410,9 +2410,9 @@ Valid while a serializer returns a string and no shipped path draws a NUL.
 
 2026-11-26, the agent shipping item 558. Goal 1: a user fills a customer table with numbers of one kind by path, in any locale.
 
-`phone-mobile` already names a table of prefixes in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`, so a path that draws a full number could not take it without renaming the table, a break. A panel of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) ranked five pairs. `mobile` and `landline` and `mobile-number` and `fixed-number` tied on points; three seats typed the first pair first, one the second, and one `phone-mobile-number`. Every seat found `phone-mobile-number` and `mobile-phone` too close to the prefix tables to tell apart. The five seats also proposed renaming those tables to `phone-mobile-prefix` and `phone-fixed-prefix`, which a later major may do.
+`phone-mobile` already names a table of prefixes in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`, so a path that draws a full number can't take that name without renaming the table, which is a break. A panel of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) ranked five pairs of names. Two pairs tied on points: `mobile` with `landline`, and `mobile-number` with `fixed-number`. Three seats typed `mobile` first, one typed `mobile-number`, and one `phone-mobile-number`. Every seat found `phone-mobile-number` and `mobile-phone` too close to the prefix tables to tell them apart. The seats also proposed renaming those tables to `phone-mobile-prefix` and `phone-fixed-prefix`, which item 598 plans.
 
-`en_US` cannot tell the kinds apart, since mobile and fixed numbers share area codes, so `en_US.landline` reads `en_US.mobile` and its page says so. Each locale's `phone` keeps its columns and its shares, and its paths carry no column of `phone`.
+`en_US` can't tell the kinds apart, since mobile and fixed numbers share area codes, so `en_US.landline` reads `en_US.mobile`. Each locale's `phone` keeps its columns and its shares, and gains no column for the new paths.
 
 Valid while `phone-mobile` and `phone-fixed` name prefix tables.
 

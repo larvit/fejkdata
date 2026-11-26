@@ -80,8 +80,7 @@ the [mobile blocks](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunika
 and the [Vorwahlverzeichnis](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/ONRufnr/_DL/Vorwahlverzeichnis_ONB.zip.zip),
 and says the data was changed: each block and code is a row.
 
-`de_DE.mobile` and `de_DE.landline` draw the two kinds of `de_DE.phone` apart, each in its national
-form. A bound one reads `national` and `international`.
+`de_DE.mobile` draws a mobile number and `de_DE.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## German words
 

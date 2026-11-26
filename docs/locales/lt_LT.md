@@ -97,8 +97,7 @@ district. The plan fixes only the digits, and RRT's recommendation, as the Klaip
 page "Telefonų numerių rašymas" gives it, lets them be grouped as the writer likes, so the groups are this
 project's choice.
 
-`lt_LT.mobile` and `lt_LT.landline` draw the two kinds of `lt_LT.phone` apart, each in its national
-form. A bound one reads `national` and `international`.
+`lt_LT.mobile` draws a mobile number and `lt_LT.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Lithuanian words
 

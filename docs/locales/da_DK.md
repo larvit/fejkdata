@@ -85,8 +85,7 @@ allocates, and the plan says "mainly" because numbers move between fixed and mob
 Neither the order nor the authority's guide to it lists the numbers assigned to providers. A bound
 number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
-`da_DK.mobile` and `da_DK.landline` draw the two kinds of `da_DK.phone` apart, each in its national
-form. A bound one reads `national` and `international`.
+`da_DK.mobile` draws a mobile number and `da_DK.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Danish words
 

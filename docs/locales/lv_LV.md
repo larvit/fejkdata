@@ -91,8 +91,7 @@ reserve any range for fiction or tests, so don't call or text a drawn number. Th
 further, but Google's libphonenumber refuses some blocks of the mobile range 23: it rejects about one mobile number
 in a hundred that fejkdata draws.
 
-`lv_LV.mobile` and `lv_LV.landline` draw the two kinds of `lv_LV.phone` apart, each in its national
-form. A bound one reads `national` and `international`.
+`lv_LV.mobile` draws a mobile number and `lv_LV.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Latvian words
 
