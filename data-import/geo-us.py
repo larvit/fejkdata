@@ -181,8 +181,8 @@ def zcta_localities(cache: Path, localities: Collection[str]) -> dict[str, str]:
 
 
 def street_name(name: str) -> bool:
-	"""Whether a TIGER FULLNAME is a street's, not a highway's, and geo.cleanly_written."""
-	return bool(name) and not HIGHWAY.search(name) and geo.cleanly_written(name)
+	"""Whether a TIGER FULLNAME is a street's: geo.cleanly_written, and not a highway's."""
+	return geo.cleanly_written(name) and not HIGHWAY.search(name)
 
 
 def streets(cache: Path, counties: Iterable[str], locality_of_zcta: Mapping[str, str], share: float, minimum: int) -> tuple[dict[str, list[geo.Row]], collections.Counter[str]]:

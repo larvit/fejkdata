@@ -19,11 +19,11 @@ def script(name: str) -> types.ModuleType:
 	return module
 
 
+geo_de = script("geo-de")
 geo_dk = script("geo-dk")
 geo_fi = script("geo-fi")
 geo_se = script("geo-se")
 geo_us = script("geo-us")
-geo_de = script("geo-de")
 
 
 def baf(code: str = "", street: str = "", swedish: str = "", low: str = "", low_letter: str = "", high: str = "", high_letter: str = "", kunta: str = "091") -> str:
@@ -258,19 +258,19 @@ class HouseNumbers(unittest.TestCase):
 
 
 class CleanlyWritten(unittest.TestCase):
-	def test_mojibake_trailing_punctuation_a_remark_in_parentheses_and_a_name_said_twice_are_refused(self) -> None:
-		for name in ["All\u201avägen", "Syre\u00b4nvägen", "Ã¤ngsvägen", "Bad\ufffdName", "Addison Ln,", "Addison Ln;", "Village Ridge Road(Private)", "Island Avenue (Glp)", "Rönnerums bygata Rönnerums bygata", "Vägen Vägen", "", " Main St", "Main St ", "Main  St", "Main\tSt", "Main\x00St"]:
+	def test_a_badly_written_name_is_refused(self) -> None:
+		for name in ["All\u201avägen", "Syre\u00b4nvägen", "Ã¤ngsvägen", "Bad\ufffdName", "All\u201evägen", "Â\u00a0Road", "Ã\u00bfRoad", "ô\u00bfRoad", "Addison Ln,", "Addison Ln;", "Mill Rd, East", "Village Ridge Road(Private)", "Island Avenue (Glp)", "Main St)", "(Main St", "Rönnerums bygata Rönnerums bygata", "Vägen Vägen", "", " Main St", "Main St ", "Main  St", "Main\tSt", "Main\x00St"]:
 			with self.subTest(name=name):
 				self.assertFalse(geo.cleanly_written(name))
 
 	def test_an_odd_name_a_register_really_holds_is_kept(self) -> None:
-		for name in ["S:t Olofsgatan", "M/S Nadias väg", "10 1/2 St NW", 'Lidosta "Rīga"', "Allévägen", "O'Brien St", "St. Mary's Rd", "Rue Saint-Honoré", "Åkerbärsvägen", "Rue de l'Église", "Bo Bo gatan"]:
+		for name in ["S:t Olofsgatan", "M/S Nadias väg", "10 1/2 St NW", 'Lidosta "Rīga"', "Allévägen", "O'Brien St", "St. Mary's Rd", "Rue Saint-Honoré", "Åkerbärsvägen", "Rue de l'Église", "Bo Bo gatan", "Gamla Bo Bo"]:
 			with self.subTest(name=name):
 				self.assertTrue(geo.cleanly_written(name))
 
 
-class SwedishStreetName(unittest.TestCase):
-	def test_a_description_of_streets_is_no_street(self) -> None:
+class SeStreetName(unittest.TestCase):
+	def test_a_description_of_streets_is_not_a_street(self) -> None:
 		self.assertFalse(geo_se.street_name("Kvartersvägar och parkeringsvägar på Lars Kaggsgatan"))
 
 	def test_a_name_geo_refuses_is_refused(self) -> None:
@@ -285,7 +285,7 @@ class SwedishStreetName(unittest.TestCase):
 
 
 class UsStreetName(unittest.TestCase):
-	def test_a_highway_and_a_name_geo_refuses_are_no_street(self) -> None:
+	def test_a_highway_and_a_name_geo_refuses_are_not_streets(self) -> None:
 		for name in ["I- 95", "Route 9", "Addison Ln,", "Village Ridge Road(Private)", "Island Avenue (Glp)"]:
 			with self.subTest(name=name):
 				self.assertFalse(geo_us.street_name(name))
@@ -296,8 +296,8 @@ class UsStreetName(unittest.TestCase):
 				self.assertTrue(geo_us.street_name(name))
 
 
-class StreetName(unittest.TestCase):
-	def test_a_highway_a_postinumero_and_an_island_are_no_street(self) -> None:
+class FiStreetName(unittest.TestCase):
+	def test_a_name_that_is_not_a_street_is_refused(self) -> None:
 		for name in ["Valtatie 23", "41520", "Mustalampi, Lammassaari", "Haapasaari (Vuosaari)", "Makkarasaari/Lapinsaari", "Poste restante", "Busö Busö", ""]:
 			with self.subTest(name=name):
 				self.assertFalse(geo_fi.street_name(name))
@@ -361,6 +361,11 @@ class Tally(unittest.TestCase):
 	def test_a_highway_an_island_and_a_range_under_no_normal_postinumero_count_nowhere(self) -> None:
 		lines = [baf("04400", "Valtatie 23"), baf("04400", "Makkarasaari/Lapinsaari"), baf("04401", "Laurilantie", "Laurilavägen", "1", "", "9", "")]
 		self.assertEqual(geo_fi.tally(lines, self.CODES), ({}, {}, {}, {}, {}))
+
+	def test_a_swedish_name_that_is_badly_written_counts_none(self) -> None:
+		streets, swedish, *_ = geo_fi.tally([baf("04400", "Hietalahden puistokuja", "Sandviksalle\u00b4n")], self.CODES)
+		self.assertEqual(streets, {("Järvenpää", "Hietalahden puistokuja"): 1})
+		self.assertEqual(swedish[("Järvenpää", "Hietalahden puistokuja")], {})
 
 	def test_a_street_opens_in_upper_case_in_finnish_and_in_swedish(self) -> None:
 		lines = [baf("99800", "kuivalahdentie"), baf("99800", "Kuivalahdentie"), baf("04400", "Kreivittären tie", "grevinnans väg")]
