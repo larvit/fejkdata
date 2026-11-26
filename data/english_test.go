@@ -51,7 +51,7 @@ func TestShippedUSPhone(t *testing.T) {
 	})
 }
 
-func TestShippedUSMobileAndLandlineDrawOneNationalPool(t *testing.T) {
+func TestShippedUSPhoneMobileAndFixedDrawOneNationalPool(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(11))
 	national := regexp.MustCompile(`^\((\d{3})\) ([2-9]\d{2})-(\d{4})$`)
 	phoneAreas := map[string]bool{}

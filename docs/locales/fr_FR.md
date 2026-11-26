@@ -90,7 +90,7 @@ audiovisuelles": it doesn't allot them to anyone, and says they may be used as t
 `fr_FR.phone-fixed-prefix` holds the five fixed roots, `01 99 00`, `02 61 91`, `03 53 01`, `04 65 71` and
 `05 36 49`, and `fr_FR.phone-mobile-prefix` the mobile one, `06 39 98`. Each is a row's `area`, with its `ndc`, the
 root without the 0, and its `subscriber`, the last four digits. A row is selected by its `area`,
-`phone-fixed-prefix[01 99 00]`, and `{fr_FR.phone-fixed-prefix.area}` prints one.
+`phone-fixed-prefix[01 99 00]`, and `{/fr_FR.phone-fixed-prefix.area}` prints one.
 The tables hold 60,000 numbers, and the 10,000 mobile ones are ten draws in eleven, so a fixture of a few
 hundred rows repeats a number and a `UNIQUE` column needs a category of your own. No
 checker is promised to accept a number: the roots are no operator's.

@@ -1,6 +1,8 @@
 package data_test
 
 import (
+	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -68,7 +70,7 @@ func TestLocalePhoneInternationalIsItsCallingCodeAndItsNationalForm(t *testing.T
 	})
 }
 
-func TestLocaleMobileDrawsOnlyMobileNumbersAndLandlineOnlyFixedOnes(t *testing.T) {
+func TestLocalePhoneMobileAndFixedDrawOnlyTheirOwnKind(t *testing.T) {
 	eachLocale(t, hasPhone, func(t *testing.T, l shippedLocale) {
 		isFixed := l.phone.fixed(t)
 		shapes := map[string]bool{}
@@ -97,7 +99,7 @@ func digitShape(number string) string {
 	}, number)
 }
 
-func TestNynorskMobileAndLandlineAreBokmalsOwn(t *testing.T) {
+func TestNynorskPhoneMobileAndFixedAreBokmalsOwn(t *testing.T) {
 	isFixed := norwegianFixedPhone(t)
 	f := shipped(t, fejkdata.WithSeed(11))
 	for path, wantFixed := range map[string]bool{"phone-mobile": false, "phone-fixed": true} {
@@ -109,5 +111,24 @@ func TestNynorskMobileAndLandlineAreBokmalsOwn(t *testing.T) {
 				t.Fatalf("nn_NO.%s drew %q, want a Norwegian number that is fixed: %v and its +47 form", path, got, wantFixed)
 			}
 		})
+	}
+}
+
+func TestPhoneImportScriptsWriteTheTablesTheLocalesRead(t *testing.T) {
+	name := regexp.MustCompile(`"(phone-(?:mobile|fixed)[a-z-]*\.tsv)"`)
+	for script, locale := range map[string]string{"de": "de_DE", "dk": "da_DK", "lt": "lt_LT", "no": "nb_NO"} {
+		src, err := os.ReadFile("../data-import/phone-" + script + ".py")
+		if err != nil {
+			t.Fatal(err)
+		}
+		found := name.FindAllStringSubmatch(string(src), -1)
+		if len(found) == 0 {
+			t.Errorf("phone-%s.py names no phone TSV", script)
+		}
+		for _, m := range found {
+			if _, err := os.Stat(locale + "/" + m[1]); err != nil {
+				t.Errorf("phone-%s.py writes %s, which %s doesn't hold: %v", script, m[1], locale, err)
+			}
+		}
 	}
 }
