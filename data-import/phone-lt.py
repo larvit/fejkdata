@@ -1,4 +1,4 @@
-"""Rebuild data/lt_LT/phone-fixed.tsv from Lithuania's numbering plan.
+"""Rebuild data/lt_LT/phone-fixed-prefix.tsv from Lithuania's numbering plan.
 
     data-import/phone-lt.py [--out FILE]
 
@@ -56,7 +56,7 @@ def rows() -> list[dict[str, str]]:
 
 def main() -> None:
 	parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-	parser.add_argument("--out", default=str(DATA / "phone-fixed.tsv"))
+	parser.add_argument("--out", default=str(DATA / "phone-fixed-prefix.tsv"))
 	args = parser.parse_args()
 	tsv.write(args.out, ["area", "name", "ndc", "subscriber"], rows(), templates={"subscriber"})
 

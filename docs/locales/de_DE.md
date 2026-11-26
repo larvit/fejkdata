@@ -1,6 +1,6 @@
 # `de_DE`
 
-`de_DE`, German, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `steuer-id`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `Frau` and `Mann`, `title` is
+`de_DE`, German, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-fixed-prefix`, `phone-mobile`, `phone-mobile-prefix`, `phone-subscriber`, `price`, `sentence`, `sex`, `steuer-id`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. `sex` is `Frau` and `Mann`, `title` is
 `Dr.`, `Prof.` and `Prof. Dr.`, drawn whatever the sex. `{/de_DE.person}` renders e.g. `Emilia Hesse`.
 
 No open register publishes Germany's name counts. The first names are the city of Munich's open data
@@ -58,13 +58,13 @@ last name from `de_DE`'s names, folded to ASCII, `ä` to `a`, `ö` to `o`, `ü` 
 the country code, then the number without the 0 dialled before an area code. One space splits the area
 code or mobile block from the subscriber number, which is not grouped.
 
-`de_DE.phone-fixed` holds the 5200 Ortsnetzkennzahlen (area codes) that the Bundesnetzagentur's
+`de_DE.phone-fixed-prefix` holds the 5200 Ortsnetzkennzahlen (area codes) that the Bundesnetzagentur's
 Vorwahlverzeichnis of 2022-07-27 marks active. A row has the code as `area`, such as `030`, the Ortsnetz
 as `name`, such as Berlin, the code without its 0 as `ndc`, and the `subscriber` number drawn after it.
-`de_DE.phone-mobile` holds the 81 blocks, such as `01511` and `015550`, that the Bundesnetzagentur's list
+`de_DE.phone-mobile-prefix` holds the 81 blocks, such as `01511` and `015550`, that the Bundesnetzagentur's list
 of assigned mobile blocks names, with the columns `area`, `ndc` and `subscriber`.
 `de_DE.phone-subscriber` draws a subscriber number of six to eight digits as `digits-6` to `digits-8`. A
-row is selected by its area, `phone-fixed[030]`. A code is drawn evenly, since the lists publish no
+row is selected by its area, `phone-fixed-prefix[030]`. A code is drawn evenly, since the lists publish no
 frequency, so a village is as likely as Berlin.
 
 A number allocated now has ten digits after the 0 in Berlin, Hamburg, Frankfurt and München and eleven
@@ -80,7 +80,7 @@ the [mobile blocks](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunika
 and the [Vorwahlverzeichnis](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/ONRufnr/_DL/Vorwahlverzeichnis_ONB.zip.zip),
 and says the data was changed: each block and code is a row.
 
-`de_DE.mobile` draws a mobile number and `de_DE.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
+`de_DE.phone-mobile` draws a mobile number and `de_DE.phone-fixed` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## German words
 

@@ -46,15 +46,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `da_DK.individ` | valid | `0` | the CPR office's modulus 11 check; no test series is published |
 | `da_DK.individ.digit` | valid | `0` | the CPR office's modulus 11 check; no test series is published |
 | `da_DK.individ.sex` | valid | `f` | the CPR office's modulus 11 check; no test series is published |
-| `da_DK.landline` | valid | `96 96 95 55` | the Danish Overall Numbering Plan, Annex 1 |
-| `da_DK.landline.international` | valid | `+45 43 26 69 55` | the Danish Overall Numbering Plan, Annex 1 |
-| `da_DK.landline.national` | valid | `43 26 69 55` | the Danish Overall Numbering Plan, Annex 1 |
 | `da_DK.last-name` | real | `Thomsen` | Statistics Denmark's top 20; for every other name a language model's recall, not checked against a register |
 | `da_DK.last-name.count` | real | `37486` | Statistics Denmark's top 20; for every other name a language model's recall, not checked against a register |
 | `da_DK.last-name.name` | real | `Thomsen` | Statistics Denmark's top 20; for every other name a language model's recall, not checked against a register |
-| `da_DK.mobile` | valid | `91 16 95 55` | the Danish Overall Numbering Plan, Annex 1 |
-| `da_DK.mobile.international` | valid | `+45 25 36 69 55` | the Danish Overall Numbering Plan, Annex 1 |
-| `da_DK.mobile.national` | valid | `25 36 69 55` | the Danish Overall Numbering Plan, Annex 1 |
 | `da_DK.month` | real | `januar` | Unicode CLDR's stand-alone month names |
 | `da_DK.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `da_DK.month.name` | real | `januar` | Unicode CLDR's stand-alone month names |
@@ -65,10 +59,16 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `da_DK.person.prefix` | real | `dr. ` | hand-written |
 | `da_DK.person.sex` | real | `mand` | Statistics Denmark's table FOLK1A |
 | `da_DK.phone` | valid | `25 79 55 56` | the Danish Overall Numbering Plan, Annex 1 |
-| `da_DK.phone-fixed` | valid | `33 1` | the Danish Overall Numbering Plan, Annex 1 |
-| `da_DK.phone-fixed.prefix` | valid | `33 1` | the Danish Overall Numbering Plan, Annex 1 |
-| `da_DK.phone-mobile` | valid | `21 1` | the Danish Overall Numbering Plan, Annex 1 |
-| `da_DK.phone-mobile.prefix` | valid | `21 1` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-fixed` | valid | `96 96 95 55` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-fixed-prefix` | valid | `33 1` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-fixed-prefix.prefix` | valid | `33 1` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-fixed.international` | valid | `+45 43 26 69 55` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-fixed.national` | valid | `43 26 69 55` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-mobile` | valid | `91 16 95 55` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-mobile-prefix` | valid | `21 1` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-mobile-prefix.prefix` | valid | `21 1` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-mobile.international` | valid | `+45 25 36 69 55` | the Danish Overall Numbering Plan, Annex 1 |
+| `da_DK.phone-mobile.national` | valid | `25 36 69 55` | the Danish Overall Numbering Plan, Annex 1 |
 | `da_DK.phone.block` | valid | `43 2` | the Danish Overall Numbering Plan, Annex 1 |
 | `da_DK.phone.international` | valid | `+45 91 16 95 55` | the Danish Overall Numbering Plan, Annex 1 |
 | `da_DK.phone.national` | valid | `91 16 95 55` | the Danish Overall Numbering Plan, Annex 1 |
@@ -168,15 +168,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `de_DE.first-name.count` | real | `395` | the city of Munich's newborns' names |
 | `de_DE.first-name.name` | real | `Victoria` | the city of Munich's newborns' names |
 | `de_DE.first-name.sex` | real | `f` | the city of Munich's newborns' names |
-| `de_DE.landline` | valid | `034295 469555` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.landline.international` | valid | `+49 6665 8669555` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.landline.national` | valid | `06665 8669555` | the Bundesnetzagentur's number blocks and area codes |
 | `de_DE.last-name` | real | `Wittmann` | a language model's recall of names common in Germany, not checked against a register |
 | `de_DE.last-name.count` | real | `47194` | a language model's recall of names common in Germany, not checked against a register |
 | `de_DE.last-name.name` | real | `Wittmann` | a language model's recall of names common in Germany, not checked against a register |
-| `de_DE.mobile` | valid | `015184 469555` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.mobile.international` | valid | `+49 15700 866955` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.mobile.national` | valid | `015700 866955` | the Bundesnetzagentur's number blocks and area codes |
 | `de_DE.month` | real | `Januar` | Unicode CLDR's stand-alone month names |
 | `de_DE.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `de_DE.month.name` | real | `Januar` | Unicode CLDR's stand-alone month names |
@@ -187,15 +181,21 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `de_DE.person.prefix` | real | `Dr. ` | hand-written |
 | `de_DE.person.sex` | real | `Frau` | Eurostat's table demo_pjan |
 | `de_DE.phone` | valid | `034652 855561` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-fixed` | valid | `02373` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-fixed.area` | valid | `02373` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-fixed.name` | valid | `Menden Sauerland` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-fixed.ndc` | valid | `2373` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-fixed.subscriber` | valid | `8916695` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-mobile` | valid | `01511` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-mobile.area` | valid | `01511` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-mobile.ndc` | valid | `1511` | the Bundesnetzagentur's number blocks and area codes |
-| `de_DE.phone-mobile.subscriber` | valid | `8916695` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed` | valid | `034295 469555` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed-prefix` | valid | `02373` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed-prefix.area` | valid | `02373` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed-prefix.name` | valid | `Menden Sauerland` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed-prefix.ndc` | valid | `2373` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed-prefix.subscriber` | valid | `8916695` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed.international` | valid | `+49 6665 8669555` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-fixed.national` | valid | `06665 8669555` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-mobile` | valid | `015184 469555` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-mobile-prefix` | valid | `01511` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-mobile-prefix.area` | valid | `01511` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-mobile-prefix.ndc` | valid | `1511` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-mobile-prefix.subscriber` | valid | `8916695` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-mobile.international` | valid | `+49 15700 866955` | the Bundesnetzagentur's number blocks and area codes |
+| `de_DE.phone-mobile.national` | valid | `015700 866955` | the Bundesnetzagentur's number blocks and area codes |
 | `de_DE.phone-subscriber` | valid | `41916695` | the Bundesnetzagentur's number blocks and area codes |
 | `de_DE.phone-subscriber.digits-6` | valid | `661916` | the Bundesnetzagentur's number blocks and area codes |
 | `de_DE.phone-subscriber.digits-7` | valid | `6619166` | the Bundesnetzagentur's number blocks and area codes |
@@ -277,15 +277,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `en_US.itin.area` | valid | `906` | hand-written, in the groups the IRS lists for an ITIN |
 | `en_US.itin.group` | valid | `98` | hand-written, in the groups the IRS lists for an ITIN |
 | `en_US.itin.serial` | valid | `7151` | hand-written, in the groups the IRS lists for an ITIN |
-| `en_US.landline` | valid | `(702) 746-6805` | hand-written area codes; exchanges NANPA may assign |
-| `en_US.landline.international` | valid | `+1 808 845 6168` | hand-written area codes; exchanges NANPA may assign |
-| `en_US.landline.national` | valid | `(808) 845-6168` | hand-written area codes; exchanges NANPA may assign |
 | `en_US.last-name` | real | `Willis` | the Census Bureau's surnames of 2010 |
 | `en_US.last-name.count` | real | `125627` | the Census Bureau's surnames of 2010 |
 | `en_US.last-name.name` | real | `Willis` | the Census Bureau's surnames of 2010 |
-| `en_US.mobile` | valid | `(305) 973-5616` | hand-written area codes; exchanges NANPA may assign |
-| `en_US.mobile.international` | valid | `+1 808 845 6168` | hand-written area codes; exchanges NANPA may assign |
-| `en_US.mobile.national` | valid | `(808) 845-6168` | hand-written area codes; exchanges NANPA may assign |
 | `en_US.month` | real | `January` | Unicode CLDR's stand-alone month names |
 | `en_US.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `en_US.month.name` | real | `January` | Unicode CLDR's stand-alone month names |
@@ -297,6 +291,12 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `en_US.person.sex` | real | `female` | the Census Bureau's population estimates by sex |
 | `en_US.phone` | valid | `305-785-5616` | hand-written area codes; exchanges NANPA may assign |
 | `en_US.phone-exchange` | valid | `955` | the codes NANPA may assign |
+| `en_US.phone-fixed` | valid | `(702) 746-6805` | hand-written area codes; exchanges NANPA may assign |
+| `en_US.phone-fixed.international` | valid | `+1 808 845 6168` | hand-written area codes; exchanges NANPA may assign |
+| `en_US.phone-fixed.national` | valid | `(808) 845-6168` | hand-written area codes; exchanges NANPA may assign |
+| `en_US.phone-mobile` | valid | `(305) 973-5616` | hand-written area codes; exchanges NANPA may assign |
+| `en_US.phone-mobile.international` | valid | `+1 808 845 6168` | hand-written area codes; exchanges NANPA may assign |
+| `en_US.phone-mobile.national` | valid | `(808) 845-6168` | hand-written area codes; exchanges NANPA may assign |
 | `en_US.phone.area` | valid | `718` | hand-written area codes; exchanges NANPA may assign |
 | `en_US.phone.exchange` | valid | `886` | hand-written area codes; exchanges NANPA may assign |
 | `en_US.phone.line` | valid | `6191` | hand-written area codes; exchanges NANPA may assign |
@@ -400,16 +400,10 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `et_EE.first-name.sex` | real | `f` | a language model's recall of names common in Estonia, not checked against a register |
 | `et_EE.isikukood` | valid | `50412131676` | the check digit; no test series is published |
 | `et_EE.isikukood.birth` | valid | `19501203` | the check digit; no test series is published |
-| `et_EE.landline` | valid | `681 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
-| `et_EE.landline.international` | valid | `+372 681 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
-| `et_EE.landline.national` | valid | `729 1669` | the Estonian numbering plan, regulation no. 25 of 2018 |
 | `et_EE.last-name` | real | `Volkov` | a language model's recall of names common in Estonia, not checked against a register |
 | `et_EE.last-name.count` | real | `21320` | a language model's recall of names common in Estonia, not checked against a register |
 | `et_EE.last-name.name` | real | `Volkov` | a language model's recall of names common in Estonia, not checked against a register |
 | `et_EE.last-name.sex` | real | `m` | a language model's recall of names common in Estonia, not checked against a register |
-| `et_EE.mobile` | valid | `5619 1669` | the Estonian numbering plan, regulation no. 25 of 2018 |
-| `et_EE.mobile.international` | valid | `+372 5619 1669` | the Estonian numbering plan, regulation no. 25 of 2018 |
-| `et_EE.mobile.national` | valid | `5061 9166` | the Estonian numbering plan, regulation no. 25 of 2018 |
 | `et_EE.month` | real | `jaanuar` | Unicode CLDR's stand-alone month names |
 | `et_EE.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `et_EE.month.name` | real | `jaanuar` | Unicode CLDR's stand-alone month names |
@@ -420,6 +414,12 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `et_EE.person.prefix` | real | `dr ` | hand-written |
 | `et_EE.person.sex` | real | `naine` | Eurostat's table demo_pjan |
 | `et_EE.phone` | valid | `5191 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.phone-fixed` | valid | `681 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.phone-fixed.international` | valid | `+372 681 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.phone-fixed.national` | valid | `729 1669` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.phone-mobile` | valid | `5619 1669` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.phone-mobile.international` | valid | `+372 5619 1669` | the Estonian numbering plan, regulation no. 25 of 2018 |
+| `et_EE.phone-mobile.national` | valid | `5061 9166` | the Estonian numbering plan, regulation no. 25 of 2018 |
 | `et_EE.phone.international` | valid | `+372 5191 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
 | `et_EE.phone.national` | valid | `681 6695` | the Estonian numbering plan, regulation no. 25 of 2018 |
 | `et_EE.price` | invented | `236,66 €` | hand-written |
@@ -520,15 +520,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fi_FI.individ` | valid | `0` | DVV's individual numbers |
 | `fi_FI.individ.digit` | valid | `0` | DVV's individual numbers |
 | `fi_FI.individ.sex` | valid | `f` | DVV's individual numbers |
-| `fi_FI.landline` | valid | `03 695 5561` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.landline.international` | valid | `+358 15 66 955` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.landline.national` | valid | `015 66 955` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.last-name` | real | `Väisänen` | DVV's name statistics |
 | `fi_FI.last-name.count` | real | `9546` | DVV's name statistics |
 | `fi_FI.last-name.name` | real | `Väisänen` | DVV's name statistics |
-| `fi_FI.mobile` | valid | `042 695 5561` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.mobile.international` | valid | `+358 450 66 955` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.mobile.national` | valid | `0450 66 955` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.month` | real | `tammikuu` | Unicode CLDR's stand-alone month names |
 | `fi_FI.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `fi_FI.month.name` | real | `tammikuu` | Unicode CLDR's stand-alone month names |
@@ -539,15 +533,21 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fi_FI.person.prefix` | real | `tohtori ` | hand-written |
 | `fi_FI.person.sex` | real | `nainen` | Statistics Finland's table 11rb |
 | `fi_FI.phone` | valid | `05 5556 1680` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-fixed` | valid | `02` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-fixed.area` | valid | `02` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-fixed.name` | valid | `Turku and Pori` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-fixed.ndc` | valid | `2` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-fixed.subscriber` | valid | `816 695` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-mobile` | valid | `040` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-mobile.area` | valid | `040` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-mobile.ndc` | valid | `40` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.phone-mobile.subscriber` | valid | `916 695` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed` | valid | `03 695 5561` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed-prefix` | valid | `02` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed-prefix.area` | valid | `02` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed-prefix.name` | valid | `Turku and Pori` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed-prefix.ndc` | valid | `2` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed-prefix.subscriber` | valid | `816 695` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed.international` | valid | `+358 15 66 955` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-fixed.national` | valid | `015 66 955` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-mobile` | valid | `042 695 5561` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-mobile-prefix` | valid | `040` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-mobile-prefix.area` | valid | `040` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-mobile-prefix.ndc` | valid | `40` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-mobile-prefix.subscriber` | valid | `916 695` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-mobile.international` | valid | `+358 450 66 955` | Traficom's Regulation 32 V/2025 M |
+| `fi_FI.phone-mobile.national` | valid | `0450 66 955` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.phone-subscriber` | valid | `2916 6955` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.phone-subscriber.fixed-5-7` | valid | `61 916` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.phone-subscriber.fixed-6-8` | valid | `619 166` | Traficom's Regulation 32 V/2025 M |
@@ -646,15 +646,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fr_FR.first-name.count` | real | `232520` | INSEE's Fichier des prénoms |
 | `fr_FR.first-name.name` | real | `Véronique` | INSEE's Fichier des prénoms |
 | `fr_FR.first-name.sex` | real | `f` | INSEE's Fichier des prénoms |
-| `fr_FR.landline` | valid | `01 99 00 16 69` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.landline.international` | valid | `+33 4 65 71 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.landline.national` | valid | `04 65 71 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.last-name` | real | `Veyrier` | INSEE's Fichier des noms |
 | `fr_FR.last-name.count` | real | `1581` | INSEE's Fichier des noms |
 | `fr_FR.last-name.name` | real | `Veyrier` | INSEE's Fichier des noms |
-| `fr_FR.mobile` | valid | `06 39 98 16 69` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.mobile.international` | valid | `+33 6 39 98 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.mobile.national` | valid | `06 39 98 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.month` | real | `janvier` | Unicode CLDR's stand-alone month names |
 | `fr_FR.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `fr_FR.month.name` | real | `janvier` | Unicode CLDR's stand-alone month names |
@@ -672,14 +666,20 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fr_FR.person.prefix` | real | `Dr ` | hand-written |
 | `fr_FR.person.sex` | real | `homme` | Eurostat's table demo_pjan |
 | `fr_FR.phone` | valid | `01 99 00 69 55` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.phone-fixed` | valid | `01 99 00` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.phone-fixed.area` | valid | `01 99 00` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.phone-fixed.ndc` | valid | `1 99 00` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.phone-fixed.subscriber` | valid | `61 91` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.phone-mobile` | valid | `06 39 98` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.phone-mobile.area` | valid | `06 39 98` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.phone-mobile.ndc` | valid | `6 39 98` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.phone-mobile.subscriber` | valid | `61 91` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-fixed` | valid | `01 99 00 16 69` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-fixed-prefix` | valid | `01 99 00` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-fixed-prefix.area` | valid | `01 99 00` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-fixed-prefix.ndc` | valid | `1 99 00` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-fixed-prefix.subscriber` | valid | `61 91` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-fixed.international` | valid | `+33 4 65 71 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-fixed.national` | valid | `04 65 71 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-mobile` | valid | `06 39 98 16 69` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-mobile-prefix` | valid | `06 39 98` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-mobile-prefix.area` | valid | `06 39 98` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-mobile-prefix.ndc` | valid | `6 39 98` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-mobile-prefix.subscriber` | valid | `61 91` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-mobile.international` | valid | `+33 6 39 98 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
+| `fr_FR.phone-mobile.national` | valid | `06 39 98 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.phone.international` | valid | `+33 1 99 00 16 69` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.phone.national` | valid | `01 99 00 16 69` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.price` | invented | `236,66 €` | hand-written |
@@ -1559,16 +1559,10 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `lt_LT.first-name.count` | real | `64083` | the Centre of Registers' top 50; for the rest a language model's recall, not checked against a register |
 | `lt_LT.first-name.name` | real | `Vytautas` | the Centre of Registers' top 50; for the rest a language model's recall, not checked against a register |
 | `lt_LT.first-name.sex` | real | `m` | the Centre of Registers' top 50; for the rest a language model's recall, not checked against a register |
-| `lt_LT.landline` | valid | `0 315 16695` | the RRT's numbering plan of 2023 |
-| `lt_LT.landline.international` | valid | `+370 441 91669` | the RRT's numbering plan of 2023 |
-| `lt_LT.landline.national` | valid | `0 441 91669` | the RRT's numbering plan of 2023 |
 | `lt_LT.last-name` | real | `Žemaitienė` | a language model's recall of names common in Lithuania, not checked against a register |
 | `lt_LT.last-name.count` | real | `5000` | a language model's recall of names common in Lithuania, not checked against a register |
 | `lt_LT.last-name.name` | real | `Žemaitienė` | a language model's recall of names common in Lithuania, not checked against a register |
 | `lt_LT.last-name.sex` | real | `f` | a language model's recall of names common in Lithuania, not checked against a register |
-| `lt_LT.mobile` | valid | `0 616 69555` | the RRT's numbering plan of 2023 |
-| `lt_LT.mobile.international` | valid | `+370 691 66955` | the RRT's numbering plan of 2023 |
-| `lt_LT.mobile.national` | valid | `0 691 66955` | the RRT's numbering plan of 2023 |
 | `lt_LT.month` | real | `sausis` | Unicode CLDR's stand-alone month names |
 | `lt_LT.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `lt_LT.month.name` | real | `sausis` | Unicode CLDR's stand-alone month names |
@@ -1579,15 +1573,21 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `lt_LT.person.prefix` | real | `dr. ` | hand-written |
 | `lt_LT.person.sex` | real | `vyras` | Eurostat's table demo_pjan |
 | `lt_LT.phone` | valid | `0 315 69555` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-fixed` | valid | `037` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-fixed.area` | valid | `037` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-fixed.name` | valid | `Kaunas` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-fixed.ndc` | valid | `37` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-fixed.subscriber` | valid | `61 9166` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-mobile` | valid | `06` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-mobile.area` | valid | `06` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-mobile.ndc` | valid | `6` | the RRT's numbering plan of 2023 |
-| `lt_LT.phone-mobile.subscriber` | valid | `61 91669` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed` | valid | `0 315 16695` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed-prefix` | valid | `037` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed-prefix.area` | valid | `037` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed-prefix.name` | valid | `Kaunas` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed-prefix.ndc` | valid | `37` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed-prefix.subscriber` | valid | `61 9166` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed.international` | valid | `+370 441 91669` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-fixed.national` | valid | `0 441 91669` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-mobile` | valid | `0 616 69555` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-mobile-prefix` | valid | `06` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-mobile-prefix.area` | valid | `06` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-mobile-prefix.ndc` | valid | `6` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-mobile-prefix.subscriber` | valid | `61 91669` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-mobile.international` | valid | `+370 691 66955` | the RRT's numbering plan of 2023 |
+| `lt_LT.phone-mobile.national` | valid | `0 691 66955` | the RRT's numbering plan of 2023 |
 | `lt_LT.phone.international` | valid | `+370 315 16695` | the RRT's numbering plan of 2023 |
 | `lt_LT.phone.national` | valid | `0 315 16695` | the RRT's numbering plan of 2023 |
 | `lt_LT.price` | invented | `236,66 €` | hand-written |
@@ -1685,16 +1685,10 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `lv_LV.first-name.count` | real | `5653` | the Office of Citizenship and Migration Affairs' register statistics |
 | `lv_LV.first-name.name` | real | `Zane` | the Office of Citizenship and Migration Affairs' register statistics |
 | `lv_LV.first-name.sex` | real | `f` | the Office of Citizenship and Migration Affairs' register statistics |
-| `lv_LV.landline` | valid | `66 191 669` | Table 1 of the National Numbering Plan |
-| `lv_LV.landline.international` | valid | `+371 66 191 669` | Table 1 of the National Numbering Plan |
-| `lv_LV.landline.national` | valid | `60 619 166` | Table 1 of the National Numbering Plan |
 | `lv_LV.last-name` | real | `Ābola` | a language model's recall of names common in Latvia, not checked against a register |
 | `lv_LV.last-name.count` | real | `17150` | a language model's recall of names common in Latvia, not checked against a register |
 | `lv_LV.last-name.name` | real | `Ābola` | a language model's recall of names common in Latvia, not checked against a register |
 | `lv_LV.last-name.sex` | real | `f` | a language model's recall of names common in Latvia, not checked against a register |
-| `lv_LV.mobile` | valid | `26 191 669` | Table 1 of the National Numbering Plan |
-| `lv_LV.mobile.international` | valid | `+371 26 191 669` | Table 1 of the National Numbering Plan |
-| `lv_LV.mobile.national` | valid | `20 619 166` | Table 1 of the National Numbering Plan |
 | `lv_LV.month` | real | `janvāris` | Unicode CLDR's stand-alone month names |
 | `lv_LV.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `lv_LV.month.name` | real | `janvāris` | Unicode CLDR's stand-alone month names |
@@ -1707,6 +1701,12 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `lv_LV.personas-kods` | valid | `03125011517` | the check digit; no test series is published |
 | `lv_LV.personas-kods.birth` | valid | `19501203` | the check digit; no test series is published |
 | `lv_LV.phone` | valid | `21 916 695` | Table 1 of the National Numbering Plan |
+| `lv_LV.phone-fixed` | valid | `66 191 669` | Table 1 of the National Numbering Plan |
+| `lv_LV.phone-fixed.international` | valid | `+371 66 191 669` | Table 1 of the National Numbering Plan |
+| `lv_LV.phone-fixed.national` | valid | `60 619 166` | Table 1 of the National Numbering Plan |
+| `lv_LV.phone-mobile` | valid | `26 191 669` | Table 1 of the National Numbering Plan |
+| `lv_LV.phone-mobile.international` | valid | `+371 26 191 669` | Table 1 of the National Numbering Plan |
+| `lv_LV.phone-mobile.national` | valid | `20 619 166` | Table 1 of the National Numbering Plan |
 | `lv_LV.phone.international` | valid | `+371 21 916 695` | Table 1 of the National Numbering Plan |
 | `lv_LV.phone.national` | valid | `66 191 669` | Table 1 of the National Numbering Plan |
 | `lv_LV.price` | invented | `236,66 €` | hand-written |
@@ -1909,15 +1909,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `nb_NO.individ` | valid | `0` | Skatteetaten's synthetic series |
 | `nb_NO.individ.digit` | valid | `0` | Skatteetaten's synthetic series |
 | `nb_NO.individ.sex` | valid | `f` | Skatteetaten's synthetic series |
-| `nb_NO.landline` | valid | `75 71 69 55` | Nkom's national numbering plan |
-| `nb_NO.landline.international` | valid | `+47 23 88 66 95` | Nkom's national numbering plan |
-| `nb_NO.landline.national` | valid | `23 88 66 95` | Nkom's national numbering plan |
 | `nb_NO.last-name` | real | `Westgaard` | Statistics Norway's StatBank table 12891 |
 | `nb_NO.last-name.count` | real | `616` | Statistics Norway's StatBank table 12891 |
 | `nb_NO.last-name.name` | real | `Westgaard` | Statistics Norway's StatBank table 12891 |
-| `nb_NO.mobile` | valid | `98 24 69 55` | Nkom's national numbering plan |
-| `nb_NO.mobile.international` | valid | `+47 45 20 66 95` | Nkom's national numbering plan |
-| `nb_NO.mobile.national` | valid | `45 20 66 95` | Nkom's national numbering plan |
 | `nb_NO.month` | real | `januar` | Unicode CLDR's stand-alone month names |
 | `nb_NO.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `nb_NO.month.name` | real | `januar` | Unicode CLDR's stand-alone month names |
@@ -1928,10 +1922,16 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `nb_NO.person.prefix` | real | `dr. ` | hand-written |
 | `nb_NO.person.sex` | real | `mann` | Statistics Norway's StatBank table 07459 |
 | `nb_NO.phone` | valid | `45 41 95 55` | Nkom's national numbering plan |
-| `nb_NO.phone-fixed` | valid | `21 95` | Nkom's national numbering plan |
-| `nb_NO.phone-fixed.prefix` | valid | `21 95` | Nkom's national numbering plan |
-| `nb_NO.phone-mobile` | valid | `40 47` | Nkom's national numbering plan |
-| `nb_NO.phone-mobile.prefix` | valid | `40 47` | Nkom's national numbering plan |
+| `nb_NO.phone-fixed` | valid | `75 71 69 55` | Nkom's national numbering plan |
+| `nb_NO.phone-fixed-prefix` | valid | `21 95` | Nkom's national numbering plan |
+| `nb_NO.phone-fixed-prefix.prefix` | valid | `21 95` | Nkom's national numbering plan |
+| `nb_NO.phone-fixed.international` | valid | `+47 23 88 66 95` | Nkom's national numbering plan |
+| `nb_NO.phone-fixed.national` | valid | `23 88 66 95` | Nkom's national numbering plan |
+| `nb_NO.phone-mobile` | valid | `98 24 69 55` | Nkom's national numbering plan |
+| `nb_NO.phone-mobile-prefix` | valid | `40 47` | Nkom's national numbering plan |
+| `nb_NO.phone-mobile-prefix.prefix` | valid | `40 47` | Nkom's national numbering plan |
+| `nb_NO.phone-mobile.international` | valid | `+47 45 20 66 95` | Nkom's national numbering plan |
+| `nb_NO.phone-mobile.national` | valid | `45 20 66 95` | Nkom's national numbering plan |
 | `nb_NO.phone.block` | valid | `23 88` | Nkom's national numbering plan |
 | `nb_NO.phone.international` | valid | `+47 98 24 69 55` | Nkom's national numbering plan |
 | `nb_NO.phone.national` | valid | `98 24 69 55` | Nkom's national numbering plan |
@@ -2011,12 +2011,6 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `nn_NO.email.local` | invented | `fizz14` | the locale's names and hand-written words, at example domains |
 | `nn_NO.email.reserved` | invented | `turbopirat2024@mail.example.com` | the locale's names and hand-written words, at example domains |
 | `nn_NO.fodselsnummer` | valid | `03837645599` | Skatteetaten's synthetic series |
-| `nn_NO.landline` | valid | `24 14 95 55` | Nkom's national numbering plan |
-| `nn_NO.landline.international` | valid | `+47 23 88 66 95` | Nkom's national numbering plan |
-| `nn_NO.landline.national` | valid | `23 88 66 95` | Nkom's national numbering plan |
-| `nn_NO.mobile` | valid | `45 41 95 55` | Nkom's national numbering plan |
-| `nn_NO.mobile.international` | valid | `+47 45 20 66 95` | Nkom's national numbering plan |
-| `nn_NO.mobile.national` | valid | `45 20 66 95` | Nkom's national numbering plan |
 | `nn_NO.month` | real | `januar` | Unicode CLDR's stand-alone month names |
 | `nn_NO.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `nn_NO.month.name` | real | `januar` | Unicode CLDR's stand-alone month names |
@@ -2027,6 +2021,12 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `nn_NO.person.prefix` | real | `dr. ` | hand-written |
 | `nn_NO.person.sex` | real | `mann` | Statistics Norway's StatBank table 07459 |
 | `nn_NO.phone` | valid | `93 84 55 56` | Nkom's national numbering plan |
+| `nn_NO.phone-fixed` | valid | `24 14 95 55` | Nkom's national numbering plan |
+| `nn_NO.phone-fixed.international` | valid | `+47 23 88 66 95` | Nkom's national numbering plan |
+| `nn_NO.phone-fixed.national` | valid | `23 88 66 95` | Nkom's national numbering plan |
+| `nn_NO.phone-mobile` | valid | `45 41 95 55` | Nkom's national numbering plan |
+| `nn_NO.phone-mobile.international` | valid | `+47 45 20 66 95` | Nkom's national numbering plan |
+| `nn_NO.phone-mobile.national` | valid | `45 20 66 95` | Nkom's national numbering plan |
 | `nn_NO.phone.international` | valid | `+47 98 24 69 55` | Nkom's national numbering plan |
 | `nn_NO.phone.national` | valid | `98 24 69 55` | Nkom's national numbering plan |
 | `nn_NO.price` | invented | `92,95 kr` | hand-written |
@@ -2138,9 +2138,6 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `sv_SE.holiday` | real | `nyårsdagen` | lag (1989:253) om allmänna helgdagar |
 | `sv_SE.holiday.code` | real | `nyarsdagen` | lag (1989:253) om allmänna helgdagar |
 | `sv_SE.holiday.name` | real | `nyårsdagen` | lag (1989:253) om allmänna helgdagar |
-| `sv_SE.landline` | valid | `0241-695 55` | PTS's numbering plan of 2024-01-08 |
-| `sv_SE.landline.international` | valid | `+46 591 669 55` | PTS's numbering plan of 2024-01-08 |
-| `sv_SE.landline.national` | valid | `0591-669 55` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.last-name` | real | `Yngwe` | SCB's names with at least two bearers |
 | `sv_SE.last-name.count` | real | `107` | SCB's names with at least two bearers |
 | `sv_SE.last-name.name` | real | `Yngwe` | SCB's names with at least two bearers |
@@ -2152,9 +2149,6 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `sv_SE.licenseplate.last` | valid | `A` | sv.wikipedia's article on Swedish plates |
 | `sv_SE.licenseplate.old` | valid | `RSP 669` | sv.wikipedia's article on Swedish plates |
 | `sv_SE.licenseplate.old-number` | valid | `071` | sv.wikipedia's article on Swedish plates |
-| `sv_SE.mobile` | valid | `070-166 95 55` | PTS's numbering plan of 2024-01-08 |
-| `sv_SE.mobile.international` | valid | `+46 76 916 69 55` | PTS's numbering plan of 2024-01-08 |
-| `sv_SE.mobile.national` | valid | `076-916 69 55` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.month` | real | `januari` | Unicode CLDR's stand-alone month names |
 | `sv_SE.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `sv_SE.month.name` | real | `januari` | Unicode CLDR's stand-alone month names |
@@ -2185,6 +2179,12 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `sv_SE.phone-area.name` | real | `Motala` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.phone-area.ndc` | real | `141` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.phone-area.subscriber` | real | `916 69` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.phone-fixed` | valid | `0241-695 55` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.phone-fixed.international` | valid | `+46 591 669 55` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.phone-fixed.national` | valid | `0591-669 55` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.phone-mobile` | valid | `070-166 95 55` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.phone-mobile.international` | valid | `+46 76 916 69 55` | PTS's numbering plan of 2024-01-08 |
+| `sv_SE.phone-mobile.national` | valid | `076-916 69 55` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.phone-subscriber` | valid | `291 66` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.phone-subscriber.digits-5-6` | valid | `719 16` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.phone-subscriber.digits-5-7` | valid | `719 16` | PTS's numbering plan of 2024-01-08 |

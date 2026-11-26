@@ -1,4 +1,4 @@
-"""Rebuild data/da_DK/phone-mobile.tsv and phone-fixed.tsv from Denmark's numbering plan.
+"""Rebuild data/da_DK/phone-mobile-prefix.tsv and phone-fixed-prefix.tsv from Denmark's numbering plan.
 
     data-import/phone-dk.py [--out-mobile FILE] [--out-fixed FILE]
 
@@ -47,8 +47,8 @@ def series() -> dict[str, set[int]]:
 
 def main() -> None:
 	parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-	parser.add_argument("--out-mobile", default=str(DATA / "phone-mobile.tsv"))
-	parser.add_argument("--out-fixed", default=str(DATA / "phone-fixed.tsv"))
+	parser.add_argument("--out-mobile", default=str(DATA / "phone-mobile-prefix.tsv"))
+	parser.add_argument("--out-fixed", default=str(DATA / "phone-fixed-prefix.tsv"))
 	args = parser.parse_args()
 	held = series()
 	for kind, out in (("mobile", args.out_mobile), ("fixed", args.out_fixed)):

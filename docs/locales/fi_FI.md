@@ -1,6 +1,6 @@
 # `fi_FI`
 
-`fi_FI`, Finnish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md).
+`fi_FI`, Finnish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-fixed-prefix`, `phone-mobile`, `phone-mobile-prefix`, `phone-subscriber`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md).
 `fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
 2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds each first given name of each sex borne by at least 5 citizens
 and `fi_FI.last-name` each last name the sheet lists, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
@@ -33,17 +33,17 @@ where it is fixed. Its `national` field is that form, and its `international` fi
 subscriber number is split in two groups near its middle, as Traficom writes its own number,
 `+358 29 534 5000`; the regulation fixes only the digits.
 
-`fi_FI.phone-fixed` holds the area codes of the telecommunications areas in Traficom's Regulation
+`fi_FI.phone-fixed-prefix` holds the area codes of the telecommunications areas in Traficom's Regulation
 32 V/2025 M, such as `09` for Uusimaa I, each with its `name`, its `ndc` (the code without the 0)
-and its `subscriber`. `fi_FI.phone-mobile` holds the mobile codes whose row in Annex 1 says `No`
-under Available ranges, such as `040` and `0451`. A row is selected by its code, `phone-fixed[09]`.
+and its `subscriber`. `fi_FI.phone-mobile-prefix` holds the mobile codes whose row in Annex 1 says `No`
+under Available ranges, such as `040` and `0451`. A row is selected by its code, `phone-fixed-prefix[09]`.
 A fixed number has 7 to 9 digits after the 0 and a mobile number 8 to 10, as Table 1 of the
 regulation gives, each length equally likely since the regulation publishes no frequency. A fixed
 subscriber number begins with 2 to 8, the ranges section 11 reserves for it. A number is valid, not
 real: a real subscriber may hold it. The tables leave out the mobile codes the plan assigns as five
 digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
 
-`fi_FI.mobile` draws a mobile number and `fi_FI.landline` a fixed one, each in the national form. A bound number reads `national` and `international`.
+`fi_FI.phone-mobile` draws a mobile number and `fi_FI.phone-fixed` a fixed one, each in the national form. A bound number reads `national` and `international`.
 
 ## Finnish words
 

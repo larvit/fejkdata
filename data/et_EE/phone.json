@@ -1,7 +1,7 @@
 {
   "format": "{number as n}{national}",
   "hidden": {
-    "number": [{ "format": "{.mobile.national}", "weight": 10 }, "{.landline.national}"]
+    "number": [{ "format": "{.phone-mobile.national}", "weight": 10 }, "{.phone-fixed.national}"]
   },
   "national": "{n}",
   "international": "+372 {n}"
