@@ -12,7 +12,7 @@ with its replacement, and each removed path, column or flag.
 - `fr_FR.first-name` has no row `Jahyan` and `fr_FR.last-name` none `Prades` any more: each fell out of the top 2,000 and 5,000 when a name with a one-letter part before an apostrophe joined.
 - `{ascii(x)}` and `{slugify(x)}` fold the Vietnamese letters: `Nguyễn` becomes `Nguyen`, not `Nguyn`, and slugs to `nguyen`; `Đặng` becomes `Dang`, not `Dng`.
 - `misc.territory[EH].tld` is empty, not `.eh`, so a draw of `misc.territory.tld` is empty once in 241: the root zone has never delegated `.eh`, and `misc.tld` doesn't hold it.
-- `phone` of `de_DE`, `et_EE`, `fi_FI`, `fr_FR`, `lt_LT`, `lv_LV` and `sv_SE` reads the new `mobile` and `landline`. A `--data-path` file that replaces either one now changes what `phone` draws, and must carry `national` and `international`. `phone` keeps its formats, its shares of mobile and fixed and its columns, but a seed draws other numbers from it in five of the seven.
+- `phone` of `de_DE`, `et_EE`, `fi_FI`, `fr_FR`, `lt_LT`, `lv_LV` and `sv_SE` reads the new `mobile` and `landline`. A `--data-path` file that replaces either one now changes what `phone` draws, and must carry `national`, and `international` too in all but `et_EE` and `lv_LV`. `phone` keeps its formats, its shares of mobile and fixed and its columns, but a seed draws other numbers from it in five of the seven.
 
 ### Added
 
