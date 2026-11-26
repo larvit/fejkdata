@@ -51,12 +51,17 @@ func (facts shapeFacts) walk(prefix string, n tree.Node) {
 
 func (facts shapeFacts) template(prefix string, t *tree.Template) {
 	facts[prefix] = "\tformat " + strconv.Quote(t.Format()) + readsFact(t)
+	var order []string
 	for _, c := range t.Columns() {
+		order = append(order, c.Name())
 		fact := "\t" + c.DataType().String()
 		if _, nullable := load.ColumnItems(c.Field()); nullable {
 			fact += " null"
 		}
 		facts[prefix+"."+c.Name()] = fact
+	}
+	if len(order) > 0 {
+		facts[prefix] += "\tcolumns " + strings.Join(order, " ")
 	}
 }
 
