@@ -8,7 +8,8 @@ import sys
 import zipfile
 
 # A wheel installs where pip finds one of its tags. The Linux binaries are static, so they run on glibc and musl alike.
-# macOS 13 is the oldest Go 1.27 runs on (https://go.dev/doc/go1.27, Ports).
+# macOS 13 is the oldest Go 1.27 runs on (https://go.dev/doc/go1.27, Ports), and a test fails once the Dockerfile names another minor.
+MACOS_TAG_READ_FROM_GO = "1.27"
 PLATFORMS = {
 	"linux_amd64": "manylinux_2_17_x86_64.manylinux2014_x86_64.musllinux_1_1_x86_64",
 	"linux_arm64": "manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64",
