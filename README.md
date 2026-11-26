@@ -794,7 +794,7 @@ as `example.com` into the template; `todo.md` plans the paths. [`url` and `email
 ### Locale categories
 
 `sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
-`last-name`, `month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
+`landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
 `weekday` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `personnummer-date`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,

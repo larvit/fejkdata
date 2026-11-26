@@ -1,6 +1,6 @@
 # `fi_FI`
 
-`fi_FI`, Finnish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md).
+`fi_FI`, Finnish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md).
 `fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
 2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
 and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
@@ -42,6 +42,9 @@ regulation gives, each length equally likely since the regulation publishes no f
 subscriber number begins with 2 to 8, the ranges section 11 reserves for it. A number is valid, not
 real: a real subscriber may hold it. The tables leave out the mobile codes the plan assigns as five
 digits, such as `04300`, among them the machine-to-machine codes `049`, and the `059` codes.
+
+`fi_FI.mobile` and `fi_FI.landline` draw the two kinds of `fi_FI.phone` apart, each in its national
+form. A bound one reads `national` and `international`.
 
 ## Finnish words
 

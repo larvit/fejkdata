@@ -1,13 +1,13 @@
 # `nn_NO`
 
 `nn_NO`, Norwegian in the Nynorsk standard, carries `address`, `color`, `company`, `date`, `email`, `fodselsnummer`,
-`month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. Both standards spell names, places, streets, ids and phone
+`landline`, `mobile`, `month`, `paragraph`, `person`, `phone`, `price`, `sentence`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`. Both standards spell names, places, streets, ids and phone
 numbers alike, so `nn_NO` reads `nb_NO`'s data and `geo.NO`. It has no table of names, `sex`, `birth-day`,
 `individ` or phone prefixes, and none of `nb_NO.company`'s forms such as `.as`: read those from `nb_NO`.
 
 ## Persons, ids, contact details and companies
 
-`nn_NO.person`, `nn_NO.fodselsnummer`, `nn_NO.phone`, `nn_NO.email`, `nn_NO.company` and `nn_NO.date` draw what the
+`nn_NO.person`, `nn_NO.fodselsnummer`, `nn_NO.phone`, `nn_NO.mobile`, `nn_NO.landline`, `nn_NO.email`, `nn_NO.company` and `nn_NO.date` draw what the
 `nb_NO` category of the same name draws, and are the same kind of value. `nn_NO.person` takes its prefix from
 `nn_NO.title`, and `nn_NO.address` prints `geo.NO.address`. Email local parts and company names hold Bokmål
 words, read from `nb_NO`. To match a fødselsnummer to a sex, bind `nb_NO.sex` as

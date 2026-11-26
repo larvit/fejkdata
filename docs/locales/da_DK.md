@@ -1,6 +1,6 @@
 # `da_DK`
 
-`da_DK`, Danish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `last-name`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md):
+`da_DK`, Danish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `cpr`, `date`, `email`, `first-name`, `individ`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md):
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
@@ -84,6 +84,9 @@ A number's `block` is one of those prefixes and its `subscriber` the last five d
 allocates, and the plan says "mainly" because numbers move between fixed and mobile networks.
 Neither the order nor the authority's guide to it lists the numbers assigned to providers. A bound
 number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
+
+`da_DK.mobile` and `da_DK.landline` draw the two kinds of `da_DK.phone` apart, each in its national
+form. A bound one reads `national` and `international`.
 
 ## Danish words
 

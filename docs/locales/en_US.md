@@ -48,3 +48,9 @@ pin a number for such a checker.
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
 `976`.
+
+`en_US.mobile` and `en_US.landline` draw one pool. A US number doesn't show its kind, since mobile
+and fixed numbers share area codes and exchanges, so `en_US.landline` reads `en_US.mobile`, and
+neither promises a kind. Both print `(202) 555-0123`, which `national` prints too, and
+`international` prints `+1 202 555 0123`. Their area codes are `en_US.phone`'s, and their
+exchanges `en_US.phone-exchange`'s.
