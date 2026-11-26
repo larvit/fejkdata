@@ -21,5 +21,15 @@ class Capitals(unittest.TestCase):
         self.assertEqual(capital("SE,SWE,46,Stockholm,SEK,\"sv-SE,se,sma,fi-SE\",Sweden,Sweden,752,Yes,.se"), "Stockholm")
 
 
+class Tlds(unittest.TestCase):
+    def test_western_sahara_has_none_since_the_root_zone_never_delegated_dot_eh(self) -> None:
+        [got] = territory.rows(HEADER + "\nEH,ESH,212,El-Aaiun,MAD,\"ar,mey\",Western Sahara,Western Sahara,732,In contention,.eh\n")
+        self.assertEqual(got["tld"], "")
+
+    def test_a_tld_the_source_has_right_stays(self) -> None:
+        [got] = territory.rows(HEADER + "\nSE,SWE,46,Stockholm,SEK,\"sv-SE,se,sma,fi-SE\",Sweden,Sweden,752,Yes,.se\n")
+        self.assertEqual(got["tld"], ".se")
+
+
 if __name__ == "__main__":
     unittest.main()
