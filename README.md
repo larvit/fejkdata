@@ -71,7 +71,7 @@ persons, addresses, national ids, phone numbers, companies, emails and dates. Be
 | Valid national ids where possible, and postal codes that match the town | Ids for ten countries, four from the issuer's test series; a postal code of the address's own town | No national id; `zipCode` takes a state, not a city | `SSN` and `EIN`, each "a random" number; the docs don't say that `Zip` matches `City` | Country, city, state and postal code agree; the pages read name no national id |
 | CSV and SQL test data | One template and one command: CSV, SQL, `COPY`, JSON, NDJSON, up to 1,048,576 rows a run | No CLI and no file output: "you most likely need to write a factory function" | Go functions `CSV`, `JSON`, `XML` and `SQL`; its CLI runs one function, `-loop` times | CSV, JSON, SQL and Excel; 1,000 rows a file on the free plan, 10 million on the largest hosted one |
 | Errors | Before the first row, naming what is wrong; a mistake in a template exits 2 | Thrown at run time where a locale lacks the data; "we don't have dedicated error messages for wrong parameter types" | `Template`, `CSV` and `SQL` return an `error`; the docs don't say when | The pages read don't say |
-| Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
+| Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install`, `pip install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
 | Runtime | One binary, or a Go library; no network | Node.js 20 or above, or a browser | A Go program, or its CLI | Its web service, or its API with a key |
 
 Each cell states what the tool's own docs said on 2026-11-21. Where a cell says the docs don't
@@ -118,6 +118,9 @@ Each [release](https://github.com/larvit/fejkdata/releases) also carries the bin
 Linux, macOS and Windows on amd64 and arm64, and the `.deb`, `.rpm` and `.apk` packages.
 The binaries are unsigned. macOS refuses to run one a browser downloaded until you run
 `xattr -d com.apple.quarantine fejkdata`.
+
+From Python, `pip install fejkdata` installs the package that [Python tests](#python-tests)
+shows. It carries the CLI but doesn't put a `fejkdata` command on your path.
 
 No npm package ships yet. From JavaScript or TypeScript, run the CLI as a child process,
 with `--seed` and `--today` to repeat a run.
@@ -199,6 +202,30 @@ func TestSignup(t *testing.T) {
 ```
 
 `WithSeed(1)` and `WithToday(day)` give the same person on every run of one version; another seed gives another.
+
+### Python tests
+
+```sh
+pip install fejkdata    # Python 3.11 or later, on Linux, macOS and Windows
+```
+
+```python
+import fejkdata
+
+person = '{"format": "{/sv_SE.person as p}", "first": "{p.first}", "last": "{p.last}"}'
+print(fejkdata.render(person, seed=1, today="2026-01-15", repeat=3, format="csv"), end="")
+```
+
+```text
+first,last
+Vinston,Larsson
+Felix,Lind
+Klara,Lassfolk
+```
+
+`render` returns what the [CLI](#cli) prints for the same template, seed and day. The package
+carries the CLI and all the shipped data, and doesn't depend on any other package.
+[Its own README](python-package/README.md) lists the arguments and the error a refused template raises.
 
 ### Replacing real data with fakes
 
@@ -2115,10 +2142,12 @@ docker compose run --rm vulncheck
 A pull request that changes a workflow or what a release packages also runs the Packages
 workflow as a dry run. The `packaging` line of the `changes` step in
 `.github/workflows/test.yml` lists those files. The dry run runs every Action a release
-runs save `actions/deploy-pages`, with a token that can only read. It builds the binaries
+runs save `actions/deploy-pages` and `pypa/gh-action-pypi-publish`, with a token that can only read. It builds the binaries
 for every platform, the packages and the images, then the apt, dnf and apk repositories,
 signed with throwaway keys, and installs fejkdata from each repository. It builds the
-Python wheels too, installs the Linux amd64 one with pip and renders from it. It doesn't publish
+Python wheels too, runs `twine check --strict` over them and lists each one's size and files. It installs
+a wheel with pip and renders from it on every platform the wheels name: Linux with glibc and with musl, macOS
+and Windows, on amd64 and arm64. It doesn't publish
 any of them or read a repository secret, so it runs on a pull request from a fork too.
 The repository checks, locally:
 
@@ -2249,7 +2278,8 @@ the GitHub release with the section as its body. A top heading of `Unreleased`
 publishes nothing. CI then runs the Packages workflow on the new tag, which attaches the
 binaries and packages, pushes the image to GHCR and copies it to Docker Hub, updates the
 Homebrew tap and the Scoop bucket, and deploys the apt, dnf and apk repositories to GitHub
-Pages. The workflow reads these repository secrets:
+Pages. The `pypi` job of `test.yml` then uploads the Python wheels to
+[PyPI](https://pypi.org/project/fejkdata/). The Packages workflow reads these repository secrets:
 
 - `DOCKERHUB_TOKEN`: a personal access token of the Docker Hub account `larvit`, with Read &
   Write and no Delete. The repository variable `DOCKERHUB_USERNAME` names the account.
@@ -2270,10 +2300,18 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
+The upload to PyPI holds no secret. PyPI trusts this repository's `test.yml` and its
+environment `pypi` as the project's publisher, and takes the short-lived token GitHub gives that
+job. PyPI doesn't take a reusable workflow as a publisher, so the job sits in `test.yml`, and a
+Packages run started by hand uploads no wheel: to upload a release's wheels again, rerun the
+failed jobs of its run. PyPI never takes a file name twice, even after a delete. So a bad
+version is yanked on pypi.org, which keeps pip from picking it unless a user pins it, and
+the fix ships as the next version.
+
 Renovate merges an update itself once `gate` passes. These wait for a human:
 
-- an update to `actions/deploy-pages` or `peter-evans/dockerhub-description`, since both
-  publish, so no pull request runs them;
+- an update to `actions/deploy-pages`, `peter-evans/dockerhub-description` or
+  `pypa/gh-action-pypi-publish`, since each publishes, so no pull request runs them;
 - one to `actions/upload-pages-artifact`, since only `actions/deploy-pages` reads its
   artifact;
 - one to `actions/cache`, `reproducible-containers/buildkit-cache-dance` or the `busybox`

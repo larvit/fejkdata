@@ -114,7 +114,7 @@ jobs:
           fi
           test "$(docker run --rm "$image" --version)" = "$printed"
       # A tag cut before the Python package existed holds no python-package/, and builds no wheel.
-      - name: A Python wheel per platform, and the Linux amd64 one renders once installed
+      - name: A Python wheel per platform, which PyPI's checks pass, and the Linux ones render once installed
         if: hashFiles('src/python-package/**') != ''
         env:
           TAG: ${{ inputs.tag }}
@@ -125,6 +125,22 @@ jobs:
           venv/bin/pip install --no-index wheels/*manylinux*x86_64*.whl
           rendered="$(venv/bin/python -c 'import fejkdata; print(fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today="2026-01-15"))')"
           test "$rendered" = SE
+          # The oldest Python the wheels claim, on musl.
+          docker run --rm --memory 1g --memory-swap 1g -v "$PWD/wheels:/wheels:ro" python:3.11.15-alpine sh -c \
+            'pip install --no-index --find-links /wheels fejkdata && python -c "import fejkdata; assert fejkdata.render(\"{/misc.territory[SE].alpha2}\", seed=1, today=\"2026-01-15\") == \"SE\""'
+          python3 -m venv twine
+          twine/bin/pip install --no-cache-dir twine==7.0.0
+          twine/bin/twine check --strict wheels/*.whl
+          for wheel in wheels/*.whl; do
+            ls -l "$wheel"
+            python3 -m zipfile -l "$wheel"
+          done
+      - uses: actions/upload-artifact@v7
+        if: hashFiles('wheels/*.whl') != ''
+        with:
+          name: python-wheels
+          path: wheels/*.whl
+          retention-days: ${{ inputs.tag && 90 || 1 }}
       - uses: actions/upload-artifact@v7
         if: steps.latest.outputs.latest == 'true' || !inputs.tag
         with:
@@ -143,6 +159,35 @@ jobs:
       contents: read
       packages: read
     steps: *packages
+
+  wheels:
+    name: The Python wheel installs and renders on ${{ matrix.runner }}
+    needs: [packages, packages-dry-run]
+    # One of packages and packages-dry-run always skips: see repos.
+    if: ${{ !cancelled() && !failure() }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-26.04-arm, macos-15-intel, macos-26, windows-2025, windows-11-arm]
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    steps:
+      # A tag cut before the Python package existed uploads no wheel.
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: python-wheels
+          path: wheels
+          merge-multiple: true
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: pip picks this platform's wheel, and it renders
+        if: hashFiles('wheels/*.whl') != ''
+        shell: bash
+        run: |
+          python -m pip install --no-index --find-links wheels fejkdata
+          python -c 'import fejkdata; assert fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today="2026-01-15") == "SE"'
 
   dockerhub:
     name: Docker Hub image for ${{ inputs.tag }}

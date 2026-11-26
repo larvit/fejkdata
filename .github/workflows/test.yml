@@ -196,3 +196,28 @@ jobs:
       PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       SITE_DEPLOY_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
+
+  pypi:
+    name: Python wheels on PyPI for ${{ needs.release.outputs.tag }}
+    needs: [release, packages]
+    # PyPI's trusted publishing doesn't take a reusable workflow, so the upload is a job here and not in packages.yml.
+    if: ${{ !cancelled() && needs.packages.result == 'success' }}
+    runs-on: ubuntu-26.04
+    environment:
+      name: pypi
+      url: https://pypi.org/project/fejkdata/
+    permissions:
+      id-token: write
+    steps:
+      # A tag cut before the Python package existed uploads no wheel.
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: python-wheels
+          path: wheels
+          merge-multiple: true
+      # PyPI refuses a file name it already holds, so a rerun skips the wheels an earlier attempt uploaded.
+      - uses: pypa/gh-action-pypi-publish@v1.14.3
+        if: hashFiles('wheels/*.whl') != ''
+        with:
+          packages-dir: wheels
+          skip-existing: true

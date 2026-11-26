@@ -50,9 +50,10 @@
     {
       "customType": "regex",
       "datasourceTemplate": "pypi",
-      "description": "Python tools the Dockerfile installs with pip",
+      "description": "Python tools the Dockerfile and the Packages workflow install with pip",
       "managerFilePatterns": [
-        "/^Dockerfile$/"
+        "/^Dockerfile$/",
+        "/^\\.github/workflows/packages\\.yml$/"
       ],
       "matchStrings": [
         "pip install --no-cache-dir (?<depName>[^=\\s]+)==(?<currentValue>\\S+)"
@@ -79,7 +80,8 @@
         "actions/deploy-pages",
         "actions/upload-pages-artifact",
         "coverallsapp/github-action",
-        "peter-evans/dockerhub-description"
+        "peter-evans/dockerhub-description",
+        "pypa/gh-action-pypi-publish"
       ],
       "automerge": false
     },

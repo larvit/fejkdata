@@ -2474,3 +2474,22 @@ The package is six wheels, one per platform GoReleaser builds, and pip installs 
 - The binary sits in the package's `bin/` folder and is not put on `PATH`. The item asks for `render` alone, and a `fejkdata` command from pip beside one from Homebrew would be two versions under one name.
 
 Valid while GoReleaser builds the CLI for the six platforms and the CLI reads its template on stdin.
+
+## The Python wheels go to PyPI from the `pypi` job of `test.yml` through trusted publishing, wheels only, under `MIT AND LicenseRef-fejkdata-data-licenses`
+
+2026-11-26, the agent shipping item 552; the maintainer registered the project on PyPI and approves its public texts. Goals 1.1 and 1.3, with goal 10.
+
+Each release's six wheels are uploaded by `pypa/gh-action-pypi-publish` in the `pypi` job of `.github/workflows/test.yml`, which runs in the GitHub environment `pypi` once the Packages workflow has passed.
+
+- The job holds no token. PyPI trusts the repository, the workflow file `test.yml` and the environment `pypi`, and takes GitHub's short-lived token (https://docs.pypi.org/trusted-publishers/using-a-publisher/). PyPI "cannot currently" take a reusable workflow as the publisher (https://docs.pypi.org/trusted-publishers/troubleshooting/), and `packages.yml` is one, so the upload is a job of `test.yml`. A Packages run started by hand uploads no wheel.
+- The action uploads an attestation with each wheel, its default under trusted publishing. PyPI requires two-factor login of every account. Only the publisher and the project's owner can upload.
+- The job skips a file PyPI already holds, so a rerun after a half-finished upload passes. PyPI never takes a file name twice, so a bad version is yanked, not replaced (https://docs.pypi.org/project-management/yanking/).
+- `License-Expression` is `MIT AND LicenseRef-fejkdata-data-licenses`. The code is MIT, and the binary holds data under some twenty licences, several with no SPDX id, such as a statistics office's terms of use. A list of SPDX ids would be false the day a table with a new licence ships. The core metadata specification allows a `LicenseRef-` id of the project's own, and `DATA-LICENSES.md`, a `License-File` of every wheel, says what it stands for. No `License ::` classifier is set, since Metadata 2.4 deprecates them.
+- The classifiers name the status `4 - Beta` while the version is below 1.0, the three operating systems, and Python 3.11 to 3.15. A new Python adds its classifier by hand. `Requires-Python` has no upper bound, so pip installs the package on a newer Python before then.
+- The project links use the labels https://packaging.python.org/en/latest/specifications/well-known-project-urls/ lists: Homepage, Documentation, Source, Changelog and Issues.
+- The long description is `python-package/README.md`, with Python first. Its links are absolute, since pypi.org doesn't resolve a relative one.
+- No source distribution ships, the platform tags and `Requires-Python` stay as the decision "The Python package is a wheel per platform carrying the CLI binary" records them, and pip still puts no `fejkdata` command on the path. The dry run installs a wheel and renders from it on glibc and musl Linux, macOS and Windows, on amd64 and arm64, with Python 3.11 on all but glibc amd64. No runner has macOS 13, so the `macosx_13_0` tag rests on Go's release notes.
+- The dry run runs `twine check --strict` and lists each wheel's size and files. It can't upload, so the first release shows whether PyPI takes the wheels.
+- PyPI allows 100 MB a file and 10 GB a project (https://docs.pypi.org/project-management/storage-limits/). A release's six wheels are about 105 MB, patches included, so the project fills after some 95 releases. Then ask PyPI for more room or delete the oldest versions.
+
+Valid while PyPI's trusted publishing doesn't take a reusable workflow and the project stays under 10 GB.
