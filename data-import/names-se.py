@@ -22,15 +22,15 @@ PARTICLES = {"af", "av", "da", "de", "del", "den", "der", "di", "dos", "du", "la
 
 
 def cased(name: str) -> str:
-    """SCB's uppercase name as it is written: each part capitalised, a particle before another part lowercased."""
-    parts = tsv.straight(name).lower().split(" ")
-    return " ".join(w if w in PARTICLES and len(parts) > 1 else w.title() for w in parts)
+	"""SCB's uppercase name as it is written: each part capitalised, a particle before another part lowercased."""
+	parts = tsv.straight(name).lower().split(" ")
+	return " ".join(w if w in PARTICLES and len(parts) > 1 else w.title() for w in parts)
 
 
 def counted(rows: Iterable[list[str]], floor: int) -> list[tuple[str, int]]:
-    """The names of a sheet borne by at least floor people, the commonest first, initials and single letters dropped."""
-    names = [(tsv.straight(cells[0]), int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
-    return tsv.common(names, floor)
+	"""The names of a sheet borne by at least floor people, the commonest first, initials and single letters dropped."""
+	names = [(tsv.straight(cells[0]), int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
+	return tsv.common(names, floor)
 
 
 FIRST_MIN = 5
@@ -38,20 +38,20 @@ LAST_MIN = 50
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--first-min", type=int, default=FIRST_MIN, help="bearers a first name needs")
-    p.add_argument("--last-min", type=int, default=LAST_MIN, help="bearers a last name needs")
-    p.add_argument("--out", default=str(OUT))
-    p.add_argument("--source", default=SOURCE)
-    a = p.parse_args()
-    data = source.fetch(a.source, a.cache, "scb-namn-2022.xlsx", magic=b"PK")
-    first = [{"name": cased(n), "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(data, sheet), a.first_min)]
-    last = [{"name": cased(n), "count": c} for n, c in counted(xlsx.rows(data, SURNAMES), a.last_min)]
-    out = Path(a.out)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
-    tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--first-min", type=int, default=FIRST_MIN, help="bearers a first name needs")
+	p.add_argument("--last-min", type=int, default=LAST_MIN, help="bearers a last name needs")
+	p.add_argument("--out", default=str(OUT))
+	p.add_argument("--source", default=SOURCE)
+	a = p.parse_args()
+	data = source.fetch(a.source, a.cache, "scb-namn-2022.xlsx", magic=b"PK")
+	first = [{"name": cased(n), "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(data, sheet), a.first_min)]
+	last = [{"name": cased(n), "count": c} for n, c in counted(xlsx.rows(data, SURNAMES), a.last_min)]
+	out = Path(a.out)
+	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
+	tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
 
 
 if __name__ == "__main__":
-    main()
+	main()

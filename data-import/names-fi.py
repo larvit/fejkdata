@@ -23,9 +23,9 @@ LAST_SHEET = "Nimet"
 
 
 def counted(rows: Iterable[list[str]], floor: int) -> list[tuple[str, int]]:
-    """The names of a sheet borne by at least floor people, the commonest first, whose header row and any label that is no name are dropped."""
-    names = [(tsv.straight(cells[0]), int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
-    return tsv.common(names, floor)
+	"""The names of a sheet borne by at least floor people, the commonest first, whose header row and any label that is no name are dropped."""
+	names = [(tsv.straight(cells[0]), int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
+	return tsv.common(names, floor)
 
 
 FIRST_MIN = 5
@@ -33,23 +33,23 @@ LAST_MIN = 5
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--etunimet", default=FIRST)
-    p.add_argument("--sukunimet", default=LAST)
-    p.add_argument("--first-min", type=int, default=FIRST_MIN, help="bearers a first name needs")
-    p.add_argument("--last-min", type=int, default=LAST_MIN, help="bearers a last name needs")
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    etunimet = source.fetch(a.etunimet, a.cache, "dvv-etunimitilasto-2026-08-04.xlsx", magic=b"PK")
-    sukunimet = source.fetch(a.sukunimet, a.cache, "dvv-sukunimitilasto-2026-08-04.xlsx", magic=b"PK")
-    first = [{"name": n, "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(etunimet, sheet), a.first_min)]
-    last = [{"name": n, "count": c} for n, c in counted(xlsx.rows(sukunimet, LAST_SHEET), a.last_min)]
-    out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
-    tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--etunimet", default=FIRST)
+	p.add_argument("--sukunimet", default=LAST)
+	p.add_argument("--first-min", type=int, default=FIRST_MIN, help="bearers a first name needs")
+	p.add_argument("--last-min", type=int, default=LAST_MIN, help="bearers a last name needs")
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	etunimet = source.fetch(a.etunimet, a.cache, "dvv-etunimitilasto-2026-08-04.xlsx", magic=b"PK")
+	sukunimet = source.fetch(a.sukunimet, a.cache, "dvv-sukunimitilasto-2026-08-04.xlsx", magic=b"PK")
+	first = [{"name": n, "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(etunimet, sheet), a.first_min)]
+	last = [{"name": n, "count": c} for n, c in counted(xlsx.rows(sukunimet, LAST_SHEET), a.last_min)]
+	out = Path(a.out)
+	out.mkdir(parents=True, exist_ok=True)
+	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
+	tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))
 
 
 if __name__ == "__main__":
-    main()
+	main()
