@@ -411,7 +411,13 @@ A field only other fields read goes under [`hidden`](#hidden) and writes no colu
 
 A column carrying a newline keeps it inside the quoted CSV field or the SQL string
 literal, so a row can span physical lines: read the stream with a CSV or SQL
-parser rather than splitting it on newlines.
+parser rather than splitting it on newlines. `tsv` has no escape, so it writes a tab or a line
+break in a value as a space; `pgcopy` escapes them, and `json` too.
+
+A NUL character in a value is written as it is by `csv`, `tsv`, `sql` and `pgcopy`, and as `\u0000` by
+`json` and `ndjson`. PostgreSQL's text can't hold a NUL, so it refuses such a row. A render reports no
+error once the data has loaded, so fejkdata doesn't refuse one itself
+([Decisions](docs/decisions.md#a-nul-is-written-as-it-is-by-csv-tsv-sql-and-pgcopy)).
 
 A statement fails whole: one row a constraint refuses loses its whole statement, up to 1000 rows.
 A shipped category may repeat a value. `{seq()}` counts 1, 2, 3 through a run. A column that ends
