@@ -2410,13 +2410,13 @@ Valid while a serializer returns a string and no shipped path draws a NUL.
 
 2026-11-26. Goal 1: a user fills a customer table with numbers of one kind by path, in any locale.
 
-`phone-mobile` and `phone-fixed` named prefix tables in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`, so item 558 named the full numbers `mobile` and `landline`. Its panel of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) then each proposed renaming the tables, since the name they typed first, `phone-mobile`, printed `21 1`.
+`phone-mobile` and `phone-fixed` named prefix tables in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO`, so item 558 named the full numbers `mobile` and `landline`. Its panel of five readers (a hand fixture author, a coding agent, a validator-facing author, a Python test author and a bulk fixture author) put `mobile` first (three), `mobile-number` (one) or `phone-mobile-number` (one), and each proposed renaming the tables.
 
-A second panel of the same five seats chose between three outcomes: the full numbers keep `mobile` and `landline` and `phone-mobile` names nothing; both spellings draw them; or only `phone-mobile` and `phone-fixed` do. A first run told the seats that a missing path's error names nearby paths. It names none: it reads `no entry "phone-mobile"`. The run was redone with the real text, and four seats chose only `phone-mobile` and `phone-fixed`: the name a reader guesses should draw what it says, and `mobile` and `landline` had not shipped, so removing them broke nobody. One seat chose both. The tables are `phone-mobile-prefix` and `phone-fixed-prefix`, which is the one break this decision costs, and `CHANGELOG.md` names it.
+A second panel of the same five readers chose between three outcomes: keep `mobile` and `landline`, so that `phone-mobile` still names a prefix table; draw the full numbers from both spellings; or draw them from `phone-mobile` and `phone-fixed` alone. The panel was told that a missing path's error names nearby paths. It doesn't: it reads `no entry "phone-mobile"`. Redone with the real text, four readers chose `phone-mobile` and `phone-fixed` alone, since the name a reader guesses should draw what it says and `mobile` and `landline` had not shipped. One reader chose both spellings. The tables are `phone-mobile-prefix` and `phone-fixed-prefix`, the one break this decision costs, and `CHANGELOG.md` says how to upgrade.
 
 `en_US` can't tell the kinds apart, since mobile and fixed numbers share area codes, so `en_US.phone-fixed` reads `en_US.phone-mobile`. Each locale's `phone` keeps its columns and its shares, and gains no column for the new paths.
 
-Valid while a path that names nothing gets an error that names no nearby path: with one, a guessed `phone-mobile` could fail usefully instead of drawing a number.
+Valid while an error for a missing path suggests no nearby path. Item 220 ends it: with a suggestion, a guessed `phone-mobile` could fail usefully instead of drawing a number.
 
 ## The Swedish, Finnish, French and US name tables keep every name above a floor of bearers, set so a table holds at most 60,000 rows
 

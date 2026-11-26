@@ -51,7 +51,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Copyright © 2015-2024 Unicode, Inc."
 - Rebuild: `data-import/cldr.py`
 
-## `da_DK/phone-mobile-prefix.tsv`, `phone-fixed-prefix.tsv`
+## `da_DK/phone-fixed-prefix.tsv`, `phone-mobile-prefix.tsv`
 
 - Source: Annex 1 of the Danish [Executive Order No. 1883 of 7 December 2020 on the Overall Danish
   Numbering
@@ -111,7 +111,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   are summed per name and sex; the last names: none required
 - Rebuild: `data-import/names-de.py`
 
-## `de_DE/phone-mobile-prefix.tsv`, `phone-fixed-prefix.tsv`
+## `de_DE/phone-fixed-prefix.tsv`, `phone-mobile-prefix.tsv`
 
 - Source: the Bundesnetzagentur's [Zugeteilte Rufnummernblöcke (Mobile
   Dienste)](https://www.bundesnetzagentur.de/DE/Fachthemen/Telekommunikation/Nummerierung/MobileDienste/RNB_csv.csv),
@@ -954,7 +954,7 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 - Attribution: "Kilde: Statistisk sentralbyrå"
 - Rebuild: `data-import/names-no.py`
 
-## `nb_NO/phone-mobile-prefix.tsv`, `phone-fixed-prefix.tsv`
+## `nb_NO/phone-fixed-prefix.tsv`, `phone-mobile-prefix.tsv`
 
 - Source: [Nkom](https://www.nkom.no/)'s [Samla norsk nummerplan for telefoni mm.
   (E.164)](https://data.norge.no/en/datasets/ecbfe08c-24dc-3eb6-80b5-4a41de967e4b), downloaded

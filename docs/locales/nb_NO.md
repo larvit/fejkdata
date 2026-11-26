@@ -82,7 +82,7 @@ A number's `block` is one of those prefixes and its `subscriber` the last four d
 may hold it. A bound number reads `national`, `46 12 34 56`, and `international`,
 `+47 46 12 34 56`. The page names no country-code form, so fejkdata puts `+47` before the same pairs.
 
-`nb_NO.phone-mobile` draws a mobile number and `nb_NO.phone-fixed` a fixed one, each in the national form. A bound number reads `national` and `international`.
+`nb_NO.phone-mobile` draws a mobile number and `nb_NO.phone-fixed` a fixed one, each in the national form.
 
 ## Norwegian words
 
