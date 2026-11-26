@@ -1773,10 +1773,11 @@ batched into as few majors as possible.
 
 [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) pins every path, each
 template category's format, the categories each category reads, each column's
-datatype and nullability, and each table's key, name, weight and parent columns.
+datatype and nullability, each record's columns in the order it writes them, and each
+table's key, name, weight and parent columns.
 [`testdata/listing_shape.txt`](testdata/listing_shape.txt) pins the keys and kind words of
 `data-listing/paths.json`. A pull request that changes either pin or `data/` adds its
-`CHANGELOG.md` entry, which CI checks. A removed, renamed or retyped line is a major.
+`CHANGELOG.md` entry, which CI checks. A removed, renamed or retyped line is a major, and so is a moved column.
 
 ## Audience
 
