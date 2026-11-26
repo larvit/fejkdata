@@ -6,12 +6,13 @@ import (
 )
 
 // Record draws each column of t once, in name order, as one render, so the columns read one
-// pick of each name. It calls emit with each column's index, its text and whether it drew null;
-// a table's columns read row.
+// pick of each name. It calls emit with each column's index in t.Columns(), its text and whether
+// it drew null; a table's columns read row.
 func Record(s *drawstate.State, t *tree.Template, row Row, emit func(i int, text string, null bool)) {
 	var fakes rewordFakes
 	env := renderEnv{fakes: &fakes, row: row}.inScopeOf(t)
-	for i, c := range t.Columns() {
+	for _, i := range t.ColumnDrawOrder() {
+		c := t.Columns()[i]
 		var v readValue
 		if c.BoundWhole() != nil {
 			v = readName(s, env, tree.NewRead("", "", nil, wholeLevels, nil, nil).ThroughName(c.BoundWhole(), 0))

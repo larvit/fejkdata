@@ -59,7 +59,7 @@ func decodeManifest(b []byte) (Manifest, error) {
 	if err != nil {
 		return Manifest{}, err
 	}
-	top, isObject := raw.Any().(map[string]any)
+	top, isObject := jsonvalue.Fields(raw.Any())
 	if !isObject {
 		return Manifest{}, fmt.Errorf("a manifest must be an object, not %s", jsonvalue.Kind(raw.Any()))
 	}
@@ -108,7 +108,7 @@ func decodeNamespace(v any) (string, error) {
 }
 
 func decodeIndex(v any) (map[string]IndexEntry, []error) {
-	entries, isObject := v.(map[string]any)
+	entries, isObject := jsonvalue.Fields(v)
 	if !isObject {
 		return nil, []error{fmt.Errorf("index must be an object, not %s", jsonvalue.Kind(v))}
 	}
@@ -136,7 +136,7 @@ func decodeIndex(v any) (map[string]IndexEntry, []error) {
 func decodeEntry(p string, v any) (IndexEntry, error) {
 	var e IndexEntry
 	errs := []error{checkCategoryPath(p)}
-	fields, isObject := v.(map[string]any)
+	fields, isObject := jsonvalue.Fields(v)
 	if !isObject {
 		errs = append(errs, fmt.Errorf("an entry must be an object, not %s", jsonvalue.Kind(v)))
 		return e, errors.Join(errs...)

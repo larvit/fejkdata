@@ -84,7 +84,11 @@ type Template struct {
 	finds  *TemplateFinds // written by LoadFinds.Finish, from what its load found
 }
 
+// Columns is a record's columns in the order written: a template's fields, or a table's header.
 func (t *Template) Columns() []RecordColumn { return t.found().columns }
+
+// ColumnDrawOrder is the indexes of Columns in name order, the order a record draws them in.
+func (t *Template) ColumnDrawOrder() []int { return t.found().drawOrder }
 
 func (t *Template) Compiled() FormatOps { return t.found().compiled }
 
@@ -97,6 +101,8 @@ func (t *Template) Format() string { return t.syntax.Format }
 func (t *Template) FromString() bool { return t.syntax.FromString }
 
 func (t *Template) IsRecord() bool { return t.syntax.IsRecord }
+
+func (t *Template) Written() []string { return t.syntax.Written }
 
 func (t *Template) Hiddens() map[string]bool { return t.syntax.Hiddens }
 
@@ -120,6 +126,7 @@ type TemplateSyntax struct {
 	Format     string
 	Tokens     []grammar.Token
 	Fields     map[string]Node
+	Written    []string        // the fields outside "hidden", in the order the template lists them
 	Hiddens    map[string]bool // the fields its "hidden" holds, which write no column
 	Repeat     int
 	Separator  string

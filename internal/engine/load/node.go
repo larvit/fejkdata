@@ -24,11 +24,11 @@ func Compile(v jsonvalue.Value, l *tree.LoadFinds) (tree.Node, error) {
 }
 
 // CompileStruct compiles the template a Go struct's tags spell. Its format is empty, and its
-// fields are its columns.
+// fields are its columns, in name order.
 func CompileStruct(tags map[string]jsonvalue.Value, l *tree.LoadFinds) (*tree.Template, error) {
 	template := maps.Clone(tags)
 	template["format"] = jsonvalue.String("")
-	n, err := compileFrom(jsonvalue.Object(template), atGoTop, l)
+	n, err := compileFrom(jsonvalue.SortedObject(template), atGoTop, l)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func compileFrom(v jsonvalue.Value, pos position, l *tree.LoadFinds) (tree.Node,
 // CompileCategory compiles a data file's value, which may be a table over a rows
 // file beside it.
 func CompileCategory(c datafiles.Category, l *tree.LoadFinds) (tree.Node, error) {
-	if m, ok := c.JSON.Any().(map[string]any); ok {
+	if m, ok := jsonvalue.Fields(c.JSON.Any()); ok {
 		if _, isTable := m["rows"]; isTable {
 			return compileTable(m, c.Folders, c.Name, c.ReadRows)
 		}
@@ -117,7 +117,7 @@ func compileItem(v any, pos position) (tree.Node, error) {
 		return t, nil
 	case []any:
 		return compileChoice(v, pos)
-	case map[string]any:
+	case jsonvalue.Object:
 		return compileTemplate(v, pos)
 	}
 	return compileScalar(v, pos)
@@ -249,27 +249,39 @@ func checkWeightSum(total float64) error {
 	return nil
 }
 
-func compileTemplate(m map[string]any, pos position) (tree.Node, error) {
+func compileTemplate(o jsonvalue.Object, pos position) (tree.Node, error) {
+	m := o.Fields
 	if _, isTable := m["rows"]; isTable {
 		return nil, fmt.Errorf("rows names a TSV beside a category's file, so only a category is a table; an inline template has no file beside it")
 	}
-	o, err := readOptions(m, pos)
+	opts, err := readOptions(m, pos)
 	if err != nil {
 		return nil, err
 	}
 	fieldPos := inFormat
-	if o.repeat == 1 {
+	if opts.repeat == 1 {
 		fieldPos = pos.fieldPosition()
 	}
 	fields, hiddens, err := compileFields(m, fieldPos)
 	if err != nil {
 		return nil, err
 	}
-	toks, unbound, err := parseChecked(o.format, fields)
+	toks, unbound, err := parseChecked(opts.format, fields)
 	if err != nil {
 		return nil, err
 	}
-	return tree.NewTemplate(tree.TemplateSyntax{Format: o.format, Tokens: toks, Fields: fields, Hiddens: hiddens, Repeat: o.repeat, Separator: o.separator, DataType: o.datatype, IsRecord: fieldPos.column(), Unbound: unbound}), nil
+	return tree.NewTemplate(tree.TemplateSyntax{Format: opts.format, Tokens: toks, Fields: fields, Written: writtenFields(o.Keys), Hiddens: hiddens, Repeat: opts.repeat, Separator: opts.separator, DataType: opts.datatype, IsRecord: fieldPos.column(), Unbound: unbound}), nil
+}
+
+// writtenFields is the keys of a template object that name a field beside its options.
+func writtenFields(keys []string) []string {
+	var written []string
+	for _, k := range keys {
+		if !isOption(k) {
+			written = append(written, k)
+		}
+	}
+	return written
 }
 
 type templateOptions struct {
@@ -316,7 +328,7 @@ func compileFields(m map[string]any, pos position) (fields map[string]tree.Node,
 	if !hasHidden {
 		return fields, nil, nil
 	}
-	held, ok := hidden.(map[string]any)
+	held, ok := jsonvalue.Fields(hidden)
 	if !ok {
 		return nil, nil, fmt.Errorf("hidden is an option and takes an object of fields, not %s; a field cannot be named \"hidden\"", jsonvalue.Kind(hidden))
 	}
@@ -385,7 +397,7 @@ func isCount(r float64) bool {
 // weightOf reads a node's "weight" (default 1) from its raw JSON form. Only
 // template objects carry weight; a present one must be finite and not negative.
 func weightOf(raw any) (float64, error) {
-	m, ok := raw.(map[string]any)
+	m, ok := jsonvalue.Fields(raw)
 	if !ok {
 		return 1, nil
 	}

@@ -1152,7 +1152,7 @@ field binds a name where another reads it, `"first": "{/person as p}{p.first}"` 
 is the smallest unit holding every field and record column. A choice's item binds a name
 for its own reads, picked anew each time the item is drawn; a read outside the item is
 refused, since it would see a binding another item leaves out. A pick is drawn on
-its first read, so a record's columns, rendered in name order, read one pick whichever binds
+its first read, so a record's columns, drawn in name order, read one pick whichever binds
 it.
 
 The scope is lexical. A read entering a category, by a reference, through a name or from
@@ -2444,3 +2444,15 @@ On the same machine the first value of `sv_SE.person`, `fr_FR.person` and `en_US
 A name borne under both sexes has a row for each, so a selector without a sex fails for the names that had one row before; the changelog lists this under Breaking. A row under the minority sex weighs its real count, so a man named Anna is as rare as the register says, and no share of a name's bearers is a floor of its own.
 
 Valid while a name table loads whole. Item 465 gives a flat table fixed-size blocks, and then the floors are chosen again.
+## A record writes its columns in the order its template lists its fields, a table's in its header's, and draws them in name order
+
+2026-11-26. Goal 4: a reader predicts the columns from the template, and a `LOAD DATA` column list follows it.
+
+Columns came in name order, because a JSON object decodes into a Go map, which keeps no order. `internal/jsonvalue` now decodes an object with its keys in the order written, and a record's columns follow them, in every format and in `Columns()`. It is no option: an option leaves the old order as a trap for whoever doesn't know of it.
+
+- A record still draws its columns in name order. A seed then draws the same values wherever the template lists a field, and moving a field moves only its column.
+- A table has no fields in its JSON, so its columns follow the header of its TSV, which is the order its author wrote.
+- A key written twice in an object keeps its first place and its last value. The last value is what `encoding/json` kept before, and the first place is where JavaScript's `JSON.parse` puts it.
+- A struct that `FakeStruct` fills keeps name order inside the engine. Nobody sees that order: each value lands in its Go field by name.
+
+Valid while a template is a JSON object and a record's columns are its fields.
