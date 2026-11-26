@@ -2,8 +2,8 @@
 
 `fi_FI`, Finnish, carries `address`, `color`, `company`, `company-coined`, `company-word`, `date`, `email`, `first-name`, `henkilotunnus`, `henkilotunnus-issued`, `individ`, `landline`, `last-name`, `mobile`, `month`, `paragraph`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `phone-subscriber`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`, `weekday`, `word`, `word-adj`, `word-adv`, `word-noun` and `word-verb`, built like [`nb_NO`'s](nb_NO.md).
 `fi_FI.sex` is `nainen` and `mies`, weighted by [Statistics Finland](https://stat.fi/en)'s population of 31 December
-2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds the 2,000 commonest first given names of each sex
-and `fi_FI.last-name` the 5,000 commonest last names, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
+2025, and `fi_FI.title` is `tohtori` and `professori`. `fi_FI.first-name` holds each first given name of each sex borne by at least 5 citizens
+and `fi_FI.last-name` each last name borne by at least 5, each weighted by the Finnish citizens bearing it in the name statistics of 4 August 2026 of the Digital and
 Population Data Services Agency ([DVV](https://dvv.fi/en)). A program showing those counts credits "Lähde: Digi- ja
 väestötietovirasto", and one showing the sex counts "Source: Statistics Finland".
 

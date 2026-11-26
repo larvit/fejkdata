@@ -23,6 +23,7 @@ with its replacement, and each removed path, column or flag.
 - `misc.isin` and `misc.cusip` draw an ISIN and a CUSIP with a valid check digit.
 - `misc.bic` draws a BIC, a bank identifier code, with ISO 9362's structure and no test, passive or reverse billing location.
 - `fr_FR.first-name` has the row `M'Hamed` and `fr_FR.last-name` the row `N'Diaye`. The name imports used to drop a name with a one-letter part before an apostrophe, such as `N'Diaye`, and now keep it, written with the ASCII apostrophe. A lone initial is still dropped.
+- `sv_SE`, `fi_FI`, `fr_FR` and `en_US` ship every first and last name their sources count that at least 5 people bear, not the commonest 2,000 per sex and 5,000. `sv_SE.last-name` holds 190,014 names, up from 5,000, and `fr_FR.last-name` 218,571. A seed draws other names from these tables than before.
 - `--null-text T` sets the text `--format csv` writes for a null column, such as `NULL`, which MySQL's `LOAD DATA` reads as null. `csv` quotes any value equal to T, so it loads as text. The flag is refused under any other `--format`, and for a T that `csv` would quote. In Go, `Record.CSVLineNull(text)` writes one record the same way.
 
 ### Changed

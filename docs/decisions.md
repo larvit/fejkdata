@@ -2416,3 +2416,12 @@ Valid while a serializer returns a string and no shipped path draws a NUL.
 
 Valid while `phone-mobile` and `phone-fixed` name prefix tables.
 
+## The Swedish, Finnish, French and US name tables keep every name with at least five bearers
+
+2026-11-26, the agent shipping item 561. Goals 2 and 3.2: a draw should reach every name the source counts, and a name should never point at a person.
+
+`sv_SE`, `fi_FI`, `fr_FR` and `en_US` kept the 2,000 or 5,000 commonest names of each list, so a name below that rank, though counted, could never be drawn. Each import now keeps every name borne by at least five people (`--min-count`, `MIN_BEARERS` in `tsv.py`), commonest first. Five is the floor because a name borne by fewer than five can point at one household; the sources' own floors are SCB 2, DVV 5 (first names) and 20 (last names), INSEE 20 (last names), the SSA 5 and the Census 100, so only SCB's published counts go below it.
+
+The tables went from 4,000 first and 5,000 last names a locale to 47,889 and 190,014 for `sv_SE`, 17,128 and 23,264 for `fi_FI`, 33,372 and 218,571 for `fr_FR`, and 107,659 and 151,671 for `en_US`. The eight files hold 9.5 MB. A name table has no block index, so it loads whole on first reach; the largest, `fr_FR.last-name` and `sv_SE.last-name`, cold-start the CLI in 50 to 100 ms on a machine under load, inside goal 12.2's 100 ms. `TestShippedDataStaysUnder100MiB` holds.
+
+Valid while no table above 250,000 rows loads whole. A source that publishes counts below five does not lower the floor.
