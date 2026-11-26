@@ -2,7 +2,7 @@
   "format": "{block as b}{subscriber as s}{national}",
   "hidden": {
     "block": "{.phone-mobile}",
-    "subscriber": "{digits(2)} {digits(2)}"
+    "subscriber": "{.phone.subscriber}"
   },
   "national": "{b} {s}",
   "international": "+47 {b} {s}"

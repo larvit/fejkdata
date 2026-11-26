@@ -12,10 +12,11 @@ with its replacement, and each removed path, column or flag.
 - `fr_FR.first-name` has no row `Jahyan` and `fr_FR.last-name` none `Prades` any more: each fell out of the top 2,000 and 5,000 when a name with a one-letter part before an apostrophe joined.
 - `{ascii(x)}` and `{slugify(x)}` fold the Vietnamese letters: `Nguyễn` becomes `Nguyen`, not `Nguyn`, and slugs to `nguyen`; `Đặng` becomes `Dang`, not `Dng`.
 - `misc.territory[EH].tld` is empty, not `.eh`, so a draw of `misc.territory.tld` is empty once in 241: the root zone has never delegated `.eh`, and `misc.tld` doesn't hold it.
+- `phone` of `de_DE`, `et_EE`, `fi_FI`, `fr_FR`, `lt_LT`, `lv_LV` and `sv_SE` reads the new `mobile` and `landline`. A `--data-path` file that replaces either one now changes what `phone` draws, and must carry `national` and `international`. `phone` keeps its formats, its shares of mobile and fixed and its columns, but a seed draws other numbers from it in five of the seven.
 
 ### Added
 
-- Every locale has `mobile` and `landline`, such as `sv_SE.mobile` and `sv_SE.landline`: a full mobile number and a full fixed one in the national form, each with `national` and `international`. Where a locale's `phone-mobile` and `phone-fixed` hold prefixes, these hold whole numbers. `en_US.landline` reads `en_US.mobile`, since a US number doesn't show its kind. `phone` is unchanged.
+- Every locale has `mobile` and `landline`, such as `sv_SE.mobile` and `sv_SE.landline`: a full mobile number and a full fixed one in the national form, each with `national` and `international`. The `phone-mobile` and `phone-fixed` tables of `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO` still hold prefixes. `en_US.landline` reads `en_US.mobile`, since a US number doesn't show its kind.
 - `{isin()}`, `{cusip()}` and `{aba()}` compute the check digit of an ISIN, a CUSIP and a US routing number from the characters rendered before them.
 - `{vin(WMI)}` renders a whole VIN of a manufacturer code, with a valid check character.
 - `misc.isin` and `misc.cusip` draw an ISIN and a CUSIP with a valid check digit.
