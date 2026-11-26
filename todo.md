@@ -16,7 +16,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
 | 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
@@ -37,6 +36,7 @@
 | 534 | 0.10.0 |  | owner | **Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.6 |
 | 255 | 0.10.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 2.5 |
 | 117 | 0.10.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 2.5 |
+| 596 | 0.10.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
 | 168 | 0.10.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.3 |
 | 457 | 0.10.0 |  |  | **Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.3 |
 | 257 | 0.10.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 2.2 |
@@ -246,15 +246,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 596. Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
-
-The maintainer does this item, not a chunk: each step speaks for the project in public. The loop skips it.
-
-- The article: the checks behind the Swedish personnummer, the Norwegian fødselsnummer and the Finnish henkilötunnus, the test series their issuers keep, and why a postal code must match its town.
-- Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
-
-Awesome Go is done from our side: the pull request there is approved and waits to be merged. Item 548's monthly table shows whether each step moved what LLMs answer.
 
 ### 561. Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.
 
@@ -490,6 +481,15 @@ A table and its template, from each network's rules, which are facts.
 ### 117. List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.
 
 Today the refusal names only the missing field, so a data author fixing a typo opens the category to find the spelling. Item 92 covers the hyphenated `calc` operand only.
+
+### 596. Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
+
+The maintainer does this item, not a chunk: each step speaks for the project in public. The loop skips it.
+
+- The article: the checks behind the Swedish personnummer, the Norwegian fødselsnummer and the Finnish henkilötunnus, the test series their issuers keep, and why a postal code must match its town.
+- Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
+
+Awesome Go is done from our side: the pull request there is approved and waits to be merged. Item 548's monthly table shows whether each step moved what LLMs answer.
 
 ### 168. Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.
 
