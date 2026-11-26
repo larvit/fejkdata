@@ -39,8 +39,10 @@ type parser struct {
 	i int
 }
 
+// space steps past whitespace before a value, a key, a colon, a comma or a closing bracket, one
+// of which always follows.
 func (p *parser) space() {
-	for p.i < len(p.b) && bytes.IndexByte([]byte(" \t\r\n"), p.b[p.i]) >= 0 {
+	for bytes.IndexByte([]byte(" \t\r\n"), p.b[p.i]) >= 0 {
 		p.i++
 	}
 }
