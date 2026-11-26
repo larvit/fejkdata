@@ -19,14 +19,14 @@ FORMS = {"noun": "plural", "verb": "", "adj": "", "adv": ""}
 
 
 def spelled(word: str, part: str) -> bool:
-    """A noun is a capital and lower-case letters, any other part lower-case letters alone."""
-    head, tail = (word[:1], word[1:]) if part == "noun" else ("", word)
-    return word.isalpha() and (not head or head.isupper()) and tail.islower()
+	"""A noun is a capital and lower-case letters, any other part lower-case letters alone."""
+	head, tail = (word[:1], word[1:]) if part == "noun" else ("", word)
+	return word.isalpha() and (not head or head.isupper()) and tail.islower()
 
 
 candidates = partial(wikidata_lexemes.candidates, language="Q188", code="de", forms=FORMS)
 
 
 if __name__ == "__main__":
-    source = wordtables.Source(flag="lexemes", url=wikidata_lexemes.DUMP, name="wikidata-lexemes.json.gz", magic=b"\x1f\x8b", candidates=candidates)
-    wordtables.main(__doc__, "de", OUT, FORMS, [source], spelled)
+	source = wordtables.Source(flag="lexemes", url=wikidata_lexemes.DUMP, name="wikidata-lexemes.json.gz", magic=b"\x1f\x8b", candidates=candidates)
+	wordtables.main(__doc__, "de", OUT, FORMS, [source], spelled)

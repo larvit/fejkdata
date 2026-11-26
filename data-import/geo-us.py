@@ -42,198 +42,198 @@ SUFFIX = re.compile(r" (city and borough|city|town|village|borough|municipality|
 # Places whose Census name is not the postal city an address carries.
 NAMES = {"0665042": "Ventura", "1303440": "Athens", "1304204": "Augusta", "1349008": "Macon", "1608830": "Boise", "2146027": "Lexington", "2148006": "Louisville", "3011397": "Butte", "4732742": "Hartsville", "4744382": "Lynchburg", "4752006": "Nashville"}
 TIMEZONES = {
-    "AK": "America/Anchorage", "AL": "America/Chicago", "AR": "America/Chicago", "AZ": "America/Phoenix",
-    "CA": "America/Los_Angeles", "CO": "America/Denver", "CT": "America/New_York", "DC": "America/New_York",
-    "DE": "America/New_York", "FL": "America/New_York", "GA": "America/New_York", "HI": "Pacific/Honolulu",
-    "IA": "America/Chicago", "ID": "America/Boise", "IL": "America/Chicago", "IN": "America/Indiana/Indianapolis",
-    "KS": "America/Chicago", "KY": "America/New_York", "LA": "America/Chicago", "MA": "America/New_York",
-    "MD": "America/New_York", "ME": "America/New_York", "MI": "America/Detroit", "MN": "America/Chicago",
-    "MO": "America/Chicago", "MS": "America/Chicago", "MT": "America/Denver", "NC": "America/New_York",
-    "ND": "America/Chicago", "NE": "America/Chicago", "NH": "America/New_York", "NJ": "America/New_York",
-    "NM": "America/Denver", "NV": "America/Los_Angeles", "NY": "America/New_York", "OH": "America/New_York",
-    "OK": "America/Chicago", "OR": "America/Los_Angeles", "PA": "America/New_York", "PR": "America/Puerto_Rico",
-    "RI": "America/New_York", "SC": "America/New_York", "SD": "America/Chicago", "TN": "America/Chicago",
-    "TX": "America/Chicago", "UT": "America/Denver", "VA": "America/New_York", "VT": "America/New_York",
-    "WA": "America/Los_Angeles", "WI": "America/Chicago", "WV": "America/New_York", "WY": "America/Denver",
+	"AK": "America/Anchorage", "AL": "America/Chicago", "AR": "America/Chicago", "AZ": "America/Phoenix",
+	"CA": "America/Los_Angeles", "CO": "America/Denver", "CT": "America/New_York", "DC": "America/New_York",
+	"DE": "America/New_York", "FL": "America/New_York", "GA": "America/New_York", "HI": "Pacific/Honolulu",
+	"IA": "America/Chicago", "ID": "America/Boise", "IL": "America/Chicago", "IN": "America/Indiana/Indianapolis",
+	"KS": "America/Chicago", "KY": "America/New_York", "LA": "America/Chicago", "MA": "America/New_York",
+	"MD": "America/New_York", "ME": "America/New_York", "MI": "America/Detroit", "MN": "America/Chicago",
+	"MO": "America/Chicago", "MS": "America/Chicago", "MT": "America/Denver", "NC": "America/New_York",
+	"ND": "America/Chicago", "NE": "America/Chicago", "NH": "America/New_York", "NJ": "America/New_York",
+	"NM": "America/Denver", "NV": "America/Los_Angeles", "NY": "America/New_York", "OH": "America/New_York",
+	"OK": "America/Chicago", "OR": "America/Los_Angeles", "PA": "America/New_York", "PR": "America/Puerto_Rico",
+	"RI": "America/New_York", "SC": "America/New_York", "SD": "America/Chicago", "TN": "America/Chicago",
+	"TX": "America/Chicago", "UT": "America/Denver", "VA": "America/New_York", "VT": "America/New_York",
+	"WA": "America/Los_Angeles", "WI": "America/Chicago", "WV": "America/New_York", "WY": "America/Denver",
 }
 
 
 def text(data: bytes) -> str:
-    try:
-        decoded = data.decode("utf-8-sig")
-    except UnicodeDecodeError:
-        decoded = data.decode("latin-1")
-    return unicodedata.normalize("NFC", decoded)
+	try:
+		decoded = data.decode("utf-8-sig")
+	except UnicodeDecodeError:
+		decoded = data.decode("latin-1")
+	return unicodedata.normalize("NFC", decoded)
 
 
 def gazetteer(cache: Path, kind: str) -> list[dict[str, str]]:
-    z = zipfile.ZipFile(io.BytesIO(source.fetch(GAZETTEER.format(kind), cache, f"gaz_{kind}.zip", magic=b"PK")))
-    rows = text(z.read(z.namelist()[0])).splitlines()
-    header = [h.strip() for h in rows[0].split("|")]
-    return [dict(zip(header, (c.strip() for c in row.split("|")))) for row in rows[1:]]
+	z = zipfile.ZipFile(io.BytesIO(source.fetch(GAZETTEER.format(kind), cache, f"gaz_{kind}.zip", magic=b"PK")))
+	rows = text(z.read(z.namelist()[0])).splitlines()
+	header = [h.strip() for h in rows[0].split("|")]
+	return [dict(zip(header, (c.strip() for c in row.split("|")))) for row in rows[1:]]
 
 
 def csv_rows(cache: Path, url: str, name: str) -> list[dict[str, str]]:
-    return list(csv.DictReader(io.StringIO(text(source.fetch(url, cache, name)))))
+	return list(csv.DictReader(io.StringIO(text(source.fetch(url, cache, name)))))
 
 
 def dbf_rows(data: bytes, wanted: Collection[str]) -> Iterator[dict[str, str]]:
-    """The records of a dBASE file, the wanted fields only."""
-    count, header_len, record_len = struct.unpack("<xxxxIHH", data[:12])
-    fields: list[tuple[str, int]] = []
-    pos = 32
-    while data[pos] != 0x0D:
-        name = data[pos:pos + 11].split(b"\0")[0].decode()
-        fields.append((name, data[pos + 16]))
-        pos += 32
-    pos = header_len
-    for _ in range(count):
-        record = data[pos:pos + record_len]
-        pos += record_len
-        if record[:1] == b"*":
-            continue
-        row: dict[str, str] = {}
-        at = 1
-        for name, length in fields:
-            if name in wanted:
-                row[name] = unicodedata.normalize("NFC", record[at:at + length].decode("utf-8", "replace").strip())
-            at += length
-        yield row
+	"""The records of a dBASE file, the wanted fields only."""
+	count, header_len, record_len = struct.unpack("<xxxxIHH", data[:12])
+	fields: list[tuple[str, int]] = []
+	pos = 32
+	while data[pos] != 0x0D:
+		name = data[pos:pos + 11].split(b"\0")[0].decode()
+		fields.append((name, data[pos + 16]))
+		pos += 32
+	pos = header_len
+	for _ in range(count):
+		record = data[pos:pos + record_len]
+		pos += record_len
+		if record[:1] == b"*":
+			continue
+		row: dict[str, str] = {}
+		at = 1
+		for name, length in fields:
+			if name in wanted:
+				row[name] = unicodedata.normalize("NFC", record[at:at + length].decode("utf-8", "replace").strip())
+			at += length
+		yield row
 
 
 def tiger_zip(cache: Path, kind: str, county: str) -> bytes:
-    return source.fetch(TIGER.format(kind.upper(), county, kind), cache, f"tl_{county}_{kind}.zip", magic=b"PK")
+	return source.fetch(TIGER.format(kind.upper(), county, kind), cache, f"tl_{county}_{kind}.zip", magic=b"PK")
 
 
 def tiger(cache: Path, kind: str, county: str, wanted: Collection[str]) -> Iterator[dict[str, str]]:
-    z = zipfile.ZipFile(io.BytesIO(tiger_zip(cache, kind, county)))
-    return dbf_rows(z.read(f"tl_2025_{county}_{kind}.dbf"), wanted)
+	z = zipfile.ZipFile(io.BytesIO(tiger_zip(cache, kind, county)))
+	return dbf_rows(z.read(f"tl_2025_{county}_{kind}.dbf"), wanted)
 
 
 def place_name(geoid: str, name: str) -> str:
-    if geoid in NAMES:
-        return NAMES[geoid]
-    stripped = SUFFIX.sub("", name)
-    if stripped == name:
-        print(f"{geoid}: no suffix stripped from {name!r}", file=sys.stderr)
-    return stripped
+	if geoid in NAMES:
+		return NAMES[geoid]
+	stripped = SUFFIX.sub("", name)
+	if stripped == name:
+		print(f"{geoid}: no suffix stripped from {name!r}", file=sys.stderr)
+	return stripped
 
 
 def localities(cache: Path, counties: Collection[str]) -> dict[str, geo.Row]:
-    """Each incorporated place with its county, population and centroid."""
-    place_population: dict[str, int] = {}
-    county_part: dict[str, list[tuple[int, str]]] = collections.defaultdict(list)
-    for r in csv_rows(cache, PLACES, "sub-est2025.csv"):
-        if r["SUMLEV"] == "162":
-            place_population[r["STATE"] + r["PLACE"]] = int(r[ESTIMATE])
-        elif r["SUMLEV"] == "157":
-            county_part[r["STATE"] + r["PLACE"]].append((int(r[ESTIMATE]), r["STATE"] + r["COUNTY"]))
-    out: dict[str, geo.Row] = {}
-    for r in gazetteer(cache, "place"):
-        geoid, population = r["GEOID"], place_population.get(r["GEOID"], 0)
-        if r["FUNCSTAT"] not in ("A", "B", "F", "N") or r["LSAD"] == CDP or not county_part.get(geoid):
-            continue
-        county = max(county_part[geoid])[1]
-        if county not in counties:
-            print(f"{geoid} {r['NAME']}: county {county} unknown, dropped", file=sys.stderr)
-            continue
-        out[geoid] = {"code": geoid, "gnis": int(r["ANSICODE"]), "name": place_name(geoid, r["NAME"]), "municipality": county, "population": population, "lat": r["INTPTLAT"], "lon": r["INTPTLONG"]}
-    return out
+	"""Each incorporated place with its county, population and centroid."""
+	place_population: dict[str, int] = {}
+	county_part: dict[str, list[tuple[int, str]]] = collections.defaultdict(list)
+	for r in csv_rows(cache, PLACES, "sub-est2025.csv"):
+		if r["SUMLEV"] == "162":
+			place_population[r["STATE"] + r["PLACE"]] = int(r[ESTIMATE])
+		elif r["SUMLEV"] == "157":
+			county_part[r["STATE"] + r["PLACE"]].append((int(r[ESTIMATE]), r["STATE"] + r["COUNTY"]))
+	out: dict[str, geo.Row] = {}
+	for r in gazetteer(cache, "place"):
+		geoid, population = r["GEOID"], place_population.get(r["GEOID"], 0)
+		if r["FUNCSTAT"] not in ("A", "B", "F", "N") or r["LSAD"] == CDP or not county_part.get(geoid):
+			continue
+		county = max(county_part[geoid])[1]
+		if county not in counties:
+			print(f"{geoid} {r['NAME']}: county {county} unknown, dropped", file=sys.stderr)
+			continue
+		out[geoid] = {"code": geoid, "gnis": int(r["ANSICODE"]), "name": place_name(geoid, r["NAME"]), "municipality": county, "population": population, "lat": r["INTPTLAT"], "lon": r["INTPTLONG"]}
+	return out
 
 
 def capitals(cache: Path, places: Mapping[str, geo.Row], counties: Mapping[str, geo.Row]) -> set[str]:
-    """The codes of the places that are a state's capital, matched by any of its GNIS ids, else by a name no other place in the state carries."""
-    by_gnis = {p["gnis"]: code for code, p in places.items()}
-    named = collections.defaultdict(list)
-    for code, p in places.items():
-        named[(counties[p["municipality"]]["region"], p["name"])].append(code)
-    by_name = {key: codes[0] for key, codes in named.items() if len(codes) == 1}
-    gnis_of = collections.defaultdict(set)
-    for r in csv.DictReader(io.StringIO(text(source.fetch(CAPITALS, cache, "capitals.csv", magic=b"iso,", headers={"Accept": "text/csv"})))):
-        gnis_of[(r["iso"].removeprefix("US-"), r["capitalLabel"])].add(int(r["gnis"] or 0))
-    out: set[str] = set()
-    for (state, name), ids in sorted(gnis_of.items()):
-        capital = next((by_gnis[i] for i in sorted(ids) if i in by_gnis), None) or by_name.get((state, name))
-        if capital:
-            out.add(capital)
-        else:
-            print(f"{state} {name}: capital matches no incorporated place by GNIS id or by a name unique in its state", file=sys.stderr)
-    return out
+	"""The codes of the places that are a state's capital, matched by any of its GNIS ids, else by a name no other place in the state carries."""
+	by_gnis = {p["gnis"]: code for code, p in places.items()}
+	named = collections.defaultdict(list)
+	for code, p in places.items():
+		named[(counties[p["municipality"]]["region"], p["name"])].append(code)
+	by_name = {key: codes[0] for key, codes in named.items() if len(codes) == 1}
+	gnis_of = collections.defaultdict(set)
+	for r in csv.DictReader(io.StringIO(text(source.fetch(CAPITALS, cache, "capitals.csv", magic=b"iso,", headers={"Accept": "text/csv"})))):
+		gnis_of[(r["iso"].removeprefix("US-"), r["capitalLabel"])].add(int(r["gnis"] or 0))
+	out: set[str] = set()
+	for (state, name), ids in sorted(gnis_of.items()):
+		capital = next((by_gnis[i] for i in sorted(ids) if i in by_gnis), None) or by_name.get((state, name))
+		if capital:
+			out.add(capital)
+		else:
+			print(f"{state} {name}: capital matches no incorporated place by GNIS id or by a name unique in its state", file=sys.stderr)
+	return out
 
 
 def drawn(places: Mapping[str, geo.Row], share: float) -> dict[str, geo.Row]:
-    """The share of the places with people, each drawn with odds by its population: Efraimidis and Spirakis's weighted
-    sampling without replacement. Each place's random number is seeded by its code, so a place added to or dropped from
-    the sources moves only the places near the cut."""
-    peopled = [code for code, p in places.items() if p["population"] > 0]
-    key = {code: math.log(1 - random.Random(code).random()) / places[code]["population"] for code in peopled}
-    return {code: places[code] for code in sorted(peopled, key=lambda c: (key[c], c), reverse=True)[:round(len(peopled) * share)]}
+	"""The share of the places with people, each drawn with odds by its population: Efraimidis and Spirakis's weighted
+	sampling without replacement. Each place's random number is seeded by its code, so a place added to or dropped from
+	the sources moves only the places near the cut."""
+	peopled = [code for code, p in places.items() if p["population"] > 0]
+	key = {code: math.log(1 - random.Random(code).random()) / places[code]["population"] for code in peopled}
+	return {code: places[code] for code in sorted(peopled, key=lambda c: (key[c], c), reverse=True)[:round(len(peopled) * share)]}
 
 
 def zcta_localities(cache: Path, localities: Collection[str]) -> dict[str, str]:
-    """Each ZCTA mapped to the incorporated place holding most of its land inside incorporated places, where localities holds that place."""
-    parts: dict[str, list[tuple[int, str]]] = {}
-    for r in csv.DictReader(io.StringIO(text(source.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
-        if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"] and not r["NAMELSAD_PLACE_20"].endswith(" CDP"):
-            parts.setdefault(r["GEOID_ZCTA5_20"], []).append((int(r["AREALAND_PART"]), r["GEOID_PLACE_20"]))
-    largest = {zcta: max(p)[1] for zcta, p in parts.items()}
-    return {zcta: place for zcta, place in largest.items() if place in localities}
+	"""Each ZCTA mapped to the incorporated place holding most of its land inside incorporated places, where localities holds that place."""
+	parts: dict[str, list[tuple[int, str]]] = {}
+	for r in csv.DictReader(io.StringIO(text(source.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
+		if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"] and not r["NAMELSAD_PLACE_20"].endswith(" CDP"):
+			parts.setdefault(r["GEOID_ZCTA5_20"], []).append((int(r["AREALAND_PART"]), r["GEOID_PLACE_20"]))
+	largest = {zcta: max(p)[1] for zcta, p in parts.items()}
+	return {zcta: place for zcta, place in largest.items() if place in localities}
 
 
 def streets(cache: Path, counties: Iterable[str], locality_of_zcta: Mapping[str, str], share: float, minimum: int) -> tuple[dict[str, list[geo.Row]], collections.Counter[str]]:
-    """The names with most TIGER address ranges per place, and the address ranges per ZCTA."""
-    with concurrent.futures.ThreadPoolExecutor(3) as pool:
-        list(pool.map(lambda c: (tiger_zip(cache, "addr", c), tiger_zip(cache, "featnames", c)), counties))
-    addresses: collections.Counter[str] = collections.Counter()
-    count: collections.Counter[tuple[str, str]] = collections.Counter()
-    for county in counties:
-        zips = collections.defaultdict(set)
-        for r in tiger(cache, "addr", county, {"TLID", "ZIP"}):
-            if r["ZIP"] in locality_of_zcta:
-                zips[r["TLID"]].add(r["ZIP"])
-                addresses[r["ZIP"]] += 1
-        for r in tiger(cache, "featnames", county, {"TLID", "FULLNAME", "PAFLAG"}):
-            if r["PAFLAG"] == "P" and r["FULLNAME"] and not HIGHWAY.search(r["FULLNAME"]):
-                for z in zips.get(r["TLID"], ()):
-                    count[(locality_of_zcta[z], r["FULLNAME"])] += 1
-    return geo.top_streets(count, share, minimum, "addresses"), addresses
+	"""The names with most TIGER address ranges per place, and the address ranges per ZCTA."""
+	with concurrent.futures.ThreadPoolExecutor(3) as pool:
+		list(pool.map(lambda c: (tiger_zip(cache, "addr", c), tiger_zip(cache, "featnames", c)), counties))
+	addresses: collections.Counter[str] = collections.Counter()
+	count: collections.Counter[tuple[str, str]] = collections.Counter()
+	for county in counties:
+		zips = collections.defaultdict(set)
+		for r in tiger(cache, "addr", county, {"TLID", "ZIP"}):
+			if r["ZIP"] in locality_of_zcta:
+				zips[r["TLID"]].add(r["ZIP"])
+				addresses[r["ZIP"]] += 1
+		for r in tiger(cache, "featnames", county, {"TLID", "FULLNAME", "PAFLAG"}):
+			if r["PAFLAG"] == "P" and r["FULLNAME"] and not HIGHWAY.search(r["FULLNAME"]):
+				for z in zips.get(r["TLID"], ()):
+					count[(locality_of_zcta[z], r["FULLNAME"])] += 1
+	return geo.top_streets(count, share, minimum, "addresses"), addresses
 
 
 def main() -> None:
-    a = geo.parser(__doc__, "US", 0.25, place_share={"type": float, "default": 0.1}).parse_args()
-    cache, out = geo.directories(a)
+	a = geo.parser(__doc__, "US", 0.25, place_share={"type": float, "default": 0.1}).parse_args()
+	cache, out = geo.directories(a)
 
-    state_population = {r["STATE"]: r[ESTIMATE] for r in csv_rows(cache, STATES, "nst-est2025.csv") if r["SUMLEV"] == "040"}
-    regions = {r["USPS"]: {"abbr": r["USPS"], "code": r["GEOID"], "name": r["NAME"], "population": state_population[r["GEOID"]], "timezone": TIMEZONES[r["USPS"]]} for r in gazetteer(cache, "state")}
-    county_population = {r["STATE"] + r["COUNTY"]: r[ESTIMATE] for r in csv_rows(cache, COUNTIES, "co-est2025.csv") if r["SUMLEV"] == "050"}
-    counties: dict[str, geo.Row] = {}
-    unestimated: collections.Counter[str] = collections.Counter()
-    for r in gazetteer(cache, "counties"):
-        if r["GEOID"] not in county_population:
-            unestimated[r["USPS"]] += 1
-            continue
-        counties[r["GEOID"]] = {"code": r["GEOID"], "name": r["NAME"], "region": r["USPS"], "population": county_population[r["GEOID"]]}
-    print(f"counties without a population estimate, dropped: {dict(unestimated)}", file=sys.stderr)
+	state_population = {r["STATE"]: r[ESTIMATE] for r in csv_rows(cache, STATES, "nst-est2025.csv") if r["SUMLEV"] == "040"}
+	regions = {r["USPS"]: {"abbr": r["USPS"], "code": r["GEOID"], "name": r["NAME"], "population": state_population[r["GEOID"]], "timezone": TIMEZONES[r["USPS"]]} for r in gazetteer(cache, "state")}
+	county_population = {r["STATE"] + r["COUNTY"]: r[ESTIMATE] for r in csv_rows(cache, COUNTIES, "co-est2025.csv") if r["SUMLEV"] == "050"}
+	counties: dict[str, geo.Row] = {}
+	unestimated: collections.Counter[str] = collections.Counter()
+	for r in gazetteer(cache, "counties"):
+		if r["GEOID"] not in county_population:
+			unestimated[r["USPS"]] += 1
+			continue
+		counties[r["GEOID"]] = {"code": r["GEOID"], "name": r["NAME"], "region": r["USPS"], "population": county_population[r["GEOID"]]}
+	print(f"counties without a population estimate, dropped: {dict(unestimated)}", file=sys.stderr)
 
-    places = localities(cache, counties)
-    owner_of_zcta = zcta_localities(cache, places)
-    capital_codes = capitals(cache, places, counties)
-    owners = {p: places[p] for p in set(owner_of_zcta.values())}
-    for code in sorted(capital_codes - set(owners)):
-        print(f"{code} {places[code]['name']}: capital owns no ZCTA, dropped", file=sys.stderr)
-    places = drawn(owners, a.place_share) | {code: p for code, p in owners.items() if code in capital_codes or p["population"] >= SHIPPED_POPULATION}
-    locality_of_zcta = {zcta: p for zcta, p in owner_of_zcta.items() if p in places}
-    named, addresses = streets(cache, sorted({p["municipality"] for p in places.values()}), locality_of_zcta, a.street_share, a.min_streets)
-    zctas = collections.defaultdict(list)
-    for zcta, locality in sorted(locality_of_zcta.items()):
-        if addresses[zcta]:
-            zctas[locality].append(zcta)
-    kept, dropped = geo.fence(regions, counties, places, named, zctas)
-    geo.log_dropped_localities(dropped["locality"])
-    print(f"counties without a place, dropped: {len(dropped['municipality'])}; states without a county, dropped: {sorted(dropped['region'])}", file=sys.stderr)
-    postal_codes = [{"code": z, "locality": loc, "addresses": addresses[z]} for loc in kept["locality"] for z in zctas[loc]]
-    geo.write_tables(out, kept, postal_codes, named, region=["abbr", "code", "name", "population", "timezone"], locality=["code", "name", "municipality", "population", "lat", "lon"])
+	places = localities(cache, counties)
+	owner_of_zcta = zcta_localities(cache, places)
+	capital_codes = capitals(cache, places, counties)
+	owners = {p: places[p] for p in set(owner_of_zcta.values())}
+	for code in sorted(capital_codes - set(owners)):
+		print(f"{code} {places[code]['name']}: capital owns no ZCTA, dropped", file=sys.stderr)
+	places = drawn(owners, a.place_share) | {code: p for code, p in owners.items() if code in capital_codes or p["population"] >= SHIPPED_POPULATION}
+	locality_of_zcta = {zcta: p for zcta, p in owner_of_zcta.items() if p in places}
+	named, addresses = streets(cache, sorted({p["municipality"] for p in places.values()}), locality_of_zcta, a.street_share, a.min_streets)
+	zctas = collections.defaultdict(list)
+	for zcta, locality in sorted(locality_of_zcta.items()):
+		if addresses[zcta]:
+			zctas[locality].append(zcta)
+	kept, dropped = geo.fence(regions, counties, places, named, zctas)
+	geo.log_dropped_localities(dropped["locality"])
+	print(f"counties without a place, dropped: {len(dropped['municipality'])}; states without a county, dropped: {sorted(dropped['region'])}", file=sys.stderr)
+	postal_codes = [{"code": z, "locality": loc, "addresses": addresses[z]} for loc in kept["locality"] for z in zctas[loc]]
+	geo.write_tables(out, kept, postal_codes, named, region=["abbr", "code", "name", "population", "timezone"], locality=["code", "name", "municipality", "population", "lat", "lon"])
 
 
 if __name__ == "__main__":
-    main()
+	main()

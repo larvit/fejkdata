@@ -91,60 +91,60 @@ Ivanov Kovalenko Kowalski Kozlov Michailov Orlov Petrov Smirnov Sokolov
 
 
 def published(text: str) -> list[tuple[str, int]]:
-    """The rows (name, count) of a register table, in the order of the rank it gives them."""
-    rows = sorted(json.loads(text)["_data"], key=lambda r: r["nr"])
-    return [(r["vardas"].title(), int(r["viso_vardas"])) for r in rows]
+	"""The rows (name, count) of a register table, in the order of the rank it gives them."""
+	rows = sorted(json.loads(text)["_data"], key=lambda r: r["nr"])
+	return [(r["vardas"].title(), int(r["viso_vardas"])) for r in rows]
 
 
 def ranked(top: Sequence[tuple[str, int]], recalled: str, what: str) -> list[tuple[str, int]]:
-    """The rows (name, count) of a list: the published names as published, the commoner recalled names in order, then the rarer recalled ones, which share a count."""
-    ordered, rarer = recalled_names.split(what, recalled, [name for name, _ in top])
-    smallest = min(n for _, n in top)
-    rows = list(top)
-    for rank, name in enumerate(ordered, start=len(top) + 1):
-        rows.append((name, smallest * len(top) // rank))
-    last = smallest * len(top) // (len(top) + len(ordered))
-    return rows + [(name, last) for name in rarer]
+	"""The rows (name, count) of a list: the published names as published, the commoner recalled names in order, then the rarer recalled ones, which share a count."""
+	ordered, rarer = recalled_names.split(what, recalled, [name for name, _ in top])
+	smallest = min(n for _, n in top)
+	rows = list(top)
+	for rank, name in enumerate(ordered, start=len(top) + 1):
+		rows.append((name, smallest * len(top) // rank))
+	last = smallest * len(top) // (len(top) + len(ordered))
+	return rows + [(name, last) for name in rarer]
 
 
 FEMININE = (("ius", "iūtė"), ("us", "utė"), ("ys", "ytė"), ("is", "ytė"), ("as", "aitė"), ("a", "aitė"))
 
 
 def feminine(name: str) -> list[str]:
-    """The feminine forms of a masculine last name, the unmarried one first and the married one second; a Russian or Polish one takes its own language's ending, and any other comes back unchanged."""
-    for ending, unmarried in FEMININE:
-        if name.endswith(ending):
-            stem = name[: -len(ending)]
-            return [stem + unmarried, stem + "ienė"]
-    if name.endswith("ov"):
-        return [name + "a"]
-    if name.endswith("ski"):
-        return [name[:-1] + "a"]
-    return [name]
+	"""The feminine forms of a masculine last name, the unmarried one first and the married one second; a Russian or Polish one takes its own language's ending, and any other comes back unchanged."""
+	for ending, unmarried in FEMININE:
+		if name.endswith(ending):
+			stem = name[: -len(ending)]
+			return [stem + unmarried, stem + "ienė"]
+	if name.endswith("ov"):
+		return [name + "a"]
+	if name.endswith("ski"):
+		return [name[:-1] + "a"]
+	return [name]
 
 
 def lasts() -> list[dict[str, object]]:
-    """The rows (name, sex, count) of the last names: each recalled name under m, and its feminine forms under f, which share its count."""
-    rows = recalled_names.weighted("last names", LAST_RECALLED, TOP)
-    return [{"name": form, "sex": sex, "count": n // len(forms)} for name, n in rows for sex, forms in (("f", feminine(name)), ("m", [name])) for form in forms]
+	"""The rows (name, sex, count) of the last names: each recalled name under m, and its feminine forms under f, which share its count."""
+	rows = recalled_names.weighted("last names", LAST_RECALLED, TOP)
+	return [{"name": form, "sex": sex, "count": n // len(forms)} for name, n in rows for sex, forms in (("f", feminine(name)), ("m", [name])) for form in forms]
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--men", default=REGISTER.format(table="vyru_vardai/VyroVardas"))
-    p.add_argument("--women", default=REGISTER.format(table="moteru_vardai/MotersVardas"))
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    men = published(source.fetch(a.men, a.cache, "rc-vyru-vardai.json", magic=b"{").decode("utf-8"))
-    women = published(source.fetch(a.women, a.cache, "rc-moteru-vardai.json", magic=b"{").decode("utf-8"))
-    first = [{"name": n, "sex": "m", "count": c} for n, c in ranked(men, MEN_RECALLED, "men's names")]
-    first += [{"name": n, "sex": "f", "count": c} for n, c in ranked(women, WOMEN_RECALLED, "women's names")]
-    out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
-    tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (str(r["name"]), str(r["sex"]))))
-    tsv.write(out / "last-name.tsv", ["name", "sex", "count"], sorted(lasts(), key=lambda r: (str(r["name"]), str(r["sex"]))))
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--men", default=REGISTER.format(table="vyru_vardai/VyroVardas"))
+	p.add_argument("--women", default=REGISTER.format(table="moteru_vardai/MotersVardas"))
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	men = published(source.fetch(a.men, a.cache, "rc-vyru-vardai.json", magic=b"{").decode("utf-8"))
+	women = published(source.fetch(a.women, a.cache, "rc-moteru-vardai.json", magic=b"{").decode("utf-8"))
+	first = [{"name": n, "sex": "m", "count": c} for n, c in ranked(men, MEN_RECALLED, "men's names")]
+	first += [{"name": n, "sex": "f", "count": c} for n, c in ranked(women, WOMEN_RECALLED, "women's names")]
+	out = Path(a.out)
+	out.mkdir(parents=True, exist_ok=True)
+	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (str(r["name"]), str(r["sex"]))))
+	tsv.write(out / "last-name.tsv", ["name", "sex", "count"], sorted(lasts(), key=lambda r: (str(r["name"]), str(r["sex"]))))
 
 
 if __name__ == "__main__":
-    main()
+	main()

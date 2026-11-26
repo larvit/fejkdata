@@ -31,62 +31,62 @@ TOTAL = 272998
 PREFIXES = {"Volkswagen": ["VW"]}
 MAKES = {"Citroen": "Citroën", "Skoda": "Škoda"}
 SPELLINGS = {
-    ("Audi", "A6 E-Tron"): "A6 e-tron",
-    ("Audi", "Q4 E-Tron"): "Q4 e-tron",
-    ("Audi", "Q6 E-Tron"): "Q6 e-tron",
-    ("BMW", "I4"): "i4",
-    ("BMW", "I5"): "i5",
-    ("BMW", "IX"): "iX",
-    ("BMW", "IX1"): "iX1",
-    ("Hyundai", "I10"): "i10",
-    ("Toyota", "BZ4X"): "bZ4X",
-    ("Toyota", "RAV 4"): "RAV4",
-    ("Volkswagen", "T-ROC"): "T-Roc",
-    ("Volvo", "S/V90N"): "S/V90",
-    ("Volvo", "XC90II"): "XC90",
+	("Audi", "A6 E-Tron"): "A6 e-tron",
+	("Audi", "Q4 E-Tron"): "Q4 e-tron",
+	("Audi", "Q6 E-Tron"): "Q6 e-tron",
+	("BMW", "I4"): "i4",
+	("BMW", "I5"): "i5",
+	("BMW", "IX"): "iX",
+	("BMW", "IX1"): "iX1",
+	("Hyundai", "I10"): "i10",
+	("Toyota", "BZ4X"): "bZ4X",
+	("Toyota", "RAV 4"): "RAV4",
+	("Volkswagen", "T-ROC"): "T-Roc",
+	("Volvo", "S/V90N"): "S/V90",
+	("Volvo", "XC90II"): "XC90",
 }
 WORD = re.compile(r"[A-ZÅÄÖ]{4,}")
 HEADER = "Fabrikat (Antal reg. YTD↓ )"
 
 
 def models(sheet: Iterable[list[str]]) -> Iterator[tuple[str, str, int]]:
-    """The (make, model, registrations) of each model row, below the sheet's header, until its grand total."""
-    make = None
-    for r in sheet:
-        r = r + [""] * (11 - len(r))
-        if r[0] and r[0] != HEADER and r[2] == "Total":
-            make = r[0]
-        elif r[2] == "Totalt":
-            if int(r[10]) != TOTAL:
-                sys.exit(f"the sheet's grand total is {r[10]}, not {TOTAL}")
-            return
-        elif make and r[2] and r[2] != "Total":
-            yield make, r[2], int(r[10] or 0)
-    sys.exit("the sheet has no row 'Totalt'; Mobility Sweden has changed it")
+	"""The (make, model, registrations) of each model row, below the sheet's header, until its grand total."""
+	make = None
+	for r in sheet:
+		r = r + [""] * (11 - len(r))
+		if r[0] and r[0] != HEADER and r[2] == "Total":
+			make = r[0]
+		elif r[2] == "Totalt":
+			if int(r[10]) != TOTAL:
+				sys.exit(f"the sheet's grand total is {r[10]}, not {TOTAL}")
+			return
+		elif make and r[2] and r[2] != "Total":
+			yield make, r[2], int(r[10] or 0)
+	sys.exit("the sheet has no row 'Totalt'; Mobility Sweden has changed it")
 
 
 def spelled(make: str, model: str) -> str:
-    """The model without its make's prefix, its long capital words in initial capitals."""
-    for prefix in [make.upper(), make.upper().split("-")[0]] + PREFIXES.get(make, []):
-        if model.startswith(prefix + " "):
-            return WORD.sub(lambda m: m.group().capitalize(), model[len(prefix) + 1:])
-    sys.exit(f"{model!r} does not start with the name of its make, {make}")
+	"""The model without its make's prefix, its long capital words in initial capitals."""
+	for prefix in [make.upper(), make.upper().split("-")[0]] + PREFIXES.get(make, []):
+		if model.startswith(prefix + " "):
+			return WORD.sub(lambda m: m.group().capitalize(), model[len(prefix) + 1:])
+	sys.exit(f"{model!r} does not start with the name of its make, {make}")
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    sheet = list(xlsx.rows(source.fetch(a.source, a.cache, "mobility-sweden-2025-12.xlsx", magic=b"PK"), SHEET))
-    rows = []
-    for make, model, n in models(sheet):
-        if n >= MINIMUM and "ÖVRIGA" not in model:
-            model = spelled(make, model)
-            rows.append({"make": MAKES.get(make, make), "model": SPELLINGS.get((make, model), model), "registrations": n})
-    tsv.write(a.out, ["make", "model", "registrations"], rows)
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	sheet = list(xlsx.rows(source.fetch(a.source, a.cache, "mobility-sweden-2025-12.xlsx", magic=b"PK"), SHEET))
+	rows = []
+	for make, model, n in models(sheet):
+		if n >= MINIMUM and "ÖVRIGA" not in model:
+			model = spelled(make, model)
+			rows.append({"make": MAKES.get(make, make), "model": SPELLINGS.get((make, model), model), "registrations": n})
+	tsv.write(a.out, ["make", "model", "registrations"], rows)
 
 
 if __name__ == "__main__":
-    main()
+	main()

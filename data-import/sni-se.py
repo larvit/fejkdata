@@ -24,22 +24,22 @@ EXPECTED = 835
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    sheet = list(xlsx.rows(source.fetch(a.source, a.cache, "sni-2025.xlsx", magic=b"PK"), SHEET))
-    if not sheet or sheet[0][:1] != [HEADER]:
-        sys.exit(f"{SHEET} does not open with the column {HEADER!r}; SCB has changed the sheet")
-    rows = [{"code": r[0].strip(), "name": " ".join(r[2].split())} for r in sheet[1:]]
-    bad = [r for r in rows if not CODE.match(r["code"])]
-    if bad:
-        sys.exit(f"codes that are not NN.NNN: {bad}")
-    if len(rows) != EXPECTED:
-        sys.exit(f"the sheet holds {len(rows)} detaljgrupper, not {EXPECTED}")
-    tsv.write(a.out, ["code", "name"], rows)
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	sheet = list(xlsx.rows(source.fetch(a.source, a.cache, "sni-2025.xlsx", magic=b"PK"), SHEET))
+	if not sheet or sheet[0][:1] != [HEADER]:
+		sys.exit(f"{SHEET} does not open with the column {HEADER!r}; SCB has changed the sheet")
+	rows = [{"code": r[0].strip(), "name": " ".join(r[2].split())} for r in sheet[1:]]
+	bad = [r for r in rows if not CODE.match(r["code"])]
+	if bad:
+		sys.exit(f"codes that are not NN.NNN: {bad}")
+	if len(rows) != EXPECTED:
+		sys.exit(f"the sheet holds {len(rows)} detaljgrupper, not {EXPECTED}")
+	tsv.write(a.out, ["code", "name"], rows)
 
 
 if __name__ == "__main__":
-    main()
+	main()

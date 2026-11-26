@@ -24,44 +24,44 @@ SKIP = ("Reserved", "deprecated")
 
 
 def rows(text: str) -> Iterator[dict[str, str]]:
-    for r in csv.DictReader(io.StringIO(text)):
-        number, keyword = (r["Decimal"] or "").strip(), (r["Keyword"] or "").strip()
-        if not number.isdigit() or not keyword or any(s in keyword for s in SKIP):
-            continue
-        if not 0 <= int(number) <= 255:
-            sys.exit(f"{keyword}: protocol number {number} is outside 0-255")
-        yield {"keyword": keyword, "name": " ".join((r["Protocol"] or "").split()) or keyword, "number": number}
+	for r in csv.DictReader(io.StringIO(text)):
+		number, keyword = (r["Decimal"] or "").strip(), (r["Keyword"] or "").strip()
+		if not number.isdigit() or not keyword or any(s in keyword for s in SKIP):
+			continue
+		if not 0 <= int(number) <= 255:
+			sys.exit(f"{keyword}: protocol number {number} is outside 0-255")
+		yield {"keyword": keyword, "name": " ".join((r["Protocol"] or "").split()) or keyword, "number": number}
 
 
 def refuse_an_unselectable_row(table: Collection[Mapping[str, str]]) -> None:
-    """What the loader refuses at New, and a name that names two rows rather than one."""
-    keywords: dict[str, str] = {}
-    names: dict[str, str] = {}
-    for r in table:
-        for column in ("keyword", "name"):
-            if set(r[column]) & set(tsv.SELECTOR):
-                sys.exit(f"{r['keyword']}: {column} {r[column]!r} holds one of {tsv.SELECTOR}, which a selector cannot spell")
-        if r["keyword"] in keywords:
-            sys.exit(f"{r['keyword']}: repeats the keyword of protocol {keywords[r['keyword']]}")
-        keywords[r["keyword"]] = r["number"]
-    for r in table:
-        if r["name"] != r["keyword"] and r["name"] in keywords:
-            sys.exit(f"{r['keyword']}: name {r['name']!r} is another protocol's keyword")
-        if r["name"] in names:
-            sys.exit(f"{r['keyword']}: name {r['name']!r} repeats {names[r['name']]}'s, so it selects neither")
-        names[r["name"]] = r["keyword"]
+	"""What the loader refuses at New, and a name that names two rows rather than one."""
+	keywords: dict[str, str] = {}
+	names: dict[str, str] = {}
+	for r in table:
+		for column in ("keyword", "name"):
+			if set(r[column]) & set(tsv.SELECTOR):
+				sys.exit(f"{r['keyword']}: {column} {r[column]!r} holds one of {tsv.SELECTOR}, which a selector cannot spell")
+		if r["keyword"] in keywords:
+			sys.exit(f"{r['keyword']}: repeats the keyword of protocol {keywords[r['keyword']]}")
+		keywords[r["keyword"]] = r["number"]
+	for r in table:
+		if r["name"] != r["keyword"] and r["name"] in keywords:
+			sys.exit(f"{r['keyword']}: name {r['name']!r} is another protocol's keyword")
+		if r["name"] in names:
+			sys.exit(f"{r['keyword']}: name {r['name']!r} repeats {names[r['name']]}'s, so it selects neither")
+		names[r["name"]] = r["keyword"]
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    table = sorted(rows(source.fetch(a.source, a.cache, "protocol-numbers-1.csv").decode("utf-8")), key=lambda r: int(r["number"]))
-    refuse_an_unselectable_row(table)
-    tsv.write(a.out, COLUMNS, table)
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	table = sorted(rows(source.fetch(a.source, a.cache, "protocol-numbers-1.csv").decode("utf-8")), key=lambda r: int(r["number"]))
+	refuse_an_unselectable_row(table)
+	tsv.write(a.out, COLUMNS, table)
 
 
 if __name__ == "__main__":
-    main()
+	main()

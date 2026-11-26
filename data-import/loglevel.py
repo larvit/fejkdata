@@ -28,40 +28,40 @@ EXPECTED = 8
 
 
 def severities(text: str) -> list[tuple[str, str]]:
-    table = TABLE.search(text)
-    if not table:
-        sys.exit("the RFC holds no text between the facility and the severity caption; its tables have moved")
-    return ROW.findall(table.group(1))
+	table = TABLE.search(text)
+	if not table:
+		sys.exit("the RFC holds no text between the facility and the severity caption; its tables have moved")
+	return ROW.findall(table.group(1))
 
 
 def keywords(page: str) -> list[str]:
-    section = SECTION.search(html.unescape(re.sub(r"<[^>]+>", "", page)))
-    if not section:
-        sys.exit("POSIX spells no severity list between its own caption and the function declarations; the page has moved")
-    return [m.lower() for m in MACRO.findall(section.group(1))]
+	section = SECTION.search(html.unescape(re.sub(r"<[^>]+>", "", page)))
+	if not section:
+		sys.exit("POSIX spells no severity list between its own caption and the function declarations; the page has moved")
+	return [m.lower() for m in MACRO.findall(section.group(1))]
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--source", default=SOURCE)
-    p.add_argument("--posix", default=POSIX)
-    p.add_argument("--out", default=str(OUT))
-    a = p.parse_args()
-    table = sorted(severities(source.fetch(a.source, a.cache, "rfc5424.txt").decode("utf-8")))
-    codes = [code for code, _ in table]
-    if codes != [str(i) for i in range(EXPECTED)]:
-        sys.exit(f"the severity table numbers {codes}, not 0 through {EXPECTED - 1}")
-    words = keywords(source.fetch(a.posix, a.cache, "posix-syslog.h.html").decode("utf-8"))
-    if len(words) != EXPECTED:
-        sys.exit(f"POSIX lists {len(words)} severity macros, not {EXPECTED}: {words}")
-    rows = []
-    for (code, severity), keyword in zip(table, words):
-        if not severity.lower().startswith(keyword):
-            sys.exit(f"severity {code} is {severity} in the RFC and {keyword} in POSIX, which is no prefix of it")
-        rows.append({"code": code, "keyword": keyword, "severity": severity})
-    tsv.write(a.out, COLUMNS, rows)
+	p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+	p.add_argument("--cache", default=str(CACHE))
+	p.add_argument("--source", default=SOURCE)
+	p.add_argument("--posix", default=POSIX)
+	p.add_argument("--out", default=str(OUT))
+	a = p.parse_args()
+	table = sorted(severities(source.fetch(a.source, a.cache, "rfc5424.txt").decode("utf-8")))
+	codes = [code for code, _ in table]
+	if codes != [str(i) for i in range(EXPECTED)]:
+		sys.exit(f"the severity table numbers {codes}, not 0 through {EXPECTED - 1}")
+	words = keywords(source.fetch(a.posix, a.cache, "posix-syslog.h.html").decode("utf-8"))
+	if len(words) != EXPECTED:
+		sys.exit(f"POSIX lists {len(words)} severity macros, not {EXPECTED}: {words}")
+	rows = []
+	for (code, severity), keyword in zip(table, words):
+		if not severity.lower().startswith(keyword):
+			sys.exit(f"severity {code} is {severity} in the RFC and {keyword} in POSIX, which is no prefix of it")
+		rows.append({"code": code, "keyword": keyword, "severity": severity})
+	tsv.write(a.out, COLUMNS, rows)
 
 
 if __name__ == "__main__":
-    main()
+	main()

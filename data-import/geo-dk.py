@@ -38,112 +38,112 @@ type Address = tuple[str, str, str, str, int, str]
 
 @dataclass
 class Tally:
-    """What DAR's addresses add up to."""
+	"""What DAR's addresses add up to."""
 
-    in_municipality: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
-    codes: collections.defaultdict[str, collections.Counter[str]] = field(default_factory=lambda: collections.defaultdict(collections.Counter))
-    streets: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
-    numbers: collections.Counter[tuple[int, bool]] = field(default_factory=collections.Counter)
+	in_municipality: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
+	codes: collections.defaultdict[str, collections.Counter[str]] = field(default_factory=lambda: collections.defaultdict(collections.Counter))
+	streets: collections.Counter[tuple[str, str]] = field(default_factory=collections.Counter)
+	numbers: collections.Counter[tuple[int, bool]] = field(default_factory=collections.Counter)
 
 
 def parsed(label: str, number: str, road: str) -> Address | None:
-    """An address as (postnummer, postdistrikt, kommune, street, number, letter), from DAR's label of it, such as
-    "Dalsgårdsvej 7B, Dalsgård, 8963 Auning", its house number and its road's code, such as 0706-0287; None where the
-    label does not open with a street and that number."""
-    parts, match = label.split(", "), NUMBER.match(number)
-    code, _, place = parts[-1].partition(" ")
-    if len(parts) < 2 or not match or not parts[0].endswith(" " + number) or not place:
-        return None
-    return code, place, road[:4], parts[0][: -len(number) - 1], int(match[1]), match[2]
+	"""An address as (postnummer, postdistrikt, kommune, street, number, letter), from DAR's label of it, such as
+	"Dalsgårdsvej 7B, Dalsgård, 8963 Auning", its house number and its road's code, such as 0706-0287; None where the
+	label does not open with a street and that number."""
+	parts, match = label.split(", "), NUMBER.match(number)
+	code, _, place = parts[-1].partition(" ")
+	if len(parts) < 2 or not match or not parts[0].endswith(" " + number) or not place:
+		return None
+	return code, place, road[:4], parts[0][: -len(number) - 1], int(match[1]), match[2]
 
 
 def tally(addresses: Iterable[Address]) -> Tally:
-    t = Tally()
-    for code, place, municipality, street, number, letter in addresses:
-        t.in_municipality[(place, municipality)] += 1
-        t.codes[place][code] += 1
-        t.numbers[geo.number_range(number, bool(letter))] += 1
-        t.streets[(place, street)] += 1
-    return t
+	t = Tally()
+	for code, place, municipality, street, number, letter in addresses:
+		t.in_municipality[(place, municipality)] += 1
+		t.codes[place][code] += 1
+		t.numbers[geo.number_range(number, bool(letter))] += 1
+		t.streets[(place, street)] += 1
+	return t
 
 
 def dar_pages(path: Path) -> None:
-    """Writes path as a TSV of each address's label, house number and road code, from DAR's pages of addresses."""
-    with open(path.with_suffix(".part"), "w", encoding="utf-8") as out:
-        page = 1
-        while True:
-            rows = json.loads(source.download(ADDRESSES.format(PAGE, page), b"["))
-            out.writelines(f"{r['adgangsadressebetegnelse']}\t{r.get('husnummertekst', '')}\t{r['vejmidte']}\n" for r in rows)
-            print(f"DAR page {page}: {len(rows)} addresses", file=sys.stderr)
-            if len(rows) < PAGE:
-                break
-            page += 1
-    path.with_suffix(".part").rename(path)
+	"""Writes path as a TSV of each address's label, house number and road code, from DAR's pages of addresses."""
+	with open(path.with_suffix(".part"), "w", encoding="utf-8") as out:
+		page = 1
+		while True:
+			rows = json.loads(source.download(ADDRESSES.format(PAGE, page), b"["))
+			out.writelines(f"{r['adgangsadressebetegnelse']}\t{r.get('husnummertekst', '')}\t{r['vejmidte']}\n" for r in rows)
+			print(f"DAR page {page}: {len(rows)} addresses", file=sys.stderr)
+			if len(rows) < PAGE:
+				break
+			page += 1
+	path.with_suffix(".part").rename(path)
 
 
 def addresses(cache: Path) -> Iterator[Address]:
-    path = cache / "dar-husnummer.tsv"
-    if not path.exists():
-        dar_pages(path)
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            address = parsed(*line.rstrip("\n").split("\t"))
-            if address:
-                yield address
+	path = cache / "dar-husnummer.tsv"
+	if not path.exists():
+		dar_pages(path)
+	with open(path, encoding="utf-8") as f:
+		for line in f:
+			address = parsed(*line.rstrip("\n").split("\t"))
+			if address:
+				yield address
 
 
 def divisions(cache: Path) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
-    """Danmarks Statistik's regions and kommuner, each code mapped to its name, and each kommune's code to its region's."""
-    text = source.fetch(DIVISIONS, cache, "dst-nuts.csv").decode("utf-8-sig")
-    regions: dict[str, str] = {}
-    municipalities: dict[str, str] = {}
-    region_of: dict[str, str] = {}
-    region = ""
-    for r in sorted(csv.DictReader(io.StringIO(text), delimiter=";"), key=lambda r: int(r["SEKVENS"])):
-        if r["NIVEAU"] == "1":
-            region = r["KODE"]
-            regions[region] = r["TITEL"]
-        elif r["NIVEAU"] == "3":
-            municipalities[r["KODE"]] = r["TITEL"]
-            region_of[r["KODE"]] = region
-    return regions, municipalities, region_of
+	"""Danmarks Statistik's regions and kommuner, each code mapped to its name, and each kommune's code to its region's."""
+	text = source.fetch(DIVISIONS, cache, "dst-nuts.csv").decode("utf-8-sig")
+	regions: dict[str, str] = {}
+	municipalities: dict[str, str] = {}
+	region_of: dict[str, str] = {}
+	region = ""
+	for r in sorted(csv.DictReader(io.StringIO(text), delimiter=";"), key=lambda r: int(r["SEKVENS"])):
+		if r["NIVEAU"] == "1":
+			region = r["KODE"]
+			regions[region] = r["TITEL"]
+		elif r["NIVEAU"] == "3":
+			municipalities[r["KODE"]] = r["TITEL"]
+			region_of[r["KODE"]] = region
+	return regions, municipalities, region_of
 
 
 def population(cache: Path) -> dict[str, int]:
-    text = source.fetch(POPULATION, cache, "dst-folk1a.csv").decode("utf-8-sig")
-    return {r["OMRÅDE"]: int(r["INDHOLD"]) for r in csv.DictReader(io.StringIO(text), delimiter=";")}
+	text = source.fetch(POPULATION, cache, "dst-folk1a.csv").decode("utf-8-sig")
+	return {r["OMRÅDE"]: int(r["INDHOLD"]) for r in csv.DictReader(io.StringIO(text), delimiter=";")}
 
 
 def localities(t: Tally, people: Mapping[str, int], points: Mapping[str, geo.Row]) -> dict[str, geo.Row]:
-    """Each postdistrikt, with its kommune and population by geo.homes, and the centre of its postnumre's points."""
-    out: dict[str, geo.Row] = {}
-    for place, (municipality, n) in geo.homes(t.in_municipality, people).items():
-        centre = geo.centroid([points[c] for c in t.codes[place] if c in points])
-        if not centre:
-            print(f"{place}: GeoNames places none of its postnumre, dropped", file=sys.stderr)
-            continue
-        out[place] = {"name": place, "municipality": municipality, "population": n, "lat": f"{centre[0]:.4f}", "lon": f"{centre[1]:.4f}"}
-    return out
+	"""Each postdistrikt, with its kommune and population by geo.homes, and the centre of its postnumre's points."""
+	out: dict[str, geo.Row] = {}
+	for place, (municipality, n) in geo.homes(t.in_municipality, people).items():
+		centre = geo.centroid([points[c] for c in t.codes[place] if c in points])
+		if not centre:
+			print(f"{place}: GeoNames places none of its postnumre, dropped", file=sys.stderr)
+			continue
+		out[place] = {"name": place, "municipality": municipality, "population": n, "lat": f"{centre[0]:.4f}", "lon": f"{centre[1]:.4f}"}
+	return out
 
 
 def main() -> None:
-    a = geo.parser(__doc__, "DK", 1.0).parse_args()
-    cache, out = geo.directories(a)
-    region_names, municipality_names, region_of = divisions(cache)
-    dst = population(cache)
-    people = {"0" + c: dst[c] for c in municipality_names if c in dst}
-    t = tally(addresses(cache))
-    points = {r["code"]: r for r in geo.geonames(cache, "DK") if r["lat"] is not None}
-    places = localities(t, people, points)
-    named = geo.top_streets(t.streets, a.street_share, a.min_streets, "addresses")
-    regions = {"1" + c: {"code": "1" + c, "name": n, "population": dst[c], "timezone": TIMEZONE} for c, n in region_names.items()}
-    municipalities = {"0" + c: {"code": "0" + c, "name": n, "region": "1" + region_of[c], "population": dst[c]} for c, n in municipality_names.items() if c in dst and c != CHRISTIANSOE}
-    kept, dropped = geo.fence(regions, municipalities, places, named, t.codes)
-    geo.log_dropped_localities(dropped["locality"])
-    geo.exit_on_dropped_parents(dropped)
-    geo.write_tables(out, kept, [{"code": c, "locality": loc, "addresses": n} for loc in kept["locality"] for c, n in t.codes[loc].items()], named)
-    (out / "address.json").write_text(geo.address_json(t.numbers), encoding="utf-8")
+	a = geo.parser(__doc__, "DK", 1.0).parse_args()
+	cache, out = geo.directories(a)
+	region_names, municipality_names, region_of = divisions(cache)
+	dst = population(cache)
+	people = {"0" + c: dst[c] for c in municipality_names if c in dst}
+	t = tally(addresses(cache))
+	points = {r["code"]: r for r in geo.geonames(cache, "DK") if r["lat"] is not None}
+	places = localities(t, people, points)
+	named = geo.top_streets(t.streets, a.street_share, a.min_streets, "addresses")
+	regions = {"1" + c: {"code": "1" + c, "name": n, "population": dst[c], "timezone": TIMEZONE} for c, n in region_names.items()}
+	municipalities = {"0" + c: {"code": "0" + c, "name": n, "region": "1" + region_of[c], "population": dst[c]} for c, n in municipality_names.items() if c in dst and c != CHRISTIANSOE}
+	kept, dropped = geo.fence(regions, municipalities, places, named, t.codes)
+	geo.log_dropped_localities(dropped["locality"])
+	geo.exit_on_dropped_parents(dropped)
+	geo.write_tables(out, kept, [{"code": c, "locality": loc, "addresses": n} for loc in kept["locality"] for c, n in t.codes[loc].items()], named)
+	(out / "address.json").write_text(geo.address_json(t.numbers), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+	main()
