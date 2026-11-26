@@ -147,7 +147,7 @@ func compileRowFormat(t *tree.Table, rs *tree.RowsTable, format string) (*tree.T
 	if len(unbound) > 0 {
 		return nil, unbound[0].Refusal()
 	}
-	return tree.NewTemplate(tree.TemplateSyntax{Format: format, Tokens: toks, Fields: fields, Repeat: 1, IsRecord: true}), nil
+	return tree.NewTemplate(tree.TemplateSyntax{Format: format, Tokens: toks, Fields: fields, Written: rs.Header(), Repeat: 1, IsRecord: true}), nil
 }
 
 // refuseUnknownColumns refuses a read in a row's format whose head is neither a column of rs nor a

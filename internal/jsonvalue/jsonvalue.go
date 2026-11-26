@@ -6,23 +6,62 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"unicode/utf8"
 )
 
-// Value is a JSON value that only Decode, String and Object make, so a template never compiles
-// from a value encoding/json decoded with its numbers as float64. The zero Value is JSON null.
+// Value is a JSON value that only Decode, String and SortedObject make, so a template never
+// compiles from a value encoding/json decoded with its numbers as float64. The zero Value is JSON null.
 type Value struct{ v any }
 
-// Decode decodes one JSON value, keeping each number as the json.Number it is written as.
+// Object is a JSON object: its fields by key, and its keys in the order written. A key written
+// twice keeps its first place and its last value.
+type Object struct {
+	Keys   []string
+	Fields map[string]any
+}
+
+// Decode decodes one JSON value, keeping each number as the json.Number it is written as and each
+// object's keys in the order written.
 func Decode(b []byte) (Value, error) {
-	var v any
 	if !json.Valid(b) {
+		var v any
 		return Value{}, located(b, json.Unmarshal(b, &v))
 	}
 	dec := json.NewDecoder(bytes.NewReader(b))
 	dec.UseNumber()
-	err := dec.Decode(&v)
-	return Value{v}, err
+	return Value{decodeNext(dec)}, nil
+}
+
+// decodeNext reads the next value of JSON that json.Valid passed, so no token fails.
+func decodeNext(dec *json.Decoder) any {
+	switch tok, _ := dec.Token(); tok {
+	case json.Delim('{'):
+		return decodeObject(dec)
+	case json.Delim('['):
+		list := []any{}
+		for dec.More() {
+			list = append(list, decodeNext(dec))
+		}
+		_, _ = dec.Token()
+		return list
+	default:
+		return tok
+	}
+}
+
+func decodeObject(dec *json.Decoder) Object {
+	o := Object{Fields: map[string]any{}}
+	for dec.More() {
+		tok, _ := dec.Token()
+		key := tok.(string)
+		if _, twice := o.Fields[key]; !twice {
+			o.Keys = append(o.Keys, key)
+		}
+		o.Fields[key] = decodeNext(dec)
+	}
+	_, _ = dec.Token()
+	return o
 }
 
 // located prefixes a syntax error with the line and column where decoding stopped.
@@ -40,18 +79,25 @@ func located(b []byte, err error) error {
 // String is the JSON string s.
 func String(s string) Value { return Value{s} }
 
-// Object is the JSON object holding fields.
-func Object(fields map[string]Value) Value {
-	m := make(map[string]any, len(fields))
+// SortedObject is the JSON object holding fields, its keys in name order.
+func SortedObject(fields map[string]Value) Value {
+	o := Object{Fields: make(map[string]any, len(fields))}
 	for k, f := range fields {
-		m[k] = f.v
+		o.Keys = append(o.Keys, k)
+		o.Fields[k] = f.v
 	}
-	return Value{m}
+	slices.Sort(o.Keys)
+	return Value{o}
 }
 
-// Any is the value as encoding/json decodes it: a map[string]any, []any, string, json.Number,
-// bool or nil.
+// Any is the value as Decode gives it: an Object, []any, string, json.Number, bool or nil.
 func (v Value) Any() any { return v.v }
+
+// Fields is the fields of v where v is an Object.
+func Fields(v any) (fields map[string]any, isObject bool) {
+	o, isObject := v.(Object)
+	return o.Fields, isObject
+}
 
 // Kind names the kind of a value as Any gives it, in the data format's own terms, such as
 // "a number" or "a list".
@@ -65,7 +111,7 @@ func Kind(v any) string {
 		return "a string"
 	case []any:
 		return "a list"
-	case map[string]any:
+	case Object:
 		return "an object"
 	case nil:
 		return "null"

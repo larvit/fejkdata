@@ -16,14 +16,14 @@ import (
 // datatype. A Null column has no Value.
 type Column = engine.Column
 
-// Record is one record rendered from a template: every direct field is a column,
-// listed in name order. Each {…} draws afresh, while a pick bound by {x as n} is
+// Record is one record rendered from a template: every direct field is a column, in the
+// order the template lists its fields, or a table its header. Each {…} draws afresh, while a pick bound by {x as n} is
 // drawn once for the whole record.
 type Record struct {
 	columns []Column
 }
 
-// Columns returns a copy of the record's columns, in name order.
+// Columns returns a copy of the record's columns, in the order the template lists its fields.
 func (r *Record) Columns() []Column {
 	return append([]Column(nil), r.columns...)
 }

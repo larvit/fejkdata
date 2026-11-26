@@ -17,18 +17,16 @@ func SettleRecords(nodes func(fn func(label string, n tree.Node) error) error, l
 	})
 }
 
-// recordColumns is t's columns in name order where t is a record with fields, else nil.
+// recordColumns is t's columns in the order written where t is a record with fields, else nil.
 func recordColumns(t *tree.Template, l *tree.LoadFinds) []tree.RecordColumn {
 	if !t.IsRecord() || len(t.Fields()) == 0 {
 		return nil
 	}
 	whole := wholeFieldNames(t, l)
 	var columns []tree.RecordColumn
-	for _, name := range tree.SortedNames(t.Fields()) {
-		if !t.Hiddens()[name] {
-			field := t.Fields()[name]
-			columns = append(columns, tree.NewRecordColumn(name, ColumnDatatype(field, l.ReadsColumn), field, whole[field]))
-		}
+	for _, name := range t.Written() {
+		field := t.Fields()[name]
+		columns = append(columns, tree.NewRecordColumn(name, ColumnDatatype(field, l.ReadsColumn), field, whole[field]))
 	}
 	return columns
 }

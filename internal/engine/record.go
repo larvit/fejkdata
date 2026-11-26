@@ -34,7 +34,8 @@ func (r Record) ColumnCount() int { return len(r.template.Columns()) }
 // Name is the name of r's column i.
 func (r Record) Name(i int) string { return r.template.Columns()[i].Name() }
 
-// Draw draws r's columns, handing each to set in name order.
+// Draw draws r's columns in name order, handing each to set with its index, its place in the
+// order written.
 func (r Record) Draw(s *drawstate.State, set func(i int, c Column)) {
 	render.Record(s, r.template, r.row, func(i int, text string, null bool) {
 		c := r.template.Columns()[i]
