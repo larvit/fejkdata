@@ -16,7 +16,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 597 | 0.9.0 |  |  | **Indent the Python source under `data-import` with hard tabs, as `AGENTS.md` and the tabs principle ask.** | 3 | 1 | 1 | 3 | 5 | code health by 4 | 3.1 |
 | 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
 | 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
@@ -247,17 +246,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 597. Indent the Python source under `data-import` with hard tabs, as `AGENTS.md` and the tabs principle ask.
-
-`AGENTS.md` already says "Hard tabs", and the Go source follows it. The Python files under `data-import`, which build the shipped data, are space-indented, and the survey of 2026-11-26 counted about 5,100 such lines in them. The maintainer asked for tabs there too.
-
-Convert the leading whitespace of each Python line in `data-import` and any other Python file, one tab for each indent step; Python reads a tab as one level where the file uses tabs alone. Leave alone a line inside a triple-quoted string or a heredoc whose indentation is the content. The data-import tests and a diff of the data they write before and after show a missed line. Land the conversion in one commit with no other change, list it in `.git-blame-ignore-revs`, and merge it when no other chunk is open, since every open branch conflicts with it. Where a linter or formatter setting objects to tabs in Python, change it in the same commit.
-
-Touches:
-
-- `.git-blame-ignore-revs`
-- `data-import`
 
 ### 596. Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
 
