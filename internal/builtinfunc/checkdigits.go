@@ -10,10 +10,10 @@ import (
 
 // alnumValue is a letter's value in an ISIN or a CUSIP, 10 for A to 35 for Z; a digit is its own.
 func alnumValue(c byte) (int, bool) {
-	switch {
-	case c >= '0' && c <= '9':
+	if c >= '0' && c <= '9' {
 		return int(c - '0'), true
-	case c >= 'A' && c <= 'Z':
+	}
+	if c >= 'A' && c <= 'Z' {
 		return int(c-'A') + 10, true
 	}
 	return 0, false
