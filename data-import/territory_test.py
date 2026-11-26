@@ -22,9 +22,12 @@ class Capitals(unittest.TestCase):
 
 
 class Tlds(unittest.TestCase):
-    def test_western_sahara_has_none_since_the_root_zone_never_delegated_dot_eh(self) -> None:
+    def test_western_sahara_has_none(self) -> None:
         [got] = territory.rows(HEADER + "\nEH,ESH,212,El-Aaiun,MAD,\"ar,mey\",Western Sahara,Western Sahara,732,In contention,.eh\n")
         self.assertEqual(got["tld"], "")
+
+    def test_a_row_the_source_gives_no_tld_is_left_out(self) -> None:
+        self.assertEqual(list(territory.rows(HEADER + "\nSE,SWE,46,Stockholm,SEK,\"sv-SE,se,sma,fi-SE\",Sweden,Sweden,752,Yes,\n")), [])
 
     def test_a_tld_the_source_has_right_stays(self) -> None:
         [got] = territory.rows(HEADER + "\nSE,SWE,46,Stockholm,SEK,\"sv-SE,se,sma,fi-SE\",Sweden,Sweden,752,Yes,.se\n")

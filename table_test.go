@@ -1196,20 +1196,18 @@ func TestEveryTerritoryNamesAShippedSovereign(t *testing.T) {
 	})
 }
 
-// TestEveryTerritoryTldIsDelegated proves a territory's tld is a row of misc.tld or empty:
-// ISO 3166 reserves .eh for Western Sahara and the root zone has never delegated it.
-func TestEveryTerritoryTldIsDelegated(t *testing.T) {
+func TestEveryTerritoryTldIsDelegatedSaveEH(t *testing.T) {
 	header, rows := shippedRows(t, "territory.tsv", "alpha2", "tld")
 	tldHeader, tldRows := shippedRows(t, "tld.tsv", "tld")
 	delegated := map[string]bool{}
 	eachShippedMiscRow(tldRows, func(_ int, r []string) { delegated[r[tldHeader["tld"]]] = true })
 	eachShippedMiscRow(rows, func(line int, r []string) {
 		alpha2, tld := r[header["alpha2"]], r[header["tld"]]
+		if (tld == "") != (alpha2 == "EH") {
+			t.Errorf("territory.tsv line %d: %s has the tld %q, and only EH has none", line, alpha2, tld)
+		}
 		if tld != "" && !delegated[tld] {
 			t.Errorf("territory.tsv line %d: %s names the tld %q, which tld.tsv does not hold", line, alpha2, tld)
-		}
-		if alpha2 == "EH" && tld != "" {
-			t.Errorf("territory.tsv line %d: EH has the tld %q, want none", line, tld)
 		}
 	})
 }
