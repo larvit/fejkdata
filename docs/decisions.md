@@ -2463,15 +2463,14 @@ Valid while a template is a JSON object and a record's columns are its fields.
 
 2026-11-26, the agent shipping item 551; the maintainer chose the wheel carrying the binary in the item. Goal 1.3, with goals 9.1, 9.2 and 10.
 
-`pip install fejkdata` installs one of six wheels, one per platform GoReleaser builds. Each carries that platform's CLI binary, and `fejkdata.render` runs it through `subprocess` with the template on its stdin. Every CLI feature then reaches Python in the release that ships it, and the bytes are the CLI's own.
+The package is six wheels, one per platform GoReleaser builds, and pip installs the one for its platform. Each carries that platform's CLI binary, and `fejkdata.render` runs it through `subprocess` with the template on its stdin. Every CLI feature then reaches Python in the release that ships it, and the bytes are the CLI's own.
 
-- `release-tooling/python_wheels.py` writes the wheels with the standard library, from GoReleaser's `dist/`. A wheel is a zip with three metadata files, and a build backend would be a tool to pin and update for no gain. The repository has no `pyproject.toml`, and PyPI gets no source distribution, since one could not carry a binary.
+- `release-tooling/python_wheels.py` writes the wheels with the standard library, from GoReleaser's `dist/`. A wheel is a zip with three metadata files, and a build backend would be a tool to pin and update for no gain. The repository has no `pyproject.toml`, and there is no source distribution, since one could not carry a binary.
 - A wheel's platform tag says where pip may install it. The Linux binaries are static, so they take the `manylinux_2_17`, `manylinux2014` and `musllinux_1_1` tags, as the `ziglang` package's wheels do. The macOS tag is `macosx_13_0`, the oldest macOS Go 1.27 runs on by its release notes (https://go.dev/doc/go1.27, Ports). A Go minor that raises that floor raises the tag with it.
 - `Requires-Python` is 3.11, the oldest version https://devguide.python.org/versions/ listed as supported on 2026-11-26.
 - `seed` and `today` are required keywords. Goal 9.1 has the caller supply everything that changes the output, as `New` requires `WithToday`.
 - `template` is a string, as on the CLI's stdin. A dict would need a rule for which strings are JSON and which are format strings, and goal 4.7 has fejkdata not guess.
 - A render the CLI refuses raises `FejkdataError`, with the CLI's stderr as its message and the exit code as `returncode`. Three readers seated as a Python test author, a coding agent and a bulk fixture author each picked those two spellings over `RenderError`, `Error` and `TemplateError`, and over `exit_code` and `code`: `TemplateError` misreads exit 1, and `returncode` is what `subprocess` calls it.
 - The binary sits in the package's `bin/` folder and is not put on `PATH`. The item asks for `render` alone, and a `fejkdata` command from pip beside one from Homebrew would be two versions under one name.
-- CI uploads with a PyPI API token, `PYPI_TOKEN`. PyPI's trusted publishing doesn't take a reusable workflow (https://docs.pypi.org/trusted-publishers/troubleshooting/), and `packages.yml` is one.
 
 Valid while GoReleaser builds the CLI for the six platforms and the CLI reads its template on stdin.
