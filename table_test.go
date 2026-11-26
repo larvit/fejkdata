@@ -1118,7 +1118,7 @@ func TestShippedTableColumnsAreWellFormed(t *testing.T) {
 	f := newBareModule(t, "misc", WithSeed(1))
 	for p, rx := range map[string]*regexp.Regexp{
 		"territory.numeric":      regexp.MustCompile(`^\d{3}$`),
-		"territory.tld":          regexp.MustCompile(`^\.[a-z]{2}$`),
+		"territory.tld":          regexp.MustCompile(`^(\.[a-z]{2})?$`),
 		"territory.calling-code": regexp.MustCompile(`^\d{1,4}(-\d{3})?$`),
 		"territory.capital":      regexp.MustCompile(`\p{L}`),
 		"territory.sovereign":    regexp.MustCompile(`^[A-Z]{2}$`),
@@ -1192,6 +1192,24 @@ func TestEveryTerritoryNamesAShippedSovereign(t *testing.T) {
 	eachShippedMiscRow(rows, func(line int, r []string) {
 		if c := r[header["sovereign"]]; !keys[c] {
 			t.Errorf("territory.tsv line %d: sovereign %q is no alpha2 of the table", line, c)
+		}
+	})
+}
+
+// TestEveryTerritoryTldIsDelegated proves a territory's tld is a row of misc.tld or empty:
+// ISO 3166 reserves .eh for Western Sahara and the root zone has never delegated it.
+func TestEveryTerritoryTldIsDelegated(t *testing.T) {
+	header, rows := shippedRows(t, "territory.tsv", "alpha2", "tld")
+	tldHeader, tldRows := shippedRows(t, "tld.tsv", "tld")
+	delegated := map[string]bool{}
+	eachShippedMiscRow(tldRows, func(_ int, r []string) { delegated[r[tldHeader["tld"]]] = true })
+	eachShippedMiscRow(rows, func(line int, r []string) {
+		alpha2, tld := r[header["alpha2"]], r[header["tld"]]
+		if tld != "" && !delegated[tld] {
+			t.Errorf("territory.tsv line %d: %s names the tld %q, which tld.tsv does not hold", line, alpha2, tld)
+		}
+		if alpha2 == "EH" && tld != "" {
+			t.Errorf("territory.tsv line %d: EH has the tld %q, want none", line, tld)
 		}
 	})
 }
