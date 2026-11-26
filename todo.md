@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 599`
+`Next ID = 600`
 
 ## Renamed
 
@@ -19,11 +19,13 @@
 | 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
+| 564 | 0.9.0 |  |  | **Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 2 | 1.7 |
 | 562 | 0.9.0 | 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 598 | 0.9.0 |  |  | **Rename the `phone-mobile` and `phone-fixed` prefix tables to `phone-mobile-prefix` and `phone-fixed-prefix`, so `phone-mobile` and `phone-fixed` can draw the full numbers.** | 2 | 1 | 2 | 3 | 4 | 4 by 4 | 1.0 |
+| 599 | 0.9.0 |  |  | **Have the DK, LT, NO, EE and LV geo imports refuse a street name that `geo.cleanly_written` refuses, and drop the DK and LT rows that fail it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 1 | 0.9 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -289,6 +291,22 @@ Settle each thing PyPI shows or stores before the first publish, read it on PyPI
 - How a bad version is withdrawn: yank it, since a file name can't be uploaded twice.
 - A check in the dry run: `twine check --strict` and a listing of each wheel's files and size. After the publish, look at the live page.
 
+### 564. Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.
+
+Found by drawing: `Poste restante` as a street in 332 `geo.FI` localities, about 1 in 1,250 addresses. In `geo.SE`: `All‚vägen` (U+201A, presumably `Allévägen`), `Syre´nvägen` (a spacing acute), `Rönnerums bygata Rönnerums bygata` and `Kvartersvägar och parkeringsvägar på Lars Kaggsgatan`. In `geo.US`: `Addison Ln,`, `Village Ridge Road(Private)` and `Island Avenue (Glp)`. Put the shared check in `geo.py` with a test, and repair a name only where the register makes the right spelling certain. Keep real odd names: `S:t`, `M/S Nadias väg`, `10 1/2 St NW`, `Lidosta "Rīga"`.
+
+Touches:
+
+- `data-import/geo.py`
+- `data-import/geo_test.py`
+- `data-import/geo-fi.py`: `street_name`
+- `data-import/geo-se.py`: `street_name`
+- `data-import/geo-us.py`: `streets`
+- `data/geo/FI/street.tsv`
+- `data/geo/SE/street.tsv`
+- `data/geo/US/street.tsv`
+- `CHANGELOG.md`
+
 ### 562. Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.
 
 The US Census file holds letters only, so `Obrien`, `Dangelo`, `Delacruz` and `Stjohn` ship and are listed as real. INSEE's surname file holds no accents, so `Lefevre` and `Francois` ship. Look for an open source of the written forms with counts, such as Wikidata's family names, and use it to restore a spelling only where it is the common one. Where no source settles a name, leave it as it is, and say so on the locale's page.
@@ -422,6 +440,29 @@ Touches:
 - `docs/locales/nb_NO.md`
 - `DATA-LICENSES.md`
 - `AGENTS.md`
+
+### 599. Have the DK, LT, NO, EE and LV geo imports refuse a street name that `geo.cleanly_written` refuses, and drop the DK and LT rows that fail it.
+
+Item 564 put `geo.cleanly_written` in `data-import/geo.py` and made only the FI, SE and US imports call it. Run over the other shipped street tables, it refuses three rows today. `data/geo/DK/street.tsv` holds `Kolonihaverne Ved Lykkesholmsvej (Nord)` and `(Syd)`, whose remark in parentheses no address writes. `data/geo/LT/street.tsv` holds `Leopoldo  Godovskio g.`, with a doubled space. NO, EE and LV hold none, but their registers are live and a later download can bring one in, so their imports call the check too. DE and FR draw invented streets and stay out.
+
+Call the check where each import reads a street's name: `parsed` in `geo-dk.py`, `Register` in `geo-lt.py` and `geo-lv.py`, `street_of` in `geo-ee.py` and `street_name` in `geo-no.py`. A refused street then counts none of its addresses, as in the FI, SE and US imports. Write each import's test first, with a refused name taken from the rows above or from the kinds the check lists. Then rerun the DK and LT imports and diff `street.tsv`: only the three rows go. Where a rerun against today's register changes other rows, drop only the three by hand and say so in the PR, as the sources move. Add the change to the `CHANGELOG.md` entry item 564 made under `Unreleased`, naming DK and LT.
+
+Touches:
+
+- `data-import/geo-dk.py`: `parsed` (small)
+- `data-import/geo-lt.py`: `Register` (small)
+- `data-import/geo-no.py`: `street_name` (small)
+- `data-import/geo-ee.py`: `street_of` (small)
+- `data-import/geo-lv.py`: `Register` (small)
+- `data-import/geo_test.py`: `Parsed` (small)
+- `data-import/geo_lt_test.py`: `RegisterOfPlaces` (small)
+- `data-import/geo_ee_test.py`: `StreetOf` (small)
+- `data-import/geo_lv_test.py`: `RegisterOfPlaces` (small)
+- `data/geo/DK/street.tsv`
+- `data/geo/LT/street.tsv`
+- `CHANGELOG.md`: `## Unreleased` (small)
+- `data-listing/paths.json`
+- `docs/shipped-paths.md`
 
 ### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
 
