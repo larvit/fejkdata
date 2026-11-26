@@ -273,7 +273,7 @@ func compileTemplate(o jsonvalue.Object, pos position) (tree.Node, error) {
 	return tree.NewTemplate(tree.TemplateSyntax{Format: opts.format, Tokens: toks, Fields: fields, Written: writtenFields(o.Keys), Hiddens: hiddens, Repeat: opts.repeat, Separator: opts.separator, DataType: opts.datatype, IsRecord: fieldPos.column(), Unbound: unbound}), nil
 }
 
-// writtenFields is the keys of a template object that name a field beside its options.
+// writtenFields is the keys of a template object that name a field, not an option, in the order written.
 func writtenFields(keys []string) []string {
 	var written []string
 	for _, k := range keys {
