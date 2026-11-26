@@ -122,5 +122,15 @@ class Build(unittest.TestCase):
 			self.build()
 
 
+class TheMacosTag(unittest.TestCase):
+	def test_was_read_from_the_notes_of_the_go_minor_the_dockerfile_names(self) -> None:
+		dockerfile = pathlib.Path(__file__).parent.with_name("Dockerfile").read_text(encoding="utf-8")
+		self.assertIn(
+			f"\nARG GO_VERSION={python_wheels.MACOS_TAG_READ_FROM_GO}.",
+			dockerfile,
+			"the Go minor moved: read the oldest macOS its release notes name, and set the macosx tags and MACOS_TAG_READ_FROM_GO",
+		)
+
+
 if __name__ == "__main__":
 	unittest.main()

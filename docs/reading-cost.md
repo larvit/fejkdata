@@ -3130,3 +3130,71 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `data/da_DK/fs.go` 1
 - `data/da_DK/phone.json` 1
+
+## Reading cost, chunk feafb0fc0988, finished 2026-11-26T09:15:38Z
+
+72890 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/geo-us.py` 6
+- `data-import/geo.py` 6
+- `data-import/geo-se.py` 5
+- `data-import/geo_test.py` 5
+- `data-import/geo-fi.py` 4
+- `README.md` 2
+- `compose.yaml` 2
+- `data-import/geo-no.py` 1
+- `data/geo/FI/street.tsv` 1
+- `data/geo/SE/street.tsv` 1
+
+## Reading cost, chunk c8cc0faed3cb, finished 2026-11-26T09:34:05Z
+
+95965 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `compose.yaml` 5
+- `docs/decisions.md` 4
+- `README.md` 3
+- `data-import/names-fr.py` 3
+- `data-import/names-us.py` 3
+- `data-import/names_fi_test.py` 3
+- `data-import/names_se_test.py` 3
+- `data-import/names-fi.py` 2
+- `data-import/names_fr_test.py` 2
+- `data-import/tsv_test.py` 2
+
+## Reading cost, chunk 669b4ed57210, finished 2026-11-26T10:06:28Z
+
+373887 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/finnish_test.go` 5
+- `data/danish_test.go` 4
+- `data/french_phone_test.go` 4
+- `data/german_phone_test.go` 4
+- `data/norwegian_test.go` 4
+- `data/locale_phone_test.go` 3
+- `CHANGELOG.md` 2
+- `README.md` 2
+- `data/english_test.go` 2
+- `data/lithuanian_phone_test.go` 2
+
+## Reading cost, chunk 4d0b191badcf, finished 2026-11-26T11:01:33Z
+
+83946 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/engine/load/node.go` 4
+- `record_test.go` 4
+- `README.md` 3
+- `internal/engine/tree/node.go` 3
+- `cli/records_test.go` 2
+- `internal/engine/load/table.go` 2
+- `internal/engine/record.go` 2
+- `record.go` 2
+- `compose.yaml` 1
+- `internal/datafiles/manifest.go` 1
