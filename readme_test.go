@@ -990,3 +990,35 @@ func TestEachModuleHasASummaryLine(t *testing.T) {
 		t.Errorf("the README's list of main paths has a line for %s, which ships no module", name)
 	}
 }
+
+func TestReadmeMySQLLoadExample(t *testing.T) {
+	section := readmeSection(t, readme(t), "#### CSV into MySQL")
+	category := jsonBlock.FindStringSubmatch(section)
+	printed := regexp.MustCompile("(?s)```csv\n(.*?)```").FindStringSubmatch(section)
+	if category == nil || printed == nil {
+		t.Fatal("README's MySQL section lost its category or its printed rows")
+	}
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"files": category[1]})), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	for i := 0; i < 3; i++ {
+		r, err := f.FakeRecord("files")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if i == 0 {
+			got = append(got, r.CSVHeader())
+		}
+		got = append(got, r.CSVLineNull("NULL"))
+	}
+	if want := strings.TrimSpace(printed[1]); strings.Join(got, "\n") != want {
+		t.Errorf("README prints %q for --seed 1 --format csv --null-text NULL --repeat 3, it renders %q", want, strings.Join(got, "\n"))
+	}
+	for _, want := range []string{"--null-text NULL", "ESCAPED BY ''", "LOAD DATA LOCAL INFILE", "local_infile"} {
+		if !strings.Contains(section, want) {
+			t.Errorf("README's MySQL section lost %q", want)
+		}
+	}
+}
