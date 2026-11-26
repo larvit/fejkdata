@@ -37,13 +37,13 @@ da_DK.first-name.sex	string
 da_DK.individ	format "{digit}"	parent sex
 da_DK.individ.digit	string
 da_DK.individ.sex	string
-da_DK.landline	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone-fixed
+da_DK.landline	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-fixed
 da_DK.landline.international	string
 da_DK.landline.national	string
 da_DK.last-name	format "{name}"	key name	weight count
 da_DK.last-name.count	string
 da_DK.last-name.name	string
-da_DK.mobile	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone-mobile
+da_DK.mobile	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone da_DK.phone-mobile
 da_DK.mobile.international	string
 da_DK.mobile.national	string
 da_DK.month	format "{name}"	key code	name name
@@ -1748,13 +1748,13 @@ nb_NO.fodselsnummer.birth	string
 nb_NO.individ	format "{digit}"	parent sex
 nb_NO.individ.digit	string
 nb_NO.individ.sex	string
-nb_NO.landline	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone-fixed
+nb_NO.landline	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-fixed
 nb_NO.landline.international	string
 nb_NO.landline.national	string
 nb_NO.last-name	format "{name}"	key name	weight count
 nb_NO.last-name.count	string
 nb_NO.last-name.name	string
-nb_NO.mobile	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone-mobile
+nb_NO.mobile	format "{block as b}{subscriber as s}{national}"	reads nb_NO.phone nb_NO.phone-mobile
 nb_NO.mobile.international	string
 nb_NO.mobile.national	string
 nb_NO.month	format "{name}"	key code	name name
