@@ -1002,21 +1002,11 @@ func TestReadmeMySQLLoadExample(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var got []string
-	for i := 0; i < 3; i++ {
-		r, err := f.FakeRecord("files")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if i == 0 {
-			got = append(got, r.CSVHeader())
-		}
-		got = append(got, r.CSVLineNull("NULL"))
-	}
+	got := headedRecordLines(t, f, "files", 3, (*Record).CSVHeader, func(r *Record) string { return r.CSVLineNull("NULL") })
 	if want := strings.TrimSpace(printed[1]); strings.Join(got, "\n") != want {
-		t.Errorf("README prints %q for --seed 1 --format csv --null-text NULL --repeat 3, it renders %q", want, strings.Join(got, "\n"))
+		t.Errorf("README prints %q as the first three rows of its command, which renders %q", want, strings.Join(got, "\n"))
 	}
-	for _, want := range []string{"--null-text NULL", "ESCAPED BY ''", "LOAD DATA LOCAL INFILE", "local_infile"} {
+	for _, want := range []string{"--seed 1", "--format csv", "--null-text NULL", "ESCAPED BY ''", "LOAD DATA LOCAL INFILE", "local_infile"} {
 		if !strings.Contains(section, want) {
 			t.Errorf("README's MySQL section lost %q", want)
 		}
