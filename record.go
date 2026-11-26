@@ -129,7 +129,8 @@ func (r *Record) PGCopyHeader(table string) string {
 }
 
 // PGCopyLine renders the column values as one row of PostgreSQL's COPY text: tab-separated, a null
-// column \N, and a backslash, tab, CR or LF in a value escaped.
+// column \N, and a backslash, tab, CR, LF or NUL in a value escaped. COPY decodes an escaped NUL and
+// refuses it, naming the line, where a raw one makes psql cut the row short.
 func (r *Record) PGCopyLine() string {
 	cells := make([]string, len(r.columns))
 	for i, c := range r.columns {
@@ -138,7 +139,7 @@ func (r *Record) PGCopyLine() string {
 	return strings.Join(cells, "\t")
 }
 
-var pgCopyEscapes = strings.NewReplacer(`\`, `\\`, "\t", `\t`, "\r", `\r`, "\n", `\n`)
+var pgCopyEscapes = strings.NewReplacer(`\`, `\\`, "\t", `\t`, "\r", `\r`, "\n", `\n`, "\x00", `\000`)
 
 func pgCopyCell(s string) string { return pgCopyEscapes.Replace(s) }
 

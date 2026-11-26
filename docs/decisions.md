@@ -2398,10 +2398,10 @@ MySQL's `LOAD DATA`, with its fields enclosed in quotes, reads an unquoted `NULL
 
 Valid while `csv` is the one record format with a free choice of null spelling.
 
-## A NUL is written as it is by `csv`, `tsv`, `sql` and `pgcopy`
+## `pgcopy` escapes a NUL, and `csv`, `sql` and `tsv` write it as it is
 
 2026-11-26, the agent shipping item 566. Goal 5.4: errors surface when the data loads, never mid-render.
 
-PostgreSQL's text can't hold a NUL, and the four text formats pass one through. A refusal needs a render to report an error. A `Record`'s serializers return a string, and a NUL can come from a function's output, which no load sees, so the refusal would fail a run mid-stream, which goal 5.4 rules out. Changing every serializer to return an error would break each caller for a value no shipped path draws. So the README says what each format writes, and PostgreSQL's own error names the row.
+PostgreSQL's text can't hold a NUL. `pgcopy` writes one as `\000`, which COPY decodes and refuses with an error naming the line; a raw NUL made `psql` cut the row short and load the next line glued to it. `sql` has no escape for a NUL, and a refusal there needs an error from a serializer that returns a string. The CLI could check each record, but that copies its columns and fails a run partway, which goal 5.4 rules out. A load can't refuse a NUL either: `json` carries one as `\u0000`, and one draw is written in every format. So `csv`, `sql` and `tsv` write a NUL as it is, and the README says what `psql` does with one.
 
-Valid while a render reports no error and no shipped path draws a NUL.
+Valid while a serializer returns a string and no shipped path draws a NUL.
