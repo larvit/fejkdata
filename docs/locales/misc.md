@@ -96,6 +96,7 @@ The table is called `territory` because ISO 3166-1 codes territories, not sovere
 states: Greenland and Åland have codes of their own. `misc.territory.sovereign` names the
 state a territory belongs to: `DK` for Greenland, `FI` for Åland. A sovereign state names
 itself, and so does a territory its source names no state for, such as Western Sahara, `EH`.
+`misc.territory[EH].tld` is empty: ISO 3166 reserves `.eh` for it, and the root zone has never delegated it.
 
 ## Time zones
 
