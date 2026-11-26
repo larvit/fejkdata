@@ -1559,6 +1559,7 @@ lv_LV.word.any	string
 lv_LV.word.noun	string
 lv_LV.word.noun.plural
 lv_LV.word.verb	string
+misc.bic	format "{upper(4)}{.territory.alpha2}{l1}{l2}{branch}"	reads misc.territory
 misc.car	format "{make} {model}"
 misc.car.make	string
 misc.car.model	string
