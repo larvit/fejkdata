@@ -3198,3 +3198,20 @@ Read most (opens and searches):
 - `record.go` 2
 - `compose.yaml` 1
 - `internal/datafiles/manifest.go` 1
+
+## Reading cost, chunk fefeb4e591d7, finished 2026-11-26T12:01:50Z
+
+254260 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 9
+- `.github/workflows/packages.yml` 5
+- `compose.yaml` 3
+- `packaging_test.go` 2
+- `release-tooling/goreleaser.yaml` 2
+- `.dockerignore` 1
+- `.github/workflows/test.yml` 1
+- `.gitignore` 1
+- `cli/cli.go` 1
+- `cli/flags.go` 1
