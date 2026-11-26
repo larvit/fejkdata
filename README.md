@@ -400,8 +400,8 @@ the template itself, which composes the format into one string rather than
 projecting columns — ask for more records with `--repeat`. A `repeat` on a column
 is fine.
 
-Columns are written in the order the template lists its fields, and a table's in the order of
-its header. A category
+Columns are written in the order the template lists its fields. A [table](#table) writes the
+columns of its TSV in the order of that file's header. A category
 whose fields are the parts of one value — `misc.uuid` — projects those parts rather than
 the value, so for one column holding what `Fake` renders, write
 `{"format":"","uuid":"{/misc.uuid}"}` as a fieldless category asks for. A category whose
@@ -549,8 +549,8 @@ Loading a million rows from a file into a table of `id bigint primary key, name 
 { "format": "", "id": { "format": "{seq()}", "datatype": "integer" }, "note": [null, "ok"], "path": ["C:\\temp", "D:\\data"] }
 ```
 
-The table `files (id bigint primary key, note text, path text)` must exist. `csv` writes the columns in name
-order, so the load lists them. MySQL 8.4 allows `LOCAL` loads only while the server's `local_infile` is on.
+The table `files (id bigint primary key, note text, path text)` must exist. `csv` writes the columns in the
+order the template lists its fields, so the load lists them the same way. MySQL 8.4 allows `LOCAL` loads only while the server's `local_infile` is on.
 On a test server, run `SET GLOBAL local_infile = 1` before the load and `SET GLOBAL local_infile = 0` after it.
 This command loads a thousand rows:
 
@@ -1750,7 +1750,7 @@ give a fixed `--today` or `WithToday` day, and regenerate seeded fixtures and ex
 | Surface | Major | Minor |
 |---------|-------|-------|
 | Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another; change a table's key, name, weight or parent column, or remove a row | a path outside a record's columns, a locale, a value in a list, a row |
-| Records (a table is one) | remove, rename, retype or add a column; let a column be null | a record, as a new category |
+| Records (a table is one) | remove, rename, retype, move or add a column; let a column be null | a record, as a new category |
 | Data format | a fence: a spelling a load rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name; change what a builtin returns for an input | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
