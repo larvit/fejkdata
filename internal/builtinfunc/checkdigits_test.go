@@ -151,3 +151,23 @@ func TestVinRefusesAWmiThatIsNotThreeVinCharacters(t *testing.T) {
 		t.Errorf("Check(vin, 1M8) = %v, want it accepted", err)
 	}
 }
+
+func TestVinDrawsEveryPositionButTheWmiAndTheCheckAfresh(t *testing.T) {
+	call := Prep("vin", []string{"1M8"})
+	s := drawstate.New(1, time.Time{})
+	seen := make([]map[byte]bool, 17)
+	for i := range seen {
+		seen[i] = map[byte]bool{}
+	}
+	for range 300 {
+		vin := call(s, "", nil)
+		for i := range vin {
+			seen[i][vin[i]] = true
+		}
+	}
+	for i, chars := range seen {
+		if i >= 3 && i != 8 && len(chars) < 5 {
+			t.Errorf("position %d took %d characters in 300 draws, want it drawn afresh", i+1, len(chars))
+		}
+	}
+}
