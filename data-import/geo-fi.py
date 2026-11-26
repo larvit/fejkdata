@@ -42,7 +42,7 @@ ALAND = "21"
 # Posti's abbreviations of asema and kirkonkylä, as in ALAVUS AS and HEINOLA KK, and their Swedish ST and KBY.
 LOWER = {"as", "kk", "st", "kby"}
 VOWELS = "aeiouyäö"
-NOT_A_STREET = re.compile(r"[\d,()/]")
+NOT_A_STREET = re.compile(r"[\d,()/]|^Poste restante$")
 
 type Tally = tuple[collections.Counter[tuple[str, str]], dict[tuple[str, str], collections.Counter[str]], collections.Counter[tuple[str, str]], dict[str, set[str]], collections.Counter[tuple[int, bool]]]
 
@@ -139,9 +139,10 @@ def mainland(region_names: Mapping[str, str], municipality_of: Mapping[str, Mapp
 
 
 def street_name(name: str) -> bool:
-	"""Whether a BAF name is a street's, not a highway's such as `Valtatie 23`, a postinumero, or an island's or a
-	lake's such as `Mustalampi, Lammassaari` or `Makkarasaari/Lapinsaari`."""
-	return bool(name) and not NOT_A_STREET.search(name)
+	"""Whether a BAF name is a street's, not a highway's such as `Valtatie 23`, a postinumero, an island's or a lake's
+	such as `Mustalampi, Lammassaari` or `Makkarasaari/Lapinsaari`, or Posti's `Poste restante`, which names a service
+	of a post office; and whether geo.cleanly_written."""
+	return geo.cleanly_written(name) and not NOT_A_STREET.search(name)
 
 
 def capitalised(name: str) -> str:

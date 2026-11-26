@@ -180,6 +180,11 @@ def zcta_localities(cache: Path, localities: Collection[str]) -> dict[str, str]:
 	return {zcta: place for zcta, place in largest.items() if place in localities}
 
 
+def street_name(name: str) -> bool:
+	"""Whether a TIGER FULLNAME is a street's, not a highway's, and geo.cleanly_written."""
+	return bool(name) and not HIGHWAY.search(name) and geo.cleanly_written(name)
+
+
 def streets(cache: Path, counties: Iterable[str], locality_of_zcta: Mapping[str, str], share: float, minimum: int) -> tuple[dict[str, list[geo.Row]], collections.Counter[str]]:
 	"""The names with most TIGER address ranges per place, and the address ranges per ZCTA."""
 	with concurrent.futures.ThreadPoolExecutor(3) as pool:
@@ -193,7 +198,7 @@ def streets(cache: Path, counties: Iterable[str], locality_of_zcta: Mapping[str,
 				zips[r["TLID"]].add(r["ZIP"])
 				addresses[r["ZIP"]] += 1
 		for r in tiger(cache, "featnames", county, {"TLID", "FULLNAME", "PAFLAG"}):
-			if r["PAFLAG"] == "P" and r["FULLNAME"] and not HIGHWAY.search(r["FULLNAME"]):
+			if r["PAFLAG"] == "P" and street_name(r["FULLNAME"]):
 				for z in zips.get(r["TLID"], ()):
 					count[(locality_of_zcta[z], r["FULLNAME"])] += 1
 	return geo.top_streets(count, share, minimum, "addresses"), addresses

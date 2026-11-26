@@ -1039,11 +1039,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `geo.FI.region.name` | real | `Lappi` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.population` | real | `176215` | Statistics Finland's kunta classification and population |
 | `geo.FI.region.timezone` | real | `Europe/Helsinki` | Statistics Finland's kunta classification and population |
-| `geo.FI.street` | real | `Sallinpalonkuja` | Posti's postcode and basic address files |
+| `geo.FI.street` | real | `Rautamäentie` | Posti's postcode and basic address files |
 | `geo.FI.street.addresses` | real | `1` | Posti's postcode and basic address files |
 | `geo.FI.street.locality` | real | `Vähäkyrö` | Posti's postcode and basic address files |
-| `geo.FI.street.name` | real | `Sallinpalonkuja` | Posti's postcode and basic address files |
-| `geo.FI.street.swedish-name` | real | `Sallinpalonkuja` | Posti's postcode and basic address files |
+| `geo.FI.street.name` | real | `Rautamäentie` | Posti's postcode and basic address files |
+| `geo.FI.street.swedish-name` | real | `Rautamäentie` | Posti's postcode and basic address files |
 
 </details>
 
