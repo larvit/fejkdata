@@ -885,7 +885,7 @@ neighbouring postort.
 | `geo` | [Places](docs/locales/geo.md) | Across countries; Danish places; Estonian places; Finnish places; French places; German places; Latvian places; Lithuanian places; Norwegian places; Swedish places; US places |
 | `lt_LT` | [Lithuanian](docs/locales/lt_LT.md) | Lithuanian companies; Lithuanian dates and emails; Lithuanian phone numbers; Lithuanian words |
 | `lv_LV` | [Latvian](docs/locales/lv_LV.md) | Latvian companies; Latvian dates and emails; Latvian phone numbers; Latvian words |
-| `misc` | [Shared by every locale](docs/locales/misc.md) | Reserved addresses; Credit cards and IBANs; Registry tables; Territories; Time zones |
+| `misc` | [Shared by every locale](docs/locales/misc.md) | Reserved addresses; Credit cards and IBANs; Securities identifiers; Registry tables; Territories; Time zones |
 | `nb_NO` | [Norwegian Bokmål](docs/locales/nb_NO.md) | Fødselsnummer; Fødselsnummer matched to a sex; Norwegian companies; Norwegian dates and emails; Norwegian phone numbers; Norwegian words |
 | `nn_NO` | [Norwegian Nynorsk](docs/locales/nn_NO.md) | Persons, ids, contact details and companies; Nynorsk months, weekdays and titles; Nynorsk words |
 | `sv_SE` | [Swedish](docs/locales/sv_SE.md) | Bankgiro, plusgiro and bank accounts; Blood types; Cars; Industries and occupations; Licence plates; Months, weekdays, holidays and territories; Organisationsnummer and VAT numbers; Person; Personnummer and samordningsnummer; Personnummer and samordningsnummer, twelve digits; Personnummer of a sex or an age band; Swedish companies; Swedish phone numbers; Swedish words |
