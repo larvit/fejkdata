@@ -2397,3 +2397,11 @@ MySQL's `LOAD DATA`, with its fields enclosed in quotes, reads an unquoted `NULL
 `tsv` is the file a table reads, and a table cell has no null, so the flag is refused there, as under every format but `csv`. A panel of three readers (a bulk fixture author, a coding agent and a hand fixture author) ranked six names. `--null-text` and `--null-as` tied on points; `--null-text` was never ranked below fourth and never read as a switch.
 
 Valid while `csv` is the one record format with a free choice of null spelling.
+
+## A NUL is written as it is by `csv`, `tsv`, `sql` and `pgcopy`
+
+2026-11-26, the agent shipping item 566. Goal 5.4: errors surface when the data loads, never mid-render.
+
+PostgreSQL's text can't hold a NUL, and the four text formats pass one through. A refusal needs a render to report an error. A `Record`'s serializers return a string, and a NUL can come from a function's output, which no load sees, so the refusal would fail a run mid-stream, which goal 5.4 rules out. Changing every serializer to return an error would break each caller for a value no shipped path draws. So the README says what each format writes, and PostgreSQL's own error names the row.
+
+Valid while a render reports no error and no shipped path draws a NUL.
