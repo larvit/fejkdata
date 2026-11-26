@@ -33,9 +33,9 @@ UPPER = "{upper(1)}"
 NUMBER_RANGES = ((1, 9), (10, 99), (100, 999), (1000, 9999))
 # An invented street's name: a letter first, then letters, digits and the space, full stop, apostrophe and hyphen that join them.
 STREET = re.compile(r"^[^\W\d_][^\W_]*([ .'-]+[^\W_]+)*\.?$")
-# What a register writes badly in a street name: a space at an edge or doubled, a comma or semicolon, a remark in
-# parentheses, the name said twice, or a UTF-8 byte pair read as Latin-1, as in Ã¤.
-BADLY_WRITTEN = re.compile(r"^\s|\s$|\s\s|[,;()]|^(.+) \1$|[\u00c2-\u00f4][\u0080-\u00bf]")
+# What a register writes badly in a street name: a space at an edge or doubled, a trailing comma or semicolon, a
+# remark in parentheses, the name said twice, or a UTF-8 byte pair read as Latin-1, as in Ã¤.
+BADLY_WRITTEN = re.compile(r"^\s|\s$|\s\s|[,;]$|[()]|^(.+) \1$|[\u00c2-\u00f4][\u0080-\u00bf]")
 # A low quotation mark or the replacement character stands where a letter was lost in transcoding, as in `All‚vägen`.
 LOST_LETTER = "\u201a\u201e\ufffd"
 COLUMNS = {
