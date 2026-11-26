@@ -115,9 +115,8 @@ func vinValue(c byte) int {
 	return int(vinLetterValues[strings.IndexByte(vinLetters, c)] - '0')
 }
 
-// vin draws a VIN of the given WMI: five characters of vehicle description, a model year code,
-// a plant and six digits of serial. The check character replaces the `0` at position 9, and
-// is the one that makes the sum of all 17 positions, weighted, divisible as the VIN standard asks.
+// vin draws a VIN of the given WMI: five characters of vehicle description, a check character,
+// a model year code, a plant and six digits of serial.
 func vin(r rng, wmi string) string {
 	b := []byte(wmi + randChars(r, 5, vinChars) + "0" + randChars(r, 1, vinYears) +
 		randChars(r, 1, vinChars) + randChars(r, 6, decimalDigits))
