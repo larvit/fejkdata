@@ -79,7 +79,7 @@ class Build(unittest.TestCase):
 		)
 
 	def test_no_other_file_is_executable_and_each_is_compressed(self) -> None:
-		for info in self.wheel("linux_amd64").infolist():
+		for info in self.wheel("win_amd64").infolist():
 			with self.subTest(info.filename):
 				self.assertEqual(info.compress_type, zipfile.ZIP_DEFLATED)
 				if not info.filename.startswith("fejkdata/bin/"):
