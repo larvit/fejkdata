@@ -97,7 +97,7 @@ class Build(unittest.TestCase):
 	def test_the_metadata_names_what_pypi_shows_beside_the_readme(self) -> None:
 		metadata = self.wheel("win_amd64").read("fejkdata-0.9.0.dist-info/METADATA").decode()
 		for line in (
-			"Keywords: fake data,test data,mock data,fixtures,seed data,synthetic data,testing,csv,sql,national id",
+			"Keywords: csv,fake data,fixtures,mock data,national id,seed data,sql,synthetic data,test data,testing",
 			"Project-URL: Homepage, https://fejkdata.dev",
 			"Project-URL: Documentation, https://github.com/larvit/fejkdata#readme",
 			"Project-URL: Source, https://github.com/larvit/fejkdata",
