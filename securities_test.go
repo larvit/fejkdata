@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"unicode"
@@ -120,8 +121,8 @@ func TestShippedMiscBic(t *testing.T) {
 		territories[row["alpha2"]] = true
 	}
 	countries, lengths := map[string]bool{}, map[int]bool{}
-	digitLocation, primaryOffice, otherBranch := false, false, false
-	fejktest.EachDraw(500, func() string { return fejktest.Fake(t, f, "bic") }, func(v string) {
+	kinds := map[string]bool{}
+	fejktest.EachDraw(2000, func() string { return fejktest.Fake(t, f, "bic") }, func(v string) {
 		if !fejktest.ValidBic(v) {
 			t.Fatalf("misc bic %q is not a valid BIC", v)
 		}
@@ -130,14 +131,34 @@ func TestShippedMiscBic(t *testing.T) {
 		}
 		countries[v[4:6]] = true
 		lengths[len(v)] = true
-		digitLocation = digitLocation || strings.ContainsAny(v[6:8], "0123456789")
-		if len(v) == 11 {
-			primaryOffice = primaryOffice || v[8:] == "XXX"
-			otherBranch = otherBranch || v[8:] != "XXX"
+		for _, i := range []int{6, 7} {
+			kinds[fmt.Sprintf("location %d %s", i-5, charKind(v[i]))] = true
+		}
+		if len(v) == 11 && v[8:] == "XXX" {
+			kinds["branch XXX"] = true
+		} else if len(v) == 11 {
+			for _, i := range []int{8, 9, 10} {
+				kinds[fmt.Sprintf("branch %d %s", i-7, charKind(v[i]))] = true
+			}
 		}
 	})
-	if len(countries) < 20 || !lengths[8] || !lengths[11] || !digitLocation || !primaryOffice || !otherBranch {
-		t.Fatalf("500 BICs held %d country codes, lengths %v, a digit in the location %v, XXX %v, another branch %v",
-			len(countries), lengths, digitLocation, primaryOffice, otherBranch)
+	for _, want := range []string{
+		"location 1 digit", "location 1 letter", "location 2 digit", "location 2 letter",
+		"branch 1 digit", "branch 1 letter", "branch 2 digit", "branch 2 letter",
+		"branch 3 digit", "branch 3 letter", "branch XXX",
+	} {
+		if !kinds[want] {
+			t.Errorf("2000 BICs held no %q", want)
+		}
 	}
+	if len(countries) < 20 || !lengths[8] || !lengths[11] {
+		t.Fatalf("2000 BICs held %d country codes and lengths %v", len(countries), lengths)
+	}
+}
+
+func charKind(c byte) string {
+	if c >= '0' && c <= '9' {
+		return "digit"
+	}
+	return "letter"
 }
