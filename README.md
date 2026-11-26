@@ -205,8 +205,10 @@ func TestSignup(t *testing.T) {
 
 ### Python tests
 
+`fejkdata.render` returns what the [CLI](#cli) prints for the same template, seed and day:
+
 ```sh
-pip install fejkdata    # Python 3.11 or later, on Linux, macOS and Windows
+pip install fejkdata    # Python 3.11 or later, on Linux, macOS and Windows, amd64 and arm64
 ```
 
 ```python
@@ -223,8 +225,7 @@ Felix,Lind
 Klara,Lassfolk
 ```
 
-`render` returns what the [CLI](#cli) prints for the same template, seed and day. The package
-carries the CLI and all the shipped data, and doesn't depend on any other package.
+The package carries the CLI and all the shipped data, and doesn't depend on any other package.
 [Its own README](python-package/README.md) lists the arguments and the error a refused template raises.
 
 ### Replacing real data with fakes
@@ -2300,13 +2301,14 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
-The upload to PyPI holds no secret. PyPI trusts this repository's `test.yml` and its
-environment `pypi` as the project's publisher, and takes the short-lived token GitHub gives that
-job. PyPI doesn't take a reusable workflow as a publisher, so the job sits in `test.yml`, and a
-Packages run started by hand uploads no wheel: to upload a release's wheels again, rerun the
-failed jobs of its run. PyPI never takes a file name twice, even after a delete. So a bad
-version is yanked on pypi.org, which keeps pip from picking it unless a user pins it, and
-the fix ships as the next version.
+The `pypi` job reads no secret. On pypi.org the project names this repository, `test.yml`
+and the environment `pypi` as its publisher, and PyPI takes the short-lived token GitHub
+gives the job. A Packages run started by hand doesn't run the job, so it uploads no wheel.
+To upload a release's wheels again, rerun the failed jobs of its run.
+
+PyPI never takes a file name twice, even after a delete. So yank a bad version on
+pypi.org, and ship the fix as the next version. pip skips a yanked version unless a user
+pins it.
 
 Renovate merges an update itself once `gate` passes. These wait for a human:
 
