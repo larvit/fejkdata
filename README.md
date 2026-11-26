@@ -875,7 +875,7 @@ Where a value mixes kinds, its source says which part is which. An example is a 
 [`data-listing/paths.json`](data-listing/paths.json) is the same list for programs, with `path`, `kind` (an
 array), `example` (not cut) and `source` for each path.
 
-A locale's line lists its person, address, national id, company and phone paths; each locale also has `phone-mobile` and `phone-fixed`, which draw the phone's two kinds. A `geo` line lists the
+A locale's line lists its person, address, national id, company and phone paths; each locale also has `phone-mobile` and `phone-fixed`, which draw a mobile and a fixed number. A `geo` line lists the
 places of one country, from region down to street, and `misc` holds what every locale shares.
 
 The main paths of each module:
