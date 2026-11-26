@@ -2009,9 +2009,9 @@ internal/shipped/generate/ the command `go generate` runs, which writes those fi
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; Modules, which lists them; and the tests of the shipped data
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), each run by a command under Development, and the shared modules they import
 data-listing/   the generated list of every shipped path with its kind, example and source (`paths.json`), and the hand-written kind and source of each category, and of each field that differs from its category (`kinds-and-sources.tsv`)
-python-package/ the Python package: `render`, which runs the CLI binary a wheel carries, its tests, and its README
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the generated table of every shipped path (`shipped-paths.md`), the locale pages (`docs/locales`, one per folder of `data/`), the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
+python-package/ the Python package: `render`, which runs the CLI binary that a wheel carries; the package's tests; and its README
 release-tooling/ what CI releases with: the release from the changelog heading; the patch of the last release for main's newer Go, modules or GoReleaser; a release's binaries, packages, image, package repositories and Python wheels; and the filer of known vulnerabilities as `todo.md` items
 testdata/       the pinned shipped shape, and the pinned keys and kind words of the data listing (see Versioning)
 ```
@@ -2118,7 +2118,7 @@ workflow as a dry run. The `packaging` line of the `changes` step in
 runs save `actions/deploy-pages`, with a token that can only read. It builds the binaries
 for every platform, the packages and the images, then the apt, dnf and apk repositories,
 signed with throwaway keys, and installs fejkdata from each repository. It builds the
-Python wheels too, installs the Linux one with pip and renders from it. It doesn't publish
+Python wheels too, installs the Linux amd64 one with pip and renders from it. It doesn't publish
 any of them or read a repository secret, so it runs on a pull request from a fork too.
 The repository checks, locally:
 
