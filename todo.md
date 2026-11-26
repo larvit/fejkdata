@@ -21,7 +21,6 @@
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
 | 564 | 0.9.0 |  |  | **Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 2 | 1.7 |
 | 562 | 0.9.0 | 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
-| 558 | 0.9.0 |  |  | **Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.** | 2 | 1 | 2 | 3 | 5 | 1 by 3, 2.1 by 4 | 1.2 |
 | 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
@@ -320,35 +319,6 @@ Touches:
 - `docs/locales/en_US.md`
 - `docs/locales/fr_FR.md`
 - `DATA-LICENSES.md`
-
-### 558. Draw a full mobile number and a full fixed number by path in every locale, whether or not its data separates the two today.
-
-Today `sv_SE` has no path for either, and `phone-mobile` in `da_DK`, `de_DE`, `fi_FI`, `fr_FR`, `lt_LT` and `nb_NO` prints only a prefix or area code, such as `21 1`. A user filling a customer table wrote Swedish mobile numbers by hand with `digits()`.
-
-The owner wants every shipped locale covered: `da_DK`, `de_DE`, `en_US`, `et_EE`, `fi_FI`, `fr_FR`, `lt_LT`, `lv_LV`, `nb_NO`, `nn_NO` and `sv_SE`. `et_EE` and `lv_LV` draw both kinds from one hidden field, `nn_NO` reads `nb_NO`, and `sv_SE` has the mobile codes inline. A US number doesn't show its kind, since mobile and fixed share area codes, so both of `en_US`'s paths draw one pool and its page says so.
-
-Both paths print the national form, and read `national` and `international`. `phone` keeps its formats and its shares of mobile and fixed numbers. `phone-mobile` already means a prefix table, so a bench of the audience picks the paths. A new column in `phone`'s record is breaking, so either keep the paths out of its columns or list the break in `CHANGELOG.md`. Item 23 adds each path's form that reaches nobody.
-
-Touches:
-
-- `data/da_DK/phone.json`
-- `data/de_DE/phone.json`
-- `data/en_US/phone.json`
-- `data/et_EE/phone.json`
-- `data/fi_FI/phone.json`
-- `data/fr_FR/phone.json`
-- `data/lt_LT/phone.json`
-- `data/lv_LV/phone.json`
-- `data/nb_NO/phone.json`
-- `data/nn_NO/phone.json`
-- `data/sv_SE/phone.json`
-- `data/locale_phone_test.go`
-- `data/locales_test.go`: `phone`, `shippedLocales` (small)
-- `testdata/shipped_shape.txt`
-- `data-listing/paths.json`
-- `docs/shipped-paths.md`
-- `docs/locales/sv_SE.md`: `## Swedish phone numbers`
-- `docs/locales/en_US.md`: `## US phone exchanges`
 
 ### 559. Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.
 
