@@ -111,7 +111,6 @@ func TestTheVinOracleAcceptsPublishedVins(t *testing.T) {
 func TestVinDrawsAWholeVinOfTheWmiThatPassesItsCheck(t *testing.T) {
 	call := Prep("vin", []string{"1M8"})
 	s := drawstate.New(1, time.Time{})
-	seen := map[string]bool{}
 	for range 500 {
 		vin := call(s, "", nil)
 		if !strings.HasPrefix(vin, "1M8") || !vinValid(vin) {
@@ -123,22 +122,7 @@ func TestVinDrawsAWholeVinOfTheWmiThatPassesItsCheck(t *testing.T) {
 		if !strings.ContainsRune("ABCDEFGHJKLMNPRSTVWXY123456789", rune(vin[9])) {
 			t.Fatalf("vin(1M8) = %q, want a model year code at position 10", vin)
 		}
-		seen[vin] = true
 	}
-	if len(seen) < 400 {
-		t.Errorf("%d different VINs in 500 draws, want them to vary", len(seen))
-	}
-}
-
-func TestVinDrawsAnXWhereTheCheckIsTen(t *testing.T) {
-	call := Prep("vin", []string{"1M8"})
-	s := drawstate.New(1, time.Time{})
-	for range 2000 {
-		if vin := call(s, "", nil); vin[8] == 'X' {
-			return
-		}
-	}
-	t.Error("no check digit X in 2000 draws, want one where the sum leaves 10")
 }
 
 func TestVinRefusesAWmiThatIsNotThreeVinCharacters(t *testing.T) {

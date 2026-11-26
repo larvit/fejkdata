@@ -8,7 +8,7 @@ import (
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
-// alnumValue is a letter's value in an ISIN or a CUSIP, 10 for A to 35 for Z; a digit is its own.
+// alnumValue is the ISIN value of c: 0 to 9 for a digit, 10 to 35 for a capital letter.
 func alnumValue(c byte) (int, bool) {
 	if c >= '0' && c <= '9' {
 		return int(c - '0'), true
@@ -19,8 +19,8 @@ func alnumValue(c byte) (int, bool) {
 	return 0, false
 }
 
-// lastValues returns the values of the last n characters of s that value reads, in order, so
-// that a literal before the payload, such as `ISIN `, stays out of the check.
+// lastValues returns, left to right, the values of the last n characters of s that value accepts,
+// so that a literal before the payload, such as `ISIN `, stays out of the check.
 func lastValues(s string, n int, value func(byte) (int, bool)) []int {
 	var rev []int
 	for i := len(s) - 1; i >= 0 && len(rev) < n; i-- {
@@ -32,8 +32,8 @@ func lastValues(s string, n int, value func(byte) (int, bool)) []int {
 	return rev
 }
 
-// isinCheck is the Luhn digit over the last 11 characters of s, each letter written as its
-// two-digit value.
+// isinCheck is the Luhn digit over the last 11 digits and capital letters of s, each letter
+// written as its two-digit value.
 func isinCheck(s string) string {
 	var digits strings.Builder
 	for _, v := range lastValues(s, 11, alnumValue) {
@@ -42,7 +42,7 @@ func isinCheck(s string) string {
 	return string(rune('0' + luhnCheck(digits.String())))
 }
 
-// cusipValue is a character's value in a CUSIP: its ISIN value, or 36, 37 and 38 for `*`, `@` and `#`.
+// cusipValue is c's value in a CUSIP: its ISIN value, or 36, 37 and 38 for `*`, `@` and `#`.
 func cusipValue(c byte) (int, bool) {
 	if v, ok := alnumValue(c); ok {
 		return v, true
@@ -53,8 +53,8 @@ func cusipValue(c byte) (int, bool) {
 	return 0, false
 }
 
-// cusipCheck doubles every second value of the last 8 characters of s from the right, then sums
-// the digits of each value, as ANSI X9.6 asks.
+// cusipCheck doubles the last of the final 8 values of s and every second one before it, then
+// sums the digits of each, as ANSI X9.6 asks.
 func cusipCheck(s string) string {
 	values := lastValues(s, 8, cusipValue)
 	sum, double := 0, true
@@ -69,8 +69,8 @@ func cusipCheck(s string) string {
 	return string(rune('0' + (10-sum%10)%10))
 }
 
-// abaCheck weighs the last 8 digits of s 7, 3, 1, 7, 3, 1, 7, 3 from the right, which is the
-// 3, 7, 1 of the routing number's nine digits with the check digit last.
+// abaCheck weights the last 8 digits of s 3, 7, 1, 3, 7, 1, 3, 7. It counts from the right, so
+// fewer than 8 digits read as if zeros came first.
 func abaCheck(s string) string {
 	digits := lastValues(s, 8, func(c byte) (int, bool) { return int(c - '0'), c >= '0' && c <= '9' })
 	sum := 0
@@ -81,10 +81,10 @@ func abaCheck(s string) string {
 }
 
 const (
-	vinChars = "0123456789ABCDEFGHJKLMNPRSTUVWXYZ"
 	vinYears = "ABCDEFGHJKLMNPRSTVWXY123456789"
 	// vinLetters and vinLetterValues are parallel: each letter's value in the check sum.
 	vinLetters      = "ABCDEFGHJKLMNPRSTUVWXYZ"
+	vinChars        = decimalDigits + vinLetters
 	vinLetterValues = "12345678123457923456789"
 )
 
@@ -116,13 +116,11 @@ func vinValue(c byte) int {
 }
 
 // vin draws a VIN of the given WMI: five characters of vehicle description, a model year code,
-// a plant and six digits of serial, with the check character at position 9 over the whole.
+// a plant and six digits of serial. The check character replaces the `0` at position 9, and
+// is the one that makes the sum of all 17 positions, weighted, divisible as the VIN standard asks.
 func vin(r rng, wmi string) string {
-	b := []byte(wmi + strings.Repeat("0", 14))
-	drawFrom(r, vinChars, b[3:8])
-	b[9] = vinYears[r.IntN(len(vinYears))]
-	b[10] = vinChars[r.IntN(len(vinChars))]
-	drawFrom(r, "0123456789", b[11:17])
+	b := []byte(wmi + randChars(r, 5, vinChars) + "0" + randChars(r, 1, vinYears) +
+		randChars(r, 1, vinChars) + randChars(r, 6, decimalDigits))
 	b[8] = vinCheck(string(b))
 	return string(b)
 }
@@ -130,10 +128,4 @@ func vin(r rng, wmi string) string {
 func vinPrep(a []string, _ parsed) Call {
 	wmi := a[0]
 	return func(s *drawstate.State, _ string, _ []string) string { return vin(s, wmi) }
-}
-
-func drawFrom(r rng, alphabet string, dst []byte) {
-	for i := range dst {
-		dst[i] = alphabet[r.IntN(len(alphabet))]
-	}
 }
