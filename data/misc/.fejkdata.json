@@ -1,5 +1,6 @@
 {
 	"index": {
+		"misc.bic": {"paths":[""]},
 		"misc.car": {"paths":["","make","model"]},
 		"misc.coordinate": {"paths":["","lat","lon"]},
 		"misc.creditcard": {"paths":["","d"]},

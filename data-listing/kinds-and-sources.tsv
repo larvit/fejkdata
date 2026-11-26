@@ -461,6 +461,7 @@ lv_LV.word-adj	real	Tēzaurs.lv's wordforms
 lv_LV.word-adv	real	Tēzaurs.lv's wordforms
 lv_LV.word-noun	real	Tēzaurs.lv's wordforms
 lv_LV.word-verb	real	Tēzaurs.lv's wordforms
+misc.bic	valid	hand-written, with ISO 9362's structure and an ISO 3166-1 country code
 misc.car	real	hand-written
 misc.coordinate	valid	hand-written
 misc.creditcard	valid	hand-written, with a Luhn check
