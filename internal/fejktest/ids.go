@@ -1,6 +1,7 @@
 package fejktest
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -111,6 +112,52 @@ func LuhnValid(s string) bool {
 		sum += n
 	}
 	return sum%10 == 0
+}
+
+// ValidIsin is the check on an ISIN in ISO 6166: two capital letters, nine digits or capital
+// letters and a digit that makes the identifier, each letter written as its value 10 to 35,
+// pass the Luhn check.
+func ValidIsin(s string) bool {
+	if len(s) != 12 || !isinShape.MatchString(s) {
+		return false
+	}
+	var digits strings.Builder
+	for i := 0; i < len(s); i++ {
+		digits.WriteString(strconv.Itoa(cusipValue(s[i])))
+	}
+	return LuhnValid(digits.String())
+}
+
+var isinShape = regexp.MustCompile(`^[A-Z]{2}[0-9A-Z]{9}[0-9]$`)
+
+// ValidCusip is the check on a CUSIP in ANSI X9.6: eight digits, capital letters, `*`, `@` or
+// `#`, and a digit that is the tens complement of the sum of the digits of each value, the
+// value of every second character, counted from the second, doubled.
+func ValidCusip(s string) bool {
+	if len(s) != 9 || !cusipShape.MatchString(s) {
+		return false
+	}
+	sum := 0
+	for i := 0; i < 8; i++ {
+		v := cusipValue(s[i])
+		if i%2 == 1 {
+			v *= 2
+		}
+		sum += v/10 + v%10
+	}
+	return int(s[8]-'0') == (10-sum%10)%10
+}
+
+var cusipShape = regexp.MustCompile(`^[0-9A-Z*@#]{8}[0-9]$`)
+
+func cusipValue(c byte) int {
+	switch {
+	case c >= '0' && c <= '9':
+		return int(c - '0')
+	case c >= 'A' && c <= 'Z':
+		return int(c-'A') + 10
+	}
+	return 36 + strings.IndexByte("*@#", c)
 }
 
 // DVVControlTable maps the remainder of a hetu's nine digits divided by 31 to its control
