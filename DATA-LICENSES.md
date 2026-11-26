@@ -324,11 +324,11 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 - Source: INSEE's open files. First names: the ["Fichier des
   prénoms"](https://www.insee.fr/fr/statistiques/8205621) (`prenoms-2023-nat`), the births of 1944 to
-  2023 summed per first name and sex, for each name borne by at least 5 people; INSEE groups the names it
-  doesn't publish under `_PRENOMS_RARES`, and the script drops that group and the rows without a
+  2023 summed per first name and sex, for each name borne by at least 5 people; INSEE groups the names
+  it doesn't publish under `_PRENOMS_RARES`, and the script drops that group and the rows without a
   year. Last names: the ["Fichier des noms"](https://www.insee.fr/fr/statistiques/3536630)
-  (`noms2008nat`), the births of 1891 to 2000 summed over their decades, for each name borne by at least 5 people; INSEE
-  writes them in capitals without accents.
+  (`noms2008nat`), the births of 1891 to 2000 summed over their decades, for each name borne by at
+  least 5 people; INSEE writes them in capitals without accents.
 - Licence: [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/),
   as INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) state
 - Attribution: "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee, Fichier des noms
@@ -1049,8 +1049,8 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 ## `sv_SE/first-name.tsv`, `last-name.tsv`
 
-- Source: [SCB](https://www.scb.se/) names with at least two bearers, 31 December 2022; the script keeps each
-  name borne by at least 5 people
+- Source: [SCB](https://www.scb.se/) names with at least two bearers, 31 December 2022; the script keeps
+  each name borne by at least 5 people
 - Licence: CC0 1.0
 - Attribution: "Källa: SCB"
 - Rebuild: `data-import/names-se.py`
