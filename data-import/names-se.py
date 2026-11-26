@@ -34,7 +34,7 @@ def counted(rows: Iterable[list[str]], floor: int) -> list[tuple[str, int]]:
 
 
 FIRST_MIN = 5
-LAST_MIN = 20
+LAST_MIN = 50
 
 
 def main() -> None:
