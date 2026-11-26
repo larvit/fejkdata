@@ -18,6 +18,8 @@ func TestIsinCompletesPublishedIdentifiers(t *testing.T) {
 		"US594918104": "5",
 		"GB000263494": "6",
 		"DE000BAY001": "7",
+		"ZA999999999": "6",
+		"AZ000000009": "8",
 	} {
 		if got := derived("isin", payload); got != want {
 			t.Errorf("isin() after %s = %q, want %q", payload, got, want)
@@ -31,6 +33,10 @@ func TestCusipCompletesPublishedIdentifiers(t *testing.T) {
 		"59491810": "4",
 		"93114210": "3",
 		"02079K30": "5",
+		"Z9A0*@#9": "2",
+		"*@#*@#*@": "7",
+		"ZZZZZZZZ": "0",
+		"A#A#A#A#": "4",
 	} {
 		if got := derived("cusip", payload); got != want {
 			t.Errorf("cusip() after %s = %q, want %q", payload, got, want)
@@ -42,6 +48,8 @@ func TestAbaCompletesPublishedRoutingNumbers(t *testing.T) {
 	for payload, want := range map[string]string{
 		"01100001": "5",
 		"02100002": "1",
+		"99999999": "2",
+		"00000000": "0",
 	} {
 		if got := derived("aba", payload); got != want {
 			t.Errorf("aba() after %s = %q, want %q", payload, got, want)
