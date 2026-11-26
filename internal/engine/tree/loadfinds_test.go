@@ -81,3 +81,11 @@ func TestAFinishedTemplateReadsWhatFinishWrote(t *testing.T) {
 		t.Errorf("NameScope() = %p, want the scope Finish wrote, %p", got, sc)
 	}
 }
+
+func TestATemplateBuiltWithoutAWrittenOrderListsItsShownFieldsInNameOrder(t *testing.T) {
+	leaf := tree.NewTemplate(tree.TemplateSyntax{Format: "x"})
+	tmpl := tree.NewTemplate(tree.TemplateSyntax{Fields: map[string]tree.Node{"b": leaf, "a": leaf, "h": leaf}, Hiddens: map[string]bool{"h": true}})
+	if got := strings.Join(tmpl.Written(), " "); got != "a b" {
+		t.Errorf("Written() = %q, want \"a b\"", got)
+	}
+}

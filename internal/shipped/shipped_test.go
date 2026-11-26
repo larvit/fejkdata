@@ -240,12 +240,12 @@ func TestShapeNamesReads(t *testing.T) {
 	d := loaded(t, module("ns", map[string]string{
 		"a.json":     `{"format":"{x}","x":["{/ns.b}",{"format":"{/ns.c.v}","weight":2}]}`,
 		"b.json":     `"y"`,
-		"c.json":     `{"format":"{v} {n}","n":[null,{"format":"{int(1,9)}","datatype":"integer"}],"v":["z","w"]}`,
+		"c.json":     `{"format":"{v} {n}","v":["z","w"],"n":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 		"d/pos.json": `["{.q}","{/ns.b}"]`,
 		"d/q.json":   `"r"`,
 		"e.json":     `"{/ns.a}"`,
 	}))
-	want := "ns.a\tformat \"{x}\"\treads ns.b ns.c\nns.a.x\tstring\nns.b\tformat \"y\"\nns.c\tformat \"{v} {n}\"\nns.c.n\tinteger null\nns.c.v\tstring\nns.d.pos\treads ns.b ns.d.q\nns.d.q\tformat \"r\"\nns.e\tformat \"{/ns.a}\"\treads ns.a\n"
+	want := "ns.a\tformat \"{x}\"\treads ns.b ns.c\tcolumns x\nns.a.x\tstring\nns.b\tformat \"y\"\nns.c\tformat \"{v} {n}\"\tcolumns v n\nns.c.n\tinteger null\nns.c.v\tstring\nns.d.pos\treads ns.b ns.d.q\nns.d.q\tformat \"r\"\nns.e\tformat \"{/ns.a}\"\treads ns.a\n"
 	if got := d.Shape(); got.Name != ShapeFile || string(got.Body) != want {
 		t.Fatalf("Shape = %s\n%s\nwant %s\n%s", got.Name, got.Body, ShapeFile, want)
 	}
