@@ -1,5 +1,6 @@
-.git/
-.claude/
-*.out
-data-import/cache/
 **/__pycache__/
+*.out
+.claude/
+.git/
+data-import/cache/
+python-package/fejkdata/bin/

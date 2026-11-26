@@ -1,4 +1,5 @@
-.claude
 *.out
+.claude
 __pycache__/
 data-import/cache/
+python-package/fejkdata/bin/

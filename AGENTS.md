@@ -174,6 +174,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A locale's full numbers are `phone-mobile` and `phone-fixed`, and its prefix tables `phone-mobile-prefix` and `phone-fixed-prefix`
 - The Swedish, Finnish, French and US name tables keep every name above a floor of bearers, set so a table holds at most 60,000 rows
 - A record writes its columns in the order its template lists its fields, a table writes them in the order of its header, and both draw them in name order
+- The Python package is a wheel per platform carrying the CLI binary, built by `release-tooling/python_wheels.py`, and `render` requires `seed` and `today`
 
 # Scoring run
 

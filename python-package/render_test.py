@@ -1,4 +1,8 @@
+import contextlib
 import datetime
+import io
+import pathlib
+import re
 import unittest
 
 import fejkdata
@@ -42,6 +46,28 @@ class Render(unittest.TestCase):
 			fejkdata.render("x", seed=-1, today=DAY)
 		self.assertEqual(raised.exception.returncode, 2)
 		self.assertIn("--seed needs an unsigned integer", str(raised.exception))
+
+
+class ReadmeExamples(unittest.TestCase):
+	"""Runs each `python` block of a README, and holds what it prints to the `text` block after it."""
+
+	def run_blocks(self, markdown: str) -> int:
+		names: dict[str, object] = {}
+		blocks = re.findall(r"```python\n(.*?)```\n(?:\n```text\n(.*?)```\n)?", markdown, re.DOTALL)
+		for code, printed in blocks:
+			with self.subTest(code), contextlib.redirect_stdout(io.StringIO()) as out:
+				exec(code, names)
+			if printed:
+				self.assertEqual(out.getvalue(), printed, code)
+		return len(blocks)
+
+	def test_the_package_s_readme(self) -> None:
+		readme = pathlib.Path(__file__).with_name("README.md").read_text(encoding="utf-8")
+		self.assertEqual(self.run_blocks(readme), 2)
+
+	def test_the_project_readme_s_python_section(self) -> None:
+		readme = pathlib.Path(__file__).parent.with_name("README.md").read_text(encoding="utf-8")
+		self.assertEqual(self.run_blocks(readme.split("\n### Python\n")[1].split("\n## ")[0]), 3)
 
 
 if __name__ == "__main__":

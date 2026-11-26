@@ -15,6 +15,8 @@ on:
         required: false
       DOCKERHUB_TOKEN:
         required: false
+      PYPI_TOKEN:
+        required: false
       SITE_DEPLOY_TOKEN:
         required: false
   workflow_dispatch:
@@ -41,6 +43,7 @@ jobs:
       packages: write
     outputs:
       latest: ${{ steps.latest.outputs.latest }}
+      wheels: ${{ steps.wheels.outputs.built }}
     steps: &packages
       - uses: actions/checkout@v7
         with:
@@ -61,8 +64,9 @@ jobs:
           PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
           PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
-          for name in TAP_GITHUB_TOKEN PACKAGES_GPG_KEY PACKAGES_RSA_KEY DOCKERHUB_TOKEN; do
+          for name in TAP_GITHUB_TOKEN PACKAGES_GPG_KEY PACKAGES_RSA_KEY DOCKERHUB_TOKEN PYPI_TOKEN; do
             [ -n "${!name}" ] || { echo "::error::$name is not set"; exit 1; }
           done
       - name: The Go version the tag names
@@ -113,6 +117,26 @@ jobs:
             image="ghcr.io/larvit/fejkdata:$(jq -r .version dist/metadata.json)-amd64"
           fi
           test "$(docker run --rm "$image" --version)" = "$printed"
+      # A tag cut before the Python package existed holds no python-package/, and builds no wheel.
+      - name: A Python wheel per platform, and the Linux one renders once installed
+        id: wheels
+        if: hashFiles('src/python-package/**') != ''
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          version="${TAG#v}"
+          python3 tooling/release-tooling/python_wheels.py src dist "${version:-0.0.0}" wheels
+          python3 -m venv venv
+          venv/bin/pip install --no-index wheels/*manylinux*x86_64*.whl
+          rendered="$(venv/bin/python -c 'import fejkdata; print(fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today="2026-01-15"))')"
+          test "$rendered" = SE
+          echo built=true >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        if: steps.wheels.outputs.built && inputs.tag
+        with:
+          name: python-wheels
+          path: wheels/*.whl
+          retention-days: 90
       - uses: actions/upload-artifact@v7
         if: steps.latest.outputs.latest == 'true' || !inputs.tag
         with:
@@ -160,6 +184,24 @@ jobs:
           fi
           docker buildx imagetools create "${tags[@]}" "ghcr.io/larvit/fejkdata:${TAG#v}"
           test "$(docker run --rm "docker.io/larvit/fejkdata:${TAG#v}" --version)" = "fejkdata $TAG"
+
+  # PyPI keeps every version, so a tag older than the latest release publishes too. A rerun
+  # skips the wheels PyPI already holds, since it refuses to replace a file.
+  pypi:
+    name: Python wheels on PyPI for ${{ inputs.tag }}
+    needs: packages
+    if: ${{ !cancelled() && needs.packages.result == 'success' && needs.packages.outputs.wheels }}
+    runs-on: ubuntu-26.04
+    permissions: {}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: python-wheels
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@v1.14.3
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+          skip-existing: true
 
   repos:
     name: apt, dnf and apk repositories for ${{ inputs.tag || 'a dry run' }}
