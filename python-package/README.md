@@ -7,6 +7,10 @@ validation where possible.
 pip install fejkdata
 ```
 
+It needs Python 3.11 or later. It installs on Linux, macOS and Windows, on amd64 and arm64.
+There is no source build, so pip finds nothing to install on another platform. The package
+doesn't put a `fejkdata` command on your path.
+
 ```python
 import fejkdata
 
