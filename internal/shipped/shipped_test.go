@@ -257,9 +257,9 @@ func TestShapeNamesTables(t *testing.T) {
 		"r.json": `{"format":"{name}","rows":"r.tsv","key":"code","name":"name","weight":"w"}`,
 		"r.tsv":  "code\tname\tw\n1\ta\t2\n2\tb\t3\n",
 		"m.json": `{"format":"{name} {/ns.w}","rows":"m.tsv","key":"code","parent":"r"}`,
-		"m.tsv":  "code\tname\tr\n10\tc\t1\n20\td\t2\n",
+		"m.tsv":  "name\tcode\tr\nc\t10\t1\nd\t20\t2\n",
 	}))
-	want := "ns.m\tformat \"{name} {/ns.w}\"\tkey code\tparent r\treads ns.w\nns.m.code\tstring\nns.m.name\tstring\nns.m.r\tstring\nns.r\tformat \"{name}\"\tkey code\tname name\tweight w\nns.r.code\tstring\nns.r.m\nns.r.m.code\nns.r.m.name\nns.r.m.r\nns.r.name\tstring\nns.r.w\tstring\nns.w\tformat \"x\"\n"
+	want := "ns.m\tformat \"{name} {/ns.w}\"\tkey code\tparent r\treads ns.w\tcolumns name code r\nns.m.code\tstring\nns.m.name\tstring\nns.m.r\tstring\nns.r\tformat \"{name}\"\tkey code\tname name\tweight w\tcolumns code name w\nns.r.code\tstring\nns.r.m\nns.r.m.code\nns.r.m.name\nns.r.m.r\nns.r.name\tstring\nns.r.w\tstring\nns.w\tformat \"x\"\n"
 	if got := string(d.Shape().Body); got != want {
 		t.Fatalf("Shape =\n%s\nwant\n%s", got, want)
 	}
