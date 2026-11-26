@@ -114,7 +114,7 @@ jobs:
           fi
           test "$(docker run --rm "$image" --version)" = "$printed"
       # A tag cut before the Python package existed holds no python-package/, and builds no wheel.
-      - name: A Python wheel per platform, and the Linux one renders once installed
+      - name: A Python wheel per platform, and the Linux amd64 one renders once installed
         if: hashFiles('src/python-package/**') != ''
         env:
           TAG: ${{ inputs.tag }}

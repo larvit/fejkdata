@@ -7,8 +7,7 @@ import re
 import sys
 import zipfile
 
-# A wheel installs where pip finds one of its tags. The Linux binaries are static, so they run on glibc and musl alike.
-# macOS 13 is the oldest Go 1.27 runs on (https://go.dev/doc/go1.27, Ports), and a test fails once the Dockerfile names another minor.
+# The macOS tags name the oldest macOS this Go minor runs on, and a test fails once the Dockerfile names another minor.
 MACOS_TAG_READ_FROM_GO = "1.27"
 PLATFORMS = {
 	"linux_amd64": "manylinux_2_17_x86_64.manylinux2014_x86_64.musllinux_1_1_x86_64",
@@ -19,7 +18,6 @@ PLATFORMS = {
 	"windows_arm64": "win_arm64",
 }
 LICENCES = ("LICENSE", "DATA-LICENSES.md", "data/en_US/WORDNET-LICENSE.txt")
-# The oldest Python still supported (https://devguide.python.org/versions/) is 3.11.
 METADATA = """\
 Metadata-Version: 2.4
 Name: fejkdata
@@ -82,7 +80,7 @@ def files(src: pathlib.Path, version: str, tag: str) -> dict[str, bytes]:
 def build(src: pathlib.Path, dist: pathlib.Path, version: str, out: pathlib.Path) -> list[pathlib.Path]:
 	"""Writes into out a wheel per platform, from the release's checkout src and GoReleaser's dist, and returns them."""
 	if not re.fullmatch(r"\d+\.\d+\.\d+", version):
-		raise ValueError(f"version {version!r} is not a release's, such as 0.9.0")
+		raise ValueError(f"version {version!r} must be three numbers, such as 0.9.0")
 	binaries = {platform: binary(dist, platform) for platform in PLATFORMS}
 	out.mkdir(exist_ok=True)
 	wheels = []
