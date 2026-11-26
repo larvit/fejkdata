@@ -875,7 +875,7 @@ Where a value mixes kinds, its source says which part is which. An example is a 
 [`data-listing/paths.json`](data-listing/paths.json) is the same list for programs, with `path`, `kind` (an
 array), `example` (not cut) and `source` for each path.
 
-A locale's line lists its person, address, national id, company and phone paths. A `geo` line lists the
+A locale's line lists its person, address, national id, company and phone paths; each locale also has `mobile` and `landline`, which draw the phone's two kinds. A `geo` line lists the
 places of one country, from region down to street, and `misc` holds what every locale shares.
 
 The main paths of each module:
@@ -914,7 +914,7 @@ neighbouring postort.
 |---|---|---|
 | `da_DK` | [Danish](docs/locales/da_DK.md) | CPR number; CPR number matched to a sex; Danish companies; Danish dates and emails; Danish phone numbers; Danish words |
 | `de_DE` | [German](docs/locales/de_DE.md) | Steuer-ID; German companies; German dates and emails; German phone numbers; German words |
-| `en_US` | [US English](docs/locales/en_US.md) | English words; Social Security numbers and ITINs; US phone exchanges |
+| `en_US` | [US English](docs/locales/en_US.md) | English words; Social Security numbers and ITINs; US phone numbers |
 | `et_EE` | [Estonian](docs/locales/et_EE.md) | Estonian companies; Estonian dates and emails; Estonian phone numbers; Estonian words |
 | `fi_FI` | [Finnish](docs/locales/fi_FI.md) | Finnish companies; Finnish dates and emails; Finnish phone numbers; Finnish words; Henkilötunnus; Henkilötunnus matched to a sex; Henkilötunnus of the issued range |
 | `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers; French words |
