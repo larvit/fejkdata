@@ -51,6 +51,27 @@ func TestShippedUSPhone(t *testing.T) {
 	})
 }
 
+func TestShippedUSMobileAndLandlineDrawOneNationalPool(t *testing.T) {
+	f := shipped(t, fejkdata.WithSeed(11))
+	national := regexp.MustCompile(`^\((\d{3})\) ([2-9]\d{2})-(\d{4})$`)
+	phoneAreas := map[string]bool{}
+	fejktest.EachDraw(3000, func() string { return fejktest.Fake(t, f, "en_US.phone.area") }, func(area string) { phoneAreas[area] = true })
+	for _, path := range []string{"mobile", "landline"} {
+		fejktest.EachDraw(500, func() string {
+			return fejktest.FakeTemplate(t, f, "{/en_US."+path+" as p}{p}|{p.national}|{p.international}")
+		}, func(got string) {
+			parts := strings.Split(got, "|")
+			m := national.FindStringSubmatch(parts[0])
+			if len(parts) != 3 || m == nil || parts[1] != parts[0] || parts[2] != "+1 "+m[1]+" "+m[2]+" "+m[3] {
+				t.Fatalf("en_US.%s drew %q, want (AAA) EEE-LLLL twice and +1 AAA EEE LLLL", path, got)
+			}
+			if !phoneAreas[m[1]] {
+				t.Fatalf("en_US.%s drew the area code %s, which en_US.phone never draws", path, m[1])
+			}
+		})
+	}
+}
+
 func eachTitleAndSex(drawn []string, check func(got, title, sex string)) {
 	for _, got := range drawn {
 		title, sex, _ := strings.Cut(got, "|")
