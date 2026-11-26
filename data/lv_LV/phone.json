@@ -1,13 +1,8 @@
-[
-  {
-    "format": "{.mobile as p}{p}",
-    "weight": 10,
-  "national": "{p.national}",
-  "international": "{p.international}"
+{
+  "format": "{number as n}{national}",
+  "hidden": {
+    "number": [{ "format": "{.mobile.national}", "weight": 10 }, "{.landline.national}"]
   },
-  {
-    "format": "{.landline as p}{p}",
-  "national": "{p.national}",
-  "international": "{p.international}"
-  }
-]
+  "national": "{n}",
+  "international": "+371 {n}"
+}
