@@ -24,6 +24,7 @@ with its replacement, and each removed path, column or flag.
 
 ### Changed
 
+- `--format pgcopy` and `Record.PGCopyLine` write a NUL character as `\000`, so PostgreSQL refuses the row and names its line. A raw NUL made `psql` cut the row short and load a corrupted one. The README says what `csv`, `sql` and `tsv` do with a NUL.
 - The error for a `{` that is never closed names both fixes: write `{{` for a literal brace, or close the token with `}`.
 - `misc.territory[KZ].capital` is `Astana`, not `Nur-Sultan`. `misc.territory[PW].capital` is `Ngerulmud`, not `Melekeok`, the state it lies in.
 
