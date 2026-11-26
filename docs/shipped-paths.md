@@ -269,9 +269,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `en_US.email.local` | invented | `derpina14` | the locale's names and hand-written words, at example domains |
 | `en_US.email.local.n` | invented | `1337` | the locale's names and hand-written words, at example domains |
 | `en_US.email.reserved` | invented | `turboraccoon2024@webmail.example.net` | the locale's names and hand-written words, at example domains |
-| `en_US.first-name` | real | `Walker` | the SSA's baby names |
-| `en_US.first-name.count` | real | `25802` | the SSA's baby names |
-| `en_US.first-name.name` | real | `Walker` | the SSA's baby names |
+| `en_US.first-name` | real | `Walter` | the SSA's baby names |
+| `en_US.first-name.count` | real | `358008` | the SSA's baby names |
+| `en_US.first-name.name` | real | `Walter` | the SSA's baby names |
 | `en_US.first-name.sex` | real | `m` | the SSA's baby names |
 | `en_US.itin` | valid | `961-60-5616` | hand-written, in the groups the IRS lists for an ITIN |
 | `en_US.itin.area` | valid | `906` | hand-written, in the groups the IRS lists for an ITIN |
@@ -290,11 +290,11 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `en_US.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `en_US.month.name` | real | `January` | Unicode CLDR's stand-alone month names |
 | `en_US.paragraph` | invented | `Each unguaranteed possibility bacterizes between…` | a fixed pattern filled with the locale's words |
-| `en_US.person` | real, invented | `Elliot Young` | real first and last names from the locale's name tables; the pairing is invented |
-| `en_US.person.first` | real | `Phoenix` | the SSA's baby names |
+| `en_US.person` | real, invented | `Elma Young` | real first and last names from the locale's name tables; the pairing is invented |
+| `en_US.person.first` | real | `Priscilla` | the SSA's baby names |
 | `en_US.person.last` | real | `Russo` | the Census Bureau's surnames of 2010 |
 | `en_US.person.prefix` | real | `Mr ` | hand-written |
-| `en_US.person.sex` | real | `male` | the Census Bureau's population estimates by sex |
+| `en_US.person.sex` | real | `female` | the Census Bureau's population estimates by sex |
 | `en_US.phone` | valid | `305-785-5616` | hand-written area codes; exchanges NANPA may assign |
 | `en_US.phone-exchange` | valid | `955` | the codes NANPA may assign |
 | `en_US.phone.area` | valid | `718` | hand-written area codes; exchanges NANPA may assign |
@@ -309,9 +309,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `en_US.sex` | real | `male` | the Census Bureau's population estimates by sex |
 | `en_US.sex.code` | real | `m` | the Census Bureau's population estimates by sex |
 | `en_US.sex.count` | real | `168337882` | the Census Bureau's population estimates by sex |
-| `en_US.sex.first-name` | real | `Rhys` | the SSA's baby names |
-| `en_US.sex.first-name.count` | real | `10164` | the SSA's baby names |
-| `en_US.sex.first-name.name` | real | `Rhys` | the SSA's baby names |
+| `en_US.sex.first-name` | real | `Reymundo` | the SSA's baby names |
+| `en_US.sex.first-name.count` | real | `3882` | the SSA's baby names |
+| `en_US.sex.first-name.name` | real | `Reymundo` | the SSA's baby names |
 | `en_US.sex.first-name.sex` | real | `m` | the SSA's baby names |
 | `en_US.sex.name` | real | `male` | the Census Bureau's population estimates by sex |
 | `en_US.sex.title` | real | `Mr` | hand-written |
@@ -487,31 +487,31 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fi_FI.address.street` | real | `Metsokuja` | Posti's postcode and basic address files |
 | `fi_FI.address.street-number` | invented | `7d` | invented house numbers |
 | `fi_FI.color` | real, valid | `Tummansininen` | hand-written colour names, or a random hex code in two draws of three |
-| `fi_FI.company` | invented | `Kinnunen Tilitoimisto Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company` | invented | `Kiili Tilitoimisto Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
 | `fi_FI.company-coined` | invented | `Pyrytuuli` | a language model's recall |
 | `fi_FI.company-word` | invented | `Asennus` | a language model's recall |
-| `fi_FI.company.ay` | invented | `Marttunen Pesula Ay` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
-| `fi_FI.company.ay.name` | invented | `Mohammed & Salminen` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
-| `fi_FI.company.ky` | invented | `Marttunen Pesula Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
-| `fi_FI.company.ky.name` | invented | `Mohammed & Salminen` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.ay` | invented | `Mattanen Pesula Ay` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.ay.name` | invented | `Moisio & Salonius` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.ky` | invented | `Mattanen Pesula Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.ky.name` | invented | `Moisio & Salonius` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
 | `fi_FI.company.legal` | invented | `Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
-| `fi_FI.company.osk` | invented | `Marttunen Pesula osk` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.osk` | invented | `Mattanen Pesula osk` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
 | `fi_FI.company.osk.name` | invented | `Uusiranta` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
-| `fi_FI.company.oy` | invented | `Maire Mäkeläinen Oy` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.oy` | invented | `Maire Mäkinen Oy` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
 | `fi_FI.company.oy.name` | invented | `Uusiranta` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
-| `fi_FI.company.registered` | invented | `Kinnunen Tilitoimisto Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.registered` | invented | `Kiili Tilitoimisto Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
 | `fi_FI.company.registered.legal` | invented | `Ky` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
-| `fi_FI.company.tmi` | invented | `Marttunen Pesula` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
-| `fi_FI.company.tmi.name` | invented | `Marja Salminen` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.tmi` | invented | `Mattanen Pesula` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
+| `fi_FI.company.tmi.name` | invented | `Marja Salonius` | legal-form weights from Statistics Finland; name shapes from a language model's recall |
 | `fi_FI.date` | invented | `5.11.1971` | hand-written |
 | `fi_FI.email` | invented | `viisasmursu2024@mail.example.org` | the locale's names and hand-written words, at example domains |
 | `fi_FI.email.domain` | invented | `demo.example.net` | the locale's names and hand-written words, at example domains |
 | `fi_FI.email.local` | invented | `floof14` | the locale's names and hand-written words, at example domains |
 | `fi_FI.email.local.n` | invented | `1337` | the locale's names and hand-written words, at example domains |
 | `fi_FI.email.reserved` | invented | `viisasmursu2024@mail.example.org` | the locale's names and hand-written words, at example domains |
-| `fi_FI.first-name` | real | `Vertti` | DVV's name statistics |
-| `fi_FI.first-name.count` | real | `1571` | DVV's name statistics |
-| `fi_FI.first-name.name` | real | `Vertti` | DVV's name statistics |
+| `fi_FI.first-name` | real | `Vesa` | DVV's name statistics |
+| `fi_FI.first-name.count` | real | `14432` | DVV's name statistics |
+| `fi_FI.first-name.name` | real | `Vesa` | DVV's name statistics |
 | `fi_FI.first-name.sex` | real | `m` | DVV's name statistics |
 | `fi_FI.henkilotunnus` | valid | `160432-965X` | DVV's unissued individual numbers 900 to 999 |
 | `fi_FI.henkilotunnus-issued` | valid | `160432-581J` | DVV's issued individual numbers 002 to 899 |
@@ -523,9 +523,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fi_FI.landline` | valid | `03 695 5561` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.landline.international` | valid | `+358 15 66 955` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.landline.national` | valid | `015 66 955` | Traficom's Regulation 32 V/2025 M |
-| `fi_FI.last-name` | real | `Vuorikoski` | DVV's name statistics |
-| `fi_FI.last-name.count` | real | `200` | DVV's name statistics |
-| `fi_FI.last-name.name` | real | `Vuorikoski` | DVV's name statistics |
+| `fi_FI.last-name` | real | `Väisänen` | DVV's name statistics |
+| `fi_FI.last-name.count` | real | `9546` | DVV's name statistics |
+| `fi_FI.last-name.name` | real | `Väisänen` | DVV's name statistics |
 | `fi_FI.mobile` | valid | `042 695 5561` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.mobile.international` | valid | `+358 450 66 955` | Traficom's Regulation 32 V/2025 M |
 | `fi_FI.mobile.national` | valid | `0450 66 955` | Traficom's Regulation 32 V/2025 M |
@@ -533,9 +533,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fi_FI.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `fi_FI.month.name` | real | `tammikuu` | Unicode CLDR's stand-alone month names |
 | `fi_FI.paragraph` | invented | `Jokainen vaippapinta on salliva ja eheärakentein…` | a fixed pattern filled with the locale's words |
-| `fi_FI.person` | real, invented | `Jari Yrjänheikki` | real first and last names from the locale's name tables; the pairing is invented |
+| `fi_FI.person` | real, invented | `Janne von Haartman` | real first and last names from the locale's name tables; the pairing is invented |
 | `fi_FI.person.first` | real | `Saara` | DVV's name statistics |
-| `fi_FI.person.last` | real | `Sallinen` | DVV's name statistics |
+| `fi_FI.person.last` | real | `Salo` | DVV's name statistics |
 | `fi_FI.person.prefix` | real | `tohtori ` | hand-written |
 | `fi_FI.person.sex` | real | `nainen` | Statistics Finland's table 11rb |
 | `fi_FI.phone` | valid | `05 5556 1680` | Traficom's Regulation 32 V/2025 M |
@@ -620,19 +620,19 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fr_FR.company-word` | invented | `Transport` | words from INSEE's Sirene company names |
 | `fr_FR.company-word.count` | invented | `21615` | words from INSEE's Sirene company names |
 | `fr_FR.company-word.word` | invented | `Transport` | words from INSEE's Sirene company names |
-| `fr_FR.company.ei` | invented | `Laetitia Petit` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.ei.name` | invented | `Pablo Ducrocq` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.ei` | invented | `Laly Pierrisnard` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.ei.name` | invented | `Pascal Dixit` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.legal` | invented | `SAS` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.registered` | invented | `Easy World SAS` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.registered.legal` | invented | `SAS` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.sa` | invented | `Groupe Groupe Brico SA` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.sa.name` | invented | `Groupe Publi Lafitte` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.sa.name` | invented | `Groupe Publi Kieffer` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.sarl` | invented | `Groupe Immobilier SARL` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.sarl.name` | invented | `Laetitia` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.sarl.name` | invented | `Laly` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.sas` | invented | `Groupe Immobilier SAS` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.sas.name` | invented | `Lagrange Publi` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.sas.name` | invented | `Kubik Publi` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.snc` | invented | `Groupe Groupe SNC` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.snc.name` | invented | `Lagrange` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.snc.name` | invented | `Kubik` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.date` | invented | `05/11/1971` | hand-written |
 | `fr_FR.department` | real | `04` | INSEE's department codes in a NIR |
 | `fr_FR.department.code` | real | `04` | INSEE's department codes in a NIR |
@@ -649,9 +649,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fr_FR.landline` | valid | `01 99 00 16 69` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.landline.international` | valid | `+33 4 65 71 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.landline.national` | valid | `04 65 71 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
-| `fr_FR.last-name` | real | `Verger` | INSEE's Fichier des noms |
-| `fr_FR.last-name.count` | real | `8517` | INSEE's Fichier des noms |
-| `fr_FR.last-name.name` | real | `Verger` | INSEE's Fichier des noms |
+| `fr_FR.last-name` | real | `Veyrier` | INSEE's Fichier des noms |
+| `fr_FR.last-name.count` | real | `1581` | INSEE's Fichier des noms |
+| `fr_FR.last-name.name` | real | `Veyrier` | INSEE's Fichier des noms |
 | `fr_FR.mobile` | valid | `06 39 98 16 69` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.mobile.international` | valid | `+33 6 39 98 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
 | `fr_FR.mobile.national` | valid | `06 39 98 91 66` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
@@ -666,9 +666,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fr_FR.nonzero-number.three` | invented | `719` | hand-written |
 | `fr_FR.nonzero-number.two` | invented | `71` | hand-written |
 | `fr_FR.paragraph` | invented | `Il faut parfumer des mellahs comminatoirement. I…` | a fixed pattern filled with the locale's words |
-| `fr_FR.person` | real, invented | `Eric Wozniak` | real first and last names from the locale's name tables; the pairing is invented |
-| `fr_FR.person.first` | real | `Pablo` | INSEE's Fichier des prénoms |
-| `fr_FR.person.last` | real | `Perrot` | INSEE's Fichier des noms |
+| `fr_FR.person` | real, invented | `Erwan Zanon` | real first and last names from the locale's name tables; the pairing is invented |
+| `fr_FR.person.first` | real | `Pascal` | INSEE's Fichier des prénoms |
+| `fr_FR.person.last` | real | `Philippon` | INSEE's Fichier des noms |
 | `fr_FR.person.prefix` | real | `Dr ` | hand-written |
 | `fr_FR.person.sex` | real | `homme` | Eurostat's table demo_pjan |
 | `fr_FR.phone` | valid | `01 99 00 69 55` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |
@@ -2131,19 +2131,19 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `sv_SE.email.local` | invented | `doot14` | the locale's names and hand-written words, at example domains |
 | `sv_SE.email.local.n` | invented | `1337` | the locale's names and hand-written words, at example domains |
 | `sv_SE.email.reserved` | invented | `varmorn2024@example.net` | the locale's names and hand-written words, at example domains |
-| `sv_SE.first-name` | real | `Viktoria` | SCB's names with at least two bearers |
-| `sv_SE.first-name.count` | real | `5445` | SCB's names with at least two bearers |
-| `sv_SE.first-name.name` | real | `Viktoria` | SCB's names with at least two bearers |
-| `sv_SE.first-name.sex` | real | `f` | SCB's names with at least two bearers |
+| `sv_SE.first-name` | real | `Vinston` | SCB's names with at least two bearers |
+| `sv_SE.first-name.count` | real | `120` | SCB's names with at least two bearers |
+| `sv_SE.first-name.name` | real | `Vinston` | SCB's names with at least two bearers |
+| `sv_SE.first-name.sex` | real | `m` | SCB's names with at least two bearers |
 | `sv_SE.holiday` | real | `nyårsdagen` | lag (1989:253) om allmänna helgdagar |
 | `sv_SE.holiday.code` | real | `nyarsdagen` | lag (1989:253) om allmänna helgdagar |
 | `sv_SE.holiday.name` | real | `nyårsdagen` | lag (1989:253) om allmänna helgdagar |
 | `sv_SE.landline` | valid | `0241-695 55` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.landline.international` | valid | `+46 591 669 55` | PTS's numbering plan of 2024-01-08 |
 | `sv_SE.landline.national` | valid | `0591-669 55` | PTS's numbering plan of 2024-01-08 |
-| `sv_SE.last-name` | real | `Yassin` | SCB's names with at least two bearers |
-| `sv_SE.last-name.count` | real | `567` | SCB's names with at least two bearers |
-| `sv_SE.last-name.name` | real | `Yassin` | SCB's names with at least two bearers |
+| `sv_SE.last-name` | real | `Yngwe` | SCB's names with at least two bearers |
+| `sv_SE.last-name.count` | real | `107` | SCB's names with at least two bearers |
+| `sv_SE.last-name.name` | real | `Yngwe` | SCB's names with at least two bearers |
 | `sv_SE.licenseplate` | valid | `DLP 695` | sv.wikipedia's article on Swedish plates |
 | `sv_SE.licenseplate-letters` | valid | `ASF` | sv.wikipedia's article on Swedish plates |
 | `sv_SE.licenseplate-letters.letters` | valid | `ASF` | sv.wikipedia's article on Swedish plates |
@@ -2161,13 +2161,13 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `sv_SE.organisationsnummer` | valid | `598669-5566` | format and checksum; group weights from Bolagsverket's statistics |
 | `sv_SE.organisationsnummer.vat` | valid | `SE598669556601` | format and checksum; group weights from Bolagsverket's statistics |
 | `sv_SE.paragraph` | invented | `Denna trafikpolitiska oläsbarheten sammanställer…` | a fixed pattern filled with the locale's words |
-| `sv_SE.person` | real, valid, invented | `Felicia Östberg` | SCB's names, a test-series personnummer; the birth date is invented |
+| `sv_SE.person` | real, valid, invented | `Felix Östberg` | SCB's names, a test-series personnummer; the birth date is invented |
 | `sv_SE.person.birthdate` | invented | `1932-04-16` | drawn from the age band of the person's personnummer |
-| `sv_SE.person.first` | real | `Patrik` | SCB's names with at least two bearers |
-| `sv_SE.person.last` | real | `Pettersson` | SCB's names with at least two bearers |
+| `sv_SE.person.first` | real | `Per` | SCB's names with at least two bearers |
+| `sv_SE.person.last` | real | `Ringqvist` | SCB's names with at least two bearers |
 | `sv_SE.person.personnummer` | valid | `320416-2394` | Skatteverket's test series |
 | `sv_SE.person.prefix` | real | `dr ` | hand-written |
-| `sv_SE.person.samordningsnummer` | valid | `320476-2383` | Skatteverket's test series |
+| `sv_SE.person.samordningsnummer` | valid | `320476-2391` | Skatteverket's test series |
 | `sv_SE.person.samordningsnummer.birthday` | valid | `16` | Skatteverket's test series |
 | `sv_SE.person.sex` | real | `man` | SCB's table BefolkningR1860N |
 | `sv_SE.personnummer` | valid | `691109-2382` | Skatteverket's test series |
@@ -2208,9 +2208,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `sv_SE.sex.birth-number.sex` | valid | `m` | Skatteverket's test series |
 | `sv_SE.sex.code` | real | `m` | SCB's table BefolkningR1860N |
 | `sv_SE.sex.count` | real | `5324785` | SCB's table BefolkningR1860N |
-| `sv_SE.sex.first-name` | real | `Peter` | SCB's names with at least two bearers |
-| `sv_SE.sex.first-name.count` | real | `61581` | SCB's names with at least two bearers |
-| `sv_SE.sex.first-name.name` | real | `Peter` | SCB's names with at least two bearers |
+| `sv_SE.sex.first-name` | real | `Pether` | SCB's names with at least two bearers |
+| `sv_SE.sex.first-name.count` | real | `196` | SCB's names with at least two bearers |
+| `sv_SE.sex.first-name.name` | real | `Pether` | SCB's names with at least two bearers |
 | `sv_SE.sex.first-name.sex` | real | `m` | SCB's names with at least two bearers |
 | `sv_SE.sex.name` | real | `man` | SCB's table BefolkningR1860N |
 | `sv_SE.sex.personnummer` | valid | `920415-2392` | Skatteverket's test series |
