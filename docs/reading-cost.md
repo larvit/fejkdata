@@ -3102,3 +3102,31 @@ Read most (opens and searches):
 - `CHANGELOG.md` 1
 - `cli/records.go` 1
 - `docs/decisions.md` 1
+
+## Reading cost, chunk b225904a0c0e, finished 2026-11-26T08:19:04Z
+
+61822 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 3
+- `data-import/geo-no.py` 1
+- `data-import/useragent.py` 1
+- `todo.md` 1
+
+## Reading cost, chunk 0746e9ec51b4, finished 2026-11-26T08:38:57Z
+
+228393 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data/swedish_test.go` 4
+- `data/english_test.go` 3
+- `README.md` 2
+- `data/locale_phone_test.go` 2
+- `data/locales_test.go` 2
+- `data/norwegian_test.go` 2
+- `docs/shipped-paths.md` 2
+- `compose.yaml` 1
+- `data/da_DK/fs.go` 1
+- `data/da_DK/phone.json` 1
