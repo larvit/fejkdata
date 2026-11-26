@@ -2424,18 +2424,18 @@ Valid while `phone-mobile` and `phone-fixed` name prefix tables.
 
 A name table has no block index, so its whole file loads on first reach, at about 0.5 µs a row (CPU time, on a machine with a load average of 16 to 25 on 16 CPUs, so a quiet one is faster). A `person` or `company` loads a first-name and a last-name table. With a floor of 5 on every table, `sv_SE.last-name` held 190,014 rows and `fr_FR.last-name` 218,571, and the first value of `sv_SE.person` took 88 to 143 ms, from about 10, as the stability review measured.
 
-So each table takes the lowest floor of 5, 10, 20, 50, 100, 200 or 500 that leaves it at most 60,000 rows, which `TestNameTablesOfCountedBearersHoldUnder60000RowsEach` holds. `sv_SE.last-name` takes 50 instead of 20: `sv_SE.company` is the slowest first value of any locale, 65 ms before and 110 with 20, and 70 to 80 with 50.
+So each table takes the lowest floor of 5, 10, 20, 50, 100, 200 or 500 that leaves it at most 60,000 rows, which `TestNameTablesOfCountedBearersHoldUnder60000RowsEach` holds. `sv_SE.last-name` takes 50 instead of 20: `sv_SE.company` is the slowest first value of any locale, 65 ms before and 110 with 20, and 70 to 80 with 50. The last column is the share of the bearers a floor of 5 would keep; the 77.2% and the 81.5% are the price of goal 12.2, and the tables with 100% lose no bearer.
 
-| Table | Floor | Rows |
-|---|---|---|
-| `sv_SE.first-name` | 5 | 47,889 |
-| `sv_SE.last-name` | 50 | 16,929 |
-| `fi_FI.first-name` | 5 | 17,128 |
-| `fi_FI.last-name` | 5 | 23,264 |
-| `fr_FR.first-name` | 5 | 33,372 |
-| `fr_FR.last-name` | 200 | 54,262 |
-| `en_US.first-name` | 50 | 52,170 |
-| `en_US.last-name` | 500 | 41,202 |
+| Table | Floor | Rows | Bytes | Bearers kept |
+|---|---|---|---|---|
+| `sv_SE.first-name` | 5 | 47,889 | 576,148 | 100% |
+| `sv_SE.last-name` | 50 | 16,929 | 197,819 | 77.2% |
+| `fi_FI.first-name` | 5 | 17,128 | 214,143 | 100% |
+| `fi_FI.last-name` | 5 | 23,264 | 283,349 | 100% |
+| `fr_FR.first-name` | 5 | 33,372 | 430,988 | 100% |
+| `fr_FR.last-name` | 200 | 54,262 | 660,637 | 81.5% |
+| `en_US.first-name` | 50 | 52,170 | 695,237 | 99.7% |
+| `en_US.last-name` | 500 | 41,202 | 504,514 | 90.4% |
 
 On the same machine the first value of `sv_SE.person`, `fr_FR.person` and `en_US.person` takes 50 to 60 ms, from 10 to 20. No floor is below 5, since a name with fewer bearers can point at a household; SCB lists names from 2 bearers, and its 2 to 4 stay out.
 
