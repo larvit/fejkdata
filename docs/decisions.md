@@ -2397,3 +2397,11 @@ MySQL's `LOAD DATA`, with its fields enclosed in quotes, reads an unquoted `NULL
 `tsv` is the file a table reads, and a table cell has no null, so the flag is refused there, as under every format but `csv`. A panel of three readers (a bulk fixture author, a coding agent and a hand fixture author) ranked six names. `--null-text` and `--null-as` tied on points; `--null-text` was never ranked below fourth and never read as a switch.
 
 Valid while `csv` is the one record format with a free choice of null spelling.
+
+## `pgcopy` escapes a NUL, and `csv`, `sql` and `tsv` write it as it is
+
+2026-11-26, the agent shipping item 566. Goal 5.4: errors surface when the data loads, never mid-render.
+
+PostgreSQL's text can't hold a NUL. `pgcopy` writes one as `\000`, which COPY decodes and refuses with an error naming the line; a raw NUL made `psql` cut the row short and load the next line glued to it. `sql` has no escape for a NUL, and a refusal there needs an error from a serializer that returns a string. The CLI could check each record, but that copies its columns and fails a run partway, which goal 5.4 rules out. A load can't refuse a NUL either: `json` carries one as `\u0000`, and one draw is written in every format. So `csv`, `sql` and `tsv` write a NUL as it is, and the README says what `psql` does with one.
+
+Valid while a serializer returns a string and no shipped path draws a NUL.

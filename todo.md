@@ -18,7 +18,6 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 597 | 0.9.0 |  |  | **Indent the Python source under `data-import` with hard tabs, as `AGENTS.md` and the tabs principle ask.** | 3 | 1 | 1 | 3 | 5 | code health by 4 | 3.1 |
 | 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
-| 566 | 0.9.0 |  |  | **Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.** | 2 | 1 | 2 | 3 | 2 | 1 by 2, 5 by 2 | 2.2 |
 | 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
@@ -138,7 +137,7 @@
 | 63 | 0.11.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 3 by 6 | 0.7 |
 | 65 | 0.11.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.5 |
 | 587 | 0.12.0 | 567 | question | **Decide whether an `--edge 5%` flag mixes odd values into any template, once the odd-value tables have been in use.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
-| 589 | 0.12.0 | 566, 572 |  | **Load every odd value into PostgreSQL and MySQL from each format that can carry it in the merge gate, and compare what comes back.** | 2 | 1 | 1 | 2 | 4 | 3 by 2, code health by 2 | 3.1 |
+| 589 | 0.12.0 | 572 |  | **Load every odd value into PostgreSQL and MySQL from each format that can carry it in the merge gate, and compare what comes back.** | 2 | 1 | 1 | 2 | 4 | 3 by 2, code health by 2 | 3.1 |
 | 593 | 0.12.0 | 567 |  | **Ship national ids, IBANs and cards with a bad checksum or wrong length under an `invalid` path, and French NIRs of people born abroad.** | 2 | 1 | 1 | 2 | 4 | 1 by 4, 3 by 2 | 1.8 |
 | 585 | 0.12.0 |  |  | **Add `nfc` and `nfd` transforms.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.3 |
 | 591 | 0.12.0 | 567 |  | **Ship skipped days and ambiguous date spellings.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
@@ -268,18 +267,6 @@ The maintainer does this item, not a chunk: each step speaks for the project in 
 - Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
 
 Awesome Go is done from our side: the pull request there is approved and waits to be merged. Item 548's monthly table shows whether each step moved what LLMs answer.
-
-### 566. Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.
-
-A NUL passes raw into csv, tsv, sql and pgcopy, and PostgreSQL's text cannot hold one. The refusal needs the render to report an error, so check what the public API allows before 1.0.0; if it cannot, document it instead. `TSVLine`'s comment already states the folding, the README does not.
-
-Touches:
-
-- `record.go`: `sqlString`, `pgCopyCell`, `Record.TSVLine`
-- `record_test.go`
-- `cli/records.go`
-- `README.md`: `### Records`, `### Load into a database`
-- `CHANGELOG.md`
 
 ### 561. Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.
 

@@ -413,6 +413,11 @@ A column carrying a newline keeps it inside the quoted CSV field or the SQL stri
 literal, so a row can span physical lines: read the stream with a CSV or SQL
 parser rather than splitting it on newlines.
 
+A NUL character in a value, which no shipped path draws, is written as `\u0000` by `json` and `ndjson`, as `\000` by
+`pgcopy` and as it is by `csv`, `tsv` and `sql`. PostgreSQL's text can't hold a NUL. It refuses the `pgcopy`
+file and names the line, but `psql` cuts a raw NUL off, so a `sql` file fails on the statement after it. Remove a NUL from your data before you load
+into PostgreSQL ([Decisions](docs/decisions.md#pgcopy-escapes-a-nul-and-csv-sql-and-tsv-write-it-as-it-is)).
+
 A statement fails whole: one row a constraint refuses loses its whole statement, up to 1000 rows.
 A shipped category may repeat a value. `{seq()}` counts 1, 2, 3 through a run. A column that ends
 in a `.`, the count and fixed text, as the email below ends in `.{seq(email)}@example.com`, never

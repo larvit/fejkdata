@@ -952,3 +952,27 @@ func TestColumnIsTheEngineColumn(t *testing.T) {
 		t.Errorf("fejkdata.Column is %T, want the engine's %T, as DataType is", Column{}, engine.Column{})
 	}
 }
+
+func TestRecordNULIsEscapedByJSONAndPGCopyAndRawInCSVTSVAndSQL(t *testing.T) {
+	t.Parallel()
+	dir := writeData(t, map[string]string{"row": `{"format":"","v":"a\u0000b"}`})
+	f, err := New(WithDataPath(dir), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := f.FakeRecord("row")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, c := range map[string]struct{ got, want string }{
+		"JSON":       {r.JSON(), `{"v":"a\u0000b"}`},
+		"PGCopyLine": {r.PGCopyLine(), `a\000b`},
+		"CSVLine":    {r.CSVLine(), "a\x00b"},
+		"TSVLine":    {r.TSVLine(), "a\x00b"},
+		"SQLValues":  {r.SQLValues(), "('a\x00b')"},
+	} {
+		if c.got != c.want {
+			t.Errorf("%s = %q, want %q: COPY reads \\000 as a NUL and refuses it, where psql cuts a raw one off", name, c.got, c.want)
+		}
+	}
+}

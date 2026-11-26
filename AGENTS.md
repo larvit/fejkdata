@@ -170,6 +170,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The table of every shipped path is a page in `docs/` that the README links
 - A first or last name a language model recalled is listed `real`, as a name in use; only its weight is an estimate
 - `--null-text` spells a null in `csv` alone, and `csv` quotes a value equal to it
+- `pgcopy` escapes a NUL, and `csv`, `sql` and `tsv` write it as it is
 
 # Scoring run
 
