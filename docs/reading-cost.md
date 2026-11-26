@@ -3044,3 +3044,18 @@ Read most (opens and searches):
 - `data-listing/kinds-and-sources.tsv` 1
 - `data/misc/creditcard.json` 1
 - `data/misc/iban-test.json` 1
+
+## Reading cost, chunk 6cba72c44cc2, finished 2026-11-26T03:33:14Z
+
+84798 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `internal/fejktest/ids.go` 3
+- `securities_test.go` 3
+- `data/misc/.fejkdata.json` 1
+- `data/misc/cusip.json` 1
+- `data/misc/isin.json` 1
+- `docs/locales/misc.md` 1
+- `docs/shipped-paths.md` 1
