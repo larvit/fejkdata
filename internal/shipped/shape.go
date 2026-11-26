@@ -40,7 +40,7 @@ func (facts shapeFacts) walk(prefix string, n tree.Node) {
 	case *tree.Choice:
 		facts[prefix] = readsFact(n)
 	case *tree.Table:
-		facts[prefix] = "\tformat " + strconv.Quote(n.FormatTemplate().Format()) + tableFacts(n) + readsFact(n)
+		facts[prefix] = "\tformat " + strconv.Quote(n.FormatTemplate().Format()) + tableFacts(n) + readsFact(n) + "\tcolumns " + strings.Join(n.Rows().Header(), " ")
 		for _, name := range n.Rows().Header() {
 			facts[prefix+"."+name] = "\tstring"
 		}
