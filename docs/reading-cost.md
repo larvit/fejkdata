@@ -3059,3 +3059,20 @@ Read most (opens and searches):
 - `data/misc/isin.json` 1
 - `docs/locales/misc.md` 1
 - `docs/shipped-paths.md` 1
+
+## Reading cost, chunk 12e23fe1d2b9, finished 2026-11-26T07:13:30Z
+
+55649 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `table_test.go` 6
+- `data/misc/territory.tsv` 4
+- `docs/locales/misc.md` 3
+- `docs/decisions.md` 2
+- `CHANGELOG.md` 1
+- `README.md` 1
+- `compose.yaml` 1
+- `data/misc/territory.json` 1
+- `data/misc/tld.tsv` 1
+- `shipped_test.go` 1
