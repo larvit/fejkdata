@@ -535,14 +535,25 @@ Loading a million rows from a file into a table of `id bigint primary key, name 
 
 #### CSV into MySQL
 
-`LOAD DATA` reads a null and a backslash its own way, so the run needs `--null-text NULL`
-([Null](#null)) and the load needs `ESCAPED BY ''`. Save `mydata/files.json`:
+`LOAD DATA` reads a backslash as an escape, so `C:\temp` loads with a tab in it, and it reads null
+only from an unquoted `NULL`. Run `csv` with `--null-text NULL` ([Null](#null)) and load with
+`ESCAPED BY ''`. Save `mydata/files.json`:
 
 ```json
 { "format": "", "id": { "format": "{seq()}", "datatype": "integer" }, "note": [null, "ok"], "path": ["C:\\temp", "D:\\data"] }
 ```
 
-Three rows, a null `note` written as `NULL` and a path with its backslash:
+The table `files (id bigint primary key, note text, path text)` must exist. `csv` writes the columns in name
+order, so the load lists them. MySQL 8.4 allows `LOCAL` loads only while the server's `local_infile` is on.
+On a test server, run `SET GLOBAL local_infile = 1` before the load and `SET GLOBAL local_infile = 0` after it.
+This command loads a thousand rows:
+
+```sh
+echo '{/files}' | fejkdata --seed 1 -d ./mydata --format csv --null-text NULL --repeat 1000 |
+  mysql --local-infile=1 mydb -e "LOAD DATA LOCAL INFILE '/dev/stdin' INTO TABLE files FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '' LINES TERMINATED BY '\n' IGNORE 1 LINES (id, note, path)"
+```
+
+The file's first three rows are below. Row 1 loads with `path` `C:\temp` whole, and row 2 with `note` null:
 
 ```csv
 id,note,path
@@ -551,17 +562,8 @@ id,note,path
 3,NULL,C:\temp
 ```
 
-The table `files (id bigint primary key, note text, path text)` must exist, and the server must allow
-`LOCAL` loads: on a test server, run `SET GLOBAL local_infile = 1` before and `= 0` after. This sends a thousand rows through `mysql` on MySQL 8.4, and the
-`note` of row 2 loads as null and the `path` as `C:\temp`:
-
-```sh
-echo '{/files}' | fejkdata --seed 1 -d ./mydata --format csv --null-text NULL --repeat 1000 |
-  mysql --local-infile=1 mydb -e "LOAD DATA LOCAL INFILE '/dev/stdin' INTO TABLE files FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '' LINES TERMINATED BY '\n' IGNORE 1 LINES (id, note, path)"
-```
-
 To draw later rows from the ones you loaded, such as contacts that name a customer that exists, write the first
-run as `--format tsv` and read it as a table: [Records](#records) shows how.
+run as `--format tsv` and read it as a table ([Records](#records)).
 
 ## Library
 
@@ -1083,7 +1085,7 @@ renders a null as `""`. The other items' weights skew its odds:
 column, `null` renders `""`. Rejected at load: a column whose items hold different
 datatypes. A read through a name keeps the null too ([Datatype](#datatype)).
 
-To load `csv` into MySQL, add `--null-text NULL`. With `FIELDS OPTIONALLY ENCLOSED BY '"'`, `LOAD DATA` reads an
+To load `csv` into MySQL, add `--null-text NULL` and load with `ESCAPED BY ''` ([CSV into MySQL](#csv-into-mysql)). With `FIELDS OPTIONALLY ENCLOSED BY '"'`, `LOAD DATA` reads an
 empty field as an empty string and an unquoted `NULL` as null, so `csv` writes a null as `NULL`, and a value equal to
 it as `"NULL"`, which loads as text. Don't use `\N`: MySQL reads it as null only under its default escaping, which also
 turns the value `b\c` into `bc`. `--null-text` is for `csv` alone, and the text must be one `csv` leaves unquoted.
