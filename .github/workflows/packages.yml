@@ -186,7 +186,7 @@ jobs:
           path: wheels
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.11'
+          python-version: '3.15'
       - name: pip picks this platform's wheel, and it renders
         shell: bash
         run: |
