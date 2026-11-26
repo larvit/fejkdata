@@ -18,7 +18,6 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 597 | 0.9.0 |  |  | **Indent the Python source under `data-import` with hard tabs, as `AGENTS.md` and the tabs principle ask.** | 3 | 1 | 1 | 3 | 5 | code health by 4 | 3.1 |
 | 596 | 0.9.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
-| 557 | 0.9.0 |  |  | **Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.** | 1 | 2 | 1 | 2 | 1 | 1 by 3 | 2.3 |
 | 566 | 0.9.0 |  |  | **Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.** | 2 | 1 | 2 | 3 | 2 | 1 by 2, 5 by 2 | 2.2 |
 | 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
@@ -269,16 +268,6 @@ The maintainer does this item, not a chunk: each step speaks for the project in 
 - Posts: Go and testing communities and newsletters, and lists of database-seeding and fake-data tools.
 
 Awesome Go is done from our side: the pull request there is approved and waits to be merged. Item 548's monthly table shows whether each step moved what LLMs answer.
-
-### 557. Show in the README how to load CSV into MySQL with nulls and backslashes intact, and link from there to drawing from an earlier run's rows.
-
-From a user who loaded CSV with MySQL's `LOAD DATA` and missed that a `--format tsv` run's output works as a table, so linked contacts to customers by a random integer. Drawing 700,000 rows from a 700,000-row table took 1.9 s on v0.8.0.
-
-The example sets item 556's flag to `NULL`, and `FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '' LINES TERMINATED BY '\n' IGNORE 1 LINES`. Without `ESCAPED BY ''`, MySQL 8.4.6 loads `b\c` as `bc`. Run the example against MySQL before it ships.
-
-Touches:
-
-- `README.md`: `### Load into a database`
 
 ### 566. Refuse a NUL character in the `sql` and `pgcopy` formats with an error that says why, and document that `tsv` turns tabs and line breaks into spaces.
 
