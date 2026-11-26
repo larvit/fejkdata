@@ -19,7 +19,6 @@
 | 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
-| 564 | 0.9.0 |  |  | **Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 2 | 1.7 |
 | 562 | 0.9.0 | 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
@@ -289,22 +288,6 @@ Settle each thing PyPI shows or stores before the first publish, read it on PyPI
 - The trusted publisher's workflow and environment names, attestations, two-factor login, and who may publish.
 - How a bad version is withdrawn: yank it, since a file name can't be uploaded twice.
 - A check in the dry run: `twine check --strict` and a listing of each wheel's files and size. After the publish, look at the live page.
-
-### 564. Drop the `geo` streets that are no street name, and have the imports refuse mojibake, trailing punctuation and remarks in parentheses.
-
-Found by drawing: `Poste restante` as a street in 332 `geo.FI` localities, about 1 in 1,250 addresses. In `geo.SE`: `All‚vägen` (U+201A, presumably `Allévägen`), `Syre´nvägen` (a spacing acute), `Rönnerums bygata Rönnerums bygata` and `Kvartersvägar och parkeringsvägar på Lars Kaggsgatan`. In `geo.US`: `Addison Ln,`, `Village Ridge Road(Private)` and `Island Avenue (Glp)`. Put the shared check in `geo.py` with a test, and repair a name only where the register makes the right spelling certain. Keep real odd names: `S:t`, `M/S Nadias väg`, `10 1/2 St NW`, `Lidosta "Rīga"`.
-
-Touches:
-
-- `data-import/geo.py`
-- `data-import/geo_test.py`
-- `data-import/geo-fi.py`: `street_name`
-- `data-import/geo-se.py`: `street_name`
-- `data-import/geo-us.py`: `streets`
-- `data/geo/FI/street.tsv`
-- `data/geo/SE/street.tsv`
-- `data/geo/US/street.tsv`
-- `CHANGELOG.md`
 
 ### 562. Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.
 
