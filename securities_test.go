@@ -19,12 +19,12 @@ func TestSecurityCheckersAcceptPublishedIdentifiers(t *testing.T) {
 			t.Errorf("ValidIsin(%q) = true, want false", s)
 		}
 	}
-	for _, s := range []string{"037833100", "594918104", "931142103", "02079K305"} {
+	for _, s := range []string{"037833100", "594918104", "931142103", "02079K305", "Z9A0*@#92", "*@#*@#*@7", "ZZZZZZZZ0", "A#A#A#A#4"} {
 		if !fejktest.ValidCusip(s) {
 			t.Errorf("ValidCusip(%q) = false, want true", s)
 		}
 	}
-	for _, s := range []string{"037833101", "03783310", "03783310A"} {
+	for _, s := range []string{"037833101", "03783310", "03783310A", "Z9A0*@#93", "*@#*@#*@8"} {
 		if fejktest.ValidCusip(s) {
 			t.Errorf("ValidCusip(%q) = true, want false", s)
 		}

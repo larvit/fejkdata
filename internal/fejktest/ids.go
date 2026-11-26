@@ -151,10 +151,10 @@ func ValidCusip(s string) bool {
 var cusipShape = regexp.MustCompile(`^[0-9A-Z*@#]{8}[0-9]$`)
 
 func cusipValue(c byte) int {
-	switch {
-	case c >= '0' && c <= '9':
+	if c >= '0' && c <= '9' {
 		return int(c - '0')
-	case c >= 'A' && c <= 'Z':
+	}
+	if c >= 'A' && c <= 'Z' {
 		return int(c-'A') + 10
 	}
 	return 36 + strings.IndexByte("*@#", c)
