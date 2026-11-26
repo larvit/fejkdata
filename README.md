@@ -27,13 +27,13 @@ fejkdata --format sql --table people --repeat 1000000 < person.json > people.sql
 
 ```text
 email,first,last,locality,personnummer,postal-code,sex,street
-viktoria.larsson@example.com,Viktoria,Larsson,Östersund,501120-2388,831 73,kvinna,Kärrvägen 1
+vira.larsson@example.com,Vira,Larsson,Östersund,501120-2388,831 73,kvinna,Kärrvägen 1
 ```
 
 What sets it apart:
 
 1. **Correlated fields.** The template draws a sex, a last name and an address once each.
-   Every column reads those draws. Viktoria is a woman's name and `kvinna` is Swedish for
+   Every column reads those draws. Vira is a woman's name and `kvinna` is Swedish for
    woman. The personnummer is Sweden's national id, and this one is a woman's. 831 73 is a
    postal code of Östersund.
 2. **Valid national ids where possible, from a test series where the issuer keeps one.**
@@ -152,7 +152,7 @@ The first command prints:
 
 ```text
 email,first,last,locality,personnummer,postal-code,sex,street
-viktoria.larsson@example.com,Viktoria,Larsson,Östersund,501120-2388,831 73,kvinna,Kärrvägen 1
+vira.larsson@example.com,Vira,Larsson,Östersund,501120-2388,831 73,kvinna,Kärrvägen 1
 ```
 
 A fixture this size repeats personnummer and email values. [Personnummer](docs/locales/sv_SE.md#personnummer-and-samordningsnummer) explains why a personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
@@ -194,7 +194,7 @@ func TestSignup(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Sex is kvinna or man.
-	// With seed 1, p is {Sex:kvinna First:Viktoria Last:Larsson Personnummer:501120-2388 Email:viktoria.larsson@example.com Street:Kärrvägen 1 PostalCode:831 73 Locality:Östersund}
+	// With seed 1, p is {Sex:kvinna First:Vira Last:Larsson Personnummer:501120-2388 Email:vira.larsson@example.com Street:Kärrvägen 1 PostalCode:831 73 Locality:Östersund}
 }
 ```
 
