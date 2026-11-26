@@ -446,7 +446,7 @@ func TestShippedSwedishPhoneFixedIsGroupedAndLongEnough(t *testing.T) {
 	})
 }
 
-func TestShippedSwedishMobileDrawsEachMobileCodeAndLandlineOnlyFixedNumbers(t *testing.T) {
+func TestShippedSwedishPhoneMobileDrawsEachMobileCodeAndPhoneFixedOnlyFixedNumbers(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(11))
 	mobile := regexp.MustCompile(`^0(70|72|73|76|79)-\d{3} \d{2} \d{2}$`)
 	seen := map[string]bool{}
@@ -468,7 +468,7 @@ func TestShippedSwedishMobileDrawsEachMobileCodeAndLandlineOnlyFixedNumbers(t *t
 	})
 }
 
-func TestShippedSwedishMobileAndLandlineGiveTheirInternationalForm(t *testing.T) {
+func TestShippedSwedishPhoneMobileAndFixedGiveTheirInternationalForm(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(5))
 	for _, path := range []string{"phone-mobile", "phone-fixed"} {
 		fejktest.EachDraw(300, func() string {

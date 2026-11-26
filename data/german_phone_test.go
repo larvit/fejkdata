@@ -27,7 +27,7 @@ func germanPhoneRows(t *testing.T, kind string) []map[string]string {
 	return fejktest.TSVRows(t, "de_DE/phone-"+kind+"-prefix.tsv")
 }
 
-func TestShippedGermanPhoneMobileHoldsExactlyTheBlocksTheBundesnetzagenturListsAssigned(t *testing.T) {
+func TestShippedGermanPhoneMobilePrefixHoldsExactlyTheBlocksTheBundesnetzagenturListsAssigned(t *testing.T) {
 	got := map[string]bool{}
 	for _, row := range germanPhoneRows(t, "mobile") {
 		if got[row["area"]] {
@@ -45,7 +45,7 @@ func TestShippedGermanPhoneMobileHoldsExactlyTheBlocksTheBundesnetzagenturListsA
 	}
 }
 
-func TestShippedGermanPhoneFixedHoldsEveryActiveOrtsnetzkennzahl(t *testing.T) {
+func TestShippedGermanPhoneFixedPrefixHoldsEveryActiveOrtsnetzkennzahl(t *testing.T) {
 	byLength, seen := map[int]int{}, map[string]bool{}
 	for _, row := range germanPhoneRows(t, "fixed") {
 		if seen[row["area"]] {
