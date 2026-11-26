@@ -16,10 +16,9 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 561 | 0.9.0 |  |  | **Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 3.2 by 3 | 2.1 |
 | 551 | 0.9.0 |  |  | **Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.** | 3 | 2 | 2 | 5 | 5 | 1.3 by 7 | 1.2 |
 | 552 | 0.9.0 | 551 |  | **Publish the Python package to PyPI from the Packages workflow with each release, through PyPI's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 3 | 1.3 by 4 | 1.7 |
-| 562 | 0.9.0 | 561 |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
+| 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 559 | 0.9.0 |  |  | **Write a record's columns in the order its template lists its fields, in every format and in `Columns()`.** | 3 | 1 | 3 | 5 | 5 | 1 by 4, 4 by 3 | 1.2 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 6 | 0.6 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
@@ -246,26 +245,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 561. Ship every name the Swedish, Finnish, French and US name sources count, down to a cutoff chosen by the size it costs.
-
-Each import keeps the top 2,000 first names per sex and the top 5,000 last names, or about that. The rare names are often the odd ones: with particles, hyphens, apostrophes or foreign letters. Measure what each lower cutoff adds in bytes and in share of people. `TestShippedDataStaysUnder100MiB` bounds it. Never ship a name with so few bearers that it points at a person: choose that floor and record it.
-
-Touches:
-
-- `data-import/names-se.py`: `main` (small)
-- `data-import/names-fi.py`: `main` (small)
-- `data-import/names-fr.py`: `main` (small)
-- `data-import/names-us.py`: `main` (small)
-- `data/sv_SE/first-name.tsv`
-- `data/sv_SE/last-name.tsv`
-- `data/fi_FI/first-name.tsv`
-- `data/fi_FI/last-name.tsv`
-- `data/fr_FR/first-name.tsv`
-- `data/fr_FR/last-name.tsv`
-- `data/en_US/first-name.tsv`
-- `data/en_US/last-name.tsv`
-- `docs/decisions.md`
 
 ### 551. Ship a Python package whose wheels carry the release's CLI binary for each platform it builds, with a `render(template, seed=…, today=…, repeat=…, format=…)` that runs the binary and returns its output.
 
