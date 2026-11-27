@@ -3244,3 +3244,17 @@ Read most (opens and searches):
 - `README.md` 4
 - `compose.yaml` 3
 - `docs/reading-cost.md` 1
+
+## Reading cost, chunk 5ba3e3e21db0, finished 2026-11-27T00:30:45Z
+
+176515 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `cli/cli.go` 2
+- `python-package/render_test.py` 2
+- `.gitignore` 1
+- `compose.yaml` 1
+- `python-package/README.md` 1
+- `python-package/fejkdata/__init__.py` 1
