@@ -41,13 +41,14 @@ NUMBER = re.compile(r"^([1-9]\d{0,3})([A-Z]?)$")
 
 
 class Register:
-	"""The register's places, each kind by its code, and each street's name by the street's code."""
+	"""The register's places, each kind by its code, and each street's name by the street's code, left out where geo.cleanly_written refuses it."""
 
 	def __init__(self, apskritys: Iterable[Mapping[str, str]], savivaldybes: Iterable[Mapping[str, str]], vietoves: Iterable[Mapping[str, str]], gatves: Iterable[Mapping[str, str]]) -> None:
 		self.regions: dict[str, geo.Row] = {r["ADM_KODAS"]: {"code": r["ADM_KODAS"], "name": f"{r['VARDAS_K']} {r['TIPAS']}", "timezone": TIMEZONE} for r in apskritys}
 		self.municipalities: dict[str, geo.Row] = {r["SAV_KODAS"]: {"code": r["SAV_KODAS"], "name": f"{r['VARDAS_K']} {r['TIPAS']}", "region": r["ADM_KODAS"]} for r in savivaldybes}
 		self.localities: dict[str, geo.Row] = {r["GYV_KODAS"]: {"code": r["GYV_KODAS"], "name": r["VARDAS"], "municipality": r["SAV_KODAS"]} for r in vietoves}
-		self.streets = {r["GAT_KODAS"]: f"{r['VARDAS_K']} {r['TIPO_SANTRUMPA']}" for r in gatves}
+		named = {r["GAT_KODAS"]: f"{r['VARDAS_K']} {r['TIPO_SANTRUMPA']}" for r in gatves}
+		self.streets = {code: name for code, name in named.items() if geo.cleanly_written(name)}
 
 
 def house_number(number: str) -> tuple[int, bool] | None:
