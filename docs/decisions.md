@@ -2540,3 +2540,22 @@ Valid while PyPI's trusted publishing doesn't take a reusable workflow and the p
 - A count of Wikidata's people is a count of people with an article or an item, not of bearers. Only the order between spellings of one name is used, so a table's weights stay the register's counts.
 
 Valid while Wikidata's family-name items carry the spellings and the registers keep writing names without them.
+
+## The npm package goes to npmjs.com from the `npm` job of `packages.yml` through trusted publishing, with `test.yml` as its publisher
+
+2026-11-27, the agent shipping item 550; the maintainer owns the npm organization `larvit` and approves the package's public texts. Goals 1.1 and 1.2, with goal 10.
+
+Each release's tarball, `@larvit/fejkdata`, is published by `npm publish` in the `npm` job of `.github/workflows/packages.yml`, which runs in the GitHub environment `npm` once the `packages` job has packed it.
+
+- The job holds no token. npm's trusted publishing takes GitHub's short-lived token, and for a reusable workflow it "checks the calling workflow's name" (https://docs.npmjs.com/trusted-publishers). So the package's publisher on npmjs.com names this repository, `test.yml` and the environment `npm`, and a Packages run started by hand, whose caller is `packages.yml`, doesn't publish.
+- Trusted publishing "requires npm CLI version 11.5.1 or later and Node version 22.14.0 or higher" on a GitHub-hosted runner, so the job runs in the `node` image the Dockerfile tests the package in. npm publishes a provenance attestation by itself from a public repository.
+- A trusted publisher can be set only on a package that exists (https://docs.npmjs.com/cli/v11/commands/npm-trust), so the maintainer publishes the first version by hand, from the tarball the release's run uploads as the artifact `npm-package`. A new publisher "must complete its first successful publish within 2 days", so it is set just before the next release.
+- Once the publisher works, the package's publishing access is "Require two-factor authentication and disallow tokens", as that page recommends. Only the publisher and the organization's owners can then publish.
+- The job skips a version npmjs.com already holds, so a rerun passes. A bad version is deprecated with `npm deprecate`, which npm recommends over an unpublish (https://docs.npmjs.com/policies/unpublish), and the fix ships as the next version.
+- CI releases only `X.Y.Z` versions, so each publish takes the `latest` dist-tag. npm 11 refuses a prerelease without `--tag`, so a prerelease, should CI ever cut one, fails the job until it names a tag.
+- The Dockerfile's `npm-package-built` stage holds the folder to pack. The tarball carries `LICENSE`, `DATA-LICENSES.md` and `WORDNET-LICENSE.txt`, the files every Python wheel carries, and `license` is the wheel's expression, `MIT AND LicenseRef-fejkdata-data-licenses`. `publishConfig.access` is `public`, which a scoped package needs spelled out to stay public whatever the publisher's defaults.
+- `sideEffects` names `wasm_exec.js` alone, which sets `globalThis.Go` when imported, so a bundler keeps that import and may drop an unused `index.js`. The package is an ES module only, with `exports` and `types` naming `index.js` and `index.d.ts`.
+- `author` is `Larv IT AB`, and no `funding` is set, since the repository names no way to fund it. npmjs.com shows `npm-package/README.md`, with JavaScript first. Its links are absolute.
+- The dry run packs the tarball, runs `npm publish --dry-run`, which lists each file and the size, and fails unless the tarball holds exactly the nine files. It can't publish, so the first release shows whether npmjs.com takes the tarball.
+
+Valid while npm's trusted publishing checks the calling workflow and CI cuts no prerelease.
