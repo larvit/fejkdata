@@ -1,0 +1,25 @@
+{
+	"name": "@larvit/fejkdata",
+	"version": "0.0.0",
+	"description": "Fake data for tests. Related values match, like a postcode and its city. National ids pass validation where possible.",
+	"keywords": ["fake", "faker", "test data", "fixtures", "seed", "csv", "sql"],
+	"homepage": "https://fejkdata.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/larvit/fejkdata.git",
+		"directory": "npm-package"
+	},
+	"license": "MIT AND LicenseRef-fejkdata-data-licenses",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"default": "./index.js"
+		}
+	},
+	"types": "./index.d.ts",
+	"files": ["fejkdata.wasm", "index.d.ts", "index.js", "wasm_exec.js"],
+	"engines": {
+		"node": ">=22.3.0"
+	}
+}
