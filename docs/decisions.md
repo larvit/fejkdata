@@ -2203,7 +2203,7 @@ The library's `FakeRun` is the run, and the CLI only parses flags and writes rec
 
 Five limits follow, and each is accepted:
 
-- A parent's rows reach its children as a TSV, the one form a table reads. That is why a child reads a null as an empty text and a tab or line break as a space, and why a typed copy of a nullable parent column fails where the parent drew a null. Item 602 asks whether to carry those values whole.
+- A parent's rows reach its children as a TSV, the one form a table reads. That is why a child reads a null as an empty text and a tab or line break as a space, and why a typed copy of a nullable parent column fails where the parent drew a null. Item 604 asks whether to carry those values whole.
 - The run keeps every column of a parent in memory, not only the ones a child reads: which columns a child reads through a name is settled at load. Measured on 2026-11-27 with `--format pgcopy`, a million orders over 120,000 two-column customers took 4.0 s and a peak of 42 MB, and over one customer 2.9 s and 26 MB. A million orders over a million customers took 10.1 s and 181 MB. That stays inside goal 12.
 - Each parent a child reads is rendered twice, once to learn its rows before any output and once to write them. Of the 10.1 s above, the extra render of the million customers takes 3.7 s. Keeping its records from the first render to write them was rejected: that holds every record of a parent in memory, beside its rows.
 - A reference in a table's cell and a category of an indexed source are not read for `/run` paths, so a template may not reach another's rows through either: such a reference fails the load, in a run too.
