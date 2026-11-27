@@ -55,9 +55,10 @@ async function open(options) {
 	if (typeof files !== "object" || files === null) {
 		throw new TypeError('fejkdata: files is an object of file names and their text, such as { "mydata/team.json": "[]" }');
 	}
+	const names = data === undefined ? null : [...data];
 	const pairs = Object.entries(files).map(([path, body]) => [path, bytes(path, body)]);
 	const bridge = await started();
-	const opened = (call) => (...args) => bridge[call](data ?? null, pairs, ...args);
+	const opened = (call) => (...args) => bridge[call](names, pairs, ...args);
 	answer(opened("check")());
 	return {
 		render: (template, options) => render(opened("render"), template, options),
@@ -124,7 +125,7 @@ function fake(run, path, { seed, today }) {
 	if (typeof path !== "string") {
 		throw new TypeError("fejkdata: a path is a string, such as \"sv_SE.address.postal-code\"");
 	}
-	return answer(run(...drawArguments(seed, today), path.replace(/^\//, ""))).value;
+	return answer(run(...drawArguments(seed, today), path)).value;
 }
 
 const READ = { integer: BigInt, number: Number, boolean: (text) => text === "true", string: String };
