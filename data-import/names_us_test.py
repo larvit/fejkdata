@@ -42,7 +42,7 @@ class Particled(unittest.TestCase):
 		self.assertIn("O'Brien", names_us.particled("Obrien"))
 		self.assertIn("D'Angelo", names_us.particled("Dangelo"))
 		self.assertTrue({"De La Cruz", "De la Cruz", "DeLaCruz"} <= set(names_us.particled("Delacruz")))
-		self.assertIn("St John", names_us.particled("Stjohn"))
+		self.assertTrue({"St John", "St. John"} <= set(names_us.particled("Stjohn")))
 		self.assertIn("VanDyke", names_us.particled("Vandyke"))
 		self.assertIn("MacDonald", names_us.particled("Macdonald"))
 		self.assertIn("O'Day", names_us.particled("Oday"))
