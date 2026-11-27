@@ -41,11 +41,13 @@ class Render(unittest.TestCase):
 
 	def test_table_names_the_sql_target(self) -> None:
 		template = '{"format": "", "code": "{/misc.territory[SE].alpha2}"}'
-		self.assertIn("INSERT INTO countries", fejkdata.render(template, seed=1, today=DAY, format="sql", table="countries"))
+		out = fejkdata.render(template, seed=1, today=DAY, format="sql", table="countries")
+		self.assertEqual(out, "INSERT INTO \"countries\" (\"code\") VALUES ('SE');\n")
 
 	def test_table_names_the_pgcopy_target(self) -> None:
 		template = '{"format": "", "code": "{/misc.territory[SE].alpha2}"}'
-		self.assertIn("COPY countries", fejkdata.render(template, seed=1, today=DAY, format="pgcopy", table="countries"))
+		out = fejkdata.render(template, seed=1, today=DAY, format="pgcopy", table="countries")
+		self.assertEqual(out, 'COPY "countries" ("code") FROM STDIN;\nSE\n\\.\n')
 
 	def test_separator_goes_between_repeated_renders(self) -> None:
 		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, repeat=3, separator=","), "x,x,x")
@@ -148,7 +150,7 @@ class ReadmeExamples(unittest.TestCase):
 
 	def test_the_package_s_readme(self) -> None:
 		readme = pathlib.Path(__file__).with_name("README.md").read_text(encoding="utf-8")
-		self.assertEqual(self.run_blocks(readme), 2)
+		self.assertEqual(self.run_blocks(readme), 3)
 
 	def test_the_repository_s_readme(self) -> None:
 		readme = pathlib.Path(__file__).parent.with_name("README.md").read_text(encoding="utf-8")
