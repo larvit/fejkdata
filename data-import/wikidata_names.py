@@ -10,7 +10,7 @@ import source
 ENDPOINT = "https://query.wikidata.org/sparql"
 BATCH = 4000
 WORKERS = 4
-MIN_BEARERS = 3
+MIN_BEARERS = 5
 
 Bearers = Callable[[Iterable[str], str, str, str], dict[str, int]]
 
