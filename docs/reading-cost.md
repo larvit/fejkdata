@@ -3352,3 +3352,16 @@ Read most (opens and searches):
 - `npm-package/package.json` 1
 - `python-package/render_test.py` 1
 - `release-tooling/goreleaser.yaml` 1
+
+## Reading cost, chunk 2a6916c49c2a, finished 2026-11-27T10:54:26Z
+
+56240 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 3
+- `.dockerignore` 1
+- `npm-package/index.d.ts` 1
+- `npm-package/index.js` 1
+- `npm-package/package.json` 1
+- `npm-package/render.test.js` 1
