@@ -40,7 +40,7 @@ func (in invocation) checkEmitFlags() error {
 	case len(in.emits) == 0:
 		return nil
 	case in.tableSet:
-		return errors.New("--table names one target, and under --emit each template is its own; drop --table")
+		return errors.New("--table names one target, and under --emit each template names its own; drop --table")
 	case in.repeatSet:
 		return fmt.Errorf("--repeat counts one template's records, and under --emit each template has its own count, as in --emit %s=%d; drop --repeat", in.emits[0].Template, in.emits[0].Count)
 	}
@@ -60,7 +60,7 @@ func (in invocation) checkEmitFormat() error {
 	return nil
 }
 
-// emit writes each --emit template in turn. A run the library refuses for what the templates read is misuse.
+// emit writes each --emit template in turn. A run the library refuses with ErrRun is misuse.
 func (in invocation) emit(modules []fs.FS, sys system, stdin io.Reader, stdout io.Writer) error {
 	if stdin != nil {
 		raw, err := io.ReadAll(stdin)
