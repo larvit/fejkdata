@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"errors"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -169,6 +170,41 @@ func TestFakeRunFailsBeforeTheFirstRecordWhereAChildDoesNotLoad(t *testing.T) {
 				t.Errorf("FakeRun = %v, after %v, want an ErrLoad naming nope before any record", err, lines)
 			}
 		})
+	}
+}
+
+func TestFakeRunAChildDrawsFromEveryRowOfItsParent(t *testing.T) {
+	for name, c := range map[string]struct {
+		orders string
+		want   []string
+	}{
+		"distinct 2":    {`{ "format": "", "n": "{/run.customers distinct 2 joined ' '}" }`, []string{"1 2", "1 3", "2 1", "2 3", "3 1", "3 2"}},
+		"where not '1'": {`{ "format": "", "n": "{/run.customers where not '1'}" }`, []string{"2", "3"}},
+	} {
+		t.Run(name, func(t *testing.T) {
+			files := map[string]string{"customers": runData["customers"], "orders": c.orders}
+			lines, _, err := fakeRun(t, files, Emit{"customers", 3}, Emit{"orders", 6})
+			if err != nil || len(lines["orders"]) != 6 {
+				t.Fatalf("FakeRun = %v, after %v, want 6 orders", err, lines)
+			}
+			for _, l := range lines["orders"] {
+				if !slices.Contains(c.want, l) {
+					t.Errorf("order %q, want one of %q", l, c.want)
+				}
+			}
+		})
+	}
+}
+
+func TestFakeRunFailsBeforeTheFirstRecordWhereALaterParentRowDoesNotLoadInAChild(t *testing.T) {
+	files := map[string]string{
+		// ref is an integer in the first customer, and not in the third.
+		"customers": `{ "format": "", "ref": { "format": "{calc(2 / k)}", "k": "{seq()}" } }`,
+		"orders":    `{ "format": "", "ref": { "format": "{/run.customers.ref}", "datatype": "integer" } }`,
+	}
+	lines, _, err := fakeRun(t, files, Emit{"customers", 3}, Emit{"orders", 3})
+	if !errors.Is(err, ErrLoad) || !strings.Contains(err.Error(), "is not an integer") || len(lines) != 0 {
+		t.Errorf("FakeRun = %v, after %v, want an ErrLoad on ref before any record", err, lines)
 	}
 }
 
