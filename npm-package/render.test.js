@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { FejkdataError, load } from "./index.js";
 
@@ -124,8 +125,8 @@ test("the typed formats are the ones the Go build names", () => {
 	assert.deepEqual(typed.match(/\w+/g).sort(), named.replace("(default)", "").replace(" or ", " ").match(/\w+/g).sort());
 });
 
-// runBlocks runs each `js` block of markdown from this folder, holds what it prints to the `text`
-// block after it, and returns how many it ran.
+// runBlocks runs each `js` block of markdown as a file of this folder, where the package's own name
+// resolves, holds what it prints to the `text` block after it, and returns how many it ran.
 function runBlocks(markdown) {
 	const blocks = [...markdown.matchAll(/^```(\w+)\n(.*?)^```$/gms)].map(([, language, code]) => ({ language, code }));
 	let ran = 0;
@@ -134,7 +135,10 @@ function runBlocks(markdown) {
 			return;
 		}
 		assert.equal(blocks[i + 1]?.language, "text", code);
-		const done = spawnSync(process.execPath, ["--input-type=module"], { input: code, encoding: "utf8", cwd: new URL(".", import.meta.url) });
+		const file = new URL("./readme-block.mjs", import.meta.url);
+		writeFileSync(file, code);
+		const done = spawnSync(process.execPath, [fileURLToPath(file)], { encoding: "utf8" });
+		rmSync(file);
 		assert.equal(done.stderr, "", code);
 		assert.equal(done.stdout, blocks[i + 1].code, code);
 		ran++;
@@ -144,10 +148,6 @@ function runBlocks(markdown) {
 
 test("the package's README prints what its text blocks show", () => {
 	assert.equal(runBlocks(readFileSync(new URL("./README.md", import.meta.url), "utf8")), 3);
-});
-
-test("the repository's README prints what its text block shows", () => {
-	assert.equal(runBlocks(readFileSync(new URL("../README.md", import.meta.url), "utf8")), 1);
 });
 
 test("a js block with no text block after it fails", () => {

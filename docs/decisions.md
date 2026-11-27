@@ -2477,6 +2477,23 @@ The package is six wheels, one per platform GoReleaser builds, and pip installs 
 
 Valid while GoReleaser builds the CLI for the six platforms and the CLI reads its template on stdin.
 
+## The npm package is the CLI built to WebAssembly behind `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`
+
+2026-11-27, the agent shipping item 549; the maintainer ruled on 2026-11-25, in the item, that one package, `@larvit/fejkdata`, carries all the data. Goal 1.2, with goals 2, 9.1, 9.2 and 10.
+
+`npm-package/wasm` builds to one WebAssembly file whose single function runs the CLI once: `cli.Run` over the arguments, the template as stdin, and every shipped module. `index.js` passes `--seed`, `--today`, `--repeat` and `--format`, returns stdout, and throws a `FejkdataError` carrying stderr and the exit code. The header of a CSV and the framing of SQL are the CLI's, so calling the CLI is what makes the bytes the same, and every template feature reaches JavaScript in the release that ships it. `render` passes four of the CLI's flags, so a flag reaches JavaScript only once `render` takes it, as in the Python package.
+
+- `cli.Run` is a new exported name. The CLI's entry over given streams was unexported, and a WebAssembly program has no process arguments or standard streams that `cli.Main` could read.
+- A panel of three readers, seated as a Node test author, a browser author and a coding agent, picked the spellings on 2026-11-27. Two of three chose `const fejkdata = await load()` and a synchronous `fejkdata.render` over a `render` that returns a promise and over an import that waits for the WebAssembly. That import breaks `require` and stalls a browser page on the download. All three chose `today` as a string or a `Date` read by its UTC day, since a local day makes a laptop and CI disagree; `seed` as `number | bigint`, a number refused unless it is a safe integer; and `exitCode` on the error, since Node's `error.code` is a string.
+- A render keeps no state: each call builds a generator anew, which takes about 0.1 seconds in Node before the first row. A seed and a day then mean the same in every call, as goal 9.1 asks.
+- The built file is 69 MB and 18.7 MB gzipped, measured on this commit. `load` took about 0.3 seconds in Node 26, Node 22.3, Bun 1.3 and Deno 2.5.
+- `wasm_exec.js`, the loader Go ships, is copied from the Go that compiled the file, since the two must match. It sets `globalThis.Go`, and stubs `fs`, `process` and `path` where the runtime has none. The Go program can reach only globals, so it hands its function to `index.js` through `globalThis.__fejkdataRun`, which `index.js` deletes at once.
+- Node's `fetch` refuses a `file:` URL, so Node and Bun read the file through `process.getBuiltinModule`, which no bundler follows. Node has it from 22.3.0 and 20.16.0 (https://nodejs.org/api/process.html#processgetbuiltinmoduleid), and `engines` names 22.3.0, since Node 20 is past its end of life.
+- The gate runs `render.test.js` in the latest Node, in Node 22.3.0 and in Bun, each comparing renders with the Go binary built from the same commit. Deno imports the package over HTTP, so `load` takes the path a browser takes. No browser runs in the gate.
+- `package.json` holds version `0.0.0`. Item 550 publishes the package, sets its version, and adds `LICENSE` and `DATA-LICENSES.md`, under the licence expression the Python wheels carry.
+
+Valid while Go's WebAssembly needs `wasm_exec.js` and the built file loads in well under a second.
+
 ## The Python wheels go to PyPI from the `pypi` job of `test.yml` through trusted publishing, wheels only, under `MIT AND LicenseRef-fejkdata-data-licenses`
 
 2026-11-26, the agent shipping item 552; the maintainer registered the project on PyPI and approves its public texts. Goals 1.1 and 1.3, with goal 10.
