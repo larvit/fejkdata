@@ -18,7 +18,6 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 607 | 0.9.0 |  | question | **Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 5, 1.2 by 8 | 9.3 |
 | 608 | 0.9.0 |  |  | **Generate the TypeScript union `ShippedPath` of the shipped paths, each with its example as a doc comment, from `data-listing/paths.json` as part of `go generate`, and fail the gate where the generated file is stale.** | 3 | 2 | 2 | 5 | 4 | 1.2 by 5 | 1.5 |
-| 360 | 0.9.0 |  |  | **Fail the gate where a typed usage test of `@larvit/fejkdata` stops compiling under `tsc --strict`.** | 3 | 1 | 1 | 3 | 3 | 1.2 by 3 | 1.3 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -166,7 +165,7 @@
 | 359 | 1.2.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 362 | 1.2.0 | 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 1.8 |
 | 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
-| 363 | 1.2.0 | 360, 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
+| 363 | 1.2.0 | 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 86 | 1.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.2 |
 | 154 | 1.3.0 |  |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
 | 243 | 1.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
@@ -281,21 +280,6 @@ Touches:
 - `npm-package/typecheck/usage.ts`
 - `npm-package/README.md`
 - `README.md`: `## Layout` (small), `## Development` (small)
-
-### 360. Fail the gate where a typed usage test of `@larvit/fejkdata` stops compiling under `tsc --strict`.
-
-The package ships hand-written declarations in `npm-package/index.d.ts`, but nothing compiles them. One test, in `render.test.js`, compares their `format` values with the CLI's `--help`; any other mistake in them reaches users.
-
-Write a usage test in TypeScript that calls every export and asserts the type of what each returns, so a wrong or missing type fails to compile. Run `tsc --strict --noEmit` over it in a new stage of the `Dockerfile`, which `lowest-and-tooling` copies from, as `python-lint` runs mypy. Install `tsc` at a pinned version in that stage only, as a development dependency of the test. The package itself still depends on no other package (goal 10).
-
-The test checks the API that ships today. Where item 358's decision changes the API, item 359's chunk updates the test with it.
-
-Touches:
-
-- `npm-package/typecheck/usage.ts`
-- `npm-package/typecheck/tsconfig.json`
-- `Dockerfile`: lines 99-101 (small), lines 118-129 (small)
-- `README.md`: `## Development` (small)
 
 ### 603. Add a mutation tool for JavaScript.
 
