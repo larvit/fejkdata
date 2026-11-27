@@ -1,35 +1,92 @@
 import "./wasm_exec.js";
 
 export class FejkdataError extends Error {
-	constructor(message, exitCode) {
+	constructor(message, exitCode, kind) {
 		super(message);
 		this.name = "FejkdataError";
 		this.exitCode = exitCode;
+		this.kind = kind;
 	}
 }
 
 // The last line of some CLI errors, which helps only at a shell.
 const SHELL_ADVICE = /\n(try 'fejkdata --help'|wrap that JSON in single quotes.*)$/;
 
-let loading;
+let starting;
+let shipped;
 
-export function load() {
-	loading ??= start().catch((error) => {
-		loading = undefined;
+export function load(options) {
+	if (options === undefined) {
+		shipped ??= open({}).catch((error) => {
+			shipped = undefined;
+			throw error;
+		});
+		return shipped;
+	}
+	return open(options);
+}
+
+export function isTemplate(text) {
+	if (typeof text !== "string") {
+		throw new TypeError("fejkdata: isTemplate reads a string");
+	}
+	if (text.includes("{")) {
+		return true;
+	}
+	if (!/^\s*["[]/.test(text)) {
+		return false;
+	}
+	try {
+		JSON.parse(text);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+async function open({ data, files = {} }) {
+	if (data !== undefined && !Array.isArray(data)) {
+		throw new TypeError('fejkdata: data is an array of module names, such as ["sv_SE"]');
+	}
+	const pairs = Object.entries(files).map(([path, body]) => [path, bytes(path, body)]);
+	const opened = (await started())(data ?? null, pairs);
+	if (opened.error) {
+		throw new FejkdataError(opened.error, 2, "misuse");
+	}
+	return {
+		render: (template, options) => render(opened, template, options),
+		fake: (path, options) => fake(opened, path, options),
+		records: (template, options) => records(opened, template, options),
+		paths: () => answer(opened.paths()).paths,
+	};
+}
+
+function bytes(path, body) {
+	if (typeof body === "string") {
+		return new TextEncoder().encode(body);
+	}
+	if (body instanceof Uint8Array) {
+		return body;
+	}
+	throw new TypeError(`fejkdata: files["${path}"] is a string or a Uint8Array`);
+}
+
+function started() {
+	starting ??= start().catch((error) => {
+		starting = undefined;
 		throw error;
 	});
-	return loading;
+	return starting;
 }
 
 async function start() {
 	const go = new globalThis.Go();
 	const instance = await WebAssembly.instantiate(await compiled(new URL("./fejkdata.wasm", import.meta.url)), go.importObject);
-	const run = await new Promise((resolve, reject) => {
+	return new Promise((resolve, reject) => {
 		// The Go program can reach only globals, so it hands its one function over through this one.
 		globalThis.__fejkdataRun = resolve;
 		go.run(instance).then(() => reject(new Error("fejkdata: the WebAssembly program stopped while loading")), reject);
 	}).finally(() => delete globalThis.__fejkdataRun);
-	return { render: (template, options) => render(run, template, options) };
 }
 
 // Node's fetch refuses a file: URL, so a runtime with Node's fs reads a file on disk. A browser fetches.
@@ -38,17 +95,58 @@ async function compiled(url) {
 	return fs ? WebAssembly.compile(await fs.readFile(url)) : WebAssembly.compileStreaming(fetch(url));
 }
 
-function render(run, template, { seed, today, repeat = 1, format = "text" }) {
+function drawArguments(seed, today) {
+	if (typeof seed === "number" && !Number.isSafeInteger(seed)) {
+		throw new FejkdataError(`fejkdata: seed ${seed} is not a whole number from 0 to ${Number.MAX_SAFE_INTEGER}; write a seed above ${Number.MAX_SAFE_INTEGER} as a bigint, such as 9007199254740993n`, 2, "misuse");
+	}
+	const day = today instanceof Date && !Number.isNaN(today.getTime()) ? today.toISOString().slice(0, 10) : String(today);
+	return [String(seed), day];
+}
+
+function render(opened, template, { seed, today, repeat = 1, format = "text" }) {
 	if (typeof template !== "string") {
 		throw new TypeError("fejkdata: a template is a string; pass an object through JSON.stringify first");
 	}
-	if (typeof seed === "number" && !Number.isSafeInteger(seed)) {
-		throw new FejkdataError(`fejkdata: seed ${seed} is not a whole number from 0 to ${Number.MAX_SAFE_INTEGER}; write a seed above ${Number.MAX_SAFE_INTEGER} as a bigint, such as 9007199254740993n`, 2);
-	}
-	const day = today instanceof Date && !Number.isNaN(today.getTime()) ? today.toISOString().slice(0, 10) : String(today);
-	const done = run(["--seed", String(seed), "--today", day, "--repeat", String(repeat), "--format", String(format)], template);
+	const done = opened.render(...drawArguments(seed, today), String(repeat), String(format), template);
 	if (done.exitCode !== 0) {
-		throw new FejkdataError(done.stderr.trim().replace(SHELL_ADVICE, ""), done.exitCode);
+		throw new FejkdataError(done.stderr.trim().replace(SHELL_ADVICE, "") + done.note, done.exitCode, done.kind);
 	}
 	return done.stdout;
+}
+
+function fake(opened, path, { seed, today }) {
+	if (typeof path !== "string") {
+		throw new TypeError("fejkdata: a path is a string, such as \"sv_SE.address.postal-code\"");
+	}
+	if (/[{}]/.test(path)) {
+		throw new FejkdataError(`fejkdata: fake takes a path, such as "sv_SE.address.postal-code", and ${JSON.stringify(path)} holds a brace; render a template`, 2, "misuse");
+	}
+	return render(opened, `{/${path.replace(/^\//, "")}}`, { seed, today });
+}
+
+const READ = { integer: BigInt, number: Number, boolean: (text) => text === "true", string: String };
+
+function records(opened, template, { seed, today, repeat = 1 }) {
+	const text = typeof template === "object" && template !== null ? JSON.stringify(template) : template;
+	if (typeof text !== "string") {
+		throw new TypeError("fejkdata: a record template is JSON text or an object");
+	}
+	const { names, types, values } = answer(opened.records(...drawArguments(seed, today), String(repeat), text));
+	const reads = types.map((type) => READ[type]);
+	const rows = [];
+	for (let i = 0; i < values.length; i += names.length) {
+		const row = {};
+		names.forEach((name, j) => {
+			row[name] = values[i + j] === null ? null : reads[j](values[i + j]);
+		});
+		rows.push(row);
+	}
+	return rows;
+}
+
+function answer(done) {
+	if (done.error) {
+		throw new FejkdataError(done.error, done.exitCode, done.kind);
+	}
+	return done;
 }

@@ -29,18 +29,25 @@ shipped data.
 
 ## Size and speed
 
-An install downloads 19 MB and unpacks to 69 MB, nearly all of it the data.
+An install downloads 19 MB and unpacks to 69 MB, nearly all of it the data. It belongs in
+your tests' dependencies, not in a page's bundle.
 
-`load` reads and compiles the WebAssembly, which takes about 0.3 seconds in Node. Call it
-as often as you like: it loads once. In a browser it fetches `fejkdata.wasm` from beside
-`index.js`. Serve `index.js`, `wasm_exec.js` and `fejkdata.wasm` from one folder, the last
-as `application/wasm`.
+`load` reads and compiles the WebAssembly, which takes about 0.3 seconds in Node. Every call
+shares that one compile. In a browser it fetches `fejkdata.wasm` from beside `index.js`.
+Serve `index.js`, `wasm_exec.js` and `fejkdata.wasm` from one folder, the last as
+`application/wasm`.
 
-Each `render` loads the data it reads again, which takes about 0.1 seconds before its first
-row. Ask for many rows with `repeat`, not with many calls. One call returns at most 512 MB
-of text.
+A test runner that starts a worker per test file loads the 69 MB WebAssembly again in each
+worker. That takes about 0.3 seconds a worker.
+
+Each call loads the data it reads again, which takes about 0.1 seconds before its first row.
+Ask for many rows with `repeat`, not with many calls. One call returns at most 512 MB of
+text.
 
 ## Arguments
+
+`load()` gives an object with four functions: `render`, `fake`, `records` and `paths`. None
+of them keeps any state between calls.
 
 `render(template, { seed, today, repeat, format })` returns a string.
 
@@ -70,6 +77,95 @@ console.log(rows.split("\n").slice(0, 3).join(" | "));
 first,last | Vinston,Larsson | Felix,Lind
 ```
 
+## One value
+
+`fake(path, { seed, today })` draws one value of a path. It is the same as rendering
+`{/path}`. `paths()` returns every path, as `fejkdata --list` prints them.
+
+Some paths are not where you might guess. A postcode and a city are parts of an address:
+
+```js
+import { load } from "@larvit/fejkdata";
+
+const fejkdata = await load();
+const day = { seed: 1, today: "2026-01-15" };
+for (const path of ["sv_SE.address.postal-code", "sv_SE.address.locality", "en_US.address.postal-code", "en_US.address.region", "sv_SE.person.first"]) {
+	console.log(path, fejkdata.fake(path, day));
+}
+console.log(fejkdata.paths().includes("sv_SE.postcode"));
+```
+
+```text
+sv_SE.address.postal-code 854 01
+sv_SE.address.locality Sundsvall
+en_US.address.postal-code 29414
+en_US.address.region SC
+sv_SE.person.first Per
+false
+```
+
+Each call draws afresh, so two calls give parts of two addresses. For a postcode and a city
+that match, draw `sv_SE.address` with `records`.
+
+## Rows as objects
+
+`records(template, { seed, today, repeat })` draws rows of a record template. The template
+is JSON text or an object. Each row is an object with a key per column, in the template's
+order.
+
+- An `integer` column is a `bigint`, so it stays exact above 2^53.
+- A `number` column is a number, and a `boolean` column a boolean.
+- A null is `null`.
+- Any other column is a string.
+
+A field that reads one reference, such as `"{/src.age}"`, takes the type of what it reads.
+Give it a `datatype` to fix its type.
+
+```js
+import { load } from "@larvit/fejkdata";
+
+const fejkdata = await load();
+const template = {
+	format: "{/sv_SE.person as p}",
+	id: { format: "{seq()}", datatype: "integer" },
+	name: "{p.first} {p.last}",
+	member: { format: "{m}", m: ["true", "false"], datatype: "boolean" },
+};
+for (const row of fejkdata.records(template, { seed: 1, today: "2026-01-15", repeat: 2 })) {
+	console.log(typeof row.id, row.id, row.name, typeof row.member, row.member);
+}
+```
+
+```text
+bigint 1n Kenneth Lind boolean true
+bigint 2n Ann-Charlott Wiklander boolean true
+```
+
+`JSON.stringify` throws on a `bigint`. A test snapshot prints it as `1n`.
+
+## Your own data
+
+`load({ data, files })` takes two options. Each call gives a new object.
+
+- `data` names the shipped modules to load, such as `["sv_SE"]`. Each module loads the
+  modules it reads too. `sv_SE` reads `geo.SE` for its addresses. A name that is not a shipped
+  module throws.
+- `files` maps a path to a file's text or bytes. The files lie over the shipped data. A file
+  of your own at `sv_SE/color.json` replaces the shipped `sv_SE.color`.
+
+```js
+import { load } from "@larvit/fejkdata";
+
+const fejkdata = await load({ data: ["sv_SE"], files: { "mydata/team.json": '["Red", "Blue"]' } });
+console.log(fejkdata.render("{/sv_SE.first-name} plays for {/mydata.team}", { seed: 1, today: "2026-01-15" }));
+console.log(fejkdata.paths().includes("en_US.person"));
+```
+
+```text
+Vinston plays for Red
+false
+```
+
 ## Shipped paths
 
 The TypeScript type `ShippedPath` is every path of the shipped data, such as
@@ -78,12 +174,18 @@ path as `{/sv_SE.first-name}`.
 
 ## Errors
 
-`render` throws a `FejkdataError` when fejkdata refuses the template or an argument. Its
-message says what is wrong, in the CLI's words. Its `exitCode` is the CLI's exit code: 2 for
-a mistake in the template or the arguments, 1 for anything else.
+Each function throws a `FejkdataError` when fejkdata refuses the template, an argument or
+the data. Its message says what is wrong, in the CLI's words. Its `exitCode` is the CLI's
+exit code: 2 for a mistake in the template or the arguments, 1 for anything else. Its `kind`
+says where the error arose:
 
-A template that is not a string throws a `TypeError`. So does a call without the second
-argument.
+- `"misuse"`: a mistake in the template, an argument or `load`'s options.
+- `"load"`: the data doesn't load, or the template reads a module `data` left out.
+- `"limit"`: the output passes 512 MB.
+- `"other"`: anything else.
+
+A template that is not a string throws a `TypeError`, and so does a call without the second
+argument. `records` takes an object too.
 
 ```js
 import { FejkdataError, load } from "@larvit/fejkdata";
@@ -95,12 +197,12 @@ try {
 	if (!(error instanceof FejkdataError)) {
 		throw error;
 	}
-	console.log(error.exitCode, error.message);
+	console.log(error.kind, error.exitCode, error.message);
 }
 ```
 
 ```text
-2 fejkdata: template: reference {/sv_SE.persn}: no entry "persn"
+misuse 2 fejkdata: template: reference {/sv_SE.persn}: no entry "persn"
 ```
 
 ## Globals
