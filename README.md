@@ -2445,6 +2445,8 @@ The `npm` job reads no secret either. On npmjs.com the package names this reposi
 `test.yml` and the environment `npm` as its trusted publisher, and its publishing access is
 "Require two-factor authentication and disallow tokens". A Packages run started by hand
 doesn't publish. To publish a release's package again, rerun the failed jobs of its run.
+Limit the environment `npm` to the branch `main` in the repository's settings, so no
+other branch can publish.
 npmjs.com sets a publisher only on a package that exists, so the first version is published
 by hand: download the artifact `npm-package` from the release's run, and run
 `npm publish larvit-fejkdata-X.Y.Z.tgz`. A new publisher must publish within two days, so
