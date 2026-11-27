@@ -98,7 +98,7 @@ RUN cd /npm-package && FEJKDATA_CLI=/fejkdata bun test render.test.js && touch /
 # Deno imports the package over HTTP, as a browser does.
 FROM denoland/deno:2.9.8 AS npm-package-deno
 COPY --from=npm-package-built /npm-package/ /npm-package/
-RUN cd /npm-package && deno test --no-check --no-lock --allow-net --allow-read --allow-import over-http.deno.js && touch /tested
+RUN cd /npm-package && deno test --no-check --no-lock --allow-net --allow-read --allow-import load.deno.js && touch /tested
 
 FROM python:3.15.2-slim AS python-lint
 COPY --from=ghcr.io/astral-sh/ruff:0.17.6-alpine /usr/local/bin/ruff /usr/local/bin/ruff

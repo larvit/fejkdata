@@ -15,22 +15,22 @@ function goCLI(template, ...flags) {
 	return execFileSync(process.env.FEJKDATA_CLI, flags, { input: template, encoding: "utf8", maxBuffer: 1 << 28 });
 }
 
-test("renders what the Go build prints, byte for byte, for every format", () => {
-	for (const format of ["json", "ndjson", "csv", "tsv", "pgcopy", "sql"]) {
-		for (const seed of [1, 7, 4242]) {
+for (const format of ["csv", "json", "ndjson", "pgcopy", "sql", "tsv"]) {
+	for (const seed of [1, 7, 4242]) {
+		test(`renders what the Go build prints, byte for byte, as ${format} under seed ${seed}`, () => {
 			const want = goCLI(PERSON, "--seed", String(seed), "--today", DAY, "--repeat", "40", "--format", format);
-			assert.equal(fejkdata.render(PERSON, { seed, today: DAY, repeat: 40, format }), want, `${format}, seed ${seed}`);
-		}
+			assert.equal(fejkdata.render(PERSON, { seed, today: DAY, repeat: 40, format }), want);
+		});
 	}
-});
+}
 
-test("renders the text the Go build prints for each locale's person and address", () => {
-	for (const locale of ["sv_SE", "en_US", "de_DE", "fi_FI", "fr_FR", "da_DK", "nb_NO", "et_EE", "lv_LV", "lt_LT"]) {
+for (const locale of ["da_DK", "de_DE", "en_US", "et_EE", "fi_FI", "fr_FR", "lt_LT", "lv_LV", "nb_NO", "nn_NO", "sv_SE"]) {
+	test(`renders the text the Go build prints for a person and an address of ${locale}`, () => {
 		const template = `{/${locale}.person}, {/${locale}.address}\n`;
 		const want = goCLI(template, "--seed", "3", "--today", DAY, "--repeat", "25");
-		assert.equal(fejkdata.render(template, { seed: 3, today: DAY, repeat: 25 }), want, locale);
-	}
-});
+		assert.equal(fejkdata.render(template, { seed: 3, today: DAY, repeat: 25 }), want);
+	});
+}
 
 test("renders a hundred thousand rows as the Go build does", () => {
 	const want = goCLI(PERSON, "--seed", "5", "--today", DAY, "--repeat", "100000", "--format", "csv");
@@ -43,7 +43,7 @@ test("the same seed and day render the same text, and another seed another", () 
 	assert.notEqual(fejkdata.render("{/sv_SE.person}", { seed: 8, today: DAY }), first);
 });
 
-test("a render leaves nothing behind for the next one", () => {
+test("a render doesn't leave anything behind for the next one", () => {
 	const alone = fejkdata.render("{seq()} {/sv_SE.person}", { seed: 7, today: DAY });
 	fejkdata.render("{seq()} {/en_US.person}", { seed: 9, today: "2001-02-03", repeat: 5 });
 	assert.equal(fejkdata.render("{seq()} {/sv_SE.person}", { seed: 7, today: DAY }), alone);
@@ -51,6 +51,61 @@ test("a render leaves nothing behind for the next one", () => {
 
 test("load gives the same renderer each time", async () => {
 	assert.equal(await load(), fejkdata);
+});
+
+test("load leaves no global of its own behind", () => {
+	assert.equal("__fejkdataRun" in globalThis, false);
+});
+
+test("a load that fails is tried again by the next call", async () => {
+	const fresh = await import("./index.js?failing-load");
+	const { compile } = WebAssembly;
+	WebAssembly.compile = () => Promise.reject(new Error("no file"));
+	try {
+		await assert.rejects(fresh.load(), /no file/);
+	} finally {
+		WebAssembly.compile = compile;
+	}
+	const loaded = await fresh.load();
+	assert.equal(loaded.render("{/sv_SE.person}", { seed: 7, today: DAY }), fejkdata.render("{/sv_SE.person}", { seed: 7, today: DAY }));
+});
+
+test("a program that stops while loading fails the load, and leaves no global behind", async () => {
+	const fresh = await import("./index.js?stopping-load");
+	const { Go } = globalThis;
+	const { instantiate } = WebAssembly;
+	globalThis.Go = class {
+		importObject = {};
+		run() {
+			return Promise.resolve();
+		}
+	};
+	WebAssembly.instantiate = () => Promise.resolve({});
+	try {
+		await assert.rejects(fresh.load(), /stopped while loading/);
+	} finally {
+		globalThis.Go = Go;
+		WebAssembly.instantiate = instantiate;
+	}
+	assert.equal("__fejkdataRun" in globalThis, false);
+});
+
+test("an output longer than a JavaScript string holds is refused, each time, and the next render works", () => {
+	const wide = "x".repeat(700) + "\n";
+	for (let i = 0; i < 2; i++) {
+		assert.throws(
+			() => fejkdata.render(wide, { seed: 1, today: DAY, repeat: 1000000 }),
+			(error) => error instanceof FejkdataError && error.exitCode === 1 && /512 MB/.test(error.message),
+		);
+	}
+	assert.equal(fejkdata.render("{/misc.territory[SE].alpha2}", { seed: 1, today: DAY }), "SE");
+});
+
+test("an error leaves out the CLI's advice about a shell", () => {
+	assert.throws(
+		() => fejkdata.render("{/sv_SE.personnummer-12}", { seed: 1, today: DAY, format: "csv" }),
+		(error) => error instanceof FejkdataError && error.exitCode === 1 && !/\n|shell/.test(error.message),
+	);
 });
 
 test("a seed is a number or a bigint, up to 2^64 - 1", () => {
@@ -126,7 +181,7 @@ test("the typed formats are the ones the Go build names", () => {
 });
 
 // runBlocks runs each `js` block of markdown as a file of this folder, where the package's own name
-// resolves, holds what it prints to the `text` block after it, and returns how many it ran.
+// resolves. It fails unless the block prints the `text` block after it, and returns how many it ran.
 function runBlocks(markdown) {
 	const blocks = [...markdown.matchAll(/^```(\w+)\n(.*?)^```$/gms)].map(([, language, code]) => ({ language, code }));
 	let ran = 0;

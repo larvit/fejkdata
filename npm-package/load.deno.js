@@ -1,4 +1,3 @@
-// Deno runs this file. It imports the package over HTTP, as a browser does, so load fetches the WebAssembly.
 Deno.test("the package loads over HTTP and renders", async () => {
 	const types = { js: "text/javascript", wasm: "application/wasm" };
 	const server = Deno.serve({ port: 0, onListen() {} }, async (request) => {
@@ -12,5 +11,13 @@ Deno.test("the package loads over HTTP and renders", async () => {
 	await server.shutdown();
 	if (person !== "Felix Östberg") {
 		throw new Error(`seed 1 rendered ${person}, want Felix Östberg`);
+	}
+});
+
+Deno.test("the package loads from disk and renders", async () => {
+	const { load } = await import("./index.js");
+	const person = (await load()).render("{/sv_SE.person}", { seed: 1, today: "2026-01-15" });
+	if (person !== "Felix Östberg") {
+		throw new Error(`rendered ${person}`);
 	}
 });
