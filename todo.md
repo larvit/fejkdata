@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 602`
+`Next ID = 603`
 
 ## Renamed
 
@@ -50,6 +50,7 @@
 | 224 | 0.10.0 |  |  | **Name the module in every error about its manifest or its files: today an `fs.FS` module's errors name only the file inside it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.0 |
 | 228 | 0.10.0 |  |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 1 | 1 | 2 | 2 | 1 by 1, 5 by 3 | 2.0 |
 | 229 | 0.10.0 |  |  | **Name the line and column where JSON parsing stopped, when a template that opens like a JSON object then fails as a format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.0 |
+| 602 | 0.10.0 |  |  | **Render a second template from the npm package in under 10 ms, today about 100 ms, by keeping the loaded data between renders.** | 2 | 1 | 2 | 3 | 3 | 1.2 by 3, 12 by 2 | 2.0 |
 | 38 | 0.10.0 |  | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 2 | 2 | 1 | 1 by 1, 5 by 2 | 1.9 |
 | 44 | 0.10.0 |  | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 1.9 |
 | 45 | 0.10.0 |  |  | **Name the node a selector follows in `childNamed`'s refusal.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 1.9 |
@@ -291,11 +292,15 @@ Settle each thing npm shows or stores before the first publish, read it on npm's
 - How a bad version is withdrawn: `npm deprecate` before `npm unpublish`.
 - A check in the dry run: `npm publish --dry-run` and a listing of the packed files and their size. After the publish, look at the live page.
 
+Item 549 built the package: the Dockerfile's `npm-package-built` stage holds the folder to pack, with `fejkdata.wasm` and Go's `wasm_exec.js`. It left `package.json`'s version at `0.0.0`, so the release sets it. It left the repository's README without a JavaScript quick start, since the package could not be installed yet: add one beside "Python tests", a `js` block with the `text` block of what it prints, and have `npm-package/render.test.js` run it as it runs the package's own README. A render builds its generator anew and takes about 0.1 seconds, which the package's README states.
+
 Touches:
 
 - `.github/workflows/packages.yml`: `packages-dry-run` (small)
 - `npm-package/package.json`
 - `README.md`: `## Install` (small)
+- `npm-package/render.test.js`
+- `README.md`: `## Quick start` (small)
 
 ### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
 
@@ -477,6 +482,19 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 ### 228. Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.
 
 From the 2026-10-11 audience bench, a Go test author tagging `{p.first}` before binding `p`. The hint is built in `checkFieldRead` before the root is known, and only where the template has no fields; offering the binding there also told `{sv_SE.person.last}` to bind a name `sv_SE`. Decide between the reference and the binding once the root is loaded.
+
+### 602. Render a second template from the npm package in under 10 ms, today about 100 ms, by keeping the loaded data between renders.
+
+The npm package's `render` runs the CLI once per call, so each call builds a generator anew: `fejkdata.New` over every shipped module. Item 549 measured about 0.1 seconds a call in Node 26, Bun and Deno, whatever the template. A test suite that renders a few values in each of several hundred tests pays that each time. The Python package pays a process start per call in the same way.
+
+Keep what a load builds between calls, and give each call its own seed and day, so a render still keeps no state a caller can see: the same seed and day must print the same bytes whatever was rendered before. `npm-package/render.test.js` holds that test, and its comparison with the Go binary must still pass.
+
+Touches:
+
+- `npm-package/wasm/main.go`
+- `cli/cli.go`: `Run` (small)
+- `npm-package/render.test.js`
+- `npm-package/README.md`: `## Size and speed` (small)
 
 ### 38. Compare `calcParser.binary`'s operator as a rune.
 
