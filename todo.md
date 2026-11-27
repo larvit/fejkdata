@@ -277,6 +277,8 @@ Two ways out. Hand the rows over without a TSV, so a null stays a null and text 
 
 Recommendation: carry the values whole, since a nullable foreign key is common in the schemas bulk fixture authors load.
 
+A parent with one column that draws an empty or null value has no row a TSV can hold, so the run refuses it before any output and asks for a second column. Carrying values whole lifts that limit too.
+
 ### 603. Add a mutation tool for JavaScript.
 
 The `mutate` service runs Gremlins, and Gremlins mutates Go only. So no tool mutates `npm-package/index.js`, the package's code. Its tests are `npm-package/render.test.js` and `npm-package/load.deno.js`.
