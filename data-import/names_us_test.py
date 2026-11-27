@@ -48,4 +48,4 @@ class Particled(unittest.TestCase):
 
 	def test_a_name_with_no_particle_or_too_little_after_it_is_offered_nothing(self) -> None:
 		self.assertEqual(names_us.particled("Smith"), [])
-		self.assertEqual(names_us.particled("Dean"), [])
+		self.assertEqual(names_us.particled("Dee"), [])

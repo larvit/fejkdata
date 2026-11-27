@@ -24,6 +24,7 @@ from pathlib import Path
 
 import source
 import tsv
+import wikidata_names
 
 FIRST = "https://www.insee.fr/fr/statistiques/fichier/8205621/prenoms-2023-nat_csv.zip"
 LAST = "https://www.insee.fr/fr/statistiques/fichier/3536630/noms2008nat_txt.zip"
@@ -31,7 +32,9 @@ YEARS = range(1944, 2024)
 OUT = Path(__file__).resolve().parent.parent / "data" / "fr_FR"
 CACHE = Path(__file__).resolve().parent / "cache"
 SEX = {"1": "m", "2": "f"}
+FRANCE = "Q142"
 PARTICLES = {"da", "de", "dos"}
+ACCENTS = {"e": "éèêë", "a": "àâä", "u": "ùûü", "o": "ôö", "i": "îï", "c": "ç", "E": "ÉÈÊË", "A": "À", "C": "Ç", "O": "Ô", "I": "Î"}
 RARE = "_PRENOMS_RARES"
 OTHERS = "AUTRES NOMS"
 
@@ -72,8 +75,14 @@ def firsts(cache: str, floor: int) -> list[dict[str, object]]:
 	return sorted(out, key=lambda r: (r["name"], r["sex"]))
 
 
-def lasts(cache: str, floor: int) -> list[dict[str, object]]:
-	"""The rows (name, count) of the last names borne by at least floor people."""
+def accented(name: str) -> list[str]:
+	"""The forms of a name with one letter given an accent, `Lefevre` as `Lefèvre`."""
+	return [name[:i] + accent + name[i + 1 :] for i, letter in enumerate(name) for accent in ACCENTS.get(letter, "")]
+
+
+def lasts(cache: str, floor: int, bearers: wikidata_names.Bearers) -> list[dict[str, object]]:
+	"""The rows (name, count) of the last names borne by at least floor people.
+	A name is written as most of Wikidata's French bearers write it, where that is a majority."""
 	lines = unzipped(LAST, cache, "insee-noms2008nat.zip").decode("ascii").splitlines()
 	if lines[0].split("\t")[:2] != ["NOM", "_1891_1900"]:
 		sys.exit(f"the header is {lines[0]!r}, not NOM then the decade 1891-1900")
@@ -82,8 +91,9 @@ def lasts(cache: str, floor: int) -> list[dict[str, object]]:
 		name, *decades = line.split("\t")
 		if name != OTHERS and tsv.NAME.match(name):
 			counts[name] = sum(int(d) for d in decades)
-	spelled = [(surname(n), c) for n, c in tsv.common(counts.items(), floor)]
-	return [{"name": n, "count": c} for n, c in sorted(spelled)]
+	named = [(surname(n), c) for n, c in tsv.common(counts.items(), floor)]
+	spelling = wikidata_names.written({n: accented(n) for n, _ in named}, "fr", FRANCE, cache, bearers)
+	return [{"name": n, "count": c} for n, c in sorted((spelling.get(n, n), c) for n, c in named)]
 
 
 FIRST_MIN = 5
@@ -100,7 +110,7 @@ def main() -> None:
 	out = Path(a.out)
 	out.mkdir(parents=True, exist_ok=True)
 	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(a.cache, a.first_min))
-	tsv.write(out / "last-name.tsv", ["name", "count"], lasts(a.cache, a.last_min))
+	tsv.write(out / "last-name.tsv", ["name", "count"], lasts(a.cache, a.last_min, wikidata_names.bearers))
 
 
 if __name__ == "__main__":
