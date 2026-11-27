@@ -16,7 +16,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 601 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 600 | 0.9.0 |  |  | **Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.** | 2 | 1 | 2 | 3 | 3 | 1.3 by 4 | 1.7 |
 | 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 3 | 2 | 6 | 5 | 1.2 by 6 | 1.1 |
@@ -243,21 +242,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 601. Lower the reading cost of the files a chunk reads most before its first commit.
-
-On 2026-11-26 `reading-cost` reported a rise: the last 5 chunks read a median of 95,965 new input tokens before their first commit, the 5 before them 63,738. Read most over the last 5, by opens and searches: `README.md` 19, `compose.yaml` 11, `data-import/geo-us.py` 6, `data-import/geo.py` 6, `.github/workflows/packages.yml` 5, `data-import/geo-se.py` 5, `data-import/geo_test.py` 5, `data/finnish_test.go` 5. `docs/reading-cost.md` holds the figures. The chunk that ships this runs `reading-cost --reset`.
-
-Touches:
-
-- `README.md`
-- `compose.yaml`
-- `data-import/geo.py`
-- `data-import/geo-us.py`
-- `data-import/geo-se.py`
-- `data-import/geo_test.py`
-- `.github/workflows/packages.yml`
-- `data/finnish_test.go`
 
 ### 600. Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.
 
