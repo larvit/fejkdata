@@ -2168,10 +2168,10 @@ data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.m
 data-listing/   the generated list of every shipped path with its kind, example and source (`paths.json`), and the hand-written kind and source of each category, and of each field that differs from its category (`kinds-and-sources.tsv`)
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the generated table of every shipped path (`shipped-paths.md`), the locale pages (`docs/locales`, one per folder of `data/`), the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-npm-package/    the npm package: `load` and `render`, which run the CLI built to WebAssembly from `wasm/`; the package's tests; `typecheck/`, TypeScript that compiles only while `index.d.ts` types the package as it is used; `shipped-paths.d.ts`, the generated type of every shipped path; and its README
+npm-package/    the npm package: `load`, `isTemplate` and the `render`, `fake`, `records` and `paths` that `load` gives, over fejkdata built to WebAssembly from `wasm/`, where `main.go` hands the functions over, `modules.go` builds the modules `load` names, `records.go` draws rows, values and paths, and `kind.go` tells an error's kind; the package's tests; `typecheck/`, TypeScript that compiles only while `index.d.ts` types the package as it is used; `shipped-paths.d.ts`, the generated type of every shipped path; and its README
 python-package/ the Python package: `render`, which runs the CLI binary that a wheel carries; the package's tests; and its README
 release-tooling/ what CI releases with: the release from the changelog heading; the patch of the last release for main's newer Go, modules or GoReleaser; a release's binaries, packages, image, package repositories and Python wheels; and the filer of known vulnerabilities as `todo.md` items
-testdata/       the pinned shipped shape, and the pinned keys and kind words of the data listing (see Versioning)
+testdata/       the pinned shipped shape, the pinned keys and kind words of the data listing (see Versioning), and the strings Go's `IsTemplate` and the npm package's `isTemplate` must read alike
 ```
 
 ## Development
