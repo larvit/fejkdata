@@ -103,12 +103,12 @@ en_US.date	invented	hand-written
 en_US.email	invented	the locale's names and hand-written words, at example domains
 en_US.first-name	real	the SSA's baby names
 en_US.itin	valid	hand-written, in the groups the IRS lists for an ITIN
-en_US.last-name	real	the Census Bureau's surnames of 2010
+en_US.last-name	real	the Census Bureau's surnames of 2010; Wikidata's family names for their spelling
 en_US.month	real	Unicode CLDR's stand-alone month names
 en_US.paragraph	invented	a fixed pattern filled with the locale's words
 en_US.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
 en_US.person.first	real	the SSA's baby names
-en_US.person.last	real	the Census Bureau's surnames of 2010
+en_US.person.last	real	the Census Bureau's surnames of 2010; Wikidata's family names for their spelling
 en_US.person.prefix	real	hand-written
 en_US.person.sex	real	the Census Bureau's population estimates by sex
 en_US.phone	valid	hand-written area codes; exchanges NANPA may assign
@@ -240,14 +240,14 @@ fr_FR.date	invented	hand-written
 fr_FR.department	real	INSEE's department codes in a NIR
 fr_FR.email	invented	the locale's names and hand-written words, at example domains
 fr_FR.first-name	real	INSEE's Fichier des prénoms
-fr_FR.last-name	real	INSEE's Fichier des noms
+fr_FR.last-name	real	INSEE's Fichier des noms; Wikidata's family names for their accents
 fr_FR.month	real	Unicode CLDR's stand-alone month names
 fr_FR.nir	valid	INSEE's key check; no test series is published
 fr_FR.nonzero-number	invented	hand-written
 fr_FR.paragraph	invented	a fixed pattern filled with the locale's words
 fr_FR.person	real, invented	real first and last names from the locale's name tables; the pairing is invented
 fr_FR.person.first	real	INSEE's Fichier des prénoms
-fr_FR.person.last	real	INSEE's Fichier des noms
+fr_FR.person.last	real	INSEE's Fichier des noms; Wikidata's family names for their accents
 fr_FR.person.prefix	real	hand-written
 fr_FR.person.sex	real	Eurostat's table demo_pjan
 fr_FR.phone	valid	Arcep's numbering plan: ranges it doesn't allot, for use in fiction

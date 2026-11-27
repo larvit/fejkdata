@@ -946,7 +946,7 @@ neighbouring postort.
 |---|---|---|
 | `da_DK` | [Danish](docs/locales/da_DK.md) | CPR number; CPR number matched to a sex; Danish companies; Danish dates and emails; Danish phone numbers; Danish words |
 | `de_DE` | [German](docs/locales/de_DE.md) | Steuer-ID; German companies; German dates and emails; German phone numbers; German words |
-| `en_US` | [US English](docs/locales/en_US.md) | Last names; English words; Social Security numbers and ITINs; US phone numbers |
+| `en_US` | [US English](docs/locales/en_US.md) | English words; Social Security numbers and ITINs; US last names; US phone numbers |
 | `et_EE` | [Estonian](docs/locales/et_EE.md) | Estonian companies; Estonian dates and emails; Estonian phone numbers; Estonian words |
 | `fi_FI` | [Finnish](docs/locales/fi_FI.md) | Finnish companies; Finnish dates and emails; Finnish phone numbers; Finnish words; Henkilötunnus; Henkilötunnus matched to a sex; Henkilötunnus of the issued range |
 | `fr_FR` | [French](docs/locales/fr_FR.md) | NIR; French companies; French dates and emails; French phone numbers; French words |
