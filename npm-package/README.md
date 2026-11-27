@@ -42,7 +42,8 @@ A test runner that starts a worker per test file loads the 69 MB WebAssembly aga
 worker. That takes about 0.3 seconds a worker.
 
 Each call of `render`, `fake`, `records` or `paths` loads the data it reads again, which takes
-about 0.1 seconds before its first row.
+about 0.1 seconds before its first row. With `files`, each call also loads every file you
+gave, read or not: about 0.65 seconds for a 0.47 MB file. Keep the files small.
 Ask for many rows with `repeat`, not with many calls. One call returns at most 512 MB of
 text.
 
