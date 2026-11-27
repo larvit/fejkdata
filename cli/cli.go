@@ -75,7 +75,17 @@ header), a COPY block, or INSERTs of up to 1000 rows, one per line. A tsv file i
 so a later run can draw from this run's records: it writes a brace doubled, and a tab
 or line break in a value as a space.
 
+--emit writes several linked templates in one run, each a category of your own data
+written as a record: --emit customers=100 --emit orders=500 --format sql. A template
+reads the rows another one wrote through {/run.<template>}, so in orders,
+{/run.customers as c}{c.id} is the id of a customer the run wrote. A template another
+reads is written first, and each template's rows stay together. Under --format sql or
+pgcopy a template's last segment is its INSERT or COPY target. Any other format with
+more than one --emit needs --out-dir.
+
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
+      --emit T=N         write N records of the category T, a template of the run (repeatable); needs a
+                         record --format, and is refused beside --table, --repeat and a template on stdin
       --format F         output form: text (default), json, ndjson, csv, tsv, pgcopy or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, each written after {/ in a template, then exit;
@@ -83,6 +93,8 @@ or line break in a value as a space.
       --no-shipped-data  load only the --data-path directories
       --null-text T      the text --format csv writes for a null column, with a value equal to it quoted
                          (default: an empty field); refused under any other format
+      --out-dir D        the folder --emit writes to, one file per template, named T.F for its --format
+                         (created where missing); without it every template goes to stdout
   -n, --repeat N         render the template N times, 0..1048576 (default 1); 0 prints nothing,
                          [] under --format json, or the header under --format csv or tsv
   -s, --seed N           same seed, date, data and versions: identical output (default: a random seed)
@@ -103,13 +115,17 @@ Exit codes: 0 success, 1 runtime error, 2 misuse.
 type invocation struct {
 	args         []string
 	dirs         []string
+	emits        []fejkdata.Emit
 	format       string
 	help         bool
 	list         bool
 	noShipped    bool
 	nullSet      bool
 	nullText     string
+	outDir       string
+	outDirSet    bool
 	repeat       int
+	repeatSet    bool
 	seed         uint64
 	seeded       bool
 	separator    string
@@ -219,6 +235,9 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 // render reads stdin's template, loads the data and writes the renders. Under --list it reads no
 // stdin and writes the data's paths instead.
 func (in invocation) render(name string, modules []fs.FS, sys system, stdin io.Reader, stdout io.Writer) error {
+	if len(in.emits) > 0 && !in.list {
+		return in.emit(modules, sys, stdin, stdout)
+	}
 	var src input
 	if !in.list {
 		var err error

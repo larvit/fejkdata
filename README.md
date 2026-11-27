@@ -303,6 +303,8 @@ these paths; a template reads one as `{/path}`.
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` or `tsv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv`, `pgcopy` or `sql` — a record's columns, one record per row (json frames them as an array) |
+| `--emit T=N` | write `N` records of the category `T`, one template of a run of [linked templates](#linked-templates) (repeatable); needs a record `--format`, and is refused beside `--table`, `--repeat` and a template on stdin |
+| `--out-dir D` | the folder `--emit` writes to, one file per template, named by the template and the `--format`, such as `customers.csv` (created where missing) |
 | `--null-text T` | the text `--format csv` writes for a null column, with a value equal to it quoted (default: an empty field); refused under any other format |
 | `--table T` | the INSERT or COPY target for `--format sql` or `pgcopy`, ignored under any other (default: a lone reference's final name, selectors left out, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit; `--repeat`, `--separator`, `--format`, `--table` and `--null-text` have no effect here |
@@ -599,7 +601,65 @@ id,note,path
 ```
 
 To draw later rows from the ones you loaded, such as contacts that name a customer that exists, write the first
-run as `--format tsv` and read it as a table ([Records](#records)).
+run as `--format tsv` and read it as a table ([Records](#records)). To write both in one
+run, see [Linked templates](#linked-templates).
+
+### Linked templates
+
+One run writes several templates whose rows point at each other, such as customers and
+their orders. Each template is a category of your own data, written as a [record](#records). Save
+`mydata/customers.json`:
+
+```json
+{ "format": "", "id": { "format": "{seq()}", "datatype": "integer" }, "name": "{/sv_SE.person}" }
+```
+
+Then save `mydata/orders.json`. Its `{/run.customers as c}` picks one customer this run wrote,
+and `{c.id}` and `{c.name}` read that customer's columns:
+
+```json
+{
+  "format": "",
+  "id": { "format": "{seq()}", "datatype": "integer" },
+  "customer_id": { "format": "{/run.customers as c}{c.id}", "datatype": "integer" },
+  "customer": "{c.name}",
+  "placed": "{date(2026-01-01,2026-06-30,'2006-01-02')}"
+}
+```
+
+Name each template and its count with `--emit`:
+
+```sh
+fejkdata --seed 1 --today 2026-11-27 -d ./mydata --format sql --emit customers=2 --emit orders=4
+```
+
+```sql
+INSERT INTO "customers" ("id", "name") VALUES (1, 'Ulrika Lundkvist'),(2, 'Hilde Eriksson');
+INSERT INTO "orders" ("id", "customer_id", "customer", "placed") VALUES (1, 1, 'Ulrika Lundkvist', '2026-05-16'),(2, 2, 'Hilde Eriksson', '2026-06-14'),(3, 1, 'Ulrika Lundkvist', '2026-06-04'),(4, 2, 'Hilde Eriksson', '2026-01-06');
+```
+
+- **Order.** A template that another one reads is written first, so a foreign key always
+  finds its row. Each template's rows stay together. The templates otherwise come in the
+  order of their `--emit` flags.
+- **What a template reads.** `{/run.<template>}` is a [table](#table) of the columns that
+  template wrote, and its format is the first column. Only this path reads another
+  template's rows. A child may outnumber its parents, and a parent may have no child.
+- **Output.** Under `--format sql` or `pgcopy` everything goes to stdout, and a template's
+  last path segment is its INSERT or COPY target. With more than one template, `csv`, `tsv`,
+  `ndjson` and `json` need `--out-dir <folder>`, which gets one file per template:
+  `customers.csv` and `orders.csv`. `--out-dir` works under `sql` and `pgcopy` too.
+- **Seed.** A template draws from the seed and its own name. Adding a template to the run
+  doesn't change the rows of another, unless that one reads the new template. A `{seq()}`
+  counts within its own template.
+- **Counts.** A count is `0` to `1048576`. A count of `0` writes what `--repeat 0` does.
+- **Refused, with exit code 2, before any row is written:** a template that reads one the run doesn't name;
+  a parent with count `0` under a child with a count above `0`; two templates that read each
+  other; a root category or folder named `run` in the data; and `--emit` beside `--table`,
+  `--repeat` or a template on stdin.
+
+A child that reads a column its parent doesn't have fails with exit code 1 once the parent is
+written, since the parent's columns are known only then. The run keeps every row that
+another template reads in memory: a million orders over 120,000 customers of two columns take about 50 MB.
 
 ## Library
 
@@ -714,6 +774,28 @@ refused, naming that type.
 A `*Generator` is safe for concurrent use; a sequence is reproducible only
 when drawn from one goroutine. Editing a template shifts what it draws, and
 everything drawn after it.
+
+### Linked templates in Go
+
+`FakeRun` is the library's `--emit` ([Linked templates](#linked-templates)). It takes the
+templates with their counts, a function that writes one template, and the options of `New`:
+
+```go
+emits := []fejkdata.Emit{{Template: "customers", Count: 2}, {Template: "orders", Count: 4}}
+err := fejkdata.FakeRun(emits, func(e fejkdata.Emit, fake func() (*fejkdata.Record, error)) error {
+	for i := 0; i < e.Count; i++ {
+		r, err := fake() // the template's next record, which the run keeps for the templates reading it
+		if err != nil {
+			return err
+		}
+		fmt.Println(e.Template, r.JSON())
+	}
+	return nil
+}, fejkdata.WithDataPath("./mydata"), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))
+```
+
+`FakeRun` calls the function once per template, parents first. A run it refuses before
+the first call gives an error matching `ErrRun`.
 
 ### Your own CLI
 
@@ -2014,6 +2096,7 @@ datatype.go     DataType, what a record column holds
 render.go       Fake
 record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, and fake tags as one record's columns
+run.go          runs: FakeRun, Emit and ErrRun, which write several linked templates, each child reading its parents' rows at /run.<template>
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, IsLonePath, PathName
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module

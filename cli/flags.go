@@ -19,17 +19,23 @@ type flagDef struct {
 
 var flagDefs = []flagDef{
 	{"data-path", "d", true, func(in *invocation, v string) error { in.dirs = append(in.dirs, v); return nil }},
+	{"emit", "", true, func(in *invocation, v string) error {
+		e, err := parseEmit(v)
+		in.emits = append(in.emits, e)
+		return err
+	}},
 	{"format", "", true, func(in *invocation, v string) error { in.format = v; return nil }},
 	{"help", "h", false, func(in *invocation, _ string) error { in.help = true; return nil }},
 	{"list", "", false, func(in *invocation, _ string) error { in.list = true; return nil }},
 	{"no-shipped-data", "", false, func(in *invocation, _ string) error { in.noShipped = true; return nil }},
 	{"null-text", "", true, func(in *invocation, v string) error { in.nullText, in.nullSet = v, true; return nil }},
+	{"out-dir", "", true, func(in *invocation, v string) error { in.outDir, in.outDirSet = v, true; return nil }},
 	{"repeat", "n", true, func(in *invocation, v string) error {
 		n, err := strconv.Atoi(v)
 		if err != nil || n < 0 || n > fejkdata.MaxRepeat {
 			return fmt.Errorf("--repeat needs an integer in 0..%d, got %q", fejkdata.MaxRepeat, v)
 		}
-		in.repeat = n
+		in.repeat, in.repeatSet = n, true
 		return nil
 	}},
 	{"seed", "s", true, func(in *invocation, v string) error {
@@ -177,6 +183,9 @@ func setFlag(in *invocation, fl flagArg, argv []string, i int) (int, error) {
 func (in invocation) checkFlags() error {
 	if _, ok := recordFormats[in.format]; !ok && in.format != "text" {
 		return fmt.Errorf("--format takes %s, got %q", formatNames(), in.format)
+	}
+	if err := in.checkEmitFlags(); err != nil {
+		return err
 	}
 	return in.checkRecordFlags()
 }
