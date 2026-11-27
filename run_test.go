@@ -64,7 +64,7 @@ func TestFakeRunWritesParentsFirstAndAChildReadsItsParentsRows(t *testing.T) {
 	}
 }
 
-func TestFakeRunRefusesARunThatCannotBeOrdered(t *testing.T) {
+func TestFakeRunRefusesARun(t *testing.T) {
 	cycle := map[string]string{
 		"a": `{ "format": "", "id": "{seq()}", "b": "{/run.b.id}" }`,
 		"b": `{ "format": "", "id": "{seq()}", "a": "{/helper}" }`,
@@ -143,12 +143,15 @@ func TestFakeRunBothCountsZeroStillRendersAChildForItsColumns(t *testing.T) {
 	}
 }
 
-func TestFakeRunReturnsWhatWriteReturnsAndALoadError(t *testing.T) {
+func TestFakeRunReturnsWhatWriteReturns(t *testing.T) {
 	stop := errors.New("disk full")
 	err := FakeRun([]Emit{{"customers", 1}}, func(Emit, func() (*Record, error)) error { return stop }, WithDataPath(writeData(t, runData)), WithSeed(1), onTestDay)
 	if !errors.Is(err, stop) {
 		t.Errorf("FakeRun = %v, want write's error", err)
 	}
+}
+
+func TestFakeRunReturnsNewsErrorWhereAnOptionIsMissing(t *testing.T) {
 	if err := FakeRun([]Emit{{"customers", 1}}, func(Emit, func() (*Record, error)) error { return nil }); err == nil || errors.Is(err, ErrRun) {
 		t.Errorf("FakeRun with no option = %v, want New's error", err)
 	}

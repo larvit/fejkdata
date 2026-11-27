@@ -142,17 +142,24 @@ func TestRunEmitCountZeroWritesTheHeader(t *testing.T) {
 func TestRunEmitSeveralTemplatesNeedOutDirUnlessTheFormatNamesItsTarget(t *testing.T) {
 	dir := emitDir(t)
 	for _, format := range []string{"csv", "tsv", "ndjson", "json"} {
-		code, out, errb := runEmit(dir, "--format", format, "--emit", "customers=1", "--emit", "orders=1")
-		if code != 2 || out != "" || !strings.Contains(errb, "--out-dir") {
-			t.Errorf("--format %s = %d, %q, %q, want 2 naming --out-dir", format, code, out, errb)
-		}
+		t.Run(format, func(t *testing.T) {
+			code, out, errb := runEmit(dir, "--format", format, "--emit", "customers=1", "--emit", "orders=1")
+			if code != 2 || out != "" || !strings.Contains(errb, "--out-dir") {
+				t.Errorf("--format %s = %d, %q, %q, want 2 naming --out-dir", format, code, out, errb)
+			}
+		})
 	}
 	for _, format := range []string{"sql", "pgcopy"} {
-		if code, out, errb := runEmit(dir, "--format", format, "--emit", "customers=1", "--emit", "orders=1"); code != 0 || !strings.Contains(out, `"orders"`) {
-			t.Errorf("--format %s = %d, %q, %q, want both templates on stdout", format, code, out, errb)
-		}
+		t.Run(format, func(t *testing.T) {
+			if code, out, errb := runEmit(dir, "--format", format, "--emit", "customers=1", "--emit", "orders=1"); code != 0 || !strings.Contains(out, `"orders"`) {
+				t.Errorf("--format %s = %d, %q, %q, want both templates on stdout", format, code, out, errb)
+			}
+		})
 	}
-	if code, out, errb := runEmit(dir, "--format", "csv", "--emit", "customers=2"); code != 0 || !strings.HasPrefix(out, "id,name\n1,") {
+}
+
+func TestRunEmitOneTemplateGoesToStdoutUnderAnyRecordFormat(t *testing.T) {
+	if code, out, errb := runEmit(emitDir(t), "--format", "csv", "--emit", "customers=2"); code != 0 || !strings.HasPrefix(out, "id,name\n1,") {
 		t.Errorf("one template as csv = %d, %q, %q, want its rows on stdout", code, out, errb)
 	}
 }
