@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
+import { Buffer } from "node:buffer";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -264,6 +265,10 @@ test("a bad argument is misuse, though the template reads a module data leaves o
 	assert.throws(() => swedish.render("{/en_US.person}", { seed: -1, today: DAY }), errorOf("misuse", 2));
 });
 
+test("a format fejkdata doesn't write is misuse, though the template reads a module data leaves out", () => {
+	assert.throws(() => swedish.render("{/en_US.person}", { ...OPTIONS, format: "bogus" }), errorOf("misuse", 2));
+});
+
 test("files layer over the shipped data, as text or bytes", async () => {
 	const mine = await load({
 		data: ["sv_SE"],
@@ -277,6 +282,13 @@ test("files layer over the shipped data, as text or bytes", async () => {
 	assert.match(mine.fake("mydata.user", OPTIONS), /^\S+ of Red$/);
 	assert.equal(mine.fake("sv_SE.color", OPTIONS), "Ultraviolett");
 	assert.equal(fejkdata.paths().includes("mydata.user"), false);
+});
+
+test("a Buffer changed after load doesn't change a later draw", async () => {
+	const team = Buffer.from('["Red"]');
+	const mine = await load({ files: { "mydata/team.json": team } });
+	team.write('["Tan"]');
+	assert.equal(mine.fake("mydata.team", OPTIONS), "Red");
 });
 
 test("a file that is no text or bytes, or whose path is none, is refused at load", async () => {
@@ -403,6 +415,13 @@ test("records past 512 MB are refused as a limit, and the next call works", () =
 	assert.throws(() => fejkdata.records({ format: "", wide: "x".repeat(70000) }, { ...OPTIONS, repeat: 10000 }), errorOf("limit", 1));
 	assert.equal(fejkdata.records(TYPED, OPTIONS).length, 1);
 });
+
+for (const [cell, json] of [["null", "null"], ["empty", '""']]) {
+	test(`records of 1024 ${cell} columns past 512 MB are refused as a limit before they are drawn`, () => {
+		const template = `{"format": ""${Array.from({ length: 1024 }, (_, i) => `, "c${i}": ${json}`).join("")}}`;
+		assert.throws(() => fejkdata.records(template, { ...OPTIONS, repeat: 20000 }), errorOf("limit", 1));
+	});
+}
 
 const IS_TEMPLATE = JSON.parse(readFileSync(new URL("../testdata/is_template.json", import.meta.url), "utf8"));
 
