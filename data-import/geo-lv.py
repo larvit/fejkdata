@@ -73,7 +73,7 @@ def in_force(rows: Iterable[Mapping[str, str]]) -> Iterator[Mapping[str, str]]:
 
 class Register:
 	"""The register's places in force: regions and municipalities by ATVK code, localities by their code in the register,
-	and each street's locality and name by the street's code. municipality_of maps a pagasts's code in the register to its
+	and each street's locality and name by the street's code, left out where geo.cleanly_written refuses the name. municipality_of maps a pagasts's code in the register to its
 	ATVK code."""
 
 	def __init__(self, novadi: Iterable[Mapping[str, str]], pilsetas: Iterable[Mapping[str, str]], pagasti: Iterable[Mapping[str, str]], ciemi: Iterable[Mapping[str, str]], ielas: Iterable[Mapping[str, str]]) -> None:
@@ -94,7 +94,7 @@ class Register:
 		for r in in_force(ciemi):
 			if r["VKUR_CD"] in self.municipality_of:
 				self.localities[r["KODS"]] = {"code": r["KODS"], "name": r["NOSAUKUMS"], "municipality": self.municipality_of[r["VKUR_CD"]]}
-		self.streets = {r["KODS"]: (r["VKUR_CD"], r["NOSAUKUMS"]) for r in in_force(ielas) if r["VKUR_CD"] in self.localities}
+		self.streets = {r["KODS"]: (r["VKUR_CD"], r["NOSAUKUMS"]) for r in in_force(ielas) if r["VKUR_CD"] in self.localities and geo.cleanly_written(r["NOSAUKUMS"])}
 
 	def region(self, row: Mapping[str, str]) -> str:
 		"""Adds a novads or a state city as a region, and returns its ATVK code."""

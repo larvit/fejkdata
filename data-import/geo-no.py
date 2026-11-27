@@ -67,7 +67,7 @@ def recased(name: str) -> str:
 
 
 def street_name(name: str) -> bool:
-	return not NOT_A_STREET.search(name) and not geo.in_capitals(name)
+	return geo.cleanly_written(name) and not NOT_A_STREET.search(name) and not geo.in_capitals(name)
 
 
 def norwegian_name(official: str, written: str | None = None) -> str:
