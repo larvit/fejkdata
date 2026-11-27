@@ -3365,3 +3365,20 @@ Read most (opens and searches):
 - `npm-package/index.js` 1
 - `npm-package/package.json` 1
 - `npm-package/render.test.js` 1
+
+## Reading cost, chunk 2b8a037d0cf5, finished 2026-11-27T12:12:54Z
+
+56733 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/shipped/shipped_test.go` 3
+- `internal/shipped/generate/main_test.go` 2
+- `internal/shipped/listing.go` 2
+- `npm-package/typecheck/tsconfig.json` 2
+- `.dockerignore` 1
+- `README.md` 1
+- `compose.yaml` 1
+- `data_listing_test.go` 1
+- `npm-package/index.d.ts` 1
+- `npm-package/package.json` 1
