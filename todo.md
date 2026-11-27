@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 612`
+`Next ID = 613`
 
 ## Renamed
 
@@ -17,6 +17,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 611 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 4 | 7.8 |
+| 612 | 0.9.0 |  |  | **Run the `npm-package-lowest` stage on Node 22.3.0, the lowest `engines` names, and keep Renovate from bumping it.** | 1 | 2 | 2 | 3 | 1 | 1.2 by 3 | 2.1 |
 | 359 | 0.9.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 363 | 0.9.0 | 359 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
@@ -241,13 +242,24 @@
 
 ### 611. Lower the reading cost of the files a chunk reads most before its first commit.
 
-`reading-cost` finds the median of new input tokens a chunk reads before its first commit rising: 102,969 over the last 5 chunks, against 72,954 over the 5 before them (measured 2026-11-27 for item 359's chunk).
+The median of new input tokens a chunk reads before its first commit is rising: 102,969 over the last 5 chunks, against 72,954 over the 5 before them, as `reading-cost` measured on 2026-11-27 in item 359's chunk.
 
 The files opened and searched most over the last 5 chunks: `README.md` 18, `.github/workflows/packages.yml` 5, `.github/workflows/test.yml` 5, `cli/records_test.go` 4, `internal/engine/load/reference.go` 4, `DATA-LICENSES.md` 3, `cli/cli.go` 3, `cli/flags.go` 3, `data-import/names-us.py` 3 and `fejkdata.go` 3. Make each chunk's way into them shorter, such as a README that opens on where each task starts, and measure the median again with `reading-cost --reset` in the chunk that ships this item.
 
 Touches:
 
 - `README.md`
+
+### 612. Run the `npm-package-lowest` stage on Node 22.3.0, the lowest `engines` names, and keep Renovate from bumping it.
+
+The Dockerfile's `npm-package-lowest` stage says it runs "the lowest Node that package.json's engines names", and `engines` names `>=22.3.0`. The stage's image is `node:26.13.1-slim`, which Renovate bumped in 901829cc, so no test runs the package on Node 22 and the `engines` range is unchecked. Found by item 359's stability review.
+
+Pin the stage to a Node 22.3.0 image at its full patch version, and add a Renovate rule that leaves it there, as the project already holds other pins. A test asserts the stage's Node version, so the next bump fails the gate.
+
+Touches:
+
+- `Dockerfile`: `npm-package-lowest` (small)
+- `renovate.json`
 
 ### 359. Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.
 
