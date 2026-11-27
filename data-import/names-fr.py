@@ -9,8 +9,10 @@
   which 3 did: the rest sit in `_PRENOMS_RARES` and in rows without a year, which are dropped, so a count runs
   slightly low.
 - The last names are the "Fichier des noms": the births of 1891 to 2000, each name's counts over its decades
-  added up. INSEE writes them without accents, so a count holds every spelling of a name. A name takes
-  one accent where more than half of Wikidata's French bearers write it so, and at least 5 do: `Lefèvre` for `Lefevre`.
+  added up. INSEE writes them without accents, so a count holds every accented form of a name. A name takes
+  an accent where at least 5 of the people of French citizenship that Wikidata lists with a family name so labelled,
+  and more than half of those counted for the name, have that form: `Lefèvre` for `Lefevre`. The accents are added
+  one at a time, so `Lévêque` takes two, but `Jerome` takes none, since no form of it with one accent wins.
 - Both drop a name that `tsv.NAME` says is not a name in letters, and a first name borne by fewer than --first-min people or a last name borne by fewer than --last-min.
 - INSEE writes names in capitals. Each part of a name, split at a hyphen, a space or an apostrophe, is
   capitalised, but in a last name `da`, `de` and `dos` stay in lower case before another part.
@@ -83,7 +85,7 @@ def accented(name: str) -> list[str]:
 
 def lasts(cache: str, floor: int, bearers: wikidata_names.Bearers) -> list[dict[str, object]]:
 	"""The rows (name, count) of the last names borne by at least floor people.
-	A name is written as most of Wikidata's French bearers write it, where that is a majority."""
+	A name takes one accent more while a form with one more wins, as `wikidata_names.written` decides among the forms tried so far."""
 	lines = unzipped(LAST, cache, "insee-noms2008nat.zip").decode("ascii").splitlines()
 	if lines[0].split("\t")[:2] != ["NOM", "_1891_1900"]:
 		sys.exit(f"the header is {lines[0]!r}, not NOM then the decade 1891-1900")
@@ -93,7 +95,11 @@ def lasts(cache: str, floor: int, bearers: wikidata_names.Bearers) -> list[dict[
 		if name != OTHERS and tsv.NAME.match(name):
 			counts[name] = sum(int(d) for d in decades)
 	named = [(surname(n), c) for n, c in tsv.common(counts.items(), floor)]
-	spelling = wikidata_names.written({n: accented(n) for n, _ in named}, "fr", FRANCE, cache, bearers)
+	forms = {n: accented(n) for n, _ in named}
+	spelling = wikidata_names.written(forms, "fr", FRANCE, cache, bearers)
+	while grown := {n: forms[n] + more for n, w in spelling.items() if (more := [f for f in accented(w) if f not in forms[n]])}:
+		forms.update(grown)
+		spelling.update(wikidata_names.written(grown, "fr", FRANCE, cache, bearers))
 	return [{"name": n, "count": c} for n, c in sorted((spelling.get(n, n), c) for n, c in named)]
 
 
