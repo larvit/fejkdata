@@ -307,7 +307,7 @@ these paths; a template reads one as `{/path}`.
 | `--out-dir D` | the folder `--emit` writes to, one file per template, named by the template and the `--format`, such as `customers.csv` (created where missing) |
 | `--null-text T` | the text `--format csv` writes for a null column, with a value equal to it quoted (default: an empty field); refused under any other format |
 | `--table T` | the INSERT or COPY target for `--format sql` or `pgcopy`, ignored under any other (default: a lone reference's final name, selectors left out, such as `users` for `{/users}`, else `records`) |
-| `--list` | print every path, then exit; `--repeat`, `--separator`, `--format`, `--table` and `--null-text` have no effect here |
+| `--list` | print every path, then exit; `--repeat`, `--separator`, `--format`, `--table`, `--null-text`, `--emit` and `--out-dir` have no effect here |
 | `--version`, `-h`, `--help` | print, then exit |
 
 `--name value` and `--name=value` both work, a short flag's value attaches or
