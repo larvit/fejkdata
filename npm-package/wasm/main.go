@@ -83,13 +83,19 @@ func (b bridge) render(args []js.Value) any {
 
 type renderArgs struct{ seed, today, repeat, format, template string }
 
+var formats = map[string]bool{"text": true, "csv": true, "json": true, "ndjson": true, "pgcopy": true, "sql": true, "tsv": true}
+
+// valid tells whether seed, today, repeat and format are values the CLI takes.
+func (r renderArgs) valid() bool {
+	_, settingsErr := drawSettings(r.seed, r.today)
+	_, repeatErr := repeatCount(r.repeat)
+	return settingsErr == nil && repeatErr == nil && formats[r.format]
+}
+
 // renderKind is a failed render's kind and note: misuse for a bad argument, kindOf's where the
 // template fails to compile, else misuse for exit code 2 and other for any other.
 func (b bridge) renderKind(exitCode int, r renderArgs) (string, string) {
-	if _, err := drawSettings(r.seed, r.today); err != nil {
-		return "misuse", ""
-	}
-	if _, err := repeatCount(r.repeat); err != nil {
+	if !r.valid() {
 		return "misuse", ""
 	}
 	retry := func(modules []fs.FS) error { return compile(modules, r.format, r.template) }
@@ -107,6 +113,8 @@ func (b bridge) renderKind(exitCode int, r renderArgs) (string, string) {
 const maxOutput = 1<<29 - 24
 
 var errTooLong = errors.New("the output passes 512 MB, the most a JavaScript string holds; render fewer rows a call")
+
+var errTooMany = errors.New("the rows pass 512 MB, counting 32 bytes a cell beside its text; draw fewer rows a call")
 
 // capped collects what is written to it, and refuses a write that takes it past maxOutput.
 type capped struct {

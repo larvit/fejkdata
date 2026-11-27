@@ -94,7 +94,7 @@ func drawRecords(modules []fs.FS, seedText, todayText, repeatText, template stri
 }
 
 func drawRows(draw func() (*fejkdata.Record, error), repeat int) (*table, error) {
-	var rows table
+	rows := table{rows: repeat}
 	for range repeat {
 		r, err := draw()
 		if err != nil {
@@ -178,19 +178,24 @@ func unquoted(text string) string {
 }
 
 // table is the rows of records, held as their column names and datatypes and every value in turn.
+// table holds the rows records returns. size counts their text, and cellCost for each cell.
 type table struct {
 	names, types, values []any
-	size                 int
+	size, rows           int
 }
+
+const cellCost = 32
 
 func (t *table) add(columns []fejkdata.Column) error {
 	if t.names == nil {
-		t.name(columns)
+		if err := t.name(columns); err != nil {
+			return err
+		}
 	}
 	for _, c := range columns {
-		t.size += len(c.Value)
+		t.size += cellCost + len(c.Value)
 		if t.size > maxOutput {
-			return kindError{"limit", errTooLong}
+			return kindError{"limit", errTooMany}
 		}
 		if c.Null {
 			t.values = append(t.values, nil)
@@ -201,11 +206,17 @@ func (t *table) add(columns []fejkdata.Column) error {
 	return nil
 }
 
-func (t *table) name(columns []fejkdata.Column) {
+// name takes the columns' names and types, and refuses rows whose cells alone pass maxOutput.
+func (t *table) name(columns []fejkdata.Column) error {
 	for _, c := range columns {
 		t.names = append(t.names, c.Name)
 		t.types = append(t.types, c.DataType.String())
+		t.size += 2*cellCost + len(c.Name) + len(c.DataType.String())
 	}
+	if t.size+t.rows*len(columns)*cellCost > maxOutput {
+		return kindError{"limit", errTooMany}
+	}
+	return nil
 }
 
 func (t *table) js() map[string]any {
