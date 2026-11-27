@@ -181,6 +181,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The npm package is the CLI built to WebAssembly and run through `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`
 - The Python wheels go to PyPI from the `pypi` job of `test.yml` through trusted publishing, wheels only, under `MIT AND LicenseRef-fejkdata-data-licenses`
 - The npm package goes to npmjs.com from the `npm` job of `packages.yml` through trusted publishing, with `test.yml` as its publisher
+- The npm package's API is `load({ data, files })` and the stateless `render`, `fake`, `records` and `paths`, with `isTemplate`, a `kind` on `FejkdataError`, ES modules only, and types that complete a shipped path
 
 # Scoring run
 
