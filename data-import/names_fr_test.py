@@ -72,7 +72,10 @@ class Accented(unittest.TestCase):
 		self.assertTrue({"Lefèvre", "Lefévre", "Lefevré", "Lefêvre"} <= set(forms))
 		self.assertNotIn("Lefevre", forms)
 		self.assertIn("François", names_fr.accented("Francois"))
-		self.assertIn("Évrard", names_fr.accented("Evrard"))
+		self.assertTrue({"Évrard", "Èvrard", "Êvrard", "Ëvrard"} <= set(names_fr.accented("Evrard")))
 
-	def test_a_name_with_no_letter_that_takes_an_accent_is_offered_nothing(self) -> None:
+	def test_a_capital_other_than_e_takes_no_accent(self) -> None:
+		self.assertEqual({form[0] for name in ("Arnaud", "Celik", "Olivier", "Isnard") for form in names_fr.accented(name)}, {"A", "C", "O", "I"})
+
+	def test_a_name_with_no_letter_that_takes_an_accent_isnt_offered_any_form(self) -> None:
 		self.assertEqual(names_fr.accented("Bryn"), [])
