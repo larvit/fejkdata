@@ -124,7 +124,7 @@ shows. It carries the CLI but doesn't put a `fejkdata` command on your path.
 
 From JavaScript or TypeScript, `npm install @larvit/fejkdata` installs the package that
 [JavaScript and TypeScript tests](#javascript-and-typescript-tests) shows. It downloads 19 MB
-and unpacks to 69 MB: the CLI built to WebAssembly, with all the shipped data.
+and unpacks to 69 MB: fejkdata built to WebAssembly, with all the shipped data.
 
 ## Quick start
 
@@ -254,7 +254,7 @@ Klara,Lassfolk
 
 The package is an ES module with TypeScript types, and doesn't depend on any other package.
 `fake` draws one value of a path, `records` returns rows as objects, and `load` takes your own
-data files. [Its own README](npm-package/README.md) lists the arguments and the error a
+data files. [The package's README](npm-package/README.md) lists the arguments and the error a
 refused template throws.
 
 ### Replacing real data with fakes
