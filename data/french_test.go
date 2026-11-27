@@ -17,8 +17,9 @@ var inseeFirstNames = map[string]map[string]int{
 	"m": {"Jean": 771461, "Michel": 519386, "Frédéric": 312551, "Jean-Pierre": 189570, "Camille": 34693, "Dominique": 226341},
 }
 
-// The sums of the counts that INSEE's "Fichier des noms" publishes for the births of 1891 to 2000.
-var inseeLastNames = map[string]int{"Martin": 250013, "Bernard": 131330, "Lefevre": 64107, "da Silva": 28730, "dos Santos": 17661, "Le Gall": 27857, "de Oliveira": 8253}
+// The sums of the counts that INSEE's "Fichier des noms" publishes for the births of 1891 to 2000, under the name written as most French bearers in Wikidata write it,
+// and as INSEE writes it where Wikidata doesn't settle it, as `Francois`.
+var inseeLastNames = map[string]int{"Martin": 250013, "Bernard": 131330, "Lefèvre": 64107, "André": 62715, "Francois": 59714, "da Silva": 28730, "dos Santos": 17661, "Le Gall": 27857, "de Oliveira": 8253}
 
 func TestFrenchFirstNamesAreInseesCounts(t *testing.T) {
 	first := nameCounts(t, "fr_FR", "first-name")
