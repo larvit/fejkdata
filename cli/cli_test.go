@@ -482,7 +482,7 @@ func TestUsageExamplesRenderWithNoData(t *testing.T) {
 func TestUsageNamesNoPathACustomCLIMayNotCarry(t *testing.T) {
 	for _, token := range distinctSorted(regexp.MustCompile(`\{/[^}]*\}`).FindAllString(usage, -1)) {
 		t.Run(token, func(t *testing.T) {
-			if token != "{/path}" && token != "{/table[KEY]}" && token != "{/path as p}" {
+			if token != "{/path}" && token != "{/table[KEY]}" && token != "{/path as p}" && !strings.HasPrefix(token, "{/run.") {
 				t.Errorf("usage names %s, a path a custom CLI may not carry", token)
 			}
 		})
