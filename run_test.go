@@ -149,11 +149,34 @@ func TestFakeRunReturnsWhatWriteReturnsAndALoadError(t *testing.T) {
 	if !errors.Is(err, stop) {
 		t.Errorf("FakeRun = %v, want write's error", err)
 	}
-	broken := map[string]string{"customers": runData["customers"], "orders": `{ "format": "", "c": "{/run.customers.nope}" }`}
-	if _, _, err := fakeRun(t, broken, Emit{"customers", 1}, Emit{"orders", 1}); !errors.Is(err, ErrLoad) || errors.Is(err, ErrRun) || !strings.Contains(err.Error(), "nope") {
-		t.Errorf("FakeRun reading a column its parent lacks = %v, want an ErrLoad naming it", err)
-	}
 	if err := FakeRun([]Emit{{"customers", 1}}, func(Emit, func() (*Record, error)) error { return nil }); err == nil || errors.Is(err, ErrRun) {
 		t.Errorf("FakeRun with no option = %v, want New's error", err)
+	}
+}
+
+func TestFakeRunFailsBeforeTheFirstRecordWhereAChildDoesNotLoad(t *testing.T) {
+	for name, orders := range map[string]string{
+		"a column its parent lacks": `{ "format": "", "c": "{/run.customers.nope}" }`,
+		"a reference to nothing":    `{ "format": "", "c": "{/run.customers.id}", "d": "{/nope}" }`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			files := map[string]string{"customers": runData["customers"], "orders": orders}
+			lines, _, err := fakeRun(t, files, Emit{"customers", 3}, Emit{"orders", 1})
+			if !errors.Is(err, ErrLoad) || errors.Is(err, ErrRun) || !strings.Contains(err.Error(), "nope") || len(lines) != 0 {
+				t.Errorf("FakeRun = %v, after %v, want an ErrLoad naming nope before any record", err, lines)
+			}
+		})
+	}
+}
+
+func TestATemplateOfARunLoadedOutsideOneNamesTheRun(t *testing.T) {
+	_, err := New(WithDataPath(writeData(t, runData)), WithSeed(1), onTestDay)
+	if !errors.Is(err, ErrLoad) {
+		t.Fatalf("New = %v, want an ErrLoad", err)
+	}
+	for _, want := range []string{"{/run.", "--emit", "FakeRun"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("New = %v, want it to name %s", err, want)
+		}
 	}
 }
