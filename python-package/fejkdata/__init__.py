@@ -27,19 +27,19 @@ def render(
 	repeat: int = 1,
 	format: str = "text",
 	table: str | None = None,
-	data_path: str | os.PathLike[str] | Iterable[str | os.PathLike[str]] = (),
+	data_path: str | os.PathLike[str] | Iterable[str | os.PathLike[str]] | None = None,
 	no_shipped_data: bool = False,
 	separator: str | None = None,
 	null_text: str | None = None,
 ) -> str:
 	"""Renders template as `fejkdata --seed … --today … --repeat … --format …` does, and returns what it prints.
 
-	today is a date, or a string such as 2026-01-15. table, data_path, no_shipped_data, separator and null_text pass the CLI
-	flag of their name when given, and data_path takes a folder or several, the last winning on a clash. A render the CLI
-	refuses raises FejkdataError.
+	today is a date, or a string such as 2026-01-15. table, data_path, separator and null_text pass the CLI flag of their name
+	unless they are None, and no_shipped_data passes its flag when True. data_path takes a folder or several, the last winning
+	on a clash. A render the CLI refuses raises FejkdataError.
 	"""
 	day = today if isinstance(today, str) else today.strftime("%Y-%m-%d")
-	folders = [data_path] if isinstance(data_path, (str, os.PathLike)) else data_path
+	folders = [data_path] if isinstance(data_path, (str, os.PathLike)) else data_path or ()
 	flags = [f"--data-path={os.fspath(folder)}" for folder in folders]
 	if no_shipped_data:
 		flags.append("--no-shipped-data")
