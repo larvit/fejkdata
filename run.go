@@ -267,6 +267,9 @@ func (p *runPlan) place(e Emit, emits []Emit, placed map[string]bool) {
 // fake writes each template in turn, loading the data once per template: over the rows written so
 // far, and without the categories that read rows not yet written.
 func (p runPlan) fake(c config, write func(e Emit, fake func() (*Record, error)) error) error {
+	if err := p.dryLoad(c); err != nil {
+		return err
+	}
 	tables := map[string]string{}
 	for _, e := range p.emits {
 		g, err := p.generator(c, e.Template, tables)
@@ -284,28 +287,47 @@ func (p runPlan) fake(c config, write func(e Emit, fake func() (*Record, error))
 	return nil
 }
 
+// dryLoad loads each template over one row of each parent, so data that fails to load fails before
+// the first record is written.
+func (p runPlan) dryLoad(c config) error {
+	tables := map[string]string{}
+	for _, e := range p.emits {
+		g, err := p.generator(c, e.Template, tables)
+		if err != nil {
+			return err
+		}
+		rows := runRows{g: g, template: e.Template, kept: p.isRead(e.Template)}
+		if err := rows.keepInto(tables); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// isRead reports whether a template of the run reads template's rows.
 func (p runPlan) isRead(template string) bool {
-	for _, needs := range p.needs {
-		if needs[template] {
+	for _, e := range p.emits {
+		if p.needs[e.Template][template] {
 			return true
 		}
 	}
 	return false
 }
 
-// generator loads the data for rendering template: each table of tables at /run.<its template>,
-// and an empty category in place of each one that needs rows not yet in tables.
+// generator loads the data for rendering template: each table of tables that template needs, at
+// /run.<its template>, and an empty category in place of each one that needs any other rows.
 func (p runPlan) generator(c config, template string, tables map[string]string) (*Generator, error) {
 	files := map[string]string{}
-	for written, tsv := range tables {
-		file := "run/" + strings.ReplaceAll(written, ".", "/")
+	for parent := range p.needs[template] {
+		tsv := tables[parent]
+		file := "run/" + strings.ReplaceAll(parent, ".", "/")
 		firstColumn, _, _ := strings.Cut(tsv[:strings.Index(tsv, "\n")], "\t")
 		files[file+".json"] = fmt.Sprintf(`{"format":"{%s}","rows":"%s.tsv"}`, firstColumn, path.Base(file))
 		files[file+".tsv"] = tsv
 	}
 	for category, needs := range p.needs {
 		for need := range needs {
-			if _, written := tables[need]; !written {
+			if !p.needs[template][need] {
 				files[strings.ReplaceAll(category, ".", "/")+".json"] = `{"format":""}`
 			}
 		}

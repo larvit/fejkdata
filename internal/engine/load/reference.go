@@ -67,6 +67,9 @@ func ResolveCategory(root map[string]tree.Node, segments []string) (categorySegs
 		return nil, nil, nil, fmt.Errorf("%s is a folder, not a table, so it has no row to select", strings.Join(segments[:i], "."))
 	}
 	n, ok := g.Children()[segments[i]]
+	if !ok && i == 0 && segments[0] == "run" {
+		return nil, nil, nil, fmt.Errorf("%w: /run holds the rows of a run of linked templates, so this reference resolves only under --emit or in FakeRun", NoEntry{"run"})
+	}
 	if !ok {
 		return nil, nil, nil, NoEntry{segments[i]}
 	}
