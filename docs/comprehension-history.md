@@ -2834,3 +2834,88 @@ Inherited architect, decided by:
 - Locality: `internal/shipped/listing.go:98` `Data.Listing`: takes the kinds bytes and a state factory, where the base read the file itself and mutated a shared generator and row flags
 - Navigation, Shape: `cli/build.go:17` `isFejkdataItself`: build-info code has a file named for it, and help picks its lead by the build's module, not a renamable binary name
 - Shape: `internal/engine/index.go:38` `DrawnFrom`: walks the path the way the engine does, where the base guessed the category from string prefixes; the highest reading cost left is `internal/shipped/listing.go:130` `rowOf`, a three-tier fallback that cuts the path at its last dot
+
+## 2026-11-27T19:34:08Z, item-359 at 347eee72
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6 | 6 | 6 |
+| Mid A | 7 | 5.5 | 6.5 | 6.5 | 6.5 |
+| Maintainability senior | 7 | 5.5 | 6.5 | 6.5 | 6 |
+| Inherited architect | 7 | 6 | 6 | 7 | 6.5 |
+| Mean | 7.00 | 5.63 | 6.25 | 6.50 | 6.25 |
+
+Junior A, hardest first:
+
+- Locality, Overall: `internal/engine/tree/pick.go:123` `LandsInPick`: load and render must agree on one key, with nothing in the types tying the callers together
+- Locality, Overall: `internal/engine/render/path.go:64` `drawAcrossTables`: a two-state walk with pins replaced partway through
+- Shape: `internal/engine/load/name.go:113` `readAnswerer.answer`: scope, shadowing and out-of-sight rules split across three helpers, with no comment on the whole
+- Shape: `run.go:325` `runPlan.generator`: builds a stand-in data tree by hand and reseeds by a name hash
+- Locality: `internal/engine/tree/loadfinds.go:53` `LoadFinds.Of`: which accessor is legal depends on the load phase
+- Self-sufficiency: `internal/engine/fence/names/rules.go:53` `nameRules`: the reasons sit in docs/decisions.md and the README, not beside the code
+
+Mid A, hardest first:
+
+- Locality, Overall: `internal/engine/fence/names/refusefreshdraw.go:104` `rendersField`: three conditions and a worklist across categories on top of `PickKey` semantics defined elsewhere
+- Locality, Overall: `internal/engine/tree/pick.go:86` `PlacedRead`: the `atLen` encoding follows an allocation gate rather than the concept
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: pin state traced through three files
+- Self-sufficiency: `internal/grammar/where.go:59` `cutWord`: hand-written scanning with positional rules, and the README is the only spec
+- Shape: `run.go:325` `runPlan.generator`: the stand-in trick is not explained in `FakeRun`'s doc
+
+Maintainability senior, hardest first:
+
+- Locality, Overall: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: the `rendersField` exception stayed opaque
+- Locality, Overall: `internal/engine/tree/pick.go:86` `PlacedRead`: fence and render must agree on its key layout, and a mismatch would not crash
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: the comments say what happens, not why two states are needed
+- Locality: `internal/engine/tree/renderedge.go:9`: rendering a child outside the `Rendered*` methods silently skips the checks, and `render/render.go:32` doesn't repeat it
+- Shape: `run.go:149` `readNeeds`: a stringly typed map of template names and `/run.x` paths
+
+Inherited architect, would restructure first:
+
+- Locality, Overall: `internal/engine/tree/pick.go:123` `LandsInPick`: the one-pick invariant is split across load, render and fence/names
+- Locality: `internal/engine/render/pick.go:38` `namedPick`: tuned to the allocation gates in `render/env.go:27`
+- Shape: `internal/engine/fence/fence.go:32` `Check`: proof, prove, refuse and check name one family of verbs
+- Shape: `render.go:13` `Generator.Fake`: the engine's twin is `internal/engine/draw.go:19`, under another file name
+
+## 2026-11-27T19:39:09Z, item-359 rerun at 347eee72
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 6 | 6.5 | 6.5 | 6.5 |
+| Mid A | 7 | 6 | 7 | 6.5 | 6.5 |
+| Maintainability senior | 7.5 | 5.5 | 7 | 6 | 6.5 |
+| Inherited architect | 7 | 6 | 6 | 7 | 6.5 |
+| Mean | 7.13 | 5.88 | 6.63 | 6.50 | 6.50 |
+
+Junior A, hardest first:
+
+- Locality, Overall: `internal/engine/tree/pick.go:86` `PlacedRead`: three ideas at once, and `atLen` exists only to avoid a heap escape
+- Locality, Overall: `internal/engine/render/pick.go:109` `framesFrom`: frames, the memo and `steppedDown` interact, and which frames are entered stayed half-opaque
+- Locality: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: the mechanics need four or five files open
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: inside and climbed states traced against the pins
+- Self-sufficiency: `internal/engine/fence/names/rules.go:54` `nameRules`: the reasons sit in docs/decisions.md and the README's names section
+- Shape: `run.go:149` `readNeeds`: template names and `/run.x` strings share one key space
+
+Mid A, hardest first:
+
+- Locality, Overall: `internal/engine/tree/pick.go:123` `LandsInPick`: render and the name fence must agree on it, and a wrong change fails silently
+- Locality, Overall: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: re-derives render's behaviour on the fence side
+- Locality: `internal/engine/render/pick.go:157` `readPath`: frames, the `entered` map and the memo keys change what a later read sees
+- Locality: `run.go:325` `runPlan.generator`: slices the TSV header by its first newline and stubs other categories, and nothing says so where it is built
+- Locality: `internal/engine/tree/loadfinds.go:53` `Of`: every load function carries which phase it is in
+
+Maintainability senior, hardest first:
+
+- Locality, Overall: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: the `rendersField` exception is only correct relative to code two packages away
+- Locality, Overall: `internal/engine/tree/pick.go:67` `PlacedRead`: two key systems, with the allocation trick stacked on the semantics
+- Locality: `internal/engine/render/pick.go:94` `scopeAround`: two files open to know which `renderEnv` fields stay valid across by-value copies
+- Locality: `internal/engine/tree/renderedge.go:9` `RenderEdges`: its tie to `render/render.go:30` is stated only in comments
+- Self-sufficiency: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: states that a read addressing a level addresses every level above, and nothing shows where that holds
+
+Inherited architect, would restructure first:
+
+- Locality, Overall: `internal/engine/render/pick.go:157` `namedPick.readPath`: render's pick handling can't change without holding `fence/names` and `tree/pick.go` too
+- Locality, Overall: `internal/engine/fence/names/route.go:43` `route.placedAt`: the fence re-walks paths by its own logic, so a new way of reading through a name must be taught to render and the fence separately
+- Shape: `run.go:83` `planRun`: a full run planner at the root, where the API files are otherwise thin
+- Shape: `internal/engine/tree/table.go:29` `RowsTable`: the pin set and the table each have two names
+- Navigation: `internal/engine/doc.go:5` vocabulary: one token kind spans five packages and only load has a file index

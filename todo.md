@@ -307,7 +307,7 @@ Cover: a single name, one letter, `O'Brien` with both apostrophes, `St. John`, `
 
 ### 534. Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.
 
-The scoring runs at b0ebfb80 (PR #474) and at 1909b699 (PR #489) left Locality at 5.63, 6.38, 6.00 and 6.25, Shape 6.63, 6.88, 6.88 and 6.88, Self-sufficiency 6.13, 6.63, 6.63 and 6.63 and Overall 6.25, 6.88, 6.63 and 6.75, under the floor of 7.0. Item 462 gave a pick its own frames, and the seats moved on to how the one-pick rule is split between `tree/pick.go`, `render/pick.go` and `fence/names`, joined only by prose:
+The scoring runs at b0ebfb80 (PR #474), at 1909b699 (PR #489) and at 347eee72 (PR #550) left Locality at 5.63, 6.38, 6.00, 6.25, 5.63 and 5.88, Shape 6.63, 6.88, 6.88, 6.88, 6.25 and 6.63, Self-sufficiency 6.13, 6.63, 6.63, 6.63, 6.50 and 6.50 and Overall 6.25, 6.88, 6.63, 6.75, 6.25 and 6.50, under the floor of 7.0. Item 462 gave a pick its own frames, and the seats moved on to how the one-pick rule is split between `tree/pick.go`, `render/pick.go` and `fence/names`, joined only by prose:
 
 - Locality: `internal/engine/tree/pick.go:86` `PlacedRead`: dotted string keys and `first[:atLen]` shaped to keep the render env off the heap, not by meaning
 - Locality: `internal/engine/tree/pick.go:123` `LandsInPick`: one rule, a name keeps one pick, enforced across render, tree and fence/names that must agree
@@ -331,6 +331,10 @@ The scoring runs at b0ebfb80 (PR #474) and at 1909b699 (PR #489) left Locality a
 - Shape: `internal/engine/tree/name.go:136` `NameScope.Kind`: the same rule as `opensScope` at `internal/engine/load/name.go:54`, in another package with no comment linking them, and its check order is load-bearing
 - Shape: `internal/engine/fence/names/route.go:87` `drawsDownTo`: indexes the levels, though `route`'s doc says no rule does
 - Self-sufficiency: `internal/engine/render/render.go:150` `readSibling`: clearing the pick is what makes every `{…}` draw afresh, and nothing nearby says so
+- Locality: `internal/engine/tree/renderedge.go:9` file header: rendering a child outside the `Rendered*` methods skips the cycle check, the repeat cap and the name fence, and `render/render.go:32` doesn't repeat it (PR #550's run)
+- Shape: `run.go:149` `readNeeds`: a stringly typed map of template names and `/run.x` paths, told apart by a leading `/` (PR #550's run)
+- Shape: `run.go:83` `planRun`: a full run planner at the root, where the API files are otherwise thin; it stubs categories and slices a TSV header by its first newline at `run.go:325` (PR #550's second run)
+- Shape: `internal/engine/tree/table.go:29` `RowsTable`: the pin set and the table each have two names, `rows.Pins` and `tree.PinSet` (PR #550's second run)
 
 Give the pick-key model one home that holds its own invariants: the keys, where a read lands and which levels a binding addresses, in one place render and the name fence both call, with a key built by one function, so `keyOf` and `JoinSegments` can't disagree. Make render reach a node's children only through what `tree.RenderEdges` lists, or check the two agree in a test that fails when a new node type skips one, so the comment at `renderedge.go:9` is enforced. Let a type say whether a read's segments count from the name or from the path's head. Have each name rule's doc state every condition its code checks, and state the invariant `sharedDraw`'s early return rests on where it is established. Say why `readTwiceApart` and `readsFieldApart` differ, or merge them, and correct `Read.levels`'s doc. Give `NameScope.Kind` and `opensScope` one rule, say why a lazy load may use its own LoadFinds, and comment `readSibling`'s clearing of the pick. No render output or seed changes, and no allocation count rises; the performance gate holds.
 
