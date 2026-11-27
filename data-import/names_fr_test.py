@@ -63,7 +63,16 @@ class Lasts(unittest.TestCase):
 				names_fr.lasts(cache, 5, bearers),
 				[{"name": "Francois", "count": 70}, {"name": "Garcia", "count": 80}, {"name": "Lefèvre", "count": 90}],
 			)
-		self.assertEqual(asked, [("fr", "Q142")])
+		self.assertEqual(set(asked), {("fr", "Q142")})
+
+	def test_a_name_takes_one_accent_more_while_a_form_with_one_more_wins(self) -> None:
+		def bearers(labels: Iterable[str], language: str, country: str, cache: str) -> dict[str, int]:
+			return {"Leveque": 4, "Levêque": 8, "Lévêque": 75, "Jerome": 2, "Jérôme": 6}
+
+		body = "NOM\t_1891_1900\nLEVEQUE\t90\nJEROME\t80\n"
+		with tempfile.TemporaryDirectory() as cache:
+			cached(cache, "insee-noms2008nat.zip", "noms.txt", body)
+			self.assertEqual(names_fr.lasts(cache, 5, bearers), [{"name": "Jerome", "count": 80}, {"name": "Lévêque", "count": 90}])
 
 
 class Accented(unittest.TestCase):
