@@ -251,7 +251,7 @@ The steps, on a machine logged in to npm as an owner of `larvit`:
 1. Build the folder to pack: `docker build --target npm-package-built --output /tmp/fejkdata-npm .`
 2. Publish it as version 0.0.0: `npm publish /tmp/fejkdata-npm/npm-package`
 3. Mark it: `npm deprecate @larvit/fejkdata@0.0.0 "A placeholder. Install 0.9.0 or later."`
-4. In the package's settings on npmjs.com, add the trusted publisher: GitHub Actions, organization `larvit`, repository `fejkdata`, workflow `test.yml`, environment `npm`. A new publisher must publish within two days, so cut 0.9.0 within two days of this step.
+4. In the package's settings on npmjs.com, add the trusted publisher: GitHub Actions, organization `larvit`, repository `fejkdata`, workflow `test.yml`, environment `npm`. Its allowed actions must include `npm publish`. A publisher made after 3 September 2026 allows only `npm stage publish` by default ([npm's docs](https://docs.npmjs.com/trusted-publishers/)). npm 11.15.0 or later can set it from a shell instead: `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. A new publisher must publish within two days, so cut 0.9.0 within two days of this step.
 5. In the repository's settings on GitHub, limit the environment `npm` to the branch `main`.
 6. After 0.9.0 is published, set the package's publishing access to "Require two-factor authentication and disallow tokens", and look at the live page: the README, the provenance badge and the files.
 
