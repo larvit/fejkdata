@@ -24,21 +24,30 @@ func (loadError) Is(target error) bool { return target == ErrLoad }
 // the unloaded categories it needs. Its error matches ErrLoad.
 // docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
 func Load(sources []datafiles.Source) (tree.Folder, error) {
-	root := tree.NewFolder()
-	l := tree.NewLoadFinds()
-	for _, src := range sources {
-		m, err := src.Manifest()
-		if err != nil {
-			return tree.Folder{}, loadError{err}
-		}
-		if err := addSource(root, src, m, l); err != nil {
-			return tree.Folder{}, loadError{err}
-		}
+	root, l, err := compile(sources)
+	if err != nil {
+		return tree.Folder{}, loadError{err}
 	}
 	if err := loadReached(root, categorySites(root), l, nil); err != nil {
 		return *root, loadError{err}
 	}
 	return *root, nil
+}
+
+// compile merges sources in order into one root, each category compiled and none resolved.
+func compile(sources []datafiles.Source) (*tree.Folder, *tree.LoadFinds, error) {
+	root := tree.NewFolder()
+	l := tree.NewLoadFinds()
+	for _, src := range sources {
+		m, err := src.Manifest()
+		if err != nil {
+			return nil, nil, err
+		}
+		if err := addSource(root, src, m, l); err != nil {
+			return nil, nil, err
+		}
+	}
+	return root, l, nil
 }
 
 func addSource(root *tree.Folder, src datafiles.Source, m datafiles.Manifest, l *tree.LoadFinds) error {
