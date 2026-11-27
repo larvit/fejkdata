@@ -58,6 +58,17 @@
       "matchStrings": [
         "pip install --no-cache-dir (?<depName>[^=\\s]+)==(?<currentValue>\\S+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "npm",
+      "description": "Node tools the Dockerfile installs with npm",
+      "managerFilePatterns": [
+        "/^Dockerfile$/"
+      ],
+      "matchStrings": [
+        "npm install --global --no-fund --no-audit (?<depName>[^@\\s]+)@(?<currentValue>\\S+)"
+      ]
     }
   ],
   "extends": [
