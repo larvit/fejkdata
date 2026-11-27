@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 606`
+`Next ID = 607`
 
 ## Renamed
 
@@ -19,6 +19,7 @@
 | 550 | 0.9.0 |  |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 604 | 0.10.0 |  | question | **Decide how a child of a run reads its parent's null, tab and line break: carried whole, or refused where the parent draws one.** | 3 | 2 | 3 | 6 | 3 | 1 by 3, 5 by 3 | 2.5 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
+| 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
 | 569 | 0.10.0 | 567 |  | **Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.** | 1 | 2 | 1 | 2 | 3 | 1 by 4, 2.1 by 3 | 3.1 |
 | 252 | 0.10.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
@@ -285,6 +286,10 @@ Use StrykerJS (`@stryker-mutator/core`), pinned to 10.1.1. That version needs No
 The tests need the built `fejkdata.wasm` and the Go binary at `$FEJKDATA_CLI`. So the tool runs as a Dockerfile stage or a compose service beside the `npm-package` stage, and the README's Development section lists it. The package must still have no npm dependency. StrykerJS is installed in that stage at build time, never in `npm-package/package.json`'s `dependencies`.
 
 Item 549's review mutated `index.js` by hand. Of 15 mutants, three lived: removing the global `__fejkdataRun`, retrying a failed load, and a program stopping while it loads. Tests now cover all three. A tool would find the next ones without a reviewer.
+
+### 606. Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.
+
+Filed from an outside reviewer's finding on item 393's pull request: the `FakeRun` example read `/sv_SE.person` and loaded no shipped module, so it returned a load error. `readme_test.go` runs every `json` block and the Python and npm tests run theirs, and nothing runs a `go` block. Wrap each block in a `main` with the imports it names, build it against the working tree, and run it over the data files the README tells the reader to save.
 
 ### 567. Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.
 
