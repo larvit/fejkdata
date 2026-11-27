@@ -97,15 +97,9 @@ func checkEmits(emits []Emit, compiled []engine.CategoryReads, unloaded []string
 	if len(emits) == 0 {
 		return errors.New("the run names no template")
 	}
-	categories := map[string]bool{}
-	for _, c := range compiled {
-		unloaded = append(unloaded, c.Path)
-	}
-	for _, category := range unloaded {
-		if category == "run" || strings.HasPrefix(category, "run.") {
-			return fmt.Errorf(`the data holds %s, and a run keeps the root name "run" for the rows its templates read; rename it`, category)
-		}
-		categories[category] = true
+	categories, err := runCategories(compiled, unloaded)
+	if err != nil {
+		return err
 	}
 	named := map[string]bool{}
 	for _, e := range emits {
@@ -115,6 +109,21 @@ func checkEmits(emits []Emit, compiled []engine.CategoryReads, unloaded []string
 		named[e.Template] = true
 	}
 	return nil
+}
+
+// runCategories is every category of the data by its path, refused where one sits at the root name "run".
+func runCategories(compiled []engine.CategoryReads, unloaded []string) (map[string]bool, error) {
+	categories := map[string]bool{}
+	for _, c := range compiled {
+		unloaded = append(unloaded, c.Path)
+	}
+	for _, category := range unloaded {
+		if category == "run" || strings.HasPrefix(category, "run.") {
+			return nil, fmt.Errorf(`the data holds %s, and a run keeps the root name "run" for the rows its templates read; rename it`, category)
+		}
+		categories[category] = true
+	}
+	return categories, nil
 }
 
 func checkEmit(e Emit, categories, named map[string]bool) error {
@@ -135,17 +144,11 @@ func (p *runPlan) readNeeds(emits []Emit, compiled []engine.CategoryReads) {
 	isCategory := map[string]bool{}
 	for _, c := range compiled {
 		isCategory[c.Path] = true
+		p.needs[c.Path] = map[string]bool{}
 	}
 	references := map[string][]string{}
 	for _, c := range compiled {
-		p.needs[c.Path] = map[string]bool{}
-		for _, segs := range c.Reads {
-			if len(segs) > 0 && segs[0] == "run" {
-				references[c.Path] = append(references[c.Path], p.readRows(c.Path, emits, segs[1:])...)
-			} else if category := longestPath(segs, isCategory); category != "" {
-				references[c.Path] = append(references[c.Path], category)
-			}
-		}
+		references[c.Path] = p.referenced(c, emits, isCategory)
 	}
 	for spread := true; spread; {
 		spread = false
@@ -153,6 +156,19 @@ func (p *runPlan) readNeeds(emits []Emit, compiled []engine.CategoryReads) {
 			spread = p.inherit(category, read) || spread
 		}
 	}
+}
+
+// referenced is each category c references and each template whose rows it reads, as c spells them.
+func (p *runPlan) referenced(c engine.CategoryReads, emits []Emit, isCategory map[string]bool) []string {
+	var read []string
+	for _, segs := range c.Reads {
+		if len(segs) > 0 && segs[0] == "run" {
+			read = append(read, p.readRows(c.Path, emits, segs[1:])...)
+		} else if category := longestPath(segs, isCategory); category != "" {
+			read = append(read, category)
+		}
+	}
+	return read
 }
 
 // readRows records that category reads /run.<rest>, and returns the template whose rows that reads,
