@@ -45,7 +45,9 @@ class Particled(unittest.TestCase):
 		self.assertIn("St John", names_us.particled("Stjohn"))
 		self.assertIn("VanDyke", names_us.particled("Vandyke"))
 		self.assertIn("MacDonald", names_us.particled("Macdonald"))
+		self.assertIn("O'Day", names_us.particled("Oday"))
 
-	def test_a_name_with_no_particle_or_too_little_after_it_is_offered_nothing(self) -> None:
+	def test_a_name_with_no_particle_or_fewer_than_3_letters_after_it_isnt_offered_any_form(self) -> None:
 		self.assertEqual(names_us.particled("Smith"), [])
 		self.assertEqual(names_us.particled("Dee"), [])
+		self.assertEqual(names_us.particled("Obo"), [])
