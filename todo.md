@@ -17,7 +17,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 550 | 0.9.0 |  |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
-| 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
 | 604 | 0.10.0 |  | question | **Decide how a child of a run reads its parent's null, tab and line break: carried whole, or refused where the parent draws one.** | 3 | 2 | 3 | 6 | 3 | 1 by 3, 5 by 3 | 2.5 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -268,24 +267,6 @@ Touches:
 - `README.md`: `## Install` (small)
 - `npm-package/render.test.js`
 - `README.md`: `## Quick start` (small)
-
-### 393. Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.
-
-Builds the decision "One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`", whose "What holds" list is the spec: the load errors (exit 2), the order of the rows, `--out-dir`, the flags `--emit` is refused beside, and that adding a template doesn't change another's rows under the same `--seed`. Take each test's expected values from that list.
-
-Three of the bench's readers feared a category named `run` clashing with `{/run.…}`. Either reserve `run` as a root name, or refuse a category named `run` in a run that reads `{/run.…}`; record which in the decision's paragraph that names this item.
-
-`--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. `{seq(name)}` counters stay per template. Ship the first chunk with two templates, then widen. `--emit` is a new flag, so it needs a `CHANGELOG.md` entry under `Unreleased` (`AGENTS.md`) and its own README heading.
-
-Touches:
-
-- `cli/flags.go`: `flagDefs`, `parseArgs`, `checkFlags`
-- `cli/cli.go`: `invocation`, `render`, `help`
-- `cli/records.go`: `writeRecords`
-- `cli/emit.go`
-- `cli/emit_test.go`
-- `record.go`: `RecordTemplate`
-- `README.md`: `## CLI`
 
 ### 604. Decide how a child of a run reads its parent's null, tab and line break: carried whole, or refused where the parent draws one.
 
