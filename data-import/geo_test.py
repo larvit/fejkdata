@@ -231,10 +231,14 @@ class Parsed(unittest.TestCase):
 			with self.subTest(label=label):
 				self.assertIsNone(geo_dk.parsed(label, number, "0751-0001"))
 
-	def test_a_street_geo_refuses_is_none(self) -> None:
-		for street in ["Kolonihaverne Ved Lykkesholmsvej (Nord)", "Kolonihaverne Ved Lykkesholmsvej (Syd)", "Vestergade  Syd"]:
-			with self.subTest(street=street):
-				self.assertIsNone(geo_dk.parsed(f"{street} 12, Aarhus, 8000 Aarhus C", "12", "0751-0001"))
+
+
+class DkTally(unittest.TestCase):
+	def test_a_street_geo_refuses_counts_for_its_place_and_codes_and_for_no_street(self) -> None:
+		addresses = [("8000", "Aarhus", "0751", street, 12, "") for street in ["Vestergade", "Kolonihaverne Ved Lykkesholmsvej (Nord)", "Vestergade  Syd"]]
+		counted = geo_dk.tally(addresses)
+		self.assertEqual(dict(counted.streets), {("Aarhus", "Vestergade"): 1})
+		self.assertEqual(dict(counted.codes["Aarhus"]), {"8000": 3})
 
 
 class Recased(unittest.TestCase):

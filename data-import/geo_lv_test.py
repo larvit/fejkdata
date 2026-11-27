@@ -67,11 +67,11 @@ class RegisterOfPlaces(unittest.TestCase):
 		self.assertEqual(r.streets["100366498"], ("100003366", "Aizsaules iela"))
 		self.assertEqual(r.streets["100500001"], ("100195988", "Liepu iela"))
 
-	def test_a_street_geo_refuses_is_no_street(self) -> None:
+	def test_a_street_geo_refuses_has_no_name(self) -> None:
 		doubled = place("100500002", IELA, "Liepu  iela", "100195988", CIEMS)
 		remark = place("100500003", IELA, "Ozolu iela (Nr.2)", "100195988", CIEMS)
 		r = geo_lv.Register(NOVADI, PILSETAS, PAGASTI, CIEMI, [*IELAS, doubled, remark])
-		self.assertEqual(sorted(r.streets), ["100366498", "100462850", "100500001"])
+		self.assertEqual((r.streets["100500002"], r.streets["100500003"]), (("100195988", None), ("100195988", None)))
 
 	def test_a_row_no_longer_in_force_is_no_place(self) -> None:
 		gone = place("100015645", NOVADS, "Aglonas nov.", "100000000", STATE, "0604300", status="DEL")
@@ -106,6 +106,11 @@ class TallyOfAddresses(unittest.TestCase):
 		self.assertEqual(counted.streets, {("100003366", "Aizsaules iela"): 2, ("100003366", "Akmeņu iela"): 1})
 		self.assertEqual(counted.addresses, {"100003366": 3})
 		self.assertEqual(counted.postal_codes, {("100003366", "LV-4035"): 2, ("100003366", "LV-4036"): 1})
+
+	def test_an_address_on_a_street_geo_refuses_counts_for_its_locality_and_for_no_street(self) -> None:
+		remark = place("100500003", IELA, "Ozolu iela (Nr.2)", "100195988", CIEMS)
+		counted = geo_lv.tally([address("5", "100500003", IELA, "LV-3294")], geo_lv.Register(NOVADI, PILSETAS, PAGASTI, CIEMI, [*IELAS, remark]), collections.Counter())
+		self.assertEqual((counted.addresses, counted.streets), ({"100195988": 1}, {}))
 
 	def test_a_named_house_counts_for_its_locality_and_for_no_street(self) -> None:
 		counted = tally(address("Auliki", "100003366", PILSETA), address("Amatnieki", "100195988", CIEMS, "LV-3294"))
