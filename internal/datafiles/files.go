@@ -3,7 +3,7 @@ package datafiles
 import (
 	"errors"
 	"io/fs"
-	"sort"
+	"slices"
 	"strings"
 )
 
@@ -45,7 +45,7 @@ func (f heldFiles) ReadDir(name string) ([]fs.DirEntry, error) {
 	for entry, dir := range isDir {
 		entries = append(entries, heldEntry{entry, dir})
 	}
-	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
+	slices.SortFunc(entries, func(a, b fs.DirEntry) int { return strings.Compare(a.Name(), b.Name()) })
 	return entries, nil
 }
 
