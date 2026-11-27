@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 603`
+`Next ID = 604`
 
 ## Renamed
 
@@ -21,6 +21,7 @@
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
+| 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
 | 569 | 0.10.0 | 567 |  | **Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.** | 1 | 2 | 1 | 2 | 3 | 1 by 4, 2.1 by 3 | 3.1 |
 | 252 | 0.10.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
@@ -165,7 +166,7 @@
 | 359 | 1.2.0 | 358 |  | **Build the library to WebAssembly behind a bridge that reads only its public API, and export it from `@larvit/fejkdata` as item 358's decision spells it.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 360 | 1.2.0 | 359 |  | **Ship TypeScript declarations with `@larvit/fejkdata`, and fail the gate where a typed usage test stops compiling under `tsc --strict`.** | 2 | 1 | 1 | 2 | 3 | 1.2 by 5 | 2.2 |
 | 362 | 1.2.0 | 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 1.8 |
-| 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 5 | 1.2 by 4 | 0.7 |
+| 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
 | 363 | 1.2.0 | 360, 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 86 | 1.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.2 |
 | 154 | 1.3.0 |  |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
@@ -328,6 +329,16 @@ Touches:
 - `cli/emit_test.go`
 - `record.go`: `RecordTemplate`
 - `README.md`: `## CLI`
+
+### 603. Add a mutation tool for JavaScript.
+
+The `mutate` service runs Gremlins, and Gremlins mutates Go only. So no tool mutates `npm-package/index.js`, the package's code. Its tests are `npm-package/render.test.js` and `npm-package/load.deno.js`.
+
+Use StrykerJS (`@stryker-mutator/core`), pinned to 10.1.1. That version needs Node 22 or later, so it runs on Node 26. Its command runner runs Node's built-in test runner, so the tests need no other framework.
+
+The tests need the built `fejkdata.wasm` and the Go binary at `$FEJKDATA_CLI`. So the tool runs as a Dockerfile stage or a compose service beside the `npm-package` stage, and the README's Development section lists it. The package must still have no npm dependency. StrykerJS is installed in that stage at build time, never in `npm-package/package.json`'s `dependencies`.
+
+Item 549's review mutated `index.js` by hand. Of 15 mutants, three lived: removing the global `__fejkdataRun`, retrying a failed load, and a program stopping while it loads. Tests now cover all three. A tool would find the next ones without a reviewer.
 
 ### 567. Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.
 
@@ -1037,7 +1048,15 @@ Goal 1.1's counter-signal is a channel serving an old release, so the patch rele
 
 ### 361. Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.
 
-Goal 9.2 holds only while a test checks it: render a fixed set of seeded templates, records included, in Go and through the package on each runtime, and fail on any byte that differs. Each runtime runs in a container pinned to its full patch version, as a target of `docker build .` or a compose service the README's Development section lists. The browser test loads the package as a page would, without a bundler.
+Goal 9.2 holds only while a test checks it: render a fixed set of seeded templates, records included, in Go and through the package on each runtime, and fail on any byte that differs. Each runtime runs in a container pinned to its full patch version, as a target of `docker build .` or a compose service the README's Development section lists.
+
+Item 549 already does this on Node 26.13.1, Node 22.3.0, Bun and Deno, byte for byte against the Go build. What remains:
+
+- A headless browser. The test loads the package as a page would, without a bundler.
+- A bundler. A test builds a small app that imports the package with Vite or webpack, and checks that the WASM file is found and renders.
+- Jest and Vitest. The package is an ES module only, so a test loads it from a Jest test and from a Vitest test, as a user's test suite would.
+
+Item 549's review left the last two open.
 
 ### 363. Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.
 
