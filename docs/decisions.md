@@ -2515,3 +2515,15 @@ Each release's six wheels are uploaded by `pypa/gh-action-pypi-publish` in the `
 - PyPI allows 100 MB a file and 10 GB a project (https://docs.pypi.org/project-management/storage-limits/). Each release, a patch release too, adds six wheels of about 111 MB together, as the dry run of pull request #526 listed them, so the project fills after some 90 releases. Then ask PyPI for more room or delete the oldest versions.
 
 Valid while PyPI's trusted publishing doesn't take a reusable workflow and the project stays under 10 GB.
+
+## A US or French last name takes the spelling most of Wikidata's people with that family name write, where at least 5 do
+
+2026-11-27, the agent shipping item 562. Goal 3.2: a good published source is preferred, and Wikidata's family-name items (CC0) are one for how a surname is written. The Census writes surnames in letters alone and INSEE without accents, so `Obrien` and `Lefevre` shipped though most of their bearers write `O'Brien` and `Lefèvre`.
+
+`data-import/wikidata_names.py` takes each name's candidate spellings (a particle with its apostrophe, space or capital for the US, one accent for France), counts the distinct people of that country's citizenship whose family-name item carries each spelling as its label, in the language or `mul`, and under any kind of family name. A spelling replaces the name when at least 5 people have it and they are more than half of the people counted under all the forms tried. Otherwise the name stays as its register writes it, and the locale page says which names stay.
+
+- A floor of 3 lets two or three people decide a spelling, so it is 5. Both importers share the floor, so a table never holds a name the importer would not give.
+- A name with a period, `St. John`, ships: the rule asks how bearers write the name, and the Go check that shipped names are letters accepts a leading `St. `. The importers' `tsv.NAME`, which filters the registers' own names before this choice, still refuses a period.
+- A count of Wikidata's people is a count of people with an article or an item, not of bearers. Only the order between spellings of one name is used, so a table's weights stay the register's counts.
+
+Valid while Wikidata's family-name items carry the spellings and the registers keep writing names without them.
