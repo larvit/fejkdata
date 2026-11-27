@@ -10,10 +10,11 @@ from 1 up, written with leading zeros: `two` from `01` to `99` and `three` from 
 the last 80 years, in the "Fichier des prénoms"; a name gone out of use weighs less than in the whole file,
 and the children of a year in which fewer than 3 got the name are left out, so a count runs slightly low. A last name
 weighs the people born in 1891 to 2000 who bear it, in the "Fichier des noms". INSEE writes last names in capitals
-without accents, so a count holds every spelling of a name. The import gives a name one accent where more than half
-of the French people with that family name in Wikidata write it so, and at least 5 do: 1,053 names have one,
-such as `Lefèvre`, `André` and `Gérard`. A name Wikidata doesn't settle, or one that needs two accents, stays as INSEE writes it,
-such as `Francois` and `Evrard`. `fr_FR.sex` carries France's population on 1 January 2025
+without accents, so a count holds every accented form of a name. The import adds accents one at a time. It adds one
+where Wikidata lists at least 5 people of French citizenship with their family name spelled so, and they are more
+than half of the people it lists under any of the forms tried. 639 names take accents this way, such as `Lefèvre`,
+`François` and `Lévêque`, as Wikidata stood on 27 November 2026. Any other name stays without accents. `Jerome`
+stays: `Jérôme` needs two accents, and no form with one wins. `fr_FR.sex` carries France's population on 1 January 2025
 from Eurostat's table `demo_pjan`; Eurostat marks that figure provisional.
 
 A program showing the name counts credits "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee,

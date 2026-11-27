@@ -2,14 +2,6 @@
 
 `en_US`'s categories are listed under the README's [Locale categories](../../README.md#locale-categories).
 
-## Last names
-
-`en_US.last-name` holds each surname that at least 500 people bore in the Census Bureau's 2010 count, weighted by that count.
-The Census writes surnames in letters alone, so `Obrien` is the Census's `OBRIEN`. The import writes a name as
-`O'Brien`, `MacDonald` or `De Witt` where more than half of the Wikidata people of United States citizenship with that
-family name write it so, and at least 5 do: 71 names are written so. A name Wikidata doesn't settle stays in letters
-alone, such as `Dangelo`, `Delacruz` and `Stjohn`, and its count holds every spelling of it.
-
 ## English words
 
 `en_US.word` draws evenly from about 70,000 words of WordNet 3.0, Princeton's English dictionary: the nouns,
@@ -49,6 +41,17 @@ A `UNIQUE` column needs a category of your own whose id ends in `.{seq()}`, as
 A checker older than the SSA's 2011 randomization, which refused areas the SSA had not yet
 assigned, or one accepting fewer ITIN groups than the IRS lists, refuses some of these numbers:
 pin a number for such a checker.
+
+## US last names
+
+`en_US.last-name` holds each surname that at least 500 people bore in the Census Bureau's 2010 count, weighted by that count.
+The Census writes surnames in capitals and letters alone, such as `OBRIEN`, and its count holds every form of a name with
+the same letters. The import tries a name with an apostrophe, a space, a full stop or a capital after a particle such as
+`O`, `Mac`, `De`, `Van` or `St`. It takes a form where Wikidata lists at least 5 people of United States citizenship with
+their family name spelled so, and they are more than half of the people it lists under any of the forms tried. 193 names
+take such a form, such as `O'Brien`, `MacDonald`, `Van Dyke` and `St. John`, as Wikidata stood on 27 November 2026. Any
+other name stays in letters alone. `Delacruz` stays, since its people split between `Delacruz`, `De La Cruz` and
+`de la Cruz`.
 
 ## US phone numbers
 

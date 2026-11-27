@@ -152,9 +152,11 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 ## `en_US/last-name.tsv`
 
 - Source: Census Bureau surnames occurring 100 or more times, 2010; the script keeps those borne by
-  at least 500 people. The Census writes them in letters alone; the script writes a name as `O'Brien`
-  where more than half of the people of United States citizenship that [Wikidata](https://www.wikidata.org/)
-  lists with that family name, and at least 5, write it so (CC0)
+  at least 500 people. The Census writes them in letters alone. The script tries a name with an
+  apostrophe, a space, a full stop or a capital after a particle such as `O` or `Mac`. It spells it as `O'Brien`
+  where [Wikidata](https://www.wikidata.org/) lists at least 5 people of United States citizenship with
+  their family name spelled so, and they are more than half of the people it lists under any of the
+  forms tried, as Wikidata stood on 27 November 2026
 - Licence: public domain, and CC0 for the spellings
 - Attribution: none required
 - Rebuild: `data-import/names-us.py`
@@ -331,9 +333,10 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
   it doesn't publish under `_PRENOMS_RARES`, and the script drops that group and the rows without a
   year. Last names: the ["Fichier des noms"](https://www.insee.fr/fr/statistiques/3536630)
   (`noms2008nat`), the births of 1891 to 2000 summed over their decades, for each name borne by at
-  least 200 people; INSEE writes them in capitals without accents, and the script gives a name one
-  accent where more than half of the people of French citizenship that [Wikidata](https://www.wikidata.org/)
-  lists with that family name, and at least 5, write it so (CC0).
+  least 200 people; INSEE writes them in capitals without accents. The script adds accents one at a
+  time. It adds one where [Wikidata](https://www.wikidata.org/) lists at least 5 people of French
+  citizenship with their family name spelled so, and they are more than half of the people it lists
+  under any of the forms tried, as Wikidata stood on 27 November 2026.
 - Licence: [Licence Ouverte / Open Licence 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/),
   as INSEE's [conditions of reuse](https://www.insee.fr/fr/information/2008466) state; CC0 for the accents
 - Attribution: "Source : Insee, Fichier des prénoms, 08/07/2024" and "Source : Insee, Fichier des noms
