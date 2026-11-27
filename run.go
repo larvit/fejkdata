@@ -288,8 +288,8 @@ func (p runPlan) fake(c config, write func(e Emit, fake func() (*Record, error))
 	return nil
 }
 
-// dryLoad loads each template in turn and renders the rows of each one a child reads, so data that
-// fails to load fails before the first record is written. It returns those rows as tables, by template.
+// dryLoad loads each template in turn and renders the rows of each one a child reads, and one record
+// of any other, so data that fails to load fails before the first record is written. It returns those rows as tables, by template.
 func (p runPlan) dryLoad(c config) (map[string]string, error) {
 	tables := map[string]string{}
 	for _, e := range p.emits {
@@ -298,6 +298,9 @@ func (p runPlan) dryLoad(c config) (map[string]string, error) {
 			return nil, err
 		}
 		if !p.isRead(e.Template) {
+			if _, err := g.FakeRecord(e.Template); err != nil {
+				return nil, err
+			}
 			continue
 		}
 		if err := keepInto(tables, g, e); err != nil {
@@ -357,7 +360,11 @@ func keepInto(tables map[string]string, g *Generator, e Emit) error {
 		if i == 0 {
 			tsv.WriteString(record.TSVHeader() + "\n")
 		}
-		tsv.WriteString(record.TSVLine() + "\n")
+		line := record.TSVLine()
+		if line == "" {
+			return fmt.Errorf("fejkdata: %s: record %d holds one column, empty or null, which no child can read as a row; give %s a second column", e.Template, i+1, e.Template)
+		}
+		tsv.WriteString(line + "\n")
 	}
 	tables[e.Template] = tsv.String()
 	return nil

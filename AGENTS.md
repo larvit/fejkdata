@@ -4,6 +4,7 @@
 - One `data-import` test file runs as `docker compose run --rm --user "$(id -u):$(id -g)" data-import -m unittest discover -s data-import -p 'geo_test.py'`. The release-tooling tests need `git`, the Python package's tests need a built binary, and the npm package's tests need that binary and a built WebAssembly, so no compose service runs them: `docker build .` does, and `docker build --target npm-package .` runs the npm package's alone, in Node.
 - Tests first, in their own commit; the implementation follows in the next. A re-pin of seeded output or of `testdata/shipped_shape.txt` is its own commit.
 - A change to the shipped data under `data/`, its tests aside, to the shape pin, or to the pin of the listing's keys and kind words (`testdata/listing_shape.txt`), adds its `CHANGELOG.md` entry under `Unreleased` in the same PR, and so does a change to a flag, an exit code, an exported name, a fence, a builtin or the lowest Go; what is major is the README's Versioning table.
+- `CHANGELOG.md`'s `Unreleased` holds `###` subsections, so a chunk writes its bullet in the branch, under the right one, before its first review round, and finishes its item with `--no-changelog`.
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.
 - GitHub is where the project lives, so `gh` is the tool: merges are fast-forward
   only, `gh pr merge --rebase` where the branch is already on top of main.

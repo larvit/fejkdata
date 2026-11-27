@@ -648,7 +648,8 @@ INSERT INTO "orders" ("id", "customer_id", "customer", "placed") VALUES (1, 1, '
   path reads another template's rows. There may be more children than parents, and a parent
   may have no child.
 - **Values.** A child reads every column of its parent as text. It reads a null as an empty
-  text, and a tab or a line break as a space.
+  text, and a tab or a line break as a space. A parent with one column can't hold an empty
+  or null value, so give such a parent a second column.
 - **Output.** Under `--format sql` or `pgcopy` everything goes to stdout, and the last
   segment of a template's path is its INSERT or COPY target, so `eu.users` and `us.users`
   both write to `users`. With more than one template, `csv`, `tsv`, `ndjson` and `json`
@@ -807,7 +808,7 @@ err := fejkdata.FakeRun(emits, func(e fejkdata.Emit, fake func() (*fejkdata.Reco
 		fmt.Println(e.Template, r.JSON())
 	}
 	return nil
-}, fejkdata.WithDataPath("./shop"), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))
+}, fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithDataPath("./shop"), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))
 ```
 
 `FakeRun` calls the function once per template, parents first. A run it refuses before
