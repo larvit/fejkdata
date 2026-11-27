@@ -84,15 +84,20 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 	if err != nil {
 		return err
 	}
+	format := in.recordFormat()
+	if in.repeat == 0 {
+		return writeNoRecord(record, format, w)
+	}
+	return format.write(record, in.repeat, table, bufio.NewWriter(w))
+}
+
+func (in invocation) recordFormat() recordFormat {
 	format := recordFormats[in.format]
 	// csvLines is csv's one row writer; --null-text only gives it the text, and checkNullText refused any other format.
 	if in.nullSet && in.format == "csv" {
 		format.write = csvLines(in.nullText).write
 	}
-	if in.repeat == 0 {
-		return writeNoRecord(record, format, w)
-	}
-	return format.write(record, in.repeat, table, bufio.NewWriter(w))
+	return format
 }
 
 // csvLines writes csv rows with a null column written as text.

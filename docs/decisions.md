@@ -2183,20 +2183,28 @@ values it leads to, and a uuid's counts already exceed 2^64.
 A template here is a category of the data folder, named by its path, such as `customers`. A child is a template that reads another's rows, and that other is its parent. What holds:
 
 - A template reads another's rows only through `{/run.<template>}`.
-- The run fails at load (exit 2) in three cases: it doesn't name a template that another reads; it names one with count 0 while a child's count is above 0; or its templates read each other in a cycle, which the error names. Both counts 0 is fine.
+- The run fails at load (exit 2) in four cases: it doesn't name a template that one of its templates reads, itself or through a category it references; it names one with count 0 while a child's count is above 0; its templates read each other in a cycle, which the error names; or the data holds a root category or folder named `run`. Both counts 0 is fine.
 - A child may outnumber its parents, and a parent may have no child. The linked tables' load error for "a parent row no child links to" doesn't carry over.
-- Each template's rows come out together, parents first, so a SQL load never sees a dangling key. Templates that read nothing of each other come in the order of their `--emit` flags.
-- Under `--format sql` each template's name is its INSERT target. With csv, tsv or ndjson, more than one template needs `--out-dir <folder>`, which writes `<template>.<extension>` for each, and without it the run exits 2.
-- `--emit` is refused beside `--table`, `-n` and a template on stdin.
-- Adding a template to a run doesn't change the rows another template draws under the same `--seed`.
+- Each template's rows come out together, parents first, so a SQL load never sees a dangling key. The templates otherwise come in the order of their `--emit` flags: a parent named after its child moves to just ahead of that child, and nothing else moves.
+- Under `--format sql` or `pgcopy` the last segment of each template's path is its INSERT or COPY target, as it is for a lone reference. With csv, tsv, ndjson or json, more than one template needs `--out-dir <folder>`, which writes `<template>.<format>` for each, and without it the run exits 2. `--out-dir` works under sql and pgcopy too.
+- `--emit` is refused beside `--table`, `-n` and a template on stdin, and under `--format text`. An empty stdin is no template.
+- Adding a template to a run doesn't change the rows another template draws under the same `--seed`, unless that one reads the new template: each template draws from the seed and its own path. A `{seq()}` counts within its template.
 
 Each reader answered before seeing the candidates. Two wrote a flag of pairs, `--emit customers=1000` or `-t customers:1000`; three wrote bare arguments, one with `--out ./out`. A flag wins over bare arguments because an argument that isn't a flag is misuse today. Four then chose the flag over a manifest file, which drifts from the command that sets the counts, and over a folder of templates, which mixes how many rows with what a row looks like. The fifth chose the flag for work by hand and a manifest for a scheduled job, and wanted both to take the same fields.
 
 All five chose `{/run.customers as c}` over a flag that binds one template's column to another's. That flag makes a template mean a real customer in one run and an invented one when run alone. They also chose it over a new keyword, since `as` already binds a name.
 
-All five read `--run` as something that executes. Three read `--record` as one row, a session or an output format, and all five ruled out `--table customers=1000`, since `--table` names the INSERT target. `--emit` is the one spelling no reader read as another thing. Three readers feared a category named `run` could clash with `{/run.…}`; item 393 reserves the word or refuses the clash, and says which here.
+All five read `--run` as something that executes. Three read `--record` as one row, a session or an output format, and all five ruled out `--table customers=1000`, since `--table` names the INSERT target. `--emit` is the one spelling no reader read as another thing. Three readers feared a category named `run` could clash with `{/run.…}`. A run refuses data that holds a root entry named `run`, and nothing else does: reserving the word everywhere would break data that loads today, which is a major, and a render outside a run never reads `/run`.
 
-Item 393 builds it. Valid while the README's Audience names bulk fixture authors.
+The library's `FakeRun` is the run, and the CLI only parses flags and writes records, since the CLI reads only the library's public API. `FakeRun` reads which template reads which from the references each category spells, before it loads anything. It then loads the data once per template, parents first, with each written parent laid over the data as a table at `/run.<template>`, and with an empty category in place of each one that reads rows not yet written. So the engine draws a parent's row as it draws any table's, and a run adds no way to draw.
+
+Three things follow, and each is accepted:
+
+- A child that reads a column its parent lacks fails as a load error (exit 1) after the parent is written, since a parent's columns are known only once it has rendered. A template that doesn't compile still fails before the first row.
+- The run keeps every column of a parent in memory, not only the ones a child reads: which columns a child reads through a name is settled at load, after the parent is written. Measured on 2026-11-27 with `--format pgcopy`, 120,000 two-column customers under a million orders took 3.2 s and a peak of 46 MB, beside 2.9 s and 27 MB for one customer, and a million customers took 6.6 s and 187 MB. That stays inside goal 12.
+- A reference in a table's cell and a category of an indexed source are not read for `/run` paths, so a template may not reach another's rows through either.
+
+Valid while the README's Audience names bulk fixture authors.
 
 ## `geo.FI`'s streets come from Posti's basic address file, which holds none on Åland
 
