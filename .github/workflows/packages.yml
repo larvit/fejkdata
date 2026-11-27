@@ -158,11 +158,15 @@ jobs:
         run: |
           version="${TAG#v}"
           docker buildx build --target npm-package-built --output npm src
-          # The Node of the npm job, whose npm takes trusted publishing.
-          docker run --rm --memory 2g --memory-swap 2g --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD/npm:/npm" -w /npm/npm-package node:26.13.1-slim sh -ec "
-            npm version --no-git-tag-version --allow-same-version '${version:-0.0.0}'
-            npm publish --dry-run
-            npm pack --pack-destination /npm"
+          # npm refuses a dry run too where it holds the version, or a higher one under the same tag.
+          docker run --rm --memory 2g --memory-swap 2g --user "$(id -u):$(id -g)" -e HOME=/tmp -e TAG -e VERSION="${version:-0.0.0-dry-run}" -v "$PWD/npm:/npm" -w /npm/npm-package node:26.13.1-slim sh -ec '
+            npm version --no-git-tag-version --allow-same-version "$VERSION"
+            if [ -z "$TAG" ]; then
+              npm publish --dry-run --tag dry-run
+            elif [ -z "$(npm view "@larvit/fejkdata@$VERSION" version 2>/dev/null)" ]; then
+              npm publish --dry-run
+            fi
+            npm pack --pack-destination /npm'
           tar -tzf npm/larvit-fejkdata-*.tgz | sort > npm/packed
           printf 'package/%s\n' DATA-LICENSES.md LICENSE README.md WORDNET-LICENSE.txt fejkdata.wasm index.d.ts index.js package.json wasm_exec.js | diff - npm/packed
           echo packed=true >> "$GITHUB_OUTPUT"
@@ -228,7 +232,7 @@ jobs:
     # npm takes the calling workflow, test.yml, as the package's trusted publisher, so a run of this workflow started by hand doesn't publish.
     if: ${{ needs.packages.outputs.npm == 'true' && contains(github.workflow_ref, '/test.yml@') }}
     runs-on: ubuntu-26.04
-    # npm's trusted publishing needs npm 11.5.1 and Node 22.14.
+    # npm's trusted publishing needs npm 11.5.1 or later and Node 22.14 or later.
     container: node:26.13.1-slim
     environment:
       name: npm
@@ -249,7 +253,7 @@ jobs:
             echo "::notice::npmjs.com already holds ${TAG#v}"
             exit 0
           fi
-          npm publish npm/larvit-fejkdata-*.tgz
+          npm publish ./npm/larvit-fejkdata-*.tgz
 
   dockerhub:
     name: Docker Hub image for ${{ inputs.tag }}
