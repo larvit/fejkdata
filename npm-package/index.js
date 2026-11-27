@@ -73,7 +73,7 @@ function bytes(path, body) {
 		return new TextEncoder().encode(body);
 	}
 	if (body instanceof Uint8Array) {
-		return body.slice();
+		return new Uint8Array(body);
 	}
 	throw new TypeError(`fejkdata: files["${path}"] is a string or a Uint8Array`);
 }

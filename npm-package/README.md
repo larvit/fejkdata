@@ -45,7 +45,7 @@ Each call of `render`, `fake`, `records` or `paths` loads the data it reads agai
 about 0.1 seconds before its first row. With `files`, each call also loads every file you
 gave, read or not: about 0.65 seconds for a 0.47 MB file. Keep the files small.
 Ask for many rows with `repeat`, not with many calls. One call returns at most 512 MB of
-text.
+text. `records` counts 32 bytes for each cell on top of its text.
 
 ## Text
 
