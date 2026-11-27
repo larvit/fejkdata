@@ -17,8 +17,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 607 | 0.9.0 |  | question | **Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 5, 1.2 by 8 | 9.3 |
-| 358 | 0.9.0 |  |  | **Record in `docs/decisions.md` the JavaScript and TypeScript API that a panel of JavaScript and TypeScript test authors picks for `@larvit/fejkdata`, before 0.9.0 is cut.** | 1 | 2 | 1 | 2 | 3 | 1.2 by 5 | 2.2 |
-| 608 | 0.9.0 | 358 |  | **Generate the TypeScript union `ShippedPath` of the shipped paths, each with its example as a doc comment, from `data-listing/paths.json` as part of `go generate`, and fail the gate where the generated file is stale.** | 3 | 2 | 2 | 5 | 4 | 1.2 by 5 | 1.5 |
+| 608 | 0.9.0 |  |  | **Generate the TypeScript union `ShippedPath` of the shipped paths, each with its example as a doc comment, from `data-listing/paths.json` as part of `go generate`, and fail the gate where the generated file is stale.** | 3 | 2 | 2 | 5 | 4 | 1.2 by 5 | 1.5 |
 | 360 | 0.9.0 |  |  | **Fail the gate where a typed usage test of `@larvit/fejkdata` stops compiling under `tsc --strict`.** | 3 | 1 | 1 | 3 | 3 | 1.2 by 3 | 1.3 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
@@ -164,7 +163,7 @@
 | 396 | 1.1.0 |  | question | **Decide whether `fejkdata` writes Go struct types, and TypeScript types for the npm package, from a record's columns.** | 1 | 1 | 1 | 1 | 1 | 1 by 2 | 1.5 |
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 | 357 | 1.2.0 |  | question | **Create the `@larvit` organisation on npm, and make this repository's Packages workflow the trusted publisher of `@larvit/fejkdata`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.7 |
-| 359 | 1.2.0 | 358 |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
+| 359 | 1.2.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 362 | 1.2.0 | 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 1.8 |
 | 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
 | 363 | 1.2.0 | 360, 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
@@ -259,38 +258,6 @@ Left:
 1. If the publisher has lapsed when 0.9.0 is ready, the maintainer sets it again, at most two days before the cut. npm 11.15.0 or later sets it with `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. On npmjs.com, its allowed actions must include `npm publish` ([npm's docs](https://docs.npmjs.com/trusted-publishers/)). The agent that finds the release ready reminds the maintainer.
 2. After 0.9.0 is published, the maintainer sets the package's publishing access to "Require two-factor authentication and disallow tokens". Then they check the package's live page: the README, the provenance badge and the files.
 3. Then drop this item with `todo-item finish 607 --no-changelog`.
-
-### 358. Record in `docs/decisions.md` the JavaScript and TypeScript API that a panel of JavaScript and TypeScript test authors picks for `@larvit/fejkdata`, before 0.9.0 is cut.
-
-The maintainer asked for this panel on 2026-11-27 and put it in 0.9.0. 0.9.0 is the first version of `@larvit/fejkdata` on npmjs.com, so the panel must decide before it is cut: a change to the API after that breaks users.
-
-The package already ships `const fejkdata = await load()` and a synchronous `fejkdata.render(template, { seed, today, repeat, format })`, as the decision "The npm package is the CLI built to WebAssembly and run through `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`" records. Three readers picked those spellings for that chunk. Here that API is the first candidate, not a given: the panel may keep it, add to it or replace it. Where the panel changes the API, the decision this item records revises that decision.
-
-Seat the panel as the README's JavaScript or TypeScript test author, and bench the spelling of:
-
-- the seed, which is a uint64 in Go: today `number | bigint`;
-- the date, which goal 9.1 makes the caller's: today a string or a `Date` read by its UTC day;
-- choosing the shipped data a generator loads, such as `sv_SE` and `misc`, where today every shipped module loads;
-- passing data of one's own, as files by path, which load as `WithDataFS` over an in-memory filesystem;
-- methods mirroring `Fake`, `FakeTemplate`, `NewTemplate`, `FakeRecord`, `FakeRecordTemplate`, `NewRecordTemplate`, `List` and `IsTemplate`, beside or in place of `render`;
-- a record: its columns, its `json`, `csv` and `sql` text, and a plain object of typed values, where an `integer` column beyond 2^53 cannot be a `number`;
-- errors: today a `FejkdataError` with `exitCode`; how a caller tells a load error, `ErrLoad` in Go, from misuse;
-- module format: ESM only, as today, or CommonJS as well;
-- how the types help with the shipped data.
-
-For the types, bench three candidates:
-
-1. A generated union of every shipped path, with each path's example in its doc comment. It is usable wherever the API takes a path as a value of its own, such as a method that draws one path, or a record template given as an object whose values are paths.
-2. Rows typed by a record template's keys, where a record template is given as an object.
-3. Nothing beyond `string`.
-
-TypeScript can't check a reference inside a template string, such as `"{/sv_SE.person as p}"` or one with a `where` clause. So the types help only where a path is a value of its own. Tell the panel so.
-
-`FakeStruct` has no JavaScript counterpart, since a JavaScript object carries no tags; a record template given as an object is the nearest. Functions of one's own stay Go only (goal 8.5).
-
-Touches:
-
-- `AGENTS.md`: `# Decisions` (small)
 
 ### 608. Generate the TypeScript union `ShippedPath` of the shipped paths, each with its example as a doc comment, from `data-listing/paths.json` as part of `go generate`, and fail the gate where the generated file is stale.
 
