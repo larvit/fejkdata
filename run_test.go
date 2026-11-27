@@ -219,3 +219,31 @@ func TestATemplateOfARunLoadedOutsideOneNamesTheRun(t *testing.T) {
 		}
 	}
 }
+
+func TestFakeRunFailsBeforeTheFirstRecordWhereATemplateOfAnIndexedSourceDoesNotLoad(t *testing.T) {
+	files := map[string]string{
+		".fejkdata": `{ "index": { "good": { "paths": [] }, "bad": { "paths": [] } } }`,
+		"good":      `{ "format": "", "id": "{seq()}" }`,
+		"bad":       `{ "format": "", "id": "{/nope}" }`,
+	}
+	lines, _, err := fakeRun(t, files, Emit{"good", 2}, Emit{"bad", 1})
+	if !errors.Is(err, ErrLoad) || !strings.Contains(err.Error(), "nope") || len(lines) != 0 {
+		t.Errorf("FakeRun = %v, after %v, want an ErrLoad naming nope before any record", err, lines)
+	}
+}
+
+func TestFakeRunRefusesAOneColumnParentThatDrawsAnEmptyRow(t *testing.T) {
+	files := map[string]string{
+		"customers": `{ "format": "", "name": [null] }`,
+		"orders":    `{ "format": "", "customer": "{/run.customers.name}" }`,
+	}
+	lines, _, err := fakeRun(t, files, Emit{"customers", 2}, Emit{"orders", 1})
+	if err == nil || len(lines) != 0 {
+		t.Fatalf("FakeRun = %v, after %v, want an error before any record", err, lines)
+	}
+	for _, want := range []string{"customers", "second column"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("FakeRun = %v, want it to name %s", err, want)
+		}
+	}
+}
