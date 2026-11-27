@@ -35,6 +35,22 @@ func TestShippedUSTaxIds(t *testing.T) {
 	})
 }
 
+// The Census 2010 sums of the counts, under the name written as most American bearers in Wikidata write it,
+// and as the Census writes it, in letters alone, where Wikidata doesn't settle it, as `Dangelo`.
+func TestEnglishLastNamesAreCensusCounts(t *testing.T) {
+	last := nameCounts(t, "en_US", "last-name")[""]
+	for name, want := range map[string]int{"Smith": 2376206, "McDonald": 176094, "O'Brien": 115385, "MacDonald": 45782, "LeBlanc": 40923, "Dangelo": 11587} {
+		if got := last[name]; got != want {
+			t.Errorf("%q is borne by %d, want the Census's %d", name, got, want)
+		}
+	}
+	for _, name := range []string{"Obrien", "Macdonald", "Leblanc"} {
+		if _, ok := last[name]; ok {
+			t.Errorf("%q is a row, but its bearers write it with a capital or an apostrophe", name)
+		}
+	}
+}
+
 // NANPA's central office code records mark N11, 555, 950, 958, 959 and 976 unassignable.
 func TestShippedUSPhone(t *testing.T) {
 	f := shipped(t, fejkdata.WithSeed(11))
