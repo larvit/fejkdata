@@ -107,11 +107,11 @@ test("an error leaves out the CLI's advice about a shell", () => {
 	);
 });
 
-test("a template mistake found only under a format is misuse, though the CLI exits 1", () => {
-	for (const template of ["{/sv_SE.personnummer-12}", "{/sv_SE.color}"]) {
+for (const template of ["{/sv_SE.personnummer-12}", "{/sv_SE.color}"]) {
+	test(`${template} under a format is misuse, though the CLI exits 1`, () => {
 		assert.throws(() => fejkdata.render(template, { seed: 1, today: DAY, format: "json" }), errorOf("misuse", 1));
-	}
-});
+	});
+}
 
 test("a seed is a number or a bigint, up to 2^64 - 1", () => {
 	const top = 18446744073709551615n;
@@ -204,20 +204,13 @@ test("load with no argument gives the same object each time, and load with optio
 	assert.notEqual(await load({}), fejkdata);
 });
 
-test("every load shares one compile of the WebAssembly", async () => {
+test("every load shares one compile of the WebAssembly", async (t) => {
 	const fresh = await import("./index.js?one-compile");
-	const { compile, compileStreaming } = WebAssembly;
-	let compiles = 0;
-	WebAssembly.compile = (...args) => (compiles++, compile(...args));
-	WebAssembly.compileStreaming = (...args) => (compiles++, compileStreaming(...args));
-	try {
-		await Promise.all([fresh.load(), fresh.load({ data: ["misc"] }), fresh.load({ files: {} })]);
-		await fresh.load({ data: ["sv_SE"] });
-	} finally {
-		WebAssembly.compile = compile;
-		WebAssembly.compileStreaming = compileStreaming;
-	}
-	assert.equal(compiles, 1);
+	const compile = t.mock.method(WebAssembly, "compile");
+	const compileStreaming = t.mock.method(WebAssembly, "compileStreaming");
+	await Promise.all([fresh.load(), fresh.load({ data: ["misc"] }), fresh.load({ files: {} })]);
+	await fresh.load({ data: ["sv_SE"] });
+	assert.equal(compile.mock.callCount() + compileStreaming.mock.callCount(), 1);
 });
 
 test("naming every shipped module loads what load() does", async () => {
@@ -243,14 +236,27 @@ test("a module name the package doesn't ship is refused, naming every shipped on
 		return true;
 	});
 	await assert.rejects(load({ data: "sv_SE" }), TypeError);
+	await assert.rejects(load({ data: [5] }), TypeError);
 });
 
-test("a template reading a module that data leaves out is a load error", async () => {
-	const swedish = await load({ data: ["sv_SE"] });
-	assert.throws(() => swedish.render("{/en_US.person}", OPTIONS), errorOf("load", 2));
-	assert.throws(() => swedish.fake("en_US.person", OPTIONS), errorOf("load", 2));
-	assert.throws(() => swedish.records({ format: "", person: "{/en_US.person}" }, OPTIONS), errorOf("load", 2));
+const swedish = await load({ data: ["sv_SE"] });
+const leftOut = {
+	render: () => swedish.render("{/en_US.person}", OPTIONS),
+	fake: () => swedish.fake("en_US.person", OPTIONS),
+	records: () => swedish.records({ format: "", person: "{/en_US.person}" }, OPTIONS),
+};
+for (const [call, run] of Object.entries(leftOut)) {
+	test(`${call} reading a module that data leaves out is a load error, naming load's data`, () => {
+		assert.throws(run, (error) => errorOf("load", 2)(error) && /load's data/.test(error.message));
+	});
+}
+
+test("a reference to no module is misuse, though data leaves modules out", () => {
 	assert.throws(() => swedish.render("{/xx_XX.person}", OPTIONS), errorOf("misuse", 2));
+});
+
+test("a bad argument is misuse, though the template reads a module data leaves out", () => {
+	assert.throws(() => swedish.render("{/en_US.person}", { seed: -1, today: DAY }), errorOf("misuse", 2));
 });
 
 test("files layer over the shipped data, as text or bytes", async () => {
@@ -281,17 +287,29 @@ test("a file that fails to load is a load error in each call", async () => {
 	assert.throws(() => broken.paths(), errorOf("load", 1));
 });
 
-test("fake renders a path as render renders its reference", () => {
-	for (const path of ["sv_SE.address.postal-code", "en_US.person", "misc.territory[SE].alpha2"]) {
-		assert.equal(fejkdata.fake(path, OPTIONS), fejkdata.render(`{/${path}}`, OPTIONS));
-	}
-	assert.equal(fejkdata.fake("/sv_SE.person", OPTIONS), fejkdata.render("{/sv_SE.person}", OPTIONS));
+const FAKED = {
+	"sv_SE.address.postal-code": /^\d{3} \d{2}$/,
+	"en_US.person": /^\S.* \S+$/,
+	"misc.territory[SE].alpha2": /^SE$/,
+};
+for (const [path, shape] of Object.entries(FAKED)) {
+	test(`fake draws a value of ${path}, the same for the same seed and day`, () => {
+		assert.match(fejkdata.fake(path, OPTIONS), shape);
+		assert.equal(fejkdata.fake(path, OPTIONS), fejkdata.fake(path, OPTIONS));
+	});
+}
+
+test("fake reads a path with a leading slash", () => {
+	assert.equal(fejkdata.fake("/sv_SE.person", OPTIONS), fejkdata.fake("sv_SE.person", OPTIONS));
 });
 
-test("fake refuses a template, a path to nothing and a path that is no string", () => {
-	assert.throws(() => fejkdata.fake("{/sv_SE.person}", OPTIONS), errorOf("misuse", 2));
-	assert.throws(() => fejkdata.fake("sv_SE.person} {/en_US.person", OPTIONS), errorOf("misuse", 2));
-	assert.throws(() => fejkdata.fake("sv_SE.nope", OPTIONS), errorOf("misuse", 2));
+for (const text of ["{/sv_SE.person}", "sv_SE.person} {/en_US.person", "sv_SE.nope", "sv_SE.first-name|/en_US.first-name", "sv_SE.person as p", "sv_SE.first-name where length 3"]) {
+	test(`fake refuses ${JSON.stringify(text)}, which is no path to a value`, () => {
+		assert.throws(() => fejkdata.fake(text, OPTIONS), errorOf("misuse", 2));
+	});
+}
+
+test("fake refuses a path that is no string", () => {
 	assert.throws(() => fejkdata.fake(5, OPTIONS), TypeError);
 });
 
@@ -340,14 +358,36 @@ test("records gives one row unless repeat says otherwise", () => {
 	assert.deepEqual(fejkdata.records(TYPED, { ...OPTIONS, repeat: 0 }), []);
 });
 
-test("records refuses a template with no column, a template that doesn't compile and a bad argument", () => {
-	for (const template of [{ format: "x" }, '{"format": "{/nope.x}", "a": "b"}', "{/sv_SE.color}"]) {
-		assert.throws(() => fejkdata.records(template, OPTIONS), errorOf("misuse", 2), String(template));
-	}
-	for (const options of [{ seed: -1, today: DAY }, { seed: 1, today: "15/01/2026" }, { seed: 1, today: DAY, repeat: 1e7 }, { seed: 2 ** 53, today: DAY }, { today: DAY }]) {
-		assert.throws(() => fejkdata.records(TYPED, options), errorOf("misuse", 2), JSON.stringify(options));
-	}
+for (const template of [{ format: "x" }, '{"format": "{/nope.x}", "a": "b"}', "{/sv_SE.color}"]) {
+	test(`records refuses ${JSON.stringify(template)} as misuse`, () => {
+		assert.throws(() => fejkdata.records(template, OPTIONS), errorOf("misuse", 2));
+	});
+}
+
+test("records refuses a template that fails on its first draw, though repeat is 0", () => {
+	assert.throws(() => fejkdata.records("{/sv_SE.color}", { ...OPTIONS, repeat: 0 }), errorOf("misuse", 2));
+});
+
+for (const options of [{ seed: -1, today: DAY }, { seed: 1, today: "15/01/2026" }, { seed: 1, today: DAY, repeat: 1e7 }, { seed: 1, today: DAY, repeat: -1 }, { seed: 2 ** 53, today: DAY }, { today: DAY }]) {
+	test(`records refuses the options ${JSON.stringify(options)} as misuse`, () => {
+		assert.throws(() => fejkdata.records(TYPED, options), errorOf("misuse", 2));
+	});
+}
+
+test("records refuses a template that is no text or object", () => {
 	assert.throws(() => fejkdata.records(5, OPTIONS), TypeError);
+});
+
+test("records tells whitespace around a lone reference, as render does", () => {
+	const written = () => fejkdata.render(" {/sv_SE.address} ", { ...OPTIONS, format: "ndjson" });
+	const drawn = () => fejkdata.records(" {/sv_SE.address} ", OPTIONS);
+	assert.throws(written, /the whitespace around \{\/sv_SE\.address\} makes it text/);
+	assert.throws(drawn, (error) => errorOf("misuse", 2)(error) && /the whitespace around \{\/sv_SE\.address\} makes it text/.test(error.message));
+});
+
+test("records keeps a column named __proto__", () => {
+	const [row] = fejkdata.records('{"format": "", "__proto__": "x", "a": "y"}', OPTIONS);
+	assert.deepEqual(Object.entries(row), [["__proto__", "x"], ["a", "y"]]);
 });
 
 test("records past 512 MB are refused as a limit, and the next call works", () => {
@@ -355,14 +395,21 @@ test("records past 512 MB are refused as a limit, and the next call works", () =
 	assert.equal(fejkdata.records(TYPED, OPTIONS).length, 1);
 });
 
-test("isTemplate takes the shapes Go's IsTemplate takes as a template, and nothing else", () => {
-	const cases = JSON.parse(readFileSync(new URL("../testdata/is_template.json", import.meta.url), "utf8"));
-	for (const arg of cases.template) {
-		assert.equal(isTemplate(arg), true, arg);
-	}
-	for (const arg of [...cases.path, ...Object.keys(cases.malformed)]) {
-		assert.equal(isTemplate(arg), false, arg);
-	}
+const IS_TEMPLATE = JSON.parse(readFileSync(new URL("../testdata/is_template.json", import.meta.url), "utf8"));
+
+for (const arg of IS_TEMPLATE.template) {
+	test(`isTemplate takes ${JSON.stringify(arg)} as a template, as Go's IsTemplate does`, () => {
+		assert.equal(isTemplate(arg), true);
+	});
+}
+
+for (const arg of [...IS_TEMPLATE.path, ...Object.keys(IS_TEMPLATE.malformed)]) {
+	test(`isTemplate takes ${JSON.stringify(arg)} as no template, as Go's IsTemplate does`, () => {
+		assert.equal(isTemplate(arg), false);
+	});
+}
+
+test("isTemplate refuses what is no string", () => {
 	assert.throws(() => isTemplate(5), TypeError);
 });
 

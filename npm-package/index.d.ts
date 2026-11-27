@@ -41,9 +41,7 @@ export interface LoadOptions {
 	files?: Readonly<Record<string, string | Uint8Array>>;
 }
 
-type OptionKey = "datatype" | "format" | "hidden" | "let" | "repeat" | "separator" | "weight";
-
-type HiddenKey<T> = T extends { hidden: readonly (infer H)[] } ? H : never;
+type OptionKey = "datatype" | "format" | "hidden" | "repeat" | "separator" | "weight";
 
 type LoneReference<S extends string> = S extends `{${infer Inner}}`
 	? Inner extends `${string}${"{" | "}" | " " | "|" | "(" | ","}${string}` ? false : true
@@ -62,7 +60,7 @@ type ColumnOf<F> = F extends null ? null
 	: ColumnValue;
 
 /** A row of records drawn from the object template T: a key per field that writes a column. */
-export type RecordRow<T> = { -readonly [K in Exclude<keyof T, OptionKey | HiddenKey<T>> & string]: ColumnOf<T[K]> };
+export type RecordRow<T> = { -readonly [K in Exclude<keyof T, OptionKey> & string]: ColumnOf<T[K]> };
 
 export interface Fejkdata {
 	/**
@@ -70,10 +68,10 @@ export interface Fejkdata {
 	 * Throws a FejkdataError when fejkdata refuses the template or an argument.
 	 */
 	render(template: string, options: RenderOptions): string;
-	/** Draws one value of a path, such as "sv_SE.address.postal-code": a render of `{/path}`. */
+	/** Draws one value of a path, such as "sv_SE.address.postal-code". A template is refused. */
 	fake(path: ShippedPath | (string & {}), options: FakeOptions): string;
 	/**
-	 * Draws rows from a record template, given as JSON text or an object. A row is an object with a key per column, in the template's order.
+	 * Draws rows from a record template, given as JSON text or an object. A row is an object with a key per column, in the template's order, save that JavaScript puts a key that is a whole number, such as "2", first.
 	 * An integer column is a bigint, a number column a number, a boolean column a boolean, and any other a string. A null is null.
 	 */
 	records(template: string, options: RecordsOptions): Record<string, ColumnValue>[];
@@ -87,7 +85,10 @@ export type FejkdataErrorKind = "misuse" | "load" | "limit" | "other";
 
 /** Thrown when fejkdata refuses a template, an argument or the data. The message says what is wrong, in the CLI's words. */
 export class FejkdataError extends Error {
-	/** The CLI's exit code: 2 for a mistake in the template, the arguments or load's options, 1 for anything else. */
+	/**
+	 * The CLI's exit code: 2 for misuse, 1 for anything else. render passes on the CLI's own, which is 1 for a template
+	 * mistake that only a format finds, where records gives 2. Read kind to tell a mistake.
+	 */
 	readonly exitCode: number;
 	/** Where the error arose. */
 	readonly kind: FejkdataErrorKind;

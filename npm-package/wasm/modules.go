@@ -53,13 +53,13 @@ func newBridge(names, files js.Value) (bridge, error) {
 		return bridge{}, err
 	}
 	if names.IsNull() {
-		return bridge{modules: append(data.Modules(), layered...)}, nil
+		return bridge{chosen: data.Modules(), files: layered}, nil
 	}
 	chosen, err := chosenModules(names)
 	if err != nil {
 		return bridge{}, err
 	}
-	return bridge{modules: append(chosen, layered...), every: append(data.Modules(), layered...)}, nil
+	return bridge{chosen: chosen, files: layered, every: append(data.Modules(), layered...)}, nil
 }
 
 // chosenModules is the modules the array names names, each with the modules it reads, once.

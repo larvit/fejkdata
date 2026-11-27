@@ -18,20 +18,46 @@ import (
 // records(seed, today, repeat, template) returns {names, types, values}: each column's name and
 // datatype, and every row's values in turn, a null as null. It returns {error, kind, exitCode}
 // where it fails.
-func (b bridge) records(_ js.Value, call []js.Value) any {
-	template := call[3].String()
-	rows, err := drawRecords(b.modules, call[0].String(), call[1].String(), call[2].String(), template)
+func (b bridge) records(args []js.Value) any {
+	seed, today, repeat, template := args[0].String(), args[1].String(), args[2].String(), args[3].String()
+	rows, err := drawRecords(b.modules(), seed, today, repeat, template)
 	if err != nil {
-		return b.failure(err, "json", template)
+		return b.failure(err, func(modules []fs.FS) error { return compile(modules, "json", template) })
 	}
 	return rows.js()
 }
 
-// paths() returns {paths}, what fejkdata --list prints, or {error, kind, exitCode}.
-func (b bridge) paths(js.Value, []js.Value) any {
-	f, err := fejkdata.New(fejkdata.WithDataFS(b.modules...), fejkdata.WithSeed(0), fejkdata.WithToday(anyDay))
+// fake(seed, today, path) returns {value}, what the library's Fake draws for path, or {error,
+// kind, exitCode}.
+func (b bridge) fake(args []js.Value) any {
+	seed, today, path := args[0].String(), args[1].String(), args[2].String()
+	value, err := fakeValue(b.modules(), seed, today, path)
 	if err != nil {
-		return b.failure(err, "text", "")
+		return b.failure(err, func(modules []fs.FS) error {
+			_, err := fakeValue(modules, seed, today, path)
+			return err
+		})
+	}
+	return map[string]any{"value": value}
+}
+
+func fakeValue(modules []fs.FS, seedText, todayText, path string) (string, error) {
+	options, err := drawSettings(seedText, todayText)
+	if err != nil {
+		return "", err
+	}
+	f, err := fejkdata.New(append(options, fejkdata.WithDataFS(modules...))...)
+	if err != nil {
+		return "", err
+	}
+	return f.Fake(path)
+}
+
+// paths() returns {paths}, what fejkdata --list prints, or {error, kind, exitCode}.
+func (b bridge) paths([]js.Value) any {
+	f, err := fejkdata.New(fejkdata.WithDataFS(b.modules()...), fejkdata.WithSeed(0), fejkdata.WithToday(anyDay))
+	if err != nil {
+		return b.failure(err, func([]fs.FS) error { return err })
 	}
 	var paths []any
 	for _, path := range f.List() {
@@ -43,63 +69,12 @@ func (b bridge) paths(js.Value, []js.Value) any {
 // anyDay is the day a call that draws nothing gives New.
 var anyDay = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 
-// kindError is an error whose kind is known where it arises.
-type kindError struct {
-	kind string
-	err  error
-}
-
-func (e kindError) Error() string { return e.err.Error() }
-
-func misuse(format string, args ...any) error {
-	return kindError{"misuse", fmt.Errorf(format, args...)}
-}
-
-// failure is {error, kind, exitCode} for err, which compiling template under format gave or
-// which arose before it compiled. Its exit code is 2 where the CLI would call it misuse.
-func (b bridge) failure(err error, format, template string) map[string]any {
-	kind, note := b.kindOf(err, format, template)
-	exitCode := 1
-	if kind == "misuse" || note != "" {
-		exitCode = 2
-	}
-	return map[string]any{"error": err.Error() + note, "kind": kind, "exitCode": exitCode}
-}
-
-// kindOf is the kind of err, and a note to add to its message: load where the data fails to load
-// or where the template compiles once every shipped module is loaded, else misuse.
-func (b bridge) kindOf(err error, format, template string) (string, string) {
-	var known kindError
-	switch {
-	case errors.As(err, &known):
-		return known.kind, ""
-	case errors.Is(err, fejkdata.ErrLoad):
-		return "load", ""
-	case b.every != nil && compile(b.every, format, template) == nil:
-		return "load", leftOut
-	}
-	return "misuse", ""
-}
-
-// compile compiles template over modules as the CLI does under format.
-func compile(modules []fs.FS, format, template string) error {
-	f, err := fejkdata.New(fejkdata.WithDataFS(modules...), fejkdata.WithSeed(0), fejkdata.WithToday(anyDay))
-	if err != nil {
-		return err
-	}
-	if format == "text" {
-		_, err = f.NewTemplate(template)
-		return err
-	}
-	draw, err := recordDrawer(f, template)
-	if err == nil {
-		_, err = draw()
-	}
-	return err
-}
-
 func drawRecords(modules []fs.FS, seedText, todayText, repeatText, template string) (*table, error) {
-	options, repeat, err := drawOptions(seedText, todayText, repeatText)
+	options, err := drawSettings(seedText, todayText)
+	if err != nil {
+		return nil, err
+	}
+	repeat, err := repeatCount(repeatText)
 	if err != nil {
 		return nil, err
 	}
@@ -132,21 +107,26 @@ func drawRows(draw func() (*fejkdata.Record, error), repeat int) (*table, error)
 	return &rows, nil
 }
 
-// drawOptions reads records' seed, today and repeat as the CLI reads its flags of those names.
-func drawOptions(seedText, todayText, repeatText string) ([]fejkdata.Option, int, error) {
+// drawSettings reads seed and today as the CLI reads its flags of those names.
+func drawSettings(seedText, todayText string) ([]fejkdata.Option, error) {
 	seed, err := strconv.ParseUint(seedText, 10, 64)
 	if err != nil {
-		return nil, 0, misuse("fejkdata: seed needs an unsigned integer, got %q", seedText)
+		return nil, misuse("fejkdata: seed needs an unsigned integer, got %q", seedText)
 	}
 	today, err := time.Parse(time.DateOnly, todayText)
 	if err != nil || today.Year() < 1000 {
-		return nil, 0, misuse("fejkdata: today needs a date as YYYY-MM-DD, from year 1000 on, got %q", todayText)
+		return nil, misuse("fejkdata: today needs a date as YYYY-MM-DD, from year 1000 on, got %q", todayText)
 	}
+	return []fejkdata.Option{fejkdata.WithSeed(seed), fejkdata.WithToday(today)}, nil
+}
+
+// repeatCount reads repeat as the CLI reads --repeat.
+func repeatCount(repeatText string) (int, error) {
 	repeat, err := strconv.Atoi(repeatText)
 	if err != nil || repeat < 0 || repeat > fejkdata.MaxRepeat {
-		return nil, 0, misuse("fejkdata: repeat needs an integer in 0..%d, got %q", fejkdata.MaxRepeat, repeatText)
+		return 0, misuse("fejkdata: repeat needs an integer in 0..%d, got %q", fejkdata.MaxRepeat, repeatText)
 	}
-	return []fejkdata.Option{fejkdata.WithSeed(seed), fejkdata.WithToday(today)}, repeat, nil
+	return repeat, nil
 }
 
 // recordDrawer draws template's records: the path's where it is one reference from the root, as
@@ -157,7 +137,7 @@ func recordDrawer(f *fejkdata.Generator, template string) (func() (*fejkdata.Rec
 	}
 	t, err := f.NewRecordTemplate(template)
 	if err != nil {
-		return nil, err
+		return nil, spacedReference(template, err)
 	}
 	return func() (*fejkdata.Record, error) { return t.Fake(), nil }, nil
 }
@@ -175,6 +155,17 @@ func recordPath(template string) (string, bool) {
 	path, opens := strings.CutPrefix(unquoted(text), "{/")
 	path, closes := strings.CutSuffix(path, "}")
 	return path, opens && closes && fejkdata.IsLonePath(path)
+}
+
+// spacedReference adds to err the hint the CLI's records give where whitespace around a lone
+// reference made the template text with no column.
+func spacedReference(template string, err error) error {
+	if trimmed := strings.TrimSpace(template); trimmed != template && errors.Is(err, fejkdata.ErrNoColumns) {
+		if path, lone := recordPath(trimmed); lone {
+			return fmt.Errorf("%w; the whitespace around {/%s} makes it text, so remove it to write the record %s", err, path, path)
+		}
+	}
+	return err
 }
 
 // unquoted is the string text holds where it is a JSON string, else text.
