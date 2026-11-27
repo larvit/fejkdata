@@ -2443,7 +2443,8 @@ pins it.
 
 The `npm` job of the Packages workflow reads no secret either. On npmjs.com the package
 names this repository, `test.yml` and the environment `npm` as its trusted publisher, and
-npm takes the short-lived token GitHub gives the job. The package's publishing access is
+npm takes the short-lived token GitHub gives the job. The publisher's allowed actions include
+`npm publish`: a new publisher allows only `npm stage publish` until that is chosen. The package's publishing access is
 "Require two-factor authentication and disallow tokens". In the repository's settings the
 environment `npm` is limited to the branch `main`, so no other branch can publish.
 A Packages run started by hand doesn't publish. A failed `npm` job fails the Packages

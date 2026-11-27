@@ -164,7 +164,7 @@ jobs:
             if [ -z "$TAG" ]; then
               npm publish --dry-run --tag dry-run
             elif [ -z "$(npm view "@larvit/fejkdata@$VERSION" version 2>/dev/null)" ]; then
-              npm publish --dry-run
+              npm publish --dry-run --tag dry-run
             fi
             npm pack --pack-destination /npm'
           tar -tzf npm/larvit-fejkdata-*.tgz | sort > npm/packed
@@ -253,7 +253,13 @@ jobs:
             echo "::notice::npmjs.com already holds ${TAG#v}"
             exit 0
           fi
-          npm publish ./npm/larvit-fejkdata-*.tgz
+          # npm refuses a version below its latest under the tag latest, so a late rerun of an older release takes another tag.
+          latest="$(npm view @larvit/fejkdata version 2>/dev/null)"
+          if [ "$(printf '%s\n' "$latest" "${TAG#v}" | sort -V | tail -n 1)" = "${TAG#v}" ]; then
+            npm publish ./npm/larvit-fejkdata-*.tgz
+          else
+            npm publish --tag previous ./npm/larvit-fejkdata-*.tgz
+          fi
 
   dockerhub:
     name: Docker Hub image for ${{ inputs.tag }}
