@@ -4,11 +4,14 @@ import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { FejkdataError, load } from "./index.js";
+import { FejkdataError, isTemplate, load } from "./index.js";
 
 const DAY = "2026-01-15";
 const PERSON = '{"format": "{/sv_SE.person as p}", "first": "{p.first}", "last": "{p.last}", "born": "{born(18,90,\'2006-01-02\')}"}';
 const fejkdata = await load();
+const OPTIONS = { seed: 1, today: DAY };
+const LISTED = goCLI("", "--list").split("\n").filter(Boolean);
+const MODULES = [...new Set(LISTED.map((path) => path.split(".").slice(0, path.startsWith("geo.") ? 2 : 1).join(".")))];
 
 // goCLI is what the Go build of the CLI, at $FEJKDATA_CLI, prints for template under flags.
 function goCLI(template, ...flags) {
@@ -47,10 +50,6 @@ test("a render doesn't leave anything behind for the next one", () => {
 	const alone = fejkdata.render("{seq()} {/sv_SE.person}", { seed: 7, today: DAY });
 	fejkdata.render("{seq()} {/en_US.person}", { seed: 9, today: "2001-02-03", repeat: 5 });
 	assert.equal(fejkdata.render("{seq()} {/sv_SE.person}", { seed: 7, today: DAY }), alone);
-});
-
-test("load gives the same renderer each time", async () => {
-	assert.equal(await load(), fejkdata);
 });
 
 test("load leaves no global of its own behind", () => {
@@ -95,7 +94,7 @@ test("an output longer than a JavaScript string holds is refused, each time, and
 	for (let i = 0; i < 2; i++) {
 		assert.throws(
 			() => fejkdata.render(wide, { seed: 1, today: DAY, repeat: 10000 }),
-			(error) => error instanceof FejkdataError && error.exitCode === 1 && /512 MB/.test(error.message),
+			(error) => error instanceof FejkdataError && error.exitCode === 1 && error.kind === "limit" && /512 MB/.test(error.message),
 		);
 	}
 	assert.equal(fejkdata.render("{/misc.territory[SE].alpha2}", { seed: 1, today: DAY }), "SE");
@@ -108,6 +107,12 @@ test("an error leaves out the CLI's advice about a shell", () => {
 	);
 });
 
+test("a template mistake found only under a format is misuse, though the CLI exits 1", () => {
+	for (const template of ["{/sv_SE.personnummer-12}", "{/sv_SE.color}"]) {
+		assert.throws(() => fejkdata.render(template, { seed: 1, today: DAY, format: "json" }), errorOf("misuse", 1));
+	}
+});
+
 test("a seed is a number or a bigint, up to 2^64 - 1", () => {
 	const top = 18446744073709551615n;
 	assert.equal(fejkdata.render("{uuid()}", { seed: top, today: DAY }), goCLI("{uuid()}", "--seed", String(top), "--today", DAY));
@@ -117,7 +122,7 @@ test("a seed is a number or a bigint, up to 2^64 - 1", () => {
 test("a number too large to be exact is refused, naming bigint", () => {
 	assert.throws(
 		() => fejkdata.render("x", { seed: 2 ** 53, today: DAY }),
-		(error) => error instanceof FejkdataError && error.exitCode === 2 && /bigint/.test(error.message),
+		(error) => error instanceof FejkdataError && error.exitCode === 2 && error.kind === "misuse" && /bigint/.test(error.message),
 	);
 });
 
@@ -151,6 +156,7 @@ test("a template that does not compile throws the Go error text and exit code 2"
 			assert.ok(error instanceof FejkdataError);
 			assert.equal(error.name, "FejkdataError");
 			assert.equal(error.exitCode, 2);
+			assert.equal(error.kind, "misuse");
 			assert.equal(error.message, 'fejkdata: template: reference {/nope.x}: no entry "nope"');
 			return true;
 		},
@@ -160,7 +166,7 @@ test("a template that does not compile throws the Go error text and exit code 2"
 test("an option the Go build refuses throws its error text", () => {
 	assert.throws(
 		() => fejkdata.render("x", { seed: -1, today: DAY }),
-		(error) => error instanceof FejkdataError && error.exitCode === 2 && error.message === 'fejkdata: --seed needs an unsigned integer, got "-1"',
+		(error) => error instanceof FejkdataError && error.exitCode === 2 && error.kind === "misuse" && error.message === 'fejkdata: --seed needs an unsigned integer, got "-1"',
 	);
 });
 
@@ -178,6 +184,186 @@ test("the typed formats are the ones the Go build names", () => {
 	const typed = readFileSync(new URL("./index.d.ts", import.meta.url), "utf8").match(/format\?: (.*);/)[1];
 	const named = goCLI("", "--help").match(/output form: (.*)\n/)[1];
 	assert.deepEqual(typed.match(/\w+/g).sort(), named.replace("(default)", "").replace(" or ", " ").match(/\w+/g).sort());
+});
+
+function errorOf(kind, exitCode) {
+	return (error) => {
+		assert.ok(error instanceof FejkdataError, error);
+		assert.equal(error.kind, kind, error.message);
+		assert.equal(error.exitCode, exitCode, error.message);
+		return true;
+	};
+}
+
+test("paths lists what the Go build lists", () => {
+	assert.deepEqual(fejkdata.paths(), LISTED);
+});
+
+test("load with no argument gives the same object each time, and load with options a new one", async () => {
+	assert.equal(await load(), fejkdata);
+	assert.notEqual(await load({}), fejkdata);
+});
+
+test("every load shares one compile of the WebAssembly", async () => {
+	const fresh = await import("./index.js?one-compile");
+	const { compile, compileStreaming } = WebAssembly;
+	let compiles = 0;
+	WebAssembly.compile = (...args) => (compiles++, compile(...args));
+	WebAssembly.compileStreaming = (...args) => (compiles++, compileStreaming(...args));
+	try {
+		await Promise.all([fresh.load(), fresh.load({ data: ["misc"] }), fresh.load({ files: {} })]);
+		await fresh.load({ data: ["sv_SE"] });
+	} finally {
+		WebAssembly.compile = compile;
+		WebAssembly.compileStreaming = compileStreaming;
+	}
+	assert.equal(compiles, 1);
+});
+
+test("naming every shipped module loads what load() does", async () => {
+	assert.deepEqual((await load({ data: MODULES })).paths(), LISTED);
+});
+
+test("naming a module loads the modules it reads and leaves out the rest", async () => {
+	const swedish = await load({ data: ["sv_SE"] });
+	const paths = swedish.paths();
+	assert.ok(paths.includes("sv_SE.address.postal-code"));
+	assert.ok(paths.includes("geo.SE.address"));
+	assert.ok(!paths.some((path) => path.startsWith("en_US.") || path.startsWith("geo.US.")));
+	assert.equal(swedish.render("{/sv_SE.address}", OPTIONS), fejkdata.render("{/sv_SE.address}", OPTIONS));
+});
+
+test("a module name the package doesn't ship is refused, naming every shipped one", async () => {
+	await assert.rejects(load({ data: ["sv_SE", "xx_XX"] }), (error) => {
+		errorOf("misuse", 2)(error);
+		assert.match(error.message, /"xx_XX"/);
+		for (const name of MODULES) {
+			assert.ok(error.message.includes(name), `${error.message} names ${name}`);
+		}
+		return true;
+	});
+	await assert.rejects(load({ data: "sv_SE" }), TypeError);
+});
+
+test("a template reading a module that data leaves out is a load error", async () => {
+	const swedish = await load({ data: ["sv_SE"] });
+	assert.throws(() => swedish.render("{/en_US.person}", OPTIONS), errorOf("load", 2));
+	assert.throws(() => swedish.fake("en_US.person", OPTIONS), errorOf("load", 2));
+	assert.throws(() => swedish.records({ format: "", person: "{/en_US.person}" }, OPTIONS), errorOf("load", 2));
+	assert.throws(() => swedish.render("{/xx_XX.person}", OPTIONS), errorOf("misuse", 2));
+});
+
+test("files layer over the shipped data, as text or bytes", async () => {
+	const mine = await load({
+		data: ["sv_SE"],
+		files: {
+			"mydata/team.json": '["Red"]',
+			"mydata/user.json": new TextEncoder().encode('{"format": "{/sv_SE.first-name} of {/mydata.team}"}'),
+			"sv_SE/color.json": '["Ultraviolett"]',
+		},
+	});
+	assert.ok(mine.paths().includes("mydata.user"));
+	assert.match(mine.fake("mydata.user", OPTIONS), /^\S+ of Red$/);
+	assert.equal(mine.fake("sv_SE.color", OPTIONS), "Ultraviolett");
+	assert.equal(fejkdata.paths().includes("mydata.user"), false);
+});
+
+test("a file that is no text or bytes, or whose path is none, is refused at load", async () => {
+	await assert.rejects(load({ files: { "mydata/team.json": 5 } }), TypeError);
+	await assert.rejects(load({ files: { "../team.json": "[]" } }), errorOf("misuse", 2));
+});
+
+test("a file that fails to load is a load error in each call", async () => {
+	const broken = await load({ files: { "mydata/team.json": "[" } });
+	assert.throws(() => broken.render("x", OPTIONS), errorOf("load", 1));
+	assert.throws(() => broken.fake("misc.uuid", OPTIONS), errorOf("load", 1));
+	assert.throws(() => broken.records({ format: "", id: "{uuid()}" }, OPTIONS), errorOf("load", 1));
+	assert.throws(() => broken.paths(), errorOf("load", 1));
+});
+
+test("fake renders a path as render renders its reference", () => {
+	for (const path of ["sv_SE.address.postal-code", "en_US.person", "misc.territory[SE].alpha2"]) {
+		assert.equal(fejkdata.fake(path, OPTIONS), fejkdata.render(`{/${path}}`, OPTIONS));
+	}
+	assert.equal(fejkdata.fake("/sv_SE.person", OPTIONS), fejkdata.render("{/sv_SE.person}", OPTIONS));
+});
+
+test("fake refuses a template, a path to nothing and a path that is no string", () => {
+	assert.throws(() => fejkdata.fake("{/sv_SE.person}", OPTIONS), errorOf("misuse", 2));
+	assert.throws(() => fejkdata.fake("sv_SE.person} {/en_US.person", OPTIONS), errorOf("misuse", 2));
+	assert.throws(() => fejkdata.fake("sv_SE.nope", OPTIONS), errorOf("misuse", 2));
+	assert.throws(() => fejkdata.fake(5, OPTIONS), TypeError);
+});
+
+const TYPED = {
+	format: "",
+	zeta: "{/sv_SE.first-name}",
+	id: { format: "{seq()}", datatype: "integer" },
+	share: { format: "{float(0,1,2)}", datatype: "number" },
+	paid: { format: "{p}", p: ["true", "false"], datatype: "boolean" },
+	nothing: null,
+	maybe: ["x", null],
+	color: { format: "{/sv_SE.color}", datatype: "string" },
+};
+
+test("records are the rows render writes as ndjson, each column read by its datatype", () => {
+	const options = { seed: 4, today: DAY, repeat: 30 };
+	const rows = fejkdata.records(TYPED, options);
+	const written = fejkdata.render(JSON.stringify(TYPED), { ...options, format: "ndjson" }).trimEnd().split("\n").map((line) => JSON.parse(line));
+	assert.equal(rows.length, 30);
+	assert.deepEqual(rows.map((row) => ({ ...row, id: Number(row.id) })), written);
+	for (const row of rows) {
+		assert.deepEqual(Object.keys(row), ["zeta", "id", "share", "paid", "nothing", "maybe", "color"]);
+		assert.equal(typeof row.id, "bigint");
+		assert.equal(typeof row.share, "number");
+		assert.equal(typeof row.paid, "boolean");
+		assert.equal(row.nothing, null);
+	}
+	assert.ok(rows.some((row) => row.maybe === null) && rows.some((row) => row.maybe === "x"));
+});
+
+test("an integer column is a bigint, exact beyond 2^53", () => {
+	const [row] = fejkdata.records({ format: "", big: { format: "9007199254740993", datatype: "integer" } }, OPTIONS);
+	assert.equal(row.big, 9007199254740993n);
+});
+
+test("records takes JSON text as it takes an object, and a lone reference as its record", () => {
+	const options = { seed: 2, today: DAY, repeat: 3 };
+	assert.deepEqual(fejkdata.records(JSON.stringify(TYPED), options), fejkdata.records(TYPED, options));
+	const written = fejkdata.render("{/sv_SE.address}", { ...options, format: "ndjson" }).trimEnd().split("\n").map((line) => JSON.parse(line));
+	assert.deepEqual(fejkdata.records("{/sv_SE.address}", options), written);
+	assert.deepEqual(fejkdata.records('"{/sv_SE.address}"\n', options), written);
+});
+
+test("records gives one row unless repeat says otherwise", () => {
+	assert.equal(fejkdata.records(TYPED, OPTIONS).length, 1);
+	assert.deepEqual(fejkdata.records(TYPED, { ...OPTIONS, repeat: 0 }), []);
+});
+
+test("records refuses a template with no column, a template that doesn't compile and a bad argument", () => {
+	for (const template of [{ format: "x" }, '{"format": "{/nope.x}", "a": "b"}', "{/sv_SE.color}"]) {
+		assert.throws(() => fejkdata.records(template, OPTIONS), errorOf("misuse", 2), String(template));
+	}
+	for (const options of [{ seed: -1, today: DAY }, { seed: 1, today: "15/01/2026" }, { seed: 1, today: DAY, repeat: 1e7 }, { seed: 2 ** 53, today: DAY }, { today: DAY }]) {
+		assert.throws(() => fejkdata.records(TYPED, options), errorOf("misuse", 2), JSON.stringify(options));
+	}
+	assert.throws(() => fejkdata.records(5, OPTIONS), TypeError);
+});
+
+test("records past 512 MB are refused as a limit, and the next call works", () => {
+	assert.throws(() => fejkdata.records({ format: "", wide: "x".repeat(70000) }, { ...OPTIONS, repeat: 10000 }), errorOf("limit", 1));
+	assert.equal(fejkdata.records(TYPED, OPTIONS).length, 1);
+});
+
+test("isTemplate takes the shapes Go's IsTemplate takes as a template, and nothing else", () => {
+	const cases = JSON.parse(readFileSync(new URL("../testdata/is_template.json", import.meta.url), "utf8"));
+	for (const arg of cases.template) {
+		assert.equal(isTemplate(arg), true, arg);
+	}
+	for (const arg of [...cases.path, ...Object.keys(cases.malformed)]) {
+		assert.equal(isTemplate(arg), false, arg);
+	}
+	assert.throws(() => isTemplate(5), TypeError);
 });
 
 // runBlocks runs each `js` block of markdown as a file of this folder, where the package's own name
@@ -202,7 +388,7 @@ function runBlocks(markdown) {
 }
 
 test("the package's README prints what its text blocks show", () => {
-	assert.equal(runBlocks(readFileSync(new URL("./README.md", import.meta.url), "utf8")), 3);
+	assert.equal(runBlocks(readFileSync(new URL("./README.md", import.meta.url), "utf8")), 6);
 });
 
 test("the repository's README prints what its text blocks show", () => {
