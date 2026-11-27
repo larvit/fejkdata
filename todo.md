@@ -17,7 +17,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 607 | 0.9.0 |  | question | **Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 5, 1.2 by 8 | 9.3 |
-| 609 | 0.9.0 |  | question | **Decide whether `ShippedPath` keeps each path's example as a doc comment, since no editor shows a union member's comment.** | 2 | 1 | 1 | 2 | 3 | code health by 2 | 3.9 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -257,28 +256,6 @@ Left:
 1. If the publisher has lapsed when 0.9.0 is ready, the maintainer sets it again, at most two days before the cut. npm 11.15.0 or later sets it with `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. On npmjs.com, its allowed actions must include `npm publish` ([npm's docs](https://docs.npmjs.com/trusted-publishers/)). The agent that finds the release ready reminds the maintainer.
 2. After 0.9.0 is published, the maintainer sets the package's publishing access to "Require two-factor authentication and disallow tokens". Then they check the package's live page: the README, the provenance badge and the files.
 3. Then drop this item with `todo-item finish 607 --no-changelog`.
-
-### 609. Decide whether `ShippedPath` keeps each path's example as a doc comment, since no editor shows a union member's comment.
-
-Item 608 (PR #544) generated `npm-package/shipped-paths.d.ts`. It holds the union `ShippedPath` of the 2,088 shipped paths, and each member has its example in a doc comment above it. The decision "The npm package's API is `load({ data, files })` and the stateless `render`, `fake`, `records` and `paths`, …" in `docs/decisions.md` asks for this under **Types**: "an editor completes a path and shows its example".
-
-No editor shows those comments. On 2026-11-27 item 608's stability reviewer measured the language services of TypeScript 5.9.3, 6.0.3 and 7.0.2 (`tsc --lsp`). All three complete all 2,088 paths. None shows a member's comment: not on hover over the literal, and not in a completion entry's documentation. It also tried an interface keyed by path, with a doc comment on each property, and `ShippedPath = keyof` that interface, with and without `fake(path: ShippedPath | (string & {}))`. TypeScript 6.0.3 shows no documentation there either.
-
-So only someone who opens the `.d.ts` reads the examples. They make up about half of the file's 105 KB. `typeComment` in `internal/shipped/listing.go`, its escaping of `*/`, and `TestTypeComment` exist only for them.
-
-Item 608 kept the comments, since dropping them changes a decision. It cut the claim that an editor shows them from the npm README, the changelog and the generated file's header.
-
-The question for the maintainer:
-
-- (a) Drop the examples. Write the union bare, delete `typeComment` and `TestTypeComment`, fold `codeSpan` back into `exampleCell`, and revise the decision's **Types** paragraph. This is the recommendation, since nothing displays them.
-- (b) Keep them for a reader of the file, and revise only the decision's words "shows its example".
-
-Touches (for option a):
-
-- `internal/shipped/listing.go`: `listingTypes`, `typeComment`, `codeSpan`, `exampleCell`
-- `internal/shipped/shipped_test.go`: `TestTypeComment`, `TestListingFilesHoldEveryPathUnderItsModule` (small)
-- `npm-package/shipped-paths.d.ts`
-- `docs/decisions.md`: `` ## The npm package's API is `load({ data, files })` and the stateless `render`, `fake`, `records` and `paths`, with `isTemplate`, a `kind` on `FejkdataError`, ES modules only, and types that complete a shipped path `` (small)
 
 ### 603. Add a mutation tool for JavaScript.
 
