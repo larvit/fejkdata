@@ -79,8 +79,8 @@ first,last | Vinston,Larsson | Felix,Lind
 
 ## One value
 
-`fake(path, { seed, today })` draws one value of a path. It is the same as rendering
-`{/path}`. `paths()` returns every path, as `fejkdata --list` prints them.
+`fake(path, { seed, today })` draws one value of a path. It refuses a template, so
+`sv_SE.person as p` and `sv_SE.first-name where length 3` are errors. `paths()` returns every path, as `fejkdata --list` prints them.
 
 Some paths are not where you might guess. A postcode and a city are parts of an address:
 
@@ -100,7 +100,7 @@ sv_SE.address.postal-code 854 01
 sv_SE.address.locality Sundsvall
 en_US.address.postal-code 29414
 en_US.address.region SC
-sv_SE.person.first Per
+sv_SE.person.first Vinston
 false
 ```
 
@@ -111,7 +111,7 @@ that match, draw `sv_SE.address` with `records`.
 
 `records(template, { seed, today, repeat })` draws rows of a record template. The template
 is JSON text or an object. Each row is an object with a key per column, in the template's
-order.
+order. JavaScript puts a key that is a whole number, such as `"2"`, before the others.
 
 - An `integer` column is a `bigint`, so it stays exact above 2^53.
 - A `number` column is a number, and a `boolean` column a boolean.
@@ -176,8 +176,9 @@ path as `{/sv_SE.first-name}`.
 
 Each function throws a `FejkdataError` when fejkdata refuses the template, an argument or
 the data. Its message says what is wrong, in the CLI's words. Its `exitCode` is the CLI's
-exit code: 2 for a mistake in the template or the arguments, 1 for anything else. Its `kind`
-says where the error arose:
+exit code: 2 for misuse, 1 for anything else. `render` passes on the CLI's own, which is 1
+for a template mistake that only a format finds, where `records` gives 2. So read `kind` to
+tell a mistake. It says where the error arose:
 
 - `"misuse"`: a mistake in the template, an argument or `load`'s options.
 - `"load"`: the data doesn't load, or the template reads a module `data` left out.

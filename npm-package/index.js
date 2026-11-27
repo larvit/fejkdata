@@ -44,20 +44,26 @@ export function isTemplate(text) {
 	}
 }
 
-async function open({ data, files = {} }) {
-	if (data !== undefined && !Array.isArray(data)) {
+async function open(options) {
+	if (typeof options !== "object" || options === null) {
+		throw new TypeError('fejkdata: load takes an object, such as { data: ["sv_SE"] }');
+	}
+	const { data, files = {} } = options;
+	if (data !== undefined && !(Array.isArray(data) && data.every((name) => typeof name === "string"))) {
 		throw new TypeError('fejkdata: data is an array of module names, such as ["sv_SE"]');
 	}
-	const pairs = Object.entries(files).map(([path, body]) => [path, bytes(path, body)]);
-	const opened = (await started())(data ?? null, pairs);
-	if (opened.error) {
-		throw new FejkdataError(opened.error, 2, "misuse");
+	if (typeof files !== "object" || files === null) {
+		throw new TypeError('fejkdata: files is an object of file names and their text, such as { "mydata/team.json": "[]" }');
 	}
+	const pairs = Object.entries(files).map(([path, body]) => [path, bytes(path, body)]);
+	const bridge = await started();
+	const opened = (call) => (...args) => bridge[call](data ?? null, pairs, ...args);
+	answer(opened("check")());
 	return {
-		render: (template, options) => render(opened, template, options),
-		fake: (path, options) => fake(opened, path, options),
-		records: (template, options) => records(opened, template, options),
-		paths: () => answer(opened.paths()).paths,
+		render: (template, options) => render(opened("render"), template, options),
+		fake: (path, options) => fake(opened("fake"), path, options),
+		records: (template, options) => records(opened("records"), template, options),
+		paths: () => answer(opened("paths")()).paths,
 	};
 }
 
@@ -66,7 +72,7 @@ function bytes(path, body) {
 		return new TextEncoder().encode(body);
 	}
 	if (body instanceof Uint8Array) {
-		return body;
+		return body.slice();
 	}
 	throw new TypeError(`fejkdata: files["${path}"] is a string or a Uint8Array`);
 }
@@ -83,7 +89,7 @@ async function start() {
 	const go = new globalThis.Go();
 	const instance = await WebAssembly.instantiate(await compiled(new URL("./fejkdata.wasm", import.meta.url)), go.importObject);
 	return new Promise((resolve, reject) => {
-		// The Go program can reach only globals, so it hands its one function over through this one.
+		// The Go program can reach only globals, so it hands its functions over through this one.
 		globalThis.__fejkdataRun = resolve;
 		go.run(instance).then(() => reject(new Error("fejkdata: the WebAssembly program stopped while loading")), reject);
 	}).finally(() => delete globalThis.__fejkdataRun);
@@ -103,43 +109,36 @@ function drawArguments(seed, today) {
 	return [String(seed), day];
 }
 
-function render(opened, template, { seed, today, repeat = 1, format = "text" }) {
+function render(run, template, { seed, today, repeat = 1, format = "text" }) {
 	if (typeof template !== "string") {
 		throw new TypeError("fejkdata: a template is a string; pass an object through JSON.stringify first");
 	}
-	const done = opened.render(...drawArguments(seed, today), String(repeat), String(format), template);
+	const done = run(...drawArguments(seed, today), String(repeat), String(format), template);
 	if (done.exitCode !== 0) {
 		throw new FejkdataError(done.stderr.trim().replace(SHELL_ADVICE, "") + done.note, done.exitCode, done.kind);
 	}
 	return done.stdout;
 }
 
-function fake(opened, path, { seed, today }) {
+function fake(run, path, { seed, today }) {
 	if (typeof path !== "string") {
 		throw new TypeError("fejkdata: a path is a string, such as \"sv_SE.address.postal-code\"");
 	}
-	if (/[{}]/.test(path)) {
-		throw new FejkdataError(`fejkdata: fake takes a path, such as "sv_SE.address.postal-code", and ${JSON.stringify(path)} holds a brace; render a template`, 2, "misuse");
-	}
-	return render(opened, `{/${path.replace(/^\//, "")}}`, { seed, today });
+	return answer(run(...drawArguments(seed, today), path.replace(/^\//, ""))).value;
 }
 
 const READ = { integer: BigInt, number: Number, boolean: (text) => text === "true", string: String };
 
-function records(opened, template, { seed, today, repeat = 1 }) {
+function records(run, template, { seed, today, repeat = 1 }) {
 	const text = typeof template === "object" && template !== null ? JSON.stringify(template) : template;
 	if (typeof text !== "string") {
 		throw new TypeError("fejkdata: a record template is JSON text or an object");
 	}
-	const { names, types, values } = answer(opened.records(...drawArguments(seed, today), String(repeat), text));
+	const { names, types, values } = answer(run(...drawArguments(seed, today), String(repeat), text));
 	const reads = types.map((type) => READ[type]);
 	const rows = [];
 	for (let i = 0; i < values.length; i += names.length) {
-		const row = {};
-		names.forEach((name, j) => {
-			row[name] = values[i + j] === null ? null : reads[j](values[i + j]);
-		});
-		rows.push(row);
+		rows.push(Object.fromEntries(names.map((name, j) => [name, values[i + j] === null ? null : reads[j](values[i + j])])));
 	}
 	return rows;
 }

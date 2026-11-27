@@ -24,7 +24,10 @@
 		"person.last",
 		"x[1]",
 		"x[St. Louis].y",
-		"/sv_SE.person"
+		"/sv_SE.person",
+		"42",
+		"true",
+		"null"
 	],
 	"malformed": {
 		"[abc]": "starts with \"[\"",

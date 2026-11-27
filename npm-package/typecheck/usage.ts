@@ -42,12 +42,11 @@ fejkdata.fake("mydata.users", { seed: 1n, today: new Date(0) });
 
 const rows = fejkdata.records({
 	format: "{/sv_SE.person as p}",
-	hidden: ["last"],
+	hidden: { last: "{p.last}" },
 	greeting: "Hej {p.first}",
 	first: "{p.first}",
 	score: "{/src.score}",
 	person: "{p}",
-	last: "{p.last}",
 	answer: 42,
 	id: { format: "{seq()}", datatype: "integer" },
 	share: { format: "{float(0,1,2)}", datatype: "number" },
@@ -73,6 +72,26 @@ expectSame<Same<typeof rows, {
 	maybe: string | null;
 	maybeId: bigint | null;
 }[]>>();
+
+const template = {
+	format: "{/sv_SE.person as p}",
+	hidden: { last: "{p.last}" },
+	id: { format: "{seq()}", datatype: "integer" },
+	name: "{p.first} {last}",
+	member: { format: "{m}", m: ["true", "false"], datatype: "boolean" },
+};
+const heldRows = fejkdata.records(template, { ...day, repeat: 2 });
+expectSame<Same<typeof heldRows, { id: ColumnValue; name: ColumnValue; member: ColumnValue }[]>>();
+
+const fixedTemplate = {
+	format: "{/sv_SE.person as p}",
+	hidden: { last: "{p.last}" },
+	id: { format: "{seq()}", datatype: "integer" },
+	name: "{p.first} {last}",
+	member: { format: "{m}", m: ["true", "false"], datatype: "boolean" },
+} as const;
+const fixedRows = fejkdata.records(fixedTemplate, day);
+expectSame<Same<typeof fixedRows, { id: bigint; name: string; member: boolean }[]>>();
 
 const textRows = fejkdata.records('{"format": "", "id": "{uuid()}"}', day);
 expectSame<Same<typeof textRows, Record<string, ColumnValue>[]>>();

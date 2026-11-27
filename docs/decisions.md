@@ -2571,7 +2571,7 @@ The panel ran in two rounds of five fresh readers each, seated as a Node and Vit
 ```ts
 const fejkdata = await load({ data: ["sv_SE", "misc"], files: { "mydata/users.json": "…" } }); // both optional
 fejkdata.render(template, { seed, today, repeat, format });  // text, as render is today
-fejkdata.fake("sv_SE.address.postal-code", { seed, today }); // render("{/sv_SE.address.postal-code}", …)
+fejkdata.fake("sv_SE.address.postal-code", { seed, today }); // one value, as Go's Fake draws it
 fejkdata.records(template, { seed, today, repeat });         // template: JSON text or an object; rows as plain objects
 fejkdata.paths();                                            // string[], what `fejkdata --list` prints for the same data
 isTemplate(text);                                            // a package export: needs no load

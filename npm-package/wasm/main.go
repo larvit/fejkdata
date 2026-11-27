@@ -1,7 +1,9 @@
 //go:build js && wasm
 
-// Command wasm is fejkdata built to WebAssembly for the npm package. It hands index.js one
-// function, open, and reads only the library's public API and the CLI's Run.
+// Command wasm is fejkdata built to WebAssembly for the npm package. It hands index.js the
+// functions check, render, fake, records and paths, and reads only the library's public API and
+// the CLI's Run. Each function takes load's data and files first and keeps nothing after it
+// returns, so the memory a load's files take is JavaScript's to free.
 package main
 
 import (
@@ -14,52 +16,76 @@ import (
 )
 
 func main() {
-	js.Global().Call("__fejkdataRun", js.FuncOf(open))
+	js.Global().Call("__fejkdataRun", map[string]any{
+		"check":   js.FuncOf(opened(check)),
+		"render":  js.FuncOf(opened(bridge.render)),
+		"fake":    js.FuncOf(opened(bridge.fake)),
+		"records": js.FuncOf(opened(bridge.records)),
+		"paths":   js.FuncOf(opened(bridge.paths)),
+	})
 	select {}
 }
 
-// open(data, files) returns {render, records, paths} over the modules data names, or every
-// shipped module where data is null, with files layered over them. It returns {error} where it
-// refuses data or files.
-func open(_ js.Value, call []js.Value) any {
-	b, err := newBridge(call[0], call[1])
-	if err != nil {
-		return map[string]any{"error": err.Error()}
+// opened builds the bridge over the data and files a call starts with, and runs call over it
+// with the arguments after them. It returns {error, kind, exitCode} where it refuses data or files.
+func opened(call func(bridge, []js.Value) any) func(js.Value, []js.Value) any {
+	return func(_ js.Value, args []js.Value) any {
+		b, err := newBridge(args[0], args[1])
+		if err != nil {
+			return map[string]any{"error": err.Error(), "kind": "misuse", "exitCode": 2}
+		}
+		return call(b, args[2:])
 	}
-	return map[string]any{"render": js.FuncOf(b.render), "records": js.FuncOf(b.records), "paths": js.FuncOf(b.paths)}
 }
 
-// bridge holds the modules one load gave.
+func check(bridge, []js.Value) any {
+	return map[string]any{}
+}
+
+// bridge holds the modules a call reads: those load's data chose, then the files over them.
 type bridge struct {
-	modules []fs.FS
-	// every is each shipped module with the files, where data leaves a module out.
+	chosen, files []fs.FS
+	// every is each shipped module with the files over them, where data leaves a module out.
 	every []fs.FS
 }
 
-// render(seed, today, repeat, format, template) runs the CLI, and returns {exitCode, stdout,
-// stderr}, with the error's kind and a note to add to stderr where the exit code is not 0.
-func (b bridge) render(_ js.Value, call []js.Value) any {
-	format, template := call[3].String(), call[4].String()
-	args := []string{"--seed", call[0].String(), "--today", call[1].String(), "--repeat", call[2].String(), "--format", format}
+func (b bridge) modules() []fs.FS {
+	return append(append([]fs.FS{}, b.chosen...), b.files...)
+}
+
+// render(seed, today, repeat, format, template) runs the CLI. It returns {exitCode, stdout}, or
+// where the exit code is not 0 {exitCode, stderr, kind, note}, with a note to add to stderr.
+func (b bridge) render(args []js.Value) any {
+	r := renderArgs{args[0].String(), args[1].String(), args[2].String(), args[3].String(), args[4].String()}
 	var stdout capped
 	var stderr strings.Builder
-	exitCode := cli.Run(args, strings.NewReader(template), &stdout, &stderr, b.modules...)
+	flags := []string{"--seed", r.seed, "--today", r.today, "--repeat", r.repeat, "--format", r.format}
+	exitCode := cli.Run(flags, strings.NewReader(r.template), &stdout, &stderr, b.modules()...)
 	if exitCode == 0 {
 		return map[string]any{"exitCode": 0, "stdout": stdout.text.String()}
 	}
 	kind, note := "limit", ""
 	if !stdout.full {
-		kind, note = b.renderKind(exitCode, format, template)
+		kind, note = b.renderKind(exitCode, r)
 	}
 	return map[string]any{"exitCode": exitCode, "stderr": stderr.String(), "kind": kind, "note": note}
 }
 
-// renderKind is the kind of a failed render's error: a template's or its data's where they fail
-// to compile, else misuse for exit code 2 and other for any other.
-func (b bridge) renderKind(exitCode int, format, template string) (string, string) {
-	err := compile(b.modules, format, template)
-	if err != nil {
-		return b.kindOf(err, format, template)
+type renderArgs struct{ seed, today, repeat, format, template string }
+
+// renderKind is the kind of a failed render's error, and a note to add to it: misuse for a bad
+// argument, the kind compiling the template gives where it fails, else misuse for exit code 2 and
+// other for any other.
+func (b bridge) renderKind(exitCode int, r renderArgs) (string, string) {
+	if _, err := drawSettings(r.seed, r.today); err != nil {
+		return "misuse", ""
+	}
+	if _, err := repeatCount(r.repeat); err != nil {
+		return "misuse", ""
+	}
+	retry := func(modules []fs.FS) error { return compile(modules, r.format, r.template) }
+	if err := retry(b.modules()); err != nil {
+		return b.kindOf(err, retry)
 	}
 	if exitCode == 2 {
 		return "misuse", ""
