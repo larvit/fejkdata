@@ -222,6 +222,7 @@ func TestTypeComment(t *testing.T) {
 		{"a pipe", "a|b", "/** `a|b` */"},
 		{"a backtick", "a`b", "/** `` a`b `` */"},
 		{"a comment's end", "a*/b*/", "/** `a*\\/b*\\/` */"},
+		{"a comment's end around a carriage return", "a*\r/b", "/** `a*\\/b` */"},
 	} {
 		if got := typeComment(c.example); got != c.want {
 			t.Errorf("typeComment of %s = %q, want %q", c.name, got, c.want)
