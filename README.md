@@ -122,7 +122,7 @@ The binaries are unsigned. macOS refuses to run one a browser downloaded until y
 From Python, `pip install fejkdata` installs the package that [Python tests](#python-tests)
 shows. It carries the CLI but doesn't put a `fejkdata` command on your path.
 
-The npm package, `@larvit/fejkdata`, is not published yet. An install will download 18 MB
+The npm package, `@larvit/fejkdata`, is not published yet. An install will download 19 MB
 and unpack to 69 MB: the CLI built to WebAssembly, with all the shipped data.
 [Its own README](npm-package/README.md) shows `render`. Until it is published, run the CLI
 as a child process from JavaScript or TypeScript, with `--seed` and `--today` to repeat a run.
