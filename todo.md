@@ -248,6 +248,17 @@
 
 On 2026-11-26 `reading-cost` reported a rise: the last 5 chunks read a median of 95,965 new input tokens before their first commit, the 5 before them 63,738. Read most over the last 5, by opens and searches: `README.md` 19, `compose.yaml` 11, `data-import/geo-us.py` 6, `data-import/geo.py` 6, `.github/workflows/packages.yml` 5, `data-import/geo-se.py` 5, `data-import/geo_test.py` 5, `data/finnish_test.go` 5. `docs/reading-cost.md` holds the figures. The chunk that ships this runs `reading-cost --reset`.
 
+Touches:
+
+- `README.md`
+- `compose.yaml`
+- `data-import/geo.py`
+- `data-import/geo-us.py`
+- `data-import/geo-se.py`
+- `data-import/geo_test.py`
+- `.github/workflows/packages.yml`
+- `data/finnish_test.go`
+
 ### 600. Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.
 
 A finding of the product-owner review of pull request #525, at `python-package/fejkdata/__init__.py:21`. `render` offers `format="sql"` and `format="pgcopy"` but cannot pass the CLI's `--table`, so a record always writes to the table `records`. Nor can it pass `--data-path`, which names the caller's own data folders and repeats, `--no-shipped-data`, `--separator` or `--null-text`. Goal 1.3's counter-signal is a CLI feature reaching Python a release after Go. `cli/cli.go`'s `usage` constant lists the CLI's flags.
@@ -286,6 +297,17 @@ The shipped data is 59 MB under `data/`, so the WebAssembly carrying all of it i
 
 The maintainer ruled on 2026-11-25: one package, `@larvit/fejkdata`, carries all the data. The live build on fejkdata.dev is 65 MB and 17 MB gzipped, and Node compiled it in 0.18 s. npm documents no size limit. A slim build is not part of this item.
 
+Touches:
+
+- `npm-package/package.json`
+- `npm-package/index.js`
+- `npm-package/index.d.ts`
+- `npm-package/wasm/main.go`
+- `npm-package/render.test.js`
+- `npm-package/README.md`
+- `.github/workflows/test.yml`: `test` (small)
+- `README.md`: `## Install` (small)
+
 ### 550. Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.
 
 The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
@@ -302,6 +324,12 @@ Settle each thing npm shows or stores before the first publish, read it on npm's
 - The organization's page, the package's two-factor setting, and who may publish.
 - How a bad version is withdrawn: `npm deprecate` before `npm unpublish`.
 - A check in the dry run: `npm publish --dry-run` and a listing of the packed files and their size. After the publish, look at the live page.
+
+Touches:
+
+- `.github/workflows/packages.yml`: `packages-dry-run` (small)
+- `npm-package/package.json`
+- `README.md`: `## Install` (small)
 
 ### 599. Have the DK, LT, NO, EE and LV geo imports refuse a street name that `geo.cleanly_written` refuses, and drop the DK and LT rows that fail it.
 
@@ -330,6 +358,11 @@ Touches:
 
 Item 547's first coverage profile, counted across every package's tests, put the whole module at 97.6% and this package at 12 of 26 statements. It is the one package under 80%. Its tests call `generated` and never `main`: the flag parsing, the write loop and both exits are uncovered, and so are `generated`'s four error returns. Move what `main` does into a function that takes the arguments and returns an error, and test it against a temporary root folder.
 
+Touches:
+
+- `internal/shipped/generate/main.go`: `main`, `generated`
+- `internal/shipped/generate/main_test.go`
+
 ### 393. Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.
 
 Builds the decision "One run writes several linked templates through a repeated `--emit <template>=<count>`, and a template reads another's rows with `{/run.<template>}`", whose "What holds" list is the spec: the load errors (exit 2), the order of the rows, `--out-dir`, the flags `--emit` is refused beside, and that adding a template doesn't change another's rows under the same `--seed`. Take each test's expected values from that list.
@@ -337,6 +370,16 @@ Builds the decision "One run writes several linked templates through a repeated 
 Three of the bench's readers feared a category named `run` clashing with `{/run.…}`. Either reserve `run` as a root name, or refuse a category named `run` in a run that reads `{/run.…}`; record which in the decision's paragraph that names this item.
 
 `--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. `{seq(name)}` counters stay per template. Ship the first chunk with two templates, then widen. `--emit` is a new flag, so it needs a `CHANGELOG.md` entry under `Unreleased` (`AGENTS.md`) and its own README heading.
+
+Touches:
+
+- `cli/flags.go`: `flagDefs`, `parseArgs`, `checkFlags`
+- `cli/cli.go`: `invocation`, `render`, `help`
+- `cli/records.go`: `writeRecords`
+- `cli/emit.go`
+- `cli/emit_test.go`
+- `record.go`: `RecordTemplate`
+- `README.md`: `## CLI`
 
 ### 567. Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.
 
