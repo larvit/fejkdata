@@ -620,19 +620,19 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fr_FR.company-word` | invented | `Transport` | words from INSEE's Sirene company names |
 | `fr_FR.company-word.count` | invented | `21615` | words from INSEE's Sirene company names |
 | `fr_FR.company-word.word` | invented | `Transport` | words from INSEE's Sirene company names |
-| `fr_FR.company.ei` | invented | `Laly Pierrisnard` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.ei.name` | invented | `Pascal Dixit` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.ei` | invented | `Laly Pilliere` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.ei.name` | invented | `Pascal Djenane` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.legal` | invented | `SAS` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.registered` | invented | `Easy World SAS` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.registered.legal` | invented | `SAS` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.sa` | invented | `Groupe Groupe Brico SA` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.sa.name` | invented | `Groupe Publi Kieffer` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.sa.name` | invented | `Groupe Publi Kleiber` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.sarl` | invented | `Groupe Immobilier SARL` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.sarl.name` | invented | `Laly` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.sas` | invented | `Groupe Immobilier SAS` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.sas.name` | invented | `Kubik Publi` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.sas.name` | invented | `Kübler Publi` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.company.snc` | invented | `Groupe Groupe SNC` | legal-form weights and name shapes from INSEE's Sirene |
-| `fr_FR.company.snc.name` | invented | `Kubik` | legal-form weights and name shapes from INSEE's Sirene |
+| `fr_FR.company.snc.name` | invented | `Kübler` | legal-form weights and name shapes from INSEE's Sirene |
 | `fr_FR.date` | invented | `05/11/1971` | hand-written |
 | `fr_FR.department` | real | `04` | INSEE's department codes in a NIR |
 | `fr_FR.department.code` | real | `04` | INSEE's department codes in a NIR |
@@ -646,9 +646,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fr_FR.first-name.count` | real | `232520` | INSEE's Fichier des prénoms |
 | `fr_FR.first-name.name` | real | `Véronique` | INSEE's Fichier des prénoms |
 | `fr_FR.first-name.sex` | real | `f` | INSEE's Fichier des prénoms |
-| `fr_FR.last-name` | real | `Veyrier` | INSEE's Fichier des noms |
-| `fr_FR.last-name.count` | real | `1581` | INSEE's Fichier des noms |
-| `fr_FR.last-name.name` | real | `Veyrier` | INSEE's Fichier des noms |
+| `fr_FR.last-name` | real | `Viale` | INSEE's Fichier des noms |
+| `fr_FR.last-name.count` | real | `3418` | INSEE's Fichier des noms |
+| `fr_FR.last-name.name` | real | `Viale` | INSEE's Fichier des noms |
 | `fr_FR.month` | real | `janvier` | Unicode CLDR's stand-alone month names |
 | `fr_FR.month.code` | real | `1` | Unicode CLDR's stand-alone month names |
 | `fr_FR.month.name` | real | `janvier` | Unicode CLDR's stand-alone month names |
@@ -660,9 +660,9 @@ The README's [Every shipped path](../README.md#every-shipped-path) says what a k
 | `fr_FR.nonzero-number.three` | invented | `719` | hand-written |
 | `fr_FR.nonzero-number.two` | invented | `71` | hand-written |
 | `fr_FR.paragraph` | invented | `Il faut parfumer des mellahs comminatoirement. I…` | a fixed pattern filled with the locale's words |
-| `fr_FR.person` | real, invented | `Erwan Zanon` | real first and last names from the locale's name tables; the pairing is invented |
+| `fr_FR.person` | real, invented | `Erwan Zerrouk` | real first and last names from the locale's name tables; the pairing is invented |
 | `fr_FR.person.first` | real | `Pascal` | INSEE's Fichier des prénoms |
-| `fr_FR.person.last` | real | `Philippon` | INSEE's Fichier des noms |
+| `fr_FR.person.last` | real | `Piccinelli` | INSEE's Fichier des noms |
 | `fr_FR.person.prefix` | real | `Dr ` | hand-written |
 | `fr_FR.person.sex` | real | `homme` | Eurostat's table demo_pjan |
 | `fr_FR.phone` | valid | `01 99 00 69 55` | Arcep's numbering plan: ranges it doesn't allot, for use in fiction |

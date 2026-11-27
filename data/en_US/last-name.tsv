@@ -8364,6 +8364,8 @@ Czerwinski	2424
 Czerwonka	569
 Czyz	631
 Czyzewski	714
+D'Amico	12966
+Da Silva	13978
 Dabbs	4518
 Dabney	6878
 Dabrowski	2699
@@ -8483,7 +8485,6 @@ Damewood	873
 Damian	4631
 Damiani	1755
 Damiano	2764
-Damico	12966
 Damm	2589
 Damman	677
 Dammann	1265
@@ -8610,7 +8611,6 @@ Dasher	2757
 Dashiell	1536
 Dashnaw	584
 Dashner	842
-Dasilva	13978
 Dass	1077
 Dassow	566
 Date	624
@@ -8690,6 +8690,13 @@ Dayton	8237
 Daza	1296
 Dazey	567
 De	955
+De Jong	5792
+De Witt	25448
+DeGroot	5015
+DeLisle	3887
+DeRose	3921
+DeSantis	9997
+DeYoung	7670
 Dea	1167
 Deacon	3237
 Deady	854
@@ -8877,7 +8884,6 @@ Degree	925
 Degregorio	1717
 Degroat	2520
 Degroff	1246
-Degroot	5015
 Deguire	567
 Deguzman	7487
 Dehaan	3007
@@ -8917,7 +8923,6 @@ Dejarnette	1132
 Dejean	1725
 Dejesus	31803
 Dejohn	1650
-Dejong	5792
 Dejonge	1230
 Dejoseph	584
 Dejulio	581
@@ -9008,7 +9013,6 @@ Delisa	592
 Delise	697
 Delisi	992
 Delisio	643
-Delisle	3887
 Deliz	529
 Delk	4760
 Delker	1682
@@ -9269,7 +9273,6 @@ Deroche	2306
 Derocher	875
 Deroo	767
 Derosa	8210
-Derose	3921
 Derosia	1047
 Derosier	2606
 Derossett	1101
@@ -9297,7 +9300,6 @@ Desalvo	2976
 Desanctis	631
 Desanti	695
 Desantiago	4845
-Desantis	9997
 Desanto	2171
 Desantos	895
 Desaulniers	584
@@ -9449,7 +9451,6 @@ Dewhurst	768
 Dewilde	747
 Dewing	822
 Dewit	801
-Dewitt	25448
 Dewitte	996
 Dewitz	548
 Dewolf	2258
@@ -9461,13 +9462,14 @@ Dexter	9660
 Dey	3596
 Deyo	2893
 Deyoe	585
-Deyoung	7670
 Deyton	690
 Dezarn	731
 Dhaliwal	1818
 Dhanani	533
 Dhar	526
 Dhillon	3068
+DiPaolo	2752
+DiStefano	5980
 Dia	698
 Diab	1084
 Dial	11089
@@ -9727,7 +9729,6 @@ Diorio	3706
 Diosdado	994
 Dipalma	1451
 Dipaola	1828
-Dipaolo	2752
 Dipasquale	2926
 Diperna	607
 Dipiazza	891
@@ -9772,7 +9773,6 @@ Disney	3495
 Dispenza	635
 Dissinger	531
 Distasio	1028
-Distefano	5980
 Distel	882
 Distler	1235
 Ditch	1070
@@ -20504,6 +20504,9 @@ Kyser	3111
 Kyte	1198
 Kyzer	1388
 La	4892
+LaFleur	8852
+LaPorta	1455
+LaRoche	5361
 Laabs	1617
 Laake	501
 Laakso	608
@@ -20614,7 +20617,6 @@ Lafitte	701
 Laflam	546
 Laflamme	3506
 Lafler	723
-Lafleur	8852
 Laflin	609
 Lafollette	2906
 Lafon	1531
@@ -20947,7 +20949,6 @@ Laplume	504
 Lapoint	2836
 Lapointe	8525
 Lapolla	710
-Laporta	1455
 Laporte	7176
 Lapp	6415
 Lappe	941
@@ -20995,7 +20996,6 @@ Larned	574
 Larner	972
 Larocca	4532
 Larocco	1852
-Laroche	5361
 Larochelle	2377
 Larock	2390
 Larocque	2903
@@ -21240,6 +21240,10 @@ Lazzara	1332
 Lazzari	832
 Lazzaro	2246
 Le	77453
+LeBeau	4744
+LeBlanc	40923
+LeDuc	4410
+LeMaster	7593
 Lea	9597
 Leach	43666
 Leachman	1660
@@ -21294,12 +21298,10 @@ Leazer	743
 Lebar	535
 Lebaron	2154
 Lebarron	663
-Lebeau	4744
 Lebeck	532
 Lebel	2310
 Leber	2665
 Lebert	704
-Leblanc	40923
 Lebleu	905
 Leblond	752
 Lebo	2292
@@ -21350,7 +21352,6 @@ Ledlow	897
 Ledo	562
 Ledonne	1148
 Ledoux	5827
-Leduc	4410
 Ledvina	537
 Ledwell	610
 Ledwith	633
@@ -21502,7 +21503,6 @@ Leman	1302
 Lemanski	1825
 Lemar	1016
 Lemarr	515
-Lemaster	7593
 Lemasters	2694
 Lemay	8320
 Lemberg	642
@@ -22750,6 +22750,32 @@ Mabrey	2168
 Mabry	12508
 Mabus	563
 Mac	1859
+MacArthur	3874
+MacBride	870
+MacCallum	810
+MacDonald	45782
+MacDonnell	734
+MacDougall	4143
+MacEachern	795
+MacFarland	1777
+MacFarlane	4437
+MacGregor	5064
+MacInnes	935
+MacIntosh	2353
+MacIntyre	2604
+MacKinnon	4003
+MacLachlan	1157
+MacLaren	1235
+MacLean	7127
+MacLennan	1201
+MacLeod	7542
+MacMahon	511
+MacMillan	5553
+MacNaughton	786
+MacNeil	2865
+MacPherson	5464
+MacQuarrie	663
+MacRae	2284
 Macadam	612
 Macallister	873
 Macaluso	4522
@@ -22757,35 +22783,25 @@ Macaraeg	799
 Macareno	548
 Macari	729
 Macario	830
-Macarthur	3874
 Macaulay	2219
 Macauley	1711
 Macbeth	1019
-Macbride	870
-Maccallum	810
 Maccarone	798
 Macchi	507
 Macchia	1185
 Macconnell	771
 Maccormack	538
-Macdonald	45782
 Macdonell	646
-Macdonnell	734
-Macdougall	4143
 Macdowell	1443
 Macduff	501
 Mace	12114
-Maceachern	795
 Maceda	632
 Macedo	5797
 Macek	1578
 Macewen	514
 Macey	2257
-Macfarland	1777
-Macfarlane	4437
 Macgillivray	805
 Macgowan	513
-Macgregor	5064
 Mach	4770
 Macha	1085
 Machacek	834
@@ -22801,10 +22817,7 @@ Macias	46739
 Maciejewski	2495
 Maciel	8407
 Macik	521
-Macinnes	935
 Macinnis	1002
-Macintosh	2353
-Macintyre	2604
 Macisaac	997
 Maciver	744
 Mack	67154
@@ -22818,7 +22831,6 @@ Mackey	29718
 Mackie	6510
 Mackiewicz	1350
 Mackin	4025
-Mackinnon	4003
 Mackintosh	1045
 Mackley	1272
 Macklin	6592
@@ -22826,31 +22838,19 @@ Macknight	576
 Macko	1871
 Mackowiak	957
 Macks	557
-Maclachlan	1157
-Maclaren	1235
 Maclaughlin	917
-Maclean	7127
 Maclellan	1052
-Maclennan	1201
-Macleod	7542
 Maclin	2356
-Macmahon	511
 Macmaster	801
-Macmillan	5553
 Macmurray	567
 Macnamara	765
-Macnaughton	786
 Macneal	572
-Macneil	2865
 Macneill	1508
 Macomber	3666
 Macon	6592
 Macphail	732
 Macphee	1068
-Macpherson	5464
-Macquarrie	663
 Macqueen	976
-Macrae	2284
 Macri	2658
 Macwilliams	746
 Macy	5217
@@ -27172,6 +27172,27 @@ Nylund	940
 Nyman	2681
 Nyquist	1749
 Nystrom	4051
+O'Brian	3326
+O'Brien	115385
+O'Bryan	6192
+O'Bryant	3770
+O'Conner	4168
+O'Connor	74756
+O'Day	3713
+O'Donnell	42802
+O'Flaherty	1181
+O'Grady	7024
+O'Hagan	1839
+O'Hanlon	1945
+O'Hearn	2664
+O'Keefe	16829
+O'Loughlin	3141
+O'Neal	46161
+O'Neil	28020
+O'Neill	48656
+O'Regan	941
+O'Reilly	11224
+O'Shea	10066
 Oak	932
 Oakes	17008
 Oakey	525
@@ -27216,12 +27237,8 @@ Obradovich	563
 Obrecht	778
 Obregon	4457
 Obremski	513
-Obrian	3326
 Obriant	1229
-Obrien	115385
 Obringer	554
-Obryan	6192
-Obryant	3770
 Obst	628
 Obyrne	1193
 Ocain	663
@@ -27242,11 +27259,8 @@ Ocker	1131
 Ockerman	690
 Ocon	1893
 Oconnell	35610
-Oconner	4168
-Oconnor	74756
 Oda	1747
 Odaniel	2679
-Oday	3713
 Odden	770
 Oddo	2615
 Odea	2927
@@ -27265,7 +27279,6 @@ Odom	33717
 Odoms	1252
 Odonald	578
 Odonnel	580
-Odonnell	42802
 Odonoghue	1767
 Odonohue	627
 Odonovan	1180
@@ -27287,7 +27300,6 @@ Offield	541
 Offner	539
 Offord	1121
 Offutt	2791
-Oflaherty	1181
 Ofori	527
 Ogan	1448
 Ogando	623
@@ -27309,21 +27321,17 @@ Oglesby	12117
 Ogletree	4429
 Ognibene	542
 Ogorman	2390
-Ogrady	7024
 Ogren	2148
 Oguin	515
 Oh	13366
-Ohagan	1839
 Ohair	1024
 Ohalloran	3128
 Ohanian	1013
-Ohanlon	1945
 Ohara	21068
 Ohare	5065
 Oharra	530
 Ohashi	557
 Ohaver	700
-Ohearn	2664
 Ohern	1341
 Ohl	2058
 Ohlendorf	528
@@ -27353,7 +27361,6 @@ Okane	2401
 Okano	502
 Okazaki	1024
 Oke	517
-Okeefe	16829
 Okeeffe	1843
 Okeke	920
 Okelley	2518
@@ -27452,7 +27459,6 @@ Olmos	6985
 Olmstead	7859
 Olmsted	3255
 Olney	3205
-Oloughlin	3141
 Olsen	57357
 Olson	163502
 Olsson	2476
@@ -27479,9 +27485,6 @@ On	1079
 Onan	889
 Onate	1227
 Ondo	660
-Oneal	46161
-Oneil	28020
-Oneill	48656
 Oney	3399
 Ong	7572
 Oniel	604
@@ -27539,10 +27542,8 @@ Orea	860
 Orear	2211
 Orebaugh	539
 Orefice	710
-Oregan	941
 Oregel	871
 Oregon	849
-Oreilly	11224
 Orejel	719
 Orellana	14943
 Orellano	640
@@ -27640,7 +27641,6 @@ Osei	968
 Oser	1155
 Osgood	5999
 Oshaughnessy	3045
-Oshea	10066
 Oshields	1535
 Oshima	697
 Oshiro	3202
@@ -38176,6 +38176,12 @@ Valvano	565
 Valverde	6628
 Valvo	832
 Van	12531
+Van Cleef	530
+Van Duzer	622
+Van Houten	4391
+Van Vliet	1511
+Van Wagner	1731
+VanDyke	16474
 Vana	873
 Vanacker	737
 Vanacore	611
@@ -38203,7 +38209,6 @@ Vancamp	3259
 Vance	45763
 Vancil	1650
 Vancleave	3793
-Vancleef	530
 Vancleve	1578
 Vancott	600
 Vancura	848
@@ -38291,8 +38296,6 @@ Vandunk	698
 Vandusen	3558
 Vanduyn	697
 Vanduyne	884
-Vanduzer	622
-Vandyke	16474
 Vandyken	756
 Vandyne	1432
 Vane	664
@@ -38324,7 +38327,6 @@ Vanhooser	1354
 Vanhoozer	521
 Vanhorn	13716
 Vanhorne	1284
-Vanhouten	4391
 Vanhove	511
 Vanhoy	1614
 Vanhuss	714
@@ -38394,13 +38396,11 @@ Vanvalkenburgh	944
 Vanveen	522
 Vanvleck	687
 Vanvleet	1423
-Vanvliet	1511
 Vanvoorhis	1350
 Vanvoorst	591
 Vanvorst	512
 Vanvranken	534
 Vanwagenen	792
-Vanwagner	1731
 Vanwagoner	1124
 Vanwart	583
 Vanwert	801

@@ -8,7 +8,7 @@ Abadia	427
 Abadie	9662
 Abalain	639
 Abalea	323
-Aballea	529
+Aballéa	529
 Abar	266
 Abarnou	355
 Abassi	450
@@ -52,7 +52,6 @@ Abdou	1179
 Abdoul	371
 Abdoun	244
 Abdul	335
-Abecassis	661
 Abed	1219
 Abegg	206
 Abeille	1051
@@ -118,6 +117,7 @@ Abrousse	292
 Abry	1216
 Absalon	1045
 Abt	785
+Abécassis	661
 Acadine	496
 Acapandie	204
 Acar	565
@@ -184,7 +184,6 @@ Adenet	254
 Adenis	450
 Adenot	605
 Ader	1472
-Ades	217
 Adet	470
 Adeux	230
 Adiasse	214
@@ -215,6 +214,7 @@ Adrian	1649
 Adriansen	327
 Adrien	2174
 Adt	214
+Adès	217
 Aelbrecht	201
 Aernout	439
 Aernouts	284
@@ -257,12 +257,12 @@ Agnel	1007
 Agnelli	318
 Agnello	276
 Agneray	1327
-Agnes	1990
 Agnese	349
 Agniel	1034
 Agnoux	339
 Agnus	768
-Agogue	1232
+Agnès	1990
+Agogué	1232
 Agon	265
 Agopian	494
 Agosta	344
@@ -327,10 +327,10 @@ Ailloud	1040
 Aimable	208
 Aimar	800
 Aimard	804
-Aime	4168
 Aimee	274
 Aimon	266
 Aimond	200
+Aimé	4168
 Ain	214
 Aine	220
 Ains	213
@@ -576,7 +576,6 @@ Allebe	246
 Allec	227
 Allee	725
 Allegaert	203
-Allegre	4531
 Allegret	838
 Allegrini	757
 Allely	404
@@ -592,7 +591,6 @@ Allender	289
 Alleno	411
 Alleon	313
 Alleron	202
-Alles	487
 Allet	476
 Alletru	416
 Allex	236
@@ -606,7 +604,6 @@ Allibert	1415
 Allie	387
 Allienne	272
 Allier	2155
-Allies	484
 Alliet	251
 Alligier	837
 Alligne	212
@@ -622,6 +619,7 @@ Allioux	437
 Allirand	476
 Allirol	532
 Allix	1872
+Alliès	484
 Allo	1160
 Allochon	451
 Alloin	701
@@ -643,18 +641,20 @@ Alloy	559
 Alluard	216
 Alluin	309
 Allusse	223
+Allègre	4531
+Allès	487
 Alma	313
 Almagro	211
 Almar	213
 Almayrac	242
 Almeida	2198
-Almeras	1813
 Almes	201
 Almin	298
 Almodovar	255
 Almon	283
 Almont	330
 Almy	321
+Alméras	1813
 Alnet	333
 Alonso	5359
 Alonzeau	415
@@ -672,8 +672,8 @@ Alpha	258
 Alphand	538
 Alphonse	2456
 Alphonsine	676
-Alquie	283
 Alquier	2290
+Alquié	283
 Alran	324
 Alric	1958
 Alrivie	341
@@ -905,9 +905,7 @@ Andral	773
 Andrau	395
 Andraud	1173
 Andrault	917
-Andre	62715
 Andrea	489
-Andreani	3148
 Andreau	639
 Andree	549
 Andrei	563
@@ -942,6 +940,8 @@ Andron	614
 Androuin	381
 Andry	1087
 Andrzejewski	924
+André	62715
+Andréani	3148
 Andueza	306
 Andujar	288
 Andurand	649
@@ -1017,7 +1017,6 @@ Ankri	228
 Anna	310
 Anne	5870
 Annebicque	313
-Annee	315
 Anneix	260
 Annequin	1016
 Annereau	516
@@ -1032,6 +1031,7 @@ Annonay	235
 Annonier	259
 Annoot	270
 Annovazzi	203
+Année	315
 Anot	218
 Anouilh	293
 Anquet	222
@@ -1213,7 +1213,6 @@ Arduin	720
 Arena	760
 Arenas	976
 Arend	729
-Arene	757
 Ares	208
 Arevalo	358
 Arezki	418
@@ -1244,7 +1243,6 @@ Arhel	214
 Arias	1302
 Aribaud	704
 Aribi	313
-Aries	683
 Arif	486
 Arino	398
 Arioli	305
@@ -1253,6 +1251,7 @@ Aristangele	246
 Aristee	247
 Aristide	248
 Arizzi	283
+Ariès	683
 Arjona	240
 Arla	243
 Arlabosse	458
@@ -1353,7 +1352,7 @@ Arrighi	1984
 Arrignon	375
 Arrigoni	719
 Arrii	213
-Arrive	1731
+Arrivé	1731
 Arrondeau	371
 Arrondel	324
 Arrouet	282
@@ -1379,7 +1378,6 @@ Arthuis	331
 Arthur	1234
 Arthus	463
 Artico	225
-Artieres	302
 Artigas	243
 Artigaud	247
 Artige	295
@@ -1388,6 +1386,7 @@ Artigue	914
 Artigues	967
 Artinian	203
 Artis	814
+Artières	302
 Artois	291
 Artola	418
 Artru	290
@@ -1407,6 +1406,7 @@ Arzalier	362
 Arzel	1116
 Arzul	482
 Arzur	1111
+Arène	757
 Ascencio	257
 Ascione	310
 Ascoet	276
@@ -1456,8 +1456,8 @@ Assous	541
 Ast	528
 Astasie	340
 Astic	655
-Astie	1031
 Astier	8749
+Astié	1031
 Astolfi	740
 Astor	378
 Astorg	553
@@ -1504,7 +1504,6 @@ Aubard	1105
 Aubaret	262
 Aubaud	421
 Aubault	344
-Aube	2979
 Aubel	1289
 Aubeneau	226
 Auber	2103
@@ -1540,7 +1539,6 @@ Aubouin	571
 Aubourg	1701
 Auboyer	206
 Aubras	629
-Aubree	2550
 Aubret	832
 Aubreton	248
 Aubriere	256
@@ -1553,8 +1551,10 @@ Aubron	1047
 Aubruchet	225
 Aubrun	2627
 Aubry	29659
+Aubrée	2550
 Aubugeau	314
 Auburtin	781
+Aubé	2979
 Aucagne	282
 Aucan	216
 Aucante	249
@@ -1651,7 +1651,6 @@ Aufray	469
 Aufrere	1697
 Augagneur	793
 Augay	356
-Auge	6923
 Augeard	910
 Augendre	1360
 Auger	15633
@@ -1683,6 +1682,7 @@ Augusto	1415
 Augustyniak	286
 Auguy	758
 Augy	379
+Augé	6923
 Aujard	753
 Aujean	241
 Aujoulat	629
@@ -1774,12 +1774,12 @@ Autem	276
 Autet	301
 Autexier	430
 Autheman	284
-Authie	703
 Authier	3349
-Autie	388
+Authié	703
 Autier	1357
 Autin	2386
 Autissier	1323
+Autié	388
 Autran	1267
 Autrand	244
 Autreau	254
@@ -1827,7 +1827,6 @@ Avenet	524
 Avenier	288
 Averlant	657
 Averne	203
-Averous	869
 Averseng	406
 Aversenq	413
 Averty	2266
@@ -1866,6 +1865,7 @@ Avrillon	1188
 Avronsart	244
 Avry	316
 Avy	467
+Avérous	869
 Ay	270
 Ayache	1187
 Ayachi	588
@@ -1875,7 +1875,6 @@ Ayala	687
 Ayari	1005
 Ayasse	287
 Ayat	287
-Aycaguer	403
 Aydemir	226
 Aydin	1167
 Aydogan	300
@@ -1886,7 +1885,6 @@ Aygalenq	305
 Ayglon	238
 Aymar	446
 Aymard	4029
-Ayme	2352
 Aymeric	302
 Aymerich	211
 Aymes	964
@@ -1895,6 +1893,7 @@ Aymond	311
 Aymonier	271
 Aymonin	262
 Aymoz	277
+Aymé	2352
 Aynie	276
 Ayot	214
 Ayoub	310
@@ -1904,18 +1903,17 @@ Ayraud	284
 Ayrault	1952
 Ayrinhac	316
 Ayroles	418
-Azais	3094
+Ayçaguer	403
 Azalbert	342
 Azam	1600
 Azambre	311
 Azan	385
 Azard	248
+Azaïs	3094
 Aze	841
 Azeau	260
 Azede	548
 Azelart	215
-Azema	3466
-Azemar	1240
 Azemard	384
 Azerot	316
 Azevedo	1321
@@ -1941,6 +1939,8 @@ Azzopardi	994
 Azzoug	635
 Azzouz	1245
 Azzouzi	397
+Azéma	3466
+Azémar	1240
 Ba	2731
 Baal	256
 Baali	327
@@ -2017,7 +2017,7 @@ Bachmann	1541
 Bachot	275
 Bachy	564
 Back	787
-Backes	570
+Backès	570
 Bacle	1804
 Baclet	1453
 Baco	378
@@ -2034,12 +2034,12 @@ Bacoup	213
 Bacq	713
 Bacquaert	262
 Bacquart	498
-Bacque	1671
 Bacquet	4895
 Bacqueville	598
 Bacquey	486
 Bacquez	202
-Bacquie	363
+Bacquié	363
+Bacqué	1671
 Bacro	347
 Bacrot	236
 Bada	228
@@ -2083,9 +2083,9 @@ Badoual	293
 Badouard	374
 Badoux	794
 Badoz	265
-Badre	740
 Badreau	243
 Badri	599
+Badré	740
 Baduel	1804
 Bady	310
 Baechler	535
@@ -2194,7 +2194,7 @@ Bainville	208
 Bais	457
 Baise	270
 Baisez	260
-Baisnee	308
+Baisnée	308
 Baissac	217
 Baisse	431
 Baisset	229
@@ -2258,7 +2258,6 @@ Baldacchino	727
 Baldacci	603
 Baldassari	448
 Baldauf	421
-Balde	544
 Baldeck	343
 Baldelli	332
 Baldenweck	231
@@ -2272,6 +2271,7 @@ Baldoni	283
 Baldran	216
 Balducci	903
 Baldy	1234
+Baldé	544
 Bale	299
 Baledent	331
 Baleinier	231
@@ -2472,8 +2472,8 @@ Baradji	897
 Baraduc	401
 Baraer	341
 Baraffe	441
-Baraille	536
 Barailler	384
+Baraillé	536
 Barais	350
 Baraka	421
 Barakat	211
@@ -2560,7 +2560,6 @@ Barbera	1123
 Barbereau	1441
 Barberet	1240
 Barberi	492
-Barberis	1167
 Barbero	1648
 Barberon	684
 Barberot	534
@@ -2599,6 +2598,7 @@ Barbry	1108
 Barbu	682
 Barbusse	277
 Barbut	839
+Barbéris	1167
 Barc	380
 Barcat	200
 Barcella	226
@@ -2643,7 +2643,6 @@ Bardyn	271
 Bare	1059
 Barea	255
 Bareau	592
-Barege	685
 Bareil	296
 Bareille	1214
 Bareilles	222
@@ -2655,7 +2654,6 @@ Barencourt	293
 Barenne	218
 Barennes	239
 Barentin	215
-Bares	1608
 Baret	5563
 Bareth	256
 Barets	260
@@ -2683,12 +2681,12 @@ Baricault	311
 Barichard	215
 Baridon	210
 Baril	2223
-Barille	519
 Barilleau	275
 Bariller	904
 Barillet	1283
 Barillon	552
 Barillot	1478
+Barillé	519
 Barin	208
 Bariol	312
 Bariou	462
@@ -2722,7 +2720,6 @@ Barnault	321
 Barnavon	208
 Barnay	1129
 Barneaud	383
-Barneoud	586
 Barneoud-Rousset	215
 Barnes	379
 Barnet	720
@@ -2733,6 +2730,7 @@ Barnole	228
 Barnoud	364
 Barnouin	803
 Barny	727
+Barnéoud	586
 Baro	735
 Baroche	449
 Baroin	915
@@ -2771,7 +2769,7 @@ Barranco	511
 Barrand	458
 Barrandon	591
 Barranger	891
-Barraque	407
+Barraqué	407
 Barras	3063
 Barrat	3026
 Barrau	4670
@@ -2780,7 +2778,6 @@ Barrault	4144
 Barraut	225
 Barraux	558
 Barray	1080
-Barre	25242
 Barreau	11166
 Barreaud	532
 Barreault	259
@@ -2791,8 +2788,6 @@ Barreiro	378
 Barreiros	243
 Barrel	505
 Barrera	459
-Barrere	5272
-Barres	1822
 Barret	11344
 Barreteau	1913
 Barreto	356
@@ -2806,7 +2801,6 @@ Barriat	230
 Barrie	758
 Barrielle	306
 Barrier	6629
-Barriere	8812
 Barrieres	237
 Barrieu	372
 Barril	327
@@ -2820,6 +2814,7 @@ Barriot	215
 Barrioz	219
 Barriquand	354
 Barris	346
+Barrière	8812
 Barro	391
 Barroche	382
 Barrois	3943
@@ -2839,6 +2834,9 @@ Barruel	439
 Barruet	411
 Barruyer	314
 Barry	4430
+Barrère	5272
+Barrès	1822
+Barré	25242
 Bars	974
 Barsacq	914
 Barse	416
@@ -2853,7 +2851,6 @@ Barthe	7532
 Barthel	3043
 Barthelat	232
 Barthelemi	428
-Barthelemy	21693
 Barthelet	854
 Barthelme	597
 Barthelmebs	272
@@ -2872,6 +2869,7 @@ Barthon	202
 Barthou	297
 Barthoulot	495
 Barthoux	432
+Barthélemy	21693
 Bartier	918
 Bartin	217
 Bartkowiak	639
@@ -2897,6 +2895,8 @@ Barut	280
 Barutel	256
 Bary	885
 Barzic	524
+Barège	685
+Barès	1608
 Bas	3118
 Bascans	318
 Basch	241
@@ -2910,10 +2910,10 @@ Basile	2079
 Basille	981
 Basin	679
 Basire	400
-Basle	1622
 Basler	345
 Basley	366
 Basly	350
+Baslé	1622
 Basmaison	421
 Basnier	524
 Baspin	208
@@ -2965,12 +2965,12 @@ Bastiat	313
 Bastid	527
 Bastida	267
 Bastide	7791
-Bastie	1556
 Bastien	10359
 Bastier	1007
 Bastin	2014
 Bastion	321
 Bastit	429
+Bastié	1556
 Baston	208
 Bastos	556
 Bastouil	255
@@ -3136,11 +3136,11 @@ Baudy	1564
 Baue	268
 Bauer	12334
 Baufreton	251
-Bauge	1575
 Bauget	316
 Baugey	256
 Baugier	204
 Bauguil	441
+Baugé	1575
 Baujard	968
 Bauland	455
 Baulard	569
@@ -3204,7 +3204,7 @@ Bavent	202
 Baverel	1309
 Baverey	334
 Baveux	332
-Baviere	682
+Bavière	682
 Bavol	347
 Bavoux	573
 Bavouzet	393
@@ -3266,10 +3266,8 @@ Bazzo	216
 Bazzoli	203
 Be	301
 Beague	376
-Beal	5358
 Beard	619
 Bearez	240
-Beasse	1457
 Beatrix	1111
 Beau	7169
 Beaubeau	275
@@ -3287,10 +3285,10 @@ Beauchard	391
 Beauchaud	293
 Beauche	249
 Beauchef	278
-Beauchene	981
 Beaucher	413
 Beauchesne	339
 Beauchet	1490
+Beauchêne	981
 Beauclair	839
 Beaucourt	1846
 Beaucousin	582
@@ -3323,7 +3321,6 @@ Beaufour	737
 Beaufrere	1442
 Beaufreton	753
 Beaufume	289
-Beauge	1194
 Beaugeard	648
 Beaugendre	1864
 Beaugeois	405
@@ -3331,6 +3328,7 @@ Beauger	961
 Beauget	243
 Beaugier	280
 Beaugrand	3011
+Beaugé	1194
 Beauhaire	377
 Beaujard	1945
 Beaujault	218
@@ -3366,8 +3364,8 @@ Beaupied	772
 Beaupin	222
 Beauplet	281
 Beaupoil	353
-Beaupre	209
 Beauprez	259
+Beaupré	209
 Beaupuis	206
 Beaupuy	420
 Beauquel	212
@@ -3420,8 +3418,6 @@ Becam	831
 Becamel	447
 Becan	261
 Becar	440
-Becard	1019
-Becart	1687
 Becasse	524
 Becat	241
 Becaud	750
@@ -3434,21 +3430,18 @@ Becerra	390
 Bech	561
 Bechade	1070
 Bechar	323
-Bechard	1403
 Bechaud	216
 Beche	1220
 Bechennec	391
 Becher	532
 Bechereau	399
 Becherel	247
-Bechet	3803
 Bechir	387
 Bechler	534
 Bechon	495
 Becht	465
 Bechtel	511
 Bechtold	340
-Bechu	2041
 Beck	9369
 Beckaert	242
 Becker	14527
@@ -3456,7 +3449,6 @@ Beckerich	438
 Beckert	343
 Beckrich	525
 Beclin	478
-Becot	1272
 Becoulet	318
 Becourt	1474
 Becouze	519
@@ -3484,7 +3476,6 @@ Bedere	233
 Bedet	640
 Bedez	609
 Bedfert	211
-Bedier	918
 Bedin	1691
 Bedini	209
 Bedjaoui	234
@@ -3499,7 +3490,6 @@ Bedot	476
 Bedou	367
 Bedouch	205
 Bedouet	2398
-Bedouin	638
 Bedouret	518
 Bedrossian	486
 Bedu	3504
@@ -3533,24 +3523,17 @@ Begnis	413
 Bego	331
 Begoc	837
 Begoin	262
-Begon	1969
 Begot	1596
 Begou	851
 Begouin	433
 Begout	206
 Begrand	244
 Begu	398
-Begue	14274
-Beguerie	406
-Beguet	1087
-Beguier	884
-Beguin	6420
 Beguinot	402
 Behaegel	237
 Behaghel	225
 Behague	1518
 Behal	396
-Behar	893
 Behe	230
 Beherec	216
 Behier	412
@@ -3576,7 +3559,6 @@ Beis	212
 Beitz	239
 Bejaoui	794
 Bejean	375
-Bejot	587
 Bejuy	242
 Bekaert	1072
 Bekhouche	218
@@ -3593,7 +3575,6 @@ Belabbes	350
 Belabed	282
 Belahcene	221
 Belaiche	256
-Belaid	1643
 Belaidi	753
 Belair	2379
 Belal	282
@@ -3601,7 +3582,6 @@ Belalia	204
 Belamri	262
 Belamy	265
 Belan	748
-Belanger	808
 Belarbi	1584
 Belard	964
 Belardi	219
@@ -3611,6 +3591,7 @@ Belaud	1796
 Belaval	324
 Belay	562
 Belaygue	238
+Belaïd	1643
 Belbachir	596
 Belbeoch	425
 Belbeze	343
@@ -3671,7 +3652,6 @@ Bell	675
 Bella	575
 Bellagamba	368
 Bellahcene	675
-Bellaiche	1112
 Bellair	323
 Bellaire	408
 Bellais	438
@@ -3693,6 +3673,7 @@ Bellavoine	656
 Bellavoir	206
 Bellay	1134
 Bellayer	300
+Bellaïche	1112
 Belle	2915
 Belleau	715
 Bellec	6836
@@ -3876,7 +3857,6 @@ Benabdelmoumene	240
 Benabderrahmane	308
 Benaben	365
 Benabid	301
-Benac	863
 Benachour	386
 Benad	245
 Benaddi	208
@@ -3899,12 +3879,10 @@ Benand	254
 Benaouda	482
 Benarab	201
 Benarbia	443
-Benard	23390
 Benardeau	317
 Benas	486
 Benassi	340
 Benassis	261
-Benassy	379
 Benat	336
 Benatre	260
 Benattia	256
@@ -3917,7 +3895,6 @@ Benay	493
 Benayad	303
 Benayoun	540
 Benazech	587
-Benazet	1832
 Benazeth	532
 Benaziza	257
 Benazouz	202
@@ -3956,7 +3933,6 @@ Benel	381
 Benes	260
 Benesse	331
 Benesteau	395
-Benet	2857
 Beneteau	3652
 Benetiere	485
 Beneton	564
@@ -3980,7 +3956,6 @@ Benhamida	462
 Benhammou	524
 Benhamou	2164
 Beni	208
-Benichou	1641
 Benicourt	679
 Benielli	216
 Benier	1300
@@ -4074,21 +4049,15 @@ Beolet	260
 Beon	242
 Bepoix	261
 Beque	291
-Bequet	1766
 Bequie	226
 Bequignon	393
 Bequin	568
 Ber	256
-Bera	911
 Berail	308
 Beral	832
-Beranger	4679
-Berard	10877
 Berardet	256
 Berardi	800
 Berardo	335
-Berat	677
-Beraud	6609
 Beraudo	227
 Berault	475
 Beraut	239
@@ -4132,7 +4101,6 @@ Bereau	967
 Bereaux	516
 Berehouc	231
 Berel	311
-Berenger	3138
 Berenguer	1231
 Berenguier	933
 Bereni	335
@@ -4166,14 +4134,12 @@ Bergerard	207
 Bergeras	222
 Bergerat	794
 Bergerault	273
-Bergere	1481
 Bergereau	240
 Bergeret	3086
 Bergero	267
 Bergeron	6419
 Bergerot	1479
 Bergery	310
-Berges	3835
 Berget	512
 Bergevin	209
 Bergey	731
@@ -4199,6 +4165,8 @@ Bergoz	269
 Bergua	281
 Bergue	665
 Bergues	275
+Bergère	1481
+Bergès	3835
 Berhault	1926
 Berhaut	252
 Berho	431
@@ -4227,7 +4195,6 @@ Berlemont	1281
 Berlet	399
 Berleux	274
 Berliat	264
-Berlie	220
 Berlier	742
 Berliet	311
 Berlin	744
@@ -4235,6 +4202,7 @@ Berling	385
 Berlioux	333
 Berlioz	1891
 Berlivet	417
+Berlié	220
 Berloquin	202
 Berlot	783
 Berlu	429
@@ -4248,8 +4216,8 @@ Bermont	552
 Bermude	242
 Bermudez	545
 Berna	1723
-Bernabe	1620
 Bernabeu	797
+Bernabé	1620
 Bernachot	238
 Bernad	843
 Bernadac	804
@@ -4292,13 +4260,11 @@ Bernazeau	208
 Berndt	221
 Berne	4936
 Berneau	793
-Bernede	1552
 Bernelas	317
 Berner	295
 Bernerd	311
 Berneron	826
 Bernert	310
-Bernes	776
 Bernet	3408
 Bernez	310
 Bernhard	2581
@@ -4308,7 +4274,6 @@ Bernheim	505
 Berni	359
 Berniard	352
 Bernicot	688
-Bernie	337
 Bernier	14369
 Berniere	683
 Bernigaud	1382
@@ -4316,6 +4281,7 @@ Bernillon	304
 Bernin	335
 Bernini	307
 Bernis	810
+Bernié	337
 Bernolin	229
 Bernollin	530
 Bernon	2163
@@ -4329,10 +4295,11 @@ Bernstein	232
 Bernuchon	242
 Bernus	395
 Berny	1026
+Bernède	1552
+Bernès	776
 Berod	244
 Berodier	270
 Beron	500
-Berot	1038
 Beroud	1111
 Beroudiaux	215
 Beroujon	399
@@ -4416,7 +4383,6 @@ Berthebaud	447
 Berthel	434
 Berthele	419
 Bertheleme	258
-Berthelemy	1668
 Berthelet	564
 Berthelier	1541
 Berthelin	1625
@@ -4430,7 +4396,7 @@ Berthereau	687
 Berthet	10744
 Bertheux	261
 Berthevas	272
-Berthezene	487
+Berthezène	487
 Berthias	389
 Berthiaud	437
 Berthier	13121
@@ -4450,11 +4416,11 @@ Berthollet	826
 Bertholo	231
 Bertholom	548
 Bertholon	1154
-Berthome	2869
 Berthomier	1299
 Berthomieu	1260
 Berthomme	278
 Berthommier	581
+Berthomé	2869
 Berthon	6101
 Berthonneau	1463
 Berthonnet	283
@@ -4470,6 +4436,7 @@ Berthoux	667
 Berthuin	212
 Berthuit	371
 Berthy	706
+Berthélemy	1668
 Berti	817
 Bertiaux	541
 Bertic	309
@@ -4530,11 +4497,10 @@ Berviller	253
 Bervin	216
 Bery	709
 Berzin	244
-Bes	2910
 Besacier	511
 Besancenot	603
-Besancon	4561
 Besanger	204
+Besançon	4561
 Besch	261
 Besche	339
 Bescher	322
@@ -4568,7 +4534,7 @@ Besse	13195
 Besseas	267
 Besseau	1662
 Bessede	701
-Besselievre	499
+Besselièvre	499
 Bessemoulin	324
 Bessenay	473
 Besserer	206
@@ -4580,10 +4546,10 @@ Bessey	285
 Besseyre	619
 Besseyrias	227
 Bessi	367
-Bessiere	4522
-Bessieres	2008
 Bessin	1140
 Bessis	245
+Bessière	4522
+Bessières	2008
 Bessodes	316
 Besson	25717
 Bessone	612
@@ -4601,7 +4567,6 @@ Betard	428
 Betat	218
 Betbeder	638
 Betbeze	236
-Beteille	1019
 Betemps	789
 Betend	366
 Beth	394
@@ -4611,7 +4576,6 @@ Bethon	226
 Bethouart	371
 Bethoux	213
 Bethuel	288
-Bethune	1016
 Bethus	326
 Betin	787
 Betis	487
@@ -4748,7 +4712,6 @@ Bezamat	276
 Bezancon	584
 Bezanger	351
 Bezannier	348
-Bezard	2850
 Bezaud	376
 Bezault	1052
 Beze	535
@@ -4758,13 +4721,9 @@ Bezes	343
 Bezet	352
 Beziade	484
 Bezian	249
-Beziat	2276
-Beziau	639
 Beziaud	452
 Bezie	555
 Beziel	319
-Bezier	2154
-Beziers	337
 Bezille	324
 Bezin	1107
 Bezombes	657
@@ -4772,7 +4731,6 @@ Bezon	272
 Bezot	251
 Bezoteaux	280
 Bezu	227
-Bezy	868
 Bezzaouya	206
 Bhiki	215
 Bia	342
@@ -4881,7 +4839,7 @@ Bielle	614
 Biellmann	290
 Bielsa	334
 Bien	538
-Bienaime	2919
+Bienaimé	2919
 Bienassis	415
 Biencourt	668
 Biendine	278
@@ -4990,7 +4948,6 @@ Billault	1714
 Billaut	1223
 Billaux	750
 Billay	255
-Bille	1313
 Billeau	488
 Billeaud	304
 Billebault	544
@@ -5019,7 +4976,7 @@ Billod	627
 Billoir	787
 Billois	465
 Billon	8506
-Billore	509
+Billoré	509
 Billot	4442
 Billotet	750
 Billotte	598
@@ -5028,6 +4985,7 @@ Billoud	672
 Billoue	233
 Billoux	583
 Billy	5182
+Billé	1313
 Bilon	665
 Bilot	534
 Bilquez	379
@@ -5086,7 +5044,6 @@ Birba	824
 Birbes	306
 Birck	218
 Birckel	340
-Bire	811
 Bireau	272
 Birebent	369
 Biree	377
@@ -5109,6 +5066,7 @@ Birraux	388
 Birre	249
 Birrien	258
 Biry	325
+Biré	811
 Bis	429
 Bisbau	300
 Biscaras	266
@@ -5129,8 +5087,8 @@ Bissay	316
 Bisschop	229
 Bisserier	686
 Bissey	460
-Bissiere	656
 Bissieres	281
+Bissière	656
 Bisson	8471
 Bissonnet	335
 Bissonnier	747
@@ -5175,10 +5133,10 @@ Bizouerne	302
 Bizzari	253
 Blache	3466
 Blacher	363
-Blachere	1991
 Blachet	200
 Blachier	1186
 Blachon	2242
+Blachère	1991
 Black	321
 Bladier	232
 Bladou	344
@@ -5254,11 +5212,11 @@ Blanluet	330
 Blanot	295
 Blanpain	1480
 Blanquart	2964
-Blanque	385
 Blanquer	283
 Blanquet	3406
 Blanquier	237
 Blanquin	218
+Blanqué	385
 Blanrue	244
 Blanvillain	903
 Blanzat	299
@@ -5305,17 +5263,14 @@ Ble	520
 Bleas	723
 Bleau	262
 Bled	1645
-Bleger	241
 Blehaut	527
 Bleicher	366
 Blein	1455
 Blemand	276
 Blenet	280
 Blenner	253
-Bleriot	1319
 Bleron	218
 Blervaque	860
-Blery	493
 Blestel	431
 Blet	1348
 Bleton	632
@@ -5385,8 +5340,8 @@ Blosse	375
 Blossier	1003
 Blot	15037
 Blotiere	292
-Blottiere	841
 Blottin	258
+Blottière	841
 Bloudeau	375
 Blouet	2044
 Blouin	3980
@@ -5406,6 +5361,9 @@ Blusseau	436
 Blusson	233
 Bluteau	1726
 Bluzat	315
+Bléger	241
+Blériot	1319
+Bléry	493
 Bo	434
 Boa	304
 Boban	378
@@ -5452,8 +5410,8 @@ Bochu	849
 Bock	1644
 Bockhorni	223
 Bockstal	239
-Bocle	288
 Boclet	726
+Boclé	288
 Bocognano	299
 Bocourt	211
 Bocquel	993
@@ -5481,7 +5439,6 @@ Bodelot	417
 Boden	206
 Bodenan	620
 Bodenes	969
-Bodenez	204
 Bodennec	453
 Bodere	595
 Bodereau	1479
@@ -5508,6 +5465,7 @@ Bodrero	218
 Bodros	238
 Bodson	581
 Body	1275
+Bodénez	204
 Boe	1008
 Boeda	268
 Boedec	889
@@ -5672,11 +5630,11 @@ Boisset	3610
 Boisseuil	236
 Boissie	358
 Boissier	3617
-Boissiere	3904
 Boissieres	513
 Boissieux	294
 Boissin	1470
 Boissinot	3000
+Boissière	3904
 Boisson	9171
 Boissonnade	1094
 Boissonneau	342
@@ -5754,7 +5712,7 @@ Bolliet	408
 Bollinger	626
 Bollini	331
 Bollon	643
-Bollore	600
+Bolloré	600
 Bollot	272
 Bollotte	307
 Bolmont	844
@@ -5897,10 +5855,10 @@ Bonna	220
 Bonnabaud	453
 Bonnabel	347
 Bonnac	232
-Bonnafe	579
 Bonnaffoux	446
 Bonnafous	2924
 Bonnafoux	1514
+Bonnafé	579
 Bonnaillie	529
 Bonnaire	2606
 Bonnal	2308
@@ -5929,7 +5887,7 @@ Bonne	3299
 Bonneau	17830
 Bonneaud	1145
 Bonnec	370
-Bonnecarrere	319
+Bonnecarrère	319
 Bonnecaze	344
 Bonnechere	244
 Bonnefille	664
@@ -5978,7 +5936,6 @@ Bonnichon	1121
 Bonnici	215
 Bonniec	416
 Bonnier	3951
-Bonniere	1019
 Bonnieu	346
 Bonnieux	245
 Bonnifait	396
@@ -5994,6 +5951,7 @@ Bonnisseau	200
 Bonnissent	406
 Bonnissol	205
 Bonnivard	480
+Bonnière	1019
 Bonno	907
 Bonnomet	235
 Bonnot	6957
@@ -6067,7 +6025,6 @@ Bordenave	3199
 Bordeneuve	348
 Bordere	272
 Bordereau	539
-Borderes	551
 Borderie	1997
 Borderies	280
 Borderieux	459
@@ -6089,7 +6046,7 @@ Bordon	409
 Bordot	282
 Bordron	987
 Bordy	545
-Bore	2258
+Bordères	551
 Boree	267
 Borel	8928
 Borella	438
@@ -6178,6 +6135,7 @@ Borval	308
 Bory	1976
 Borys	217
 Borzeix	203
+Boré	2258
 Bos	3829
 Bosc	7663
 Bosca	324
@@ -6225,9 +6183,9 @@ Bosserelle	282
 Bossert	937
 Bosset	742
 Bossi	549
-Bossiere	365
 Bossion	237
 Bossis	1404
+Bossière	365
 Bosso	242
 Bosson	2099
 Bossoutrot	467
@@ -6314,7 +6272,6 @@ Boubaker	365
 Boubal	203
 Boubault	233
 Boube	481
-Boubee	458
 Boubekeur	565
 Boubel	299
 Boubennec	246
@@ -6323,6 +6280,7 @@ Boubet	1207
 Boubon	265
 Bouboune	284
 Bouby	528
+Boubée	458
 Bouc	830
 Boucabeille	265
 Boucansaud	223
@@ -6356,7 +6314,6 @@ Bouchart	1612
 Bouchat	276
 Bouchaud	3098
 Bouchaut	367
-Bouche	9454
 Boucheix	495
 Bouchelaghem	239
 Bouchendhomme	322
@@ -6391,6 +6348,7 @@ Bouchoux	622
 Bouchu	469
 Bouchut	1418
 Bouchy	1035
+Bouché	9454
 Boucif	248
 Bouckaert	602
 Bouckenooghe	257
@@ -6468,7 +6426,6 @@ Boudrot	267
 Boudry	1378
 Boudsocq	464
 Boudy	1222
-Boue	5495
 Bouedec	354
 Bouedo	562
 Boueilh	397
@@ -6521,13 +6478,13 @@ Boughazi	307
 Bougherara	317
 Bougie	351
 Bougis	336
-Bougle	329
+Bouglé	329
 Bougnol	222
 Bougnon	238
 Bougnoux	273
 Bougon	1607
 Bougot	466
-Bougouin	881
+Bougoüin	881
 Bougras	257
 Bougrat	332
 Bougreau	521
@@ -6569,7 +6526,6 @@ Bouillard	2511
 Bouillaud	1794
 Bouillault	256
 Bouillaut	213
-Bouille	2196
 Bouilleau	245
 Bouiller	1220
 Bouillere	285
@@ -6586,6 +6542,7 @@ Bouillot	4437
 Bouilloud	252
 Bouilloux	989
 Bouilly	1919
+Bouillé	2196
 Bouin	3594
 Bouis	1117
 Bouisset	1721
@@ -6618,9 +6575,9 @@ Boulais	1723
 Boulan	921
 Bouland	1792
 Boulandet	223
-Boulange	1576
 Boulangeot	344
 Boulanger	24602
+Boulangé	1576
 Boulanouar	319
 Boulant	1703
 Boularand	332
@@ -6675,7 +6632,6 @@ Boulland	732
 Boullanger	385
 Boullard	606
 Boullay	707
-Boulle	3191
 Boulleaux	370
 Boullen	272
 Boullenger	450
@@ -6686,6 +6642,7 @@ Boullier	1601
 Boullin	202
 Boullot	399
 Boully	1311
+Boullé	3191
 Boulme	470
 Boulmer	213
 Boulmier	752
@@ -6810,12 +6767,10 @@ Bourduge	278
 Bourdy	922
 Boure	1442
 Boureau	3082
-Bouree	242
 Boureille	509
 Bourel	3551
 Bourelle	238
 Bourelly	554
-Bourely	341
 Bouret	1874
 Bourette	259
 Bourey	252
@@ -6899,7 +6854,6 @@ Bourjon	202
 Bourjot	243
 Bourland	495
 Bourlard	746
-Bourles	903
 Bourlet	2894
 Bourliaud	264
 Bourlier	2443
@@ -6907,6 +6861,7 @@ Bourlioux	201
 Bourlon	2034
 Bourlot	490
 Bourly	272
+Bourlès	903
 Bourmaud	1410
 Bourmault	589
 Bournac	265
@@ -6983,6 +6938,8 @@ Bourvic	280
 Boury	3895
 Bourzat	264
 Bourzeix	494
+Bourée	242
+Bourély	341
 Bous	488
 Bouscarle	372
 Bouscary	378
@@ -7160,7 +7117,7 @@ Bouyrie	351
 Bouysse	634
 Bouysset	448
 Bouyssi	302
-Bouyssie	244
+Bouyssié	244
 Bouyssonnie	309
 Bouyssou	3448
 Bouzanquet	213
@@ -7183,6 +7140,7 @@ Bouzit	253
 Bouzon	1048
 Bouzou	576
 Bouzy	540
+Boué	5495
 Bova	258
 Bovagne	202
 Bovagnet	421
@@ -7205,7 +7163,6 @@ Boyat	515
 Boyault	269
 Boyaux	212
 Boyaval	1391
-Boye	2679
 Boyeau	497
 Boyeldieu	598
 Boyenval	648
@@ -7217,6 +7174,7 @@ Boyon	713
 Boyot	299
 Boyrie	543
 Boyron	307
+Boyé	2679
 Boz	306
 Bozec	2652
 Bozier	490
@@ -7231,7 +7189,7 @@ Bozzolo	283
 Braban	550
 Brabant	3692
 Brac	357
-Brac de La Perriere	232
+Brac de La Perrière	232
 Bracchi	239
 Braccini	260
 Bracco	1041
@@ -7279,7 +7237,7 @@ Bralet	219
 Bramard	334
 Brame	707
 Brami	783
-Bramoulle	679
+Bramoullé	679
 Brana	613
 Branca	492
 Brancard	268
@@ -7368,24 +7326,18 @@ Brayet	351
 Braz	664
 Brazier	1098
 Brazy	338
-Bre	472
-Breal	298
 Brean	200
 Breant	3350
-Breard	3123
 Breart	438
 Breau	787
 Breaud	225
 Breban	426
-Brebant	1497
 Brebel	348
-Brebion	4081
 Brec	249
 Brechard	660
 Breche	306
 Brechemier	305
 Brechenmacher	548
-Brechet	2062
 Brecheteau	327
 Brechoire	291
 Brechon	389
@@ -7414,7 +7366,6 @@ Bregeard	319
 Bregeat	294
 Bregeault	218
 Bregent	414
-Bregeon	2825
 Bregeot	293
 Breger	969
 Bregeras	230
@@ -7426,8 +7377,6 @@ Brehault	201
 Brehaut	453
 Brehelin	206
 Breheret	1165
-Brehier	1386
-Brehin	955
 Brehinier	241
 Brehm	387
 Brehon	546
@@ -7446,13 +7395,10 @@ Breleur	352
 Brelivet	1173
 Brelle	366
 Brelot	352
-Bremand	679
 Bremard	384
 Bremaud	1982
 Breme	310
 Brement	700
-Bremond	5024
-Bremont	1553
 Brena	459
 Brenac	448
 Brenas	436
@@ -7476,10 +7422,8 @@ Brennus	363
 Brenon	1047
 Brenot	2646
 Brenugat	262
-Breon	216
 Breque	210
 Brequigny	313
-Bres	2807
 Bresch	325
 Brescia	201
 Bresciani	389
@@ -7523,7 +7467,7 @@ Breton	26055
 Bretonneau	508
 Bretonnet	549
 Bretonnier	224
-Bretonniere	843
+Bretonnière	843
 Bretou	291
 Brette	1287
 Brettes	516
@@ -7554,7 +7498,7 @@ Brevard	268
 Brevart	263
 Brevet	2555
 Brevier	488
-Breviere	655
+Brevière	655
 Brevot	261
 Brexel	215
 Brey	254
@@ -7565,14 +7509,12 @@ Breysse	2948
 Breyton	696
 Breze	518
 Brezel	265
-Brezillon	274
 Briais	451
 Brial	666
 Brialix	232
 Brian	633
 Brianceau	614
 Brianchon	720
-Briancon	1194
 Briand	21228
 Briandet	205
 Briane	288
@@ -7580,6 +7522,7 @@ Brianne	216
 Briant	3856
 Briantais	610
 Brianto	259
+Briançon	1194
 Briard	3589
 Brias	382
 Briat	1304
@@ -7631,7 +7574,6 @@ Brienne	783
 Briens	1366
 Brient	1260
 Brier	854
-Briere	8366
 Brierre	383
 Briet	3022
 Brieu	803
@@ -7711,7 +7653,6 @@ Bris	1081
 Brisard	1422
 Brisbart	284
 Brischoux	345
-Brise	351
 Brisebard	368
 Brisebarre	237
 Brisepierre	228
@@ -7740,6 +7681,7 @@ Bristiel	359
 Bristol	228
 Brisville	241
 Briswalter	286
+Brisé	351
 Brito	512
 Briton	217
 Britz	241
@@ -7755,6 +7697,7 @@ Brizet	269
 Brizion	405
 Brizon	242
 Brizzi	303
+Brière	8366
 Bro	544
 Brobecker	335
 Broc	1755
@@ -7941,7 +7884,6 @@ Brudey	545
 Brudieux	208
 Brudy	234
 Bruel	4032
-Bruere	1391
 Bruet	1155
 Bruey	400
 Bruez	286
@@ -7949,21 +7891,21 @@ Brueziere	201
 Bruge	562
 Brugeaud	256
 Brugel	607
-Brugere	1676
 Brugerolle	206
 Brugeron	461
 Bruggeman	479
 Brugger	614
 Brugidou	373
 Brugier	1026
-Brugiere	1900
 Brugiroux	254
+Brugière	1900
 Brugneaux	364
 Brugnon	909
 Brugnot	419
 Bruguet	375
 Bruguier	714
-Bruguiere	852
+Bruguière	852
+Brugère	1676
 Bruhat	879
 Bruhier	372
 Bruhl	272
@@ -7971,7 +7913,6 @@ Bruillot	208
 Brulant	420
 Brulard	901
 Brulat	302
-Brule	6017
 Brulebois	283
 Brulet	392
 Bruley	1322
@@ -7982,6 +7923,7 @@ Brulois	309
 Brulon	506
 Brulport	223
 Brulu	349
+Brulé	6017
 Brumaud	242
 Brument	1379
 Brumm	342
@@ -8002,7 +7944,7 @@ Brunelin	315
 Brunella	234
 Brunelle	1742
 Brunelli	452
-Brunelliere	512
+Brunellière	512
 Brunello	390
 Brunelot	274
 Brunerie	597
@@ -8063,16 +8005,17 @@ Bruyas	1540
 Bruyat	557
 Bruyelle	462
 Bruyer	930
-Bruyere	7878
 Bruyeres	203
 Bruyez	237
 Bruyneel	443
+Bruyère	7878
 Bruzac	389
 Bruzaud	259
 Bruzeau	388
 Bruzy	207
 Bruzzese	236
 Bruzzi	244
+Bruère	1391
 Bry	2273
 Bryan	271
 Bryche	252
@@ -8080,6 +8023,21 @@ Brygo	211
 Bryon	393
 Brzezinski	346
 Brzozowski	208
+Brès	2807
+Bré	472
+Bréal	298
+Bréard	3123
+Brébant	1497
+Brébion	4081
+Bréchet	2062
+Brégeon	2825
+Bréhier	1386
+Bréhin	955
+Brémand	679
+Brémond	5024
+Brémont	1553
+Bréon	216
+Brézillon	274
 Buaillon	277
 Buan	543
 Buannic	402
@@ -8136,7 +8094,6 @@ Budon	348
 Bue	887
 Bueb	370
 Buecher	621
-Buee	668
 Buendia	267
 Bueno	1165
 Buet	1765
@@ -8152,8 +8109,8 @@ Buffet	5993
 Buffeteau	551
 Buffetrille	212
 Buffier	317
-Buffiere	1086
 Buffin	623
+Buffière	1086
 Buffon	318
 Buffy	238
 Bugada	254
@@ -8207,7 +8164,6 @@ Buland	342
 Bulant	266
 Bulard	629
 Bulcourt	599
-Buleon	478
 Bulet	385
 Buleux	237
 Buliard	235
@@ -8228,6 +8184,7 @@ Bultez	1886
 Bultot	216
 Bulut	642
 Bulver	236
+Buléon	478
 Bun	240
 Bund	276
 Bunel	4387
@@ -8292,8 +8249,8 @@ Burgos	990
 Burgot	606
 Burgues	227
 Burguet	833
-Burguiere	953
 Burguin	618
+Burguière	953
 Burgun	1218
 Burgunder	662
 Burgy	854
@@ -8374,8 +8331,8 @@ Busserolles	311
 Busset	670
 Busseuil	486
 Bussi	672
-Bussiere	3515
 Bussieres	300
+Bussière	3515
 Busso	343
 Busson	6498
 Bussone	248
@@ -8435,8 +8392,51 @@ Buzin	459
 Buzon	666
 Buzy	452
 Buzzi	500
+Buée	668
 Byl	298
 Byram	212
+Bègue	14274
+Bès	2910
+Béal	5358
+Béasse	1457
+Bécard	1019
+Bécart	1687
+Béchard	1403
+Béchet	3803
+Béchu	2041
+Bécot	1272
+Bédier	918
+Bédouin	638
+Bégon	1969
+Béguerie	406
+Béguet	1087
+Béguier	884
+Béguin	6420
+Béhar	893
+Béjot	587
+Bélanger	808
+Bénac	863
+Bénard	23390
+Bénassy	379
+Bénazet	1832
+Bénet	2857
+Bénichou	1641
+Béquet	1766
+Béra	911
+Béranger	4679
+Bérard	10877
+Bérat	677
+Béraud	6609
+Bérenger	3138
+Bérot	1038
+Béteille	1019
+Béthune	1016
+Bézard	2850
+Béziat	2276
+Béziau	639
+Bézier	2154
+Béziers	337
+Bézy	868
 Cabaillot	230
 Cabal	716
 Caballe	302
@@ -8532,12 +8532,10 @@ Cadart	1679
 Cadas	268
 Caddeo	225
 Cade	1098
-Cadeac	207
 Cadeau	1967
 Cadec	365
 Cadel	716
 Cadenat	452
-Cadene	952
 Cadenel	392
 Cadenet	460
 Cadet	11638
@@ -8575,9 +8573,9 @@ Cadu	366
 Caduc	294
 Cadudal	324
 Cady	615
-Cael	590
+Cadène	952
+Cadéac	207
 Caen	499
-Caer	683
 Caetano	884
 Cafe	319
 Caffa	324
@@ -8589,7 +8587,6 @@ Caffin	1168
 Caffort	214
 Caffray	242
 Caffy	237
-Cage	415
 Caget	204
 Cagin	304
 Cagna	393
@@ -8607,6 +8604,7 @@ Cagnol	292
 Cagnon	1433
 Cagnot	208
 Cagny	352
+Cagé	415
 Cahagne	522
 Cahard	539
 Caharel	342
@@ -8675,7 +8673,6 @@ Cairo	584
 Cairon	444
 Caisso	285
 Caisson	319
-Caitucoli	207
 Caius	204
 Caiveau	465
 Caix	237
@@ -8718,7 +8715,6 @@ Calendini	545
 Calendrier	219
 Calenge	221
 Calero	286
-Cales	495
 Calesse	266
 Calet	240
 Cali	315
@@ -8750,7 +8746,6 @@ Calleau	357
 Callebaut	341
 Callebout	214
 Callec	550
-Callede	461
 Callegari	587
 Calleja	458
 Callejon	458
@@ -8771,9 +8766,9 @@ Calloud	395
 Callu	753
 Calluaud	229
 Cally	536
+Callède	461
 Calmard	286
 Calme	546
-Calmejane	680
 Calmel	1328
 Calmels	3357
 Calmes	1169
@@ -8784,6 +8779,7 @@ Calmo	338
 Calmon	1081
 Calmont	274
 Calmus	562
+Calméjane	680
 Calo	285
 Calogine	335
 Caloin	1009
@@ -8805,7 +8801,6 @@ Calvarin	751
 Calvary	317
 Calvat	299
 Calvayrac	878
-Calve	336
 Calvel	748
 Calves	507
 Calvet	7785
@@ -8818,8 +8813,10 @@ Calvignac	653
 Calvin	437
 Calvo	2467
 Calvy	306
+Calvé	336
 Caly	292
 Calzada	233
+Calès	495
 Cam	1815
 Camacho	1245
 Camail	393
@@ -9251,7 +9248,6 @@ Cardot	3846
 Cardouat	302
 Cardron	223
 Carduner	606
-Care	1167
 Careddu	227
 Careil	261
 Carel	2993
@@ -9389,7 +9385,6 @@ Carraud	493
 Carrayrou	206
 Carraz	785
 Carraze	241
-Carre	29318
 Carreau	2826
 Carree	876
 Carrega	236
@@ -9399,7 +9394,6 @@ Carreno	574
 Carrer	1044
 Carrera	1140
 Carreras	917
-Carrere	9292
 Carret	2324
 Carretero	669
 Carretey	225
@@ -9415,9 +9409,7 @@ Carricaburu	336
 Carricart	260
 Carrichon	230
 Carrico	238
-Carrie	3462
 Carrier	6343
-Carriere	8708
 Carrieres	228
 Carrieu	244
 Carrillo	1210
@@ -9426,6 +9418,8 @@ Carrion	1567
 Carriot	472
 Carriou	829
 Carrique	250
+Carrière	8708
+Carrié	3462
 Carro	840
 Carron	4788
 Carrot	1768
@@ -9434,6 +9428,8 @@ Carrouee	256
 Carroy	420
 Carru	706
 Carry	1241
+Carrère	9292
+Carré	29318
 Carsalade	393
 Cart	697
 Carta	1052
@@ -9479,11 +9475,12 @@ Carvalho	4542
 Carville	419
 Carvin	534
 Cary	870
+Caré	1167
 Cas	630
 Casa	350
 Casabianca	1130
 Casabonne	233
-Casadei	504
+Casadeï	504
 Casado	1417
 Casagrande	2101
 Casal	649
@@ -9578,7 +9575,7 @@ Castagnier	293
 Castagno	324
 Castagnoli	225
 Castagnos	422
-Castaignede	674
+Castaignède	674
 Castaing	4783
 Castaings	715
 Castaingts	222
@@ -9590,8 +9587,8 @@ Castaner	415
 Castanet	1799
 Castang	562
 Castanheira	270
-Castanie	1082
 Castanier	2319
+Castanié	1082
 Castano	900
 Castant	230
 Castany	430
@@ -9822,16 +9819,16 @@ Cava	259
 Cavagna	929
 Cavagne	242
 Cavaignac	276
-Cavaille	2561
-Cavailles	1895
 Cavaillon	225
+Cavaillès	1895
+Cavaillé	2561
 Caval	215
 Cavalerie	356
-Cavalie	1450
 Cavalier	3567
 Cavaliere	577
 Cavalieri	340
 Cavalin	380
+Cavalié	1450
 Cavallaro	423
 Cavallera	240
 Cavallero	306
@@ -9848,7 +9845,6 @@ Cavare	223
 Cavarec	692
 Cavaroc	287
 Cavarroc	259
-Cave	2360
 Cavel	601
 Cavelan	359
 Cavelier	2757
@@ -9869,6 +9865,7 @@ Cavret	234
 Cavro	357
 Cavrois	500
 Cavrot	294
+Cavé	2360
 Caye	658
 Cayer	228
 Cayet	1540
@@ -9940,10 +9937,12 @@ Cazot	352
 Cazottes	728
 Cazoulat	239
 Cazzola	217
+Caël	590
+Caër	683
+Caïtucoli	207
 Ceard	208
 Ceaux	540
 Cebarec	382
-Cebe	728
 Cebelieu	215
 Cebrian	324
 Cebron	294
@@ -9961,7 +9960,6 @@ Cece	281
 Cecile	801
 Cecilia	220
 Cecille	314
-Cecillon	980
 Cedat	261
 Cedelle	442
 Ceder	223
@@ -9997,7 +9995,6 @@ Celotto	203
 Celse	299
 Celton	1088
 Cely	388
-Cenac	453
 Cenci	283
 Cendre	810
 Cendrier	822
@@ -10058,10 +10055,8 @@ Cervi	251
 Cervo	273
 Cervoni	536
 Cesa	247
-Cesaire	1182
 Cesaire-Gedeon	305
 Cesano	235
-Cesar	2352
 Cesard	335
 Cesari	2477
 Cesarin	280
@@ -10094,7 +10089,6 @@ Ceyrat	513
 Ceysson	361
 Ceyte	548
 Cez	280
-Cezanne	232
 Cezard	1075
 Cezerac	204
 Cha	315
@@ -10264,9 +10258,9 @@ Chalbos	413
 Chaleat	460
 Chaleil	648
 Chaleix	392
-Chalencon	945
 Chalendar	218
 Chalendard	443
+Chalençon	945
 Chales	289
 Chalet	1154
 Chaleyssin	257
@@ -10748,9 +10742,9 @@ Charrie	849
 Charrieau	592
 Charrier	19721
 Charrieras	365
-Charriere	3959
 Charrin	824
 Charriot	521
+Charrière	3959
 Charroin	1349
 Charrois	298
 Charron	8147
@@ -10818,7 +10812,6 @@ Chasseigne	331
 Chasseloup	714
 Chasseray	336
 Chassereau	260
-Chasseriau	352
 Chasseriaud	643
 Chasserieau	287
 Chassery	338
@@ -10834,6 +10827,7 @@ Chassin	1966
 Chasson	791
 Chassot	833
 Chassy	320
+Chassériau	352
 Chastagner	984
 Chastagnier	613
 Chastagnol	513
@@ -10862,7 +10856,6 @@ Chatal	638
 Chatanay	206
 Chatard	2355
 Chateau	8355
-Chateauneuf	759
 Chateauvieux	285
 Chateaux	642
 Chateigner	841
@@ -10871,7 +10864,6 @@ Chatel	5842
 Chatelain	12137
 Chatelais	640
 Chatelard	1331
-Chatelet	3410
 Chatelier	2301
 Chatelin	1708
 Chatellain	229
@@ -11003,12 +10995,12 @@ Chauvenet	214
 Chauvet	17923
 Chauvey	310
 Chauvier	743
-Chauviere	2834
-Chauvigne	723
+Chauvigné	723
 Chauville	275
 Chauvin	23349
 Chauvineau	954
-Chauvire	977
+Chauviré	977
+Chauvière	2834
 Chauvot	1004
 Chauvreau	382
 Chauvry	253
@@ -11060,7 +11052,7 @@ Chaxel	230
 Chay	284
 Chayla	253
 Chaynes	205
-Chayrigues	352
+Chayriguès	352
 Chazal	3842
 Chazalet	508
 Chazalette	246
@@ -11158,7 +11150,7 @@ Chenet	2285
 Cheneval	404
 Chenevard	205
 Chenevier	967
-Cheneviere	511
+Chenevière	511
 Chenevoy	292
 Cheney	291
 Cheng	428
@@ -11178,9 +11170,6 @@ Chenut	666
 Cheny	497
 Chepy	209
 Cher	378
-Cheradame	490
-Cheramy	1007
-Cherasse	334
 Cheraud	223
 Cherault	230
 Cherblanc	520
@@ -11190,29 +11179,23 @@ Cherbut	204
 Cherchi	330
 Cherdo	332
 Chere	278
-Chereau	4017
-Cherel	3682
-Cheret	1387
 Cherfaoui	407
 Cherfi	311
 Cherfils	353
 Chergui	1280
 Cheriaux	404
 Cheriet	327
-Cherif	1721
 Cherifi	1681
 Cheriguene	255
 Cherigui	325
 Cherin	214
 Cherion	208
-Cherioux	380
 Cheritat	212
 Cherkaoui	233
 Cherki	328
 Chermat	205
 Chermette	394
 Chermeux	343
-Cheron	7845
 Cherot	338
 Cherouvrier	398
 Cheroux	338
@@ -11288,9 +11271,7 @@ Chevauche	218
 Chevaucherie	256
 Chevauchet	230
 Chevaux	894
-Cheve	1190
 Cheveau	730
-Chevenement	345
 Chevenier	255
 Chever	353
 Chevereau	1540
@@ -11328,6 +11309,8 @@ Chevron	1155
 Chevrot	1929
 Chevry	899
 Chevy	493
+Chevènement	345
+Chevé	1190
 Cheylan	409
 Cheymol	572
 Cheynel	341
@@ -11336,7 +11319,6 @@ Cheype	360
 Cheyron	265
 Cheyrou	390
 Cheyroux	417
-Cheze	1872
 Chezeau	491
 Chezeaud	349
 Chezeaux	220
@@ -11374,7 +11356,6 @@ Chidaine	209
 Chies	222
 Chiesa	862
 Chieux	320
-Chieze	492
 Chiffe	254
 Chifflet	504
 Chifflot	410
@@ -11435,6 +11416,7 @@ Chivet	377
 Chivot	1249
 Chizat	224
 Chizelle	203
+Chièze	492
 Chmiel	256
 Chmielewski	488
 Choain	299
@@ -11489,7 +11471,7 @@ Chomier	262
 Chomont	202
 Chon	229
 Chonavel	241
-Chone	423
+Choné	423
 Chopard	2048
 Chopart	520
 Chopin	8446
@@ -11556,7 +11538,6 @@ Chovet	1052
 Chovin	447
 Choy	296
 Choyer	293
-Chretien	14718
 Chretienne	219
 Chretiennot	323
 Chrisment	369
@@ -11579,6 +11560,7 @@ Christophe	7897
 Christophel	211
 Christy	577
 Chrone	216
+Chrétien	14718
 Chu	207
 Chuard	365
 Chuberre	234
@@ -11599,6 +11581,18 @@ Churlet	300
 Chusseau	646
 Chuzel	294
 Chuzeville	611
+Châteauneuf	759
+Châtelet	3410
+Chèze	1872
+Chéradame	490
+Chéramy	1007
+Chérasse	334
+Chéreau	4017
+Chérel	3682
+Chéret	1387
+Chérif	1721
+Chérioux	380
+Chéron	7845
 Ciabrini	434
 Ciais	915
 Cialdella	227
@@ -11663,9 +11657,9 @@ Ciron	1020
 Cirot	617
 Cirou	498
 Ciry	292
-Cisse	3890
 Cissokho	545
 Cissoko	665
+Cissé	3890
 Cistac	300
 Cisterne	225
 Ciszewski	219
@@ -11783,7 +11777,6 @@ Clauzure	223
 Claval	239
 Clavaron	253
 Clavaud	1493
-Clave	2552
 Claveau	2320
 Clavel	8022
 Clavelin	339
@@ -11797,15 +11790,15 @@ Clavery	392
 Clavet	312
 Clavie	301
 Clavier	6459
-Claviere	541
 Clavieres	294
 Clavilier	214
+Clavière	541
 Clavreul	1046
+Clavé	2552
 Clay	918
 Claye	244
 Clayette	277
 Clayeux	260
-Cleach	593
 Cleau	240
 Clech	1611
 Cledat	468
@@ -11813,18 +11806,15 @@ Cledes	222
 Clee	261
 Cleenewerck	549
 Clem	304
-Clemence	951
 Clemenceau	2868
-Clemencet	419
 Clemencin	247
-Clemencon	1557
 Clemendot	308
 Clemens	824
 Clemenson	401
-Clement	55223
 Clemente	1917
 Clementi	509
 Clementz	784
+Clemençon	1557
 Clemot	1093
 Clenet	1250
 Cleon	568
@@ -11836,7 +11826,6 @@ Clerc-Renaud	207
 Clercq	606
 Clercy	235
 Clere	1263
-Cleret	2809
 Clerfeuille	251
 Clerge	542
 Clergeau	949
@@ -11849,7 +11838,6 @@ Clerice	344
 Clerici	464
 Clerico	288
 Clerima	203
-Clerin	673
 Clerisse	330
 Clerissi	317
 Clerjaud	247
@@ -11859,9 +11847,8 @@ Clero	1008
 Cleron	333
 Clerot	290
 Clert	255
-Clerte	239
+Clerté	239
 Clerville	215
-Clery	1911
 Clesse	517
 Clet	1634
 Cleton	448
@@ -11869,7 +11856,6 @@ Clety	332
 Cleuet	388
 Cleuvenot	231
 Cleuziou	334
-Clevenot	525
 Clevy	377
 Cleyet	224
 Cleyet-Merle	243
@@ -11902,7 +11888,6 @@ Clodion	419
 Clody	268
 Cloerec	383
 Cloet	503
-Cloez	510
 Cloirec	241
 Cloitre	887
 Cloix	1136
@@ -11946,6 +11931,7 @@ Clouzot	219
 Clovis	639
 Clowez	269
 Clozel	350
+Cloëz	510
 Cluchier	234
 Cluet	264
 Clusel	221
@@ -11957,6 +11943,14 @@ Cluzeau	2234
 Cluzeaud	232
 Cluzel	4299
 Cluzet	423
+Cléach	593
+Clémence	951
+Clémencet	419
+Clément	55223
+Cléret	2809
+Clérin	673
+Cléry	1911
+Clévenot	525
 Cnockaert	457
 Cnudde	857
 Coadic	768
@@ -12043,7 +12037,6 @@ Coeffier	492
 Coelho	3409
 Coen	328
 Coene	449
-Coent	380
 Coesnon	235
 Coet	886
 Coetmeur	249
@@ -12072,7 +12065,6 @@ Cognac	208
 Cognard	3504
 Cognasse	209
 Cognat	429
-Cogne	1277
 Cogneau	326
 Cognee	489
 Cogneras	280
@@ -12081,6 +12073,7 @@ Cogno	247
 Cognon	638
 Cognot	204
 Cogny	585
+Cogné	1277
 Cogrel	455
 Cohade	829
 Cohadon	468
@@ -12372,7 +12365,6 @@ Commenge	724
 Commenges	211
 Comment	223
 Commercon	388
-Commere	573
 Commeres	214
 Commereuc	281
 Commergnat	232
@@ -12386,6 +12378,7 @@ Commun	747
 Communal	920
 Communeau	382
 Communier	510
+Commère	573
 Comont	757
 Comorassamy	235
 Comoy	276
@@ -12400,13 +12393,13 @@ Comparin	234
 Comparon	231
 Comparot	384
 Compas	508
-Compere	1504
 Compiegne	720
 Compin	703
 Compoint	262
 Compper	595
 Comps	203
 Compte	969
+Compère	1504
 Comtat	366
 Comte	12989
 Comtesse	360
@@ -12428,7 +12421,6 @@ Condamine	739
 Condamines	232
 Condaminet	302
 Condat	654
-Conde	1338
 Condemine	757
 Condette	2275
 Condevaux	266
@@ -12439,6 +12431,7 @@ Condoris	248
 Condou	355
 Condroyer	293
 Conduche	270
+Condé	1338
 Conedera	203
 Conejero	255
 Conesa	1021
@@ -12624,7 +12617,6 @@ Corbet	2452
 Corbi	327
 Corbic	290
 Corbier	1529
-Corbiere	2908
 Corbieres	201
 Corbille	342
 Corbillon	678
@@ -12632,6 +12624,7 @@ Corbin	5989
 Corbineau	1666
 Corbion	575
 Corbisier	348
+Corbière	2908
 Corblin	507
 Corbon	426
 Corbonnois	274
@@ -12785,7 +12778,6 @@ Corrand	276
 Corraze	238
 Corre	10413
 Correa	661
-Correard	1028
 Correas	255
 Correc	239
 Correge	681
@@ -12802,6 +12794,7 @@ Corroy	713
 Corroyer	1115
 Corroyez	254
 Corruble	455
+Corréard	1028
 Corset	390
 Corsetti	276
 Corsi	672
@@ -12833,7 +12826,6 @@ Corvaisier	1814
 Corvasier	252
 Corve	351
 Corvec	331
-Corvee	420
 Corvellec	412
 Corvest	360
 Corvez	542
@@ -12841,6 +12833,7 @@ Corvi	258
 Corvisier	900
 Corvo	448
 Corvoisier	231
+Corvée	420
 Cosaque	218
 Cosentino	675
 Cosenza	310
@@ -12905,7 +12898,6 @@ Cosyn	320
 Cosyns	416
 Cot	1570
 Cotard	1356
-Cote	5070
 Cote-Colisson	217
 Cotel	678
 Cotelle	1247
@@ -13027,7 +13019,6 @@ Coudroy	520
 Coudry	359
 Coudurier	1278
 Coudurier-Curveur	271
-Coue	2686
 Couedel	919
 Couedic	351
 Coueffe	380
@@ -13113,7 +13104,6 @@ Coupard	826
 Coupas	331
 Coupat	1164
 Coupaye	524
-Coupe	4756
 Coupeau	1267
 Coupechoux	222
 Coupel	674
@@ -13128,6 +13118,7 @@ Couppe	318
 Couppey	983
 Couprie	1617
 Coupry	731
+Coupé	4756
 Couque	295
 Couquet	257
 Cour	818
@@ -13209,14 +13200,14 @@ Courreau	252
 Courrech	261
 Courrege	580
 Courregelongue	477
-Courreges	1690
 Courret	492
 Courrier	1050
-Courriere	277
 Courrieu	269
 Courriol	267
+Courrière	277
 Courroux	652
 Courroy	360
+Courrèges	1690
 Cours	386
 Coursault	393
 Courseau	216
@@ -13248,7 +13239,6 @@ Courteix	904
 Courtel	1761
 Courtemanche	732
 Courtens	246
-Courtes	1110
 Courtet	1626
 Courteville	240
 Courthial	268
@@ -13271,6 +13261,7 @@ Courtonne	244
 Courtot	2025
 Courtoux	286
 Courty	3860
+Courtès	1110
 Courvalet	429
 Courville	371
 Courvoisier	1926
@@ -13341,9 +13332,9 @@ Couthier	222
 Couthouis	571
 Couthures	286
 Coutier	1016
-Coutiere	238
 Coutin	1997
 Coutinho	508
+Coutière	238
 Couto	505
 Couton	2206
 Coutou	430
@@ -13388,6 +13379,7 @@ Couzinie	420
 Couzinier	238
 Couzon	1028
 Couzy	396
+Coué	2686
 Cova	212
 Covain	242
 Covarel	436
@@ -13414,6 +13406,7 @@ Cozien	489
 Cozzani	221
 Cozzi	334
 Cozzolino	400
+Coënt	380
 Crabbe	218
 Crabeil	200
 Crabos	601
@@ -13467,11 +13460,9 @@ Creignou	820
 Creismeas	224
 Cremades	487
 Cremel	602
-Cremer	630
 Cremers	201
 Cremet	441
 Cremier	242
-Cremieux	382
 Cremon	275
 Cremona	324
 Cremont	446
@@ -13482,15 +13473,9 @@ Crenier	257
 Crenn	2445
 Creno	255
 Creon	226
-Crepeau	1109
-Crepel	1304
 Crepelle	461
-Crepet	1204
-Crepey	227
 Crepiat	238
 Crepieux	805
-Crepin	9946
-Crepon	262
 Crepy	994
 Crequer	355
 Crequy	297
@@ -13525,23 +13510,21 @@ Cretenet	556
 Cretet	458
 Creteur	1085
 Cretien	354
-Cretier	346
 Cretin	4396
 Cretinoir	526
 Cretinon	546
 Cretois	568
-Creton	3704
 Cretot	230
-Crette	932
+Cretté	932
 Creus	434
 Creusat	369
 Creuset	250
 Creusot	1672
 Creusy	203
 Creux	835
-Creuze	436
 Creuzet	855
 Creuzot	348
+Creuzé	436
 Creveau	228
 Crevecoeur	345
 Crevel	1384
@@ -13693,6 +13676,16 @@ Cruvellier	288
 Cruz	2439
 Cruzel	725
 Cruzille	259
+Crémer	630
+Crémieux	382
+Crépeau	1109
+Crépel	1304
+Crépet	1204
+Crépey	227
+Crépin	9946
+Crépon	262
+Crétier	346
+Créton	3704
 Cuadrado	512
 Cuartero	206
 Cuau	217
@@ -13860,6 +13853,13 @@ Czech	256
 Czerniak	221
 Czerwinski	363
 Czyz	204
+Cèbe	728
+Cécillon	980
+Cénac	453
+Césaire	1182
+César	2352
+Cézanne	232
+Côte	5070
 D'Agostino	662
 D'Alessandro	288
 D'Alexis	253
@@ -14037,7 +14037,6 @@ Dalenc	227
 Dalencon	531
 Dalens	201
 Dalery	221
-Dales	360
 Dalesme	222
 Dalet	714
 Dalex	286
@@ -14091,6 +14090,7 @@ Dalstein	670
 Dalverny	515
 Daly	697
 Dalzon	251
+Dalès	360
 Dam	515
 Damade	350
 Damagnez	507
@@ -14215,7 +14215,6 @@ Daniel	26571
 Daniele	507
 Daniellou	250
 Danielo	440
-Danielou	1928
 Daniere	844
 Danigo	506
 Danilo	883
@@ -14223,6 +14222,7 @@ Danin	208
 Daninthe	295
 Danion	1068
 Danis	1622
+Daniélou	1928
 Danjard	205
 Danjean	820
 Danjon	369
@@ -14394,10 +14394,9 @@ Darques	713
 Darracq	1676
 Darragon	247
 Darras	7685
-Darre	1972
 Darreau	404
 Darribere	356
-Darricarrere	389
+Darricarrère	389
 Darricau	1221
 Darriet	927
 Darrieumerlou	590
@@ -14412,6 +14411,7 @@ Darroux	557
 Darrouzes	387
 Darrouzet	220
 Darry	287
+Darré	1972
 Dars	299
 Darson	209
 Darsonval	213
@@ -14473,7 +14473,6 @@ Daubord	405
 Daubresse	620
 Daubry	316
 Dauby	533
-Dauce	651
 Dauch	230
 Dauchel	255
 Dauchelle	396
@@ -14481,7 +14480,7 @@ Dauchet	226
 Dauchez	1296
 Dauchy	2453
 Daucourt	301
-Daude	2807
+Daucé	651
 Daudel	385
 Daudet	1429
 Daudey	241
@@ -14492,6 +14491,7 @@ Daudin	1936
 Daudon	1201
 Daudre	273
 Daudruy	217
+Daudé	2807
 Dauer	362
 Dauffy	231
 Daufresne	378
@@ -14640,7 +14640,7 @@ Davy	6301
 Dax	349
 Day	1042
 Dayan	519
-Dayde	1505
+Daydé	1505
 Dayet	374
 Dayez	472
 Daynac	215
@@ -14729,7 +14729,6 @@ Debethune	223
 Debette	388
 Debeuf	378
 Debeugny	613
-Debeve	610
 Debever	262
 Debeze	204
 Debiais	732
@@ -14739,13 +14738,13 @@ Debierre	288
 Debiesse	338
 Debieu	486
 Debieuvre	327
-Debieve	794
 Debievre	366
 Debiez	239
 Debin	238
 Debise	306
 Debiton	215
 Debize	508
+Debiève	794
 Debladis	295
 Deblaere	201
 Deblangy	368
@@ -14795,7 +14794,6 @@ Debrand	321
 Debras	835
 Debrauwer	204
 Debray	6029
-Debre	326
 Debree	345
 Debreil	254
 Debrenne	317
@@ -14822,6 +14820,7 @@ Debrun	356
 Debruxelles	202
 Debruyne	3987
 Debry	509
+Debré	326
 Debs	371
 Debu	245
 Debuchy	543
@@ -14842,6 +14841,7 @@ Debuy	228
 Debuyser	740
 Debyser	373
 Debza	211
+Debève	610
 Decaen	774
 Decaens	398
 Decaestecker	332
@@ -14890,7 +14890,6 @@ Dechaud	800
 Dechaume	1325
 Dechaux	1099
 Dechavanne	921
-Dechelette	712
 Dechelle	555
 Dechelotte	312
 Dechene	446
@@ -15091,7 +15090,6 @@ Degeorge	499
 Degeorges	658
 Degermann	222
 Degert	609
-Degez	250
 Deghaye	364
 Degioanni	855
 Degiovanni	368
@@ -15101,7 +15099,6 @@ Deglave	448
 Degletagne	295
 Degliame	251
 Deglin	216
-Deglise	373
 Deglos	249
 Degois	556
 Degombert	247
@@ -15257,13 +15254,13 @@ Delachambre	224
 Delachat	225
 Delachaume	361
 Delache	416
-Delacote	674
 Delacotte	685
 Delacour	4052
 Delacourt	3029
 Delacoux	248
 Delacre	621
 Delacroix	6351
+Delacôte	674
 Deladeriere	280
 Deladerriere	201
 Delaere	463
@@ -15342,10 +15339,10 @@ Delannee	540
 Delannes	213
 Delannoy	14201
 Delannoye	260
-Delanoe	3355
 Delanos	250
 Delanoue	1877
 Delanoy	746
+Delanoë	3355
 Delansay	346
 Delanzy	234
 Delapierre	1880
@@ -15422,7 +15419,6 @@ Delbeke	358
 Delberghe	415
 Delbergue	309
 Delbert	354
-Delbes	706
 Delblond	454
 Delbois	591
 Delbos	3701
@@ -15435,6 +15431,7 @@ Delbrayelle	231
 Delbreil	1010
 Delbrel	501
 Delbruel	201
+Delbès	706
 Delcambre	1829
 Delcamp	603
 Delcampe	369
@@ -15464,7 +15461,6 @@ Deleau	2846
 Delebarre	1619
 Delebecq	319
 Delebecque	963
-Delecluse	1409
 Delecolle	692
 Delecour	426
 Delecourt	1922
@@ -15475,7 +15471,6 @@ Deleflie	226
 Deleforge	420
 Delefortrie	524
 Delefosse	943
-Deleglise	1878
 Delegue	315
 Delehaye	539
 Delelis	1077
@@ -15494,7 +15489,6 @@ Delenne	643
 Delente	723
 Delepaut	283
 Delepierre	1236
-Delepine	5019
 Deleplace	1061
 Deleplanque	1080
 Deleporte	663
@@ -15517,7 +15511,6 @@ Delest	520
 Delestrade	240
 Delestre	3379
 Delestrez	411
-Deletang	2171
 Deletoille	655
 Deletombe	261
 Deletraz	655
@@ -15534,7 +15527,7 @@ Deleury	496
 Deleuse	309
 Deleuze	2348
 Deleval	391
-Delevallee	235
+Delevallée	235
 Delevaque	220
 Delevaux	249
 Delevoye	642
@@ -15774,9 +15767,9 @@ Deluy	352
 Delva	655
 Delval	4336
 Delvalle	740
-Delvallee	1648
 Delvallet	321
 Delvallez	912
+Delvallée	1648
 Delvart	689
 Delvas	383
 Delvaux	1578
@@ -15793,6 +15786,10 @@ Delyon	362
 Delys	424
 Delzenne	937
 Delzongle	254
+Delécluse	1409
+Deléglise	1878
+Delépine	5019
+Delétang	2171
 Demachy	356
 Demacon	264
 Demade	630
@@ -15803,7 +15800,7 @@ Demailly	2586
 Demain	350
 Demaire	245
 Demaison	2188
-Demaiziere	401
+Demaizière	401
 Deman	1310
 Demanche	327
 Demandre	503
@@ -15852,8 +15849,8 @@ Dematteis	207
 Demay	6930
 Demazeau	370
 Demazeux	410
-Demaziere	297
 Demazieres	301
+Demazière	297
 Demazure	567
 Demazy	244
 Demba	208
@@ -15943,7 +15940,6 @@ Demouge	296
 Demougeot	732
 Demougin	549
 Demoule	239
-Demoulin	4392
 Demoulins	331
 Demousseau	285
 Demoustier	700
@@ -16041,7 +16037,6 @@ Denni	943
 Denniel	576
 Denninger	421
 Denny	473
-Denoel	311
 Denoeud	264
 Denoix	394
 Denolf	313
@@ -16061,6 +16056,7 @@ Denoux	488
 Denoyelle	2729
 Denoyer	1006
 Denoyers	217
+Denoël	311
 Denquin	505
 Dentel	207
 Dentinger	315
@@ -16074,8 +16070,6 @@ Denux	248
 Denuziere	221
 Deny	600
 Denys	3427
-Deom	282
-Deon	847
 Depaepe	444
 Depagne	520
 Depaix	456
@@ -16214,7 +16208,6 @@ Derieux	707
 Derigny	283
 Derigon	281
 Derin	236
-Deriot	384
 Derisbourg	801
 Deriu	246
 Derivaux	222
@@ -16420,7 +16413,6 @@ Deseine	270
 Desenclos	870
 Desenfant	345
 Desenne	449
-Desert	3202
 Desesquelle	252
 Desesquelles	507
 Desessard	308
@@ -16441,7 +16433,7 @@ Desfossez	479
 Desfougeres	479
 Desfours	316
 Desfoux	371
-Desfrancois	248
+Desfrançois	248
 Desfrennes	220
 Desgardin	627
 Desgardins	278
@@ -16460,7 +16452,7 @@ Deshays	376
 Deshogues	309
 Deshons	260
 Deshors	686
-Deshoulieres	273
+Deshoulières	273
 Deshoux	407
 Desiage	201
 Desideri	424
@@ -16480,7 +16472,7 @@ Desjardin	1383
 Desjardins	4534
 Desjeunes	205
 Desjobert	239
-Desjonqueres	270
+Desjonquères	270
 Desjouis	290
 Desjours	421
 Deslande	254
@@ -16509,7 +16501,7 @@ Desmartin	784
 Desmas	676
 Desmasures	254
 Desmazes	285
-Desmazieres	589
+Desmazières	589
 Desmazon	204
 Desme	232
 Desmedt	1315
@@ -16595,12 +16587,12 @@ Desprairies	244
 Desprat	501
 Desprats	392
 Despre	435
-Despreaux	696
 Despres	6375
 Despret	502
 Despretz	688
 Desprez	5962
 Desproges	207
+Despréaux	696
 Despujols	532
 Desquesnes	463
 Desqueyroux	295
@@ -16614,7 +16606,7 @@ Desreumaux	1587
 Desreux	248
 Desriac	368
 Desriaux	223
-Desrivieres	281
+Desrivières	281
 Desroche	422
 Desroches	3058
 Desroses	332
@@ -16759,11 +16751,9 @@ Detre	988
 Detree	229
 Detres	300
 Detrez	1847
-Detrie	305
 Detrieux	307
 Detrois	227
 Detroit	201
-Detroyat	388
 Detry	443
 Dettinger	425
 Dettori	397
@@ -16828,12 +16818,10 @@ Devernois	365
 Deverre	546
 Devers	599
 Devert	527
-Deves	564
 Devesa	418
 Devevey	326
 Devey	418
 Devez	297
-Deveze	1680
 Devic	932
 Devidal	1192
 Devie	552
@@ -16890,6 +16878,8 @@ Devun	371
 Devy	736
 Devynck	841
 Devys	268
+Devès	564
+Devèze	1680
 Dewaele	2632
 Dewailly	946
 Dewalle	343
@@ -16979,7 +16969,6 @@ Dhont	1102
 Dhordain	399
 Dhorne	616
 Dhote	554
-Dhotel	385
 Dhouailly	292
 Dhoury	303
 Dhoye	270
@@ -16988,6 +16977,7 @@ Dhugues	246
 Dhuicque	249
 Dhuit	372
 Dhuy	241
+Dhôtel	385
 Di Bartolomeo	401
 Di Bella	206
 Di Benedetto	705
@@ -17043,7 +17033,7 @@ Di Vincenzo	270
 Di Vita	291
 Dia	1325
 Diab	484
-Diabate	382
+Diabaté	382
 Diabi	298
 Diabira	520
 Diaby	2432
@@ -17056,15 +17046,15 @@ Diais	281
 Diakhaby	329
 Diakhite	452
 Diakho	240
-Diakite	2024
+Diakité	2024
 Diallo	6615
 Diamant	227
 Dian	449
 Diana	1073
 Diancourt	258
-Diane	258
 Diani	437
 Dianka	225
+Diané	258
 Diard	2842
 Diarra	3168
 Diart	298
@@ -17142,8 +17132,8 @@ Diette	486
 Dietz	1062
 Dieu	4770
 Dieuaide	304
-Dieude	325
-Dieudonne	5440
+Dieudonné	5440
+Dieudé	325
 Dieul	216
 Dieulangard	250
 Dieulesaint	268
@@ -17559,10 +17549,10 @@ Donsimoni	405
 Dontenville	270
 Donval	1494
 Dony	808
-Donze	1594
 Donzeau	222
 Donzel	1200
 Donzelot	284
+Donzé	1594
 Dooghe	245
 Doolaeghe	418
 Doom	474
@@ -17585,7 +17575,6 @@ Dorde	346
 Dordet	260
 Dordoigne	360
 Dordonne	250
-Dore	10553
 Doreau	2073
 Doree	509
 Dorel	1489
@@ -17621,8 +17610,8 @@ Dorkeld	637
 Dorla	337
 Dorland	282
 Dorleac	320
-Dorleans	1404
 Dorlet	448
+Dorléans	1404
 Dormard	267
 Dorme	500
 Dormeau	575
@@ -17652,6 +17641,7 @@ Dorveaux	203
 Dorville	843
 Dorvilma	258
 Dory	770
+Doré	10553
 Dos-Santos	603
 Dosch	230
 Dosda	388
@@ -17708,7 +17698,7 @@ Douchez	969
 Douchin	1555
 Douchy	492
 Doucin	432
-Doucoure	1739
+Doucouré	1739
 Doucy	290
 Doudard	759
 Doudeau	410
@@ -17800,7 +17790,7 @@ Douvrin	202
 Douvry	740
 Doux	2896
 Douy	374
-Douyere	676
+Douyère	676
 Douzet	368
 Douziech	831
 Douzon	284
@@ -17852,7 +17842,6 @@ Draux	762
 Dravet	452
 Dravigny	210
 Dray	1523
-Drean	3335
 Dreano	2619
 Dreau	1240
 Drecourt	500
@@ -18003,6 +17992,7 @@ Drutel	237
 Druvent	223
 Drux	241
 Dry	220
+Dréan	3335
 Duarte	3822
 Duault	1302
 Duba	398
@@ -18022,7 +18012,6 @@ Dubas	985
 Dubau	613
 Dubaux	271
 Dubayle	351
-Dube	1016
 Dubeau	711
 Dubeaurepaire	330
 Dubeaux	223
@@ -18045,13 +18034,13 @@ Dubessay	318
 Dubesset	726
 Dubessy	577
 Dubet	650
-Dubie	272
 Dubief	1277
 Dubien	849
 Dubier	236
 Dubiez	629
 Dubillot	474
 Dubin	974
+Dubié	272
 Dublanc	576
 Duble	805
 Dublin	279
@@ -18126,6 +18115,7 @@ Dubusse	299
 Dubut	1187
 Dubuy	421
 Duby	921
+Dubé	1016
 Duc	6487
 Duca	401
 Ducamin	461
@@ -18174,11 +18164,9 @@ Duchatelle	656
 Duchaud	218
 Duchauffour	285
 Duchaussoy	2080
-Duche	1921
 Duchein	419
 Duchemann	1937
 Duchemin	8553
-Duchene	10317
 Duchenne	852
 Ducher	2342
 Duchesnay	311
@@ -18193,8 +18181,10 @@ Duchon	947
 Duchosal	433
 Duchossois	409
 Duchossoy	565
+Duché	1921
+Duchêne	10317
 Duciel	266
-Ducimetiere	289
+Ducimetière	289
 Ducla	346
 Duclaud	511
 Duclaux	1534
@@ -18335,9 +18325,9 @@ Dufond	273
 Duforest	397
 Duforet	332
 Dufort	1047
-Dufosse	4295
 Dufosset	298
 Dufossez	330
+Dufossé	4295
 Dufour	47439
 Dufourcq	850
 Dufourd	837
@@ -18355,16 +18345,16 @@ Dufranne	346
 Dufrasne	325
 Dufreche	302
 Dufrechou	452
-Dufrene	1614
 Dufrenne	1301
 Dufrenois	234
 Dufrenot	204
-Dufrenoy	1312
 Dufresne	5864
 Dufresnes	350
 Dufresnoy	410
 Dufrien	227
 Dufros	287
+Dufrénoy	1312
+Dufrêne	1614
 Dufus	203
 Dugain	902
 Dugal	227
@@ -18392,12 +18382,12 @@ Dugravot	348
 Dugrosprez	204
 Dugua	453
 Duguay	401
-Dugue	5666
 Dugueperoux	403
 Duguet	3049
 Duguey	444
 Duguin	321
 Duguy	467
+Dugué	5666
 Duhail	387
 Duhal	207
 Duhalde	921
@@ -18547,14 +18537,12 @@ Dupaty	242
 Dupau	563
 Dupayage	316
 Dupays	868
-Dupe	2261
 Dupel	200
 Dupelin	230
 Dupenloup	285
 Dupent	215
 Duperche	307
 Dupere	327
-Duperier	406
 Duperon	239
 Duperoux	224
 Duperray	2074
@@ -18621,7 +18609,6 @@ Dupras	215
 Duprat	8385
 Dupray	665
 Dupraz	1852
-Dupre	17041
 Dupressoir	839
 Dupret	1202
 Dupretz	255
@@ -18630,6 +18617,7 @@ Duprez	3183
 Dupriez	1707
 Dupront	215
 Dupros	270
+Dupré	17041
 Dupuch	1033
 Dupui	257
 Dupuich	1277
@@ -18640,6 +18628,8 @@ Dupupet	361
 Duputel	285
 Dupuy	33468
 Dupy	359
+Dupé	2261
+Dupérier	406
 Duque	281
 Duquene	260
 Duquenet	314
@@ -18689,7 +18679,6 @@ Durchon	297
 Durdilly	289
 Dure	368
 Dureau	1488
-Durecu	620
 Dureisseix	419
 Durel	2364
 Durepaire	653
@@ -18753,6 +18742,7 @@ Durussel	202
 Durut	480
 Durville	729
 Dury	3321
+Durécu	620
 Dusart	1943
 Dusautoir	906
 Dusautois	317
@@ -18779,7 +18769,6 @@ Dussaut	598
 Dussaux	868
 Dussauze	326
 Dusseau	606
-Dusseaux	899
 Dussel	423
 Dussenne	258
 Dusser	275
@@ -18795,6 +18784,7 @@ Dussourd	291
 Dussud	653
 Dussurget	206
 Dussutour	433
+Dusséaux	899
 Dusuel	209
 Dutac	212
 Dutailly	644
@@ -18917,6 +18907,16 @@ Dye	376
 Dyon	423
 Dyvrande	417
 Dziedzic	281
+Déchelette	712
+Dégez	250
+Déglise	373
+Démoulin	4392
+Déom	282
+Déon	847
+Dériot	384
+Désert	3202
+Détrie	305
+Détroyat	388
 Ealet	238
 Ebel	1102
 Eber	920
@@ -18930,7 +18930,6 @@ Ebert	477
 Eble	406
 Ebner	281
 Ebran	733
-Ebrard	765
 Eby	449
 Ecalard	244
 Ecale	403
@@ -18959,7 +18958,6 @@ Eckly	240
 Eclancher	371
 Eclapier	268
 Ecobichon	554
-Ecochard	595
 Ecoffet	334
 Ecoiffier	362
 Ecolan	244
@@ -19080,7 +19078,6 @@ Eliazord	466
 Elice	790
 Elie	5951
 Elien	284
-Elies	1030
 Eliet	389
 Eliezer	359
 Elin	377
@@ -19090,10 +19087,10 @@ Eliot	1601
 Elisa	210
 Elisabeth	3456
 Elise	680
-Elissalde	1268
 Elizabeth	332
 Elizalde	295
 Elizeon	208
+Eliès	1030
 Elkaim	244
 Ellama	548
 Ellapin	237
@@ -19122,8 +19119,7 @@ Eluecque	216
 Eluere	289
 Elusue	220
 Elvira	216
-Ely	673
-Elziere	238
+Elzière	238
 Emaille	313
 Emanuel	245
 Emanuelli	398
@@ -19159,7 +19155,6 @@ Emorine	698
 Empereur	463
 Empis	384
 Emprin	291
-Enard	914
 Enaud	336
 Enault	2002
 Enaux	302
@@ -19226,7 +19221,6 @@ Ephestion	270
 Epiard	630
 Epie	305
 Epin	269
-Epinat	1098
 Epineau	382
 Epinette	756
 Epinoux	246
@@ -19283,9 +19277,9 @@ Errandonea	302
 Errard	835
 Erre	516
 Errecart	492
-Errera	354
 Errico	209
 Errin	231
+Errèra	354
 Ertel	213
 Ertle	434
 Ertz	321
@@ -19332,10 +19326,10 @@ Escribano	374
 Escribe	437
 Escriva	727
 Escrouzailles	222
-Escude	509
 Escudero	1275
-Escudie	1249
 Escudier	1444
+Escudié	1249
+Escudé	509
 Esculier	286
 Escurat	296
 Escure	1042
@@ -19346,10 +19340,10 @@ Esmiol	262
 Esnard	967
 Esnaud	287
 Esnault	10681
-Esnee	289
 Esnol	215
 Esnouf	485
 Esnoult	265
+Esnée	289
 Esor	207
 Espada	338
 Espagne	424
@@ -19369,7 +19363,6 @@ Espejo	286
 Espel	366
 Espenel	333
 Esperance	414
-Esperandieu	405
 Esperon	366
 Esperou	337
 Espes	201
@@ -19389,6 +19382,7 @@ Espitallier	535
 Esposito	4020
 Esprit	560
 Espy	233
+Espérandieu	405
 Esquer	207
 Esquerre	1153
 Esquirol	1115
@@ -19407,14 +19401,12 @@ Estampe	316
 Estaque	550
 Estay	334
 Esteban	1743
-Estebe	1183
 Estela	268
 Estelle	617
 Estellon	321
 Ester	257
 Estermann	451
 Estevan	213
-Esteve	6663
 Estevenon	457
 Esteves	3270
 Estevez	680
@@ -19437,6 +19429,8 @@ Estrade	3580
 Estran	302
 Estruch	284
 Estublier	207
+Estèbe	1183
+Estève	6663
 Esvan	485
 Etaix	516
 Etancelin	619
@@ -19466,13 +19460,12 @@ Etenna	217
 Etesse	601
 Eteve	780
 Etevenard	232
-Etheve	5013
 Ethore	213
 Ethuin	738
+Ethève	5013
 Etie	200
 Etiemble	320
 Etien	643
-Etienne	23970
 Etienney	365
 Etievant	447
 Etifier	294
@@ -19536,7 +19529,6 @@ Everard	413
 Evesque	1140
 Evezard	586
 Evieux	263
-Evin	1422
 Evrard	17272
 Evrat	404
 Evrot	239
@@ -19603,10 +19595,10 @@ Fabres	229
 Fabresse	382
 Fabri	614
 Fabriano	339
-Fabries	492
 Fabris	818
 Fabrizi	300
 Fabrizio	214
+Fabriès	492
 Fabro	368
 Fabron	284
 Fabroni	298
@@ -19728,8 +19720,8 @@ Falga	212
 Falgayrac	241
 Falgon	487
 Falgoux	346
-Falguiere	270
 Falguieres	560
+Falguière	270
 Falher	266
 Falhun	287
 Faliere	228
@@ -19815,7 +19807,6 @@ Fardoux	800
 Fare	557
 Farel	307
 Farenc	898
-Fares	1036
 Farescour	214
 Faret	354
 Farey	279
@@ -19868,13 +19859,14 @@ Farouault	263
 Farouil	252
 Faroux	918
 Farque	295
-Farre	1894
 Farret	750
 Farris	286
 Farrugia	1401
+Farré	1894
 Farsy	399
 Farthouat	381
 Farvacque	405
+Farès	1036
 Fasano	267
 Fasciaux	231
 Fasquel	2690
@@ -19911,7 +19903,6 @@ Faubourg	238
 Faucard	323
 Fauchard	1143
 Fauchart	857
-Fauche	1684
 Faucher	10358
 Faucherand	330
 Fauchere	391
@@ -19928,6 +19919,7 @@ Fauchois	462
 Fauchoit	219
 Fauchon	1621
 Fauchoux	368
+Fauché	1684
 Faucillon	507
 Faucoeur	332
 Faucomprez	417
@@ -19942,12 +19934,12 @@ Faudot	622
 Faudry	312
 Fauger	207
 Faugeras	1409
-Faugere	2240
 Faugeres	360
 Faugeron	1074
 Faugeroux	504
 Faugier	474
 Fauguet	331
+Faugère	2240
 Faujour	455
 Faul	267
 Faulcon	343
@@ -20019,7 +20011,6 @@ Favario	220
 Favaro	553
 Favaron	230
 Favart	200
-Fave	1995
 Faveau	508
 Faveaux	244
 Favede	211
@@ -20063,6 +20054,7 @@ Favrot	1070
 Favrou	489
 Favroul	242
 Favry	887
+Favé	1995
 Fay	3151
 Fayant	330
 Fayard	5388
@@ -20111,9 +20103,7 @@ Federspiel	626
 Fedi	311
 Fedon	350
 Fedor	207
-Fedou	873
 Fedrigo	377
-Fee	221
 Fefeu	448
 Feger	1019
 Fehlmann	310
@@ -20156,7 +20146,6 @@ Felin	456
 Felipe	287
 Felisaz	382
 Feliu	212
-Felix	11104
 Fellah	765
 Fellahi	328
 Feller	1032
@@ -20175,7 +20164,6 @@ Femel	207
 Femenia	355
 Feminier	250
 Fenard	482
-Fenart	549
 Fenasse	213
 Fenaux	408
 Fend	236
@@ -20183,7 +20171,6 @@ Fender	637
 Fendrich	230
 Fene	200
 Fenech	634
-Fenelon	586
 Feneon	427
 Fenerol	276
 Fenestre	239
@@ -20208,8 +20195,6 @@ Feral	2005
 Feramus	243
 Ferand	638
 Ferard	1199
-Ferat	685
-Feraud	3676
 Ferault	321
 Feray	1397
 Ferber	757
@@ -20227,10 +20212,8 @@ Ferec	837
 Ferellec	245
 Ferelloc	214
 Fereol	523
-Feret	4170
 Ferey	2760
 Fereyre	244
-Ferez	895
 Ferge	272
 Fergeau	252
 Ferhat	687
@@ -20264,7 +20247,6 @@ Ferney	224
 Fernez	862
 Fernier	422
 Fernoux	289
-Feron	6112
 Feroul	215
 Ferra	408
 Ferracci	786
@@ -20303,7 +20285,6 @@ Ferraton	1128
 Ferraud	460
 Ferraz	829
 Ferrazzi	215
-Ferre	12525
 Ferreboeuf	325
 Ferrec	525
 Ferreira	20019
@@ -20314,7 +20295,6 @@ Ferreiro	210
 Ferreol	1152
 Ferrer	6736
 Ferrera	281
-Ferrere	2706
 Ferreres	604
 Ferreri	768
 Ferrero	4065
@@ -20327,8 +20307,6 @@ Ferrez	428
 Ferri	1881
 Ferrie	1879
 Ferrier	8343
-Ferriere	3193
-Ferrieres	976
 Ferrieu	267
 Ferrieux	314
 Ferrigno	537
@@ -20336,6 +20314,8 @@ Ferrini	205
 Ferriol	888
 Ferriot	234
 Ferris	350
+Ferrière	3193
+Ferrières	976
 Ferro	1436
 Ferron	5470
 Ferroni	210
@@ -20345,10 +20325,11 @@ Ferrucci	378
 Ferrus	431
 Ferrut	206
 Ferry	11371
+Ferrère	2706
+Ferré	12525
 Fersing	733
 Ferstler	447
 Fert	1309
-Ferte	1676
 Fertel	291
 Fertier	229
 Fertil	424
@@ -20356,6 +20337,7 @@ Fertillet	223
 Fertin	406
 Ferton	441
 Fertre	236
+Ferté	1676
 Feru	272
 Fery	2624
 Feryn	260
@@ -20417,8 +20399,6 @@ Feuvrier	1566
 Feval	247
 Feve	1058
 Fever	246
-Fevre	6348
-Fevrier	7261
 Fey	1470
 Feybesse	317
 Feydel	645
@@ -20484,8 +20464,6 @@ Fieu	226
 Fieulaine	228
 Fieux	381
 Fieve	543
-Fievet	6052
-Fievez	1350
 Fievre	1177
 Fifi	545
 Fifre	221
@@ -20530,7 +20508,6 @@ Filippini	1071
 Filisetti	223
 Fillastre	453
 Fillat	206
-Fillatre	1548
 Fillatreau	229
 Fillaud	512
 Fillaudeau	819
@@ -20541,7 +20518,6 @@ Filleul	1135
 Filleur	356
 Filleux	228
 Filliat	543
-Filliatre	450
 Filliau	221
 Filliere	267
 Filliette	438
@@ -20550,6 +20526,7 @@ Fillinger	469
 Filliol	637
 Fillion	3031
 Fillioux	243
+Filliâtre	450
 Fillod	435
 Fillol	972
 Fillon	5419
@@ -20557,6 +20534,7 @@ Fillonneau	727
 Fillot	426
 Filloux	1457
 Filly	224
+Fillâtre	1548
 Filoche	1111
 Filomin	311
 Filoni	206
@@ -20637,7 +20615,9 @@ Fixot	565
 Fizaine	313
 Fize	266
 Fizet	362
-Flaceliere	268
+Fiévet	6052
+Fiévez	1350
+Flacelière	268
 Flach	223
 Flachaire	385
 Flachard	200
@@ -20819,7 +20799,6 @@ Foeller	243
 Foerster	379
 Foessel	659
 Foesser	230
-Foex	201
 Fofana	3153
 Fogel	447
 Fogeron	227
@@ -21037,9 +21016,9 @@ Fortun	567
 Fortuna	432
 Fortunat	205
 Fortunato	650
-Fortune	2846
 Fortunee	224
 Fortuny	201
+Fortuné	2846
 Forveille	640
 Forzy	282
 Fos	494
@@ -21076,12 +21055,12 @@ Foucault	9171
 Foucaut	661
 Fouchard	3506
 Fouchaux	220
-Fouche	4296
 Foucher	14512
 Fouchereau	449
 Fouchet	2627
 Fouchier	648
 Fouchy	253
+Fouché	4296
 Fouconnier	267
 Foucou	255
 Foucras	498
@@ -21098,8 +21077,6 @@ Fougerais	290
 Fougeras	537
 Fougerat	738
 Fougeray	2324
-Fougere	3354
-Fougeres	1011
 Fougeret	353
 Fougereux	256
 Fougerit	236
@@ -21111,6 +21088,8 @@ Fougeroux	792
 Fougeyrollas	243
 Foughali	263
 Fougnies	321
+Fougère	3354
+Fougères	1011
 Fouilhe	221
 Fouilhoux	281
 Fouillade	820
@@ -21173,10 +21152,8 @@ Fourdraine	278
 Fourdrignier	316
 Fourdrinier	979
 Fourdrinoy	209
-Foure	2840
 Foureau	653
 Fourel	2348
-Foures	1817
 Fourest	236
 Fourestier	253
 Fouret	873
@@ -21222,7 +21199,6 @@ Fournet-Fayard	448
 Fourneyron	412
 Fournial	866
 Fournials	253
-Fournie	2902
 Fournier	71996
 Fournier-Bidoz	404
 Fourniere	272
@@ -21234,6 +21210,7 @@ Fourniols	215
 Fournioux	383
 Fournis	473
 Fournival	514
+Fournié	2902
 Fournol	594
 Fournot	462
 Fourny	2423
@@ -21242,11 +21219,11 @@ Fourquet	1682
 Fourquier	387
 Fourquin	221
 Fourrage	280
-Fourre	3339
 Fourreau	1437
 Fourreaux	250
 Fourrey	284
 Fourrier	4522
+Fourré	3339
 Fourt	349
 Fourtane	225
 Fourteau	586
@@ -21256,6 +21233,8 @@ Fourton	428
 Fourty	219
 Fourvel	283
 Foury	1041
+Fourès	1817
+Fouré	2840
 Foussadier	356
 Foussard	1246
 Foussat	911
@@ -21277,6 +21256,7 @@ Foy	1961
 Foyard	228
 Foyart	333
 Foyer	645
+Foëx	201
 Fra	264
 Fraboul	268
 Fraboulet	1584
@@ -21316,7 +21296,6 @@ Frambourt	215
 Framery	971
 Frammery	418
 Franc	3909
-Francais	1517
 Francart	857
 France	2631
 Francelle	277
@@ -21359,7 +21338,6 @@ Francois-Haugrin	237
 Francoise	4323
 Francolon	247
 Francomme	1336
-Francon	2228
 Franconnet	229
 Franconville	219
 Francony	314
@@ -21391,6 +21369,8 @@ Franz	773
 Franzetti	582
 Franzini	433
 Franzoni	309
+Français	1517
+Françon	2228
 Frapart	282
 Frapier	295
 Frapin	265
@@ -21434,17 +21414,11 @@ Frayssinet	1710
 Frayssinhes	459
 Frazier	460
 Freard	385
-Frebault	765
 Frebourg	1463
 Freby	312
 Frech	315
-Frechard	619
 Freche	592
-Frechet	1339
-Frechin	1091
-Frechon	420
 Frechou	1108
-Frecon	861
 Frede	221
 Frederic	2391
 Frederick	312
@@ -21459,7 +21433,6 @@ Fregard	208
 Fregeac	394
 Freger	206
 Freguin	254
-Frehaut	376
 Frehel	438
 Frei	287
 Frein	339
@@ -21479,18 +21452,11 @@ Frelin	776
 Freling	287
 Frelon	552
 Fremaut	234
-Fremaux	2769
-Fremeaux	1003
 Fremery	452
-Fremin	596
-Freminet	488
 Fremion	472
-Fremiot	1027
 Fremon	295
 Fremond	826
 Fremondiere	523
-Fremont	6635
-Fremy	1961
 Frenais	234
 Frenay	619
 Frene	424
@@ -21508,13 +21474,10 @@ Freon	494
 Freour	520
 Freppel	301
 Frequelin	311
-Frere	3984
 Frerebeau	361
 Frerejean	288
-Freret	1519
 Frereux	249
 Frering	200
-Frerot	1354
 Frery	1011
 Fresard	335
 Freschi	207
@@ -21549,7 +21512,6 @@ Freulet	232
 Freulon	1531
 Freund	1374
 Freval	585
-Freville	2579
 Frey	6933
 Freyburger	1258
 Freyche	242
@@ -21713,6 +21675,24 @@ Fruteau	548
 Fruteau de Laclos	427
 Frutos	236
 Frydman	313
+Frère	3984
+Frébault	765
+Fréchard	619
+Fréchet	1339
+Fréchin	1091
+Fréchon	420
+Frécon	861
+Fréhaut	376
+Frémaux	2769
+Frémeaux	1003
+Frémin	596
+Fréminet	488
+Frémiot	1027
+Frémont	6635
+Frémy	1961
+Fréret	1519
+Frérot	1354
+Fréville	2579
 Fualdes	231
 Fuchs	7773
 Fuentes	3053
@@ -21783,6 +21763,18 @@ Fuzeau	1062
 Fuzellier	429
 Fuzier	414
 Fyot	244
+Fèvre	6348
+Fédou	873
+Fée	221
+Félix	11104
+Fénart	549
+Fénelon	586
+Férat	685
+Féraud	3676
+Féret	4170
+Férez	895
+Féron	6112
+Février	7261
 Gabali	348
 Gabanou	214
 Gabard	2896
@@ -21841,7 +21833,6 @@ Gace	516
 Gacem	679
 Gach	349
 Gachassin	328
-Gache	2318
 Gachelin	251
 Gachen	304
 Gacher	229
@@ -21850,6 +21841,7 @@ Gachet	5445
 Gachignard	537
 Gachon	1748
 Gachot	755
+Gaché	2318
 Gaci	296
 Gacoin	534
 Gacon	2163
@@ -21925,8 +21917,8 @@ Gagnet	277
 Gagneur	922
 Gagneux	3055
 Gagnier	527
-Gagniere	1173
 Gagnieux	261
+Gagnière	1173
 Gagnol	627
 Gagnon	1231
 Gagnot	331
@@ -22123,8 +22115,8 @@ Galot	556
 Galou	296
 Galpin	1161
 Galteau	259
-Galtie	753
 Galtier	4512
+Galtié	753
 Galut	295
 Galvaing	469
 Galvaire	256
@@ -22286,7 +22278,6 @@ Garcia	61938
 Garcias	243
 Garcie	232
 Garcin	7028
-Garcon	3436
 Garconnet	527
 Gard	1308
 Garda	236
@@ -22299,10 +22290,8 @@ Gardel	842
 Gardella	226
 Gardelle	1185
 Gardenat	389
-Gardere	653
 Gardereau	269
 Garderes	399
-Gardes	3384
 Gardet	2636
 Gardette	2264
 Gardeur	328
@@ -22322,11 +22311,12 @@ Gardon	1942
 Gardoni	211
 Gardrat	530
 Gardy	778
+Gardère	653
+Gardès	3384
 Gare	244
 Gareau	919
 Garel	4580
 Garelli	476
-Garenaux	329
 Garenne	541
 Gares	480
 Garet	1782
@@ -22380,8 +22370,8 @@ Garofalo	472
 Garon	1117
 Garonne	204
 Garot	1893
-Garrabe	253
 Garrabos	770
+Garrabé	253
 Garraud	2117
 Garrault	441
 Garre	837
@@ -22419,6 +22409,8 @@ Gartner	575
 Gary	3030
 Garzino	441
 Garzon	292
+Garçon	3436
+Garénaux	329
 Gas	965
 Gasc	3255
 Gascard	804
@@ -22478,7 +22470,6 @@ Gastaldi	1636
 Gastaldo	247
 Gastard	377
 Gastaud	1726
-Gaste	1123
 Gasteau	299
 Gastebois	621
 Gastel	428
@@ -22491,10 +22482,10 @@ Gastinel	543
 Gaston	4158
 Gastou	859
 Gastrin	1363
+Gasté	1123
 Gat	248
 Gatard	1002
 Gatault	223
-Gate	1097
 Gateau	3596
 Gatel	904
 Gatelet	427
@@ -22526,6 +22517,7 @@ Gatto	1202
 Gattoni	247
 Gattuso	216
 Gatuingt	325
+Gaté	1097
 Gau	2966
 Gaube	523
 Gaubert	8575
@@ -22661,8 +22653,8 @@ Gauthier	57731
 Gauthierot	344
 Gauthiez	444
 Gauthron	388
-Gautie	392
 Gautier	53164
+Gautié	392
 Gautrais	403
 Gautrand	622
 Gautrat	206
@@ -22784,7 +22776,6 @@ Geffray	2049
 Geffre	259
 Geffriaud	461
 Geffroy	8587
-Gegout	653
 Gehan	723
 Gehanne	246
 Gehant	775
@@ -22817,20 +22808,15 @@ Geldof	245
 Geldreich	276
 Gele	1127
 Gelebart	1083
-Gelee	356
 Gelet	243
 Geley	276
 Gelez	620
-Gelibert	570
 Gelie	354
-Gelin	3870
 Gelinaud	255
 Gelineau	1704
 Gelinet	267
 Gelinotte	204
-Geliot	281
 Gelis	1621
-Gelle	1444
 Gellee	370
 Gellenoncourt	302
 Gellet	236
@@ -22839,11 +22825,13 @@ Gellibert	250
 Gellis	225
 Gellon	267
 Gelly	1911
+Gellé	1444
 Geloen	328
 Gelos	243
 Gelot	1622
 Gelu	413
 Gely	3810
+Gelée	356
 Gemard	272
 Gemin	598
 Gemon	424
@@ -22869,7 +22857,6 @@ Gendron	5661
 Gendronneau	775
 Gendrot	1569
 Gendry	1396
-Gene	899
 Geneau	1249
 Geneau de Lamarliere	342
 Genebrier	397
@@ -22903,7 +22890,6 @@ Geney	500
 Geng	621
 Gengembre	906
 Gengoul	207
-Geniaux	330
 Genie	217
 Genier	526
 Genies	559
@@ -22914,7 +22900,6 @@ Genillon	411
 Genin	8030
 Genis	236
 Genissel	526
-Genisson	330
 Geniteau	264
 Genna	384
 Gennari	279
@@ -22922,7 +22907,6 @@ Gennaro	309
 Gennerat	255
 Gennesseaux	201
 Gennetay	230
-Genois	495
 Genon	453
 Genot	3098
 Genoud	1118
@@ -22968,7 +22952,6 @@ Gentreau	220
 Gentric	1133
 Genty	6930
 Genu	232
-Geny	1660
 Geoffray	2262
 Geoffre	739
 Geoffrin	225
@@ -22995,15 +22978,11 @@ Gerald	645
 Geraldes	343
 Geran	883
 Gerand	213
-Gerard	43649
 Gerardi	285
-Gerardin	5204
 Gerardo	235
 Gerardot	563
-Geraud	4360
 Geraudel	218
 Geraudie	552
-Gerault	2151
 Geraut	209
 Geray	610
 Gerbal	440
@@ -23041,7 +23020,6 @@ Gergaud	1898
 Gerges	227
 Gerhard	411
 Gerhardt	231
-Gerin	3686
 Gering	212
 Gerion	200
 Gerland	534
@@ -23127,7 +23105,6 @@ Getin	283
 Gette	223
 Geulin	288
 Gevaert	515
-Gevaudan	841
 Gevia	276
 Gevrey	693
 Gewinner	208
@@ -23135,7 +23112,6 @@ Gex	400
 Gey	1355
 Geyer	2253
 Geynet	364
-Geze	232
 Ghalem	404
 Ghali	292
 Ghanem	699
@@ -23148,7 +23124,7 @@ Gheno	288
 Gherardi	1026
 Gherbi	611
 Ghesquier	664
-Ghesquiere	2130
+Ghesquière	2130
 Ghestem	489
 Gheysens	312
 Ghezal	460
@@ -23257,7 +23233,6 @@ Gidemann	310
 Gidoin	362
 Gidon	1278
 Gidrol	265
-Gie	444
 Gielly	243
 Gien	566
 Gier	207
@@ -23545,6 +23520,7 @@ Givre	330
 Givry	862
 Gizard	639
 Gizzi	220
+Gié	444
 Glace	227
 Glacet	864
 Glachant	675
@@ -23594,7 +23570,6 @@ Glemee	232
 Glemet	450
 Glemot	423
 Glenac	358
-Glenat	895
 Glenisson	502
 Gleonec	261
 Gless	861
@@ -23633,6 +23608,7 @@ Glotin	994
 Gloux	1199
 Glowacki	557
 Gluck	624
+Glénat	895
 Gnaedig	255
 Gnemmi	250
 Goachet	269
@@ -23648,7 +23624,7 @@ Goarnisson	393
 Goarzin	201
 Goas	290
 Goascoz	351
-Goasdoue	1445
+Goasdoué	1445
 Goasduff	339
 Goasguen	954
 Goasmat	368
@@ -23686,7 +23662,6 @@ Godbillot	282
 Goddard	407
 Godde	878
 Goddet	515
-Gode	904
 Godeau	2203
 Godebert	377
 Godebout	378
@@ -23728,6 +23703,7 @@ Godrie	509
 Godron	264
 Godu	210
 Gody	319
+Godé	904
 Goebel	355
 Goedert	443
 Goeller	573
@@ -23859,7 +23835,6 @@ Gomont	304
 Gomot	473
 Gomy	414
 Gonard	264
-Goncalves	16448
 Gonce	316
 Gond	573
 Gondal	373
@@ -23911,6 +23886,7 @@ Gonzales	4779
 Gonzalez	22554
 Gonzalo	215
 Gonzalvez	502
+Gonçalves	16448
 Goossens	1097
 Gopal	208
 Gora	339
@@ -23924,7 +23900,6 @@ Gordet	205
 Gordien	636
 Gordo	242
 Gordon	503
-Gore	819
 Goreau	235
 Gorecki	530
 Goret	2420
@@ -23964,6 +23939,7 @@ Gorsse	764
 Gortais	256
 Gorvel	321
 Gory	1362
+Goré	819
 Gos	464
 Goslin	337
 Gosnet	1209
@@ -24037,8 +24013,6 @@ Goudot	591
 Goudou	801
 Goudour	253
 Goudy	537
-Goue	381
-Gouedard	1002
 Goueffon	504
 Gouel	978
 Gouelle	267
@@ -24048,8 +24022,8 @@ Gouery	234
 Goueslain	212
 Gouet	1272
 Gouez	959
-Gouffe	343
 Gouffier	462
+Gouffé	343
 Gougaud	546
 Gouge	900
 Gougeard	339
@@ -24068,7 +24042,6 @@ Gouillart	577
 Gouillon	755
 Gouillou	253
 Gouilloux	249
-Gouin	6226
 Gouineau	702
 Gouiran	666
 Gouirand	559
@@ -24263,6 +24236,8 @@ Gouzien	1141
 Gouzon	472
 Gouzou	826
 Gouzy	1247
+Goué	381
+Gouédard	1002
 Govaere	271
 Govaert	361
 Govart	287
@@ -24290,6 +24265,7 @@ Gozet	254
 Gozlan	537
 Gozzi	502
 Gozzo	208
+Goüin	6226
 Graber	537
 Grabowski	917
 Grac	864
@@ -24352,7 +24328,7 @@ Grandcamp	272
 Grandchamp	916
 Grandclaude	738
 Grandclaudon	284
-Grandclement	661
+Grandclément	661
 Grandcoin	319
 Grandcoing	258
 Grandcolas	556
@@ -24416,8 +24392,8 @@ Grangette	462
 Grangie	232
 Grangier	2648
 Grangy	266
-Granie	607
 Granier	10566
+Granié	607
 Granjard	299
 Granjon	2529
 Grannec	606
@@ -24524,10 +24500,8 @@ Grea	328
 Greard	631
 Greau	1622
 Greaud	436
-Greaume	600
 Greaux	1054
 Grebaut	330
-Grebert	1639
 Grebet	235
 Grebil	371
 Grebonval	226
@@ -24552,7 +24526,6 @@ Greffin	261
 Greget	255
 Gregis	214
 Grego	537
-Gregoire	19178
 Gregori	1257
 Gregorio	569
 Gregoris	236
@@ -24579,7 +24552,6 @@ Gremillon	819
 Gremion	394
 Gremmel	304
 Gremont	1531
-Gremy	1034
 Grenard	980
 Grenat	439
 Grene	263
@@ -24600,7 +24572,7 @@ Grepinet	223
 Greppo	200
 Gres	1204
 Gresillon	410
-Gresle	706
+Greslé	706
 Grespinet	249
 Gress	950
 Gressard	625
@@ -24627,7 +24599,6 @@ Grevellec	202
 Greverie	211
 Grevet	996
 Grevillot	212
-Grevin	1011
 Grey	256
 Greze	865
 Grezel	225
@@ -24813,7 +24784,7 @@ Grosselin	563
 Grossemy	902
 Grosset	3996
 Grosset-Janin	237
-Grossetete	687
+Grossetête	687
 Grosshans	337
 Grossi	1473
 Grossier	661
@@ -24873,7 +24844,6 @@ Grumel	380
 Grumet	209
 Grumetz	346
 Grumiaux	333
-Grun	1126
 Grunberg	374
 Grunder	207
 Gruneisen	254
@@ -24885,7 +24855,6 @@ Grunfelder	317
 Gruny	442
 Gruselle	508
 Gruson	2891
-Gruss	473
 Grussenmeyer	380
 Gruszka	243
 Grut	214
@@ -24898,6 +24867,13 @@ Grzelak	257
 Grzesiak	426
 Grzeskowiak	531
 Grzybowski	240
+Gréaume	600
+Grébert	1639
+Grégoire	19178
+Grémy	1034
+Grévin	1011
+Grün	1126
+Grüss	473
 Gschwind	621
 Gsell	741
 Gstalter	331
@@ -24923,8 +24899,6 @@ Guckert	217
 Gudefin	790
 Gudet	246
 Gudin	957
-Gue	780
-Gueant	913
 Guebel	264
 Guebey	363
 Guechi	360
@@ -24936,20 +24910,16 @@ Guedez	253
 Guedin	802
 Guedj	2004
 Guedo	393
-Guedon	6144
 Guedou	280
 Guedra	213
 Gueffier	789
 Guegain	288
-Guegan	9719
 Gueganno	253
 Guegano	312
 Gueganton	320
 Guego	373
 Guegou	265
-Gueguen	12645
 Guegueniat	379
-Gueguin	776
 Guehennec	605
 Guehenneuc	327
 Guehenneux	578
@@ -24977,7 +24947,6 @@ Guen	376
 Guena	677
 Guenan	375
 Guenand	492
-Guenard	3682
 Guenat	410
 Guenault	525
 Guendouz	623
@@ -24991,14 +24960,11 @@ Guenego	623
 Guenegou	388
 Guenerie	306
 Gueneron	214
-Guenet	1446
 Gueneugues	200
 Guenez	235
 Guengant	505
 Guenier	926
 Gueniffey	309
-Guenin	2150
-Gueniot	753
 Guennec	1316
 Guennegues	253
 Guenneugues	213
@@ -25007,19 +24973,15 @@ Guennou	549
 Guennoun	206
 Gueno	980
 Guenole	688
-Guenon	1572
-Guenot	3707
 Guenoun	424
 Guenver	255
 Gueny	363
 Guenzi	330
-Guepin	555
 Guepratte	385
 Guer	212
 Guerain	220
 Guerand	245
 Gueranger	571
-Guerard	5233
 Gueraud	829
 Guerault	999
 Guerber	642
@@ -25038,21 +25000,16 @@ Guerdoux	216
 Gueremy	205
 Guerendel	209
 Guerer	201
-Gueret	4468
 Guerfi	423
 Gueriaud	365
 Guerif	1405
 Guerillon	380
 Guerillot	437
 Guerimand	214
-Guerin	62183
 Guerinaud	211
-Guerineau	4746
 Guerinel	705
 Guerinet	1001
-Guerini	838
 Guerinon	203
-Guerinot	612
 Gueriot	316
 Guerit	679
 Gueritte	250
@@ -25071,7 +25028,6 @@ Guernier	684
 Guernion	414
 Guerniou	255
 Guerot	466
-Gueroult	2460
 Guerout	852
 Guerpillon	483
 Guerquin	235
@@ -25131,7 +25087,6 @@ Gueusquin	288
 Gueutal	250
 Gueux	535
 Guevara	384
-Guevel	2222
 Gueveneux	207
 Gueville	545
 Guey	459
@@ -25147,7 +25102,6 @@ Guezenec	344
 Guezennec	1810
 Guezet	556
 Guezo	338
-Guezou	836
 Gufflet	216
 Guffroy	2491
 Guglielmacci	225
@@ -25226,7 +25180,6 @@ Guigal	349
 Guigand	261
 Guigard	497
 Guignard	10068
-Guigne	625
 Guigner	354
 Guignery	280
 Guignes	209
@@ -25234,6 +25187,7 @@ Guignet	729
 Guignier	1014
 Guignon	1377
 Guignot	829
+Guigné	625
 Guigo	630
 Guigon	2298
 Guigonis	244
@@ -25371,10 +25325,10 @@ Guillon	18451
 Guillonneau	1422
 Guillonnet	320
 Guillope	348
-Guillore	629
 Guilloret	328
 Guillorit	433
 Guillory	942
+Guilloré	629
 Guillosson	236
 Guillossou	989
 Guillot	33243
@@ -25416,7 +25370,7 @@ Guimbard	337
 Guimbaud	400
 Guimbert	394
 Guimberteau	616
-Guimbretiere	623
+Guimbretière	623
 Guimet	631
 Guimier	977
 Guimiot	224
@@ -25547,7 +25501,6 @@ Gunduz	233
 Gunes	413
 Gungor	313
 Gunst	260
-Gunther	1236
 Guntz	620
 Guntzburger	207
 Gur	218
@@ -25603,11 +25556,50 @@ Guyou	421
 Guzel	243
 Guzman	567
 Guzzo	342
+Gué	780
+Guéant	913
+Guédon	6144
+Guégan	9719
+Guéguen	12645
+Guéguin	776
+Guénard	3682
+Guénet	1446
+Guénin	2150
+Guéniot	753
+Guénon	1572
+Guénot	3707
+Guépin	555
+Guérard	5233
+Guéret	4468
+Guérin	62183
+Guérineau	4746
+Guérini	838
+Guérinot	612
+Guéroult	2460
+Guével	2222
+Guézou	836
 Gwinner	254
 Gy	412
 Gyde	285
 Gyselinck	433
 Gyss	238
+Gène	899
+Gèze	232
+Gégout	653
+Gélibert	570
+Gélin	3870
+Géliot	281
+Géniaux	330
+Génisson	330
+Génois	495
+Gény	1660
+Gérard	43649
+Gérardin	5204
+Géraud	4360
+Gérault	2151
+Gérin	3686
+Gévaudan	841
+Günther	1236
 Ha	375
 Haab	200
 Haag	2355
@@ -25703,7 +25695,6 @@ Hafsi	325
 Hag	215
 Hagard	402
 Hage	461
-Hagege	662
 Hagen	606
 Hagenbach	295
 Hager	630
@@ -25715,10 +25706,11 @@ Haguenauer	322
 Haguenier	260
 Haguet	851
 Haguy	220
+Hagège	662
 Hahn	2154
 Haidara	410
 Haie	746
-Haignere	309
+Haigneré	309
 Haigron	245
 Haillant	292
 Haillot	444
@@ -25760,7 +25752,6 @@ Hallaert	259
 Hallais	709
 Hallard	793
 Hallay	324
-Halle	1708
 Haller	2440
 Hallereau	373
 Hallet	917
@@ -25775,6 +25766,7 @@ Hallot	1228
 Hallouin	1035
 Halluin	1081
 Hallynck	235
+Hallé	1708
 Halm	966
 Halna	209
 Haloche	250
@@ -25985,8 +25977,8 @@ Harkat	207
 Harlaut	202
 Harlaux	212
 Harlay	840
-Harle	2050
 Harlet	363
+Harlé	2050
 Harmand	2522
 Harmant	853
 Harmel	326
@@ -26025,7 +26017,7 @@ Hary	1392
 Harzo	201
 Hasbroucq	283
 Hascoat	207
-Hascoet	3656
+Hascoët	3656
 Hasdenteufel	211
 Hasenfratz	496
 Hasle	881
@@ -26186,15 +26178,12 @@ Hebant	267
 Hebbache	218
 Hebel	239
 Heberle	509
-Hebert	20391
 Hebinger	304
-Hebrard	5144
 Hebras	1108
 Hebraud	262
 Hebting	449
 Hec	268
 Hecale	255
-Hecart	316
 Hechinger	524
 Hecht	1720
 Heck	1288
@@ -26213,9 +26202,7 @@ Heddebaut	336
 Hede	599
 Hedin	2289
 Hedoin	239
-Hedon	464
 Hedou	747
-Hedouin	2139
 Hedoux	522
 Hee	982
 Hego	1399
@@ -26266,7 +26253,6 @@ Helal	240
 Helan	317
 Helard	766
 Helart	218
-Helary	1875
 Helbecque	454
 Helbert	1580
 Helbling	382
@@ -26280,14 +26266,11 @@ Helfrich	715
 Helfrick	662
 Helfrid	480
 Helfried	232
-Helias	2622
-Helie	2044
 Helier	336
 Heliere	251
 Helies	1118
 Heligon	353
 Helin	2108
-Helion	473
 Heliot	942
 Helis	237
 Helissey	205
@@ -26333,14 +26316,11 @@ Helwig	210
 Hely	788
 Helye	263
 Hem	243
-Hemar	331
-Hemard	1059
 Hemart	554
 Hemberger	259
 Hembert	1652
 Heme	304
 Hemelsdael	220
-Hemery	7187
 Hemeryck	205
 Hemet	568
 Hemidy	279
@@ -26349,15 +26329,10 @@ Hemmer	914
 Hemmerle	717
 Hemmerlin	542
 Hemmert	271
-Hemon	3540
 Hemond	219
 Hemonet	358
 Hemonic	304
 Hen	451
-Henaff	3162
-Henard	581
-Henault	3764
-Henaut	1045
 Henaux	1191
 Henck	469
 Henderson	261
@@ -26366,7 +26341,6 @@ Hendrycks	253
 Heneman	227
 Heng	695
 Hengy	513
-Henin	3206
 Henique	656
 Henn	371
 Hennache	468
@@ -26438,25 +26412,17 @@ Hepp	331
 Hequet	2276
 Hequette	248
 Her	406
-Herail	1530
-Heral	786
-Heran	596
 Herant	283
 Heranval	741
-Herard	1764
 Heras	440
-Heraud	5575
 Heraudeau	304
 Heraudet	210
-Herault	7825
-Heraut	825
 Herb	244
 Herbain	249
 Herbault	312
 Herbaut	3611
 Herbaux	1028
 Herbay	202
-Herbe	905
 Herbecq	287
 Herbel	308
 Herbelet	237
@@ -26482,16 +26448,16 @@ Herbst	463
 Herbster	207
 Herbulot	492
 Herby	206
+Herbé	905
 Herce	559
 Hercelin	329
 Herchin	233
-Hercouet	738
+Hercouët	738
 Herduin	296
 Hereau	382
 Heredia	1206
 Hereil	241
 Herel	429
-Herelle	560
 Hereng	497
 Herent	710
 Hereson	225
@@ -26500,16 +26466,12 @@ Herfray	278
 Hergat	213
 Hergault	656
 Hergott	636
-Heriaud	276
 Hericher	1343
 Hericotte	326
 Hericourt	715
-Herin	1504
 Heringuez	276
-Heriot	289
 Herisse	1161
 Herisset	241
-Herisson	2690
 Heriteau	342
 Heritier	3100
 Herivaux	204
@@ -26534,7 +26496,6 @@ Hermeline	745
 Hermellin	273
 Hermenier	572
 Herment	1152
-Hermes	246
 Hermet	2400
 Hermetz	345
 Hermez	345
@@ -26544,6 +26505,7 @@ Hermite	257
 Hermitte	1251
 Hermon	229
 Hermouet	1316
+Hermès	246
 Hernandez	16300
 Hernando	439
 Hernault	271
@@ -26554,9 +26516,7 @@ Hernoux	279
 Hernu	840
 Herode	545
 Heroguelle	280
-Herold	706
 Herolt	204
-Heron	3044
 Heronneau	233
 Heros	284
 Herot	261
@@ -26611,7 +26571,6 @@ Hervagault	373
 Hervas	270
 Hervaud	364
 Hervault	898
-Herve	28439
 Herveau	214
 Hervelin	314
 Herveou	243
@@ -26631,6 +26590,7 @@ Hervochon	445
 Hervot	466
 Hervouet	3938
 Hervy	3470
+Hervé	28439
 Hery	5536
 Herz	207
 Herzi	201
@@ -26691,9 +26651,8 @@ Heutte	653
 Heuveline	520
 Heux	697
 Heuzard	328
-Heuze	4280
 Heuzey	350
-Hevin	808
+Heuzé	4280
 Hey	212
 Heyberger	493
 Heyd	706
@@ -26969,10 +26928,10 @@ Honnet	468
 Honnorat	696
 Honnore	230
 Honorat	863
-Honore	7502
 Honorez	407
 Honorin	253
 Honorine	824
+Honoré	7502
 Hontang	299
 Hontarrede	310
 Honvault	643
@@ -27089,7 +27048,6 @@ Houdusse	526
 Houe	528
 Houee	1072
 Houeix	1373
-Houel	3188
 Houet	919
 Houette	275
 Hougard	485
@@ -27174,11 +27132,12 @@ Houvet	524
 Houx	498
 Houy	1237
 Houyvet	385
-Houze	2839
 Houzelle	621
 Houzelot	240
 Houzet	1121
 Houziaux	858
+Houzé	2839
+Houël	3188
 Hovaere	224
 Hovart	219
 Hovasse	244
@@ -27347,7 +27306,6 @@ Huraux	640
 Huray	344
 Hurbain	567
 Hurbin	202
-Hure	2667
 Hureau	2218
 Hureaux	547
 Hurel	4200
@@ -27375,6 +27333,7 @@ Hurtevent	384
 Hurth	423
 Hurtrel	985
 Hurtrez	245
+Huré	2667
 Hus	994
 Huser	407
 Huss	1554
@@ -27396,13 +27355,13 @@ Hutt	310
 Hutteau	650
 Hutter	404
 Huttin	296
-Huve	647
 Huvelin	936
 Huvelle	708
 Huver	289
 Huvet	499
 Huvey	300
 Huvier	397
+Huvé	647
 Huwer	227
 Huy	217
 Huyard	348
@@ -27424,6 +27383,39 @@ Hyver	285
 Hyvernat	720
 Hyvernaud	645
 Hyvert	845
+Hébert	20391
+Hébrard	5144
+Hécart	316
+Hédon	464
+Hédouin	2139
+Hélary	1875
+Hélias	2622
+Hélie	2044
+Hélion	473
+Hémar	331
+Hémard	1059
+Hémery	7187
+Hémon	3540
+Hénaff	3162
+Hénard	581
+Hénault	3764
+Hénaut	1045
+Hénin	3206
+Hérail	1530
+Héral	786
+Héran	596
+Hérard	1764
+Héraud	5575
+Hérault	7825
+Héraut	825
+Hérelle	560
+Hériaud	276
+Hérin	1504
+Hériot	289
+Hérisson	2690
+Hérold	706
+Héron	3044
+Hévin	808
 Iaconelli	284
 Iacono	395
 Iafrate	527
@@ -27508,7 +27500,7 @@ Inaudi	234
 Incana	351
 Incardona	221
 Incerti	219
-Inchauspe	440
+Inchauspé	440
 Indart	279
 Inderchit	391
 Indiana	512
@@ -27581,8 +27573,8 @@ Isoard	928
 Isoardi	571
 Isoardo	237
 Isola	331
-Isore	215
 Isorez	320
+Isoré	215
 Israel	1950
 Issa	426
 Issaad	255
@@ -27734,25 +27726,24 @@ Jaeck	816
 Jaeckel	249
 Jaeg	345
 Jaeger	3091
-Jaegle	1110
 Jaegler	225
+Jaeglé	1110
 Jaegy	295
 Jaen	266
 Jaffard	325
 Jaffeux	786
 Jaffrain	253
 Jaffray	360
-Jaffre	5146
 Jaffredo	454
 Jaffrelot	681
 Jaffrennou	599
-Jaffres	1296
 Jaffrezic	572
 Jaffrezou	285
 Jaffro	283
 Jaffry	855
+Jaffrès	1296
+Jaffré	5146
 Jaffuel	488
-Jager	2067
 Jaget	228
 Jaggi	267
 Jaglin	420
@@ -28027,8 +28018,8 @@ Jauny	355
 Jauregui	249
 Jaureguiberry	762
 Jaureguy	406
-Jaures	512
 Jaury	203
+Jaurès	512
 Jaussaud	1104
 Jauze	598
 Jauzelon	248
@@ -28154,20 +28145,15 @@ Jegaden	329
 Jegado	347
 Jegard	453
 Jegat	1599
-Jego	4587
-Jegou	7330
 Jegouic	475
 Jegourel	301
 Jegousse	529
 Jegoux	642
-Jegouzo	1004
-Jegu	1852
 Jehan	1962
 Jehanne	734
 Jehannin	759
 Jehanno	3592
 Jehel	314
-Jehenne	413
 Jehl	2462
 Jehle	272
 Jehu	287
@@ -28260,12 +28246,12 @@ Jodet	384
 Jodin	248
 Joerger	596
 Joets	293
-Joffe	202
 Joffin	339
 Joffre	2825
 Joffres	377
 Joffrin	583
 Joffroy	1107
+Joffé	202
 Joguet	1525
 Johan	507
 Johanet	204
@@ -28592,7 +28578,6 @@ Juanola	269
 Juarez	552
 Juban	825
 Jubault	1454
-Jube	435
 Jubeau	493
 Jubelin	209
 Jubenot	367
@@ -28603,6 +28588,7 @@ Jubin	1833
 Jubineau	228
 Jublin	255
 Jublot	508
+Jubé	435
 Juchet	280
 Juchs	285
 Jud	444
@@ -28621,7 +28607,6 @@ Judon	240
 Judor	281
 Jue	407
 Juen	208
-Juery	500
 Juet	348
 Jugan	489
 Jugand	255
@@ -28727,7 +28712,7 @@ Jusseaume	546
 Jusselme	289
 Jusserand	445
 Just	1276
-Justafre	351
+Justafré	351
 Justal	243
 Juste	2154
 Justeau	269
@@ -28750,6 +28735,13 @@ Juveneton	241
 Juvigny	580
 Juvin	1150
 Juy	410
+Juéry	500
+Jäger	2067
+Jégo	4587
+Jégou	7330
+Jégouzo	1004
+Jégu	1852
+Jéhenne	413
 K'Bidi	287
 Ka	277
 Kaabeche	336
@@ -28813,8 +28805,8 @@ Kane	664
 Kania	407
 Kannengieser	208
 Kanor	288
-Kanoute	913
-Kante	1289
+Kanouté	913
+Kanté	1289
 Kany	495
 Kapfer	562
 Kaplan	705
@@ -28954,7 +28946,7 @@ Kerguillec	280
 Kergus	233
 Kerharo	388
 Kerhel	203
-Kerherve	1297
+Kerhervé	1297
 Kerhoas	1057
 Kerhuel	228
 Keribin	349
@@ -28963,7 +28955,6 @@ Kerignard	276
 Kerihuel	291
 Kerinec	211
 Kerisit	873
-Kerivel	579
 Kerjan	309
 Kerjean	1551
 Kerjouan	380
@@ -29234,9 +29225,8 @@ Koller	583
 Kolli	229
 Kolly	518
 Kolodziej	385
-Konate	2355
+Konaté	2355
 Kondoki	589
-Kone	1170
 Kong	439
 Konieczny	1100
 Konig	654
@@ -29244,6 +29234,7 @@ Konrad	260
 Konrath	219
 Konte	949
 Kontzler	254
+Koné	1170
 Koob	319
 Koos	204
 Kopec	611
@@ -29272,12 +29263,12 @@ Kostrzewa	335
 Kot	440
 Kouachi	243
 Kouadio	212
-Kouame	243
+Kouamé	243
 Kouassi	420
 Kouider	298
 Kouki	202
 Koulmann	211
-Kouyate	237
+Kouyaté	237
 Kouyoumdjian	387
 Kovac	361
 Kovacevic	202
@@ -29353,7 +29344,6 @@ Kubacki	281
 Kubiak	1710
 Kubicki	353
 Kubik	255
-Kubler	1920
 Kuc	285
 Kucharski	658
 Kuchler	208
@@ -29396,6 +29386,8 @@ Kuzma	261
 Kwasniewski	254
 Kwiatkowski	1187
 Kyndt	209
+Kérivel	579
+Kübler	1920
 L'Haridon	398
 L'Henoret	202
 L'Her	215
@@ -29449,11 +29441,10 @@ Labaye	811
 Labayle	205
 Labbat	239
 Labbaye	396
-Labbe	15940
 Labbee	260
 Labbey	379
 Labbez	209
-Labe	1053
+Labbé	15940
 Labeau	1063
 Labeaume	279
 Labed	261
@@ -29465,7 +29456,6 @@ Labejof	372
 Label	253
 Labelle	1633
 Labenne	714
-Labeque	243
 Laberenne	322
 Labergere	432
 Labergerie	267
@@ -29514,7 +29504,6 @@ Laboulais	609
 Laboulle	247
 Labour	423
 Labourdette	1578
-Laboure	1544
 Laboureau	874
 Labourel	736
 Labouret	533
@@ -29524,6 +29513,7 @@ Labourg	260
 Labouriaux	205
 Labourier	738
 Labourot	244
+Labouré	1544
 Labous	668
 Laboute	230
 Laboux	328
@@ -29553,10 +29543,12 @@ Labrunie	954
 Labruyere	1595
 Labry	605
 Laburthe	484
-Labussiere	1451
+Labussière	1451
 Labuthie	216
 Laby	875
 Labylle	361
+Labèque	243
+Labé	1053
 Lac	1578
 Lacabanne	465
 Lacaille	3530
@@ -29612,7 +29604,6 @@ Lacherez	282
 Lachery	545
 Lachet	204
 Lacheteau	321
-Lachevre	2190
 Lacheze	924
 Lachhab	289
 Lachiche	204
@@ -29623,6 +29614,7 @@ Lachkar	459
 Lachmann	375
 Lachot	236
 Lachuer	283
+Lachèvre	2190
 Lacides	285
 Lacipiere	223
 Lacire	401
@@ -29651,7 +29643,6 @@ Lacorre	668
 Lacosse	279
 Lacoste	16501
 Lacot	262
-Lacote	2491
 Lacotte	1819
 Lacou	275
 Lacoume	419
@@ -29666,7 +29657,7 @@ Lacoux	426
 Lacquemant	262
 Lacquement	632
 Lacrampe	1217
-Lacressonniere	227
+Lacressonnière	227
 Lacreuse	481
 Lacroix	37290
 Lacrosse	263
@@ -29678,6 +29669,7 @@ Lacroze	427
 Lacube	372
 Lacuisse	211
 Lacuve	221
+Lacôte	2491
 Lada	314
 Ladam	411
 Ladame	564
@@ -29728,9 +29720,9 @@ Lafaux	249
 Lafay	2599
 Lafaye	4542
 Lafaysse	453
-Lafenetre	572
+Lafenêtre	572
 Laferrere	246
-Laferriere	347
+Laferrière	347
 Laferte	253
 Lafertin	371
 Lafeuillade	273
@@ -29769,14 +29761,14 @@ Lafontan	601
 Laforce	888
 Lafore	278
 Laforest	2005
-Laforet	3195
 Laforge	3708
 Laforgue	1346
 Lafortune	375
+Laforêt	3195
 Lafosse	4161
 Lafoucriere	249
 Lafouge	415
-Lafougere	241
+Lafougère	241
 Lafourcade	2714
 Lafoy	467
 Lafragette	238
@@ -29798,7 +29790,7 @@ Laganier	248
 Lagant	275
 Lagard	263
 Lagarde	17571
-Lagardere	2253
+Lagardère	2253
 Lagarrigue	3558
 Lagasse	1109
 Lagathu	402
@@ -29849,16 +29841,16 @@ Lagrange	10742
 Lagraulet	369
 Lagrave	1270
 Lagravere	230
-Lagree	902
 Lagrene	772
-Lagrenee	809
 Lagrenet	233
+Lagrenée	809
 Lagresle	294
 Lagreze	600
 Lagriffoul	724
 Lagrive	241
 Lagrost	339
 Lagrue	1570
+Lagrée	902
 Lague	483
 Laguens	386
 Laguerre	2979
@@ -29928,15 +29920,15 @@ Laille	771
 Lailler	917
 Laillet	715
 Laillier	485
-Laime	226
-Laine	18025
+Laimé	226
 Lainey	450
 Lainez	417
+Lainé	18025
 Lair	5940
 Laire	652
 Lairy	296
-Laisne	3317
 Laisney	2148
+Laisné	3317
 Laissac	242
 Laissus	629
 Laithier	823
@@ -29985,7 +29977,7 @@ Lales	257
 Lalet	499
 Laleu	690
 Laleuf	386
-Lalevee	1250
+Lalevée	1250
 Laliche	206
 Laligant	358
 Lalin	546
@@ -30009,7 +30001,6 @@ Lallouette	703
 Lalloz	744
 Lalmi	228
 Lalo	766
-Laloe	238
 Laloge	319
 Laloi	948
 Lalonde	622
@@ -30026,6 +30017,7 @@ Laloux	2213
 Laloy	1215
 Laloyaux	261
 Laloyer	371
+Laloë	238
 Lalu	513
 Laluc	358
 Lalue	371
@@ -30048,7 +30040,7 @@ Lamalle	1350
 Lamamy	477
 Lamand	1195
 Lamanda	278
-Lamande	1873
+Lamandé	1873
 Lamant	1714
 Lamarca	258
 Lamarche	3443
@@ -30067,9 +30059,9 @@ Lamasse	286
 Lamat	207
 Lamaud	568
 Lamaze	603
-Lamazere	332
 Lamaziere	201
 Lamazou	235
+Lamazère	332
 Lamballais	351
 Lamballe	264
 Lambalot	246
@@ -30211,7 +30203,6 @@ Lanciaux	990
 Lancien	2985
 Lanclume	286
 Lanco	299
-Lancon	2594
 Lancry	929
 Landa	1145
 Landais	8284
@@ -30291,10 +30282,10 @@ Langin	430
 Langlade	2862
 Langlais	7285
 Langlard	207
-Langle	420
 Langlet	7197
 Langlin	209
 Langlois	25998
+Langlé	420
 Langot	462
 Langouet	645
 Langrand	956
@@ -30331,7 +30322,6 @@ Lannou	413
 Lannoy	4008
 Lannoye	462
 Lannuzel	1615
-Lanoe	3610
 Lanoir	525
 Lanois	518
 Lanoiselee	357
@@ -30343,6 +30333,7 @@ Lanotte	396
 Lanoue	1103
 Lanoux	485
 Lanoy	1578
+Lanoë	3610
 Lanquetin	959
 Lansac	497
 Lansade	634
@@ -30371,6 +30362,7 @@ Lanvin	1065
 Lanxade	237
 Lanz	319
 Lanza	1017
+Lançon	2594
 Lao	575
 Laot	1523
 Laouadi	387
@@ -30428,7 +30420,6 @@ Laporte	21076
 Laporterie	200
 Laposte	292
 Lapostolle	785
-Lapotre	1422
 Lapouble	237
 Lapouge	1819
 Lapouille	223
@@ -30448,6 +30439,7 @@ Laprun	222
 Laprune	215
 Laptes	204
 Lapuyade	417
+Lapôtre	1422
 Laquay	384
 Laquerbe	311
 Laquerriere	387
@@ -30472,14 +30464,13 @@ Larcelet	244
 Larche	1674
 Larcher	8034
 Larchet	297
-Larcheveque	1701
 Larchevesque	252
+Larchevêque	1701
 Larchez	301
 Larcier	285
 Larcon	299
 Lardans	325
 Lardant	286
-Larde	1119
 Lardeau	1331
 Lardellier	252
 Lardemer	300
@@ -30489,15 +30480,15 @@ Lardet	1478
 Lardeur	721
 Lardeux	1972
 Lardier	808
-Lardiere	1205
 Lardillier	308
 Lardin	928
+Lardière	1205
 Lardon	1348
 Lardot	214
 Lardoux	604
 Lardy	2426
+Lardé	1119
 Larenaudie	267
-Larere	231
 Large	3398
 Largeau	1443
 Largeaud	649
@@ -30510,7 +30501,7 @@ Largeteau	355
 Largier	543
 Largillet	402
 Largillier	267
-Largilliere	1140
+Largillière	1140
 Largitte	237
 Largouet	373
 Larguier	1361
@@ -30526,7 +30517,7 @@ Lario	216
 Larique	235
 Larisse	345
 Larive	1421
-Lariviere	3811
+Larivière	3811
 Larmande	331
 Larme	377
 Larmet	889
@@ -30571,7 +30562,6 @@ Larre	2061
 Larrea	201
 Larrede	421
 Larregain	503
-Larrere	1028
 Larret	328
 Larreur	390
 Larrey	769
@@ -30579,10 +30569,10 @@ Larribau	272
 Larribe	609
 Larribeau	343
 Larribere	200
-Larriere	861
 Larrieu	5942
-Larrive	883
 Larriviere	505
+Larrivé	883
+Larrière	861
 Larroche	801
 Larrode	461
 Larronde	516
@@ -30595,6 +30585,7 @@ Larroux	262
 Larrouy	1479
 Larroze	408
 Larrue	1497
+Larrère	1028
 Lars	342
 Larson	387
 Larsonneur	1067
@@ -30615,6 +30606,7 @@ Lary	396
 Larzabal	392
 Larzilliere	960
 Larzul	577
+Larère	231
 Lasalle	1157
 Lasaone	306
 Lasbats	270
@@ -30642,7 +30634,7 @@ Lasquellec	374
 Lasri	403
 Lasry	451
 Lassabe	307
-Lassabliere	574
+Lassablière	574
 Lassagne	1702
 Lassaigne	1029
 Lassalas	368
@@ -30658,7 +30650,6 @@ Lassegue	270
 Lasseigne	315
 Lasselin	1704
 Lasselle	215
-Lassere	612
 Lasseron	537
 Lasserre	11361
 Lasset	251
@@ -30671,6 +30662,7 @@ Lassort	291
 Lassoued	343
 Lassource	268
 Lassus	2753
+Lassère	612
 Lastella	202
 Lastennet	956
 Lastere	404
@@ -30725,9 +30717,9 @@ Latry	458
 Latscha	285
 Lattard	376
 Latte	528
-Lattes	611
 Latteux	240
 Lattier	204
+Lattès	611
 Latu	268
 Latuner	262
 Latus	294
@@ -30773,7 +30765,7 @@ Laugero	270
 Laugier	5788
 Lauilhe	215
 Laulan	760
-Laulhe	742
+Laulhé	742
 Laulom	272
 Laumaille	366
 Laumain	502
@@ -30795,8 +30787,8 @@ Laup	495
 Laupies	278
 Laupin	229
 Laupretre	577
-Lauque	270
 Lauquin	314
+Lauqué	270
 Laur	1461
 Laurac	327
 Lauradoux	248
@@ -30812,7 +30804,6 @@ Laurence	4099
 Laurenceau	1058
 Laurencin	1049
 Laurencon	1463
-Laurencot	561
 Laurency	589
 Laurendeau	1128
 Laurendon	303
@@ -30821,6 +30812,7 @@ Laurenson	652
 Laurent	97015
 Laurenti	1031
 Laurentin	512
+Laurençot	561
 Laures	748
 Lauret	10867
 Lauretta	328
@@ -30893,8 +30885,8 @@ Lavalette	1458
 Lavallade	202
 Lavallard	524
 Lavalle	575
-Lavallee	2604
 Lavalley	695
+Lavallée	2604
 Lavalou	210
 Lavanant	1117
 Lavanchy	354
@@ -30958,7 +30950,7 @@ Lavigne	12066
 Lavignon	289
 Lavillat	262
 Laville	6336
-Lavillonniere	360
+Lavillonnière	360
 Lavina	215
 Laviolette	1466
 Laviron	551
@@ -30972,7 +30964,7 @@ Lavoine	2086
 Lavoisier	1104
 Lavoix	637
 Lavole	663
-Lavollee	393
+Lavollée	393
 Lavorel	1531
 Lavoue	646
 Lavoute	257
@@ -31017,7 +31009,6 @@ Lazzaroni	411
 Lazzarotto	765
 Lazzeri	207
 Lazzerini	351
-Le	2401
 Le Baccon	290
 Le Bacquer	270
 Le Badezet	317
@@ -31185,11 +31176,11 @@ Le Clanche	1248
 Le Cleach	460
 Le Clech	1563
 Le Clerc	1098
-Le Clere	339
 Le Clezio	637
 Le Cloarec	465
 Le Cloerec	240
 Le Cloirec	705
+Le Clère	339
 Le Coadou	547
 Le Coat	542
 Le Cocguen	301
@@ -31217,13 +31208,13 @@ Le Corvaisier	346
 Le Corvec	733
 Le Corvic	252
 Le Cossec	891
-Le Couedic	442
 Le Couls	228
 Le Court	215
 Le Courtois	681
 Le Couster	246
 Le Coustumer	225
 Le Couviour	246
+Le Couédic	442
 Le Coz	6209
 Le Cozannet	277
 Le Coze	382
@@ -31293,10 +31284,10 @@ Le Droff	250
 Le Drogo	552
 Le Droumaguet	317
 Le Dru	214
-Le Du	5681
 Le Duc	2038
 Le Duff	1664
 Le Duigou	1019
+Le Dû	5681
 Le Failler	237
 Le Falher	1321
 Le Faou	1150
@@ -31398,10 +31389,10 @@ Le Gourrierec	1567
 Le Gousse	257
 Le Goux	387
 Le Govic	514
-Le Graet	668
 Le Grand	4064
 Le Gras	415
 Le Gratiet	284
+Le Graët	668
 Le Grill	239
 Le Gros	630
 Le Gruiec	331
@@ -31417,7 +31408,6 @@ Le Guern	4516
 Le Guerneve	360
 Le Guernic	575
 Le Guerroue	287
-Le Guevel	1677
 Le Guiader	224
 Le Guidec	271
 Le Guilcher	563
@@ -31432,6 +31422,7 @@ Le Guirriec	202
 Le Guluche	204
 Le Gurun	449
 Le Guyader	3082
+Le Guével	1677
 Le Hay	406
 Le Hebel	200
 Le Hecho	215
@@ -31449,8 +31440,8 @@ Le Hingrat	202
 Le Hir	2858
 Le Ho	344
 Le Houedec	408
-Le Houerou	661
 Le Houezec	225
+Le Houérou	661
 Le Huerou	388
 Le Hyaric	388
 Le Jalle	473
@@ -31478,8 +31469,8 @@ Le Leuch	554
 Le Levier	397
 Le Lez	376
 Le Liboux	916
-Le Lievre	884
 Le Livec	279
+Le Lièvre	884
 Le Loarer	382
 Le Lohe	235
 Le Long	237
@@ -31525,7 +31516,6 @@ Le Maux	1196
 Le May	722
 Le Meaux	218
 Le Mechec	213
-Le Mee	1359
 Le Mehaute	908
 Le Meillour	267
 Le Meitour	360
@@ -31559,7 +31549,6 @@ Le Minor	244
 Le Minoux	351
 Le Moal	6711
 Le Moan	660
-Le Moel	1001
 Le Mogne	203
 Le Moign	1049
 Le Moigne	4484
@@ -31580,6 +31569,8 @@ Le Moullac	220
 Le Moullec	1339
 Le Mounier	269
 Le Mouroux	399
+Le Moël	1001
+Le Mée	1359
 Le Nagard	698
 Le Nair	213
 Le Nan	295
@@ -31808,7 +31799,6 @@ Le-Roux	230
 Lea	509
 Leal	1784
 Leandre	573
-Leandri	1561
 Leandro	239
 Lear	250
 Leard	237
@@ -31850,7 +31840,6 @@ Lebecq	1378
 Lebecque	331
 Lebedel	678
 Lebee	564
-Lebegue	3203
 Lebehot	275
 Lebel	5164
 Lebelle	489
@@ -31938,6 +31927,7 @@ Lebrument	333
 Lebrun	25189
 Lebugle	454
 Lebunetel	218
+Lebègue	3203
 Leca	3383
 Lecable	219
 Lecacheur	1148
@@ -32011,15 +32001,14 @@ Lecleire	316
 Lecler	1614
 Leclerc	35952
 Leclercq	35282
-Leclere	9121
 Leclerq	221
 Leclerre	255
 Leclert	510
 Leclet	449
 Lecleve	238
 Leclou	208
-Lecluse	1808
 Lecluze	622
+Leclère	9121
 Lecoanet	800
 Lecocq	10754
 Lecoester	266
@@ -32084,7 +32073,6 @@ Lecq	246
 Lecras	477
 Lecreux	628
 Lecrique	322
-Lecrivain	1558
 Lecroart	513
 Lecroc	281
 Lecrocq	253
@@ -32109,7 +32097,6 @@ Lecureux	245
 Lecuru	413
 Lecussan	330
 Lecutier	242
-Lecuyer	9893
 Lecuyot	212
 Ledain	914
 Ledan	807
@@ -32168,7 +32155,6 @@ Lefaure	1027
 Lefaux	856
 Lefay	721
 Lefebre	241
-Lefebure	1362
 Lefebvre	91459
 Lefel	278
 Lefelle	373
@@ -32179,7 +32165,6 @@ Lefeu	236
 Lefeuvre	9991
 Lefever	387
 Lefevere	443
-Lefevre	64107
 Leffondre	367
 Leffray	552
 Lefief	319
@@ -32199,13 +32184,15 @@ Lefoul	215
 Lefoulon	682
 Lefour	527
 Lefranc	10147
-Lefrancois	11007
 Lefrancq	850
 Lefrant	363
+Lefrançois	11007
 Lefrere	1512
 Lefresne	424
 Lefroy	292
 Lefur	243
+Lefèvre	64107
+Lefébure	1362
 Lega	273
 Legac	280
 Legagneur	610
@@ -32228,7 +32215,6 @@ Legave	296
 Legavre	595
 Legay	7252
 Legaye	273
-Lege	961
 Legeai	616
 Legeard	1055
 Legeay	3687
@@ -32238,15 +32224,12 @@ Legendre	16890
 Legent	553
 Legentil	1360
 Legentilhomme	405
-Leger	27715
 Legere	397
 Legeret	240
 Legeron	765
-Legier	680
 Legigan	446
 Leglaive	233
 Legland	741
-Leglise	3471
 Lego	488
 Legoff	1665
 Legois	527
@@ -32286,11 +32269,11 @@ Leguere	201
 Leguerinel	327
 Leguet	824
 Legueux	228
-Leguevaques	435
 Leguillette	249
 Leguillier	544
 Leguillon	1241
 Leguy	959
+Legé	961
 Lehacaut	225
 Lehaire	323
 Lehalle	411
@@ -32369,8 +32352,8 @@ Leleux	2192
 Leliard	275
 Lelias	278
 Lelieur	329
-Lelievre	19375
 Lelion	421
+Lelièvre	19375
 Lellig	262
 Lellouche	940
 Lelogeais	235
@@ -32396,7 +32379,6 @@ Lemain	292
 Lemaine	323
 Lemaire	48873
 Lemaistre	1304
-Lemaitre	23418
 Lemal	695
 Lemale	391
 Leman	2903
@@ -32409,14 +32391,14 @@ Lemarcis	308
 Lemardele	210
 Lemardeley	322
 Lemare	648
-Lemarechal	1166
 Lemaresquier	233
-Lemarie	5792
 Lemariey	285
 Lemarinel	342
 Lemarinier	292
+Lemarié	5792
 Lemarquand	645
 Lemarquis	841
+Lemaréchal	1166
 Lemasle	833
 Lemasson	5241
 Lematre	275
@@ -32427,6 +32409,7 @@ Lemaure	205
 Lemaux	347
 Lemay	2155
 Lemazurier	783
+Lemaître	23418
 Lemberger	200
 Lembert	703
 Lembeye	564
@@ -32434,7 +32417,6 @@ Lemble	597
 Lembre	202
 Lembrez	220
 Leme	520
-Lemee	4216
 Lemeille	278
 Lemel	208
 Lemele	205
@@ -32459,13 +32441,13 @@ Lemeunier	2305
 Lemeur	463
 Lemeux	242
 Lemey	202
-Lemiere	3637
 Lemieux	893
 Lemineur	276
 Lemire	3281
 Lemistre	263
 Lemitre	319
 Lemius	278
+Lemière	3637
 Lemmel	498
 Lemmer	260
 Lemmet	501
@@ -32496,6 +32478,7 @@ Lemperiere	494
 Lempernesse	232
 Lemuet	274
 Lemyre	201
+Lemée	4216
 Lena	626
 Lenain	2644
 Lenard	266
@@ -32521,7 +32504,7 @@ Lenfle	200
 Lengagne	1120
 Lengaigne	317
 Lengele	211
-Lengelle	304
+Lengellé	304
 Lenglart	840
 Lenglen	212
 Lenglet	5653
@@ -32558,8 +32541,6 @@ Lenzi	653
 Leo	999
 Leobon	264
 Leocadie	627
-Leon	11800
-Leonard	12625
 Leonardi	1681
 Leonardo	237
 Leonardon	370
@@ -32575,12 +32556,10 @@ Leonhart	313
 Leoni	1606
 Leonidas	286
 Leonie	279
-Leopold	1364
 Leopoldie	434
 Leorat	226
 Leost	1333
 Leostic	444
-Leotard	580
 Leote	214
 Leoty	688
 Lepage	11874
@@ -32613,7 +32592,6 @@ Lepeltier	2677
 Lepenant	205
 Leperchois	202
 Lepercq	675
-Lepere	1748
 Leperlier	2771
 Leperre	204
 Lepers	2394
@@ -32639,7 +32617,6 @@ Lepillier	233
 Lepin	411
 Lepinard	223
 Lepinay	4441
-Lepine	7261
 Lepinette	205
 Lepineux	285
 Lepingle	374
@@ -32678,7 +32655,6 @@ Leppert	214
 Leprat	463
 Lepresle	341
 Leprestre	345
-Lepretre	9401
 Leprettre	360
 Lepreux	1526
 Leprevost	2364
@@ -32692,8 +32668,10 @@ Leprout	280
 Leproux	799
 Leprovost	1796
 Leprun	210
+Leprêtre	9401
 Lepvrier	249
 Lepy	542
+Lepère	1748
 Lequen	253
 Lequenne	488
 Lequertier	1153
@@ -32763,7 +32741,6 @@ Leroy	87282
 Leroyer	3239
 Lerus	408
 Leruste	608
-Lery	746
 Lesaffre	2147
 Lesage	20311
 Lesaicherre	204
@@ -32835,13 +32812,12 @@ Lesoin	366
 Lesoing	264
 Lesongeur	238
 Lesot	1024
-Lesouef	700
 Lesourd	2845
+Lesouëf	700
 Lespagne	259
 Lespagnol	2496
 Lesparre	459
 Lesperon	244
-Lespes	1033
 Lespiaucq	252
 Lespilette	267
 Lespinas	362
@@ -32849,6 +32825,7 @@ Lespinasse	3020
 Lespine	804
 Lesport	389
 Lesprit	829
+Lespès	1033
 Lesquelin	220
 Lessard	921
 Lessart	430
@@ -32885,9 +32862,7 @@ Letaconnoux	293
 Letailleur	2048
 Letalle	288
 Letan	237
-Letang	2569
 Letanneur	230
-Letard	1687
 Lete	619
 Leteinturier	319
 Letellier	13309
@@ -32959,7 +32934,6 @@ Letur	315
 Leturc	213
 Leturcq	951
 Leturgez	413
-Leturgie	542
 Leturmy	239
 Leturque	544
 Letuve	255
@@ -33011,7 +32985,6 @@ Levaux	342
 Levavasseur	3335
 Levayer	359
 Levazeux	245
-Leve	929
 Leveau	3623
 Leveaux	949
 Levecq	352
@@ -33028,17 +33001,14 @@ Levenes	235
 Leveneur	1771
 Levenez	692
 Levent	850
-Leveque	25621
 Lever	379
 Leverd	643
 Levere	223
 Leverrier	1115
 Levert	2711
-Levesque	5932
 Levet	2837
 Leveugle	1084
 Leveziel	484
-Levi	1250
 Levieil	454
 Levieils	217
 Leviel	504
@@ -33076,7 +33046,8 @@ Levreux	241
 Levrey	675
 Levrier	727
 Levron	913
-Levy	14644
+Levé	929
+Levêque	25621
 Lewandowski	1939
 Lewicki	220
 Lewin	306
@@ -33121,7 +33092,6 @@ Lherbier	1869
 Lheriau	398
 Lherisson	285
 Lheriteau	273
-Lheritier	2005
 Lherm	785
 Lhermenier	482
 Lhermet	941
@@ -33159,6 +33129,7 @@ Lhuillier	5144
 Lhuissier	1678
 Lhullier	271
 Lhumeau	303
+Lhéritier	2005
 Li	652
 Liabeuf	981
 Liaboeuf	208
@@ -33215,7 +33186,6 @@ Lieb	361
 Liebaert	377
 Lieballe	226
 Liebart	674
-Liebault	361
 Liebaut	339
 Liebe	204
 Liebenguth	278
@@ -33231,12 +33201,10 @@ Liegard	665
 Liegaux	219
 Liege	1060
 Liegeard	385
-Liegeois	3105
 Liegeon	484
 Liegey	519
 Liehn	225
 Lienafa	308
-Lienard	6679
 Lienart	755
 Lienhard	1083
 Lienhardt	1053
@@ -33249,7 +33217,6 @@ Liesse	245
 Liet	219
 Lietaer	239
 Lietar	310
-Lietard	1320
 Lietart	254
 Lieury	333
 Lieutard	254
@@ -33261,8 +33228,6 @@ Lievaux	251
 Lieveaux	237
 Lieven	330
 Lievens	710
-Lievin	2584
-Lievre	3316
 Lievremont	262
 Liez	201
 Ligault	275
@@ -33450,6 +33415,12 @@ Liziard	316
 Lizon	322
 Lizot	508
 Lizzi	231
+Lièvre	3316
+Liébault	361
+Liégeois	3105
+Liénard	6679
+Liétard	1320
+Liévin	2584
 Llabres	205
 Llado	213
 Llamas	674
@@ -33467,8 +33438,8 @@ Llorente	384
 Lloret	1061
 Lo	1103
 Lo Presti	304
-Loaec	1345
 Loas	286
+Loaëc	1345
 Lobato	260
 Lobbe	569
 Lobel	574
@@ -33551,13 +33522,12 @@ Logie	636
 Logier	276
 Login	243
 Lognon	502
-Lognone	238
+Lognoné	238
 Lognos	221
 Logodin	269
 Logre	337
 Logut	204
 Lohe	223
-Loheac	646
 Lohez	759
 Lohezic	661
 Lohier	1083
@@ -33565,6 +33535,7 @@ Lohmann	480
 Lohner	353
 Lohou	410
 Lohr	511
+Lohéac	646
 Loi	476
 Loial	629
 Loichot	645
@@ -33858,21 +33829,21 @@ Loubatieres	334
 Loubaud	201
 Loubeau	658
 Loubens	467
-Loubere	1228
 Loubert	451
 Loubes	444
 Loubet	4182
 Loubeyre	683
 Loubie	206
 Loubier	722
-Loubiere	1625
 Loubieres	492
 Loubignac	266
 Loubinoux	234
+Loubière	1625
 Louboutin	1218
 Loubradou	265
 Loubriat	350
 Loubry	753
+Loubère	1228
 Louchard	736
 Louchart	2884
 Louche	1424
@@ -33944,7 +33915,7 @@ Lourdez	362
 Lourdin	874
 Lourdou	274
 Loureiro	860
-Lourenco	2879
+Lourenço	2879
 Louri	203
 Lourme	1285
 Louro	296
@@ -33997,13 +33968,13 @@ Lozachmeur	1118
 Lozahic	497
 Lozano	2746
 Lozay	254
-Loze	1856
 Lozes	744
 Lozet	234
 Lozevis	213
 Lozier	506
 Lozinguez	393
 Lozouet	240
+Lozé	1856
 Lu	295
 Lubac	374
 Lubat	398
@@ -34100,9 +34071,9 @@ Lullier	227
 Lumbroso	347
 Lumeau	485
 Lumet	327
-Lumiere	218
 Lumineau	1001
 Luminet	330
+Lumière	218
 Luna	601
 Lunardi	413
 Luneau	2846
@@ -34184,6 +34155,27 @@ Lyons	250
 Lyotard	301
 Lyraud	270
 Lys	1277
+Lèguevaques	435
+Léandri	1561
+Lécluse	1808
+Lécrivain	1558
+Lécuyer	9893
+Léger	27715
+Légier	680
+Léglise	3471
+Léon	11800
+Léonard	12625
+Léopold	1364
+Léotard	580
+Lépine	7261
+Léry	746
+Létang	2569
+Létard	1687
+Léturgie	542
+Lévesque	5932
+Lévi	1250
+Lévy	14644
+Lê	2401
 M'Barek	302
 M'Barki	256
 M'Baye	367
@@ -34238,7 +34230,6 @@ Maccario	760
 Macchi	792
 Maccio	231
 Maccioni	205
-Mace	14594
 Macedo	764
 Macel	577
 Mach	525
@@ -34295,6 +34286,7 @@ Macret	474
 Macrez	1605
 Macri	458
 Macron	874
+Macé	14594
 Madaci	222
 Madani	1008
 Madar	463
@@ -34455,7 +34447,6 @@ Mahboub	307
 Mahdaoui	234
 Mahdi	513
 Mahdjoub	384
-Mahe	19427
 Maheas	270
 Maheo	1589
 Maherault	595
@@ -34493,8 +34484,8 @@ Mahuet	475
 Mahut	1297
 Mahuteau	243
 Mahy	781
+Mahé	19427
 Mai	889
-Maia	791
 Maiano	203
 Maiche	245
 Maier	1225
@@ -34676,7 +34667,7 @@ Malbrouck	562
 Malbrun	208
 Malbrunot	315
 Malburet	288
-Malcles	301
+Malclès	301
 Malcoiffe	244
 Malcoste	408
 Malcuit	516
@@ -34687,7 +34678,6 @@ Maldonado	1014
 Male	1202
 Malec	233
 Malecki	779
-Malecot	1430
 Malek	1078
 Malenfant	970
 Maleplate	332
@@ -34703,11 +34693,10 @@ Maleville	417
 Maley	201
 Maleyran	275
 Maleysson	585
-Malezieux	1071
 Malfait	1222
 Malfant	208
 Malfatti	204
-Malfilatre	794
+Malfilâtre	794
 Malfondet	348
 Malfoy	1411
 Malfray	234
@@ -34830,6 +34819,8 @@ Malvy	585
 Maly	385
 Malzac	797
 Malzieu	473
+Malécot	1430
+Malézieux	1071
 Maman	595
 Mambert	246
 Mambre	203
@@ -34909,7 +34900,6 @@ Manens	227
 Manent	1683
 Manenti	556
 Manera	324
-Manes	358
 Manesse	935
 Manessier	244
 Manet	2162
@@ -34953,7 +34943,7 @@ Mangot	981
 Mangou	321
 Mangue	403
 Manguin	643
-Manhes	923
+Manhès	923
 Mani	395
 Mania	261
 Maniable	267
@@ -34962,7 +34952,6 @@ Manicacci	316
 Manicord	392
 Manie	293
 Manier	2257
-Maniere	2462
 Maniez	2539
 Manifacier	420
 Maniga	226
@@ -34979,6 +34968,7 @@ Maniscalco	337
 Manissier	250
 Manivel	379
 Manivet	212
+Manière	2462
 Manlay	239
 Manlius	583
 Mann	1215
@@ -35054,6 +35044,7 @@ Manzo	340
 Manzon	499
 Manzone	214
 Manzoni	1543
+Manès	358
 Mao	1132
 Maouche	573
 Maouchi	274
@@ -35082,8 +35073,8 @@ Marandel	403
 Marandet	494
 Marandin	211
 Marandon	997
-Marange	452
 Marangoni	271
+Marangé	452
 Marani	233
 Maraninchi	478
 Marano	237
@@ -35108,14 +35099,13 @@ Marbot	322
 Marboutin	273
 Marbouty	255
 Marc	12215
-Marcade	952
 Marcadet	1069
 Marcadier	639
+Marcadé	952
 Marcaggi	439
 Marcaille	466
 Marcaillou	425
 Marcaire	206
-Marcais	895
 Marcangeli	239
 Marcant	821
 Marcantoni	299
@@ -35123,7 +35113,6 @@ Marcassin	349
 Marcato	238
 Marcaud	404
 Marcault	547
-Marce	852
 Marceau	4236
 Marceaux	712
 Marcel	7041
@@ -35225,6 +35214,7 @@ Marcus	1029
 Marcuzzi	336
 Marcy	1483
 Marczak	216
+Marcé	852
 Mardaye	572
 Marde	262
 Mardelle	295
@@ -35237,9 +35227,6 @@ Marec	1442
 Marecaille	347
 Marecal	434
 Marecaux	1181
-Marechal	23061
-Marechalle	385
-Marechaux	653
 Maree	617
 Marega	366
 Marek	479
@@ -35249,7 +35236,6 @@ Marem	238
 Marembert	258
 Marenco	303
 Marengo	380
-Mares	807
 Marescaux	1658
 Mareschal	839
 Marescot	474
@@ -35432,9 +35418,9 @@ Marleix	233
 Marlet	865
 Marliac	725
 Marlier	3215
-Marliere	1698
 Marlin	2541
 Marliot	637
+Marlière	1698
 Marlot	2359
 Marly	844
 Marmande	238
@@ -35511,7 +35497,6 @@ Marques da Silva	282
 Marquet	12224
 Marquette	1767
 Marquez	1863
-Marquie	936
 Marquier	1155
 Marquigny	364
 Marquillie	306
@@ -35519,6 +35504,7 @@ Marquilly	698
 Marquine	234
 Marquis	6448
 Marquise	364
+Marquié	936
 Marquois	299
 Marra	538
 Marragou	300
@@ -35652,11 +35638,11 @@ Marty	29153
 Martz	2020
 Martzel	292
 Martzloff	346
-Maruejouls	390
 Maruitte	249
 Marulier	291
 Marullaz	238
 Marut	204
+Maruéjouls	390
 Marveaux	312
 Marvie	375
 Marvier	262
@@ -35679,6 +35665,11 @@ Marzolf	437
 Marzouk	547
 Marzouki	207
 Marzullo	227
+Marçais	895
+Marès	807
+Maréchal	23061
+Maréchalle	385
+Maréchaux	653
 Mas	11325
 Masala	317
 Masbou	555
@@ -35733,7 +35724,6 @@ Massaro	376
 Massart	2506
 Massat	1892
 Masschelein	298
-Masse	19051
 Masseaux	627
 Massebeuf	377
 Masseboeuf	687
@@ -35796,6 +35786,7 @@ Massuard	202
 Massue	208
 Massuyeau	251
 Massy	1755
+Massé	19051
 Mast	592
 Mastain	271
 Masteau	251
@@ -36023,7 +36014,6 @@ Mauriaucourt	269
 Maurice	17125
 Maurie	326
 Maurier	483
-Mauries	991
 Maurille	299
 Maurin	14722
 Mauriol	277
@@ -36032,6 +36022,7 @@ Maurisse	276
 Maurize	334
 Maurizi	406
 Maurizot	370
+Mauriès	991
 Mauro	1381
 Mauron	682
 Maurouard	999
@@ -36149,22 +36140,22 @@ Mazevet	305
 Mazeyrat	428
 Maziarz	200
 Mazier	1715
-Maziere	2830
-Mazieres	2046
 Mazille	779
 Mazin	1129
 Mazingue	791
 Mazire	340
+Mazière	2830
+Mazières	2046
 Mazo	525
 Mazoin	220
 Mazon	628
 Mazot	511
 Mazou	226
-Mazoue	534
 Mazouin	309
 Mazouni	380
 Mazouz	943
 Mazouzi	454
+Mazoué	534
 Mazoyer	4991
 Mazue	699
 Mazuel	1005
@@ -36198,6 +36189,7 @@ Mazzolini	455
 Mazzone	249
 Mazzoni	1108
 Mazzucotelli	221
+Maïa	791
 Mbaye	301
 Mea	382
 Meal	234
@@ -36209,7 +36201,6 @@ Mear	1311
 Measson	266
 Meaude	378
 Meaume	310
-Meaux	869
 Mebarek	315
 Mebarki	1688
 Mebarkia	355
@@ -36219,7 +36210,6 @@ Mechain	1114
 Meche	469
 Mecheri	633
 Mechet	294
-Mechin	2537
 Mechinaud	374
 Mechineau	726
 Mechri	218
@@ -36230,7 +36220,6 @@ Medal	295
 Medale	283
 Medan	538
 Medar	244
-Medard	3358
 Meddah	615
 Meddahi	332
 Meddour	682
@@ -36261,15 +36250,12 @@ Meesemaecker	306
 Meffray	265
 Meffre	1059
 Meftah	938
-Megard	815
 Megarus	275
-Mege	2610
 Megel	567
 Megemont	266
 Megevand	674
 Megherbi	373
 Megnin	223
-Megret	1986
 Meguellati	208
 Megy	485
 Mehadji	338
@@ -36329,10 +36315,9 @@ Meissonnier	1220
 Meister	1241
 Meistermann	402
 Meistertzheim	219
-Meite	457
+Meité	457
 Mejan	368
 Mejane	311
-Mejean	2508
 Mejri	453
 Mekerke	244
 Mekil	227
@@ -36357,9 +36342,7 @@ Meli	570
 Melia	284
 Meliani	560
 Melin	5933
-Melinand	527
 Melinard	328
-Meline	1679
 Melinon	279
 Meliot	355
 Melique	308
@@ -36395,12 +36378,10 @@ Mellouki	268
 Melloul	527
 Mellouli	207
 Melo	717
-Melois	488
 Melon	1675
 Meloni	1076
 Melot	2357
 Melotte	336
-Melou	683
 Meloux	380
 Melquiond	424
 Melun	302
@@ -36413,16 +36394,12 @@ Memheld	209
 Memin	510
 Memmi	247
 Mena	716
-Menage	2949
-Menager	7548
 Menan	258
 Menand	1260
 Menant	3524
 Menanteau	2682
-Menard	29208
 Menardo	372
 Menart	408
-Menat	236
 Menault	365
 Menaut	349
 Menay	333
@@ -36478,11 +36455,9 @@ Meniere	377
 Menigault	297
 Menigot	321
 Menigoz	883
-Menil	605
 Menin	787
 Menini	442
 Menis	337
-Menissier	633
 Menival	475
 Menne	228
 Mennecart	283
@@ -36510,8 +36485,8 @@ Mensch	283
 Menta	208
 Mentec	396
 Mention	1192
-Mentre	323
 Mentrel	236
+Mentré	323
 Mentz	238
 Mentzer	253
 Menu	5679
@@ -36526,7 +36501,6 @@ Meo	439
 Meon	385
 Meot	583
 Mephane	306
-Mequignon	499
 Mequinion	410
 Mer	707
 Mera	442
@@ -36576,13 +36550,11 @@ Merdji	240
 Merdrignac	699
 Merdy	661
 Mere	567
-Mereau	963
 Mereaux	581
 Merel	2378
 Merelle	784
 Merendet	231
 Merer	418
-Meresse	3781
 Meret	1024
 Mereu	445
 Merey	279
@@ -36597,15 +36569,12 @@ Merian	516
 Merias	283
 Meriau	1175
 Meriaux	2822
-Meric	3163
 Meridja	221
 Merie	261
 Merieau	1203
-Meriel	558
 Merien	535
 Merienne	1812
 Merieult	376
-Merieux	865
 Merigaud	454
 Merigeau	210
 Meriglier	280
@@ -36618,7 +36587,6 @@ Merilhou	293
 Merillon	538
 Merillou	503
 Merimee	215
-Merindol	293
 Merine	400
 Merino	956
 Merion	347
@@ -36666,7 +36634,6 @@ Mermoz	679
 Mero	259
 Meron	480
 Merono	215
-Merot	1383
 Merou	396
 Merouani	201
 Merour	826
@@ -36687,7 +36654,6 @@ Merveille	557
 Mervelay	303
 Mervelet	314
 Merville	1062
-Mery	5141
 Merz	224
 Merzeau	317
 Merzoug	446
@@ -36727,8 +36693,8 @@ Mesnildrey	337
 Mesny	421
 Mesple	303
 Mesplede	742
-Mesples	316
 Mesplet	215
+Mesplès	316
 Mespoulede	263
 Mespoulet	421
 Mesquita	526
@@ -36771,11 +36737,9 @@ Mesureur	685
 Met	619
 Metaireau	636
 Metairie	1239
-Metais	5205
 Metanire	326
 Metaut	212
 Metay	1318
-Metayer	7899
 Metbach	474
 Metche	289
 Meteau	481
@@ -36791,10 +36755,7 @@ Metier	854
 Metifiot	232
 Metin	346
 Metivet	293
-Metivier	5198
 Metois	711
-Metra	349
-Metral	2819
 Metras	312
 Metrat	238
 Metreau	785
@@ -36843,7 +36804,6 @@ Meury	262
 Meusnier	375
 Meux	218
 Mevel	3962
-Mevellec	431
 Mey	1461
 Meyer	47492
 Meyers	285
@@ -36885,7 +36845,6 @@ Mezin	368
 Mezino	733
 Mezou	239
 Mezouar	716
-Mezy	477
 Mezzarobba	213
 Miailhe	225
 Miaille	308
@@ -36937,7 +36896,6 @@ Michault	601
 Michaut	3935
 Michaux	7015
 Miche	1267
-Michea	418
 Micheau	1950
 Michee	283
 Michel	93493
@@ -36977,6 +36935,7 @@ Michou	747
 Michoud	555
 Michoux	1200
 Michy	334
+Michéa	418
 Mick	437
 Miclet	244
 Miclo	1797
@@ -36997,7 +36956,6 @@ Midot	205
 Midoux	563
 Midy	738
 Mie	361
-Miege	996
 Miegeville	381
 Miel	1176
 Mielcarek	466
@@ -37033,7 +36991,6 @@ Migliorini	456
 Mignan	247
 Mignard	2636
 Mignaton	226
-Migne	1896
 Migneau	217
 Mignerey	268
 Mignet	566
@@ -37046,6 +37003,7 @@ Mignonneau	317
 Mignot	11252
 Mignotte	770
 Migny	203
+Migné	1896
 Migot	1065
 Migout	242
 Miguel	1868
@@ -37121,12 +37079,12 @@ Milliard	565
 Milliat	695
 Millien	1259
 Millier	1004
-Milliere	834
 Milliet	884
 Milliez	341
 Milliner	221
 Million	2965
 Milliot	1495
+Millière	834
 Millo	804
 Millochau	354
 Millois	340
@@ -37244,7 +37202,7 @@ Miraglia	204
 Mirailles	306
 Miraillet	215
 Miral	383
-Miralles	1741
+Mirallès	1741
 Miramand	293
 Mirambeau	366
 Mirambet	212
@@ -37343,18 +37301,19 @@ Miviere	249
 Mixtur	242
 Mizrahi	360
 Mizzi	353
+Miège	996
 Mlynarczyk	360
 Moal	3489
 Moalic	1092
 Moallic	455
 Moan	376
-Mocaer	926
+Mocaër	926
 Mocellin	877
 Moch	269
-Moche	311
 Mochel	484
 Mochet	282
 Mochon	262
+Moché	311
 Mock	255
 Mockers	208
 Moco	225
@@ -37434,7 +37393,6 @@ Moisan	6433
 Moisand	219
 Moisant	379
 Moisdon	444
-Moise	1111
 Moiselet	214
 Moison	1340
 Moissenet	312
@@ -37448,7 +37406,7 @@ Moiteaux	316
 Moitel	388
 Moitie	722
 Moitrier	364
-Moittie	270
+Moittié	270
 Moity	943
 Moizan	1221
 Moizant	216
@@ -37489,8 +37447,8 @@ Moliner	753
 Molinero	329
 Molines	1014
 Molinet	472
-Molinie	2093
 Molinier	5788
+Molinié	2093
 Molino	350
 Molins	618
 Molitor	741
@@ -37531,8 +37489,8 @@ Mombelli	204
 Momboisse	400
 Mombrun	424
 Momenceau	288
-Mommeja	364
 Mommessin	426
+Momméja	364
 Momon	247
 Momont	233
 Momot	263
@@ -37580,8 +37538,8 @@ Monclin	429
 Monclus	246
 Moncomble	1306
 Moncoq	219
-Moncorge	438
 Moncorger	327
+Moncorgé	438
 Moncourtois	325
 Moncuit	446
 Mondain	462
@@ -37605,7 +37563,6 @@ Monduc	292
 Mondy	600
 Mone	400
 Monediere	245
-Moneger	626
 Monel	608
 Monereau	242
 Monerie	213
@@ -37659,7 +37616,7 @@ Monleau	307
 Monlezun	363
 Monlouis	872
 Monlouis-Bonnaire	221
-Monmarche	335
+Monmarché	335
 Monmousseau	286
 Monna	228
 Monnard	355
@@ -37734,7 +37691,6 @@ Montanard	206
 Montanari	740
 Montanaro	249
 Montandon	394
-Montane	1039
 Montaner	413
 Montanes	213
 Montangerand	338
@@ -37743,6 +37699,7 @@ Montanier	491
 Montano	215
 Montant	805
 Montantin	204
+Montané	1039
 Montard	261
 Montariol	467
 Montarnal	410
@@ -37766,7 +37723,6 @@ Montcharmont	322
 Monte	794
 Monteau	594
 Montebrun	242
-Montecot	502
 Montegu	419
 Montegut	626
 Monteil	9001
@@ -37838,12 +37794,14 @@ Montuelle	556
 Montupet	205
 Montuy	239
 Monty	435
+Montécot	502
 Monville	924
 Monvoisin	3363
 Mony	1008
 Monzat	348
 Monziols	216
 Monzo	257
+Monéger	626
 Moog	737
 Moore	568
 Moos	240
@@ -37938,7 +37896,6 @@ Moreno	10060
 Morenval	282
 Morer	304
 Morera	411
-Morere	1563
 Mores	324
 Moreschi	240
 Moresco	253
@@ -37991,7 +37948,7 @@ Morin	54669
 Morineau	2761
 Morinet	641
 Morini	704
-Moriniere	1707
+Morinière	1707
 Morino	455
 Morio	1403
 Moriot	519
@@ -38070,6 +38027,7 @@ Morville	687
 Morvilliers	251
 Mory	1288
 Morzadec	351
+Morère	1563
 Mosbach	275
 Mosbah	411
 Mosca	1487
@@ -38186,10 +38144,8 @@ Moules	206
 Moulet	1917
 Mouleyre	412
 Moulia	499
-Moulie	717
 Moulier	528
 Mouliere	365
-Moulieres	225
 Moulin	32232
 Moulinard	356
 Moulinas	408
@@ -38202,6 +38158,8 @@ Moulinier	2131
 Moulinneuf	295
 Moulins	977
 Moulis	1917
+Moulières	225
+Moulié	717
 Moulle	365
 Moullec	1212
 Moullet	669
@@ -38218,10 +38176,10 @@ Mouniama	717
 Mouniapin	379
 Mounic	347
 Mounichy	506
-Mounie	723
 Mounien	530
 Mounier	12588
 Mounir	210
+Mounié	723
 Mounoussamy	489
 Mounsamy	205
 Mouny	786
@@ -38282,7 +38240,6 @@ Moussaid	225
 Moussaoui	2614
 Moussard	1079
 Moussay	745
-Mousse	888
 Mousseau	1369
 Mousseaux	426
 Mousseigne	209
@@ -38299,6 +38256,7 @@ Mousson	531
 Moussouni	365
 Moussu	1933
 Moussy	1424
+Moussé	888
 Moustache	200
 Moustier	412
 Moustin	519
@@ -38365,6 +38323,7 @@ Moze	235
 Mozer	302
 Mozet	427
 Mozziconacci	673
+Moïse	1111
 Mroz	432
 Mrozek	223
 Msika	234
@@ -38411,7 +38370,6 @@ Mulpas	217
 Mulsant	204
 Multon	846
 Munari	321
-Munch	3404
 Munck	790
 Mundschau	285
 Muneret	286
@@ -38423,7 +38381,6 @@ Munoz	8609
 Munsch	3466
 Munschy	218
 Muntsch	250
-Muntz	449
 Munuera	291
 Mur	1794
 Mura	2290
@@ -38535,6 +38492,41 @@ Myotte	315
 Myotte-Duquet	205
 Myrthe	425
 Myrtil	309
+Mège	2610
+Méaux	869
+Méchin	2537
+Médard	3358
+Mégard	815
+Mégret	1986
+Méjean	2508
+Mélinand	527
+Méline	1679
+Mélois	488
+Mélou	683
+Ménage	2949
+Ménager	7548
+Ménard	29208
+Ménat	236
+Ménil	605
+Ménissier	633
+Méquignon	499
+Méreau	963
+Méresse	3781
+Méric	3163
+Mériel	558
+Mérieux	865
+Mérindol	293
+Mérot	1383
+Méry	5141
+Métais	5205
+Métayer	7899
+Métivier	5198
+Métra	349
+Métral	2819
+Mévellec	431
+Mézy	477
+Münch	3404
+Müntz	449
 N'Diaye	2078
 N'Guessan	248
 N'Guyen	321
@@ -38715,7 +38707,6 @@ Nau	2256
 Nauche	640
 Naud	6160
 Naudan	280
-Naude	929
 Naudeau	272
 Naudet	1945
 Naudi	220
@@ -38723,6 +38714,7 @@ Naudin	6484
 Naudon	1044
 Naudot	664
 Naudy	1025
+Naudé	929
 Nauleau	2115
 Naulet	1052
 Naulin	986
@@ -38778,7 +38770,6 @@ Nazet	207
 Nazon	372
 Ndiaye	1201
 Ne	290
-Neant	864
 Neau	5169
 Neaud	609
 Neault	322
@@ -38789,33 +38780,26 @@ Nebot	582
 Nebout	1968
 Nectoux	1884
 Nedelec	6759
-Nedellec	1710
 Nedey	243
 Nedjar	750
 Nedjari	255
 Nedoncelle	253
-Nee	1448
 Neef	216
-Neel	3805
 Nef	570
 Neff	1787
 Neffati	302
 Nefzi	244
 Negouai	266
-Negre	5801
-Negrel	1207
 Negrello	314
 Negrerie	269
 Negret	294
 Negri	1220
-Negrier	1521
 Negrin	242
 Negrini	246
 Negrit	454
 Negro	1442
 Negrobar	290
 Negron	380
-Negroni	815
 Nehari	241
 Nehlig	509
 Nehou	478
@@ -38844,7 +38828,6 @@ Nennig	338
 Nenot	377
 Neny	301
 Nepveu	272
-Neraud	328
 Nerault	261
 Nere	323
 Neret	786
@@ -38854,7 +38837,6 @@ Nerina	259
 Neris	373
 Nerisson	274
 Nero	293
-Neron	1757
 Nerot	567
 Nerovique	221
 Nerriere	1157
@@ -38927,7 +38909,7 @@ Ngo	941
 Nguyen	11479
 Nguyen Van	357
 Nguyen-Van	201
-Niakate	1646
+Niakaté	1646
 Niang	1133
 Niard	399
 Niaux	231
@@ -38952,7 +38934,6 @@ Nicodeme	960
 Nicoise	271
 Nicol	6430
 Nicola	698
-Nicolai	3631
 Nicolao	248
 Nicolaon	259
 Nicolardot	254
@@ -38960,6 +38941,7 @@ Nicolas	53537
 Nicolau	1111
 Nicolay	1125
 Nicolazo	282
+Nicolaï	3631
 Nicole	3474
 Nicoleau	1526
 Nicolet	2634
@@ -39068,7 +39050,7 @@ Nivelon	205
 Nivert	909
 Nivesse	732
 Nivet	3302
-Niviere	497
+Nivière	497
 Nivois	295
 Nivoit	208
 Nivoix	770
@@ -39085,7 +39067,6 @@ Nizou	330
 Noailles	801
 Noailly	647
 Noally	244
-Nobecourt	580
 Nobile	506
 Nobilet	487
 Nobili	808
@@ -39099,6 +39080,7 @@ Noblet	5345
 Noblia	260
 Noblot	567
 Nobre	320
+Nobécourt	580
 Noc	381
 Nocera	392
 Nock	266
@@ -39110,8 +39092,6 @@ Nodet	310
 Nodin	681
 Nodon	216
 Nodot	286
-Noe	4386
-Noel	48601
 Noell	421
 Noga	248
 Nogaret	684
@@ -39121,15 +39101,15 @@ Nogier	786
 Nogre	227
 Nogret	281
 Nogrette	420
-Nogue	782
 Nogueira	1649
 Noguer	246
 Noguera	994
 Noguero	208
-Nogues	5540
 Noguet	275
 Noguez	281
 Noguier	431
+Noguès	5540
+Nogué	782
 Noharet	439
 Noilhan	313
 Noir	1904
@@ -39241,9 +39221,9 @@ Nouchet	380
 Noue	261
 Nouel	498
 Nouet	1972
-Nougarede	589
 Nougaret	833
 Nougaro	258
+Nougarède	589
 Nougayrede	230
 Nouge	255
 Nougier	764
@@ -39313,8 +39293,10 @@ Noyon	1261
 Nozahic	258
 Nozay	289
 Nozet	295
-Noziere	291
-Nozieres	496
+Nozière	291
+Nozières	496
+Noé	4386
+Noël	48601
 Nublat	202
 Nubul	302
 Nucci	329
@@ -39346,6 +39328,16 @@ Nuttin	467
 Nuyttens	308
 Nuzzo	220
 Nys	1360
+Nègre	5801
+Néant	864
+Nédellec	1710
+Née	1448
+Néel	3805
+Négrel	1207
+Négrier	1521
+Négroni	815
+Néraud	328
+Néron	1757
 Obadia	708
 Obaton	270
 Obe	295
@@ -39513,7 +39505,6 @@ Olivry	554
 Ollagnier	1451
 Ollagnon	280
 Olland	275
-Olle	494
 Olleon	241
 Oller	309
 Ollier	7571
@@ -39525,6 +39516,7 @@ Ollivier	21051
 Ollivier-Henry	208
 Ollivon	278
 Ollmann	390
+Ollé	494
 Olmeta	494
 Olmi	243
 Olmo	308
@@ -39538,7 +39530,7 @@ Omarjee	507
 Ombredane	288
 Ombret	212
 Omer	690
-Omnes	2762
+Omnès	2762
 Omont	1131
 Oms	816
 Ondet	1120
@@ -39771,10 +39763,10 @@ Outurquin	348
 Ouvrard	6985
 Ouvrat	233
 Ouvray	305
-Ouvre	200
 Ouvrier	497
 Ouvrier-Buffet	461
 Ouvry	941
+Ouvré	200
 Ouy	264
 Ouzeau	365
 Ovide	491
@@ -39893,7 +39885,6 @@ Pagenaud	282
 Pageon	251
 Pageot	1912
 Pagerie	278
-Pages	17133
 Pagesy	265
 Paget	3981
 Pagis	485
@@ -39912,12 +39903,13 @@ Pagny	731
 Pagot	1051
 Pagotto	274
 Paguet	215
+Pagès	17133
 Pahin	319
 Pahon	276
 Pailhas	377
 Pailhe	617
-Pailhes	1505
 Pailhoux	240
+Pailhès	1505
 Paillard	7837
 Paillart	1131
 Paillas	853
@@ -39926,7 +39918,6 @@ Paillasson	345
 Paillat	1612
 Paillaud	598
 Paillaugue	298
-Paille	2546
 Pailler	3448
 Pailleret	378
 Pailles	325
@@ -39940,6 +39931,7 @@ Paillot	2112
 Paillou	450
 Pailloux	1839
 Paillusson	723
+Paillé	2546
 Paimblanc	209
 Paimparay	269
 Pain	9334
@@ -40229,7 +40221,7 @@ Paraire	684
 Paramelle	237
 Paran	555
 Parant	2129
-Paranthoen	627
+Paranthoën	627
 Parard	236
 Parat	1110
 Paraud	311
@@ -40254,7 +40246,6 @@ Pardon	2232
 Pardonche	263
 Pardonnet	262
 Pardoux	398
-Pare	2525
 Pareau	432
 Paredes	995
 Parein	437
@@ -40366,6 +40357,7 @@ Parvedy	497
 Parvery	203
 Parville	241
 Parzy	211
+Paré	2525
 Pasbecq	477
 Pascal	19600
 Pascale	351
@@ -40602,10 +40594,10 @@ Pautonnier	1158
 Pautot	714
 Pautou	200
 Pautrat	1612
-Pautre	521
 Pautrel	602
 Pautret	230
 Pautrot	757
+Pautré	521
 Pauty	636
 Pauvert	2143
 Pauvret	306
@@ -40680,7 +40672,6 @@ Paysan	610
 Paysant	1703
 Paz	284
 Pe	236
-Pean	5321
 Peano	318
 Peant	262
 Peau	351
@@ -40711,27 +40702,22 @@ Pechereau	488
 Pechet	207
 Pecheur	1465
 Pecheux	1866
-Pechin	727
 Pechine	354
 Pechinot	301
 Pechon	1194
 Pechot	276
-Pechoux	908
 Peclet	221
 Pecnard	222
 Pecome	201
 Pecoraro	468
 Pecot	1362
-Pecoul	753
 Pecourt	1401
-Pecout	1214
 Pecquart	230
 Pecquenard	523
 Pecquery	739
 Pecquet	1313
 Pecqueur	2607
 Pecqueux	1780
-Pecriaux	951
 Pecron	233
 Pede	354
 Pedeau	208
@@ -40749,7 +40735,6 @@ Pedrero	324
 Pedretti	551
 Pedrini	459
 Pedro	1526
-Pedron	3279
 Pedroni	338
 Pedrono	1475
 Pedrosa	610
@@ -40769,25 +40754,23 @@ Peglion	312
 Pegon	733
 Pegoraro	458
 Pegorier	413
-Pegot	237
 Pegoud	295
 Pegourie	501
 Pegues	221
 Peguet	1120
-Peguin	439
 Peguy	484
 Pehau	346
 Peifer	294
 Peiffer	1895
 Peiffert	282
 Peignard	209
-Peigne	3287
 Peignelin	212
 Peignet	354
 Peigney	766
 Peignier	516
 Peignon	424
 Peignot	430
+Peigné	3287
 Peillard	205
 Peillet	731
 Peillex	819
@@ -40804,13 +40787,11 @@ Pejoine	238
 Pejot	234
 Pejoux	404
 Peju	282
-Peladan	265
 Pelade	236
 Pelaez	277
 Pelage	1200
 Pelamourgues	235
 Pelan	295
-Pelaprat	394
 Pelard	748
 Pelardy	620
 Pelat	1291
@@ -40819,7 +40800,6 @@ Pelaud	446
 Pelayo	281
 Pelcat	441
 Pelcot	205
-Pele	4772
 Peleau	280
 Pelegrin	927
 Pelegry	667
@@ -40836,7 +40816,6 @@ Pelissero	248
 Pelissie	474
 Pelissier	9126
 Pelisson	1432
-Pelissou	774
 Pelizzari	260
 Pelladeau	201
 Pellan	1358
@@ -40844,7 +40823,6 @@ Pellard	380
 Pellarin	363
 Pellat	1027
 Pellaton	258
-Pelle	5245
 Pelleau	496
 Pellecuer	311
 Pellefigue	301
@@ -40888,6 +40866,7 @@ Pelloux-Prayer	230
 Pelluau	267
 Pelluchon	246
 Pelluet	333
+Pellé	5245
 Pelmard	417
 Pelofi	264
 Peloille	642
@@ -40912,6 +40891,7 @@ Peltret	298
 Peltriaux	412
 Peluchon	228
 Pelus	269
+Pelé	4772
 Pen	459
 Pena	2063
 Penalva	311
@@ -40919,7 +40899,6 @@ Penalver	421
 Penanhoat	244
 Penard	1845
 Penas	340
-Penaud	2934
 Penault	588
 Penchenat	521
 Pencole	475
@@ -40928,8 +40907,6 @@ Pendant	247
 Pendaries	838
 Pendu	442
 Penduff	229
-Pene	1635
-Peneau	1444
 Penel	2279
 Penelon	251
 Penet	2519
@@ -40940,14 +40917,11 @@ Penguilly	218
 Penhoat	398
 Penhoet	287
 Penhouet	683
-Penicaud	1072
-Penicaut	262
 Penichon	651
 Penichou	202
 Penigaud	245
 Peniguel	527
 Penin	3633
-Penisson	1535
 Penloup	371
 Penn	401
 Penna	417
@@ -40976,7 +40950,6 @@ Penvern	870
 Penverne	483
 Peny	742
 Pepe	1105
-Pepin	9077
 Pepino	517
 Pepion	447
 Pepiot	457
@@ -40997,7 +40970,6 @@ Perardel	222
 Perardot	233
 Peraste	294
 Perat	464
-Peraud	1332
 Peraudeau	791
 Perault	770
 Peray	249
@@ -41053,7 +41025,6 @@ Perera	348
 Peres	5868
 Peresse	845
 Peresson	208
-Peret	1429
 Perette	255
 Peretti	2542
 Perey	493
@@ -41067,7 +41038,6 @@ Pergent	220
 Perget	263
 Perherin	436
 Perhirin	696
-Peri	705
 Peria	526
 Periac	216
 Perian	285
@@ -41075,30 +41045,22 @@ Perianayagom	298
 Perianin	345
 Periard	264
 Periat	295
-Pericard	369
 Pericat	559
-Pericaud	613
 Perichaud	227
 Perichet	248
-Perichon	1895
 Perico	226
 Peridon	377
 Peridy	365
 Perie	2176
-Perier	5619
 Peries	630
 Perigaud	661
 Perigault	594
-Perignon	1517
 Perigois	666
-Perigord	245
 Perilhon	203
 Perilhou	350
-Perillat	653
 Perillaud	267
 Perillon	216
 Perimony	366
-Perin	5571
 Perina	396
 Perinaud	215
 Perineau	288
@@ -41114,7 +41076,6 @@ Periquet	226
 Peris	577
 Perissat	266
 Perisse	1604
-Perivier	308
 Perlade	235
 Perles	328
 Perlin	347
@@ -41147,8 +41108,6 @@ Perocheau	998
 Perochon	750
 Perodeau	361
 Perois	259
-Perol	972
-Peron	15157
 Perona	677
 Peronet	457
 Peroni	642
@@ -41157,7 +41116,6 @@ Peronneau	379
 Peronnet	2811
 Peronny	434
 Perot	5147
-Perotin	785
 Perotti	701
 Perotto	749
 Perou	1039
@@ -41165,7 +41123,7 @@ Peroumal	516
 Peroux	615
 Perouze	273
 Peroz	510
-Perpere	375
+Perpère	375
 Perquin	444
 Perquis	535
 Perra	346
@@ -41193,7 +41151,6 @@ Perreau	4121
 Perreault	207
 Perreaut	670
 Perreaux	316
-Perree	969
 Perrein	514
 Perrel	513
 Perrelle	345
@@ -41270,6 +41227,7 @@ Perrusset	200
 Perrusson	284
 Perrut	258
 Perry	2572
+Perrée	969
 Pers	444
 Perse	273
 Persee	746
@@ -41298,10 +41256,8 @@ Pertuisel	273
 Pertuiset	408
 Pertuisot	444
 Pertus	674
-Peru	1835
 Perucca	274
 Peruchon	217
-Perus	999
 Peruzzo	216
 Pery	1196
 Pes	362
@@ -41345,7 +41301,6 @@ Pestelle	230
 Pestourie	464
 Pestre	972
 Pesty	518
-Petain	566
 Petard	939
 Petat	685
 Petchy	221
@@ -41434,7 +41389,6 @@ Petrein	204
 Petrel	817
 Petremann	307
 Petrement	430
-Petrequin	783
 Petri	929
 Petriat	273
 Petrier	285
@@ -41537,8 +41491,6 @@ Peytoureau	331
 Pez	351
 Pezaire	249
 Pezant	374
-Pezard	842
-Peze	833
 Pezennec	349
 Pezeril	468
 Pezeron	609
@@ -41551,6 +41503,7 @@ Pezous	211
 Pezy	203
 Pezzali	201
 Pezzoli	308
+Pezé	833
 Pfaadt	265
 Pfaff	709
 Pfeffer	771
@@ -41727,12 +41680,12 @@ Picoulet	389
 Picout	521
 Picq	2472
 Picquart	538
-Picque	1554
 Picquenard	254
 Picquenot	604
 Picquet	1850
 Picquette	224
 Picquot	251
+Picqué	1554
 Picton	298
 Pidancier	237
 Pidou	337
@@ -41770,7 +41723,7 @@ Pierin	313
 Pierini	547
 Pierlot	1104
 Piermay	287
-Pierne	261
+Pierné	261
 Pieron	249
 Pieroni	310
 Pierot	408
@@ -41870,7 +41823,7 @@ Pigny	979
 Pigois	451
 Pigoreau	211
 Pigot	1716
-Pigree	267
+Pigrée	267
 Piguel	580
 Piguet	1901
 Pihan	802
@@ -41899,7 +41852,6 @@ Pillard	2671
 Pillas	332
 Pillaud	615
 Pillault	415
-Pille	1018
 Piller	603
 Pillet	6425
 Pillette	342
@@ -41915,6 +41867,7 @@ Pilloud	484
 Pilloux	229
 Pilloy	473
 Pillu	377
+Pillé	1018
 Pilon	4503
 Pilorge	710
 Pilorget	899
@@ -41955,7 +41908,6 @@ Pinchault	206
 Pinchon	3722
 Pinchot	211
 Pinck	391
-Pincon	2430
 Pineau	19022
 Pineaud	400
 Pineda	376
@@ -42014,6 +41966,7 @@ Pintureau	228
 Pintus	312
 Pinvidic	449
 Pinville	217
+Pinçon	2430
 Pio	248
 Piocelle	271
 Pioch	880
@@ -42294,11 +42247,9 @@ Plaze	397
 Plazenet	236
 Plazer	217
 Plaziat	208
-Ple	2872
 Pleau	366
 Pledel	303
 Pledran	213
-Plee	635
 Pleiber	239
 Plenecassagne	225
 Plenet	328
@@ -42386,6 +42337,8 @@ Pluton	341
 Pluvinage	890
 Pluyaud	261
 Ply	595
+Plé	2872
+Plée	635
 Pobel	350
 Pobelle	330
 Pocard	516
@@ -42447,9 +42400,9 @@ Poillot	815
 Poilly	618
 Poilpot	282
 Poilpre	619
-Poilve	578
 Poilvert	464
 Poilvet	450
+Poilvé	578
 Poimboeuf	242
 Poinard	449
 Poinas	1122
@@ -42487,9 +42440,7 @@ Poirat	253
 Poiraud	1714
 Poiraudeau	729
 Poirault	583
-Poire	1542
 Poireau	639
-Poiree	367
 Poirel	2129
 Poiret	4430
 Poirette	615
@@ -42503,6 +42454,8 @@ Poirot	7259
 Poiroux	694
 Poirrier	2133
 Poirson	2417
+Poiré	1542
+Poirée	367
 Pois	442
 Poisnel	269
 Poison	260
@@ -42601,7 +42554,7 @@ Pomet	359
 Pomeyrol	217
 Pomie	227
 Pomier	688
-Pomies	1131
+Pomiès	1131
 Pommaret	317
 Pomme	772
 Pommelet	399
@@ -42640,7 +42593,6 @@ Ponchet	303
 Ponchon	1695
 Poncin	2422
 Poncon	400
-Poncot	444
 Poncy	443
 Pondard	368
 Pondaven	653
@@ -42699,6 +42651,7 @@ Pontvianne	847
 Ponty	875
 Ponzio	427
 Ponzo	685
+Ponçot	444
 Popelier	439
 Popelin	382
 Pophillat	212
@@ -42729,7 +42682,6 @@ Porchet	859
 Porcq	324
 Porcu	761
 Poreaux	297
-Poree	1994
 Poret	4346
 Porez	574
 Porhel	541
@@ -42800,6 +42752,7 @@ Portrat	464
 Portron	951
 Portugal	377
 Porzio	233
+Porée	1994
 Pose	778
 Posnic	430
 Possamai	308
@@ -42834,7 +42787,6 @@ Potherat	527
 Pothet	359
 Pothier	3520
 Pothin	3371
-Potie	635
 Potier	15433
 Potiez	595
 Potignon	463
@@ -42842,6 +42794,7 @@ Potigny	226
 Potin	4286
 Potiquet	211
 Potiron	2265
+Potié	635
 Potot	571
 Potrel	472
 Potron	551
@@ -43092,12 +43045,12 @@ Pradels	550
 Pradere	1080
 Prades	1833
 Pradet	689
-Pradie	468
 Pradier	4481
 Pradignac	415
 Pradillon	266
 Pradin	257
 Pradines	1964
+Pradié	468
 Prado	1152
 Pradon	914
 Pradoux	439
@@ -43126,24 +43079,17 @@ Praud	4175
 Prault	405
 Prax	568
 Praz	239
-Pre	1172
 Preau	1411
-Preaud	446
 Preault	501
-Preaux	931
 Prebet	276
-Precheur	506
-Precigout	835
 Predal	284
 Predhomme	239
 Predine	217
-Preel	399
 Prefol	311
 Prehu	249
 Prein	265
 Preira	409
 Preiss	326
-Prejean	227
 Prel	385
 Prelat	310
 Prelot	210
@@ -43194,17 +43140,11 @@ Prevalet	219
 Prevaud	207
 Prevault	318
 Prevel	2852
-Preveraud	246
-Prevert	368
 Prevet	367
-Preville	252
 Previtali	420
-Prevost	27099
 Prevosto	275
-Prevot	13313
 Prevotat	409
 Prevote	292
-Prevoteau	742
 Prevoteaux	226
 Prevotel	200
 Prevots	303
@@ -43389,6 +43329,19 @@ Pruvot	6251
 Przybyl	230
 Przybyla	369
 Przybylski	997
+Pré	1172
+Préaud	446
+Préaux	931
+Précigout	835
+Préel	399
+Préjean	227
+Préveraud	246
+Prévert	368
+Préville	252
+Prévost	27099
+Prévot	13313
+Prévoteau	742
+Prêcheur	506
 Psalmon	256
 Ptak	323
 Puard	229
@@ -43501,6 +43454,45 @@ Py	5254
 Pype	247
 Pyram	201
 Pytel	214
+Pène	1635
+Péan	5321
+Péchin	727
+Péchoux	908
+Pécoul	753
+Pécout	1214
+Pécriaux	951
+Pédron	3279
+Pégot	237
+Péguin	439
+Péladan	265
+Pélaprat	394
+Pélissou	774
+Pénaud	2934
+Péneau	1444
+Pénicaud	1072
+Pénicaut	262
+Pénisson	1535
+Pépin	9077
+Péraud	1332
+Péret	1429
+Péri	705
+Péricard	369
+Péricaud	613
+Périchon	1895
+Périer	5619
+Pérignon	1517
+Périgord	245
+Périllat	653
+Périn	5571
+Périvier	308
+Pérol	972
+Péron	15157
+Pérotin	785
+Péru	1835
+Pérus	999
+Pétain	566
+Pétrequin	783
+Pézard	842
 Quach	300
 Quadri	214
 Quaegebeur	371
@@ -43522,22 +43514,19 @@ Quatresous	510
 Quatrevaux	647
 Quay	216
 Queant	616
-Queau	1465
 Quebre	219
 Quebriac	218
 Quechon	202
 Quedeville	443
-Queffelec	1992
 Queffeulou	463
 Queffurus	413
-Queguiner	1460
+Queffélec	1992
 Quehen	1182
 Queille	550
 Queinnec	1038
 Queiros	311
 Quelard	419
 Quelen	1096
-Quelennec	711
 Quelet	221
 Quelin	1064
 Quellard	255
@@ -43559,7 +43548,6 @@ Quemin	819
 Quemper	227
 Quenard	920
 Quenardel	424
-Quenault	1156
 Quene	214
 Quenea	215
 Queneau	276
@@ -43583,10 +43571,8 @@ Quentel	1265
 Quentin	8037
 Quenton	300
 Quentric	408
-Quenu	439
 Quenum	203
 Quer	315
-Querard	636
 Querat	418
 Queraud	532
 Querbes	223
@@ -43610,7 +43596,6 @@ Querrien	297
 Querry	400
 Quersin	300
 Quertier	893
-Queru	840
 Queruel	866
 Query	291
 Quesada	1154
@@ -43630,7 +43615,6 @@ Questier	251
 Questroy	408
 Quet	1061
 Quetard	326
-Quetel	924
 Quetelard	236
 Quetier	963
 Quetin	545
@@ -43670,7 +43654,6 @@ Quignon	2481
 Quiguer	259
 Quilan	377
 Quilbeuf	252
-Quiles	631
 Quilez	226
 Quilfen	301
 Quilgars	292
@@ -43695,6 +43678,7 @@ Quillivic	587
 Quillon	601
 Quillot	375
 Quily	223
+Quilès	631
 Quimbert	257
 Quimerch	202
 Quin	895
@@ -43755,6 +43739,14 @@ Quivy	239
 Quoniam	904
 Quoniou	227
 Quoy	314
+Quéau	1465
+Quéguiner	1460
+Quélennec	711
+Quénault	1156
+Quénu	439
+Quérard	636
+Quéru	840
+Quétel	924
 Raab	310
 Raba	489
 Rabache	738
@@ -43767,8 +43759,8 @@ Rabany	463
 Rabasse	810
 Rabaste	480
 Rabat	731
-Rabate	703
 Rabatel	1286
+Rabaté	703
 Rabaud	2685
 Rabault	777
 Rabaux	231
@@ -44016,7 +44008,6 @@ Rambur	485
 Rambure	453
 Ramdane	835
 Ramdani	1381
-Rame	1065
 Rameau	3290
 Rameaux	1137
 Ramecourt	309
@@ -44032,12 +44023,12 @@ Ramey	435
 Ramez	503
 Rami	1123
 Ramier	970
-Ramiere	542
 Ramillien	227
 Ramillon	1139
 Ramin	1634
 Ramirez	3046
 Ramis	387
+Ramière	542
 Ramm	344
 Ramoin	241
 Ramon	4043
@@ -44063,6 +44054,7 @@ Ramspacher	289
 Ramstein	289
 Ramu	275
 Ramus	608
+Ramé	1065
 Ranaldi	202
 Ranc	2896
 Rance	873
@@ -44113,9 +44105,9 @@ Rapaud	402
 Rapeau	395
 Rapenne	724
 Rapetti	259
-Raphael	1541
 Raphalen	936
 Raphanel	695
+Raphaël	1541
 Raphel	473
 Raphoz	474
 Rapicault	1089
@@ -44307,11 +44299,9 @@ Razin	211
 Razurel	266
 Re	1499
 Rea	1050
-Real	2010
 Reale	598
 Reali	294
 Reant	1313
-Reau	1998
 Reaubourg	212
 Reaud	664
 Reault	617
@@ -44339,7 +44329,6 @@ Rebeyrolle	428
 Rebeyrotte	484
 Rebichon	211
 Rebier	200
-Rebiere	2174
 Rebierre	238
 Rebiffe	380
 Rebillard	2567
@@ -44347,6 +44336,7 @@ Rebillat	249
 Rebillet	207
 Rebillon	760
 Rebischung	260
+Rebière	2174
 Rebmann	790
 Rebois	392
 Reboisson	289
@@ -44374,7 +44364,6 @@ Rebuffet	365
 Rebuffo	212
 Rebut	653
 Reby	843
-Recalde	350
 Recalt	255
 Recart	318
 Recchia	603
@@ -44444,11 +44433,9 @@ Regaudie	259
 Regazzi	218
 Regazzoni	1033
 Rege	294
-Regeard	366
 Regeasse	207
 Regeffe	276
 Regel	247
-Regent	2497
 Regerat	335
 Regereau	330
 Reggiani	202
@@ -44458,7 +44445,6 @@ Regimbeau	360
 Regin	257
 Regina	597
 Reginensi	292
-Regis	3745
 Reglain	280
 Reglat	238
 Regley	267
@@ -44469,8 +44455,6 @@ Regnauld	561
 Regnault	6309
 Regnaut	860
 Regner	649
-Regnier	18405
-Regniez	851
 Regny	279
 Rego	282
 Regouby	200
@@ -44561,7 +44545,6 @@ Rembliere	321
 Remen	207
 Remenieras	204
 Remer	351
-Remerand	230
 Remery	241
 Remetter	1210
 Remeur	349
@@ -44576,8 +44559,6 @@ Remion	331
 Remiot	358
 Remir	400
 Remise	445
-Remon	565
-Remond	6997
 Remondet	253
 Remondiere	446
 Remondin	400
@@ -44586,8 +44567,7 @@ Remont	637
 Remoue	471
 Remoussin	311
 Remus	246
-Remusat	271
-Remy	25844
+Remérand	230
 Ren	294
 Renac	552
 Renais	277
@@ -44616,7 +44596,6 @@ Renciot	369
 Renck	340
 Renda	259
 Rendu	1021
-Rene	4618
 Rene-Corail	735
 Reneaud	261
 Reneaume	283
@@ -44629,9 +44608,9 @@ Renevier	616
 Renevot	333
 Renger	233
 Renia	626
-Renie	316
 Renier	4584
 Renimel	337
+Renié	316
 Renne	202
 Renner	1338
 Rennes	264
@@ -44668,6 +44647,7 @@ Renvoise	965
 Renvoize	314
 Reny	433
 Renzi	279
+René	4618
 Reocreux	321
 Reol	215
 Repellin	964
@@ -44684,7 +44664,6 @@ Requier	1148
 Requillart	258
 Requin	444
 Rerat	537
-Rerolle	411
 Resch	623
 Resche	258
 Rescourio	257
@@ -44717,7 +44696,6 @@ Retaux	482
 Retel	235
 Rethore	2045
 Retiere	989
-Retif	2433
 Retore	252
 Retornaz	249
 Retory	323
@@ -44727,7 +44705,6 @@ Retourne	573
 Retout	763
 Rettig	235
 Retureau	479
-Rety	1348
 Retz	204
 Reubrecht	275
 Reuge	257
@@ -44754,7 +44731,6 @@ Reve	205
 Reveau	596
 Reveil	381
 Reveillard	431
-Reveillaud	306
 Reveille	920
 Reveillere	651
 Reveillon	1195
@@ -44789,7 +44765,6 @@ Revil	571
 Revillard	359
 Revillet	284
 Revillion	329
-Revillon	1066
 Reviron	806
 Revol	3751
 Revolte	351
@@ -44889,9 +44864,9 @@ Ribeyrol	400
 Ribeyrolles	271
 Ribeyron	846
 Ribier	879
-Ribiere	2882
 Ribierre	273
 Ribis	224
+Ribière	2882
 Ribler	203
 Riblet	475
 Ribo	357
@@ -45061,7 +45036,7 @@ Rigaudeau	955
 Rigaudias	233
 Rigaudie	677
 Rigaudier	294
-Rigaudiere	501
+Rigaudière	501
 Rigault	4197
 Rigaut	2225
 Rigaux	2804
@@ -45256,9 +45231,9 @@ Rivet	8959
 Rivette	297
 Rivier	2655
 Riviera	663
-Riviere	45694
 Rivieres	303
 Rivierre	865
+Rivière	45694
 Rivoal	2635
 Rivoalen	608
 Rivoallan	1046
@@ -45342,10 +45317,10 @@ Robiquet	690
 Robitaille	500
 Robitaillie	202
 Robledo	209
-Robles	1282
 Roblet	978
 Roblin	4474
 Roblot	1641
+Roblès	1282
 Robo	322
 Roboam	363
 Robquin	279
@@ -45628,8 +45603,8 @@ Ronceret	207
 Ronchetti	235
 Ronchi	329
 Roncier	514
-Ronciere	342
 Roncin	1360
+Roncière	342
 Ronco	472
 Roncoroni	206
 Rond	258
@@ -45720,7 +45695,6 @@ Rosati	607
 Rosato	231
 Rosay	1250
 Rosaz	581
-Rose	11941
 Roseau	1189
 Rosec	602
 Rosee	413
@@ -45802,6 +45776,7 @@ Rostand	252
 Rostoucher	289
 Rostren	226
 Roszak	573
+Rosé	11941
 Rot	250
 Rota	2313
 Rotge	283
@@ -45853,7 +45828,6 @@ Roucaute	230
 Roucayrol	577
 Rouch	2842
 Rouchaud	485
-Rouche	623
 Roucher	892
 Rouches	417
 Rouchet	558
@@ -45862,6 +45836,7 @@ Rouchon	3059
 Rouchouse	954
 Rouchouze	410
 Rouchy	1196
+Rouché	623
 Roucolle	325
 Roucou	915
 Roucoules	220
@@ -45878,7 +45853,6 @@ Roudil	1813
 Roudon	245
 Roudot	948
 Roudy	305
-Roue	3460
 Roueche	259
 Rouede	266
 Rouel	489
@@ -45896,7 +45870,6 @@ Rouffignac	771
 Rouffignat	255
 Rouffineau	213
 Rouffy	269
-Rouge	6369
 Rougeau	349
 Rougeaux	874
 Rougegrez	313
@@ -45915,13 +45888,13 @@ Rougie	625
 Rougier	8419
 Rougny	223
 Rougon	560
+Rougé	6369
 Rouhaud	1079
 Rouhier	813
 Rouif	208
 Rouil	594
 Rouilhac	210
 Rouillard	4460
-Rouille	3916
 Rouiller	1158
 Rouillere	334
 Rouillet	305
@@ -45929,6 +45902,7 @@ Rouillier	712
 Rouillon	4744
 Rouillot	226
 Rouilly	363
+Rouillé	3916
 Rouire	254
 Rouis	267
 Rouissi	217
@@ -46054,8 +46028,8 @@ Rouveure	578
 Rouveyre	284
 Rouveyrol	903
 Rouvier	2559
-Rouviere	4203
 Rouvillain	221
+Rouvière	4203
 Rouvrais	1120
 Rouvray	509
 Rouvre	298
@@ -46072,7 +46046,6 @@ Rouzade	214
 Rouzaire	252
 Rouzaud	2099
 Rouzaut	202
-Rouze	2210
 Rouzeau	1320
 Rouzee	519
 Rouzes	389
@@ -46081,15 +46054,17 @@ Rouzic	956
 Rouzier	1695
 Rouziere	545
 Rouzieres	280
-Rouzies	851
 Rouziou	266
+Rouziès	851
 Rouzo	295
 Rouzoul	248
+Rouzé	2210
+Roué	3460
 Rovela	231
 Rovelli	288
 Rovera	445
-Rovere	505
 Rovira	731
+Rovère	505
 Roy	41749
 Royal	554
 Royan	237
@@ -46099,7 +46074,6 @@ Royau	225
 Royaux	259
 Roye	790
 Royer	30117
-Royere	1057
 Royet	2197
 Royez	353
 Roynard	414
@@ -46108,6 +46082,7 @@ Roynette	472
 Royo	983
 Royon	1245
 Royoux	239
+Royère	1057
 Roz	391
 Rozan	637
 Rozand	794
@@ -46120,12 +46095,12 @@ Rozel	258
 Rozelier	200
 Rozen	341
 Rozenberg	293
-Rozes	721
 Rozet	1105
 Rozier	4453
-Roziere	553
 Rozieres	574
+Rozière	553
 Rozo	365
+Rozès	721
 Rua	446
 Rual	274
 Ruamps	290
@@ -46240,7 +46215,7 @@ Rullaud	385
 Rulle	401
 Rulleau	293
 Rullier	1831
-Rulliere	822
+Rullière	822
 Rumeau	2564
 Rumeur	252
 Rumin	258
@@ -46306,6 +46281,23 @@ Rys	422
 Ryser	247
 Ryssen	218
 Rzepka	237
+Réal	2010
+Réau	1998
+Récalde	350
+Régeard	366
+Régent	2497
+Régis	3745
+Régnier	18405
+Régniez	851
+Rémon	565
+Rémond	6997
+Rémusat	271
+Rémy	25844
+Rérolle	411
+Rétif	2433
+Réty	1348
+Réveillaud	306
+Révillon	1066
 Saad	787
 Saada	1427
 Saadaoui	475
@@ -46328,10 +46320,10 @@ Sabater	603
 Sabathe	1216
 Sabathie	447
 Sabathier	1530
-Sabatie	1190
 Sabatier	13279
 Sabatini	614
 Sabatino	235
+Sabatié	1190
 Sabaton	277
 Sabatte	300
 Sabattier	480
@@ -46389,9 +46381,9 @@ Sacleux	620
 Saclier	775
 Sacquepee	206
 Sacquet	391
-Sacre	1471
 Sacrez	266
 Sacriste	259
+Sacré	1471
 Sadaoui	700
 Sadaune	490
 Saddier	306
@@ -46553,10 +46545,10 @@ Saint-Jours	436
 Saint-Julien	357
 Saint-Just	333
 Saint-Laurent	511
-Saint-Leger	1730
 Saint-Lo	271
 Saint-Louis	637
 Saint-Louis-Augustin	226
+Saint-Léger	1730
 Saint-Macary	265
 Saint-Marc	2245
 Saint-Martin	5238
@@ -46639,10 +46631,10 @@ Salasc	296
 Salasca	273
 Salat	1059
 Salaud	520
-Salaun	11900
 Salavert	584
 Salazar	559
 Salazard	204
+Salaün	11900
 Salcede	293
 Salcedo	262
 Saldana	241
@@ -46704,8 +46696,6 @@ Sallard	669
 Sallat	282
 Sallaud	409
 Sallaz	388
-Salle	6645
-Sallee	343
 Sallefranque	265
 Sallenave	679
 Sallerin	297
@@ -46719,16 +46709,18 @@ Sallin	322
 Salliot	863
 Salliou	366
 Sallot	601
+Sallé	6645
+Sallée	343
 Salm	463
 Salmacis	282
 Salmeron	688
 Salmi	1186
 Salmon	14381
 Salom	434
-Salome	2730
 Salomez	1076
 Salomon	9090
 Salomone	306
+Salomé	2730
 Salon	898
 Saloppe	375
 Salord	219
@@ -46845,11 +46837,10 @@ Sandri	605
 Sandrin	1238
 Sandron	337
 Sandt	243
-Sane	426
 Sanfilippo	648
 Sanfourche	404
 Sangan	223
-Sangare	767
+Sangaré	767
 Sangla	464
 Sanglar	228
 Sanglard	338
@@ -46922,6 +46913,7 @@ Santy	260
 Sanvoisin	628
 Sanz	2984
 Sanzey	320
+Sané	426
 Saoud	419
 Saoudi	885
 Saouli	305
@@ -47025,7 +47017,7 @@ Sassot	214
 Sassus	256
 Sastre	913
 Satabin	372
-Satge	628
+Satgé	628
 Satin	364
 Satori	493
 Satory	261
@@ -47081,7 +47073,7 @@ Saune	277
 Sauner	307
 Sauneuf	204
 Saunier	10974
-Sauniere	500
+Saunière	500
 Saunois	554
 Saupin	657
 Sauques	270
@@ -47145,7 +47137,6 @@ Sauvant	599
 Sauvard	331
 Sauvat	870
 Sauvayre	305
-Sauve	2571
 Sauvebois	273
 Sauvee	621
 Sauvegrain	559
@@ -47162,6 +47153,7 @@ Sauvignon	622
 Sauvion	638
 Sauvonnet	245
 Sauvourel	382
+Sauvé	2571
 Saux	1381
 Sauzay	428
 Sauze	2061
@@ -47254,7 +47246,7 @@ Sayet	249
 Sayous	291
 Saysset	440
 Sazerat	307
-Sbai	392
+Sbaï	392
 Scache	229
 Scaglia	588
 Scaglione	206
@@ -47504,7 +47496,6 @@ Schupp	413
 Schurr	219
 Schuster	2185
 Schutt	724
-Schutz	2797
 Schuwer	265
 Schvartz	289
 Schwaab	295
@@ -47534,6 +47525,7 @@ Schwob	1433
 Schwoehrer	218
 Schwoerer	692
 Schwoob	420
+Schütz	2797
 Sciacca	270
 Scialom	204
 Sciandra	321
@@ -47579,7 +47571,6 @@ Sebaoun	231
 Sebas	408
 Sebastia	333
 Sebastian	435
-Sebastiani	472
 Sebastien	2236
 Sebbag	283
 Sebbagh	314
@@ -47593,12 +47584,10 @@ Sebert	1336
 Sebie	208
 Sebile	243
 Sebileau	277
-Sebille	2074
 Sebilleau	239
 Sebillet	411
 Sebillotte	240
 Sebilo	475
-Sebire	1964
 Sebti	380
 Secchi	553
 Secci	269
@@ -47607,7 +47596,6 @@ Sechaud	690
 Seche	398
 Secher	2131
 Secheresse	421
-Sechet	2120
 Sechi	329
 Seck	737
 Seclet	285
@@ -47625,7 +47613,6 @@ Sedano	200
 Seddik	373
 Seddiki	652
 Sede	285
-Sedille	333
 Sedira	341
 Sediri	321
 Sedrati	227
@@ -47669,7 +47656,6 @@ Seguelas	203
 Seguenot	238
 Segues	251
 Segui	1748
-Seguier	1629
 Seguillon	380
 Seguin	17871
 Seguin-Cadiche	338
@@ -47677,10 +47663,7 @@ Seguineau	729
 Seguinot	461
 Seguis	243
 Segur	981
-Segura	4548
 Segurel	312
-Seguret	1018
-Seguy	3895
 Sehedic	222
 Sehier	411
 Sehil	208
@@ -47785,11 +47768,10 @@ Seminel	201
 Seminor	215
 Semon	344
 Semonin	210
-Sempe	1096
 Sempere	684
+Sempé	1096
 Semur	206
 Sen	468
-Senac	1443
 Senamaud	429
 Senan	202
 Senand	224
@@ -47869,7 +47851,6 @@ Sequeira	526
 Sequier	270
 Ser	208
 Seraffin	268
-Serafin	636
 Serafini	775
 Serafino	269
 Serain	592
@@ -47880,7 +47861,6 @@ Serandour	759
 Serange	230
 Serano	200
 Serant	266
-Seraphin	880
 Seraphine	208
 Serayet	362
 Serazin	597
@@ -47914,7 +47894,6 @@ Serieys	1472
 Serin	2609
 Serindat	276
 Serinet	311
-Seris	1102
 Serisier	284
 Sermet	926
 Serna	502
@@ -47946,8 +47925,8 @@ Serret	1498
 Serrette	260
 Serri	227
 Serrier	912
-Serriere	1040
 Serris	201
+Serrière	1040
 Serru	279
 Serrure	269
 Serrurier	1084
@@ -47981,7 +47960,6 @@ Servettaz	355
 Servien	284
 Servier	730
 Serviere	805
-Servieres	642
 Servignat	458
 Servigne	268
 Servillat	429
@@ -47989,6 +47967,7 @@ Serville	358
 Servin	476
 Serviole	242
 Servius	253
+Servières	642
 Servoin	314
 Servoise	231
 Servol	238
@@ -48027,24 +48006,19 @@ Sevagamy	355
 Sevat	218
 Sevault	450
 Sevaux	416
-Seve	2128
 Sevegrand	230
 Sevelin	272
-Sevellec	775
 Seven	462
 Sevenier	787
 Seveno	1588
-Severac	1786
 Severan	460
 Severe	1072
-Severin	3428
 Seveste	228
 Sevestre	4077
 Seveur	264
 Sevilla	801
 Sevillano	238
 Seville	331
-Sevin	4032
 Sevoz	237
 Sevrain	557
 Sevre	401
@@ -48126,7 +48100,7 @@ Sidambarom	250
 Sidaner	304
 Sider	309
 Sidhoum	602
-Sidibe	1963
+Sidibé	1963
 Sidney	218
 Sidobre	453
 Sidoine	213
@@ -48218,7 +48192,6 @@ Simard	2162
 Simart	272
 Simeant	243
 Simenel	368
-Simeon	4212
 Simeone	531
 Simeoni	1111
 Simeray	367
@@ -48269,6 +48242,7 @@ Simoulin	420
 Simounet	231
 Simplot	256
 Simsek	586
+Siméon	4212
 Sin	323
 Sinacouty	226
 Sinama	590
@@ -48455,7 +48429,6 @@ Solda	250
 Soldani	242
 Soldati	244
 Soldevila	244
-Sole	1659
 Soleau	340
 Soleil	945
 Soleilhac	680
@@ -48463,7 +48436,6 @@ Soleilhavoup	740
 Soleillant	398
 Solente	213
 Soler	6893
-Solere	460
 Soles	470
 Solet	237
 Solier	786
@@ -48492,6 +48464,8 @@ Soltysiak	476
 Solvar	406
 Solvet	383
 Solvignon	205
+Solère	460
+Solé	1659
 Som	297
 Soma	261
 Sombardier	200
@@ -48633,13 +48607,13 @@ Soudani	412
 Soudant	1053
 Souday	746
 Soude	569
-Soudee	354
 Soudet	545
 Soudier	499
 Soudin	240
 Soudre	203
 Soudry	801
 Soudy	557
+Soudée	354
 Souef	310
 Souesme	201
 Souet	211
@@ -48677,28 +48651,28 @@ Soulard	7697
 Soularue	373
 Soulas	3186
 Soulat	2577
-Soule	3485
 Soulere	237
-Soules	1382
 Soulet	3314
 Souleyreau	231
 Soulez	358
 Soulhol	275
 Souli	200
-Soulie	7834
 Soulier	11178
 Soulies	257
 Soulignac	776
 Soulis	381
 Soulisse	391
+Soulié	7834
 Soullard	1160
 Soulliaert	244
 Soullier	788
 Souloumiac	643
+Soulès	1382
+Soulé	3485
 Soum	1582
 Soumagne	235
 Soumah	273
-Soumare	1811
+Soumaré	1811
 Soumet	332
 Soumier	346
 Soumille	398
@@ -48809,7 +48783,7 @@ Speicher	209
 Speisser	583
 Spencer	252
 Spengler	709
-Spenle	616
+Spenlé	616
 Spennato	257
 Sperandio	480
 Speranza	326
@@ -48971,7 +48945,6 @@ Stevance	311
 Stevant	778
 Steve	348
 Stevenard	414
-Stevenin	1313
 Stevenoot	232
 Stevenot	585
 Stevens	1221
@@ -48984,7 +48957,6 @@ Stien	620
 Stienne	856
 Stier	321
 Stievenard	1601
-Stievenart	456
 Stievet	206
 Stil	258
 Stimbach	303
@@ -48992,6 +48964,7 @@ Stimpfling	427
 Stirnemann	349
 Stival	360
 Stivalet	230
+Stiévenart	456
 Stocco	322
 Stock	1508
 Stocker	965
@@ -49070,6 +49043,7 @@ Sturm	1310
 Sturtzer	336
 Stutz	769
 Stutzmann	1026
+Stévenin	1313
 Suard	2311
 Suares	415
 Suarez	1908
@@ -49224,6 +49198,24 @@ Szymanek	226
 Szymanski	2168
 Szymczak	1150
 Szymkowiak	446
+Sève	2128
+Sébastiani	472
+Sébille	2074
+Sébire	1964
+Séchet	2120
+Sédille	333
+Séguier	1629
+Ségura	4548
+Séguret	1018
+Séguy	3895
+Sénac	1443
+Sérafin	636
+Séraphin	880
+Séris	1102
+Sévellec	775
+Séverac	1786
+Séverin	3428
+Sévin	4032
 Ta	338
 Tabanou	292
 Tabar	439
@@ -49258,13 +49250,13 @@ Tabuteau	870
 Tabutin	316
 Taccoen	462
 Tachdjian	222
-Tache	1017
 Tacheau	410
 Tacher	371
 Tachet	925
 Tachoires	499
 Tachon	2003
 Tachot	314
+Taché	1017
 Tacita	414
 Tacite	445
 Tack	453
@@ -49300,7 +49292,6 @@ Tahri	943
 Taiar	247
 Taibi	994
 Taiclet	313
-Taieb	2419
 Tailame	355
 Tailamee	363
 Tailhades	805
@@ -49638,6 +49629,7 @@ Tayot	225
 Taysse	247
 Taze	222
 Tazi	318
+Taïeb	2419
 Tcha	573
 Tea	231
 Tebbal	206
@@ -49711,7 +49703,6 @@ Teneur	362
 Tenier	225
 Teniere	474
 Tenin	336
-Tenot	336
 Tenoux	213
 Tenret	205
 Tentelier	227
@@ -49793,7 +49784,7 @@ Terzi	363
 Terzian	438
 Tescher	306
 Tesnier	267
-Tesniere	1364
+Tesnière	1364
 Tesquet	251
 Tessari	224
 Tessaro	365
@@ -49821,8 +49812,6 @@ Testu	1970
 Testud	1942
 Testut	814
 Tetaert	223
-Tetard	2726
-Tetart	2120
 Tetaud	600
 Tetaz	535
 Tete	1530
@@ -49833,12 +49822,12 @@ Teton	392
 Tetrel	806
 Tetu	3444
 Teulade	579
-Teule	857
 Teulet	787
 Teulier	765
 Teuliere	678
 Teulieres	546
 Teulon	422
+Teulé	857
 Teurlay	342
 Teurnier	411
 Teurquety	206
@@ -49847,10 +49836,9 @@ Texeraud	213
 Texereau	665
 Texier	17239
 Teychene	360
-Teychenne	461
+Teychenné	461
 Teyssandier	1202
 Teyssedou	428
-Teyssedre	1374
 Teysseire	439
 Teyssere	232
 Teysseyre	766
@@ -49859,9 +49847,9 @@ Teyssier	8132
 Teyssonneyre	388
 Teyssot	501
 Teyssou	258
+Teyssèdre	1374
 Teze	314
 Tezenas Du Montcel	224
-Tezier	286
 Thabard	301
 Thabet	252
 Thabourin	212
@@ -49895,8 +49883,6 @@ Theau	581
 Theaud	312
 Theaudin	365
 Theault	615
-Thebaud	3201
-Thebault	9882
 Thebaut	524
 Thebert	232
 Theeten	377
@@ -49921,10 +49907,8 @@ Thelu	235
 Thely	406
 Theme	281
 Themeze	251
-Themines	230
 Themyr	222
 Thenaisie	318
-Thenard	1239
 Thenault	553
 Thenet	216
 Thenon	533
@@ -49932,19 +49916,14 @@ Thenor	221
 Thenot	1436
 Thenoz	291
 Theo	402
-Theobald	1606
 Theodet	281
-Theodore	1810
 Theodose	608
 Theoleyre	420
-Theophile	1639
 Theot	459
 Theotiste	243
 Thepault	1205
-Thepaut	2344
 Thepenier	612
 Thepin	213
-Thepot	1016
 Ther	202
 Therage	373
 Therain	234
@@ -49954,7 +49933,6 @@ Thereau	348
 Therene	329
 Therese	954
 Theresine	464
-Theret	2523
 Therezien	236
 Therezo	236
 Therier	229
@@ -49963,14 +49941,11 @@ Therinca	244
 Therme	630
 Thermea	301
 Thermidor	207
-Theron	5291
-Therond	1738
 Therouanne	201
 Theroude	330
 Therouin	249
 Therry	574
 Therville	307
-Thery	10502
 Thesee	469
 Thetiot	1031
 Thetis	219
@@ -49984,15 +49959,11 @@ Theurier	351
 Theux	319
 Theval	231
 Thevard	205
-Thevenard	1826
 Theveneau	604
 Thevenet	8617
 Theveniau	205
 Theveniaud	377
-Thevenin	8786
 Thevenod	203
-Thevenon	3366
-Thevenot	5713
 Thevenoux	751
 Theveny	834
 Theves	202
@@ -50032,15 +50003,11 @@ Thiboult	315
 Thiboust	244
 Thibout	1378
 Thiburce	996
-Thiebaud	2725
-Thiebault	3220
-Thiebaut	11100
 Thiebaux	1046
 Thiebeaux	230
 Thieblemont	1219
 Thiebot	586
 Thiec	254
-Thiefaine	352
 Thieffine	369
 Thieffry	1755
 Thiefin	398
@@ -50055,7 +50022,6 @@ Thienot	206
 Thienpont	331
 Thiercelin	1131
 Thierion	351
-Thieriot	485
 Thierree	278
 Thierry	13899
 Thiers	1228
@@ -50097,7 +50063,7 @@ Thiolat	295
 Thioliere	497
 Thiollet	564
 Thiollier	606
-Thiolliere	333
+Thiollière	333
 Thion	1668
 Thionnet	212
 Thionville	396
@@ -50131,6 +50097,11 @@ Thivillier	499
 Thivillon	252
 Thivolle	820
 Thizy	1133
+Thiébaud	2725
+Thiébault	3220
+Thiébaut	11100
+Thiéfaine	352
+Thiériot	485
 Tho	456
 Thobie	839
 Thobois	934
@@ -50158,7 +50129,6 @@ Thomazeau	1539
 Thomazic	263
 Thomazo	847
 Thomazon	289
-Thome	1983
 Thomelin	462
 Thomere	272
 Thomeret	290
@@ -50173,6 +50143,7 @@ Thommeret	433
 Thommes	200
 Thompson	488
 Thomy	435
+Thomé	1983
 Thon	374
 Thonat	252
 Thonier	262
@@ -50258,6 +50229,23 @@ Thuries	775
 Thurin	491
 Thuriot	348
 Thys	541
+Thébaud	3201
+Thébault	9882
+Thémines	230
+Thénard	1239
+Théobald	1606
+Théodore	1810
+Théophile	1639
+Thépaut	2344
+Thépot	1016
+Théret	2523
+Théron	5291
+Thérond	1738
+Théry	10502
+Thévenard	1826
+Thévenin	8786
+Thévenon	3366
+Thévenot	5713
 Tibere	232
 Tiberghien	1857
 Tiberi	607
@@ -50317,7 +50305,6 @@ Tinard	607
 Tinchant	404
 Tinchon	552
 Tincq	214
-Tine	532
 Tinel	1103
 Tinelli	249
 Tinet	670
@@ -50335,6 +50322,7 @@ Tintignac	237
 Tintillier	791
 Tintinger	407
 Tinturier	361
+Tiné	532
 Tionohoue	226
 Tiphagne	258
 Tiphaigne	459
@@ -50455,12 +50443,12 @@ Tombette	271
 Tombois	436
 Tomczak	794
 Tomczyk	437
-Tome	945
 Tomei	396
 Tomi	406
 Tomic	208
 Tommasi	447
 Tommasini	371
+Tomé	945
 Tonarelli	248
 Tonda	269
 Tondelier	313
@@ -50656,7 +50644,6 @@ Tourbier	863
 Tourbin	218
 Tourbot	205
 Tourdot	525
-Toure	3994
 Toureau	333
 Toureille	531
 Tourel	456
@@ -50682,7 +50669,6 @@ Tournant	1059
 Tournat	332
 Tournay	1589
 Tournayre	627
-Tourne	1090
 Tournebise	286
 Tournebize	977
 Tournel	540
@@ -50706,6 +50692,7 @@ Tournoud	508
 Tournoux	743
 Tournu	286
 Tourny	367
+Tourné	1090
 Tourolle	236
 Touron	3046
 Touroude	264
@@ -50727,6 +50714,7 @@ Tourtois	703
 Tourvieille	242
 Tourville	405
 Toury	692
+Touré	3994
 Tous	240
 Tousch	751
 Toussaint	16445
@@ -50734,9 +50722,9 @@ Toussay	217
 Toustou	850
 Toutain	7023
 Toutant	250
-Toutee	322
 Toutin	605
 Touton	235
+Toutée	322
 Touvet	243
 Touvron	583
 Toux	419
@@ -50750,13 +50738,13 @@ Touzani	383
 Touzanne	217
 Touzard	1112
 Touzart	259
-Touze	3927
 Touzeau	2658
 Touzelet	363
 Touzery	285
 Touzet	3651
 Touzin	414
 Touzot	607
+Touzé	3927
 Tovar	211
 Toxe	435
 Tozzi	449
@@ -50803,7 +50791,7 @@ Transon	325
 Trantoul	249
 Tranvouez	269
 Traon	486
-Traore	6674
+Traoré	6674
 Trap	217
 Trapani	415
 Trapet	368
@@ -50877,8 +50865,6 @@ Treglia	236
 Tregoat	446
 Tregouet	678
 Tregret	366
-Treguer	2039
-Treguier	1374
 Trehard	511
 Trehel	272
 Trehet	758
@@ -50904,13 +50890,10 @@ Tremblay	2498
 Trembleau	270
 Tremblet	329
 Tremblin	390
-Tremeau	1298
 Tremeaux	277
 Tremege	224
-Tremel	1266
 Tremelet	245
 Tremine	204
-Tremolet	445
 Tremoliere	224
 Tremolieres	490
 Tremont	239
@@ -50953,7 +50936,6 @@ Treussard	297
 Treutenaere	307
 Trevarin	219
 Treve	314
-Treves	260
 Trevet	315
 Trevien	261
 Trevisan	1274
@@ -51085,8 +51067,7 @@ Trochon	1157
 Trochu	1289
 Trochut	306
 Troclet	208
-Trocme	1386
-Troel	278
+Trocmé	1386
 Troesch	743
 Troestler	329
 Troger	551
@@ -51148,7 +51129,7 @@ Trotzier	369
 Trou	253
 Trouart	209
 Troubat	1383
-Trouble	321
+Troublé	321
 Trouboul	222
 Trouchard	251
 Trouchaud	295
@@ -51185,12 +51166,13 @@ Trouttet	200
 Trouvain	380
 Trouvat	382
 Trouvay	216
-Trouve	6769
+Trouvé	6769
 Troux	203
 Trovalet	342
 Trovato	335
 Troy	646
 Troyon	262
+Troël	278
 Truant	560
 Trubert	1487
 Trubuil	270
@@ -51231,6 +51213,12 @@ Truttmann	332
 Truwant	259
 Truy	330
 Tryoen	230
+Trèves	260
+Tréguer	2039
+Tréguier	1374
+Trémeau	1298
+Trémel	1266
+Trémolet	445
 Tschaen	422
 Tschan	213
 Tschann	291
@@ -51349,6 +51337,10 @@ Tyrode	564
 Tyssandier	208
 Tyteca	248
 Tytgat	803
+Ténot	336
+Tétard	2726
+Tétart	2120
+Tézier	286
 Ubeda	647
 Uberti	227
 Ucar	246
@@ -51511,11 +51503,10 @@ Vairon	499
 Vais	361
 Vaissade	501
 Vaissaire	314
-Vaisse	869
-Vaissie	391
 Vaissier	378
-Vaissiere	2248
 Vaissieres	325
+Vaissière	2248
+Vaissié	391
 Vaitilingom	808
 Vaitilingon	202
 Vaity	269
@@ -51540,9 +51531,9 @@ Valbon	229
 Valcke	892
 Valcy	266
 Valdenaire	2072
-Valdes	481
 Valdeyron	267
 Valdivia	236
+Valdès	481
 Vale	279
 Valeau	322
 Valeix	470
@@ -51567,7 +51558,6 @@ Valerie	232
 Valerio	571
 Valerius	427
 Valero	2733
-Valery	3561
 Vales	1122
 Valet	4414
 Valette	15549
@@ -51580,9 +51570,9 @@ Valiame	221
 Valide	287
 Valiente	309
 Valier	393
-Valiere	842
 Valignat	208
 Valin	3296
+Valière	842
 Valla	2910
 Vallade	2375
 Valladeau	251
@@ -51600,7 +51590,6 @@ Vallaud	431
 Vallauri	538
 Valle	3274
 Valleau	521
-Vallee	19985
 Valleix	903
 Vallejo	702
 Vallenet	275
@@ -51608,7 +51597,6 @@ Vallentin	215
 Vallerand	217
 Vallerie	441
 Vallery	792
-Valles	1360
 Vallet	15482
 Vallette	1138
 Valley	313
@@ -51618,14 +51606,16 @@ Valliame	216
 Valliamee	307
 Vallienne	489
 Vallier	3844
-Valliere	775
 Vallin	2494
+Vallière	775
 Vallois	2314
 Vallon	4474
 Vallot	2103
 Valls	813
 Valluet	526
 Vally	763
+Vallès	1360
+Vallée	19985
 Valmalle	238
 Valmary	203
 Valmier	207
@@ -51649,6 +51639,7 @@ Valtier	375
 Valton	1855
 Valverde	1418
 Valy	1519
+Valéry	3561
 Vambre	501
 Vampouille	298
 Van	273
@@ -52053,8 +52044,8 @@ Vayssette	212
 Vayssettes	763
 Vayssie	781
 Vayssier	332
-Vayssiere	1160
 Vayssieres	512
+Vayssière	1160
 Vaz	1946
 Vazart	204
 Vaze	327
@@ -52064,6 +52055,7 @@ Vazelle	271
 Vazeux	288
 Vazquez	1401
 Vazzoler	255
+Vaïsse	869
 Veau	2072
 Veaute	323
 Veauvy	282
@@ -52081,8 +52073,6 @@ Vedis	207
 Vedovati	323
 Vedrenne	2525
 Vedrine	1643
-Vedrines	723
-Vedy	205
 Vee	323
 Vefour	385
 Vega	1592
@@ -52092,15 +52082,15 @@ Veil	281
 Veillard	2571
 Veillas	305
 Veillat	644
-Veille	832
 Veiller	202
 Veillerot	312
 Veillet	1515
 Veilleux	267
 Veillon	2694
 Veillot	321
+Veillé	832
 Veiss	232
-Veissiere	238
+Veissière	238
 Veit	577
 Veith	246
 Vejux	761
@@ -52190,7 +52180,6 @@ Venzal	302
 Vepierre	234
 Vequaud	388
 Vera	1835
-Veran	1297
 Verani	208
 Verardo	205
 Verat	255
@@ -52212,7 +52201,7 @@ Vercellino	280
 Vercellone	244
 Verchain	239
 Vercher	215
-Verchere	2261
+Verchère	2261
 Vercoutere	345
 Vercoutre	574
 Vercoutter	270
@@ -52238,8 +52227,8 @@ Verdez	507
 Verdi	208
 Verdie	872
 Verdier	19524
-Verdiere	2762
 Verdin	1657
+Verdière	2762
 Verdois	227
 Verdol	299
 Verdon	2942
@@ -52259,7 +52248,6 @@ Veret	2081
 Verez	532
 Verfaillie	1095
 Vergara	542
-Verge	3463
 Verge-Depre	233
 Vergeade	302
 Vergely	697
@@ -52267,7 +52255,6 @@ Vergeot	543
 Verger	8517
 Vergereau	245
 Vergerolle	479
-Verges	2307
 Vergez	2373
 Vergier	600
 Vergin	275
@@ -52293,6 +52280,8 @@ Vergoz	360
 Vergriete	538
 Verguet	944
 Verguin	260
+Vergès	2307
+Vergé	3463
 Verhaege	223
 Verhaegen	369
 Verhaeghe	4082
@@ -52310,7 +52299,6 @@ Verhoye	228
 Verhulst	831
 Vericel	1247
 Verilhac	730
-Verin	2314
 Verine	230
 Verissimo	240
 Verite	3807
@@ -52382,7 +52370,6 @@ Vernez	283
 Vernhes	2317
 Vernhet	1352
 Vernier	6466
-Verniere	893
 Vernieres	343
 Verniers	238
 Verniest	306
@@ -52391,6 +52378,7 @@ Vernin	762
 Vernis	455
 Vernisse	674
 Vernizeau	401
+Vernière	893
 Vernois	526
 Vernon	1177
 Vernot	220
@@ -52400,12 +52388,10 @@ Vernusse	283
 Verny	838
 Vero	249
 Verollet	348
-Veron	8225
 Veronese	711
 Veronique	266
 Veronneau	449
 Verot	1837
-Verove	1021
 Verpeaux	256
 Verpillat	348
 Verpillot	258
@@ -52469,7 +52455,6 @@ Vervisch	315
 Vervoitte	263
 Vervoort	268
 Verwaerde	1190
-Very	1350
 Verzele	207
 Veschambre	478
 Vesco	340
@@ -52529,7 +52514,7 @@ Veyssade	233
 Veysset	1255
 Veysseyre	1069
 Veyssier	345
-Veyssiere	2907
+Veyssière	2907
 Vezard	291
 Vezian	376
 Veziat	215
@@ -52539,7 +52524,6 @@ Vezilier	512
 Vezin	1412
 Vezine	341
 Vezinet	567
-Vezinhet	224
 Vezolles	200
 Vezon	299
 Vezy	235
@@ -52655,7 +52639,6 @@ Vidotto	212
 Vidou	382
 Vidrequin	291
 Vidy	307
-Vie	3641
 Vieau	306
 Viegas	610
 Vieillard	2349
@@ -52681,7 +52664,6 @@ Viennet	1643
 Vienney	334
 Viennois	299
 Viennot	1153
-Vienot	1193
 Viens	408
 Vier	420
 Vieren	375
@@ -52700,7 +52682,6 @@ Vieux	1668
 Vieuxbled	224
 Vieuxmaire	218
 Vievard	209
-Vieville	2652
 Viez	758
 Vigan	480
 Vige	498
@@ -52708,10 +52689,10 @@ Vigeant	413
 Vigeon	212
 Viger	1200
 Vigerie	229
-Vigie	575
 Vigier	8841
 Vigilant	357
 Viginier	245
+Vigié	575
 Viglietti	231
 Viglino	235
 Viglione	256
@@ -52767,8 +52748,8 @@ Vigreux	2397
 Vigroux	1379
 Vigue	310
 Vigues	213
-Viguie	2700
 Viguier	6383
+Viguié	2700
 Vila	2340
 Vilaca	225
 Vilain	6094
@@ -52928,7 +52909,6 @@ Vinci	448
 Vinciguerra	1306
 Vinck	367
 Vincke	258
-Vincon	971
 Vinconneau	311
 Vindevogel	266
 Vindex	225
@@ -52956,6 +52936,7 @@ Vinsot	285
 Vinter	283
 Vinterstein	212
 Vinuesa	386
+Vinçon	971
 Viol	511
 Viola	1408
 Violain	342
@@ -52991,7 +52972,6 @@ Viratelle	568
 Viraye	392
 Virazels	246
 Vircondelet	214
-Vire	390
 Virely	232
 Virenque	350
 Viret	1855
@@ -53019,6 +52999,7 @@ Viroulaud	854
 Viroulet	250
 Virton	238
 Viry	2341
+Viré	390
 Vis	733
 Visage	515
 Visbecq	460
@@ -53099,12 +53080,15 @@ Vizcaino	385
 Vizet	490
 Vizier	717
 Vizzini	210
+Vié	3641
+Viénot	1193
+Viéville	2652
 Vlaeminck	344
 Vlaemynck	234
 Vlaminck	209
 Vlamynck	350
-Vlerick	221
 Vlieghe	483
+Vlérick	221
 Vo	579
 Vocanson	725
 Voegele	644
@@ -53276,6 +53260,14 @@ Vuong	340
 Vurpillot	445
 Vuylsteke	455
 Vuylsteker	278
+Védrines	723
+Védy	205
+Véran	1297
+Vérin	2314
+Véron	8225
+Vérove	1021
+Véry	1350
+Vézinhet	224
 Waag	242
 Wable	660
 Wach	1161
@@ -53466,8 +53458,8 @@ Wecxsteen	263
 Weens	273
 Wegmann	266
 Wehr	248
-Wehrle	1202
 Wehrlen	388
+Wehrlé	1202
 Wehrung	800
 Weibel	2173
 Weider	521
@@ -53730,7 +53722,6 @@ Wunenburger	238
 Wunsch	224
 Wurmser	351
 Wurth	678
-Wurtz	3266
 Wust	385
 Wyart	864
 Wyckaert	391
@@ -53739,6 +53730,7 @@ Wyon	237
 Wypych	219
 Wysocki	588
 Wyss	557
+Würtz	3266
 Xardel	234
 Xavier	2743
 Xerri	284
@@ -53864,7 +53856,6 @@ Zaid	388
 Zaidi	1367
 Zaim	249
 Zair	279
-Zaire	807
 Zairi	221
 Zaiter	252
 Zajac	1176
@@ -53931,6 +53922,7 @@ Zaugg	314
 Zawada	335
 Zawadzki	542
 Zaza	202
+Zaïre	807
 Zbinden	351
 Zebo	326
 Zecchini	247
@@ -54261,3 +54253,11 @@ de Zutter	208
 dos Anjos	418
 dos Reis	1653
 dos Santos	17661
+Ébrard	765
+Écochard	595
+Élissalde	1268
+Ély	673
+Énard	914
+Épinat	1098
+Étienne	23970
+Évin	1422

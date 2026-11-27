@@ -32,6 +32,7 @@ with its replacement, and each removed path, column or flag.
 
 ### Changed
 
+- `en_US.last-name` writes 71 names as their bearers do, such as `O'Brien`, `MacDonald` and `LeBlanc`, where it wrote `Obrien`, `Macdonald` and `Leblanc`, and `fr_FR.last-name` gives 1,053 names an accent, such as `Lefèvre`, `André` and `Gérard`, where it wrote `Lefevre`, `Andre` and `Gerard`. Both tables read the spellings from Wikidata; a name it doesn't settle stays as the Census and INSEE write it. The two tables' rows move, so a seed draws other last names.
 - `--format pgcopy` and `Record.PGCopyLine` write a NUL character as `\000`, so PostgreSQL refuses the row and names its line. A raw NUL made `psql` cut the row short and load a corrupted one. The README says what `csv`, `sql` and `tsv` do with a NUL.
 - The error for a `{` that is never closed names both fixes: write `{{` for a literal brace, or close the token with `}`.
 - `misc.territory[KZ].capital` is `Astana`, not `Nur-Sultan`. `misc.territory[PW].capital` is `Ngerulmud`, not `Melekeok`, the state it lies in.
