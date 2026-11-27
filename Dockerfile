@@ -78,6 +78,7 @@ RUN --mount=type=cache,target=/cache \
 FROM scratch AS npm-package-built
 COPY npm-package/ /npm-package/
 COPY --from=npm-wasm /npm-package/ /npm-package/
+COPY LICENSE DATA-LICENSES.md data/en_US/WORDNET-LICENSE.txt /npm-package/
 
 FROM node:26.13.1-slim AS npm-package
 COPY --from=npm-package-built /npm-package/ /npm-package/

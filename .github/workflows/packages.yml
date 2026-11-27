@@ -46,6 +46,7 @@ jobs:
     outputs:
       latest: ${{ steps.latest.outputs.latest }}
       wheels: ${{ steps.wheels.outputs.built }}
+      npm: ${{ steps.npm.outputs.packed }}
     steps: &packages
       - uses: actions/checkout@v7
         with:
@@ -148,6 +149,29 @@ jobs:
           name: python-wheels
           path: wheels/*.whl
           retention-days: ${{ inputs.tag && 90 || 1 }}
+      # A tag cut before the npm package existed holds no npm-package/, and packs no tarball.
+      - name: The npm package packs under the tag's version, and a dry run of its publish lists its files and size
+        id: npm
+        if: hashFiles('src/npm-package/**') != ''
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          version="${TAG#v}"
+          docker buildx build --target npm-package-built --output npm src
+          # The Node of the npm job, whose npm takes trusted publishing.
+          docker run --rm --memory 2g --memory-swap 2g --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD/npm:/npm" -w /npm/npm-package node:26.13.1-slim sh -ec "
+            npm version --no-git-tag-version --allow-same-version '${version:-0.0.0}'
+            npm publish --dry-run
+            npm pack --pack-destination /npm"
+          tar -tzf npm/larvit-fejkdata-*.tgz | sort > npm/packed
+          printf 'package/%s\n' DATA-LICENSES.md LICENSE README.md WORDNET-LICENSE.txt fejkdata.wasm index.d.ts index.js package.json wasm_exec.js | diff - npm/packed
+          echo packed=true >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        if: steps.npm.outputs.packed == 'true'
+        with:
+          name: npm-package
+          path: npm/larvit-fejkdata-*.tgz
+          retention-days: ${{ inputs.tag && 90 || 1 }}
       - uses: actions/upload-artifact@v7
         if: steps.latest.outputs.latest == 'true' || !inputs.tag
         with:
@@ -197,6 +221,35 @@ jobs:
         run: |
           docker run --rm --memory 1g --memory-swap 1g -v "$PWD/wheels:/wheels:ro" python:3.11.15-alpine sh -c \
             'pip install --no-index --find-links /wheels fejkdata && python -c "import fejkdata; assert fejkdata.render(\"{/misc.territory[SE].alpha2}\", seed=1, today=\"2026-01-15\") == \"SE\""'
+
+  npm:
+    name: The npm package on npmjs.com for ${{ inputs.tag }}
+    needs: packages
+    # npm takes the calling workflow, test.yml, as the package's trusted publisher, so a run of this workflow started by hand doesn't publish.
+    if: ${{ needs.packages.outputs.npm == 'true' && contains(github.workflow_ref, '/test.yml@') }}
+    runs-on: ubuntu-26.04
+    # npm's trusted publishing needs npm 11.5.1 and Node 22.14.
+    container: node:26.13.1-slim
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@larvit/fejkdata
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: npm-package
+          path: npm
+      # npm refuses a version it already holds, so a rerun skips what an earlier attempt published.
+      - name: Publish the tarball, unless npmjs.com already holds its version
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "$(npm view "@larvit/fejkdata@${TAG#v}" version 2>/dev/null)" ]; then
+            echo "::notice::npmjs.com already holds ${TAG#v}"
+            exit 0
+          fi
+          npm publish npm/larvit-fejkdata-*.tgz
 
   dockerhub:
     name: Docker Hub image for ${{ inputs.tag }}

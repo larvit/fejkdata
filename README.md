@@ -71,7 +71,7 @@ persons, addresses, national ids, phone numbers, companies, emails and dates. Be
 | Valid national ids where possible, and postal codes that match the town | Ids for ten countries, four from the issuer's test series; a postal code of the address's own town | No national id; `zipCode` takes a state, not a city | `SSN` and `EIN`, each "a random" number; the docs don't say that `Zip` matches `City` | Country, city, state and postal code agree; the pages read name no national id |
 | CSV and SQL test data | One template and one command: CSV, SQL, `COPY`, JSON, NDJSON, up to 1,048,576 rows a run | No CLI and no file output: "you most likely need to write a factory function" | Go functions `CSV`, `JSON`, `XML` and `SQL`; its CLI runs one function, `-loop` times | CSV, JSON, SQL and Excel; 1,000 rows a file on the free plan, 10 million on the largest hosted one |
 | Errors | Before the first row, naming what is wrong; a mistake in a template exits 2 | Thrown at run time where a locale lacks the data; "we don't have dedicated error messages for wrong parameter types" | `Template`, `CSV` and `SQL` return an `error`; the docs don't say when | The pages read don't say |
-| Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install`, `pip install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
+| Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install`, `pip install`, `npm install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
 | Runtime | One binary, or a Go library; no network | Node.js 20 or above, or a browser | A Go program, or its CLI | Its web service, or its API with a key |
 
 Each cell states what the tool's own docs said on 2026-11-21. Where a cell says the docs don't
@@ -122,10 +122,9 @@ The binaries are unsigned. macOS refuses to run one a browser downloaded until y
 From Python, `pip install fejkdata` installs the package that [Python tests](#python-tests)
 shows. It carries the CLI but doesn't put a `fejkdata` command on your path.
 
-The npm package, `@larvit/fejkdata`, is not published yet. An install will download 19 MB
-and unpack to 69 MB: the CLI built to WebAssembly, with all the shipped data.
-[Its own README](npm-package/README.md) shows `render`. Until it is published, run the CLI
-as a child process from JavaScript or TypeScript, with `--seed` and `--today` to repeat a run.
+From JavaScript or TypeScript, `npm install @larvit/fejkdata` installs the package that
+[JavaScript and TypeScript tests](#javascript-and-typescript-tests) shows. It downloads 19 MB
+and unpacks to 69 MB: the CLI built to WebAssembly, with all the shipped data.
 
 ## Quick start
 
@@ -229,6 +228,32 @@ Klara,Lassfolk
 
 The package carries the CLI and all the shipped data, and doesn't depend on any other package.
 [Its own README](python-package/README.md) lists the arguments and the error a refused template raises.
+
+### JavaScript and TypeScript tests
+
+`render` returns what the [CLI](#cli) prints for the same template, seed and day:
+
+```sh
+npm install @larvit/fejkdata    # Node 22.3 or later, Bun, Deno or a browser
+```
+
+```js
+import { load } from "@larvit/fejkdata";
+
+const fejkdata = await load();
+const person = '{"format": "{/sv_SE.person as p}", "first": "{p.first}", "last": "{p.last}"}';
+process.stdout.write(fejkdata.render(person, { seed: 1, today: "2026-01-15", repeat: 3, format: "csv" }));
+```
+
+```text
+first,last
+Vinston,Larsson
+Felix,Lind
+Klara,Lassfolk
+```
+
+The package is an ES module with TypeScript types. It carries all the shipped data, and doesn't depend on any other package.
+[Its own README](npm-package/README.md) lists the arguments and the error a refused template throws.
 
 ### Replacing real data with fakes
 
@@ -2252,7 +2277,8 @@ for every platform, the packages and the images, then the apt, dnf and apk repos
 signed with throwaway keys, and installs fejkdata from each repository. It builds the
 Python wheels too, runs `twine check --strict` over them and lists each one's size and files. It installs
 a wheel with pip and renders from it on every platform the wheels name: Linux with glibc and with musl, macOS
-and Windows, on amd64 and arm64. It doesn't publish
+and Windows, on amd64 and arm64. It packs the npm package, runs `npm publish --dry-run` over it and lists
+its size and files. It doesn't publish
 any of them or read a repository secret, so it runs on a pull request from a fork too.
 The repository checks, locally:
 
@@ -2384,7 +2410,8 @@ publishes nothing. CI then runs the Packages workflow on the new tag, which atta
 binaries and packages, pushes the image to GHCR and copies it to Docker Hub, updates the
 Homebrew tap and the Scoop bucket, and deploys the apt, dnf and apk repositories to GitHub
 Pages. The `pypi` job of `test.yml` then uploads the Python wheels to
-[PyPI](https://pypi.org/project/fejkdata/). The Packages workflow reads these repository secrets:
+[PyPI](https://pypi.org/project/fejkdata/), and the workflow's `npm` job publishes the npm package to
+[npmjs.com](https://www.npmjs.com/package/@larvit/fejkdata). The Packages workflow reads these repository secrets:
 
 - `DOCKERHUB_TOKEN`: a personal access token of the Docker Hub account `larvit`, with Read &
   Write and no Delete. The repository variable `DOCKERHUB_USERNAME` names the account.
@@ -2413,6 +2440,18 @@ To upload a release's wheels again, rerun the failed jobs of its run.
 PyPI never takes a file name twice, even after a delete. So yank a bad version on
 pypi.org, and ship the fix as the next version. pip skips a yanked version unless a user
 pins it.
+
+The `npm` job reads no secret either. On npmjs.com the package names this repository,
+`test.yml` and the environment `npm` as its trusted publisher, and its publishing access is
+"Require two-factor authentication and disallow tokens". A Packages run started by hand
+doesn't publish. To publish a release's package again, rerun the failed jobs of its run.
+npmjs.com sets a publisher only on a package that exists, so the first version is published
+by hand: download the artifact `npm-package` from the release's run, and run
+`npm publish larvit-fejkdata-X.Y.Z.tgz`. A new publisher must publish within two days, so
+set it just before the next release.
+
+npm never takes a version twice. So mark a bad version with
+`npm deprecate @larvit/fejkdata@X.Y.Z "<why>"`, and ship the fix as the next version.
 
 Renovate merges an update itself once `gate` passes. These wait for a human:
 
