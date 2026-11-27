@@ -78,10 +78,12 @@ or line break in a value as a space.
 --emit writes several linked templates in one run, each a category of your own data
 written as a record: --emit customers=100 --emit orders=500 --format sql. A template
 reads the rows another one wrote through {/run.<template>}, so in orders,
-{/run.customers as c}{c.id} is the id of a customer the run wrote. A template another
-reads is written first, and each template's rows stay together. Under --format sql or
-pgcopy a template's last segment is its INSERT or COPY target. Any other format with
-more than one --emit needs --out-dir.
+{/run.customers as c}{c.id} is the id of a customer the run wrote. A template that
+another one reads is written first, and each template's rows stay together. Under
+--format sql or pgcopy the last segment of a template's path is its INSERT or COPY
+target. Under json, ndjson, csv or tsv, more than one --emit needs --out-dir. --emit
+reads stdin to its end and refuses a template there. Keep a run's templates in a data
+directory of their own: a template that reads /run loads only under --emit.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
       --emit T=N         write N records of the category T, a template of the run (repeatable); needs a
@@ -89,7 +91,7 @@ more than one --emit needs --out-dir.
       --format F         output form: text (default), json, ndjson, csv, tsv, pgcopy or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, each written after {/ in a template, then exit;
-                         --repeat, --separator, --format, --table, --null-text, --emit and --out-dir have no effect here
+                         --emit, --format, --null-text, --out-dir, --repeat, --separator and --table have no effect here
       --no-shipped-data  load only the --data-path directories
       --null-text T      the text --format csv writes for a null column, with a value equal to it quoted
                          (default: an empty field); refused under any other format

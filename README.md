@@ -303,11 +303,11 @@ these paths; a template reads one as `{/path}`.
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` or `tsv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv`, `pgcopy` or `sql` — a record's columns, one record per row (json frames them as an array) |
-| `--emit T=N` | write `N` records of the category `T`, one template of a run of [linked templates](#linked-templates) (repeatable); needs a record `--format`, and is refused beside `--table`, `--repeat` and a template on stdin |
+| `--emit T=N` | write `N` records of the category `T`, as one of a run's [linked templates](#linked-templates) (repeatable); needs a record `--format`, and is refused beside `--table`, `--repeat` and a template on stdin |
 | `--out-dir D` | the folder `--emit` writes to, one file per template, named by the template and the `--format`, such as `customers.csv` (created where missing) |
 | `--null-text T` | the text `--format csv` writes for a null column, with a value equal to it quoted (default: an empty field); refused under any other format |
 | `--table T` | the INSERT or COPY target for `--format sql` or `pgcopy`, ignored under any other (default: a lone reference's final name, selectors left out, such as `users` for `{/users}`, else `records`) |
-| `--list` | print every path, then exit; `--repeat`, `--separator`, `--format`, `--table`, `--null-text`, `--emit` and `--out-dir` have no effect here |
+| `--list` | print every path, then exit; `--emit`, `--format`, `--null-text`, `--out-dir`, `--repeat`, `--separator` and `--table` have no effect here |
 | `--version`, `-h`, `--help` | print, then exit |
 
 `--name value` and `--name=value` both work, a short flag's value attaches or
@@ -606,16 +606,18 @@ run, see [Linked templates](#linked-templates).
 
 ### Linked templates
 
-One run writes several templates whose rows point at each other, such as customers and
-their orders. Each template is a category of your own data, written as a [record](#records). Save
-`mydata/customers.json`:
+One run writes several templates where the rows of one point at the rows of another, such
+as orders that each name a customer. Each template is a category of your own data, written
+as a [record](#records). Keep a run's templates in a data directory of their own, here
+`shop`. Save `shop/customers.json`:
 
 ```json
 { "format": "", "id": { "format": "{seq()}", "datatype": "integer" }, "name": "{/sv_SE.person}" }
 ```
 
-Then save `mydata/orders.json`. Its `{/run.customers as c}` picks one customer this run wrote,
-and `{c.id}` and `{c.name}` read that customer's columns:
+Then save `shop/orders.json`. Its `{/run.customers as c}` picks one customer this run wrote,
+and `{c.id}` and `{c.name}` read that customer's columns. The template that is read, here
+`customers`, is the parent. The one that reads it, here `orders`, is the child:
 
 ```json
 {
@@ -630,7 +632,7 @@ and `{c.id}` and `{c.name}` read that customer's columns:
 Name each template and its count with `--emit`:
 
 ```sh
-fejkdata --seed 1 --today 2026-11-27 -d ./mydata --format sql --emit customers=2 --emit orders=4
+fejkdata --seed 1 --today 2026-11-27 -d ./shop --format sql --emit customers=2 --emit orders=4
 ```
 
 ```sql
@@ -638,28 +640,42 @@ INSERT INTO "customers" ("id", "name") VALUES (1, 'Ulrika Lundkvist'),(2, 'Hilde
 INSERT INTO "orders" ("id", "customer_id", "customer", "placed") VALUES (1, 1, 'Ulrika Lundkvist', '2026-05-16'),(2, 2, 'Hilde Eriksson', '2026-06-14'),(3, 1, 'Ulrika Lundkvist', '2026-06-04'),(4, 2, 'Hilde Eriksson', '2026-01-06');
 ```
 
-- **Order.** A template that another one reads is written first, so a foreign key always
-  finds its row. Each template's rows stay together. The templates otherwise come in the
-  order of their `--emit` flags.
+- **Order.** A parent is written before its first child, so a foreign key always finds its
+  row. Each template's rows stay together. The templates otherwise come in the order of
+  their `--emit` flags.
 - **What a template reads.** `{/run.<template>}` is a [table](#table) of the columns that
-  template wrote, and its format is the first column. Only this path reads another
-  template's rows. A child may outnumber its parents, and a parent may have no child.
-- **Output.** Under `--format sql` or `pgcopy` everything goes to stdout, and a template's
-  last path segment is its INSERT or COPY target. With more than one template, `csv`, `tsv`,
-  `ndjson` and `json` need `--out-dir <folder>`, which gets one file per template:
-  `customers.csv` and `orders.csv`. `--out-dir` works under `sql` and `pgcopy` too.
-- **Seed.** A template draws from the seed and its own name. Adding a template to the run
-  doesn't change the rows of another, unless that one reads the new template. A `{seq()}`
-  counts within its own template.
+  template wrote. Read alone, as `{/run.customers}`, it prints the first column. Only this
+  path reads another template's rows. There may be more children than parents, and a parent
+  may have no child.
+- **Values.** A child reads every column of its parent as text. It reads a null as an empty
+  text, and a tab or a line break as a space.
+- **Output.** Under `--format sql` or `pgcopy` everything goes to stdout, and the last
+  segment of a template's path is its INSERT or COPY target, so `eu.users` and `us.users`
+  both write to `users`. With more than one template, `csv`, `tsv`, `ndjson` and `json`
+  need `--out-dir <folder>`, which gets one file per template: `customers.csv` and
+  `orders.csv`. `--out-dir` works under `sql` and `pgcopy` too.
+- **Seed.** A template draws from the seed and its own name, so adding a template to the
+  run doesn't change the rows of the others. A `{seq()}` counts within its own template.
 - **Counts.** A count is `0` to `1048576`. A count of `0` writes what `--repeat 0` does.
-- **Refused, with exit code 2, before any row is written:** a template that reads one the run doesn't name;
-  a parent with count `0` under a child with a count above `0`; two templates that read each
-  other; a root category or folder named `run` in the data; and `--emit` beside `--table`,
-  `--repeat` or a template on stdin.
+- **Stdin.** `--emit` takes no template on stdin. It reads stdin to its end to check that,
+  so inside a `while read` loop give it `< /dev/null`.
+- **Its own directory.** A template that reads `/run` loads only under `--emit`. Any other
+  command over its directory, `--list` included, fails and says so.
 
-A child that reads a column its parent doesn't have fails with exit code 1 once the parent is
-written, since the parent's columns are known only then. The run keeps every row that
-another template reads in memory: a million orders over 120,000 customers of two columns take about 50 MB.
+A run that can't work is refused with exit code 2 before any row is written:
+
+- a template reads the rows of one that the run doesn't name;
+- a child with a count above `0` has a parent with count `0`;
+- a template reads its own rows, or two templates read each other's;
+- an `--emit` names no category, names one twice, or gives a count outside `0` to `1048576`;
+- the data holds a root category or folder named `run`;
+- `--emit` stands beside `--table`, `--repeat` or a template on stdin, or under `--format text`.
+
+Data that fails to load stops the run with exit code 1, also before any row is written. A
+child that reads a column its parent doesn't have is one such failure.
+
+The run holds in memory every row that a child may read. A million orders over 120,000
+customers of two columns take about 50 MB.
 
 ## Library
 
@@ -791,7 +807,7 @@ err := fejkdata.FakeRun(emits, func(e fejkdata.Emit, fake func() (*fejkdata.Reco
 		fmt.Println(e.Template, r.JSON())
 	}
 	return nil
-}, fejkdata.WithDataPath("./mydata"), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))
+}, fejkdata.WithDataPath("./shop"), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))
 ```
 
 `FakeRun` calls the function once per template, parents first. A run it refuses before
@@ -2096,7 +2112,7 @@ datatype.go     DataType, what a record column holds
 render.go       Fake
 record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, and fake tags as one record's columns
-run.go          runs: FakeRun, Emit and ErrRun, which write several linked templates, each child reading its parents' rows at /run.<template>
+run.go          runs: FakeRun writes several linked templates, each child reading its parents' rows at /run.<template>; Emit names one, ErrRun marks a refusal
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, IsLonePath, PathName
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
