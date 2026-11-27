@@ -128,6 +128,9 @@ func TestReadmeExamplesLoadAndRender(t *testing.T) {
 			count++
 			t.Run(name+"-"+readmeLine(src, at[0]), func(t *testing.T) {
 				body := src[at[2]:at[3]]
+				if strings.Contains(body, "{/run.") {
+					t.Skip("loads only in a run, which TestReadmeLinkedTemplatesExample writes")
+				}
 				f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1), onTestDay)
 				if err != nil {
 					t.Errorf("%s example does not load: %v\n%s", name, err, body)
@@ -204,6 +207,36 @@ func TestReadmeRecordExample(t *testing.T) {
 	}
 	if r.SQLInsert("users") != `INSERT INTO "users" ("first", "last") VALUES ('Bo', 'Lovelace');` {
 		t.Fatalf("sql = %q, want the seeded INSERT", r.SQLInsert("users"))
+	}
+}
+
+func TestReadmeLinkedTemplatesExample(t *testing.T) {
+	section := readmeSection(t, readme(t), "### Linked templates")
+	blocks := jsonBlock.FindAllStringSubmatch(section, -1)
+	want := regexp.MustCompile("(?s)```sql\n(.*?)```").FindStringSubmatch(section)
+	if len(blocks) != 2 || want == nil {
+		t.Fatalf("the section holds %d json blocks and sql block %q, want customers, orders and what the run prints", len(blocks), want)
+	}
+	files := map[string]string{"customers": blocks[0][1], "orders": blocks[1][1]}
+	var got strings.Builder
+	err := FakeRun([]Emit{{"customers", 2}, {"orders", 4}}, func(e Emit, fake func() (*Record, error)) error {
+		for i := 0; i < e.Count; i++ {
+			r, err := fake()
+			if err != nil {
+				return err
+			}
+			if i == 0 {
+				got.WriteString(r.SQLInsertHeader(e.Template) + " ")
+			} else {
+				got.WriteString(",")
+			}
+			got.WriteString(r.SQLValues())
+		}
+		got.WriteString(";\n")
+		return nil
+	}, withShipped(), WithDataPath(writeData(t, files)), WithSeed(1), onTestDay)
+	if err != nil || got.String() != want[1] {
+		t.Errorf("the README's run with seed 1 = %v,\n%s\nREADME prints\n%s", err, got.String(), want[1])
 	}
 }
 
