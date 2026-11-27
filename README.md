@@ -253,7 +253,9 @@ Klara,Lassfolk
 ```
 
 The package is an ES module with TypeScript types, and doesn't depend on any other package.
-[Its own README](npm-package/README.md) lists the arguments and the error a refused template throws.
+`fake` draws one value of a path, `records` returns rows as objects, and `load` takes your own
+data files. [Its own README](npm-package/README.md) lists the arguments and the error a
+refused template throws.
 
 ### Replacing real data with fakes
 
