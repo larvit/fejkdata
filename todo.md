@@ -17,6 +17,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 359 | 0.9.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
+| 363 | 0.9.0 | 359 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -94,6 +95,7 @@
 | 496 | 0.10.0 |  |  | **Name each `geo.DE` Kreis in one style, as Destatis's Gemeindeverzeichnis names it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 2 | 1.2 |
 | 573 | 0.10.0 | 567, 568, 569, 570, 571, 572 |  | **Map each falsehood about names, addresses, emails, dates and text to the path that tests it in `docs/edge-cases.md`, and show in the README how to mix odd values in.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 2 | 1.2 |
 | 269 | 0.10.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.2 |
+| 361 | 0.10.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
 | 161 | 0.10.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.1 |
 | 497 | 0.10.0 |  | owner | **Draw every word of each locale's `word` tables from its dictionary, rude words included.** | 3 | 2 | 2 | 5 | 6 | 3.2 by 2, code health by 2 | 1.0 |
 | 29 | 0.10.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.0 |
@@ -163,8 +165,6 @@
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 | 357 | 1.2.0 |  | question | **Create the `@larvit` organisation on npm, and make this repository's Packages workflow the trusted publisher of `@larvit/fejkdata`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.7 |
 | 362 | 1.2.0 | 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 1.8 |
-| 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
-| 363 | 1.2.0 | 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 86 | 1.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.2 |
 | 154 | 1.3.0 |  |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
 | 243 | 1.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
@@ -264,6 +264,19 @@ Touches:
 - `npm-package/typecheck/usage.ts`
 - `npm-package/README.md`
 - `CHANGELOG.md`: `## Unreleased` (small)
+
+### 363. Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.
+
+The README's opening says a Go library and a CLI; it names the package once it ships. The README already holds the package's install paragraph and a JavaScript quick start; this item adds what is left. Goal 11.2 asks every example to run as a test, so the JavaScript section's examples run in the gate, as `readme_test.go` runs the `json` blocks. The Versioning table gains a row for the package: removing or renaming an export, changing a declared type or raising the lowest supported runtime is a major, and an export is a minor.
+
+The section lists the runtimes the gate tests the package on when this item ships: Node, Bun and Deno from item 549. Item 361 adds a browser, a bundler, Jest and Vitest, and extends the list when it ships.
+
+Item 359 rewrites the package's calls in the same release, so this item reads the README as item 359 leaves it.
+
+Touches:
+
+- `README.md`: `## Install`, `### JavaScript and TypeScript tests`, `## Versioning`
+- `npm-package/render.test.js`: lines 208-210 (small)
 
 ### 603. Add a mutation tool for JavaScript.
 
@@ -624,6 +637,18 @@ The recipe works today: `"last": ["{/sv_SE.last-name}", {"format": "O'Brien", "w
 
 Choices and a template.
 
+### 361. Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.
+
+Goal 9.2 holds only while a test checks it: render a fixed set of seeded templates, records included, in Go and through the package on each runtime, and fail on any byte that differs. Each runtime runs in a container pinned to its full patch version, as a target of `docker build .` or a compose service the README's Development section lists.
+
+Item 549 already does this on Node 26.13.1, Node 22.3.0, Bun and Deno, byte for byte against the Go build. What remains:
+
+- A headless browser. The test loads the package as a page would, without a bundler.
+- A bundler. A test builds a small app that imports the package with Vite or webpack, and checks that the WASM file is found and renders.
+- Jest and Vitest. The package is an ES module only, so a test loads it from a Jest test and from a Vitest test, as a user's test suite would.
+
+Item 549's review left the last two open.
+
 ### 161. Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.
 
 `grammar/identifier.go` allows a field named ` x`, and `{ x}` reads it, but `checkBind` in `format.go` refuses every padded binding, so no spelling binds that field to a name (goal 3.1), and the refusal names one meaning only (goal 4.6). The goals audit of the narrowed goal 4.7 found it.
@@ -976,22 +1001,6 @@ The npm account and its credentials are the maintainer's. Trusted publishing let
 ### 362. Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.
 
 Goal 1.1's counter-signal is a channel serving an old release, so the patch releases CI cuts for a new Go, a module or GoReleaser publish too. The package's version is the release tag's. A version npm has published cannot be published again, so the dry run on a pull request packs the tarball and checks its contents without publishing. The package's `description` opens with the README's lead sentence, under a test like `TestDockerhubDescriptionOpensAReadmeSentence`.
-
-### 361. Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.
-
-Goal 9.2 holds only while a test checks it: render a fixed set of seeded templates, records included, in Go and through the package on each runtime, and fail on any byte that differs. Each runtime runs in a container pinned to its full patch version, as a target of `docker build .` or a compose service the README's Development section lists.
-
-Item 549 already does this on Node 26.13.1, Node 22.3.0, Bun and Deno, byte for byte against the Go build. What remains:
-
-- A headless browser. The test loads the package as a page would, without a bundler.
-- A bundler. A test builds a small app that imports the package with Vite or webpack, and checks that the WASM file is found and renders.
-- Jest and Vitest. The package is an ES module only, so a test loads it from a Jest test and from a Vitest test, as a user's test suite would.
-
-Item 549's review left the last two open.
-
-### 363. Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.
-
-The README's opening says a Go library and a CLI; it names the package once it ships. Goal 11.2 asks every example to run as a test, so the JavaScript section's examples run in the gate, as `readme_test.go` runs the `json` blocks. The Versioning table gains a row for the package: removing or renaming an export, changing a declared type or raising the lowest supported runtime is a major, and an export is a minor.
 
 ### 86. Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.
 
