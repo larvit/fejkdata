@@ -3292,3 +3292,63 @@ Read most (opens and searches):
 - `cli/records.go` 1
 - `cmd/fejkdata/main.go` 1
 - `python-package/README.md` 1
+
+## Reading cost, chunk 7679dbcfdb68, finished 2026-11-27T01:14:12Z
+
+48326 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `internal/shipped/generate/main.go` 1
+- `internal/shipped/generate/main_test.go` 1
+
+## Reading cost, chunk 1f567f0e1a76, finished 2026-11-27T02:15:32Z
+
+102969 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `DATA-LICENSES.md` 3
+- `data-import/names-us.py` 3
+- `data-import/names-fr.py` 2
+- `data-import/names_us_test.py` 2
+- `data-import/tsv.py` 2
+- `docs/locales/en_US.md` 2
+- `docs/locales/fr_FR.md` 2
+- `README.md` 1
+- `compose.yaml` 1
+- `data-import/geo-us.py` 1
+
+## Reading cost, chunk 62114c4f1f27, finished 2026-11-27T03:14:25Z
+
+130391 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `cli/records_test.go` 4
+- `internal/engine/load/reference.go` 4
+- `cli/cli.go` 3
+- `cli/flags.go` 3
+- `fejkdata.go` 3
+- `internal/datafiles/datafiles.go` 3
+- `internal/engine/pipeline.go` 3
+- `internal/engine/sources.go` 3
+- `internal/rows/rows.go` 3
+
+## Reading cost, chunk f4c4cdaf823d, finished 2026-11-27T10:14:52Z
+
+174428 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 7
+- `.github/workflows/packages.yml` 5
+- `.github/workflows/test.yml` 5
+- `npm-package/README.md` 2
+- `npm-package/index.js` 2
+- `npm-package/render.test.js` 2
+- `release-tooling/publish_release.py` 2
+- `npm-package/package.json` 1
+- `python-package/render_test.py` 1
+- `release-tooling/goreleaser.yaml` 1
