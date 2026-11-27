@@ -170,6 +170,7 @@ In [docs/decisions.md](docs/decisions.md):
 - Bulk speed comes from fewer allocations, a higher GC target and rows rendered on every CPU, and a weighted draw stays a binary search over cumulative weights
 - The table of every shipped path is a page in `docs/` that the README links
 - A first or last name a language model recalled is listed `real`, as a name in use; only its weight is an estimate
+- A US or French last name takes the spelling most of Wikidata's people with that family name write, where at least 5 do
 - `--null-text` spells a null in `csv` alone, and `csv` quotes a value equal to it
 - `pgcopy` escapes a NUL, and `csv`, `sql` and `tsv` write it as it is
 - A locale's full numbers are `phone-mobile` and `phone-fixed`, and its prefix tables `phone-mobile-prefix` and `phone-fixed-prefix`
