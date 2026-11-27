@@ -123,6 +123,19 @@ func TestRunLoadsTheModulesItIsGiven(t *testing.T) {
 	}
 }
 
+func TestRunRendersItsStdinOverTheStreamsItIsGiven(t *testing.T) {
+	module := fstest.MapFS{"pet.json": {Data: []byte(`{"format":"{name}","name":["Fido"]}`)}}
+	var out, errb bytes.Buffer
+	if code := Run([]string{"--repeat", "2"}, strings.NewReader("{/pet}"), &out, &errb, module); code != 0 || out.String() != "FidoFido" || errb.Len() != 0 {
+		t.Errorf("Run --repeat 2 over a module holding pet = %d, %q, %q, want FidoFido", code, out.String(), errb.String())
+	}
+	out.Reset()
+	code := Run(nil, strings.NewReader("{/cat}"), &out, &errb, module)
+	if code != 2 || out.Len() != 0 || !strings.HasPrefix(errb.String(), "fejkdata: ") || !strings.Contains(errb.String(), "cat") {
+		t.Errorf("Run on a path nothing provides = %d, %q, %q, want exit 2 and an error naming cat as fejkdata's", code, out.String(), errb.String())
+	}
+}
+
 func TestRunOutputsValue(t *testing.T) {
 	code, out, errb := runOut("{/person}", "--data-path", svSE)
 	if code != 0 {
