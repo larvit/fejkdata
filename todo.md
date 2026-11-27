@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 611`
+`Next ID = 612`
 
 ## Renamed
 
@@ -16,6 +16,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 611 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 359 | 0.9.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 363 | 0.9.0 | 359 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
@@ -237,6 +238,16 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
+
+### 611. Lower the reading cost of the files a chunk reads most before its first commit.
+
+`reading-cost` finds the median of new input tokens a chunk reads before its first commit rising: 102,969 over the last 5 chunks, against 72,954 over the 5 before them (measured 2026-11-27 for item 359's chunk).
+
+The files opened and searched most over the last 5 chunks: `README.md` 18, `.github/workflows/packages.yml` 5, `.github/workflows/test.yml` 5, `cli/records_test.go` 4, `internal/engine/load/reference.go` 4, `DATA-LICENSES.md` 3, `cli/cli.go` 3, `cli/flags.go` 3, `data-import/names-us.py` 3 and `fejkdata.go` 3. Make each chunk's way into them shorter, such as a README that opens on where each task starts, and measure the median again with `reading-cost --reset` in the chunk that ships this item.
+
+Touches:
+
+- `README.md`
 
 ### 359. Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.
 
