@@ -18,7 +18,7 @@
 		}
 	},
 	"types": "./index.d.ts",
-	"files": ["index.js", "index.d.ts", "fejkdata.wasm", "wasm_exec.js"],
+	"files": ["fejkdata.wasm", "index.d.ts", "index.js", "wasm_exec.js"],
 	"engines": {
 		"node": ">=22.3.0"
 	}
