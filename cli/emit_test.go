@@ -183,6 +183,8 @@ func TestRunEmitRefusedBesideOtherFlagsAndStdin(t *testing.T) {
 		{[]string{"--format", "sql", "--emit", "customers=-1"}, "-1"},
 		{[]string{"--format", "sql", "--emit", "=3"}, "--emit"},
 		{[]string{"--format", "sql", "--out-dir", "x"}, "--emit"},
+		{[]string{"--format", "sql", "--emit", "customers=1", "--out-dir", ""}, "--out-dir"},
+		{[]string{"--format", "sql", "--emit", "customers=1048577"}, "1048577"},
 	} {
 		t.Run(argsName(c.args), func(t *testing.T) {
 			code, out, errb := runEmit(dir, c.args...)
@@ -248,5 +250,12 @@ func TestHelpDescribesEmit(t *testing.T) {
 		if !strings.Contains(out, want) {
 			t.Errorf("--help should mention %s", want)
 		}
+	}
+}
+
+func TestParseEmitTakesACountUpToTheRepeatCap(t *testing.T) {
+	e, err := parseEmit("a.b=1048576")
+	if err != nil || e.Template != "a.b" || e.Count != 1048576 {
+		t.Errorf("parseEmit = %v, %v, want a.b with the cap as its count", e, err)
 	}
 }
