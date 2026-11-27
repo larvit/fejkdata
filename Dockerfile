@@ -83,6 +83,7 @@ COPY LICENSE DATA-LICENSES.md data/en_US/WORDNET-LICENSE.txt /npm-package/
 FROM node:26.13.1-slim AS npm-package
 COPY --from=npm-package-built /npm-package/ /npm-package/
 COPY README.md /README.md
+COPY testdata/is_template.json /testdata/is_template.json
 COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
 
@@ -90,12 +91,14 @@ RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
 FROM node:26.13.1-slim AS npm-package-lowest
 COPY --from=npm-package-built /npm-package/ /npm-package/
 COPY README.md /README.md
+COPY testdata/is_template.json /testdata/is_template.json
 COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
 
 FROM oven/bun:1.4.5 AS npm-package-bun
 COPY --from=npm-package-built /npm-package/ /npm-package/
 COPY README.md /README.md
+COPY testdata/is_template.json /testdata/is_template.json
 COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && FEJKDATA_CLI=/fejkdata bun test --timeout 60000 render.test.js && touch /tested
 

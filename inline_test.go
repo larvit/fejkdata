@@ -1,6 +1,8 @@
 package fejkdata
 
 import (
+	"encoding/json"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -154,32 +156,35 @@ func TestNewTemplateReusable(t *testing.T) {
 	}
 }
 
+type isTemplateCases struct {
+	Template  []string          `json:"template"`
+	Path      []string          `json:"path"`
+	Malformed map[string]string `json:"malformed"`
+}
+
+func readIsTemplateCases(t *testing.T) isTemplateCases {
+	t.Helper()
+	raw, err := os.ReadFile("testdata/is_template.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases isTemplateCases
+	if err := json.Unmarshal(raw, &cases); err != nil {
+		t.Fatal(err)
+	}
+	return cases
+}
+
 func TestIsTemplate(t *testing.T) {
-	for arg, want := range map[string]bool{
-		"sv_SE.person":                           false,
-		"person.last":                            false,
-		"name: {x}":                              true,
-		`{"format":"x"}`:                         true,
-		`["a","b"]`:                              true,
-		`[1, 2]`:                                 true,
-		` ["a","b"]`:                             true, // padding is the template's own error, not a shape verdict
-		`"hello"`:                                true,
-		"{/a}{/b}":                               true,
-		"{/a|/b}":                                true,
-		"{uppercase(/a)}":                        true,
-		"{{/a}}":                                 true,
-		`"{/a} x"`:                               true,
-		"x[1]":                                   false, // a row selected by key or name
-		"x[St. Louis].y":                         false,
-		"{/sv_SE.person.last}":                   true,
-		`"{/sv_SE.person}"`:                      true,
-		"{.person.last}":                         true,
-		` "{/sv_SE.person}"`:                     true,
-		`{"format":"{/sv_SE.person}"}`:           true,
-		"{//sv_SE.person}":                       true,
-		"{/misc.currency[US Dollar (Next day)]}": true,
-		"/sv_SE.person":                          false,
-	} {
+	cases := readIsTemplateCases(t)
+	want := map[string]bool{}
+	for _, arg := range cases.Template {
+		want[arg] = true
+	}
+	for _, arg := range cases.Path {
+		want[arg] = false
+	}
+	for arg, want := range want {
 		t.Run(arg, func(t *testing.T) {
 			if got, err := IsTemplate(arg); err != nil || got != want {
 				t.Errorf("IsTemplate(%q) = %v, %v; want %v", arg, got, err, want)
@@ -189,18 +194,7 @@ func TestIsTemplate(t *testing.T) {
 }
 
 func TestIsTemplateRejectsAMalformedArgument(t *testing.T) {
-	for arg, want := range map[string]string{
-		"[abc]":          `starts with "["`,
-		"[abc].field":    `starts with "["`,
-		"x[1]y":          `"]"`,
-		"x[[1]]":         `"["`,
-		"x[]":            "empty",
-		"//sv_SE.person": "write /sv_SE.person",
-		"a]b":            `holds a "]"`,
-		"a}b":            `holds a "}"`,
-		`"abc`:           `holds a "\""`,
-		`"a]b`:           `holds a "\""`, // the opener the reader typed, not the bracket behind it
-	} {
+	for arg, want := range readIsTemplateCases(t).Malformed {
 		t.Run(arg, func(t *testing.T) {
 			if _, err := IsTemplate(arg); err == nil || !strings.Contains(err.Error(), want) {
 				t.Errorf("IsTemplate(%q) = %v; want it rejected naming %s", arg, err, want)
