@@ -19,7 +19,6 @@
 | 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 3 | 2 | 6 | 5 | 1.2 by 6 | 1.1 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
-| 599 | 0.9.0 |  |  | **Have the DK, LT, NO, EE and LV geo imports refuse a street name that `geo.cleanly_written` refuses, and drop the DK and LT rows that fail it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 1 | 0.9 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -297,29 +296,6 @@ Touches:
 - `.github/workflows/packages.yml`: `packages-dry-run` (small)
 - `npm-package/package.json`
 - `README.md`: `## Install` (small)
-
-### 599. Have the DK, LT, NO, EE and LV geo imports refuse a street name that `geo.cleanly_written` refuses, and drop the DK and LT rows that fail it.
-
-Item 564 put `geo.cleanly_written` in `data-import/geo.py` and made only the FI, SE and US imports call it. Run over the other shipped street tables, it refuses three rows today. `data/geo/DK/street.tsv` holds `Kolonihaverne Ved Lykkesholmsvej (Nord)` and `(Syd)`, whose remark in parentheses no address writes. `data/geo/LT/street.tsv` holds `Leopoldo  Godovskio g.`, with a doubled space. NO, EE and LV hold none, but their registers are live and a later download can bring one in, so their imports call the check too. DE and FR draw invented streets and stay out.
-
-Call the check where each import reads a street's name: `parsed` in `geo-dk.py`, `Register` in `geo-lt.py` and `geo-lv.py`, `street_of` in `geo-ee.py` and `street_name` in `geo-no.py`. A refused street then counts none of its addresses, as in the FI, SE and US imports. Write each import's test first, with a refused name taken from the rows above or from the kinds the check lists. Then rerun the DK and LT imports and diff `street.tsv`: only the three rows go. Where a rerun against today's register changes other rows, drop only the three by hand and say so in the PR, as the sources move. Add the change to the `CHANGELOG.md` entry item 564 made under `Unreleased`, naming DK and LT.
-
-Touches:
-
-- `data-import/geo-dk.py`: `parsed` (small)
-- `data-import/geo-lt.py`: `Register` (small)
-- `data-import/geo-no.py`: `street_name` (small)
-- `data-import/geo-ee.py`: `street_of` (small)
-- `data-import/geo-lv.py`: `Register` (small)
-- `data-import/geo_test.py`: `Parsed` (small)
-- `data-import/geo_lt_test.py`: `RegisterOfPlaces` (small)
-- `data-import/geo_ee_test.py`: `StreetOf` (small)
-- `data-import/geo_lv_test.py`: `RegisterOfPlaces` (small)
-- `data/geo/DK/street.tsv`
-- `data/geo/LT/street.tsv`
-- `CHANGELOG.md`: `## Unreleased` (small)
-- `data-listing/paths.json`
-- `docs/shipped-paths.md`
 
 ### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
 
