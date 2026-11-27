@@ -16,7 +16,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 600 | 0.9.0 |  |  | **Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.** | 2 | 1 | 2 | 3 | 3 | 1.3 by 4 | 1.7 |
 | 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
 | 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 3 | 2 | 6 | 5 | 1.2 by 6 | 1.1 |
 | 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
@@ -242,22 +241,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 600. Give `render` the keywords `table`, `data_path`, `no_shipped_data`, `separator` and `null_text`, each passing the CLI flag of its name.
-
-A finding of the product-owner review of pull request #525, at `python-package/fejkdata/__init__.py:21`. `render` offers `format="sql"` and `format="pgcopy"` but cannot pass the CLI's `--table`, so a record always writes to the table `records`. Nor can it pass `--data-path`, which names the caller's own data folders and repeats, `--no-shipped-data`, `--separator` or `--null-text`. Goal 1.3's counter-signal is a CLI feature reaching Python a release after Go. `cli/cli.go`'s `usage` constant lists the CLI's flags.
-
-The keyword spellings are new syntax. Before they ship, a panel of fresh-context readers, seated from the README's `## Audience`, picks them: the names, and how `data_path` takes several folders.
-
-Three things change with the keywords: the argument list in the package's README; the decision "The Python package is a wheel per platform…" in `docs/decisions.md`, whose sentence says `render` passes four flags; and the tests in `python-package/render_test.py`, written first.
-
-Ship it no later than item 552 publishes the package. After that it is a later addition, a release behind the CLI. It only adds keywords with defaults, so no caller of `render` changes.
-
-Touches:
-
-- `python-package/fejkdata/__init__.py`: `render`
-- `python-package/render_test.py`: `Render`
-- `python-package/README.md`: `## Arguments`
 
 ### 562. Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.
 
