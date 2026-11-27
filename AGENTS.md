@@ -1,7 +1,7 @@
 # Rules
 
 - Go runs only through `docker compose run --rm <service>`; the merge gate is what the README's Development section lists. The Go services are `test` (`go test -race ./...`), `bench`, `build`, `cyclo`, `dev`, `fmt`, `generate`, `mutate`, `repin`, `tidy`, `vet` and `vulncheck`. Arguments after a service replace its command, so one package's tests run as `docker compose run --rm test go test -race ./data`. Read the README's Development section before running `fmt`, `generate`, `tidy` or `mutate`.
-- One `data-import` test file runs as `docker compose run --rm --user "$(id -u):$(id -g)" data-import -m unittest discover -s data-import -p 'geo_test.py'`. The release-tooling tests need `git`, the Python package's tests need a built binary, and the npm package's tests need that binary and a built WebAssembly, so only `docker build .` runs them; `docker build --target npm-package .` runs the npm package's alone, in Node.
+- One `data-import` test file runs as `docker compose run --rm --user "$(id -u):$(id -g)" data-import -m unittest discover -s data-import -p 'geo_test.py'`. The release-tooling tests need `git`, the Python package's tests need a built binary, and the npm package's tests need that binary and a built WebAssembly, so no compose service runs them: `docker build .` does, and `docker build --target npm-package .` runs the npm package's alone, in Node.
 - Tests first, in their own commit; the implementation follows in the next. A re-pin of seeded output or of `testdata/shipped_shape.txt` is its own commit.
 - A change to the shipped data under `data/`, its tests aside, to the shape pin, or to the pin of the listing's keys and kind words (`testdata/listing_shape.txt`), adds its `CHANGELOG.md` entry under `Unreleased` in the same PR, and so does a change to a flag, an exit code, an exported name, a fence, a builtin or the lowest Go; what is major is the README's Versioning table.
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.
@@ -176,7 +176,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The Swedish, Finnish, French and US name tables keep every name above a floor of bearers, set so a table holds at most 60,000 rows
 - A record writes its columns in the order its template lists its fields, a table writes them in the order of its header, and both draw them in name order
 - The Python package is a wheel per platform carrying the CLI binary, built by `release-tooling/python_wheels.py`, and `render` requires `seed` and `today`
-- The npm package is the CLI built to WebAssembly behind `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`
+- The npm package is the CLI built to WebAssembly and run through `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`
 - The Python wheels go to PyPI from the `pypi` job of `test.yml` through trusted publishing, wheels only, under `MIT AND LicenseRef-fejkdata-data-licenses`
 
 # Scoring run

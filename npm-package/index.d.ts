@@ -5,21 +5,21 @@ export interface RenderOptions {
 	today: string | Date;
 	/** How many times to render the template. It defaults to 1. */
 	repeat?: number;
-	/** "text" unless you ask for records. */
-	format?: "text" | "json" | "ndjson" | "csv" | "tsv" | "pgcopy" | "sql";
+	/** "text" unless you ask for records: one per render of a JSON template, with a column for each field. */
+	format?: "text" | "csv" | "json" | "ndjson" | "pgcopy" | "sql" | "tsv";
 }
 
 export interface Fejkdata {
 	/**
 	 * Renders template as `fejkdata --seed … --today … --repeat … --format …` does, and returns what it prints.
-	 * A render fejkdata refuses throws a FejkdataError.
+	 * Throws a FejkdataError when fejkdata refuses the template or an argument.
 	 */
 	render(template: string, options: RenderOptions): string;
 }
 
-/** A render fejkdata refused. The message is the CLI's error text. */
+/** Thrown when fejkdata refuses a template or an argument. The message says what is wrong, in the CLI's words. */
 export class FejkdataError extends Error {
-	/** The CLI's exit code: 2 for a mistake in the template or the options, 1 for a runtime error. */
+	/** The CLI's exit code: 2 for a mistake in the template or the arguments, 1 for anything else. */
 	readonly exitCode: number;
 	constructor(message: string, exitCode: number);
 }
