@@ -184,6 +184,10 @@ bigint 1n Kenneth Lind boolean true
 bigint 2n Ann-Charlott Wiklander boolean true
 ```
 
+In TypeScript, a row's type follows the template's fields where the template is written
+`as const`. A template held in a plain variable types every column `string | number | bigint |
+boolean | null`.
+
 A lone reference gives a row with a key per field of the record it reads:
 
 ```js
