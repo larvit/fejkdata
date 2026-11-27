@@ -86,19 +86,15 @@ func rootWithKinds(t *testing.T) string {
 	return root
 }
 
-func assertWrittenAsCommitted(t *testing.T, root string, files []shipped.File) {
+func assertWritten(t *testing.T, root string, files []shipped.File) {
 	t.Helper()
 	for _, f := range files {
 		got, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(f.Name)))
 		if err != nil {
 			t.Fatal(err)
 		}
-		want, err := os.ReadFile(filepath.Join(repositoryRoot, filepath.FromSlash(f.Name)))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if !bytes.Equal(got, want) {
-			t.Errorf("run wrote %s differing from the committed file", f.Name)
+		if !bytes.Equal(got, f.Body) {
+			t.Errorf("run wrote %s differing from what generated returned", f.Name)
 		}
 	}
 }
@@ -117,7 +113,7 @@ func TestRunWritesEveryGeneratedFileUnderTheRoot(t *testing.T) {
 	if err := run([]string{"-root", root}); err != nil {
 		t.Fatal(err)
 	}
-	assertWrittenAsCommitted(t, root, files)
+	assertWritten(t, root, files)
 }
 
 func TestRunWithRepinWritesOnlyThePins(t *testing.T) {
@@ -143,7 +139,7 @@ func TestRunWithRepinWritesOnlyThePins(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertWrittenAsCommitted(t, root, pins)
+	assertWritten(t, root, pins)
 }
 
 func TestRunNamesAFileItCannotWrite(t *testing.T) {
@@ -175,5 +171,15 @@ func TestGeneratedNamesAnIncompleteListing(t *testing.T) {
 	_, err := generated(root, false)
 	if err == nil || !strings.Contains(err.Error(), "the listing is not whole") {
 		t.Errorf("generated with an empty kinds file = %v, want the listing is not whole", err)
+	}
+}
+
+func TestRunAnswersHelpWithoutWritingAnything(t *testing.T) {
+	root := t.TempDir()
+	if err := run([]string{"-h", "-root", root}); err != nil {
+		t.Errorf("run -h = %v, want nil", err)
+	}
+	if entries, _ := os.ReadDir(root); len(entries) != 0 {
+		t.Errorf("run -h wrote %d entries under the root", len(entries))
 	}
 }

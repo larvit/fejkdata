@@ -4,9 +4,9 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -24,10 +24,11 @@ func main() {
 
 func run(args []string) error {
 	flags := flag.NewFlagSet("generate", flag.ContinueOnError)
-	flags.SetOutput(io.Discard)
 	root := flags.String("root", ".", "the repository's root folder")
 	repin := flags.Bool("repin", false, "write the pins under testdata/, and nothing else")
-	if err := flags.Parse(args); err != nil {
+	if err := flags.Parse(args); errors.Is(err, flag.ErrHelp) {
+		return nil
+	} else if err != nil {
 		return err
 	}
 	files, err := generated(*root, *repin)
