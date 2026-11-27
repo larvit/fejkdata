@@ -49,8 +49,8 @@ func TestGeneratedIsEachManifestThenTheListing(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := names(files)
-	if len(got) != len(manifests)+2 {
-		t.Fatalf("generated names %v, want the %d manifests and the two listing files", got, len(manifests))
+	if len(got) != len(manifests)+3 {
+		t.Fatalf("generated names %v, want the %d manifests and the three listing files", got, len(manifests))
 	}
 	generatedManifests := slices.Clone(got[:len(manifests)])
 	slices.Sort(generatedManifests)
@@ -58,7 +58,7 @@ func TestGeneratedIsEachManifestThenTheListing(t *testing.T) {
 	if !slices.Equal(generatedManifests, manifests) {
 		t.Errorf("generated names the manifests %v, want %v", generatedManifests, manifests)
 	}
-	if listing, want := got[len(manifests):], []string{"data-listing/paths.json", "docs/shipped-paths.md"}; !slices.Equal(listing, want) {
+	if listing, want := got[len(manifests):], []string{"data-listing/paths.json", "docs/shipped-paths.md", "npm-package/shipped-paths.d.ts"}; !slices.Equal(listing, want) {
 		t.Errorf("generated ends with %v, want %v", listing, want)
 	}
 }

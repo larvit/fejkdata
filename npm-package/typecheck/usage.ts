@@ -1,6 +1,6 @@
 import * as everything from "@larvit/fejkdata";
 import { FejkdataError, load } from "@larvit/fejkdata";
-import type { Fejkdata, RenderOptions } from "@larvit/fejkdata";
+import type { Fejkdata, RenderOptions, ShippedPath } from "@larvit/fejkdata";
 
 type Same<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
 
@@ -22,6 +22,12 @@ expectSame<Same<FejkdataError["exitCode"], number>>();
 const fejkdata = await load();
 fejkdata.render("{/sv_SE.first-name}", { seed: 1, today: "2026-01-15" });
 fejkdata.render("x", { seed: 2n ** 64n - 1n, today: new Date(0), repeat: 3, format: "text" });
+
+const shipped: ShippedPath = "sv_SE.first-name";
+void shipped;
+// @ts-expect-error: no shipped path is spelled so
+const unshipped: ShippedPath = "sv_SE.no-such-path";
+void unshipped;
 
 const error = new FejkdataError("refused", 2);
 const anError: Error = error;
