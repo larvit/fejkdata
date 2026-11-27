@@ -130,7 +130,7 @@ def lat_lon(east: float, north: float) -> tuple[float, float]:
 
 
 def street_of(near: str) -> tuple[str, int, bool] | None:
-	"""A near address's street, house number and whether a letter follows it, or None where it names no street or one geo.cleanly_written refuses."""
+	"""A near address's street, house number and whether a letter follows it, or None where it names no street, or where geo.cleanly_written refuses its name."""
 	m = NEAR.match(near)
 	return (m[1], int(m[2]), bool(m[3])) if m and geo.cleanly_written(m[1]) else None
 
