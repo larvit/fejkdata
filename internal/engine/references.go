@@ -13,8 +13,8 @@ type CategoryReads struct {
 	Reads [][]string
 }
 
-// References compiles sources as Load does, resolving nothing, so it reads data Load would refuse
-// for a reference to nothing. It returns what each category references, and the path of each
+// References compiles sources as Load does, without resolving a reference, so it reads data Load
+// would refuse for a reference to nothing. It returns what each category references, and the path of each
 // category an index leaves unloaded.
 func References(sources []datafiles.Source) (compiled []CategoryReads, unloaded []string, err error) {
 	root, _, err := compile(sources)

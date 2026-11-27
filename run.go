@@ -19,7 +19,8 @@ type Emit struct {
 	Count    int
 }
 
-// ErrRun marks a run that [FakeRun] refuses before it renders a record, for what its emits name.
+// ErrRun marks a run that [FakeRun] refuses before it loads the data: its emits, or what its
+// templates read of each other, can't make a run. FakeRun's doc lists each case.
 var ErrRun = errors.New("fejkdata: the run's templates cannot be written")
 
 type runError struct{ error }
@@ -39,12 +40,17 @@ func (runError) Is(target error) bool { return target == ErrRun }
 // and its own name, so its records stay the same whatever else the run names, and a
 // {seq()} counts within one template.
 //
-// The error matches [ErrRun], before the first write, where a template reads the rows of one the
-// run doesn't name, of one with count 0 while its own is above 0, or of one that reads its rows
-// back; where an emit names no category, a category twice or a count below 0; and where the data
-// holds a root entry named run. It matches [ErrLoad] where the data fails to load, which a child
-// reading a column its parent lacks does once the parent is written. An error write returns is
-// returned as it is.
+// FakeRun returns an error before the first write in each of these cases. The error matches [ErrRun]
+// where:
+//   - emits is empty, or an emit names no category, a category twice or a count below 0;
+//   - a template reads the rows of a template the run doesn't name;
+//   - a template with a count above 0 reads the rows of one with count 0;
+//   - a template reads its own rows, or two templates read each other's;
+//   - the data holds a root entry named run.
+//
+// The error matches [ErrLoad] where the data fails to load, as it does where a child reads a column
+// its parent lacks, and it is the error of [New] where opts are refused. After that, FakeRun returns
+// the first error write returns, as it is.
 func FakeRun(emits []Emit, write func(e Emit, fake func() (*Record, error)) error, opts ...Option) error {
 	var c config
 	for _, opt := range opts {
@@ -224,7 +230,7 @@ func (p runPlan) refusal(e Emit, emits []Emit) error {
 	}
 	if len(unnamed) > 0 {
 		sort.Strings(unnamed)
-		return fmt.Errorf("%s reads %s, a template the run doesn't name", p.unnamed[unnamed[0]], unnamed[0])
+		return fmt.Errorf("%s reads %s, and the run doesn't name the template those rows belong to", p.unnamed[unnamed[0]], unnamed[0])
 	}
 	for _, parent := range emits {
 		if err := p.parentRefusal(e, parent); err != nil {
@@ -264,8 +270,8 @@ func (p *runPlan) place(e Emit, emits []Emit, placed map[string]bool) {
 	p.emits = append(p.emits, e)
 }
 
-// fake writes each template in turn, loading the data once per template: over the rows written so
-// far, and without the categories that read rows not yet written.
+// fake writes each template in turn. It loads the data once per template, with the rows that
+// template reads.
 func (p runPlan) fake(c config, write func(e Emit, fake func() (*Record, error)) error) error {
 	if err := p.dryLoad(c); err != nil {
 		return err
@@ -361,8 +367,8 @@ func (r *runRows) fake() (*Record, error) {
 	return record, nil
 }
 
-// keepInto puts the rows into tables. A table holds at least one row, so a template nobody rendered
-// renders one here: only children of count 0 load over it, for their columns.
+// keepInto puts the rows into tables, where a child reads them. A table can't be empty, so where no
+// record was rendered, keepInto renders one.
 func (r *runRows) keepInto(tables map[string]string) error {
 	if !r.kept {
 		return nil
