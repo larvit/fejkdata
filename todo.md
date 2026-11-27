@@ -18,7 +18,6 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 607 | 0.9.0 |  | question | **Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 5, 1.2 by 8 | 9.3 |
 | 609 | 0.9.0 |  | question | **Decide whether `ShippedPath` keeps each path's example as a doc comment, since no editor shows a union member's comment.** | 2 | 1 | 1 | 2 | 3 | code health by 2 | 3.9 |
-| 608 | 0.9.0 |  |  | **Generate the TypeScript union `ShippedPath` of the shipped paths, each with its example as a doc comment, from `data-listing/paths.json` as part of `go generate`, and fail the gate where the generated file is stale.** | 3 | 2 | 2 | 5 | 4 | 1.2 by 5 | 1.5 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -280,29 +279,6 @@ Touches (for option a):
 - `internal/shipped/shipped_test.go`: `TestTypeComment`, `TestListingFilesHoldEveryPathUnderItsModule` (small)
 - `npm-package/shipped-paths.d.ts`
 - `docs/decisions.md`: `` ## The npm package's API is `load({ data, files })` and the stateless `render`, `fake`, `records` and `paths`, with `isTemplate`, a `kind` on `FejkdataError`, ES modules only, and types that complete a shipped path `` (small)
-
-### 608. Generate the TypeScript union `ShippedPath` of the shipped paths, each with its example as a doc comment, from `data-listing/paths.json` as part of `go generate`, and fail the gate where the generated file is stale.
-
-The maintainer asked on 2026-11-27 whether the types can help with the shipped data, and put this in 0.9.0.
-
-`ShippedPath` is a union of the 2,088 shipped paths in `data-listing/paths.json`, each with its example as a doc comment, so an editor completes a path and shows what it prints. A union of string literals that size is cheap for `tsc`. An example can hold `*/` or a line break, and the doc comment must survive both. The decision "The npm package's API is `load({ data, files })` and the stateless `render`, `fake`, `records` and `paths`, with `isTemplate`, a `kind` on `FejkdataError`, ES modules only, and types that complete a shipped path" types `fake`'s first argument `ShippedPath | (string & {})`, so a path of one's own `files` compiles.
-
-`go generate` already writes `data-listing/paths.json` and `docs/shipped-paths.md` through `ListingFiles` in `internal/shipped/listing.go`. Write the types file beside them from the same listing. The gate already fails where a generated file is stale: `TestDataListingIsCurrent` in `data_listing_test.go` compares each file `ListingFiles` returns with the committed one, through `generatedFileIsCurrent` in `shipped_test.go`. A file added to `ListingFiles` is checked the same way.
-
-The gate's staleness check is this item's test. The usage test of item 360 uses one shipped path where `fake` takes a path once item 359 builds `fake`. The open type can't make a typo fail to compile, so the usage test doesn't check a path that isn't shipped. The package's `files` in `package.json` must carry the new file, and so must the list of files the tarball check in the step `npm` of the `packages` job in `.github/workflows/packages.yml` compares the packed tarball with, or the Packages dry run rejects the tarball.
-
-Touches:
-
-- `internal/shipped/listing.go`: `ListingFiles`
-- `internal/shipped/shipped_test.go`
-- `internal/shipped/generate/main_test.go`: `TestGeneratedIsEachManifestThenTheListing` (small)
-- `npm-package/shipped-paths.d.ts`
-- `npm-package/index.d.ts`
-- `npm-package/package.json`
-- `.github/workflows/packages.yml`: `The npm package packs under the tag's version, and a dry run of its publish lists its files and size` (small)
-- `npm-package/typecheck/usage.ts`
-- `npm-package/README.md`
-- `README.md`: `## Layout` (small), `## Development` (small)
 
 ### 603. Add a mutation tool for JavaScript.
 
