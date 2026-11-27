@@ -153,10 +153,10 @@ Every other category is hand-written under [`data/`](data), MIT like the code.
 
 - Source: Census Bureau surnames occurring 100 or more times, 2010; the script keeps those borne by
   at least 500 people. The Census writes them in letters alone. The script tries a name with an
-  apostrophe, a space, a full stop or a capital after a particle such as `O` or `Mac`. It spells it as `O'Brien`
-  where [Wikidata](https://www.wikidata.org/) lists at least 5 people of United States citizenship with
-  their family name spelled so, and they are more than half of the people it lists under any of the
-  forms tried, as Wikidata stood on 27 November 2026
+  apostrophe, a space, a full stop or a capital after a particle such as `O` or `Mac`. It spells it
+  as `O'Brien` where [Wikidata](https://www.wikidata.org/) lists at least 5 people of United States
+  citizenship with their family name spelled so, and they are more than half of the people it lists
+  under any of the forms tried, as Wikidata stood on 27 November 2026
 - Licence: public domain, and CC0 for the spellings
 - Attribution: none required
 - Rebuild: `data-import/names-us.py`
