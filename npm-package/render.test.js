@@ -205,6 +205,10 @@ test("the package's README prints what its text blocks show", () => {
 	assert.equal(runBlocks(readFileSync(new URL("./README.md", import.meta.url), "utf8")), 3);
 });
 
+test("the repository's README prints what its text blocks show", () => {
+	assert.equal(runBlocks(readFileSync(new URL("../README.md", import.meta.url), "utf8")), 1);
+});
+
 test("a js block with no text block after it fails", () => {
 	assert.throws(() => runBlocks("```js\nconsole.log(1);\n```\n\nIt prints 1.\n"), assert.AssertionError);
 });
