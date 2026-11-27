@@ -176,6 +176,13 @@ func Main(modules ...fs.FS) int {
 	return run(commandName(os.Args[0]), modules, os.Args[1:], system{rand.Uint64(), time.Now()}, stdin, os.Stdout, os.Stderr)
 }
 
+// Run is Main over the arguments and streams it is given, for a program that is not a process of
+// its own, such as a WebAssembly build. It runs as fejkdata, args are the arguments after the
+// command's name, and a nil stdin is a terminal, which holds no template.
+func Run(args []string, stdin io.Reader, stdout, stderr io.Writer, modules ...fs.FS) int {
+	return run("fejkdata", modules, args, system{rand.Uint64(), time.Now()}, stdin, stdout, stderr)
+}
+
 // commandName is the name the command runs under: the file arg0 names, less a Windows
 // .exe, or fejkdata where arg0 names none.
 func commandName(arg0 string) string {
