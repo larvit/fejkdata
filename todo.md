@@ -245,18 +245,20 @@
 
 ### 607. Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.
 
-A question for the maintainer, since only the owner of the npm organization `larvit` can do it, and the placeholder is a choice: item 550's chunk recommends it. npmjs.com sets a trusted publisher only on a package that exists, and a release whose `npm` job fails doesn't reach PyPI, so the package must exist before 0.9.0 is cut. The alternative is to let the first release's `npm` job fail, publish the tarball of its `npm-package` artifact by hand, and rerun the failed jobs; that version then has no provenance. The decision "The npm package goes to npmjs.com from the `npm` job of `packages.yml` …" records the rest.
+Only an owner of the npm organization `larvit` can do this item, so it waits for the maintainer. npmjs.com sets a trusted publisher only on a package that exists. A release whose `npm` job fails doesn't reach PyPI. The decision "The npm package goes to npmjs.com from the `npm` job of `packages.yml` …" records the rest.
 
-The steps, on a machine logged in to npm as an owner of `larvit`:
+Done on 2026-11-27:
 
-1. Build the folder to pack: `docker build --target npm-package-built --output /tmp/fejkdata-npm .`
-2. Publish it as version 0.0.0: `npm publish /tmp/fejkdata-npm/npm-package`
-3. Mark it: `npm deprecate @larvit/fejkdata@0.0.0 "A placeholder. Install 0.9.0 or later."`
-4. In the package's settings on npmjs.com, add the trusted publisher: GitHub Actions, organization `larvit`, repository `fejkdata`, workflow `test.yml`, environment `npm`. Its allowed actions must include `npm publish`. A publisher made after 3 September 2026 allows only `npm stage publish` by default ([npm's docs](https://docs.npmjs.com/trusted-publishers/)). npm 11.15.0 or later can set it from a shell instead: `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. A new publisher must publish within two days, so cut 0.9.0 within two days of this step.
-5. In the repository's settings on GitHub, limit the environment `npm` to the branch `main`.
-6. After 0.9.0 is published, set the package's publishing access to "Require two-factor authentication and disallow tokens", and look at the live page: the README, the provenance badge and the files.
+- The maintainer published `@larvit/fejkdata@0.0.0` by hand. It is a placeholder that holds only a `package.json`, deprecated with "Placeholder. Install 0.9.0 or later." The registry also holds `0.0.0-stage`, deprecated with the same text.
+- The GitHub environment `npm` exists and is limited to the branch `main`.
+- The maintainer set the trusted publisher: repository `larvit/fejkdata`, workflow `test.yml`, environment `npm`, with `npm publish` allowed. A new publisher expires unless it publishes within two days. So this one lapses about 2026-11-29, unless 0.9.0 is cut first.
+- The maintainer approved item 550's public texts: the README's install paragraph and JavaScript quick start, the changelog entry, and `package.json`'s `author` "Larv IT AB" and `bugs`.
 
-Then drop this item with `todo-item finish <ID> --no-changelog`.
+Left:
+
+1. If the publisher has lapsed when 0.9.0 is ready, the maintainer sets it again, at most two days before the cut. npm 11.15.0 or later sets it with `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. On npmjs.com, its allowed actions must include `npm publish` ([npm's docs](https://docs.npmjs.com/trusted-publishers/)). The agent that finds the release ready reminds the maintainer.
+2. After 0.9.0 is published, the maintainer sets the package's publishing access to "Require two-factor authentication and disallow tokens".
+3. Then drop this item with `todo-item finish 607 --no-changelog`.
 
 ### 358. Record in `docs/decisions.md` the JavaScript and TypeScript API that a panel of JavaScript and TypeScript test authors picks for `@larvit/fejkdata`, before 0.9.0 is cut.
 
