@@ -38,6 +38,83 @@ class Render(unittest.TestCase):
 		template = '{"format": "", "code": "{/misc.territory[SE].alpha2}"}'
 		self.assertEqual(fejkdata.render(template, seed=1, today=DAY, repeat=2, format="csv"), "code\nSE\nSE\n")
 
+	def test_table_names_the_sql_target(self) -> None:
+		template = '{"format": "", "code": "{/misc.territory[SE].alpha2}"}'
+		out = fejkdata.render(template, seed=1, today=DAY, format="sql", table="countries")
+		self.assertEqual(out, "INSERT INTO \"countries\" (\"code\") VALUES ('SE');\n")
+
+	def test_table_names_the_pgcopy_target(self) -> None:
+		template = '{"format": "", "code": "{/misc.territory[SE].alpha2}"}'
+		out = fejkdata.render(template, seed=1, today=DAY, format="pgcopy", table="countries")
+		self.assertEqual(out, 'COPY "countries" ("code") FROM STDIN;\nSE\n\\.\n')
+
+	def test_separator_goes_between_repeated_renders(self) -> None:
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, repeat=3, separator=","), "x,x,x")
+
+	def test_a_separator_that_looks_like_a_flag_is_a_value(self) -> None:
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, repeat=2, separator="--"), "x--x")
+
+	def test_an_empty_table_is_passed_and_the_cli_refuses_it(self) -> None:
+		with self.assertRaises(fejkdata.FejkdataError) as raised:
+			fejkdata.render('{"format": "", "code": "x"}', seed=1, today=DAY, format="sql", table="")
+		self.assertEqual(str(raised.exception), "fejkdata: --table names the INSERT target, so it cannot be empty")
+
+	def test_an_empty_null_text_is_passed_and_the_cli_refuses_it_outside_csv(self) -> None:
+		with self.assertRaises(fejkdata.FejkdataError) as raised:
+			fejkdata.render("x", seed=1, today=DAY, null_text="")
+		self.assertEqual(raised.exception.returncode, 2)
+
+	def test_null_text_is_what_csv_writes_for_a_null(self) -> None:
+		template = '{"format": "", "a": "x", "deleted_at": null}'
+		self.assertEqual(fejkdata.render(template, seed=1, today=DAY, format="csv", null_text="NULL"), "a,deleted_at\nx,NULL\n")
+
+	def test_a_flag_the_format_refuses_raises_the_cli_s_error(self) -> None:
+		with self.assertRaises(fejkdata.FejkdataError) as raised:
+			fejkdata.render("x", seed=1, today=DAY, null_text="NULL")
+		self.assertEqual(raised.exception.returncode, 2)
+
+	def test_data_path_adds_the_categories_of_a_folder(self) -> None:
+		with tempfile.TemporaryDirectory() as folder:
+			(pathlib.Path(folder) / "pets.json").write_text('["pixelfox"]', encoding="utf-8")
+			self.assertEqual(fejkdata.render("{/pets}", seed=1, today=DAY, data_path=folder), "pixelfox")
+
+	def test_data_path_takes_a_pathlib_path(self) -> None:
+		with tempfile.TemporaryDirectory() as folder:
+			(pathlib.Path(folder) / "pets.json").write_text('["pixelfox"]', encoding="utf-8")
+			self.assertEqual(fejkdata.render("{/pets}", seed=1, today=DAY, data_path=pathlib.Path(folder)), "pixelfox")
+
+	def test_data_path_takes_several_folders_and_the_last_wins(self) -> None:
+		with tempfile.TemporaryDirectory() as team, tempfile.TemporaryDirectory() as project:
+			(pathlib.Path(team) / "pets.json").write_text('["pixelfox"]', encoding="utf-8")
+			(pathlib.Path(team) / "tools.json").write_text('["hammer"]', encoding="utf-8")
+			(pathlib.Path(project) / "pets.json").write_text('["snork"]', encoding="utf-8")
+			self.assertEqual(fejkdata.render("{/pets} {/tools}", seed=1, today=DAY, data_path=[team, pathlib.Path(project)]), "snork hammer")
+			self.assertEqual(fejkdata.render("{/pets} {/tools}", seed=1, today=DAY, data_path=(project, team)), "pixelfox hammer")
+
+	def test_no_shipped_data_loads_only_the_data_path_folders(self) -> None:
+		with tempfile.TemporaryDirectory() as folder:
+			(pathlib.Path(folder) / "pets.json").write_text('["pixelfox"]', encoding="utf-8")
+			self.assertEqual(fejkdata.render("{/pets}", seed=1, today=DAY, data_path=folder, no_shipped_data=True), "pixelfox")
+			with self.assertRaises(fejkdata.FejkdataError) as raised:
+				fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today=DAY, data_path=folder, no_shipped_data=True)
+			self.assertEqual(raised.exception.returncode, 2)
+
+	def test_a_folder_the_cli_cannot_read_raises_its_error(self) -> None:
+		with self.assertRaises(fejkdata.FejkdataError) as raised:
+			fejkdata.render("x", seed=1, today=DAY, data_path="/nonexistent")
+		self.assertEqual(str(raised.exception), "fejkdata: data path /nonexistent: no such directory")
+
+	def test_a_record_with_no_table_writes_to_records(self) -> None:
+		out = fejkdata.render('{"format": "", "code": "x"}', seed=1, today=DAY, format="sql")
+		self.assertEqual(out, "INSERT INTO \"records\" (\"code\") VALUES ('x');\n")
+
+	def test_data_path_none_and_an_empty_list_add_no_folder(self) -> None:
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, data_path=None), "x")
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, data_path=[]), "x")
+
+	def test_no_shipped_data_false_loads_the_shipped_data(self) -> None:
+		self.assertEqual(fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today=DAY, no_shipped_data=False), "SE")
+
 	def test_text_outside_ascii_comes_back_whole(self) -> None:
 		self.assertEqual(fejkdata.render("Malmö {/misc.territory[SE].alpha2}", seed=1, today=DAY), "Malmö SE")
 
@@ -83,7 +160,7 @@ class ReadmeExamples(unittest.TestCase):
 
 	def test_the_package_s_readme(self) -> None:
 		readme = pathlib.Path(__file__).with_name("README.md").read_text(encoding="utf-8")
-		self.assertEqual(self.run_blocks(readme), 2)
+		self.assertEqual(self.run_blocks(readme), 3)
 
 	def test_the_repository_s_readme(self) -> None:
 		readme = pathlib.Path(__file__).parent.with_name("README.md").read_text(encoding="utf-8")
