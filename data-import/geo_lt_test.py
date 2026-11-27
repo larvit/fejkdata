@@ -58,6 +58,12 @@ class RegisterOfPlaces(unittest.TestCase):
 		self.assertEqual(r.streets["1302576"], "Laisvės pr.")
 		self.assertEqual(r.streets["1307783"], "Plento g.")
 
+	def test_a_street_geo_refuses_is_no_street(self) -> None:
+		doubled = {"GAT_KODAS": "1300001", "TIPAS": "gatvė", "TIPO_SANTRUMPA": "g.", "VARDAS_K": "Leopoldo  Godovskio", "GYV_KODAS": "31003"}
+		remark = {"GAT_KODAS": "1300002", "TIPAS": "gatvė", "TIPO_SANTRUMPA": "g.", "VARDAS_K": "Plento (senoji)", "GYV_KODAS": "31003"}
+		r = geo_lt.Register(APSKRITYS, SAVIVALDYBES, VIETOVES, [*GATVES, doubled, remark])
+		self.assertEqual(sorted(r.streets), ["1302576", "1307783"])
+
 
 class HouseNumber(unittest.TestCase):
 	def test_a_number(self) -> None:

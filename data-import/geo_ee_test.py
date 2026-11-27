@@ -106,6 +106,11 @@ class StreetOf(unittest.TestCase):
 	def test_a_street_in_a_vaikekoht_is_named_without_it(self) -> None:
 		self.assertEqual(geo_ee.street_of("Aseri AÜ, Roosi tn 5"), ("Roosi tn", 5, False))
 
+	def test_a_street_geo_refuses_is_none(self) -> None:
+		for near in ["Sarapuu  tn 70", "Pargi (vana) tn 2", "Sarapuu tn Sarapuu tn 70"]:
+			with self.subTest(near=near):
+				self.assertIsNone(geo_ee.street_of(near))
+
 	def test_each_kind_of_street(self) -> None:
 		for kind in ("tn", "mnt", "pst", "tee", "allee", "põik", "väljak", "plats"):
 			self.assertEqual(geo_ee.street_of(f"Vana-Narva {kind} 4"), (f"Vana-Narva {kind}", 4, False))

@@ -22,6 +22,7 @@ def script(name: str) -> types.ModuleType:
 geo_de = script("geo-de")
 geo_dk = script("geo-dk")
 geo_fi = script("geo-fi")
+geo_no = script("geo-no")
 geo_se = script("geo-se")
 geo_us = script("geo-us")
 
@@ -230,6 +231,11 @@ class Parsed(unittest.TestCase):
 			with self.subTest(label=label):
 				self.assertIsNone(geo_dk.parsed(label, number, "0751-0001"))
 
+	def test_a_street_geo_refuses_is_none(self) -> None:
+		for street in ["Kolonihaverne Ved Lykkesholmsvej (Nord)", "Kolonihaverne Ved Lykkesholmsvej (Syd)", "Vestergade  Syd"]:
+			with self.subTest(street=street):
+				self.assertIsNone(geo_dk.parsed(f"{street} 12, Aarhus, 8000 Aarhus C", "12", "0751-0001"))
+
 
 class Recased(unittest.TestCase):
 	def test_a_postitoimipaikka_is_written_as_a_place_name(self) -> None:
@@ -282,6 +288,18 @@ class SeStreetName(unittest.TestCase):
 		for name in ["S:t Eriks gata", "M/S Nadias väg", "Natt och Dags väg", "af Klints väg"]:
 			with self.subTest(name=name):
 				self.assertTrue(geo_se.street_name(name))
+
+
+class NoStreetName(unittest.TestCase):
+	def test_a_name_geo_refuses_is_refused(self) -> None:
+		for name in ["Torget (Nord)", "Storgata  1", "All\u201avegen", "Bakkegata Bakkegata"]:
+			with self.subTest(name=name):
+				self.assertFalse(geo_no.street_name(name))
+
+	def test_a_street_is_kept(self) -> None:
+		for name in ["Storgata", "Kirkeveien", "Ole Bulls plass"]:
+			with self.subTest(name=name):
+				self.assertTrue(geo_no.street_name(name))
 
 
 class UsStreetName(unittest.TestCase):

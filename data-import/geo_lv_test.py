@@ -67,6 +67,12 @@ class RegisterOfPlaces(unittest.TestCase):
 		self.assertEqual(r.streets["100366498"], ("100003366", "Aizsaules iela"))
 		self.assertEqual(r.streets["100500001"], ("100195988", "Liepu iela"))
 
+	def test_a_street_geo_refuses_is_no_street(self) -> None:
+		doubled = place("100500002", IELA, "Liepu  iela", "100195988", CIEMS)
+		remark = place("100500003", IELA, "Ozolu iela (Nr.2)", "100195988", CIEMS)
+		r = geo_lv.Register(NOVADI, PILSETAS, PAGASTI, CIEMI, [*IELAS, doubled, remark])
+		self.assertEqual(sorted(r.streets), ["100366498", "100462850", "100500001"])
+
 	def test_a_row_no_longer_in_force_is_no_place(self) -> None:
 		gone = place("100015645", NOVADS, "Aglonas nov.", "100000000", STATE, "0604300", status="DEL")
 		wrong = place("100480957", IELA, "1", "100195988", CIEMS, status="ERR")
