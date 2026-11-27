@@ -257,7 +257,7 @@ Done on 2026-11-27:
 Left:
 
 1. If the publisher has lapsed when 0.9.0 is ready, the maintainer sets it again, at most two days before the cut. npm 11.15.0 or later sets it with `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. On npmjs.com, its allowed actions must include `npm publish` ([npm's docs](https://docs.npmjs.com/trusted-publishers/)). The agent that finds the release ready reminds the maintainer.
-2. After 0.9.0 is published, the maintainer sets the package's publishing access to "Require two-factor authentication and disallow tokens".
+2. After 0.9.0 is published, the maintainer sets the package's publishing access to "Require two-factor authentication and disallow tokens". Then they check the package's live page: the README, the provenance badge and the files.
 3. Then drop this item with `todo-item finish 607 --no-changelog`.
 
 ### 358. Record in `docs/decisions.md` the JavaScript and TypeScript API that a panel of JavaScript and TypeScript test authors picks for `@larvit/fejkdata`, before 0.9.0 is cut.
