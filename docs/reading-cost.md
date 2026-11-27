@@ -3258,3 +3258,20 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `python-package/README.md` 1
 - `python-package/fejkdata/__init__.py` 1
+
+## Reading cost, chunk 65e6833ad2e4, finished 2026-11-27T00:37:55Z
+
+72954 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/geo-ee.py` 5
+- `data-import/geo_test.py` 5
+- `data-import/geo-no.py` 3
+- `data-import/geo-se.py` 3
+- `data-import/geo.py` 3
+- `data-import/geo_lv_test.py` 3
+- `data-import/geo-lv.py` 2
+- `data-import/geo_lt_test.py` 2
+- `data-import/geo-dk.py` 1
+- `data-import/geo-fi.py` 1
