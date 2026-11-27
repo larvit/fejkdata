@@ -2166,7 +2166,7 @@ data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.m
 data-listing/   the generated list of every shipped path with its kind, example and source (`paths.json`), and the hand-written kind and source of each category, and of each field that differs from its category (`kinds-and-sources.tsv`)
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the generated table of every shipped path (`shipped-paths.md`), the locale pages (`docs/locales`, one per folder of `data/`), the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-npm-package/    the npm package: `load` and `render`, which run the CLI built to WebAssembly from `wasm/`; the package's tests; `typecheck/`, TypeScript that compiles only while `index.d.ts` types the package as it is used; and its README
+npm-package/    the npm package: `load` and `render`, which run the CLI built to WebAssembly from `wasm/`; the package's tests; `typecheck/`, TypeScript that compiles only while `index.d.ts` types the package as it is used; `shipped-paths.d.ts`, the generated type of every shipped path; and its README
 python-package/ the Python package: `render`, which runs the CLI binary that a wheel carries; the package's tests; and its README
 release-tooling/ what CI releases with: the release from the changelog heading; the patch of the last release for main's newer Go, modules or GoReleaser; a release's binaries, packages, image, package repositories and Python wheels; and the filer of known vulnerabilities as `todo.md` items
 testdata/       the pinned shipped shape, and the pinned keys and kind words of the data listing (see Versioning)
@@ -2216,7 +2216,7 @@ Commands that rewrite source keep your file ownership when run with `--user`:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" fmt       # gofmt -w .
-docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: each data/ module's .fejkdata.json, data-listing/paths.json and docs/shipped-paths.md
+docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: each data/ module's .fejkdata.json, data-listing/paths.json, docs/shipped-paths.md and npm-package/shipped-paths.d.ts
 docker compose run --rm --user "$(id -u):$(id -g)" tidy      # go mod tidy
 ```
 

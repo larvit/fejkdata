@@ -168,7 +168,7 @@ jobs:
             fi
             npm pack --pack-destination /npm'
           tar -tzf npm/larvit-fejkdata-*.tgz | sort > npm/packed
-          printf 'package/%s\n' DATA-LICENSES.md LICENSE README.md WORDNET-LICENSE.txt fejkdata.wasm index.d.ts index.js package.json wasm_exec.js | diff - npm/packed
+          printf 'package/%s\n' DATA-LICENSES.md LICENSE README.md WORDNET-LICENSE.txt fejkdata.wasm index.d.ts index.js package.json shipped-paths.d.ts wasm_exec.js | diff - npm/packed
           echo packed=true >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
         if: steps.npm.outputs.packed == 'true'
