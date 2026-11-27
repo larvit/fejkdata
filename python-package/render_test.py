@@ -3,7 +3,6 @@ import datetime
 import io
 import pathlib
 import re
-import subprocess
 import tempfile
 import unittest
 import unittest.mock
@@ -55,8 +54,15 @@ class Render(unittest.TestCase):
 	def test_a_separator_that_looks_like_a_flag_is_a_value(self) -> None:
 		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, repeat=2, separator="--"), "x--x")
 
-	def test_an_empty_separator_is_the_default(self) -> None:
-		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, repeat=2, separator=""), "xx")
+	def test_an_empty_table_is_passed_and_the_cli_refuses_it(self) -> None:
+		with self.assertRaises(fejkdata.FejkdataError) as raised:
+			fejkdata.render('{"format": "", "code": "x"}', seed=1, today=DAY, format="sql", table="")
+		self.assertEqual(str(raised.exception), "fejkdata: --table names the INSERT target, so it cannot be empty")
+
+	def test_an_empty_null_text_is_passed_and_the_cli_refuses_it_outside_csv(self) -> None:
+		with self.assertRaises(fejkdata.FejkdataError) as raised:
+			fejkdata.render("x", seed=1, today=DAY, null_text="")
+		self.assertEqual(raised.exception.returncode, 2)
 
 	def test_null_text_is_what_csv_writes_for_a_null(self) -> None:
 		template = '{"format": "", "a": "x", "deleted_at": null}'
@@ -94,16 +100,20 @@ class Render(unittest.TestCase):
 			self.assertEqual(raised.exception.returncode, 2)
 
 	def test_a_folder_the_cli_cannot_read_raises_its_error(self) -> None:
-		with self.assertRaises(fejkdata.FejkdataError):
-			fejkdata.render("x", seed=1, today=DAY, data_path="/nonexistent-folder-for-fejkdata")
+		with self.assertRaises(fejkdata.FejkdataError) as raised:
+			fejkdata.render("x", seed=1, today=DAY, data_path="/nonexistent")
+		self.assertEqual(str(raised.exception), "fejkdata: data path /nonexistent: no such directory")
 
-	def test_a_flag_left_out_is_not_passed(self) -> None:
-		with unittest.mock.patch.object(subprocess, "run", wraps=subprocess.run) as run:
-			fejkdata.render("x", seed=1, today=DAY)
-		self.assertEqual(
-			run.call_args.args[0],
-			[fejkdata._BINARY, "--seed", "1", "--today", DAY, "--repeat", "1", "--format", "text"],
-		)
+	def test_a_record_with_no_table_writes_to_records(self) -> None:
+		out = fejkdata.render('{"format": "", "code": "x"}', seed=1, today=DAY, format="sql")
+		self.assertEqual(out, "INSERT INTO \"records\" (\"code\") VALUES ('x');\n")
+
+	def test_data_path_none_and_an_empty_list_add_no_folder(self) -> None:
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, data_path=None), "x")
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, data_path=[]), "x")
+
+	def test_no_shipped_data_false_loads_the_shipped_data(self) -> None:
+		self.assertEqual(fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today=DAY, no_shipped_data=False), "SE")
 
 	def test_text_outside_ascii_comes_back_whole(self) -> None:
 		self.assertEqual(fejkdata.render("Malmö {/misc.territory[SE].alpha2}", seed=1, today=DAY), "Malmö SE")
