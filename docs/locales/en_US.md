@@ -2,6 +2,14 @@
 
 `en_US`'s categories are listed under the README's [Locale categories](../../README.md#locale-categories).
 
+## Last names
+
+`en_US.last-name` holds each surname that at least 500 people bore in the Census Bureau's 2010 count, weighted by that count.
+The Census writes surnames in letters alone, so `Obrien` is the Census's `OBRIEN`. The import writes a name as
+`O'Brien`, `MacDonald` or `De Witt` where more than half of the Wikidata people of United States citizenship with that
+family name write it so, and at least 5 do: 71 names are written so. A name Wikidata doesn't settle stays in letters
+alone, such as `Dangelo`, `Delacruz` and `Stjohn`, and its count holds every spelling of it.
+
 ## English words
 
 `en_US.word` draws evenly from about 70,000 words of WordNet 3.0, Princeton's English dictionary: the nouns,
