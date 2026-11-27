@@ -2,6 +2,7 @@ import json
 import unittest
 from unittest import mock
 
+import source
 import wikidata_names
 
 
@@ -35,7 +36,7 @@ class Bearers(unittest.TestCase):
 			asked.append(data.decode())
 			return answer(("Lefèvre", 328), ("Lefevre", 63))
 
-		with mock.patch.object(wikidata_names.source, "fetch", fetch):
+		with mock.patch.object(source, "fetch", fetch):
 			found = wikidata_names.bearers(["Lefèvre", "Lefevre", "Lefèvre"], "fr", "Q142", "cache")
 		self.assertEqual(found, {"Lefèvre": 328, "Lefevre": 63})
 		self.assertEqual(len(asked), 1)
@@ -50,6 +51,6 @@ class Bearers(unittest.TestCase):
 			asked.append(data)
 			return answer()
 
-		with mock.patch.object(wikidata_names.source, "fetch", fetch), mock.patch.object(wikidata_names, "BATCH", 2):
+		with mock.patch.object(source, "fetch", fetch), mock.patch.object(wikidata_names, "BATCH", 2):
 			wikidata_names.bearers(["Aa", "Bb", "Cc", "Dd", "Ee"], "en", "Q30", "cache")
 		self.assertEqual(len(asked), 3)

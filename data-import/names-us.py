@@ -19,12 +19,18 @@ from typing import Any
 
 import source
 import tsv
+import wikidata_names
 
 NAMES = "https://raw.githubusercontent.com/hackerb9/ssa-baby-names/master/alldata.txt"
 SURNAMES = "https://www2.census.gov/topics/genealogy/2010surnames/names.zip"
 OUT = Path(__file__).resolve().parent.parent / "data" / "en_US"
 CACHE = Path(__file__).resolve().parent / "cache"
 MC = re.compile(r"^Mc([a-z])")
+AMERICA = "Q30"
+PARTICLES = (
+	"O'", "D'", "L'", "De ", "de ", "De La ", "De la ", "de la ", "De Los ", "De los ", "De Las ", "Del ", "Della ", "Di ", "Da ", "Dos ", "Du ",
+	"La ", "Le ", "Van ", "van ", "Van Der ", "van der ", "Von ", "von ", "St ", "San ", "Mac ",
+)
 PLACEHOLDERS = {"Baby", "Female", "Infant", "Male", "Notnamed", "Unknown", "Unnamed"}
 
 
@@ -60,10 +66,24 @@ def firsts(counts: collections.Counter[tuple[str, str]], floor: int) -> list[dic
 	return sorted(rows, key=lambda r: (r["name"], r["sex"]))
 
 
-def lasts(rows: Iterable[list[str]], floor: int) -> list[dict[str, Any]]:
-	"""The rows (name, count) of the surnames borne by at least floor people, a suppressed count and a non-name dropped."""
-	named = [(surname(r[0]), int(r[2])) for r in rows if len(r) >= 3 and r[2].isdigit() and r[0].isalpha()]
-	return [{"name": n, "count": c} for n, c in sorted(tsv.common(named, floor))]
+def particled(name: str) -> list[str]:
+	"""The forms of a name written in letters alone that open with a particle, `Obrien` as `O'Brien`, and `Delacruz` as `De La Cruz` and `DeLaCruz`."""
+	forms: dict[str, None] = {}
+	for particle in PARTICLES:
+		letters = re.sub(r"[^a-z]", "", particle.lower())
+		rest = name.lower()[len(letters) :]
+		if name.lower().startswith(letters) and len(rest) >= 3:
+			forms[particle + rest.capitalize()] = None
+			forms["".join(w.capitalize() for w in particle.split(" ")) + rest.capitalize()] = None
+	return [f for f in forms if f != name]
+
+
+def lasts(rows: Iterable[list[str]], floor: int, bearers: wikidata_names.Bearers, cache: str) -> list[dict[str, Any]]:
+	"""The rows (name, count) of the surnames borne by at least floor people, a suppressed count and a non-name dropped.
+	A name is written as most of Wikidata's Americans bearing it write it, where that is a majority."""
+	named = tsv.common([(surname(r[0]), int(r[2])) for r in rows if len(r) >= 3 and r[2].isdigit() and r[0].isalpha()], floor)
+	spelling = wikidata_names.written({n: particled(n) for n, _ in named}, "en", AMERICA, cache, bearers)
+	return [{"name": n, "count": c} for n, c in sorted((spelling.get(n, n), c) for n, c in named)]
 
 
 FIRST_MIN = 50
@@ -84,7 +104,7 @@ def main() -> None:
 	rows = csv_or_zip_rows(source.fetch(a.surnames, a.cache, "census-surnames-2010.zip"), r"Names_2010Census\.csv")
 	out = Path(a.out)
 	tsv.write(out / "first-name.tsv", ["name", "sex", "count"], firsts(counts, a.first_min))
-	tsv.write(out / "last-name.tsv", ["name", "count"], lasts(rows, a.last_min))
+	tsv.write(out / "last-name.tsv", ["name", "count"], lasts(rows, a.last_min, wikidata_names.bearers, a.cache))
 
 
 if __name__ == "__main__":
