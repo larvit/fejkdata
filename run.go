@@ -34,11 +34,11 @@ func (runError) Is(target error) bool { return target == ErrRun }
 // {/run.customers as c} keeps one customer, and {c.id} and {c.name} read that row. The template
 // read is the parent, and the one reading it the child.
 //
-// FakeRun calls write once per emit, and each call of fake renders that template's next record,
-// which the run keeps as a row for its children. The emits come in the order given, save that a
-// parent moves ahead of its first child. opts are those of [New]. A template draws from the seed
-// and its own name, so its records stay the same whatever else the run names, and a
-// {seq()} counts within one template.
+// FakeRun calls write once per emit, and each call of fake renders that template's next record.
+// A child reads its parent's first Count records, the ones fake returns. FakeRun renders them once
+// before the first write as well. The emits come in the order given, save that a parent moves ahead
+// of its first child. opts are those of [New]. A template draws from the seed and its own name, so
+// its records stay the same whatever else the run names, and a {seq()} counts within one template.
 //
 // FakeRun returns an error before the first write in each of these cases. The error matches [ErrRun]
 // where:
@@ -270,44 +270,41 @@ func (p *runPlan) place(e Emit, emits []Emit, placed map[string]bool) {
 	p.emits = append(p.emits, e)
 }
 
-// fake writes each template in turn. It loads the data once per template, with the rows that
-// template reads.
+// fake writes each template in turn, loading the data for it over the tables dryLoad returns.
 func (p runPlan) fake(c config, write func(e Emit, fake func() (*Record, error)) error) error {
-	if err := p.dryLoad(c); err != nil {
+	tables, err := p.dryLoad(c)
+	if err != nil {
 		return err
 	}
-	tables := map[string]string{}
 	for _, e := range p.emits {
 		g, err := p.generator(c, e.Template, tables)
 		if err != nil {
 			return err
 		}
-		rows := runRows{g: g, template: e.Template, kept: p.isRead(e.Template)}
-		if err := write(e, rows.fake); err != nil {
-			return err
-		}
-		if err := rows.keepInto(tables); err != nil {
+		if err := write(e, func() (*Record, error) { return g.FakeRecord(e.Template) }); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// dryLoad loads each template over one row of each parent, so data that fails to load fails before
-// the first record is written.
-func (p runPlan) dryLoad(c config) error {
+// dryLoad loads each template in turn and renders the rows of each one a child reads, so data that
+// fails to load fails before the first record is written. It returns those rows as tables, by template.
+func (p runPlan) dryLoad(c config) (map[string]string, error) {
 	tables := map[string]string{}
 	for _, e := range p.emits {
 		g, err := p.generator(c, e.Template, tables)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		rows := runRows{g: g, template: e.Template, kept: p.isRead(e.Template)}
-		if err := rows.keepInto(tables); err != nil {
-			return err
+		if !p.isRead(e.Template) {
+			continue
+		}
+		if err := keepInto(tables, g, e); err != nil {
+			return nil, err
 		}
 	}
-	return nil
+	return tables, nil
 }
 
 // isRead reports whether a template of the run reads template's rows.
@@ -347,37 +344,21 @@ func (p runPlan) generator(c config, template string, tables map[string]string) 
 	return &Generator{drawState: drawstate.New(c.seed^h.Sum64(), c.today), root: root}, nil
 }
 
-// runRows renders one template's records, and keeps each as a table row where a category reads them.
-type runRows struct {
-	g        *Generator
-	template string
-	kept     bool
-	tsv      strings.Builder // the header line, then a line per record
-}
-
-func (r *runRows) fake() (*Record, error) {
-	record, err := r.g.FakeRecord(r.template)
-	if err != nil || !r.kept {
-		return record, err
-	}
-	if r.tsv.Len() == 0 {
-		r.tsv.WriteString(record.TSVHeader() + "\n")
-	}
-	r.tsv.WriteString(record.TSVLine() + "\n")
-	return record, nil
-}
-
-// keepInto puts the rows into tables, where a child reads them. A table can't be empty, so where no
-// record was rendered, keepInto renders one.
-func (r *runRows) keepInto(tables map[string]string) error {
-	if !r.kept {
-		return nil
-	}
-	if r.tsv.Len() == 0 {
-		if _, err := r.fake(); err != nil {
+// keepInto renders e's Count records from g and puts them into tables as the rows a child reads. A
+// template draws from the seed and its own name, so they are the records write gets. A table can't
+// be empty, so at count 0 keepInto renders one record.
+func keepInto(tables map[string]string, g *Generator, e Emit) error {
+	var tsv strings.Builder
+	for i := 0; i < max(e.Count, 1); i++ {
+		record, err := g.FakeRecord(e.Template)
+		if err != nil {
 			return err
 		}
+		if i == 0 {
+			tsv.WriteString(record.TSVHeader() + "\n")
+		}
+		tsv.WriteString(record.TSVLine() + "\n")
 	}
-	tables[r.template] = r.tsv.String()
+	tables[e.Template] = tsv.String()
 	return nil
 }

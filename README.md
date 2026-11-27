@@ -800,7 +800,7 @@ templates with their counts, a function that writes one template, and the option
 emits := []fejkdata.Emit{{Template: "customers", Count: 2}, {Template: "orders", Count: 4}}
 err := fejkdata.FakeRun(emits, func(e fejkdata.Emit, fake func() (*fejkdata.Record, error)) error {
 	for i := 0; i < e.Count; i++ {
-		r, err := fake() // the template's next record, which the run keeps for the templates reading it
+		r, err := fake() // the template's next record; its first e.Count are the rows its children read
 		if err != nil {
 			return err
 		}
