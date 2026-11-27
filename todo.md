@@ -17,7 +17,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 607 | 0.9.0 |  | question | **Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 5, 1.2 by 8 | 9.3 |
-| 550 | 0.9.0 |  |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -257,33 +256,6 @@ The steps, on a machine logged in to npm as an owner of `larvit`:
 6. After 0.9.0 is published, set the package's publishing access to "Require two-factor authentication and disallow tokens", and look at the live page: the README, the provenance badge and the files.
 
 Then drop this item with `todo-item finish <ID> --no-changelog`.
-
-### 550. Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.
-
-The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
-
-The package is `@larvit/fejkdata`, under the npm organization the maintainer already has. npm's trusted publishing needs npm 11.5.1, Node 22.14 and a GitHub-hosted runner, and is set in the package's settings, so the first version may have to be published by hand: check before the chunk ends.
-
-Settle each thing npm shows or stores before the first publish, read it on npm's own documentation, and have the maintainer approve the public texts. `AGENTS.md`'s rule for public texts holds:
-
-- `package.json`'s `description`, `keywords`, `homepage`, `bugs`, `repository`, `license`, `author` and `funding`.
-- The README npmjs.com shows: its own, with JavaScript first, or the repository's. Relative links and images must work there.
-- What the tarball holds: `files`, the `LICENSE`, and the notices `DATA-LICENSES.md` says must ship with the data. `license` must be true of the code and the data.
-- `exports`, `types`, `engines`, `sideEffects` and module format, so Node, Bun, Deno and a bundler resolve it.
-- `publishConfig.access` as public, since a scoped package is private by default, provenance, the `latest` dist-tag, and which tag a prerelease takes.
-- The organization's page, the package's two-factor setting, and who may publish.
-- How a bad version is withdrawn: `npm deprecate` before `npm unpublish`.
-- A check in the dry run: `npm publish --dry-run` and a listing of the packed files and their size. After the publish, look at the live page.
-
-Item 549 built the package: the Dockerfile's `npm-package-built` stage holds the folder to pack, with `fejkdata.wasm` and Go's `wasm_exec.js`. It left `package.json`'s version at `0.0.0`, so the release sets it. It left the repository's README without a JavaScript quick start, since the package could not be installed yet: add one beside "Python tests", a `js` block with the `text` block of what it prints, and have `npm-package/render.test.js` run it as it runs the package's own README. A render builds its generator anew and takes about 0.1 seconds, which the package's README states.
-
-Touches:
-
-- `.github/workflows/packages.yml`: `packages-dry-run` (small)
-- `npm-package/package.json`
-- `README.md`: `## Install` (small)
-- `npm-package/render.test.js`
-- `README.md`: `## Quick start` (small)
 
 ### 603. Add a mutation tool for JavaScript.
 
