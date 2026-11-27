@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 607`
+`Next ID = 608`
 
 ## Renamed
 
@@ -16,6 +16,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 607 | 0.9.0 |  | question | **Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 5, 1.2 by 8 | 9.3 |
 | 550 | 0.9.0 |  |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
@@ -241,6 +242,21 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
+
+### 607. Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.
+
+A question for the maintainer, since only the owner of the npm organization `larvit` can do it, and the placeholder is a choice: item 550's chunk recommends it. npmjs.com sets a trusted publisher only on a package that exists, and a release whose `npm` job fails doesn't reach PyPI, so the package must exist before 0.9.0 is cut. The alternative is to let the first release's `npm` job fail, publish the tarball of its `npm-package` artifact by hand, and rerun the failed jobs; that version then has no provenance. The decision "The npm package goes to npmjs.com from the `npm` job of `packages.yml` …" records the rest.
+
+The steps, on a machine logged in to npm as an owner of `larvit`:
+
+1. Build the folder to pack: `docker build --target npm-package-built --output /tmp/fejkdata-npm .`
+2. Publish it as version 0.0.0: `npm publish /tmp/fejkdata-npm/npm-package`
+3. Mark it: `npm deprecate @larvit/fejkdata@0.0.0 "A placeholder. Install 0.9.0 or later."`
+4. In the package's settings on npmjs.com, add the trusted publisher: GitHub Actions, organization `larvit`, repository `fejkdata`, workflow `test.yml`, environment `npm`. A new publisher must publish within two days, so cut 0.9.0 within two days of this step.
+5. In the repository's settings on GitHub, limit the environment `npm` to the branch `main`.
+6. After 0.9.0 is published, set the package's publishing access to "Require two-factor authentication and disallow tokens", and look at the live page: the README, the provenance badge and the files.
+
+Then drop this item with `todo-item finish <ID> --no-changelog`.
 
 ### 550. Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.
 

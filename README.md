@@ -72,7 +72,7 @@ persons, addresses, national ids, phone numbers, companies, emails and dates. Be
 | CSV and SQL test data | One template and one command: CSV, SQL, `COPY`, JSON, NDJSON, up to 1,048,576 rows a run | No CLI and no file output: "you most likely need to write a factory function" | Go functions `CSV`, `JSON`, `XML` and `SQL`; its CLI runs one function, `-loop` times | CSV, JSON, SQL and Excel; 1,000 rows a file on the free plan, 10 million on the largest hosted one |
 | Errors | Before the first row, naming what is wrong; a mistake in a template exits 2 | Thrown at run time where a locale lacks the data; "we don't have dedicated error messages for wrong parameter types" | `Template`, `CSV` and `SQL` return an `error`; the docs don't say when | The pages read don't say |
 | Install | Homebrew, Scoop, apt, dnf, apk, Docker, `go install`, `pip install`, `npm install` | `npm install @faker-js/faker` | `go get`, and `go install` for the CLI | Nothing to install: hosted on mockaroo.com, with a Docker image on the Enterprise plan |
-| Runtime | One binary, or a Go library; no network | Node.js 20 or above, or a browser | A Go program, or its CLI | Its web service, or its API with a key |
+| Runtime | One binary, a Go library, a Python package or an npm package; no network | Node.js 20 or above, or a browser | A Go program, or its CLI | Its web service, or its API with a key |
 
 Each cell states what the tool's own docs said on 2026-11-21. Where a cell says the docs don't
 say, these are the pages read. Faker: [Getting started](https://fakerjs.dev/guide/), [Usage](https://fakerjs.dev/guide/usage),
@@ -242,7 +242,7 @@ import { load } from "@larvit/fejkdata";
 
 const fejkdata = await load();
 const person = '{"format": "{/sv_SE.person as p}", "first": "{p.first}", "last": "{p.last}"}';
-process.stdout.write(fejkdata.render(person, { seed: 1, today: "2026-01-15", repeat: 3, format: "csv" }));
+console.log(fejkdata.render(person, { seed: 1, today: "2026-01-15", repeat: 3, format: "csv" }).trimEnd());
 ```
 
 ```text
@@ -252,7 +252,7 @@ Felix,Lind
 Klara,Lassfolk
 ```
 
-The package is an ES module with TypeScript types. It carries all the shipped data, and doesn't depend on any other package.
+The package is an ES module with TypeScript types, and doesn't depend on any other package.
 [Its own README](npm-package/README.md) lists the arguments and the error a refused template throws.
 
 ### Replacing real data with fakes
@@ -2410,7 +2410,7 @@ publishes nothing. CI then runs the Packages workflow on the new tag, which atta
 binaries and packages, pushes the image to GHCR and copies it to Docker Hub, updates the
 Homebrew tap and the Scoop bucket, and deploys the apt, dnf and apk repositories to GitHub
 Pages. The `pypi` job of `test.yml` then uploads the Python wheels to
-[PyPI](https://pypi.org/project/fejkdata/), and the workflow's `npm` job publishes the npm package to
+[PyPI](https://pypi.org/project/fejkdata/), and the Packages workflow's `npm` job publishes the npm package to
 [npmjs.com](https://www.npmjs.com/package/@larvit/fejkdata). The Packages workflow reads these repository secrets:
 
 - `DOCKERHUB_TOKEN`: a personal access token of the Docker Hub account `larvit`, with Read &
@@ -2441,16 +2441,14 @@ PyPI never takes a file name twice, even after a delete. So yank a bad version o
 pypi.org, and ship the fix as the next version. pip skips a yanked version unless a user
 pins it.
 
-The `npm` job reads no secret either. On npmjs.com the package names this repository,
-`test.yml` and the environment `npm` as its trusted publisher, and its publishing access is
-"Require two-factor authentication and disallow tokens". A Packages run started by hand
-doesn't publish. To publish a release's package again, rerun the failed jobs of its run.
-Limit the environment `npm` to the branch `main` in the repository's settings, so no
-other branch can publish.
-npmjs.com sets a publisher only on a package that exists, so the first version is published
-by hand: download the artifact `npm-package` from the release's run, and run
-`npm publish larvit-fejkdata-X.Y.Z.tgz`. A new publisher must publish within two days, so
-set it just before the next release.
+The `npm` job of the Packages workflow reads no secret either. On npmjs.com the package
+names this repository, `test.yml` and the environment `npm` as its trusted publisher, and
+npm takes the short-lived token GitHub gives the job. The package's publishing access is
+"Require two-factor authentication and disallow tokens". In the repository's settings the
+environment `npm` is limited to the branch `main`, so no other branch can publish.
+A Packages run started by hand doesn't publish. A failed `npm` job fails the Packages
+workflow, and the `pypi` job then doesn't run. Rerun the failed jobs of the release's run:
+the `npm` job skips a version npmjs.com already holds.
 
 npm never takes a version twice. So mark a bad version with
 `npm deprecate @larvit/fejkdata@X.Y.Z "<why>"`, and ship the fix as the next version.
