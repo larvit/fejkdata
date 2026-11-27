@@ -300,7 +300,7 @@ The maintainer asked on 2026-11-27 whether the types can help with the shipped d
 
 `go generate` already writes `data-listing/paths.json` and `docs/shipped-paths.md` through `ListingFiles` in `internal/shipped/listing.go`. Write the types file beside them from the same listing. The gate already fails where a generated file is stale: `TestDataListingIsCurrent` in `data_listing_test.go` compares each file `ListingFiles` returns with the committed one, through `generatedFileIsCurrent` in `shipped_test.go`. A file added to `ListingFiles` is checked the same way.
 
-The gate's staleness check is this item's test. The usage test of item 360 uses one shipped path where `fake` takes a path once item 359 builds `fake`. The open type can't make a typo fail to compile, so the usage test doesn't check a path that isn't shipped. The package's `files` in `package.json` must carry the new file.
+The gate's staleness check is this item's test. The usage test of item 360 uses one shipped path where `fake` takes a path once item 359 builds `fake`. The open type can't make a typo fail to compile, so the usage test doesn't check a path that isn't shipped. The package's `files` in `package.json` must carry the new file, and so must the list of files the tarball check in the step `npm` of the `packages` job in `.github/workflows/packages.yml` compares the packed tarball with, or the Packages dry run rejects the tarball.
 
 Touches:
 
@@ -310,6 +310,7 @@ Touches:
 - `npm-package/shipped-paths.d.ts`
 - `npm-package/index.d.ts`
 - `npm-package/package.json`
+- `.github/workflows/packages.yml`: `The npm package packs under the tag's version, and a dry run of its publish lists its files and size` (small)
 - `npm-package/typecheck/usage.ts`
 - `npm-package/README.md`
 - `README.md`: `## Layout` (small), `## Development` (small)
