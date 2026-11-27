@@ -18,8 +18,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 611 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 612 | 0.9.0 |  |  | **Run the `npm-package-lowest` stage on Node 22.3.0, the lowest `engines` names, and keep Renovate from bumping it.** | 1 | 2 | 2 | 3 | 1 | 1.2 by 3 | 2.1 |
-| 359 | 0.9.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
-| 363 | 0.9.0 | 359 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
+| 363 | 0.9.0 |  |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -97,7 +96,7 @@
 | 496 | 0.10.0 |  |  | **Name each `geo.DE` Kreis in one style, as Destatis's Gemeindeverzeichnis names it.** | 2 | 2 | 1 | 3 | 3 | 1 by 1, 3.2 by 2 | 1.2 |
 | 573 | 0.10.0 | 567, 568, 569, 570, 571, 572 |  | **Map each falsehood about names, addresses, emails, dates and text to the path that tests it in `docs/edge-cases.md`, and show in the README how to mix odd values in.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 2 | 1.2 |
 | 269 | 0.10.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.2 |
-| 361 | 0.10.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
+| 361 | 0.10.0 |  |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
 | 161 | 0.10.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.1 |
 | 497 | 0.10.0 |  | owner | **Draw every word of each locale's `word` tables from its dictionary, rude words included.** | 3 | 2 | 2 | 5 | 6 | 3.2 by 2, code health by 2 | 1.0 |
 | 29 | 0.10.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.0 |
@@ -233,7 +232,7 @@
 | 446 | 2.0.0 | 433, 442 |  | **Serve the Go library from the Rust core through cgo, under the module path github.com/larvit/fejkdata/v2, keeping New, its options, Fake, the templates, records and FakeStruct.** | 4 | 3 | 3 | 8 | 8 | 1 by 3 | 0.1 |
 | 445 | 2.0.0 | 443 |  | **Build and publish the Rust CLI on every channel the Go one reaches: the binaries for six targets, deb, rpm and apk, Homebrew, Scoop and the image, with cargo-audit in place of govulncheck.** | 4 | 3 | 3 | 8 | 8 | 1.1 by 3 | 0.1 |
 | 447 | 2.0.0 | 443, 445, 446 |  | **Delete the Go engine, keep the Go tests that check the Go library's API, and revise each decision in docs/decisions.md that names Go.** | 3 | 2 | 3 | 6 | 6 | code health by 3 | 1.3 |
-| 448 | 2.0.0 | 359, 442 |  | **Build @larvit/fejkdata's WebAssembly from the Rust core with wasm-bindgen, in place of the Go build item 359 makes.** | 3 | 2 | 2 | 5 | 5 | 1.2 by 6 | 1.1 |
+| 448 | 2.0.0 | 442 |  | **Build @larvit/fejkdata's WebAssembly from the Rust core with wasm-bindgen, in place of the Go build item 359 makes.** | 3 | 2 | 2 | 5 | 5 | 1.2 by 6 | 1.1 |
 | 450 | 2.0.0 | 447 |  | **Write MIGRATION.md, listing each change 2.0.0 makes to what a user relies on and what to do about it.** | 1 | 2 | 1 | 2 | 3 | 1 by 2 | 0.9 |
 | 449 | 2.0.0 | 447, 448 |  | **Rewrite the README's Install, Library, Layout and Development sections, and AGENTS.md's rules, for a Rust core with a Go library.** | 2 | 2 | 1 | 3 | 4 | 11 by 2 | 0.4 |
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
@@ -260,31 +259,6 @@ Touches:
 
 - `Dockerfile`: `npm-package-lowest` (small)
 - `renovate.json`
-
-### 359. Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.
-
-The package shipped as the CLI built to WebAssembly: `index.js` runs `cli.Run` once per `render`, as the decision "The npm package is the CLI built to WebAssembly and run through `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`" records. This item changes the package to what item 358's decision picks, where that differs. Where the decision keeps the shipped API, drop this item.
-
-The decision "The npm package's API is `load({ data, files })` and the stateless `render`, `fake`, `records` and `paths`, with `isTemplate`, a `kind` on `FejkdataError`, ES modules only, and types that complete a shipped path" lists the API to build. `load()` and `render` work as they do in the shipped package, and the rest adds to them, so this item doesn't break any user whichever release holds it.
-
-The maintainer put this item in 0.9.0, so the first version on npmjs.com holds the API the panel picked.
-
-Where the decision needs the library's API rather than the CLI's, such as `fake` and `records`, which mirror `Fake` and `FakeRecordTemplate`, build the library to WebAssembly behind a bridge that reads only its public API, as the decision "The CLI reads only the library's public API" holds for the CLI. The bridge replaces or joins `npm-package/wasm/main.go`. The wasm builds on the latest supported Go only; the lowest supported Go stays the Go library's. Every shipped module is embedded, which goal 2.2 allows. Update the usage test of item 360 to the new API.
-
-The package's README must say what the panel asked for: `JSON.stringify` throws on a `bigint` and a snapshot prints `1n`; each test worker loads the 69 MB WebAssembly again, about 0.3 seconds; the package belongs in a test's dependencies, not a page's bundle; and the paths a reader guesses wrongly, such as a postcode's under `sv_SE.address`, are listed with examples.
-
-Measured on `main` at b8014f2, 2026-10-30, with `-ldflags="-s -w"`: `cmd/fejkdata` builds unchanged for `GOOS=js` and `GOOS=wasip1`. Under Node 24's `node:wasi`, the CLI rendered a seeded `sv_SE.address` in about 450 ms, against 100 ms native. The shipped package uses `GOOS=js` and Go's `wasm_exec.js`; its file is 69 MB, 18.7 MB gzipped. Measure the time from import to a generator's first render, for goal 12, and file an item if a test author would notice it. Item 602 keeps the loaded data between renders; don't do its work here.
-
-Touches:
-
-- `npm-package/index.js`: `load`, `render`, `FejkdataError`
-- `npm-package/index.d.ts`
-- `npm-package/load.deno.js`
-- `npm-package/wasm/main.go`
-- `npm-package/render.test.js`
-- `npm-package/typecheck/usage.ts`
-- `npm-package/README.md`
-- `CHANGELOG.md`: `## Unreleased` (small)
 
 ### 363. Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.
 
