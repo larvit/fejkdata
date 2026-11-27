@@ -17,8 +17,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
-| 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 3 | 2 | 6 | 5 | 1.2 by 6 | 1.1 |
-| 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
+| 550 | 0.9.0 |  |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
@@ -256,25 +255,6 @@ Touches:
 - `docs/locales/en_US.md`
 - `docs/locales/fr_FR.md`
 - `DATA-LICENSES.md`
-
-### 549. Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.
-
-Goal 1.2 asks for an npm package that runs wherever JavaScript does: Node, Bun, Deno and a browser. fejkdata.dev already builds the library to WebAssembly in its `wasm/main.go`, with `seed`, `render` and `paths` on `globalThis.fejkdata`; start from that, and give the package a typed, stateless API instead of the page's global. Goal 9.2 asks for the same bytes as Go, so a test renders seeded templates in both and compares them. Goal 10 allows no npm dependency.
-
-The shipped data is 59 MB under `data/`, so the WebAssembly carrying all of it is large. Measure it, and record in the README's Install section what an install downloads. Choosing to split the data into packages a program imports by choice, as goal 2's Go side does, is a decision for the chunk.
-
-The maintainer ruled on 2026-11-25: one package, `@larvit/fejkdata`, carries all the data. The live build on fejkdata.dev is 65 MB and 17 MB gzipped, and Node compiled it in 0.18 s. npm documents no size limit. A slim build is not part of this item.
-
-Touches:
-
-- `npm-package/package.json`
-- `npm-package/index.js`
-- `npm-package/index.d.ts`
-- `npm-package/wasm/main.go`
-- `npm-package/render.test.js`
-- `npm-package/README.md`
-- `.github/workflows/test.yml`: `test` (small)
-- `README.md`: `## Install` (small)
 
 ### 550. Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.
 
