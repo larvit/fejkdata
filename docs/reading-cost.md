@@ -3275,3 +3275,20 @@ Read most (opens and searches):
 - `data-import/geo_lt_test.py` 2
 - `data-import/geo-dk.py` 1
 - `data-import/geo-fi.py` 1
+
+## Reading cost, chunk 8659fc9eced6, finished 2026-11-27T01:04:23Z
+
+173894 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 4
+- `cli/cli.go` 3
+- `cli/cli_test.go` 3
+- `python-package/render_test.py` 3
+- `compose.yaml` 2
+- `.dockerignore` 1
+- `.gitignore` 1
+- `cli/records.go` 1
+- `cmd/fejkdata/main.go` 1
+- `python-package/README.md` 1
