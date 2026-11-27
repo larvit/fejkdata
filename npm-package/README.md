@@ -22,29 +22,31 @@ Felix Östberg
 ```
 
 `render` returns what the [fejkdata CLI](https://github.com/larvit/fejkdata#cli) prints
-for the same template, seed and day. The package is the CLI built to WebAssembly, with all
+for the same template, seed and day. The package is fejkdata built to WebAssembly, with all
 its data. It doesn't fetch anything else when it runs, and it doesn't depend on any other
 package. The [README](https://github.com/larvit/fejkdata#readme) documents templates and the
 shipped data.
 
 ## Size and speed
 
-An install downloads 19 MB and unpacks to 69 MB, nearly all of it the data. It belongs in
-your tests' dependencies, not in a page's bundle.
+An install downloads 19 MB and unpacks to 69 MB, nearly all of it the data. Install the
+package as a dev dependency, `npm install --save-dev @larvit/fejkdata`, and keep it out of a
+page's bundle.
 
 `load` reads and compiles the WebAssembly, which takes about 0.3 seconds in Node. Every call
-shares that one compile. In a browser it fetches `fejkdata.wasm` from beside `index.js`.
+of `load` shares that one compile. In a browser it fetches `fejkdata.wasm` from beside `index.js`.
 Serve `index.js`, `wasm_exec.js` and `fejkdata.wasm` from one folder, the last as
 `application/wasm`.
 
 A test runner that starts a worker per test file loads the 69 MB WebAssembly again in each
 worker. That takes about 0.3 seconds a worker.
 
-Each call loads the data it reads again, which takes about 0.1 seconds before its first row.
+Each call of `render`, `fake`, `records` or `paths` loads the data it reads again, which takes
+about 0.1 seconds before its first row.
 Ask for many rows with `repeat`, not with many calls. One call returns at most 512 MB of
 text.
 
-## Arguments
+## Text
 
 `load()` gives an object with four functions: `render`, `fake`, `records` and `paths`. None
 of them keeps any state between calls.
@@ -151,6 +153,8 @@ is JSON text or an object. A lone reference such as `"{/sv_SE.address}"` is allo
 and draws that path's record. Each row is an object with a key per column, in the template's
 order. JavaScript puts a key that is a whole number, such as `"2"`, before the others.
 
+A column's `datatype` sets its type in a row:
+
 - An `integer` column is a `bigint`, so it stays exact above 2^53.
 - A `number` column is a number, and a `boolean` column a boolean.
 - A null is `null`.
@@ -195,18 +199,21 @@ street street-number postal-code locality municipality region
 475 32 Öckerö
 ```
 
-`JSON.stringify` throws on a `bigint`. A test snapshot prints it as `1n`.
+`JSON.stringify` and the snapshots of Node's test runner throw on a `bigint`. Turn it into a
+string first, such as with `String(row.id)`.
 
 ## Your own data
 
 `load({ data, files })` takes two options. Each call gives a new object.
 
 - `data` names the shipped modules to load, such as `["sv_SE"]`. Each module loads the
-  modules it reads too. `sv_SE` reads `geo.SE` for its addresses. A name that is not a shipped
-  module throws.
-- `files` maps a path to a file's text or bytes. The files lie over the shipped data. A file
-  of your own at `sv_SE/color.json` replaces the shipped `sv_SE.color`. A file that doesn't
-  load makes `load` throw, with the kind `"load"`.
+  modules it reads too. `sv_SE` reads `geo.SE` for its addresses. Without `data`, every shipped
+  module loads. A name that is not a shipped module throws, and the error lists the shipped
+  modules.
+- `files` maps a file name, such as `mydata/team.json`, to its text or bytes. A template
+  reads that file as `{/mydata.team}`. The files lie over the shipped data, so a file at
+  `sv_SE/color.json` replaces the shipped `sv_SE.color`. A file that doesn't load makes
+  `load` throw, with the kind `"load"`.
 
 ```js
 import { load } from "@larvit/fejkdata";
@@ -229,22 +236,24 @@ path as `{/sv_SE.first-name}`.
 
 ## Errors
 
-Each function throws a `FejkdataError` when fejkdata refuses the template, an argument or
-the data. Its message says what is wrong, in the CLI's words. Its `exitCode` is the CLI's
-exit code: 2 for misuse, 1 for anything else. `render` passes on the CLI's own, which is 1
-for a template mistake that only a format finds, where `records` gives 2. So read `kind` to
-tell a mistake. It says where the error arose:
+`load` and each function it gives throw a `FejkdataError` when fejkdata refuses the
+template, an argument or the data. Its message says what is wrong, in the CLI's words. Its
+`kind` says where the error arose:
 
 - `"misuse"`: a mistake in the template, an argument or `load`'s options.
 - `"load"`: the data doesn't load, or the template reads a module `data` left out.
 - `"limit"`: the output passes 512 MB.
 - `"other"`: anything else.
 
-A template that is not a string throws a `TypeError`, and so does a call without the second
-argument. `records` takes an object too.
+Its `exitCode` is the CLI's exit code: 2 for misuse, 1 for anything else. `render` passes on
+the CLI's own, which is 1 for a template mistake that only a format finds, where `records`
+gives 2. So a test reads `kind`, not `exitCode`.
 
-A test reads `kind`, not `instanceof FejkdataError`. A test runner or bundler may load two
+A test doesn't check `instanceof FejkdataError` either. A test runner or bundler may load two
 copies of the package, and then `instanceof` fails.
+
+A template that is neither a string nor, for `records`, an object throws a `TypeError`. So
+does a call without the second argument.
 
 ```js
 import { load } from "@larvit/fejkdata";

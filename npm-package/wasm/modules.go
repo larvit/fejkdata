@@ -77,7 +77,7 @@ func chosenModules(names js.Value) ([]fs.FS, error) {
 		}
 	}
 	if unknown != nil {
-		return nil, fmt.Errorf("fejkdata: load: data names %s, which no shipped module is; the shipped modules are %s", strings.Join(unknown, ", "), shippedNames())
+		return nil, fmt.Errorf("fejkdata: load: data names what isn't a shipped module: %s; the shipped modules are %s", strings.Join(unknown, ", "), shippedNames())
 	}
 	return chosen, nil
 }

@@ -55,7 +55,7 @@ func check(b bridge, _ []js.Value) any {
 // bridge holds the modules a call reads: those load's data chose, then the files over them.
 type bridge struct {
 	chosen, files []fs.FS
-	// every is each shipped module with the files over them, where data leaves a module out.
+	// every is each shipped module with the files, set where data names the modules.
 	every []fs.FS
 }
 
@@ -63,8 +63,8 @@ func (b bridge) modules() []fs.FS {
 	return append(append([]fs.FS{}, b.chosen...), b.files...)
 }
 
-// render(seed, today, repeat, format, template) runs the CLI. It returns {exitCode, stdout}, or
-// where the exit code is not 0 {exitCode, stderr, kind, note}, with a note to add to stderr.
+// render(seed, today, repeat, format, template) runs the CLI. It returns {exitCode, stdout} where
+// the CLI exits 0, else {exitCode, stderr, kind, note}, the note to add to stderr.
 func (b bridge) render(args []js.Value) any {
 	r := renderArgs{args[0].String(), args[1].String(), args[2].String(), args[3].String(), args[4].String()}
 	var stdout capped
@@ -83,9 +83,8 @@ func (b bridge) render(args []js.Value) any {
 
 type renderArgs struct{ seed, today, repeat, format, template string }
 
-// renderKind is the kind of a failed render's error, and a note to add to it: misuse for a bad
-// argument, the kind compiling the template gives where it fails, else misuse for exit code 2 and
-// other for any other.
+// renderKind is a failed render's kind and note: misuse for a bad argument, kindOf's where the
+// template fails to compile, else misuse for exit code 2 and other for any other.
 func (b bridge) renderKind(exitCode int, r renderArgs) (string, string) {
 	if _, err := drawSettings(r.seed, r.today); err != nil {
 		return "misuse", ""
