@@ -6,6 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -15,20 +16,30 @@ import (
 )
 
 func main() {
-	root := flag.String("root", ".", "the repository's root folder")
-	repin := flag.Bool("repin", false, "write the pins under testdata/, and nothing else")
-	flag.Parse()
-	files, err := generated(*root, *repin)
-	if err != nil {
+	if err := run(os.Args[1:]); err != nil {
 		fmt.Fprintln(os.Stderr, "generate:", err)
 		os.Exit(1)
 	}
+}
+
+func run(args []string) error {
+	flags := flag.NewFlagSet("generate", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	root := flags.String("root", ".", "the repository's root folder")
+	repin := flags.Bool("repin", false, "write the pins under testdata/, and nothing else")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+	files, err := generated(*root, *repin)
+	if err != nil {
+		return err
+	}
 	for _, f := range files {
 		if err := os.WriteFile(filepath.Join(*root, filepath.FromSlash(f.Name)), f.Body, 0o644); err != nil {
-			fmt.Fprintln(os.Stderr, "generate:", err)
-			os.Exit(1)
+			return err
 		}
 	}
+	return nil
 }
 
 func generated(root string, repin bool) ([]shipped.File, error) {
