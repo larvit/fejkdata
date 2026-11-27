@@ -6,7 +6,7 @@ A given name is counted over the births of --from-year and later, under each sex
 name both sexes carry has two rows. --names takes SSA's names.zip or a merged name,sex,count,year file;
 --surnames takes the Census names.zip or its Names_2010Census.csv.
 A first name borne by fewer than --first-min people goes, and a last name borne by fewer than --last-min.
-The Census writes a surname in letters alone, so a last name takes the form most of Wikidata's American bearers write, `O'Brien` for `Obrien`, where that form is a majority of them and at least 5 people.
+The Census writes a surname in letters alone, so a last name takes the form with an apostrophe, space, full stop or capital after a particle, `O'Brien` for `Obrien`, where at least 5 of the people of United States citizenship that Wikidata lists with a family name so labelled, and more than half of those counted for the name, have that form.
 """
 import argparse
 import collections
@@ -81,7 +81,7 @@ def particled(name: str) -> list[str]:
 
 def lasts(rows: Iterable[list[str]], floor: int, bearers: wikidata_names.Bearers, cache: str) -> list[dict[str, Any]]:
 	"""The rows (name, count) of the surnames borne by at least floor people, a suppressed count and a non-name dropped.
-	A name is written as most of Wikidata's Americans bearing it write it, where that is a majority."""
+	A name takes the form `wikidata_names.written` picks among those `particled` offers."""
 	named = tsv.common([(surname(r[0]), int(r[2])) for r in rows if len(r) >= 3 and r[2].isdigit() and r[0].isalpha()], floor)
 	spelling = wikidata_names.written({n: particled(n) for n, _ in named}, "en", AMERICA, cache, bearers)
 	return [{"name": n, "count": c} for n, c in sorted((spelling.get(n, n), c) for n, c in named)]
