@@ -89,7 +89,7 @@ more than one --emit needs --out-dir.
       --format F         output form: text (default), json, ndjson, csv, tsv, pgcopy or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, each written after {/ in a template, then exit;
-                         --repeat, --separator, --format, --table and --null-text have no effect here
+                         --repeat, --separator, --format, --table, --null-text, --emit and --out-dir have no effect here
       --no-shipped-data  load only the --data-path directories
       --null-text T      the text --format csv writes for a null column, with a value equal to it quoted
                          (default: an empty field); refused under any other format
