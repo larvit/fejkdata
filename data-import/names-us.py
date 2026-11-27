@@ -30,7 +30,7 @@ MC = re.compile(r"^Mc([a-z])")
 AMERICA = "Q30"
 PARTICLES = (
 	"O'", "D'", "L'", "De ", "de ", "De La ", "De la ", "de la ", "De Los ", "De los ", "De Las ", "Del ", "Della ", "Di ", "Da ", "Dos ", "Du ",
-	"La ", "Le ", "Van ", "van ", "Van Der ", "van der ", "Von ", "von ", "St ", "San ", "Mac ",
+	"La ", "Le ", "Van ", "van ", "Van Der ", "van der ", "Von ", "von ", "St ", "St. ", "San ", "Mac ",
 )
 PLACEHOLDERS = {"Baby", "Female", "Infant", "Male", "Notnamed", "Unknown", "Unnamed"}
 
