@@ -35,7 +35,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 SEX = {"1": "m", "2": "f"}
 FRANCE = "Q142"
 PARTICLES = {"da", "de", "dos"}
-ACCENTS = {"e": "éèêë", "a": "àâä", "u": "ùûü", "o": "ôö", "i": "îï", "c": "ç", "E": "ÉÈÊË", "A": "À", "C": "Ç", "O": "Ô", "I": "Î"}
+ACCENTS = {"e": "éèêë", "a": "àâä", "u": "ùûü", "o": "ôö", "i": "îï", "c": "ç", "E": "ÉÈÊË"}
 RARE = "_PRENOMS_RARES"
 OTHERS = "AUTRES NOMS"
 
