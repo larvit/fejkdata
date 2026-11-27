@@ -81,17 +81,20 @@ COPY --from=npm-wasm /npm-package/ /npm-package/
 
 FROM node:26.13.1-slim AS npm-package
 COPY --from=npm-package-built /npm-package/ /npm-package/
+COPY README.md /README.md
 COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
 
 # The lowest Node that package.json's engines names.
 FROM node:26.13.1-slim AS npm-package-lowest
 COPY --from=npm-package-built /npm-package/ /npm-package/
+COPY README.md /README.md
 COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
 
 FROM oven/bun:1.4.5 AS npm-package-bun
 COPY --from=npm-package-built /npm-package/ /npm-package/
+COPY README.md /README.md
 COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && FEJKDATA_CLI=/fejkdata bun test --timeout 60000 render.test.js && touch /tested
 
