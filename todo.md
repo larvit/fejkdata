@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 604`
+`Next ID = 606`
 
 ## Renamed
 
@@ -18,6 +18,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 550 | 0.9.0 |  |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
+| 604 | 0.10.0 |  | question | **Decide how a child of a run reads its parent's null, tab and line break: carried whole, or refused where the parent draws one.** | 3 | 2 | 3 | 6 | 3 | 1 by 3, 5 by 3 | 2.5 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
 | 569 | 0.10.0 | 567 |  | **Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.** | 1 | 2 | 1 | 2 | 3 | 1 by 4, 2.1 by 3 | 3.1 |
@@ -62,6 +63,7 @@
 | 265 | 0.10.0 |  |  | **Add `misc.commit` messages, branch names and `sha`s.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 1.7 |
 | 258 | 0.10.0 |  |  | **Add `misc.product` names, adjectives, materials and departments, and `misc.garmentsize`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 3 | 1.7 |
 | 266 | 0.10.0 |  |  | **Add `misc.password`, `hash`, `jwt`, `slug`, `hostname`, `avatar` and `placeholderimage`.** | 1 | 1 | 1 | 1 | 3 | 1 by 1, 2 by 3 | 1.7 |
+| 605 | 0.10.0 |  |  | **Run linked templates from the Python and npm packages, with a function that takes each template and its count.** | 2 | 2 | 3 | 5 | 3 | 1.3 by 4 | 1.7 |
 | 196 | 0.10.0 |  | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 6 | 1.7 |
 | 263 | 0.10.0 |  |  | **Add `misc.color` names with their hex, rgb, hsl and cmyk forms.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 1 | 1.7 |
 | 405 | 0.10.0 |  |  | **Let `repeat` take a range, such as 5 to 15, drawing the count on each render.** | 2 | 1 | 1 | 2 | 3 | 1 by 2, 4 by 2 | 1.7 |
@@ -285,6 +287,14 @@ Touches:
 - `record.go`: `RecordTemplate`
 - `README.md`: `## CLI`
 
+### 604. Decide how a child of a run reads its parent's null, tab and line break: carried whole, or refused where the parent draws one.
+
+Filed from item 393's stability review. A run hands a parent's rows to its children as a TSV, so a child reads a null as an empty text and a tab or line break as a space. A typed copy of a nullable parent column, such as an integer `{c.manager_id}`, fails at load where the parent drew a null, and a child's copy of a multi-line value such as `sv_SE.address` differs from the parent's.
+
+Two ways out. Hand the rows over without a TSV, so a null stays a null and text stays whole: that changes the held decision "A table is a record of string columns", or adds a second kind of row source. Or refuse a parent column that may draw a null where a child reads it: simpler, and it takes the feature away from nullable foreign keys.
+
+Recommendation: carry the values whole, since a nullable foreign key is common in the schemas bulk fixture authors load.
+
 ### 603. Add a mutation tool for JavaScript.
 
 The `mutate` service runs Gremlins, and Gremlins mutates Go only. So no tool mutates `npm-package/index.js`, the package's code. Its tests are `npm-package/render.test.js` and `npm-package/load.deno.js`.
@@ -507,6 +517,10 @@ Tables or choices, from lists an LLM writes.
 ### 266. Add `misc.password`, `hash`, `jwt`, `slug`, `hostname`, `avatar` and `placeholderimage`.
 
 Templates, by each one's shape. A JWT's parts take `{base64url(n)}`, which item 35 adds.
+
+### 605. Run linked templates from the Python and npm packages, with a function that takes each template and its count.
+
+Filed from item 393's product-owner review. The Python package's `render` always passes `--repeat` and a template on stdin, both of which `--emit` refuses, so a Python caller can't write linked templates; the npm package's `render` is shaped the same way. Add a function per package, such as `render_run({"customers": 100, "orders": 500}, format="sql", seed=1, today=...)`, that passes `--emit` and returns each template's output. Bench its spelling with the audience before it ships.
 
 ### 196. Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.
 
