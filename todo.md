@@ -17,6 +17,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 607 | 0.9.0 |  | question | **Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 5, 1.2 by 8 | 9.3 |
+| 359 | 0.9.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -161,7 +162,6 @@
 | 396 | 1.1.0 |  | question | **Decide whether `fejkdata` writes Go struct types, and TypeScript types for the npm package, from a record's columns.** | 1 | 1 | 1 | 1 | 1 | 1 by 2 | 1.5 |
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 | 357 | 1.2.0 |  | question | **Create the `@larvit` organisation on npm, and make this repository's Packages workflow the trusted publisher of `@larvit/fejkdata`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.7 |
-| 359 | 1.2.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 362 | 1.2.0 | 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 1.8 |
 | 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
 | 363 | 1.2.0 | 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
@@ -256,6 +256,31 @@ Left:
 1. If the publisher has lapsed when 0.9.0 is ready, the maintainer sets it again, at most two days before the cut. npm 11.15.0 or later sets it with `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. On npmjs.com, its allowed actions must include `npm publish` ([npm's docs](https://docs.npmjs.com/trusted-publishers/)). The agent that finds the release ready reminds the maintainer.
 2. After 0.9.0 is published, the maintainer sets the package's publishing access to "Require two-factor authentication and disallow tokens". Then they check the package's live page: the README, the provenance badge and the files.
 3. Then drop this item with `todo-item finish 607 --no-changelog`.
+
+### 359. Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.
+
+The package shipped as the CLI built to WebAssembly: `index.js` runs `cli.Run` once per `render`, as the decision "The npm package is the CLI built to WebAssembly and run through `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`" records. This item changes the package to what item 358's decision picks, where that differs. Where the decision keeps the shipped API, drop this item.
+
+The decision "The npm package's API is `load({ data, files })` and the stateless `render`, `fake`, `records` and `paths`, with `isTemplate`, a `kind` on `FejkdataError`, ES modules only, and types that complete a shipped path" lists the API to build. `load()` and `render` work as they do in the shipped package, and the rest adds to them, so this item doesn't break any user whichever release holds it.
+
+The maintainer put this item in 0.9.0, so the first version on npmjs.com holds the API the panel picked.
+
+Where the decision needs the library's API rather than the CLI's, such as `fake` and `records`, which mirror `Fake` and `FakeRecordTemplate`, build the library to WebAssembly behind a bridge that reads only its public API, as the decision "The CLI reads only the library's public API" holds for the CLI. The bridge replaces or joins `npm-package/wasm/main.go`. The wasm builds on the latest supported Go only; the lowest supported Go stays the Go library's. Every shipped module is embedded, which goal 2.2 allows. Update the usage test of item 360 to the new API.
+
+The package's README must say what the panel asked for: `JSON.stringify` throws on a `bigint` and a snapshot prints `1n`; each test worker loads the 69 MB WebAssembly again, about 0.3 seconds; the package belongs in a test's dependencies, not a page's bundle; and the paths a reader guesses wrongly, such as a postcode's under `sv_SE.address`, are listed with examples.
+
+Measured on `main` at b8014f2, 2026-10-30, with `-ldflags="-s -w"`: `cmd/fejkdata` builds unchanged for `GOOS=js` and `GOOS=wasip1`. Under Node 24's `node:wasi`, the CLI rendered a seeded `sv_SE.address` in about 450 ms, against 100 ms native. The shipped package uses `GOOS=js` and Go's `wasm_exec.js`; its file is 69 MB, 18.7 MB gzipped. Measure the time from import to a generator's first render, for goal 12, and file an item if a test author would notice it. Item 602 keeps the loaded data between renders; don't do its work here.
+
+Touches:
+
+- `npm-package/index.js`: `load`, `render`, `FejkdataError`
+- `npm-package/index.d.ts`
+- `npm-package/load.deno.js`
+- `npm-package/wasm/main.go`
+- `npm-package/render.test.js`
+- `npm-package/typecheck/usage.ts`
+- `npm-package/README.md`
+- `CHANGELOG.md`: `## Unreleased` (small)
 
 ### 603. Add a mutation tool for JavaScript.
 
@@ -958,20 +983,6 @@ Items to file once the goal is in:
 ### 357. Create the `@larvit` organisation on npm, and make this repository's Packages workflow the trusted publisher of `@larvit/fejkdata`.
 
 The npm account and its credentials are the maintainer's. Trusted publishing lets the workflow publish through GitHub's OIDC token, so no npm token is stored in the repository. If npm takes a trusted publisher only for a package that already exists, the first version goes out by hand from the tarball item 362's dry run packs, and every later one from CI. Item 362 needs this answered.
-
-### 359. Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.
-
-The package shipped as the CLI built to WebAssembly: `index.js` runs `cli.Run` once per `render`, as the decision "The npm package is the CLI built to WebAssembly and run through `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`" records. This item changes the package to what item 358's decision picks, where that differs. Where the decision keeps the shipped API, drop this item.
-
-The decision "The npm package's API is `load({ data, files })` and the stateless `render`, `fake`, `records` and `paths`, with `isTemplate`, a `kind` on `FejkdataError`, ES modules only, and types that complete a shipped path" lists the API to build. `load()` and `render` work as they do in the shipped package, and the rest adds to them, so this item doesn't break any user whichever release holds it.
-
-The maintainer decides the release. The recommendation is 0.9.0, so the first version on npmjs.com holds the API the panel picked.
-
-Where the decision needs the library's API rather than the CLI's, such as `fake` and `records`, which mirror `Fake` and `FakeRecordTemplate`, build the library to WebAssembly behind a bridge that reads only its public API, as the decision "The CLI reads only the library's public API" holds for the CLI. The bridge replaces or joins `npm-package/wasm/main.go`. The wasm builds on the latest supported Go only; the lowest supported Go stays the Go library's. Every shipped module is embedded, which goal 2.2 allows. Update the usage test of item 360 to the new API.
-
-The package's README must say what the panel asked for: `JSON.stringify` throws on a `bigint` and a snapshot prints `1n`; each test worker loads the 69 MB WebAssembly again, about 0.3 seconds; the package belongs in a test's dependencies, not a page's bundle; and the paths a reader guesses wrongly, such as a postcode's under `sv_SE.address`, are listed with examples.
-
-Measured on `main` at b8014f2, 2026-10-30, with `-ldflags="-s -w"`: `cmd/fejkdata` builds unchanged for `GOOS=js` and `GOOS=wasip1`. Under Node 24's `node:wasi`, the CLI rendered a seeded `sv_SE.address` in about 450 ms, against 100 ms native. The shipped package uses `GOOS=js` and Go's `wasm_exec.js`; its file is 69 MB, 18.7 MB gzipped. Measure the time from import to a generator's first render, for goal 12, and file an item if a test author would notice it. Item 602 keeps the loaded data between renders; don't do its work here.
 
 ### 362. Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.
 
