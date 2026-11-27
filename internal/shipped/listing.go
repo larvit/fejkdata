@@ -174,7 +174,8 @@ func listingTypes(listed []Path) []byte {
 // typeComment is an example as a doc comment: whole, on one line, in a code span. A `*/` in it
 // is written `*\/`, since the code span has no escape that would keep the comment open.
 func typeComment(example string) string {
-	return "/** " + codeSpan(strings.NewReplacer("\r", "", "\n", " ⏎ ", "*/", `*\/`).Replace(example)) + " */"
+	oneLine := strings.ReplaceAll(strings.ReplaceAll(example, "\r", ""), "\n", " ⏎ ")
+	return "/** " + codeSpan(strings.ReplaceAll(oneLine, "*/", `*\/`)) + " */"
 }
 
 func listingJSON(listed []Path) []byte {
