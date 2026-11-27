@@ -49,13 +49,12 @@ class Tally:
 def parsed(label: str, number: str, road: str) -> Address | None:
 	"""An address as (postnummer, postdistrikt, kommune, street, number, letter), from DAR's label of it, such as
 	"Dalsgårdsvej 7B, Dalsgård, 8963 Auning", its house number and its road's code, such as 0706-0287; None where the
-	label does not open with a street and that number, or the street is not geo.cleanly_written."""
+	label does not open with a street and that number."""
 	parts, match = label.split(", "), NUMBER.match(number)
 	code, _, place = parts[-1].partition(" ")
 	if len(parts) < 2 or not match or not parts[0].endswith(" " + number) or not place:
 		return None
-	street = parts[0][: -len(number) - 1]
-	return (code, place, road[:4], street, int(match[1]), match[2]) if geo.cleanly_written(street) else None
+	return code, place, road[:4], parts[0][: -len(number) - 1], int(match[1]), match[2]
 
 
 def tally(addresses: Iterable[Address]) -> Tally:
@@ -64,7 +63,8 @@ def tally(addresses: Iterable[Address]) -> Tally:
 		t.in_municipality[(place, municipality)] += 1
 		t.codes[place][code] += 1
 		t.numbers[geo.number_range(number, bool(letter))] += 1
-		t.streets[(place, street)] += 1
+		if geo.cleanly_written(street):
+			t.streets[(place, street)] += 1
 	return t
 
 
