@@ -3,6 +3,7 @@ import datetime
 import io
 import pathlib
 import re
+import subprocess
 import tempfile
 import unittest
 import unittest.mock
@@ -37,6 +38,70 @@ class Render(unittest.TestCase):
 	def test_format_writes_records(self) -> None:
 		template = '{"format": "", "code": "{/misc.territory[SE].alpha2}"}'
 		self.assertEqual(fejkdata.render(template, seed=1, today=DAY, repeat=2, format="csv"), "code\nSE\nSE\n")
+
+	def test_table_names_the_sql_target(self) -> None:
+		template = '{"format": "", "code": "{/misc.territory[SE].alpha2}"}'
+		self.assertIn("INSERT INTO countries", fejkdata.render(template, seed=1, today=DAY, format="sql", table="countries"))
+
+	def test_table_names_the_pgcopy_target(self) -> None:
+		template = '{"format": "", "code": "{/misc.territory[SE].alpha2}"}'
+		self.assertIn("COPY countries", fejkdata.render(template, seed=1, today=DAY, format="pgcopy", table="countries"))
+
+	def test_separator_goes_between_repeated_renders(self) -> None:
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, repeat=3, separator=","), "x,x,x")
+
+	def test_a_separator_that_looks_like_a_flag_is_a_value(self) -> None:
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, repeat=2, separator="--"), "x--x")
+
+	def test_an_empty_separator_is_the_default(self) -> None:
+		self.assertEqual(fejkdata.render("x", seed=1, today=DAY, repeat=2, separator=""), "xx")
+
+	def test_null_text_is_what_csv_writes_for_a_null(self) -> None:
+		template = '{"format": "", "a": "x", "deleted_at": null}'
+		self.assertEqual(fejkdata.render(template, seed=1, today=DAY, format="csv", null_text="NULL"), "a,deleted_at\nx,NULL\n")
+
+	def test_a_flag_the_format_refuses_raises_the_cli_s_error(self) -> None:
+		with self.assertRaises(fejkdata.FejkdataError) as raised:
+			fejkdata.render("x", seed=1, today=DAY, null_text="NULL")
+		self.assertEqual(raised.exception.returncode, 2)
+
+	def test_data_path_adds_the_categories_of_a_folder(self) -> None:
+		with tempfile.TemporaryDirectory() as folder:
+			(pathlib.Path(folder) / "pets.json").write_text('["pixelfox"]', encoding="utf-8")
+			self.assertEqual(fejkdata.render("{/pets}", seed=1, today=DAY, data_path=folder), "pixelfox")
+
+	def test_data_path_takes_a_pathlib_path(self) -> None:
+		with tempfile.TemporaryDirectory() as folder:
+			(pathlib.Path(folder) / "pets.json").write_text('["pixelfox"]', encoding="utf-8")
+			self.assertEqual(fejkdata.render("{/pets}", seed=1, today=DAY, data_path=pathlib.Path(folder)), "pixelfox")
+
+	def test_data_path_takes_several_folders_and_the_last_wins(self) -> None:
+		with tempfile.TemporaryDirectory() as team, tempfile.TemporaryDirectory() as project:
+			(pathlib.Path(team) / "pets.json").write_text('["pixelfox"]', encoding="utf-8")
+			(pathlib.Path(team) / "tools.json").write_text('["hammer"]', encoding="utf-8")
+			(pathlib.Path(project) / "pets.json").write_text('["snork"]', encoding="utf-8")
+			self.assertEqual(fejkdata.render("{/pets} {/tools}", seed=1, today=DAY, data_path=[team, pathlib.Path(project)]), "snork hammer")
+			self.assertEqual(fejkdata.render("{/pets} {/tools}", seed=1, today=DAY, data_path=(project, team)), "pixelfox hammer")
+
+	def test_no_shipped_data_loads_only_the_data_path_folders(self) -> None:
+		with tempfile.TemporaryDirectory() as folder:
+			(pathlib.Path(folder) / "pets.json").write_text('["pixelfox"]', encoding="utf-8")
+			self.assertEqual(fejkdata.render("{/pets}", seed=1, today=DAY, data_path=folder, no_shipped_data=True), "pixelfox")
+			with self.assertRaises(fejkdata.FejkdataError) as raised:
+				fejkdata.render("{/misc.territory[SE].alpha2}", seed=1, today=DAY, data_path=folder, no_shipped_data=True)
+			self.assertEqual(raised.exception.returncode, 2)
+
+	def test_a_folder_the_cli_cannot_read_raises_its_error(self) -> None:
+		with self.assertRaises(fejkdata.FejkdataError):
+			fejkdata.render("x", seed=1, today=DAY, data_path="/nonexistent-folder-for-fejkdata")
+
+	def test_a_flag_left_out_is_not_passed(self) -> None:
+		with unittest.mock.patch.object(subprocess, "run", wraps=subprocess.run) as run:
+			fejkdata.render("x", seed=1, today=DAY)
+		self.assertEqual(
+			run.call_args.args[0],
+			[fejkdata._BINARY, "--seed", "1", "--today", DAY, "--repeat", "1", "--format", "text"],
+		)
 
 	def test_text_outside_ascii_comes_back_whole(self) -> None:
 		self.assertEqual(fejkdata.render("Malmö {/misc.territory[SE].alpha2}", seed=1, today=DAY), "Malmö SE")
