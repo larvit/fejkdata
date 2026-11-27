@@ -3234,3 +3234,13 @@ Read most (opens and searches):
 - `renovate.json` 2
 
 ## Reading cost reset, 2026-11-26T23:43:48Z
+
+## Reading cost, chunk a466613bbba8, finished 2026-11-27T00:04:30Z
+
+71520 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 4
+- `compose.yaml` 3
+- `docs/reading-cost.md` 1
