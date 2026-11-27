@@ -104,6 +104,12 @@ FROM denoland/deno:2.9.8 AS npm-package-deno
 COPY --from=npm-package-built /npm-package/ /npm-package/
 RUN cd /npm-package && deno test --no-check --no-lock --allow-net --allow-read --allow-import load.deno.js && touch /tested
 
+FROM node:26.13.1-slim AS npm-package-types
+RUN npm install --global --no-fund --no-audit typescript@7.0.2
+COPY npm-package/package.json npm-package/index.d.ts /npm-package/
+COPY npm-package/typecheck/ /npm-package/typecheck/
+RUN cd /npm-package && tsc --project typecheck && touch /tested
+
 FROM python:3.15.2-slim AS python-lint
 COPY --from=ghcr.io/astral-sh/ruff:0.17.6-alpine /usr/local/bin/ruff /usr/local/bin/ruff
 RUN pip install --no-cache-dir mypy==2.4.1
@@ -131,6 +137,7 @@ COPY --from=npm-package /tested /tmp/npm-package-tested
 COPY --from=npm-package-lowest /tested /tmp/npm-package-lowest-tested
 COPY --from=npm-package-bun /tested /tmp/npm-package-bun-tested
 COPY --from=npm-package-deno /tested /tmp/npm-package-deno-tested
+COPY --from=npm-package-types /tested /tmp/npm-package-types-tested
 
 # A pull request's CI builds only latest and lowest-and-tooling, so a check goes in one of them.
 FROM lowest-and-tooling
