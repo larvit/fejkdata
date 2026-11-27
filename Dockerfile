@@ -65,6 +65,41 @@ COPY python-package/ /python-package/
 COPY --from=cli /fejkdata /python-package/fejkdata/bin/fejkdata
 RUN cd /python-package && python3 -m unittest discover -p '*_test.py' && touch /tested
 
+FROM golang:${GO_VERSION} AS npm-wasm
+ENV GOCACHE=/cache/build GOMODCACHE=/cache/mod
+WORKDIR /app
+COPY . .
+RUN --mount=type=cache,target=/cache \
+	GOOS=js GOARCH=wasm go vet ./npm-package/wasm && \
+	mkdir /npm-package && \
+	GOOS=js GOARCH=wasm go build -trimpath -ldflags='-s -w' -o /npm-package/fejkdata.wasm ./npm-package/wasm && \
+	cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" /npm-package/
+
+FROM scratch AS npm-package-built
+COPY npm-package/ /npm-package/
+COPY --from=npm-wasm /npm-package/ /npm-package/
+
+FROM node:26.13.1-slim AS npm-package
+COPY --from=npm-package-built /npm-package/ /npm-package/
+COPY --from=cli /fejkdata /fejkdata
+RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
+
+# The lowest Node that package.json's engines names.
+FROM node:22.3.0-slim AS npm-package-lowest
+COPY --from=npm-package-built /npm-package/ /npm-package/
+COPY --from=cli /fejkdata /fejkdata
+RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
+
+FROM oven/bun:1.4.5 AS npm-package-bun
+COPY --from=npm-package-built /npm-package/ /npm-package/
+COPY --from=cli /fejkdata /fejkdata
+RUN cd /npm-package && FEJKDATA_CLI=/fejkdata bun test --timeout 60000 render.test.js && touch /tested
+
+# Deno imports the package over HTTP, as a browser does, and from disk.
+FROM denoland/deno:2.9.8 AS npm-package-deno
+COPY --from=npm-package-built /npm-package/ /npm-package/
+RUN cd /npm-package && deno test --no-check --no-lock --allow-net --allow-read --allow-import load.deno.js && touch /tested
+
 FROM python:3.15.2-slim AS python-lint
 COPY --from=ghcr.io/astral-sh/ruff:0.17.6-alpine /usr/local/bin/ruff /usr/local/bin/ruff
 RUN pip install --no-cache-dir mypy==2.4.1
@@ -88,6 +123,10 @@ COPY --from=data-import /tested /tmp/data-import-tested
 COPY --from=packaging /tested /tmp/packaging-tested
 COPY --from=python-lint /tested /tmp/python-lint-tested
 COPY --from=python-package /tested /tmp/python-package-tested
+COPY --from=npm-package /tested /tmp/npm-package-tested
+COPY --from=npm-package-lowest /tested /tmp/npm-package-lowest-tested
+COPY --from=npm-package-bun /tested /tmp/npm-package-bun-tested
+COPY --from=npm-package-deno /tested /tmp/npm-package-deno-tested
 
 # A pull request's CI builds only latest and lowest-and-tooling, so a check goes in one of them.
 FROM lowest-and-tooling

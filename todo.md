@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 602`
+`Next ID = 604`
 
 ## Renamed
 
@@ -17,10 +17,10 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 562 | 0.9.0 |  |  | **Spell `en_US` and `fr_FR` last names as their bearers do, `O'Brien`, `De La Cruz` and `Lefèvre`, from a sourced list.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 3.2 by 3 | 1.4 |
-| 549 | 0.9.0 |  |  | **Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.** | 3 | 3 | 2 | 6 | 5 | 1.2 by 6 | 1.1 |
-| 550 | 0.9.0 | 549 |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
+| 550 | 0.9.0 |  |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
 | 554 | 0.9.0 |  |  | **Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.** | 1 | 1 | 1 | 1 | 1 | 1.1 by 1 | 0.7 |
 | 393 | 0.9.0 |  |  | **Write several linked templates in one run with a repeated `--emit <template>=<count>`, parents first, each template's rows contiguous, and `{/run.<template> as c}` reading another template's rows.** | 4 | 2 | 2 | 6 | 7 | 1 by 8 | 0.4 |
+| 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
 | 569 | 0.10.0 | 567 |  | **Ship odd names in Han, Arabic, Cyrillic, Greek, Hebrew, Devanagari and Thai, without waiting for their locales.** | 1 | 2 | 1 | 2 | 3 | 1 by 4, 2.1 by 3 | 3.1 |
 | 252 | 0.10.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 2.9 |
@@ -50,6 +50,7 @@
 | 224 | 0.10.0 |  |  | **Name the module in every error about its manifest or its files: today an `fs.FS` module's errors name only the file inside it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.0 |
 | 228 | 0.10.0 |  |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 1 | 1 | 2 | 2 | 1 by 1, 5 by 3 | 2.0 |
 | 229 | 0.10.0 |  |  | **Name the line and column where JSON parsing stopped, when a template that opens like a JSON object then fails as a format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 3 | 2.0 |
+| 602 | 0.10.0 |  |  | **Render a second template from the npm package in under 10 ms, today about 100 ms, by keeping the loaded data between renders.** | 2 | 1 | 2 | 3 | 3 | 1.2 by 3, 12 by 2 | 2.0 |
 | 38 | 0.10.0 |  | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 2 | 2 | 1 | 1 by 1, 5 by 2 | 1.9 |
 | 44 | 0.10.0 |  | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 1.9 |
 | 45 | 0.10.0 |  |  | **Name the node a selector follows in `childNamed`'s refusal.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 5 by 2 | 1.9 |
@@ -164,7 +165,7 @@
 | 359 | 1.2.0 | 358 |  | **Build the library to WebAssembly behind a bridge that reads only its public API, and export it from `@larvit/fejkdata` as item 358's decision spells it.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 360 | 1.2.0 | 359 |  | **Ship TypeScript declarations with `@larvit/fejkdata`, and fail the gate where a typed usage test stops compiling under `tsc --strict`.** | 2 | 1 | 1 | 2 | 3 | 1.2 by 5 | 2.2 |
 | 362 | 1.2.0 | 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 1.8 |
-| 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 5 | 1.2 by 4 | 0.7 |
+| 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 4 | 1.2 by 4 | 1.2 |
 | 363 | 1.2.0 | 360, 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 86 | 1.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 5.2 |
 | 154 | 1.3.0 |  |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 3.8 |
@@ -255,25 +256,6 @@ Touches:
 - `docs/locales/fr_FR.md`
 - `DATA-LICENSES.md`
 
-### 549. Build the library to WebAssembly as an npm package whose `render(template, {seed, today, repeat, format})` prints what the Go library prints, byte for byte, tested against seeded Go output.
-
-Goal 1.2 asks for an npm package that runs wherever JavaScript does: Node, Bun, Deno and a browser. fejkdata.dev already builds the library to WebAssembly in its `wasm/main.go`, with `seed`, `render` and `paths` on `globalThis.fejkdata`; start from that, and give the package a typed, stateless API instead of the page's global. Goal 9.2 asks for the same bytes as Go, so a test renders seeded templates in both and compares them. Goal 10 allows no npm dependency.
-
-The shipped data is 59 MB under `data/`, so the WebAssembly carrying all of it is large. Measure it, and record in the README's Install section what an install downloads. Choosing to split the data into packages a program imports by choice, as goal 2's Go side does, is a decision for the chunk.
-
-The maintainer ruled on 2026-11-25: one package, `@larvit/fejkdata`, carries all the data. The live build on fejkdata.dev is 65 MB and 17 MB gzipped, and Node compiled it in 0.18 s. npm documents no size limit. A slim build is not part of this item.
-
-Touches:
-
-- `npm-package/package.json`
-- `npm-package/index.js`
-- `npm-package/index.d.ts`
-- `npm-package/wasm/main.go`
-- `npm-package/render.test.js`
-- `npm-package/README.md`
-- `.github/workflows/test.yml`: `test` (small)
-- `README.md`: `## Install` (small)
-
 ### 550. Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.
 
 The Packages workflow already publishes the binaries, the image and the Homebrew, Scoop, apt, dnf and apk channels from `release-tooling/goreleaser.yaml`; the npm package joins them, and its dry run runs on a pull request as the other channels' do. The maintainer sets up the package's trusted publisher on npmjs.com, so the workflow holds no token. The README's Install section today says "No npm package ships yet"; replace that.
@@ -291,11 +273,15 @@ Settle each thing npm shows or stores before the first publish, read it on npm's
 - How a bad version is withdrawn: `npm deprecate` before `npm unpublish`.
 - A check in the dry run: `npm publish --dry-run` and a listing of the packed files and their size. After the publish, look at the live page.
 
+Item 549 built the package: the Dockerfile's `npm-package-built` stage holds the folder to pack, with `fejkdata.wasm` and Go's `wasm_exec.js`. It left `package.json`'s version at `0.0.0`, so the release sets it. It left the repository's README without a JavaScript quick start, since the package could not be installed yet: add one beside "Python tests", a `js` block with the `text` block of what it prints, and have `npm-package/render.test.js` run it as it runs the package's own README. A render builds its generator anew and takes about 0.1 seconds, which the package's README states.
+
 Touches:
 
 - `.github/workflows/packages.yml`: `packages-dry-run` (small)
 - `npm-package/package.json`
 - `README.md`: `## Install` (small)
+- `npm-package/render.test.js`
+- `README.md`: `## Quick start` (small)
 
 ### 554. Cover `internal/shipped/generate` with tests to 80% of its statements, today 46%, so no package in the Coveralls report sits under the share Awesome Go asks for.
 
@@ -323,6 +309,16 @@ Touches:
 - `cli/emit_test.go`
 - `record.go`: `RecordTemplate`
 - `README.md`: `## CLI`
+
+### 603. Add a mutation tool for JavaScript.
+
+The `mutate` service runs Gremlins, and Gremlins mutates Go only. So no tool mutates `npm-package/index.js`, the package's code. Its tests are `npm-package/render.test.js` and `npm-package/load.deno.js`.
+
+Use StrykerJS (`@stryker-mutator/core`), pinned to 10.1.1. That version needs Node 22 or later, so it runs on Node 26. Its command runner runs Node's built-in test runner, so the tests need no other framework.
+
+The tests need the built `fejkdata.wasm` and the Go binary at `$FEJKDATA_CLI`. So the tool runs as a Dockerfile stage or a compose service beside the `npm-package` stage, and the README's Development section lists it. The package must still have no npm dependency. StrykerJS is installed in that stage at build time, never in `npm-package/package.json`'s `dependencies`.
+
+Item 549's review mutated `index.js` by hand. Of 15 mutants, three lived: removing the global `__fejkdataRun`, retrying a failed load, and a program stopping while it loads. Tests now cover all three. A tool would find the next ones without a reviewer.
 
 ### 567. Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.
 
@@ -477,6 +473,19 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 ### 228. Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.
 
 From the 2026-10-11 audience bench, a Go test author tagging `{p.first}` before binding `p`. The hint is built in `checkFieldRead` before the root is known, and only where the template has no fields; offering the binding there also told `{sv_SE.person.last}` to bind a name `sv_SE`. Decide between the reference and the binding once the root is loaded.
+
+### 602. Render a second template from the npm package in under 10 ms, today about 100 ms, by keeping the loaded data between renders.
+
+The npm package's `render` runs the CLI once per call, so each call builds a generator anew: `fejkdata.New` over every shipped module. Item 549 measured about 0.1 seconds a call in Node 26, Bun and Deno, whatever the template. A test suite that renders a few values in each of several hundred tests pays that each time. The Python package pays a process start per call in the same way.
+
+Keep what a load builds between calls, and give each call its own seed and day, so a render still keeps no state a caller can see: the same seed and day must print the same bytes whatever was rendered before. `npm-package/render.test.js` holds that test, and its comparison with the Go binary must still pass.
+
+Touches:
+
+- `npm-package/wasm/main.go`
+- `cli/cli.go`: `Run` (small)
+- `npm-package/render.test.js`
+- `npm-package/README.md`: `## Size and speed` (small)
 
 ### 38. Compare `calcParser.binary`'s operator as a rune.
 
@@ -1019,7 +1028,15 @@ Goal 1.1's counter-signal is a channel serving an old release, so the patch rele
 
 ### 361. Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.
 
-Goal 9.2 holds only while a test checks it: render a fixed set of seeded templates, records included, in Go and through the package on each runtime, and fail on any byte that differs. Each runtime runs in a container pinned to its full patch version, as a target of `docker build .` or a compose service the README's Development section lists. The browser test loads the package as a page would, without a bundler.
+Goal 9.2 holds only while a test checks it: render a fixed set of seeded templates, records included, in Go and through the package on each runtime, and fail on any byte that differs. Each runtime runs in a container pinned to its full patch version, as a target of `docker build .` or a compose service the README's Development section lists.
+
+Item 549 already does this on Node 26.13.1, Node 22.3.0, Bun and Deno, byte for byte against the Go build. What remains:
+
+- A headless browser. The test loads the package as a page would, without a bundler.
+- A bundler. A test builds a small app that imports the package with Vite or webpack, and checks that the WASM file is found and renders.
+- Jest and Vitest. The package is an ES module only, so a test loads it from a Jest test and from a Vitest test, as a user's test suite would.
+
+Item 549's review left the last two open.
 
 ### 363. Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.
 

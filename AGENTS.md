@@ -1,7 +1,7 @@
 # Rules
 
 - Go runs only through `docker compose run --rm <service>`; the merge gate is what the README's Development section lists. The Go services are `test` (`go test -race ./...`), `bench`, `build`, `cyclo`, `dev`, `fmt`, `generate`, `mutate`, `repin`, `tidy`, `vet` and `vulncheck`. Arguments after a service replace its command, so one package's tests run as `docker compose run --rm test go test -race ./data`. Read the README's Development section before running `fmt`, `generate`, `tidy` or `mutate`.
-- One `data-import` test file runs as `docker compose run --rm --user "$(id -u):$(id -g)" data-import -m unittest discover -s data-import -p 'geo_test.py'`. The release-tooling tests need `git`, and the Python package's tests need a built binary, so only `docker build .` runs them.
+- One `data-import` test file runs as `docker compose run --rm --user "$(id -u):$(id -g)" data-import -m unittest discover -s data-import -p 'geo_test.py'`. The release-tooling tests need `git`, the Python package's tests need a built binary, and the npm package's tests need that binary and a built WebAssembly, so no compose service runs them: `docker build .` does, and `docker build --target npm-package .` runs the npm package's alone, in Node.
 - Tests first, in their own commit; the implementation follows in the next. A re-pin of seeded output or of `testdata/shipped_shape.txt` is its own commit.
 - A change to the shipped data under `data/`, its tests aside, to the shape pin, or to the pin of the listing's keys and kind words (`testdata/listing_shape.txt`), adds its `CHANGELOG.md` entry under `Unreleased` in the same PR, and so does a change to a flag, an exit code, an exported name, a fence, a builtin or the lowest Go; what is major is the README's Versioning table.
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.
@@ -17,7 +17,7 @@
 - A locale page's credit sentence carries each element that `DATA-LICENSES.md`'s attribution for the source lists, and a
   claim about generated text is checked against a draw that could break it.
 - Public texts (README, Docker Hub, GitHub description, package descriptions) use plain words and short sentences with few commas, and read like a person wrote them. They say that related values match, such as a postcode and its city, not only a person's. A text too short to name which checkers refuse an id says that ids pass validation "where possible", since a strict checker refuses some test series. Call the `--repeat` cap "a million rows", not "millions"; item 544 may change the cap, and then this rule changes with it.
-- A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one. A `python` block, there or in `python-package/README.md`, is followed by a `text` block of what it prints; `python-package/render_test.py` runs every one.
+- A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one. A `python` block, there or in `python-package/README.md`, is followed by a `text` block of what it prints; `python-package/render_test.py` runs every one. A `js` block in `npm-package/README.md` is followed by a `text` block too, and `npm-package/render.test.js` runs every one.
 - Cyclomatic complexity is gated at 7: split a function that would go over it.
 
 ## Project principles
@@ -176,6 +176,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The Swedish, Finnish, French and US name tables keep every name above a floor of bearers, set so a table holds at most 60,000 rows
 - A record writes its columns in the order its template lists its fields, a table writes them in the order of its header, and both draw them in name order
 - The Python package is a wheel per platform carrying the CLI binary, built by `release-tooling/python_wheels.py`, and `render` requires `seed` and `today`
+- The npm package is the CLI built to WebAssembly and run through `cli.Run`, loaded once by `await load()`, with a synchronous `render` that requires `seed` and `today`
 - The Python wheels go to PyPI from the `pypi` job of `test.yml` through trusted publishing, wheels only, under `MIT AND LicenseRef-fejkdata-data-licenses`
 
 # Scoring run

@@ -2,4 +2,6 @@
 .claude
 __pycache__/
 data-import/cache/
+npm-package/fejkdata.wasm
+npm-package/wasm_exec.js
 python-package/fejkdata/bin/
