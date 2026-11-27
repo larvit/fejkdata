@@ -17,7 +17,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 550 | 0.9.0 |  |  | **Publish the npm package from the Packages workflow with each release, through npm's trusted publishing, and say in the README how to install it.** | 3 | 3 | 2 | 6 | 4 | 1.2 by 4 | 1.2 |
-| 604 | 0.10.0 |  | question | **Decide how a child of a run reads its parent's null, tab and line break: carried whole, or refused where the parent draws one.** | 3 | 2 | 3 | 6 | 3 | 1 by 3, 5 by 3 | 2.5 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
 | 567 | 0.10.0 |  |  | **Ship a home for odd values, such as `misc.edge.name`, whose rows each say which assumption they break, with invalid values only under a path that says `invalid`.** | 2 | 1 | 2 | 3 | 4 | 1 by 5, 3 by 4, 4 by 2 | 3.1 |
@@ -29,6 +28,7 @@
 | 534 | 0.10.0 |  | owner | **Reach the comprehension floor: lift Locality so the rule that a name keeps one pick has one home that render and the name fence both call, and render reaches each child only through the edges the fences walk.** | 4 | 2 | 2 | 6 | 6 | code health by 6 | 2.6 |
 | 255 | 0.10.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 2.5 |
 | 117 | 0.10.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 2.5 |
+| 604 | 0.10.0 |  |  | **Carry a parent's null, tab and line break whole to the children of a run, and accept a one-column parent that draws an empty value.** | 3 | 2 | 3 | 6 | 3 | 1 by 3, 5 by 3 | 2.5 |
 | 596 | 0.10.0 |  | owner | **Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.** | 1 | 2 | 1 | 2 | 2 | 1.1 by 4 | 2.4 |
 | 168 | 0.10.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.3 |
 | 457 | 0.10.0 |  |  | **Rename each script under `data-import/` to a name `import` can spell, so a test imports it like any module and the mutation tests can run on the folder.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 2.3 |
@@ -269,16 +269,6 @@ Touches:
 - `npm-package/render.test.js`
 - `README.md`: `## Quick start` (small)
 
-### 604. Decide how a child of a run reads its parent's null, tab and line break: carried whole, or refused where the parent draws one.
-
-Filed from item 393's stability review. A run hands a parent's rows to its children as a TSV, so a child reads a null as an empty text and a tab or line break as a space. A typed copy of a nullable parent column, such as an integer `{c.manager_id}`, fails at load where the parent drew a null, and a child's copy of a multi-line value such as `sv_SE.address` differs from the parent's.
-
-Two ways out. Hand the rows over without a TSV, so a null stays a null and text stays whole: that changes the held decision "A table is a record of string columns", or adds a second kind of row source. Or refuse a parent column that may draw a null where a child reads it: simpler, and it takes the feature away from nullable foreign keys.
-
-Recommendation: carry the values whole, since a nullable foreign key is common in the schemas bulk fixture authors load.
-
-A parent with one column that draws an empty or null value has no row a TSV can hold, so the run refuses it before any output and asks for a second column. Carrying values whole lifts that limit too.
-
 ### 603. Add a mutation tool for JavaScript.
 
 The `mutate` service runs Gremlins, and Gremlins mutates Go only. So no tool mutates `npm-package/index.js`, the package's code. Its tests are `npm-package/render.test.js` and `npm-package/load.deno.js`.
@@ -369,6 +359,14 @@ A table and its template, from each network's rules, which are facts.
 ### 117. List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.
 
 Today the refusal names only the missing field, so a data author fixing a typo opens the category to find the spelling. Item 92 covers the hyphenated `calc` operand only.
+
+### 604. Carry a parent's null, tab and line break whole to the children of a run, and accept a one-column parent that draws an empty value.
+
+Filed from item 393's stability review. A run hands a parent's rows to its children as a TSV, so a child reads a null as an empty text and a tab or line break as a space. A typed copy of a nullable parent column, such as an integer `{c.manager_id}`, fails at load where the parent drew a null, and a child's copy of a multi-line value such as `sv_SE.address` differs from the parent's. A parent with one column that draws an empty or null value has no row a TSV can hold, so the run refuses it before any output and asks for a second column.
+
+Chosen: carry the values whole, so a null stays a null and text keeps its tabs and line breaks. The reason is that a nullable foreign key is common in the schemas bulk fixture authors load, and refusing a nullable parent column would take linked templates away from them. The other way out, refusing before the first row a parent column that may draw a null where a child reads it, was rejected for that reason.
+
+Carrying the values whole means handing a run's rows over without a TSV. That changes the held decision "A table is a record of string columns", or adds a second kind of row source: revise that decision, and the limits in the decision on linked templates and in the README's Values bullet, in the chunk that ships this.
 
 ### 596. Publish an article on why Nordic test data needs national ids and addresses that match, and post fejkdata where Go and testing developers ask for tools.
 
