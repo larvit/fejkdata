@@ -10,6 +10,9 @@ npm install @larvit/fejkdata
 It runs in Node 22.3 or later, in Bun, in Deno and in a browser. It is an ES module with
 TypeScript types.
 
+The type `ShippedPath` is every path of the shipped data, such as `"sv_SE.first-name"`.
+An editor completes a path typed as one, and shows a value the path prints.
+
 ```js
 import { load } from "@larvit/fejkdata";
 

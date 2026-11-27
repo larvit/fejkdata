@@ -106,7 +106,7 @@ RUN cd /npm-package && deno test --no-check --no-lock --allow-net --allow-read -
 
 FROM node:26.13.1-slim AS npm-package-types
 RUN npm install --global --no-fund --no-audit typescript@7.0.2
-COPY npm-package/package.json npm-package/index.d.ts /npm-package/
+COPY npm-package/package.json npm-package/index.d.ts npm-package/shipped-paths.d.ts /npm-package/
 COPY npm-package/typecheck/ /npm-package/typecheck/
 RUN cd /npm-package && tsc --project typecheck && touch /tested
 

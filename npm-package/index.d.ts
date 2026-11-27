@@ -1,3 +1,5 @@
+export type { ShippedPath } from "./shipped-paths.js";
+
 export interface RenderOptions {
 	/** A whole number from 0 to 2^64 - 1. A number above 2^53 - 1 is written as a bigint. The same seed and day give the same text. */
 	seed: number | bigint;

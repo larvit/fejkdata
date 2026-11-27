@@ -20,7 +20,7 @@
 		}
 	},
 	"types": "./index.d.ts",
-	"files": ["DATA-LICENSES.md", "WORDNET-LICENSE.txt", "fejkdata.wasm", "index.d.ts", "index.js", "wasm_exec.js"],
+	"files": ["DATA-LICENSES.md", "WORDNET-LICENSE.txt", "fejkdata.wasm", "index.d.ts", "index.js", "shipped-paths.d.ts", "wasm_exec.js"],
 	"sideEffects": ["./wasm_exec.js"],
 	"publishConfig": {
 		"access": "public"
