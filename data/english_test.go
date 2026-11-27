@@ -35,18 +35,18 @@ func TestShippedUSTaxIds(t *testing.T) {
 	})
 }
 
-// The Census 2010 sums of the counts, under the name written as most American bearers in Wikidata write it,
-// and as the Census writes it, in letters alone, where Wikidata doesn't settle it, as `Dangelo`.
+// The Census 2010 counts. A name takes the form Wikidata's people of United States citizenship with that family name
+// mostly have, such as `O'Brien`. Otherwise it stays in letters alone, such as `Delacruz`.
 func TestEnglishLastNamesAreCensusCounts(t *testing.T) {
 	last := nameCounts(t, "en_US", "last-name")[""]
-	for name, want := range map[string]int{"Smith": 2376206, "McDonald": 176094, "O'Brien": 115385, "MacDonald": 45782, "LeBlanc": 40923, "Dangelo": 11587} {
+	for name, want := range map[string]int{"Smith": 2376206, "McDonald": 176094, "O'Brien": 115385, "MacDonald": 45782, "LeBlanc": 40923, "D'Angelo": 11587, "St. John": 15663, "Delacruz": 49158} {
 		if got := last[name]; got != want {
 			t.Errorf("%q is borne by %d, want the Census's %d", name, got, want)
 		}
 	}
-	for _, name := range []string{"Obrien", "Macdonald", "Leblanc"} {
+	for _, name := range []string{"Obrien", "Macdonald", "Leblanc", "Dangelo", "Stjohn"} {
 		if _, ok := last[name]; ok {
-			t.Errorf("%q is a row, but its bearers write it with a capital or an apostrophe", name)
+			t.Errorf("%q is a row, but Wikidata's people with that family name mostly have another form of it", name)
 		}
 	}
 }
