@@ -45,8 +45,6 @@ var shipped = map[string]func() []fs.FS{
 	"geo.SE": geose.Modules, "geo.US": geous.Modules,
 }
 
-const leftOut = "; load's data leaves out the module this reads"
-
 func newBridge(names, files js.Value) (bridge, error) {
 	layered, err := filesFS(files)
 	if err != nil {

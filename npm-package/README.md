@@ -80,7 +80,7 @@ first,last | Vinston,Larsson | Felix,Lind
 ## One value
 
 `fake(path, { seed, today })` draws one value of a path. It refuses a template, so
-`sv_SE.person as p` and `sv_SE.first-name where length 3` are errors. `paths()` returns every path, as `fejkdata --list` prints them.
+`sv_SE.person as p` and `sv_SE.first-name where length 3` are errors.
 
 Some paths are not where you might guess. A postcode and a city are parts of an address:
 
@@ -105,12 +105,50 @@ false
 ```
 
 Each call draws afresh, so two calls give parts of two addresses. For a postcode and a city
-that match, draw `sv_SE.address` with `records`.
+that match, draw the whole address with `records("{/sv_SE.address}", …)`, as
+[Rows as objects](#rows-as-objects) shows.
+
+## Every path
+
+`paths()` returns every path the loaded data holds, as `fejkdata --list` prints them.
+
+```js
+import { load } from "@larvit/fejkdata";
+
+const fejkdata = await load();
+console.log(fejkdata.paths().filter((path) => path.startsWith("sv_SE.address.")).join(" "));
+```
+
+```text
+sv_SE.address.locality sv_SE.address.municipality sv_SE.address.postal-code sv_SE.address.region sv_SE.address.street sv_SE.address.street-number
+```
+
+## Template or path
+
+`isTemplate(text)` tells whether a string is a template or a path. A string holding a brace
+is a template, and so is a JSON string or array. Use it to choose between `render` and
+`fake` for a string a user gave. It needs no `load`.
+
+```js
+import { isTemplate } from "@larvit/fejkdata";
+
+for (const text of ["sv_SE.person", "{/sv_SE.person}", "Hej {/sv_SE.first-name}", '["a", "b"]']) {
+	console.log(text, isTemplate(text));
+}
+```
+
+```text
+sv_SE.person false
+{/sv_SE.person} true
+Hej {/sv_SE.first-name} true
+["a", "b"] true
+```
 
 ## Rows as objects
 
 `records(template, { seed, today, repeat })` draws rows of a record template. The template
-is JSON text or an object. Each row is an object with a key per column, in the template's
+is JSON text or an object. A lone reference such as `"{/sv_SE.address}"` is allowed too,
+and draws that path's record. Each row is an object with a key per column, in the template's
 order. JavaScript puts a key that is a whole number, such as `"2"`, before the others.
 
 - An `integer` column is a `bigint`, so it stays exact above 2^53.
@@ -141,6 +179,22 @@ bigint 1n Kenneth Lind boolean true
 bigint 2n Ann-Charlott Wiklander boolean true
 ```
 
+A lone reference gives a row with a key per field of the record it reads:
+
+```js
+import { load } from "@larvit/fejkdata";
+
+const fejkdata = await load();
+const [address] = fejkdata.records("{/sv_SE.address}", { seed: 1, today: "2026-01-15" });
+console.log(Object.keys(address).join(" "));
+console.log(address["postal-code"], address.locality);
+```
+
+```text
+street street-number postal-code locality municipality region
+475 32 Öckerö
+```
+
 `JSON.stringify` throws on a `bigint`. A test snapshot prints it as `1n`.
 
 ## Your own data
@@ -151,7 +205,8 @@ bigint 2n Ann-Charlott Wiklander boolean true
   modules it reads too. `sv_SE` reads `geo.SE` for its addresses. A name that is not a shipped
   module throws.
 - `files` maps a path to a file's text or bytes. The files lie over the shipped data. A file
-  of your own at `sv_SE/color.json` replaces the shipped `sv_SE.color`.
+  of your own at `sv_SE/color.json` replaces the shipped `sv_SE.color`. A file that doesn't
+  load makes `load` throw, with the kind `"load"`.
 
 ```js
 import { load } from "@larvit/fejkdata";
@@ -188,14 +243,17 @@ tell a mistake. It says where the error arose:
 A template that is not a string throws a `TypeError`, and so does a call without the second
 argument. `records` takes an object too.
 
+A test reads `kind`, not `instanceof FejkdataError`. A test runner or bundler may load two
+copies of the package, and then `instanceof` fails.
+
 ```js
-import { FejkdataError, load } from "@larvit/fejkdata";
+import { load } from "@larvit/fejkdata";
 
 const fejkdata = await load();
 try {
 	fejkdata.render("{/sv_SE.persn}", { seed: 1, today: "2026-01-15" });
 } catch (error) {
-	if (!(error instanceof FejkdataError)) {
+	if (error.name !== "FejkdataError") {
 		throw error;
 	}
 	console.log(error.kind, error.exitCode, error.message);

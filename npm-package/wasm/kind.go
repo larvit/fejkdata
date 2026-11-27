@@ -3,9 +3,11 @@
 package main
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"io/fs"
+	"slices"
 
 	"github.com/larvit/fejkdata"
 )
@@ -43,9 +45,38 @@ func (b bridge) kindOf(err error, retry func([]fs.FS) error) (string, string) {
 	case errors.Is(err, fejkdata.ErrLoad):
 		return "load", ""
 	case b.every != nil && retry(b.every) == nil:
-		return "load", leftOut
+		return "load", b.addition(retry)
 	}
 	return "misuse", ""
+}
+
+// addition is a note naming the shipped module that lets retry pass once added to the modules
+// data chose, trying the modules that load fewest first.
+func (b bridge) addition(retry func([]fs.FS) error) string {
+	for _, name := range byLoaded() {
+		modules := slices.Clone(b.chosen)
+		for _, m := range shipped[name]() {
+			if !slices.Contains(modules, m) {
+				modules = append(modules, m)
+			}
+		}
+		if retry(append(modules, b.files...)) == nil {
+			return fmt.Sprintf("; add %q to load's data", name)
+		}
+	}
+	return "; load's data leaves out more than one module this reads"
+}
+
+// byLoaded is the shipped modules' names, by how many modules each loads, then by name.
+func byLoaded() []string {
+	names := make([]string, 0, len(shipped))
+	for name := range shipped {
+		names = append(names, name)
+	}
+	slices.SortFunc(names, func(a, b string) int {
+		return cmp.Or(cmp.Compare(len(shipped[a]()), len(shipped[b]())), cmp.Compare(a, b))
+	})
+	return names
 }
 
 // compile compiles template over modules as the CLI does under format.

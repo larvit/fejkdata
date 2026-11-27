@@ -12,6 +12,7 @@ import (
 	"strings"
 	"syscall/js"
 
+	"github.com/larvit/fejkdata"
 	"github.com/larvit/fejkdata/cli"
 )
 
@@ -38,7 +39,16 @@ func opened(call func(bridge, []js.Value) any) func(js.Value, []js.Value) any {
 	}
 }
 
-func check(bridge, []js.Value) any {
+// check returns {} where load's files load over the modules data chose, else {error, kind,
+// exitCode}.
+func check(b bridge, _ []js.Value) any {
+	if b.files == nil {
+		return map[string]any{}
+	}
+	_, err := fejkdata.New(fejkdata.WithDataFS(b.modules()...), fejkdata.WithSeed(0), fejkdata.WithToday(anyDay))
+	if err != nil {
+		return b.failure(err, func([]fs.FS) error { return err })
+	}
 	return map[string]any{}
 }
 

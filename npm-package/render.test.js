@@ -246,10 +246,15 @@ const leftOut = {
 	records: () => swedish.records({ format: "", person: "{/en_US.person}" }, OPTIONS),
 };
 for (const [call, run] of Object.entries(leftOut)) {
-	test(`${call} reading a module that data leaves out is a load error, naming load's data`, () => {
-		assert.throws(run, (error) => errorOf("load", 2)(error) && /load's data/.test(error.message));
+	test(`${call} reading a module that data leaves out is a load error, naming the module to add`, () => {
+		assert.throws(run, (error) => errorOf("load", 2)(error) && error.message.endsWith('; add "en_US" to load\'s data'));
 	});
 }
+
+test("a geo module that data leaves out is named whole", async () => {
+	const shared = await load({ data: ["misc"] });
+	assert.throws(() => shared.render("{/geo.SE.address.locality}", OPTIONS), (error) => errorOf("load", 2)(error) && error.message.endsWith('; add "geo.SE" to load\'s data'));
+});
 
 test("a reference to no module is misuse, though data leaves modules out", () => {
 	assert.throws(() => swedish.render("{/xx_XX.person}", OPTIONS), errorOf("misuse", 2));
@@ -279,12 +284,8 @@ test("a file that is no text or bytes, or whose path is none, is refused at load
 	await assert.rejects(load({ files: { "../team.json": "[]" } }), errorOf("misuse", 2));
 });
 
-test("a file that fails to load is a load error in each call", async () => {
-	const broken = await load({ files: { "mydata/team.json": "[" } });
-	assert.throws(() => broken.render("x", OPTIONS), errorOf("load", 1));
-	assert.throws(() => broken.fake("misc.uuid", OPTIONS), errorOf("load", 1));
-	assert.throws(() => broken.records({ format: "", id: "{uuid()}" }, OPTIONS), errorOf("load", 1));
-	assert.throws(() => broken.paths(), errorOf("load", 1));
+test("a file that fails to load fails load, as a load error", async () => {
+	await assert.rejects(load({ files: { "mydata/team.json": "[" } }), errorOf("load", 1));
 });
 
 const FAKED = {
@@ -435,7 +436,7 @@ function runBlocks(markdown) {
 }
 
 test("the package's README prints what its text blocks show", () => {
-	assert.equal(runBlocks(readFileSync(new URL("./README.md", import.meta.url), "utf8")), 6);
+	assert.equal(runBlocks(readFileSync(new URL("./README.md", import.meta.url), "utf8")), 9);
 });
 
 test("the repository's README prints what its text blocks show", () => {
