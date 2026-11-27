@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 610`
+`Next ID = 611`
 
 ## Renamed
 
@@ -16,7 +16,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 607 | 0.9.0 |  | question | **Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 5, 1.2 by 8 | 9.3 |
 | 359 | 0.9.0 |  |  | **Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 0.8 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
@@ -79,6 +78,7 @@
 | 522 | 0.10.0 |  | decision | **Rebuild `et_EE`'s first and last names from Statistics Estonia's CC BY-SA 4.0 counts by sex, replacing the language model's recall.** | 2 | 2 | 2 | 4 | 4 | 3.2 by 6 | 1.5 |
 | 572 | 0.10.0 | 567 |  | **Ship the Big List of Naughty Strings by kind, with Unicode edge cases, complex emoji and text that looks like another type.** | 2 | 1 | 1 | 2 | 4 | 1 by 4, 3.2 by 1 | 1.5 |
 | 259 | 0.10.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 1.5 |
+| 610 | 0.10.0 |  | owner | **Set `@larvit/fejkdata`'s publishing access to "Require two-factor authentication and disallow tokens", and check its live page, once 0.9.0 is published.** | 1 | 1 | 2 | 2 | 1 | 1.1 by 2 | 1.5 |
 | 571 | 0.10.0 | 567 |  | **Ship odd dates, prices and numbers at their boundaries.** | 1 | 1 | 1 | 1 | 3 | 1 by 3 | 1.4 |
 | 267 | 0.10.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.4 |
 | 32 | 0.10.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.3 |
@@ -239,23 +239,6 @@
 | 439 | 2.0.0 | 438 |  | **Port internal/engine/fence to Rust: every proof and fence a load runs, with errors that name the same path, spelling and fix as Go's.** | 4 | 2 | 3 | 7 | 7 | 1 by 3 | 0.2 |
 
 ## Details
-
-### 607. Publish a placeholder version of `@larvit/fejkdata` by hand and set its trusted publisher on npmjs.com, at most two days before 0.9.0 is cut.
-
-Only an owner of the npm organization `larvit` can do this item, so it waits for the maintainer. npmjs.com sets a trusted publisher only on a package that exists. A release whose `npm` job fails doesn't reach PyPI. The decision "The npm package goes to npmjs.com from the `npm` job of `packages.yml` …" records the rest.
-
-Done on 2026-11-27:
-
-- The maintainer published `@larvit/fejkdata@0.0.0` by hand. It is a placeholder that holds only a `package.json`, deprecated with "Placeholder. Install 0.9.0 or later." The registry also holds `0.0.0-stage`, deprecated with the same text.
-- The GitHub environment `npm` exists and is limited to the branch `main`.
-- The maintainer set the trusted publisher: repository `larvit/fejkdata`, workflow `test.yml`, environment `npm`, with `npm publish` allowed. A new publisher expires unless it publishes within two days. So this one lapses about 2026-11-29, unless 0.9.0 is cut first.
-- The maintainer approved item 550's public texts: the README's install paragraph and JavaScript quick start, the changelog entry, and `package.json`'s `author` "Larv IT AB" and `bugs`.
-
-Left:
-
-1. If the publisher has lapsed when 0.9.0 is ready, the maintainer sets it again, at most two days before the cut. npm 11.15.0 or later sets it with `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. On npmjs.com, its allowed actions must include `npm publish` ([npm's docs](https://docs.npmjs.com/trusted-publishers/)). The agent that finds the release ready reminds the maintainer.
-2. After 0.9.0 is published, the maintainer sets the package's publishing access to "Require two-factor authentication and disallow tokens". Then they check the package's live page: the README, the provenance badge and the files.
-3. Then drop this item with `todo-item finish 607 --no-changelog`.
 
 ### 359. Change `@larvit/fejkdata` to the API item 358's decision picks, where that differs from what shipped.
 
@@ -578,6 +561,12 @@ Check the list's licence and add it to `DATA-LICENSES.md`. Unicode: decomposed a
 ### 259. Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.
 
 Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
+
+### 610. Set `@larvit/fejkdata`'s publishing access to "Require two-factor authentication and disallow tokens", and check its live page, once 0.9.0 is published.
+
+Only an owner of the npm organization `larvit` can set the access. Do it after the `npm` job has published 0.9.0, since npmjs.com takes the setting on a package that exists and the job publishes through the trusted publisher, not a token. Then open the package's page and check the README, the provenance badge and the files.
+
+The trusted publisher (repository `larvit/fejkdata`, workflow `test.yml`, environment `npm`, `npm publish` allowed) lapses unless it publishes within two days of being set, and it was set on 2026-11-27. If it has lapsed when 0.9.0 is ready, set it again at most two days before the cut. npm 11.15.0 or later sets it with `npm trust github @larvit/fejkdata --file test.yml --repo larvit/fejkdata --env npm --allow-publish`. The agent that finds the release ready reminds the maintainer.
 
 ### 571. Ship odd dates, prices and numbers at their boundaries.
 
