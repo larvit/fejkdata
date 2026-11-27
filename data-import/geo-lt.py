@@ -41,7 +41,7 @@ NUMBER = re.compile(r"^([1-9]\d{0,3})([A-Z]?)$")
 
 
 class Register:
-	"""The register's places, each kind by its code, and each street's name by the street's code, left out where geo.cleanly_written refuses it."""
+	"""The register's places, each kind by its code, and each street's name by the street's code, except a street whose name geo.cleanly_written refuses."""
 
 	def __init__(self, apskritys: Iterable[Mapping[str, str]], savivaldybes: Iterable[Mapping[str, str]], vietoves: Iterable[Mapping[str, str]], gatves: Iterable[Mapping[str, str]]) -> None:
 		self.regions: dict[str, geo.Row] = {r["ADM_KODAS"]: {"code": r["ADM_KODAS"], "name": f"{r['VARDAS_K']} {r['TIPAS']}", "timezone": TIMEZONE} for r in apskritys}
