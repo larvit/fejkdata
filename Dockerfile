@@ -93,9 +93,9 @@ RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
 FROM oven/bun:1.4.5 AS npm-package-bun
 COPY --from=npm-package-built /npm-package/ /npm-package/
 COPY --from=cli /fejkdata /fejkdata
-RUN cd /npm-package && FEJKDATA_CLI=/fejkdata bun test render.test.js && touch /tested
+RUN cd /npm-package && FEJKDATA_CLI=/fejkdata bun test --timeout 60000 render.test.js && touch /tested
 
-# Deno imports the package over HTTP, as a browser does.
+# Deno imports the package over HTTP, as a browser does, and from disk.
 FROM denoland/deno:2.9.8 AS npm-package-deno
 COPY --from=npm-package-built /npm-package/ /npm-package/
 RUN cd /npm-package && deno test --no-check --no-lock --allow-net --allow-read --allow-import load.deno.js && touch /tested

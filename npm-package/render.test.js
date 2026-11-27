@@ -91,10 +91,10 @@ test("a program that stops while loading fails the load, and leaves no global be
 });
 
 test("an output longer than a JavaScript string holds is refused, each time, and the next render works", () => {
-	const wide = "x".repeat(700) + "\n";
+	const wide = "x".repeat(70000) + "\n";
 	for (let i = 0; i < 2; i++) {
 		assert.throws(
-			() => fejkdata.render(wide, { seed: 1, today: DAY, repeat: 1000000 }),
+			() => fejkdata.render(wide, { seed: 1, today: DAY, repeat: 10000 }),
 			(error) => error instanceof FejkdataError && error.exitCode === 1 && /512 MB/.test(error.message),
 		);
 	}
