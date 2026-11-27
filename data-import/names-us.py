@@ -1,4 +1,4 @@
-"""Rebuild data/en_US/first-name.tsv and last-name.tsv from SSA baby names and the Census 2010 surnames (public domain).
+"""Rebuild data/en_US/first-name.tsv and last-name.tsv from SSA baby names and the Census 2010 surnames (public domain), and Wikidata's family names (CC0).
 
     data-import/names-us.py [--names URL_OR_FILE] [--surnames URL_OR_FILE] [--from-year YEAR] [--first-min N] [--last-min N] [--cache DIR] [--out DIR]
 
@@ -6,6 +6,7 @@ A given name is counted over the births of --from-year and later, under each sex
 name both sexes carry has two rows. --names takes SSA's names.zip or a merged name,sex,count,year file;
 --surnames takes the Census names.zip or its Names_2010Census.csv.
 A first name borne by fewer than --first-min people goes, and a last name borne by fewer than --last-min.
+The Census writes a surname in letters alone, so a last name takes the form most of Wikidata's American bearers write, `O'Brien` for `Obrien`, where that form is a majority of them and at least 5 people.
 """
 import argparse
 import collections

@@ -1,4 +1,4 @@
-"""Rebuild data/fr_FR/first-name.tsv and last-name.tsv from INSEE's name files (Licence Ouverte 2.0, "Source : Insee").
+"""Rebuild data/fr_FR/first-name.tsv and last-name.tsv from INSEE's name files (Licence Ouverte 2.0, "Source : Insee") and Wikidata's family names (CC0).
 
     data-import/names-fr.py [--first-min N] [--last-min N] [--cache DIR] [--out DIR]
 
@@ -9,7 +9,8 @@
   which 3 did: the rest sit in `_PRENOMS_RARES` and in rows without a year, which are dropped, so a count runs
   slightly low.
 - The last names are the "Fichier des noms": the births of 1891 to 2000, each name's counts over its decades
-  added up. INSEE writes them without accents, so `Lefevre` counts the bearers of `Lefèvre` too.
+  added up. INSEE writes them without accents, so a count holds every spelling of a name. A name takes
+  one accent where more than half of Wikidata's French bearers write it so, and at least 5 do: `Lefèvre` for `Lefevre`.
 - Both drop a name that `tsv.NAME` says is not a name in letters, and a first name borne by fewer than --first-min people or a last name borne by fewer than --last-min.
 - INSEE writes names in capitals. Each part of a name, split at a hyphen, a space or an apostrophe, is
   capitalised, but in a last name `da`, `de` and `dos` stay in lower case before another part.
