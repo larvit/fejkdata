@@ -51,7 +51,8 @@ the same letters. The import tries a name with an apostrophe, a space, a full st
 their family name spelled so, and they are more than half of the people it lists under any of the forms tried. 193 names
 take such a form, such as `O'Brien`, `MacDonald`, `Van Dyke` and `St. John`, as Wikidata stood on 27 November 2026. Any
 other name stays in letters alone. `Delacruz` stays, since its people split between `Delacruz`, `De La Cruz` and
-`de la Cruz`.
+`de la Cruz`. Four names open with a lower-case particle, `de Jesus`, `de Silva`, `de la Rosa` and `de la Vega`, since that is how
+most of their people spell them.
 
 ## US phone numbers
 
