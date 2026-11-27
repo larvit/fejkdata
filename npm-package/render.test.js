@@ -304,11 +304,19 @@ test("fake reads a path with a leading slash", () => {
 	assert.equal(fejkdata.fake("/sv_SE.person", OPTIONS), fejkdata.fake("sv_SE.person", OPTIONS));
 });
 
-for (const text of ["{/sv_SE.person}", "sv_SE.person} {/en_US.person", "sv_SE.nope", "sv_SE.first-name|/en_US.first-name", "sv_SE.person as p", "sv_SE.first-name where length 3"]) {
+for (const text of ["{/sv_SE.person}", "sv_SE.person} {/en_US.person", "sv_SE.nope", "sv_SE.first-name|/en_US.first-name", "sv_SE.person as p", "sv_SE.first-name where length 3", "//sv_SE.color"]) {
 	test(`fake refuses ${JSON.stringify(text)}, which is no path to a value`, () => {
 		assert.throws(() => fejkdata.fake(text, OPTIONS), errorOf("misuse", 2));
 	});
 }
+
+test("a load keeps the data it was given, though the caller changes the array afterwards", async () => {
+	const data = ["sv_SE"];
+	const kept = await load({ data });
+	data.push(5);
+	data[0] = "misc";
+	assert.match(kept.render("{/sv_SE.color}", OPTIONS), /\S/);
+});
 
 test("fake refuses a path that is no string", () => {
 	assert.throws(() => fejkdata.fake(5, OPTIONS), TypeError);
