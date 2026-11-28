@@ -8,8 +8,8 @@
 Fake data for tests. Related values match, like a postcode and its city. CSV, SQL or JSON.
 
 Most fake data is a bag of unrelated values. You get a man named Anna, a postal code from
-another town and an id that no checker accepts. fejkdata is a CLI and a Go library, with a Python
-package and an npm package. Its values fit together, so a row still passes when your code checks it. Docs and
+another town and an id that no checker accepts. fejkdata is a CLI, a Go library, a Python package and
+an npm package. Its values fit together, so a row still passes when your code checks it. Docs and
 examples: [fejkdata.dev](https://fejkdata.dev).
 
 ```sh
@@ -252,7 +252,7 @@ The package carries the CLI and all the shipped data, and doesn't depend on any 
 `render` returns what the [CLI](#cli) prints for the same template, seed and day:
 
 ```sh
-npm install @larvit/fejkdata    # Node 22.3 or later, Bun or Deno
+npm install @larvit/fejkdata    # Node 22.3 or later, Bun, Deno or a browser
 ```
 
 ```js
@@ -271,10 +271,10 @@ Klara,Lassfolk
 ```
 
 The package is an ES module with TypeScript types, and doesn't depend on any other package.
-The gate runs its tests on Node, Bun and Deno.
 `fake` draws one value of a path, `records` returns rows as objects, and `load` takes your own
 data files. [The package's README](npm-package/README.md) lists the arguments and the error a
-refused template throws.
+refused template throws. CI runs the package's tests on Node and Bun, and checks on Deno that it
+loads and renders.
 
 ### Replacing real data with fakes
 
@@ -1911,7 +1911,8 @@ proportion to the output.
 
 Semver tags, `v0.1.0` first, on `main` save a patch CI cuts for an update to Go, a module
 or GoReleaser, which sits on a branch cut from the release before it; one version covers
-the shipped data, the library, the CLI and the packages, and [`CHANGELOG.md`](CHANGELOG.md) names what
+the shipped data, the library, the CLI, the Python package and the npm package, and
+[`CHANGELOG.md`](CHANGELOG.md) names what
 each release changed. A consumer's data, code and scripts keep working across a minor or a
 patch. A minor only adds, and a major is the only release that changes what exists. Two
 exceptions: any release, a patch too, may change what a seed draws; and before 1.0.0 a
@@ -1929,7 +1930,7 @@ give a fixed `--today` or `WithToday` day, and regenerate seeded fixtures and ex
 | Data format | a fence: a spelling a load rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name; change what a builtin returns for an input | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
-| JavaScript package | remove or rename an export; change a declared type; raise the lowest supported runtime | an export |
+| npm package | remove or rename an export; change a declared type; raise the lowest supported Node | an export |
 | Data listing | remove or rename a key of `data-listing/paths.json` or a kind word | a key, a kind word |
 | Data packages | rename or remove a package; move a category to another package; make a package read another it did not | a package |
 | Supported systems | from 1.0.0, drop a system the binaries, packages or image run on | a system |
