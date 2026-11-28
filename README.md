@@ -59,6 +59,22 @@ persons, addresses, national ids, phone numbers, companies, emails and dates. Be
 - **Reproducible:** the same seed, date, data and versions give the same output, when one goroutine
   draws it.
 
+Where each task starts:
+
+| I want to | Start at |
+|---|---|
+| Fill a database with millions of rows | [CSV and SQL seed data](#csv-and-sql-seed-data), then [Load into a database](#load-into-a-database) |
+| Fill a Go struct | [Go tests](#go-tests) |
+| Render from Python | [Python tests](#python-tests) |
+| Render from JavaScript or TypeScript | [JavaScript and TypeScript tests](#javascript-and-typescript-tests) |
+| Get a few values at a shell | [CLI](#cli) |
+| Link several tables by key | [Linked templates](#linked-templates) |
+| Find a path, or see which ids a checker accepts | [Every shipped path](#every-shipped-path), [Shipped data](#shipped-data) |
+| Write my own categories | [Your own data](#your-own-data), then [Data format](#data-format) |
+| Ship my own CLI | [Your own CLI](#your-own-cli) |
+| Fix a template from its error, as a coding agent | [For coding agents](#for-coding-agents) |
+| Add a locale | [Add a locale](#add-a-locale) |
+
 [Why fejkdata](#why-fejkdata) · [Install](#install) · [Quick start](#quick-start) · [CLI](#cli) · [Library](#library) · [Data](#data) · [Data format (templates)](#data-format) ·
 [Functions](#functions) · [Versioning](#versioning) · [Audience](#audience) ·
 [Goals](#goals) · [Development](#development) · [License](#license)
