@@ -3427,3 +3427,17 @@ Read most (opens and searches):
 
 - `readme_test.go` 8
 - `README.md` 3
+
+## Reading cost, chunk 94f2eef2efd2, finished 2026-11-28T15:02:18Z
+
+57075 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 10
+- `readme_test.go` 4
+- `npm-package/render.test.js` 2
+- `CHANGELOG.md` 1
+- `npm-package/README.md` 1
+- `npm-package/package.json` 1
+- `python-package/render_test.py` 1
