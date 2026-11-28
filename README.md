@@ -63,12 +63,13 @@ Where each task starts:
 
 | I want to | Start at |
 |---|---|
-| Fill a database with millions of rows | [CSV and SQL seed data](#csv-and-sql-seed-data), then [Load into a database](#load-into-a-database) |
+| Fill a database with a million rows | [CSV and SQL seed data](#csv-and-sql-seed-data), then [Load into a database](#load-into-a-database) |
 | Fill a Go struct | [Go tests](#go-tests) |
 | Render from Python | [Python tests](#python-tests) |
 | Render from JavaScript or TypeScript | [JavaScript and TypeScript tests](#javascript-and-typescript-tests) |
 | Get a few values at a shell | [CLI](#cli) |
-| Link several tables by key | [Linked templates](#linked-templates) |
+| Write several linked templates in one run | [Linked templates](#linked-templates), and in Go [Linked templates in Go](#linked-templates-in-go) |
+| Link one table's rows to another's by key | [Linked tables](#linked-tables) |
 | Find a path, or see which ids a checker accepts | [Every shipped path](#every-shipped-path), [Shipped data](#shipped-data) |
 | Write my own categories | [Your own data](#your-own-data), then [Data format](#data-format) |
 | Ship my own CLI | [Your own CLI](#your-own-cli) |
