@@ -3401,3 +3401,29 @@ Read most (opens and searches):
 - `npm-package/index.d.ts` 1
 
 ## Reading cost reset, 2026-11-28T13:38:32Z
+
+## Reading cost, chunk 6f4e8f9569ad, finished 2026-11-28T14:00:50Z
+
+56742 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `renovate.json` 4
+- `Dockerfile` 2
+- `docs/decisions.md` 2
+- `CHANGELOG.md` 1
+- `README.md` 1
+- `compose.yaml` 1
+- `npm-package/README.md` 1
+- `npm-package/package.json` 1
+- `release-tooling/patch_release_test.py` 1
+- `release-tooling/python_wheels_test.py` 1
+
+## Reading cost, chunk 8964bec661a7, finished 2026-11-28T14:06:20Z
+
+58192 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `readme_test.go` 8
+- `README.md` 3
