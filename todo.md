@@ -17,7 +17,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 611 | 0.9.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 2 | 2 | 1 | 3 | 3 | code health by 4 | 7.8 |
-| 612 | 0.9.0 |  |  | **Run the `npm-package-lowest` stage on Node 22.3.0, the lowest `engines` names, and keep Renovate from bumping it.** | 1 | 2 | 2 | 3 | 1 | 1.2 by 3 | 2.1 |
+| 612 | 0.9.0 |  | owner | **Run the `npm-package-lowest` stage on Node 22.3.0, the lowest `engines` names, and keep Renovate from bumping it.** | 1 | 2 | 2 | 3 | 1 | 1.2 by 3 | 2.1 |
 | 363 | 0.9.0 |  |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 1.8 |
 | 603 | 0.10.0 |  |  | **Add a mutation tool for JavaScript.** | 3 | 1 | 1 | 3 | 3 | code health by 4 | 7.8 |
 | 606 | 0.10.0 |  |  | **Compile and run each `go` block of the README in a test, so an example that fails to load fails the gate.** | 2 | 2 | 2 | 4 | 3 | 5 by 3, code health by 2 | 4.9 |
@@ -254,6 +254,8 @@ Touches:
 The Dockerfile's `npm-package-lowest` stage says it runs "the lowest Node that package.json's engines names", and `engines` names `>=22.3.0`. The stage's image is `node:26.13.1-slim`, which Renovate bumped in 901829cc, so no test runs the package on Node 22 and the `engines` range is unchecked. Found by item 359's stability review.
 
 Pin the stage to a Node 22.3.0 image at its full patch version, and add a Renovate rule that leaves it there, as the project already holds other pins. A test asserts the stage's Node version, so the next bump fails the gate.
+
+The human chose to keep this item in 0.9.0, though it delays the cut (asked and answered on 2026-11-28).
 
 Touches:
 
