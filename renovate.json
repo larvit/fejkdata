@@ -140,7 +140,7 @@
       "enabled": false
     },
     {
-      "description": "The npm-package-lowest stage's Node, the lowest package.json's engines names, which only a major raises; the stage fails while its Node is not that minimum",
+      "description": "Keeps the npm-package-lowest stage on the lowest Node that npm-package/package.json's engines allows; a change to that minimum changes this match too",
       "matchManagers": [
         "dockerfile"
       ],

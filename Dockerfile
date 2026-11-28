@@ -87,7 +87,6 @@ COPY testdata/is_template.json /testdata/is_template.json
 COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
 
-# The lowest Node that package.json's engines names.
 FROM node:22.3.0-slim AS npm-package-lowest
 COPY --from=npm-package-built /npm-package/ /npm-package/
 COPY README.md /README.md
@@ -96,7 +95,7 @@ COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && \
 	lowest="$(sed -n 's/.*"node": ">=\([0-9.]*\)".*/\1/p' package.json)" && \
 	{ test "$(node --version)" = "v$lowest" || \
-		{ echo "this stage's Node is not $lowest, package.json's engines"; exit 1; }; } && \
+		{ echo "this stage runs Node $(node --version), but package.json's engines minimum is $lowest"; exit 1; }; } && \
 	FEJKDATA_CLI=/fejkdata node --test && touch /tested
 
 FROM oven/bun:1.4.5 AS npm-package-bun

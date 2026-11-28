@@ -2478,7 +2478,9 @@ tag", in [docs/decisions.md](docs/decisions.md), says what a release carries, ho
 is built, and when one waits for you. Where the release job could not read a Go minor's
 release notes, write what they require under Breaking yourself before you cut a release.
 
-Renovate leaves the Dockerfile's `LOWEST_GO_VERSION` alone: raising it is a major.
+Renovate leaves the Dockerfile's `LOWEST_GO_VERSION` alone: raising it is a major. It leaves
+the Node image of the `npm-package-lowest` stage alone too: that is the minimum in
+`npm-package/package.json`'s `engines`, and the stage fails while its Node is another.
 
 The Docker Hub page's short description and overview are the files in `dockerhub/`. A push
 to `main` that changes one syncs both to Docker Hub. The sync reads the secret
