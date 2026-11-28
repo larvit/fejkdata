@@ -65,15 +65,16 @@ Where each task starts:
 |---|---|
 | Fill a database with a million rows | [CSV and SQL seed data](#csv-and-sql-seed-data), then [Load into a database](#load-into-a-database) |
 | Fill a Go struct | [Go tests](#go-tests) |
-| Render from Python | [Python tests](#python-tests) |
-| Render from JavaScript or TypeScript | [JavaScript and TypeScript tests](#javascript-and-typescript-tests) |
+| Use it from Python | [Python tests](#python-tests) |
+| Use it from JavaScript or TypeScript | [JavaScript and TypeScript tests](#javascript-and-typescript-tests) |
 | Get a few values at a shell | [CLI](#cli) |
 | Write several linked templates in one run | [Linked templates](#linked-templates), and in Go [Linked templates in Go](#linked-templates-in-go) |
 | Link one table's rows to another's by key | [Linked tables](#linked-tables) |
-| Find a path, or see which ids a checker accepts | [Every shipped path](#every-shipped-path), [Shipped data](#shipped-data) |
-| Write my own categories | [Your own data](#your-own-data), then [Data format](#data-format) |
+| Find a path | [Every shipped path](#every-shipped-path) |
+| See which ids a strict checker refuses | [Shipped data](#shipped-data) |
+| Add my own data | [Your own data](#your-own-data), then [Data format](#data-format) |
 | Ship my own CLI | [Your own CLI](#your-own-cli) |
-| Fix a template from its error, as a coding agent | [For coding agents](#for-coding-agents) |
+| Set up a coding agent, or fix a template from its error | [For coding agents](#for-coding-agents) |
 | Add a locale | [Add a locale](#add-a-locale) |
 
 [Why fejkdata](#why-fejkdata) · [Install](#install) · [Quick start](#quick-start) · [CLI](#cli) · [Library](#library) · [Data](#data) · [Data format (templates)](#data-format) ·
