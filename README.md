@@ -1911,9 +1911,8 @@ proportion to the output.
 
 Semver tags, `v0.1.0` first, on `main` save a patch CI cuts for an update to Go, a module
 or GoReleaser, which sits on a branch cut from the release before it; one version covers
-the shipped data, the library, the CLI, the Python package and the npm package, and
-[`CHANGELOG.md`](CHANGELOG.md) names what
-each release changed. A consumer's data, code and scripts keep working across a minor or a
+the shipped data, the library, the CLI, the Python package and the npm package.
+[`CHANGELOG.md`](CHANGELOG.md) names what each release changed. A consumer's data, code and scripts keep working across a minor or a
 patch. A minor only adds, and a major is the only release that changes what exists. Two
 exceptions: any release, a patch too, may change what a seed draws; and before 1.0.0 a
 patch built with a new Go minor may drop a system the binaries, packages and image run on,
@@ -1930,7 +1929,7 @@ give a fixed `--today` or `WithToday` day, and regenerate seeded fixtures and ex
 | Data format | a fence: a spelling a load rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name; change what a builtin returns for an input | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
-| npm package | remove or rename an export; change a declared type; raise the lowest supported Node | an export |
+| npm package | remove or rename an export; change a declared type; drop a runtime; raise the lowest supported Node | an export |
 | Data listing | remove or rename a key of `data-listing/paths.json` or a kind word | a key, a kind word |
 | Data packages | rename or remove a package; move a category to another package; make a package read another it did not | a package |
 | Supported systems | from 1.0.0, drop a system the binaries, packages or image run on | a system |

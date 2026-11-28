@@ -663,7 +663,7 @@ func TestReadmeVersioningTableHasARowForTheNpmPackage(t *testing.T) {
 	if row == nil {
 		t.Fatal("README's Versioning table has no npm package row")
 	}
-	for _, want := range []string{"remove or rename an export", "change a declared type", "raise the lowest supported Node"} {
+	for _, want := range []string{"remove or rename an export", "change a declared type", "drop a runtime", "raise the lowest supported Node"} {
 		t.Run(want, func(t *testing.T) {
 			if !strings.Contains(row[1], want) {
 				t.Errorf("the npm package row's Major cell doesn't say %q", want)
