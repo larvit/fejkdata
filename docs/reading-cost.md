@@ -3382,3 +3382,20 @@ Read most (opens and searches):
 - `data_listing_test.go` 1
 - `npm-package/index.d.ts` 1
 - `npm-package/package.json` 1
+
+## Reading cost, chunk 3072ed140f15, finished 2026-11-28T13:36:37Z
+
+528913 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 8
+- `docs/decisions.md` 4
+- `fejkdata.go` 3
+- `AGENTS.md` 2
+- `inline.go` 2
+- `record.go` 2
+- `cli/flags.go` 1
+- `data-listing/paths.json` 1
+- `npm-package/README.md` 1
+- `npm-package/index.d.ts` 1
