@@ -88,7 +88,7 @@ COPY --from=cli /fejkdata /fejkdata
 RUN cd /npm-package && FEJKDATA_CLI=/fejkdata node --test && touch /tested
 
 # The lowest Node that package.json's engines names.
-FROM node:26.13.1-slim AS npm-package-lowest
+FROM node:22.3.0-slim AS npm-package-lowest
 COPY --from=npm-package-built /npm-package/ /npm-package/
 COPY README.md /README.md
 COPY testdata/is_template.json /testdata/is_template.json
