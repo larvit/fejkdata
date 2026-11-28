@@ -3399,3 +3399,5 @@ Read most (opens and searches):
 - `data-listing/paths.json` 1
 - `npm-package/README.md` 1
 - `npm-package/index.d.ts` 1
+
+## Reading cost reset, 2026-11-28T13:38:32Z
