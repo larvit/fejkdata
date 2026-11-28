@@ -682,7 +682,7 @@ func TestReadmeLeadOpensOnWhereEachTaskStarts(t *testing.T) {
 	anchors := readmeAnchors(doc)
 	var linked []string
 	for _, line := range strings.Split(readmeSection(t, doc, "# fejkdata"), "\n") {
-		if !strings.HasPrefix(line, "| ") {
+		if !strings.HasPrefix(line, "|") {
 			continue
 		}
 		for _, m := range readmeLink.FindAllStringSubmatch(line, -1) {
@@ -695,7 +695,7 @@ func TestReadmeLeadOpensOnWhereEachTaskStarts(t *testing.T) {
 	for _, task := range []string{
 		"csv-and-sql-seed-data", "load-into-a-database", "go-tests", "python-tests",
 		"javascript-and-typescript-tests", "linked-templates", "every-shipped-path",
-		"your-own-data", "your-own-cli", "for-coding-agents", "add-a-locale",
+		"your-own-data", "your-own-cli", "for-coding-agents", "add-a-locale", "linked-tables",
 	} {
 		if !slices.Contains(linked, task) {
 			t.Errorf("README's where-to-start table doesn't send a reader to #%s", task)
