@@ -2919,3 +2919,125 @@ Inherited architect, would restructure first:
 - Shape: `run.go:83` `planRun`: a full run planner at the root, where the API files are otherwise thin
 - Shape: `internal/engine/tree/table.go:29` `RowsTable`: the pin set and the table each have two names
 - Navigation: `internal/engine/doc.go:5` vocabulary: one token kind spans five packages and only load has a file index
+
+## 2026-11-28T14:43:50Z, PR #554 at 722762ad, against ca5a99fc
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | better | better |
+| Inherited architect | better | same | better | better | better |
+
+Mid A, decided by:
+
+- Shape, Self-sufficiency, Overall: `Dockerfile:90` `npm-package-lowest`: the older stage's name and comment said it ran the lowest Node, but it ran the latest; now it runs `node:22.3.0-slim`
+- Locality, Self-sufficiency: `Dockerfile:95` `npm-package-lowest`: the stage reads the engines minimum from package.json and fails naming both versions, so the link is enforced beside the code
+- Locality, Self-sufficiency: `renovate.json:142` `node` packageRule: its description says why the lowest-Node image stays pinned, at the cost of a third place to touch
+- Navigation: `README.md:62` "Where each task starts": a one-hop route from a task to its section
+- Self-sufficiency: `README.md:1932` "Versioning": the npm package row and scope sentence say what is a major for the package
+
+Inherited architect, decided by:
+
+- Shape, Self-sufficiency: `Dockerfile:90` `npm-package-lowest`: the older stage's name and comment were false; the newer stage runs Node 22.3.0 and checks it against engines
+- Shape, Self-sufficiency: `Dockerfile:96` `npm-package-lowest`: the sed matches only a single-line engines minimum, so a range fails loudly with a confusing message
+- Navigation: `README.md:62` "Where each task starts": a new index from an intent to a README section, a small gain
+- Self-sufficiency: `renovate.json:142` `node` packageRule: the description names the stage and engines, but a pin by `enabled: false` with `matchCurrentValue` needs Renovate knowledge
+- Self-sufficiency: `README.md:1932` "Versioning": the npm package row says what counts as a major
+
+## 2026-11-28T14:49:04Z, PR #554 at 722762ad
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7.5 | 6.5 | 7 | 7 | 7 |
+| Maintainability senior | 7.5 | 6 | 7 | 6.5 | 6.5 |
+| Inherited architect | 7 | 5.5 | 6 | 7 | 6.5 |
+| Mean | 7.25 | 5.88 | 6.63 | 6.63 | 6.50 |
+
+Junior A, hardest first:
+
+- Locality, Overall: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: three conditions leaning on pick levels and routes defined in other files, with the reasons in the decision log
+- Locality, Overall: `internal/engine/tree/pick.go:86` `PlacedRead`: the `atLen` allocation trick is mixed into the pick semantics that render and the fence share
+- Locality: `internal/engine/render/pick.go:157` `readPath`: frames, a memo and pins, changed through by-value copies of the render environment
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: a two-state walk whose state a nil `keptDraws` switches
+- Shape: `run.go:325` `runPlan.generator`: builds synthetic files and reseeds by a name hash, and its fixpoint is unexplained
+- Self-sufficiency: `internal/engine/fence/names/refusekeptandfreshfield.go:40` `refuseKeptAndFreshField`: the rule only makes sense with the whole pick model in your head, and its place in the rule order is contract
+
+Mid A, hardest first:
+
+- Locality, Overall: `internal/engine/tree/pick.go:123` `LandsInPick`: render and the name fence both depend on it, and the safety argument lives in another package
+- Locality, Overall: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: four files open to follow one rule, and a worklist across categories
+- Locality: `internal/engine/render/pick.go:38` `namedPick`: shared maps changed through a by-value environment
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: an inside and climbed state machine over pins
+- Locality: `internal/engine/load/table.go:227` `routeThrough`: when a path draws a row is spread over five small functions
+- Locality: `internal/engine/load/resolve.go:77` `CompileTemplates`: five stages whose order only runtime panics enforce
+- Shape: `internal/engine/load/node.go:57` `position`: where a datatype or null is allowed is never stated in one place
+- Shape: `run.go:325` `runPlan.generator`: working by writing synthetic input files surprised the reader
+
+Maintainability senior, hardest first:
+
+- Locality, Overall: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: five concepts held at once, and it must agree with render's picks through one shared predicate
+- Locality, Overall: `internal/engine/render/pick.go:38` `namedPick`: copying the environment doesn't isolate its shared picks
+- Locality: `internal/engine/tree/pick.go:86` `PlacedRead`: byte-offset keys exist to avoid a heap escape, proven only in a test file
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: behaviour turns on a nil receiver
+- Locality: `internal/engine/render/render.go:30` `render`: a child must come through a `Rendered*` method, enforced only by a comment
+- Shape: `internal/proven/proven.go:19` `Facts`: the zero value is the strongest claim
+- Self-sufficiency: `internal/grammar/where.go:59` `cutWord`: hand-written keyword scanning with a hidden rule
+- Self-sufficiency: `run.go:325` `runPlan.generator`: what a template sees depends on files the function invents
+
+Inherited architect, would restructure first:
+
+- Locality, Overall: `internal/engine/render/pick.go:157` `readPath`: one pick is spread over render, tree and the name fence
+- Locality, Overall: `internal/engine/render/render.go:30` `render`: the `Rendered*` invariant is a convention nothing enforces
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: pins and kept draws name one idea twice
+- Shape: `internal/engine/tree/table.go:29` `RowsTable`: `tree.Table` and `rows.Table` collide, and the aliases work around it
+- Shape: `internal/engine/doc.go:5` vocabulary: the phase-by-stem matrix of about 70 files has no feature index
+- Shape: `run.go:325` `runPlan.generator`: real run planning at the root, where the API is meant to be a facade
+- Self-sufficiency: `internal/engine/draw.go:19` `Fake`: the file holds entry points, not the drawing
+
+## 2026-11-28T14:54:09Z, PR #554 rerun at 722762ad
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7.5 | 6.5 | 7 | 7 | 7 |
+| Mid A | 7.5 | 6.5 | 7 | 7 | 7 |
+| Maintainability senior | 7.5 | 6.5 | 7 | 7 | 7 |
+| Inherited architect | 7.5 | 6.5 | 6.5 | 7.5 | 7 |
+| Mean | 7.50 | 6.50 | 6.88 | 7.13 | 7.00 |
+
+Junior A, hardest first:
+
+- Locality, Overall: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: three predicates over levels, routes and picks defined in other files, applied across categories
+- Locality, Overall: `internal/engine/tree/pick.go:86` `PlacedRead`: the `atLen` allocation trick sits inside the pick semantics that render and the fence share
+- Locality: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: three exits that depend on the walk's level kind and on what a read addresses
+- Locality: `internal/engine/render/pick.go:157` `readPath`: frames, a memo and pins passed through by-value copies of the render environment
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: a two-state walk whose state a nil `keptDraws` switches
+- Shape: `run.go:325` `runPlan.generator`: replaces every category with an unmet need by an empty format, explained tersely
+
+Mid A, hardest first:
+
+- Locality, Overall: `internal/engine/fence/names/refusefreshdraw.go:19` `refuseFreshDraw`: it holds the route walk, fresh against kept draws and whether two levels can differ
+- Locality, Overall: `internal/engine/tree/pick.go:86` `PlacedRead`: render and the fences share it, and heap-escape constraints mix into its comment
+- Locality: `internal/engine/fence/names/refusekeptandfreshfield.go:72` `readsFieldApart`: the same kept-against-fresh distinction as another rule, with the rule order as a hidden contract
+- Locality: `internal/engine/render/pick.go:109` `namedPick.framesFrom`: which frames and pick are live at a point is state tracked by hand
+- Shape: `internal/grammar/where.go:59` `cutWord`: a hand-written word cutter with rules for quoted text and `as`
+
+Maintainability senior, hardest first:
+
+- Locality, Overall: `internal/engine/tree/pick.go:86` `PlacedRead`: it decides what a pick keeps at render and what the fence proves at load, under an allocation constraint
+- Locality, Overall: `internal/engine/fence/names/refusedrawnapart.go:39` `sharedDraw`: a claim that a read addresses every level above it is stated but enforced nowhere nearby
+- Locality: `internal/engine/render/pick.go:38` `namedPick`: a memo, pins, entered frames and drawn values changed through copies
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: behaviour turns on a nil receiver
+- Shape: `run.go:149` `readNeeds`: a fixed-point planner at the root, where the package is meant to be the API
+- Self-sufficiency: `internal/engine/tree/loadfinds.go:12` `LoadFinds`: order dependence between a load and its node, enforced by panics
+
+Inherited architect, would restructure first:
+
+- Locality, Overall: `internal/engine/render/render.go:30` `render`: a child must come through a `Rendered*` method, enforced only by a comment
+- Locality, Overall: `internal/engine/render/pick.go:157` `readPath`: one pick is spread over render, tree and the name fence
+- Locality: `internal/engine/render/path.go:64` `drawAcrossTables`: frame and pin state held in the environment by hand
+- Shape: `run.go:83` `planRun`: a real planner in the public package
+- Shape: `internal/engine/load/node.go:65` `place`: the name means a different thing in the fence's route walk
+- Shape: `npm-package/wasm/records.go:147` `recordPath`: the lone-reference rule is written twice, in the CLI and the bridge
+- Self-sufficiency: `internal/engine/doc.go:5` vocabulary: the invented words are defined only here
