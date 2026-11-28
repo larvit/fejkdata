@@ -16,6 +16,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode"
 
 	"github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/fejktest"
@@ -646,6 +647,59 @@ func TestReadmeLeadQuotesTheErrorItsMistakeRaises(t *testing.T) {
 	}
 	if _, err := f.FakeTemplate(quoted[1]); err == nil || !strings.Contains(err.Error(), quoted[2]) {
 		t.Errorf("README's lead says %s fails with %q, it fails with %v", quoted[1], quoted[2], err)
+	}
+}
+
+var readmeLink = regexp.MustCompile(`\]\(#([^)]+)\)`)
+
+func readmeAnchors(src string) map[string]bool {
+	anchors := map[string]bool{}
+	fenced := false
+	for _, line := range strings.Split(src, "\n") {
+		if strings.HasPrefix(line, "```") {
+			fenced = !fenced
+		}
+		if fenced || !strings.HasPrefix(line, "#") {
+			continue
+		}
+		title := strings.ToLower(strings.TrimLeft(line, "# "))
+		slug := strings.Map(func(r rune) rune {
+			switch {
+			case r == ' ':
+				return '-'
+			case r == '-' || r == '_' || unicode.IsLetter(r) || unicode.IsDigit(r):
+				return r
+			}
+			return -1
+		}, title)
+		anchors[slug] = true
+	}
+	return anchors
+}
+
+func TestReadmeLeadOpensOnWhereEachTaskStarts(t *testing.T) {
+	doc := readme(t)
+	anchors := readmeAnchors(doc)
+	var linked []string
+	for _, line := range strings.Split(readmeSection(t, doc, "# fejkdata"), "\n") {
+		if !strings.HasPrefix(line, "| ") {
+			continue
+		}
+		for _, m := range readmeLink.FindAllStringSubmatch(line, -1) {
+			if !anchors[m[1]] {
+				t.Errorf("README's where-to-start table links #%s, which no heading spells", m[1])
+			}
+			linked = append(linked, m[1])
+		}
+	}
+	for _, task := range []string{
+		"csv-and-sql-seed-data", "load-into-a-database", "go-tests", "python-tests",
+		"javascript-and-typescript-tests", "linked-templates", "every-shipped-path",
+		"your-own-data", "your-own-cli", "for-coding-agents", "add-a-locale",
+	} {
+		if !slices.Contains(linked, task) {
+			t.Errorf("README's where-to-start table doesn't send a reader to #%s", task)
+		}
 	}
 }
 
