@@ -636,6 +636,42 @@ func TestReadmeLeadShowsTheRowItsQuickStartPrints(t *testing.T) {
 	}
 }
 
+func TestReadmeLeadNamesThePackages(t *testing.T) {
+	lead := readmeSection(t, readme(t), "# fejkdata")
+	for _, want := range []string{"Go library", "Python package", "npm package"} {
+		if !strings.Contains(lead, want) {
+			t.Errorf("README's lead doesn't name the %q", want)
+		}
+	}
+}
+
+func TestReadmeJavaScriptSectionListsTheRuntimesTheGateTests(t *testing.T) {
+	section := readmeSection(t, readme(t), "### JavaScript and TypeScript tests")
+	for _, want := range []string{"Node 22.3", "Bun", "Deno"} {
+		if !strings.Contains(section, want) {
+			t.Errorf("README's JavaScript section doesn't name %q", want)
+		}
+	}
+	if strings.Contains(section, "browser") {
+		t.Error("README's JavaScript section names a browser, which the gate doesn't test until item 361 ships")
+	}
+}
+
+func TestReadmeVersioningTableHasARowForTheJavaScriptPackage(t *testing.T) {
+	row := regexp.MustCompile(`(?m)^\| JavaScript package \| ([^|]+) \| ([^|]+) \|$`).FindStringSubmatch(readmeSection(t, readme(t), "## Versioning"))
+	if row == nil {
+		t.Fatal("README's Versioning table has no JavaScript package row")
+	}
+	for _, want := range []string{"remove or rename an export", "declared type", "lowest supported"} {
+		if !strings.Contains(row[1], want) {
+			t.Errorf("the JavaScript package row's Major cell doesn't say %q", want)
+		}
+	}
+	if !strings.Contains(row[2], "an export") {
+		t.Errorf("the JavaScript package row's Minor cell is %q, want it to name an export", row[2])
+	}
+}
+
 func TestReadmeLeadQuotesTheErrorItsMistakeRaises(t *testing.T) {
 	quoted := regexp.MustCompile("`(\\{[^`]+\\})` fails with\\s+`([^`]+)`").FindStringSubmatch(readmeSection(t, readme(t), "# fejkdata"))
 	if quoted == nil {
